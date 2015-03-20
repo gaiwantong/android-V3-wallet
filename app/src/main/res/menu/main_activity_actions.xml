@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:material-navigation-drawer-example="http://schemas.android.com/apk/res-auto"
+    >
+    <item android:id="@+id/action_merchant_directory"
+          android:icon="@drawable/top_geoloc"
+          material-navigation-drawer-example:showAsAction="always"
+          android:title=""/>
+    <item android:id="@+id/action_qr"
+          android:icon="@drawable/top_qr"
+          material-navigation-drawer-example:showAsAction="always"
+          android:title="" />
+</menu>

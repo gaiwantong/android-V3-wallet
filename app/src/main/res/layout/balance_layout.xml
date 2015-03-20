@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!-- balance display -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/balanceLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal|center_vertical"
+    android:background="@color/blockchain_blue"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+	>
+	<TextView
+	android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="22dp"
+    android:gravity="center_horizontal|center_vertical"
+    android:layout_gravity="center_horizontal|center_vertical"
+    android:textAlignment="gravity"
+    android:textColor="#FFFFFFFF"
+    android:textSize="14sp"
+	/>    
+    <TextView
+	android:id="@+id/balance1"
+	android:layout_width="match_parent"
+    android:layout_height="42dp"
+    android:gravity="center_horizontal|center_vertical"
+    android:layout_gravity="center_horizontal|center_vertical"
+    android:textAlignment="gravity"
+    android:textColor="#FFFFFFFF"
+    android:textSize="34sp"
+	/>    
+	<TextView
+	android:id="@+id/balance2"
+    android:layout_width="match_parent"
+    android:layout_height="22dp"
+    android:gravity="center_horizontal|center_vertical"
+    android:layout_gravity="center_horizontal|center_vertical"
+    android:textAlignment="gravity"
+    android:textColor="#FFFFFFFF"
+    android:textSize="14sp"
+    android:paddingTop="5dp"
+	/>    
+	</LinearLayout>

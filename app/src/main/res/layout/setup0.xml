@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.splashtest.MainActivity" >
+
+	<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+	>
+	
+	<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="66"
+    android:orientation="vertical"
+    android:background="#FFFFFFFF"
+	/>
+
+	<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="34"
+    android:orientation="vertical"
+    android:background="@color/blockchain_blue"
+	>
+
+	    <Button
+        android:id="@+id/create"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:padding="10dp"
+        android:text="@string/CREATE" 
+        android:textSize="20sp"
+	    android:background="#FFFFFFFF"
+	    android:textColor="@color/blockchain_blue"
+        android:layout_gravity="center_horizontal" 
+        android:layout_marginTop="20dp"
+    	/>
+
+	    <Button
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:padding="10dp"
+        android:text="@string/LOGIN" 
+        android:textSize="20sp"
+	    android:background="@color/blockchain_blue"
+	    android:textColor="#FFFFFFFF"
+        android:layout_gravity="center_horizontal" 
+        android:layout_marginTop="20dp"
+    	/>
+	    	    	    
+	</LinearLayout>
+		
+	</LinearLayout>
+
+</RelativeLayout>
