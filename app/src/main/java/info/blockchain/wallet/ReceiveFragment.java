@@ -514,7 +514,6 @@ public class ReceiveFragment extends Fragment {
 
     private void assignHDReceiveAddress() {
 
-    	/*
     	try {
           	currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
           	currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
@@ -537,10 +536,6 @@ public class ReceiveFragment extends Fragment {
     	catch(DecoderException de) {
     		;
     	}
-    	*/
-    	
-      	currentSelectedReceiveAddress = AddressFactory.getInstance(getActivity()).get(currentSelectedAccount, 0);
-      	currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
 
 //    	ReceiveAddressPool.getInstance().update();
 

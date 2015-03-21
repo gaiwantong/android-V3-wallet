@@ -169,14 +169,17 @@ public class HDPayloadBridge	{
 
     public ReceiveAddress getReceiveAddress(int accountIdx) throws DecoderException, IOException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicLengthException, AddressFormatException {
 
-//    	return ReceiveAddressPool.getInstance(context, accountIdx, getXPUBs()).get();
-    	return AddressFactory.getInstance(context).get(accountIdx, 0);
+        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            return AddressFactory.getInstance(context, null).get(accountIdx, 0);
+        }
+        else {
+            return AddressFactory.getInstance(context, getXPUBs()).get(accountIdx, 0);
+        }
 
     }
 
 	public String account2Xpub(int accountIdx)	{
 
-//		return HD_WalletFactory.getInstance(context).get().getAccounts().get(accountIdx).xpubstr();
 		return PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getXpub();
 
 	}
