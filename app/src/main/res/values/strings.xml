@@ -91,8 +91,8 @@
     <string name="setup5">To quickly login to your wallet without having to type your ID or password open your wallet on the web and scan the \"Pairing Code\" with this device.</string>
     <string name="command1">RESEND EMAIL</string>
     <string name="command2">SCAN PAIRING CODE</string>
-    <string name="CREATE">CREATE NEW WALLET</string>
-    <string name="LOGIN">LOGIN TO MY WALLET</string>
+    <string name="CREATE">CREATE A NEW WALLET</string>
+    <string name="LOGIN">Login to my wallet</string>
 
     <string name="CONTINUE">CONTINUE</string>
     <string name="SEND">SEND</string>

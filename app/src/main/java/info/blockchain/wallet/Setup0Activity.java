@@ -19,13 +19,14 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 //import android.util.Log;
 
 public class Setup0Activity extends Activity	{
 	
 	private Button btCreate = null;
-	private Button btLogin = null;
+	private TextView btLogin = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -48,7 +49,7 @@ public class Setup0Activity extends Activity	{
                 }
             });
             
-            btLogin = (Button)findViewById(R.id.login);
+            btLogin = (TextView)findViewById(R.id.login);
             btLogin.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
