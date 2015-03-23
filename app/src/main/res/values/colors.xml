@@ -10,13 +10,13 @@
 	<color name="background_bright">#ffffffff</color>
 	<color name="background_less_bright">#ffd8d8e0</color>
 
-	<color name="blockchain_red">#FFeb9898</color>
-    <color name="blockchain_green">#FF9bc175</color>
+	<color name="blockchain_red">#FFff8889</color>
+    <color name="blockchain_green">#FF8ab75e</color>
     <color name="blockchain_blue">#FF1B8AC7</color>
     <color name="blockchain_grey">#FF808080</color>
     <color name="blockchain_light_grey">#FFe0e0e0</color>
     <color name="blockchain_light_blue">#FFcFEFFF</color>
-    <color name="blockchain_lighter_blue">#FFb9d8ed</color>
+    <color name="blockchain_lighter_blue">#FFa4cce0</color>
     <color name="magiclist_bg_selected">#FF1B8AC7</color>
     <color name="magiclist_bg_unselected">#FFFFFFFF</color>
 

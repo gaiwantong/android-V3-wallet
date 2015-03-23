@@ -60,6 +60,7 @@
     <string name="invalid_email">Invalid email address</string>
     <string name="invalid_mobile">Invalid mobile phone number</string>
     <string name="invalid_password">Invalid password</string>
+    <string name="invalid_guid">Invalid GUID</string>
     <string name="password_mismatch_error">Passwords do not match</string>
 
     <string name="no_NFC_support">This device doesn\'t support NFC.</string>
