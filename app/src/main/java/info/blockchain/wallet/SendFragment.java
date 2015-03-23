@@ -736,7 +736,7 @@ public class SendFragment extends Fragment {
 			damount = NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue();
 			lamount = (long)(damount * 1e8);
 			pendingSpend.bamount = BigInteger.valueOf(lamount);
-			if(pendingSpend.bamount.equals(BigInteger.ZERO)) {
+			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 				}
