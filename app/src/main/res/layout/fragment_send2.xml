@@ -22,7 +22,7 @@
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    android:layout_weight="4"
+    android:layout_weight="45"
     android:orientation="vertical"
 	android:background="#FF30a2d2"
 	android:paddingTop="30dp"
@@ -94,7 +94,7 @@
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    android:layout_weight="6"
+    android:layout_weight="55"
     android:orientation="vertical"
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"

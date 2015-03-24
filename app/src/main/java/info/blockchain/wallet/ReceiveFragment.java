@@ -426,6 +426,10 @@ public class ReceiveFragment extends Fragment {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
+        tvAmount2.setText("0.00" + "\u00A0");
+        tvCurrency1.setText("BTC");
+        tvFiat2.setText(strFiat);
+
         Log.i("ReceiveFragment", "assignHDReceiveAddress() onCreateView");
         assignHDReceiveAddress();
 

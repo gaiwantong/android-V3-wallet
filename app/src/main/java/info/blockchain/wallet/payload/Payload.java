@@ -107,6 +107,16 @@ public class Payload {
         return legacyAddresses;
     }
 
+    public List<String> getLegacyAddressStrings() {
+
+        List<String> addrs = new ArrayList<String>();
+        for(LegacyAddress legacyAddress : legacyAddresses) {
+            addrs.add(legacyAddress.getAddress());
+        }
+
+        return addrs;
+    }
+
     public void setLegacyAddresses(List<LegacyAddress> legacyAddresses) {
         this.legacyAddresses = legacyAddresses;
     }
@@ -438,21 +448,27 @@ public class Payload {
             if(jsonObject.has("keys"))  {
                 JSONArray keys = (JSONArray)jsonObject.get("keys");
                 if(keys != null && keys.length() > 0)  {
+                    List<String> seenAddrs = new ArrayList<String>();
+                    String a = null;
                     JSONObject key = null;
                     LegacyAddress addr = null;
                     for(int i = 0; i < keys.length(); i++)  {
                         key = (JSONObject)keys.get(i);
                         if(!key.has("tag") || (key.has("tag") && key.getLong("tag") == 0L))  {
-                            addr = new LegacyAddress(
-                                    key.has("priv") ? (String)key.get("priv") : null,
-                                    key.has("created_time") ? key.getLong("created_time") : 0L,
-                                    key.has("addr") ? (String)key.get("addr") : null,
-                                    key.has("label") ? (String)key.get("label") : "",
-                                    0L, // key.has("tag") ? key.getLong("tag") : 0L,
-                                    key.has("created_device_name") ? (String)key.get("created_device_name") : "",
-                                    key.has("created_device_version") ? (String)key.get("created_device_version") : ""
+                            a = (String)key.get("addr");
+                            if(a != null && !seenAddrs.contains(a))  {
+                                seenAddrs.add(a);
+                                addr = new LegacyAddress(
+                                        key.has("priv") ? (String)key.get("priv") : null,
+                                        key.has("created_time") ? key.getLong("created_time") : 0L,
+                                        key.has("addr") ? (String)key.get("addr") : null,
+                                        key.has("label") ? (String)key.get("label") : "",
+                                        0L, // key.has("tag") ? key.getLong("tag") : 0L,
+                                        key.has("created_device_name") ? (String)key.get("created_device_name") : "",
+                                        key.has("created_device_version") ? (String)key.get("created_device_version") : ""
                                 );
-                            legacyAddresses.add(addr);
+                                legacyAddresses.add(addr);
+                            }
                         }
                     }
                 }
