@@ -645,6 +645,7 @@ public class SendFragment extends Fragment {
             }
             if(!amount_arg.equals("")) {
                 edAmount1.setText(amount_arg);
+                edAmount1.setSelection(edAmount1.getText().toString().length());
 
                 double btc_amount = 0.0;
                 try {
