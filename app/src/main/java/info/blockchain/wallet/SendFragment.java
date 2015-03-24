@@ -621,30 +621,6 @@ public class SendFragment extends Fragment {
                 }
             );
         spAccounts.setSelection(0);
-        
-        // get bundle
-        Bundle bundle = this.getArguments();
-        if(bundle != null) {
-        	boolean validate = false;
-            String address_arg = bundle.getString("btc_address", "");
-            String amount_arg = bundle.getString("btc_amount", "");
-            if(!address_arg.equals("")) {
-            	edDestination.setText(address_arg);
-            	validate = false;
-            }
-            if(!amount_arg.equals("")) {
-            	edAmount1.setText(amount_arg);
-            	validate = true;
-            }
-            if(validate) {
-                validateSpend(true);
-            }
-            
-            if(spAccounts != null) {
-            	spAccounts.setSelection(currentSelectedItem);
-            }
-            
-        }
 
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
@@ -657,7 +633,54 @@ public class SendFragment extends Fragment {
         tvMax.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
         displayMaxAvailable();
 
-    	return rootView;
+        // get bundle
+        Bundle bundle = this.getArguments();
+        if(bundle != null) {
+            boolean validate = false;
+            String address_arg = bundle.getString("btc_address", "");
+            String amount_arg = bundle.getString("btc_amount", "");
+            if(!address_arg.equals("")) {
+                edDestination.setText(address_arg);
+                validate = false;
+            }
+            if(!amount_arg.equals("")) {
+                edAmount1.setText(amount_arg);
+
+                double btc_amount = 0.0;
+                try {
+                    btc_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+                }
+                catch(NumberFormatException nfe) {
+                    btc_amount = 0.0;
+                }
+                catch(ParseException pe) {
+                    btc_amount = 0.0;
+                }
+
+                // sanity check on strFiat, necessary if the result of a URI scan
+                if(strFiat == null) {
+                    strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+                }
+                btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+
+                double fiat_amount = btc_fx * btc_amount;
+                tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
+                tvCurrency1.setText(strBTC);
+                tvFiat2.setText(strFiat);
+
+                validate = true;
+            }
+            if(validate) {
+                validateSpend(true);
+            }
+
+            if(spAccounts != null) {
+                spAccounts.setSelection(currentSelectedItem);
+            }
+
+        }
+
+        return rootView;
 	}
 
     @Override
