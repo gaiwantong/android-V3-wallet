@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:background="#ffffff"
+			  android:orientation="vertical">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<EditText
+				android:id="@+id/wallet_id"
+				android:layout_width="match_parent"
+				android:layout_height="56dp"
+				android:focusable="true"
+				android:focusableInTouchMode="true"
+				android:singleLine="true"
+				android:gravity="center_vertical"
+				android:hint="@string/wallet_id"
+				android:text=""
+				android:paddingLeft="16dp"
+				android:textColor="@color/blockchain_grey"
+				android:textColorHint="@color/blockchain_grey">
+			<requestFocus />
+			</EditText>
+
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/blockchain_light_grey"/>
+
+			<EditText
+				android:id="@+id/wallet_pass"
+				android:layout_width="match_parent"
+				android:layout_height="56dp"
+				android:focusable="true"
+				android:focusableInTouchMode="true"
+				android:singleLine="true"
+				android:gravity="center_vertical"
+				android:hint="@string/password"
+				android:text=""
+				android:paddingLeft="16dp"
+				android:password="true"
+				android:textColor="@color/blockchain_grey"
+				android:textColorHint="@color/blockchain_grey"/>
+
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/blockchain_light_grey"/>
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:padding="32dp"
+				android:text="@string/disable_two_factor"
+				android:textColor="@color/blockchain_grey"
+				android:textColorHint="@color/blockchain_grey"/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+	<TextView
+		android:id="@+id/command_next"
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:layout_gravity="center_horizontal|center_vertical"
+		android:background="@color/blockchain_blue"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="@string/CONTINUE"
+		android:textAlignment="gravity"
+		android:textColor="#FFFFFFFF"
+		android:textSize="16sp"
+		/>
+
+</LinearLayout>

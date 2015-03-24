@@ -20,6 +20,7 @@ import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +28,8 @@ import android.view.Window;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 //import android.util.Log;
@@ -68,18 +71,18 @@ public class PinEntryActivity extends Activity {
 
 	TextView statusView = null;
 
-	Button button0 = null;
-	Button button1 = null;
-	Button button2 = null;
-	Button button3 = null;
-	Button button4 = null;
-	Button button5 = null;
-	Button button6 = null;
-	Button button7 = null;
-	Button button8 = null;
-	Button button9 = null;
-	Button buttonForgot = null;
-	Button buttonDeleteBack = null;
+	LinearLayout button0 = null;
+	LinearLayout button1 = null;
+	LinearLayout button2 = null;
+	LinearLayout button3 = null;
+	LinearLayout button4 = null;
+	LinearLayout button5 = null;
+	LinearLayout button6 = null;
+	LinearLayout button7 = null;
+	LinearLayout button8 = null;
+	LinearLayout button9 = null;
+//	Button buttonForgot = null; //Forgot pin button disabled in new UI
+	LinearLayout buttonDeleteBack = null;
 
 	private boolean validating = true;
 	private String userInput = null;
@@ -96,12 +99,16 @@ public class PinEntryActivity extends Activity {
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		if(!DeviceUtil.getInstance(this).isSmallScreen()) {
-			setContentView(R.layout.activity_pin_entry);
-		}
-		else {
-			setContentView(R.layout.activity_pin_entry_small);
-		}
+		setContentView(R.layout.activity_pin_entry);
+
+		//by using values-small/dimens.xml in activity_pin_entry, the below shouldn't be a problem anymore
+//		if(!DeviceUtil.getInstance(this).isSmallScreen()) {
+//			setContentView(R.layout.activity_pin_entry);
+//		}
+//		else {
+//			setContentView(R.layout.activity_pin_entry_small);
+//		}
+
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 	    String action = getIntent().getAction();
@@ -126,30 +133,33 @@ public class PinEntryActivity extends Activity {
 		}
 		userEntered = "";
 
-		buttonForgot = (Button) findViewById(R.id.buttonForgot);
-		buttonForgot.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-	    		new AlertDialog.Builder(PinEntryActivity.this)
-	    	    .setTitle(R.string.app_name)
-				.setMessage(R.string.ask_you_sure_forget)
-	    	    .setCancelable(false)
-	    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-	    	        public void onClick(DialogInterface dialog, int whichButton) {
-	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
-	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
-	    	        	validationDialog();
-	    	        }
-	    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-	    	        public void onClick(DialogInterface dialog, int whichButton) {
-	    	        	;
-	    	        }
-	    	    }).show();
+		/*
+		Forgot pin button disabled in new UI
+		 */
+//		buttonForgot = (Button) findViewById(R.id.buttonForgot);
+//		buttonForgot.setOnClickListener(new View.OnClickListener() {
+//			public void onClick(View v) {
+//	    		new AlertDialog.Builder(PinEntryActivity.this)
+//	    	    .setTitle(R.string.app_name)
+//				.setMessage(R.string.ask_you_sure_forget)
+//	    	    .setCancelable(false)
+//	    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+//	    	        public void onClick(DialogInterface dialog, int whichButton) {
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
+//	    	        	validationDialog();
+//	    	        }
+//	    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+//	    	        public void onClick(DialogInterface dialog, int whichButton) {
+//	    	        	;
+//	    	        }
+//	    	    }).show();
+//
+//			}
+//		});
+//		buttonForgot.setTypeface(typeface);
 
-			}
-		});
-		buttonForgot.setTypeface(typeface);
-
-		buttonDeleteBack = (Button) findViewById(R.id.buttonDeleteBack);
+		buttonDeleteBack = (LinearLayout) findViewById(R.id.buttonDeleteBack);
 		buttonDeleteBack.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if(keyPadLockedFlag == true)	{
@@ -158,7 +168,7 @@ public class PinEntryActivity extends Activity {
 
 				if(userEntered.length() > 0)	{
 					for(int i = 0; i < pinBoxArray.length; i++)	{
-						pinBoxArray[i].setText("");
+						pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);//reset pin buttons blank
 					}
 					userEntered = "";
 				}
@@ -167,10 +177,10 @@ public class PinEntryActivity extends Activity {
 
 		titleView = (TextView)findViewById(R.id.titleBox);
 		titleView.setTypeface(typeface);
-		
+
 		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
 			validating = false;
-			
+
 			if(userInput == null) {
 				titleView.setText(R.string.create_pin);
 			}
@@ -203,13 +213,13 @@ public class PinEntryActivity extends Activity {
 					return;
 				}
 
-				Button pressedButton = (Button)v;
+				LinearLayout pressedButton = (LinearLayout)v;
 
 				if(userEntered.length() < PIN_LENGTH)	{
-					userEntered = userEntered + pressedButton.getText().toString().substring(0, 1);
+					userEntered = userEntered + pressedButton.getTag().toString().substring(0, 1);
 
 					// Update pin boxes
-					pinBoxArray[userEntered.length() - 1].setText("8");
+					pinBoxArray[userEntered.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
 
 					if(userEntered.length() == PIN_LENGTH)	{
 						if(validating)	{
@@ -231,7 +241,7 @@ public class PinEntryActivity extends Activity {
 							}
 							else	{
 								if(userEntered.equals("0000"))	{
-									Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();	
+									Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
 									PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
 					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -246,100 +256,100 @@ public class PinEntryActivity extends Activity {
 							}
 						}
 
-					}	
+					}
 				}
 				else	{
 					// Roll over
-					pinBoxArray[0].setText("");
-					pinBoxArray[1].setText("");
-					pinBoxArray[2].setText("");
-					pinBoxArray[3].setText("");
+
+					for(int i = 0; i < pinBoxArray.length; i++)	{
+						pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+					}
 
 					userEntered = "";
 
 					statusView.setText("");
 
-					userEntered = userEntered + pressedButton.getText().toString().substring(0, 1);
+					userEntered = userEntered + pressedButton.getTag().toString().substring(0, 1);
 
 					// Update pin boxes
-					pinBoxArray[userEntered.length() - 1].setText("8");
+					pinBoxArray[userEntered.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
 
 				}
 			}
 		};
 
-		button0 = (Button)findViewById(R.id.button0);
-		button0.setTypeface(typeface);
+		button0 = (LinearLayout)findViewById(R.id.button0);
+//		button0.setTypeface(typeface);
 		button0.setOnClickListener(pinButtonHandler);
 
-		button1 = (Button)findViewById(R.id.button1);
-		button1.setTypeface(typeface);
+		button1 = (LinearLayout)findViewById(R.id.button1);
+//		button1.setTypeface(typeface);
 		button1.setOnClickListener(pinButtonHandler);
 
-		SpannableStringBuilder cs = null;
-		float sz = 0.6f;
+//		SpannableStringBuilder cs = null;
+//		float sz = 0.6f;
 
-		button2 = (Button)findViewById(R.id.button2);
-		button2.setTypeface(typeface);
+		button2 = (LinearLayout)findViewById(R.id.button2);
+//		button2.setTypeface(typeface);
 		button2.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("2 ABC");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button2.setText(cs);
+//		cs = new SpannableStringBuilder("2 ABC");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button2.setText(cs);
 
-		button3 = (Button)findViewById(R.id.button3);
-		button3.setTypeface(typeface);
+		button3 = (LinearLayout)findViewById(R.id.button3);
+//		button3.setTypeface(typeface);
 		button3.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("3 DEF");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button3.setText(cs);
+//		cs = new SpannableStringBuilder("3 DEF");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button3.setText(cs);
 
-		button4 = (Button)findViewById(R.id.button4);
-		button4.setTypeface(typeface);
+		button4 = (LinearLayout)findViewById(R.id.button4);
+//		button4.setTypeface(typeface);
 		button4.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("4 GHI");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button4.setText(cs);
+//		cs = new SpannableStringBuilder("4 GHI");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button4.setText(cs);
 
-		button5 = (Button)findViewById(R.id.button5);
-		button5.setTypeface(typeface);
+		button5 = (LinearLayout)findViewById(R.id.button5);
+//		button5.setTypeface(typeface);
 		button5.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("5 JKL");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button5.setText(cs);
+//		cs = new SpannableStringBuilder("5 JKL");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button5.setText(cs);
 
-		button6 = (Button)findViewById(R.id.button6);
-		button6.setTypeface(typeface);
+		button6 = (LinearLayout)findViewById(R.id.button6);
+//		button6.setTypeface(typeface);
 		button6.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("6 MNO");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button6.setText(cs);
+//		cs = new SpannableStringBuilder("6 MNO");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button6.setText(cs);
 
-		button7 = (Button)findViewById(R.id.button7);
-		button7.setTypeface(typeface);
+		button7 = (LinearLayout)findViewById(R.id.button7);
+//		button7.setTypeface(typeface);
 		button7.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("7 PQRS");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button7.setText(cs);
+//		cs = new SpannableStringBuilder("7 PQRS");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button7.setText(cs);
 
-		button8 = (Button)findViewById(R.id.button8);
-		button8.setTypeface(typeface);
+		button8 = (LinearLayout)findViewById(R.id.button8);
+//		button8.setTypeface(typeface);
 		button8.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("8 TUV");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button8.setText(cs);
+//		cs = new SpannableStringBuilder("8 TUV");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button8.setText(cs);
 
-		button9 = (Button)findViewById(R.id.button9);
-		button9.setTypeface(typeface);
+		button9 = (LinearLayout)findViewById(R.id.button9);
+//		button9.setTypeface(typeface);
 		button9.setOnClickListener(pinButtonHandler);
-		cs = new SpannableStringBuilder("9 WXYZ");
-		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		button9.setText(cs);
+//		cs = new SpannableStringBuilder("9 WXYZ");
+//		cs.setSpan(new RelativeSizeSpan(sz), 2, cs.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//		button9.setText(cs);
 
-		buttonDeleteBack = (Button)findViewById(R.id.buttonDeleteBack);
-		buttonDeleteBack.setTypeface(typeface);
+		buttonDeleteBack = (LinearLayout)findViewById(R.id.buttonDeleteBack);
+//		buttonDeleteBack.setTypeface(typeface);
 
-		final int colorOff = 0xff333333;
-		final int colorOn = 0xff1a87c6;
+		final int colorOff = 0xffffffff;
+		final int colorOn = 0xFFe0e0e0;
 
 		button0.setOnTouchListener(new OnTouchListener() {
 			@Override
@@ -539,29 +549,32 @@ public class PinEntryActivity extends Activity {
 			}
 		});
 
-		buttonForgot.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction())	{
-				case android.view.MotionEvent.ACTION_DOWN:
-				case android.view.MotionEvent.ACTION_MOVE:
-					buttonForgot.setBackgroundColor(colorOn);
-					break;
-				case android.view.MotionEvent.ACTION_UP:
-				case android.view.MotionEvent.ACTION_CANCEL:
-					buttonForgot.setBackgroundColor(colorOff);
-					break;
-				}
-
-				return false;
-			}
-		});
+		/*
+		Forgot pin button disabled in new UI
+		 */
+//		buttonForgot.setOnTouchListener(new OnTouchListener() {
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				switch (event.getAction())	{
+//				case android.view.MotionEvent.ACTION_DOWN:
+//				case android.view.MotionEvent.ACTION_MOVE:
+//					buttonForgot.setBackgroundColor(colorOn);
+//					break;
+//				case android.view.MotionEvent.ACTION_UP:
+//				case android.view.MotionEvent.ACTION_CANCEL:
+//					buttonForgot.setBackgroundColor(colorOff);
+//					break;
+//				}
+//
+//				return false;
+//			}
+//		});
 
 		if(!ConnectivityStatus.hasConnectivity(this)) {
 	    	final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	        
+
 	        final String message = getString(R.string.check_connectivity_exit);
-	 
+
 	        builder.setMessage(message)
 	        	.setCancelable(false)
 	            .setPositiveButton(R.string.dialog_continue,
@@ -616,10 +629,9 @@ public class PinEntryActivity extends Activity {
 			statusView.setText("");
 
 			// Roll over
-			pinBoxArray[0].setText("");
-			pinBoxArray[1].setText("");
-			pinBoxArray[2].setText("");
-			pinBoxArray[3].setText("");
+			for(int i = 0; i < pinBoxArray.length; i++)	{
+				pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+			}
 
 			userEntered = "";
 
@@ -665,13 +677,13 @@ public class PinEntryActivity extends Activity {
 					Looper.prepare();
 
 					if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
-						
+
 						PayloadFactory.getInstance().setTempPassword(pw);
-						
+
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								
+
 								if(progress != null && progress.isShowing()) {
 									progress.dismiss();
 									progress = null;
@@ -755,7 +767,7 @@ public class PinEntryActivity extends Activity {
 				Looper.prepare();
 
 				if(AccessFactory.getInstance(PinEntryActivity.this).createPÏN(PayloadFactory.getInstance().getTempPassword(), pin)) {
-					
+
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;
@@ -766,7 +778,7 @@ public class PinEntryActivity extends Activity {
 
 				}
 				else {
-					
+
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;
@@ -783,7 +795,7 @@ public class PinEntryActivity extends Activity {
 						;
 					}
 				});
-				
+
 				Looper.loop();
 
 			}
@@ -812,7 +824,7 @@ public class PinEntryActivity extends Activity {
 				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePÏN(pin);
 
 				if(password != null) {
-					
+
 		    		if(progress != null && progress.isShowing()) {
 		    			progress.dismiss();
 		    			progress = null;
@@ -823,7 +835,7 @@ public class PinEntryActivity extends Activity {
 					updatePayloadThread(password);
 				}
 				else {
-					
+
 		    		if(progress != null && progress.isShowing()) {
 		    			progress.dismiss();
 		    			progress = null;
@@ -844,7 +856,7 @@ public class PinEntryActivity extends Activity {
 						;
 					}
 				});
-				
+
 				Looper.loop();
 
 			}
@@ -855,7 +867,7 @@ public class PinEntryActivity extends Activity {
 
 		final EditText password = new EditText(this);
 		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-		
+
 		new AlertDialog.Builder(this)
 	    .setTitle(R.string.app_name)
 	    .setMessage("Please enter password")
@@ -865,7 +877,7 @@ public class PinEntryActivity extends Activity {
 	        public void onClick(DialogInterface dialog, int whichButton) {
 
 	        	final String pw = password.getText().toString();
-	        	
+
 	        	if(pw != null && pw.length() > 0) {
 		            validatePasswordThread(new CharSequenceX(pw));
 	        	}
@@ -914,7 +926,7 @@ public class PinEntryActivity extends Activity {
 							progress.dismiss();
 							progress = null;
 						}
-						
+
 						validationDialog();
 
 					}

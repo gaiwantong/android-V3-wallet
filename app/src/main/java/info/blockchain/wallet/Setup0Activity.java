@@ -1,26 +1,18 @@
 package info.blockchain.wallet;
 
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.TimeOutUtil;
+
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Bundle;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 //import android.util.Log;
 
 public class Setup0Activity extends Activity	{
@@ -54,7 +46,7 @@ public class Setup0Activity extends Activity	{
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
-            		Intent intent = new Intent(Setup0Activity.this, Setup5Activity.class);
+            		Intent intent = new Intent(Setup0Activity.this, Setup00Activity.class);
             		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             		startActivity(intent);
 
@@ -83,5 +75,4 @@ public class Setup0Activity extends Activity	{
     		}
 
     }
-
 }

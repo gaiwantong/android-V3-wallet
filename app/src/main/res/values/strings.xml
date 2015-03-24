@@ -69,14 +69,14 @@
     <string name="pin_3_strikes">3 failed PIN attempts. Please provide password.</string>
     <string name="pin_3_strikes_password_accepted">Password accepted. Please define new PIN code.</string>
 
-    <string name="pin_entry">Please enter your 4-digit pin</string>
+    <string name="pin_entry">Enter Pin</string>
     <string name="options_CLEAR">CLEAR</string>
     <string name="options_FORGOT_PIN">FORGOT PIN</string>
     <string name="zero_pin">0000 is an invalid PIN code. Please try again.</string>
     <string name="invalid_pin">Invalid PIN code. Please try again.</string>
     <string name="pin_mismatch_error">PINs do not match</string>
-    <string name="create_pin">Please create your 4-digit pin</string>
-    <string name="confirm_pin">Please confirm your 4-digit pin</string>
+    <string name="create_pin">Create Pin</string>
+    <string name="confirm_pin">Confirm Pin</string>
     <string name="create_pin_failed">PIN creation failed. Please pair device again.</string>
 
     <string name="check_connectivity_exit">Blockchain Wallet cannot obtain an Internet connection. Please check the connectivity on your device and try again.</string>
@@ -91,11 +91,21 @@
     <string name="setup4">Click the green verify button we emailed to you. If you didn\'t receive the email use the button below to resend.</string>
     <string name="setup5">To quickly login to your wallet without having to type your ID or password open your wallet on the web and scan the \"Pairing Code\" with this device.</string>
     <string name="command1">RESEND EMAIL</string>
-    <string name="command2">SCAN PAIRING CODE</string>
+    <string name="command2">Scan Pairing Code</string>
+	<string name="command3">I can\'t access my camera</string>
     <string name="CREATE">CREATE A NEW WALLET</string>
     <string name="LOGIN">Login to my wallet</string>
+	<string name="pair_your_wallet">Pair Your Wallet</string>
+	<string name="scan_pairing_code">Scan Pairing Code</string>
+	<string name="manual_pairing">Manual Pairing</string>
+	<string name="pair_wallet_step_1">Login to your Blockchain Wallet on your PC or Mac at http://blockchain.com/wallet</string>
+	<string name="pair_wallet_step_2">Click the Account Settings button, then choose the Mobile tab</string>
+	<string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
+	<string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
+	<string name="wallet_id">Wallet ID</string>
+	<string name="password">Password</string>
 
-    <string name="CONTINUE">CONTINUE</string>
+    <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>
     <string name="CONFIRM">CONFIRM PAYMENT</string>
     <string name="GO_BACK">GO BACK</string>
