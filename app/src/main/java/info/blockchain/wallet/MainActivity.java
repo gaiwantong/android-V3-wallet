@@ -582,7 +582,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		        	if(format != null)	{
 			        	if(!format.equals(PrivateKeyFactory.BIP38))	{
 			        		ECKey key = PrivateKeyFactory.getInstance().getKey(format, strResult);
-			        		if(key != null && key.hasPrivKey())	{
+			        		if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
 				        		LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
 				        		/*
 				        		 * if double encrypted, save encrypted in payload
@@ -635,7 +635,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 			        	    				
 					        	            try {
 								        		ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, strResult, new CharSequenceX(pw));
-								        		if(key != null && key.hasPrivKey())	{
+								        		if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
 									        		LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
 									        		/*
 									        		 * if double encrypted, save encrypted in payload
