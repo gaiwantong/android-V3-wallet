@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="info.blockchain.wallet"
     android:versionCode="200"
-    android:versionName="5.0.19a"
+    android:versionName="5.0.20a"
     >
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21" />
