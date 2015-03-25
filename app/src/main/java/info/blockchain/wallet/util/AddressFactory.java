@@ -21,6 +21,8 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 
 public class AddressFactory {
 
+    public static final int LOOKAHEAD_GAP = 20;
+
     public static final int RECEIVE_CHAIN = 0;
     public static final int CHANGE_CHAIN = 1;
 
@@ -30,6 +32,8 @@ public class AddressFactory {
     private static AddressFactory instance = null;
     
     private static HashMap<Integer,ReceiveAddress> receiveAddresses = null;
+
+    private static int higestTxReceiveIdx = 0;
 
     private AddressFactory() { ; }
     
@@ -44,6 +48,15 @@ public class AddressFactory {
                 double_encryption_wallet = HD_WalletFactory.getInstance(context, xpub).getWatchOnlyWallet();
             }
 
+            instance = new AddressFactory();
+        }
+
+        return instance;
+    }
+
+    public static AddressFactory getInstance() {
+
+        if(instance == null) {
             instance = new AddressFactory();
         }
 
@@ -115,6 +128,14 @@ public class AddressFactory {
 
         return addr;
 
+    }
+
+    public int getHigestTxReceiveIdx() {
+        return higestTxReceiveIdx;
+    }
+
+    public void setHigestTxReceiveIdx(int idx) {
+        higestTxReceiveIdx = idx;
     }
 
 }
