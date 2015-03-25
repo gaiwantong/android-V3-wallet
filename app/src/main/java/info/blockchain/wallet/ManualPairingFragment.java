@@ -111,7 +111,7 @@ public class ManualPairingFragment extends Fragment {
 									Toast.makeText(getActivity(), "Pairing OK", Toast.LENGTH_SHORT).show();
 									Intent intent = new Intent(getActivity(), Setup2Activity.class);
 									intent.putExtra("pairing", true);
-									startActivity(intent);
+									getActivity().startActivity(intent);
 									getActivity().finish();
 								}
 								else {

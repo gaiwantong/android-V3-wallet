@@ -20,7 +20,7 @@ public class ScanPairingFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		View rootView = inflater.inflate(R.layout.drawer_list_item, container, false);//random view for now until zbar implemented
+		View rootView = inflater.inflate(R.layout.include_setup0, container, false);//random view for now until zbar implemented
 
 		getActivity().setTitle(getResources().getString(R.string.scan_pairing_code));
 

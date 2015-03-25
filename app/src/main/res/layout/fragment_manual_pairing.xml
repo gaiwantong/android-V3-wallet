@@ -25,7 +25,7 @@
 				android:singleLine="true"
 				android:gravity="center_vertical"
 				android:hint="@string/wallet_id"
-				android:text=""
+				android:text="355c9be5-81f7-41eb-81b6-cafbce58f543"
 				android:paddingLeft="16dp"
 				android:textColor="@color/blockchain_grey"
 				android:textColorHint="@color/blockchain_grey">
@@ -46,7 +46,7 @@
 				android:singleLine="true"
 				android:gravity="center_vertical"
 				android:hint="@string/password"
-				android:text=""
+				android:text="hcethcethcethcet"
 				android:paddingLeft="16dp"
 				android:password="true"
 				android:textColor="@color/blockchain_grey"
