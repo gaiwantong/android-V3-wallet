@@ -413,6 +413,7 @@ public class BalanceFragment extends Fragment {
         txList = (ListView)rootView.findViewById(R.id.txList);
         txAdapter = new TransactionAdapter();
         txList.setAdapter(txAdapter);
+        /*
         txList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
@@ -424,6 +425,7 @@ public class BalanceFragment extends Fragment {
             	}
             }
         });
+        */
 
 		displayBalance();
         updateTx();
@@ -537,7 +539,7 @@ public class BalanceFragment extends Fragment {
 	        }
 	        
 	        if(txs != null) {
-		        Tx tx = txs.get(position);
+		        final Tx tx = txs.get(position);
 		        double btc_balance = tx.getAmount() / 1e8;
 		    	double fiat_balance = btc_fx * btc_balance;
 		    	
@@ -592,6 +594,29 @@ public class BalanceFragment extends Fragment {
 					tvDirection.setTextColor(getActivity().getResources().getColor(R.color.blockchain_green));
 				}
 				tvResult.setText(span1);
+                tvResult.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        isBTC = (isBTC) ? false : true;
+                        displayBalance();
+                        accountsAdapter.notifyDataSetChanged();
+                        txAdapter.notifyDataSetChanged();
+                        return false;
+                    }
+                });
+
+                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
+                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        String strTx = tx.getHash();
+                        if(strTx != null) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+                            startActivity(browserIntent);
+                        }
+                        return false;
+                    }
+                });
 
 				/*
 		    	TextView tvTags = (TextView)view.findViewById(R.id.tags);
