@@ -13,6 +13,7 @@ public class PrefsUtil {
 	public static final String SHARED_KEY = "sharedKey";
 	public static final String PIN_FAILS = "pin_fails";
 //	public static final String LOGGED_IN = "logged_in";
+    public static final String BTC_UNITS = "btcUnits";
 
 	private static Context context = null;
 	private static PrefsUtil instance = null;

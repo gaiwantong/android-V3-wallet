@@ -56,6 +56,8 @@
     <string name="options_hexseed2">Show hex seed for this wallet</string>
     <string name="options_passphrase">Show BIP39 passphrase</string>
     <string name="options_passphrase2">Show BIP39 passphrase for this wallet</string>
+    <string name="options_units">BTC units</string>
+    <string name="options_units2">BTC, mBTC or bits</string>
 
     <string name="invalid_email">Invalid email address</string>
     <string name="invalid_mobile">Invalid mobile phone number</string>
@@ -138,6 +140,8 @@
     <string name="about">Blockchain Wallet %1$s\n©%2$s Blockchain.info</string>
     <string name="merchant_download">Free Merchant app</string>
     <string name="feedback">Send Feedback</string>
+
+    <string name="select_units">Select displayable BTC units</string>
 
     <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
 

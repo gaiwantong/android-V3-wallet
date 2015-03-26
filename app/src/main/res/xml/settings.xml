@@ -6,6 +6,11 @@
         android:key="guid"
         />
     <Preference
+        android:title="@string/options_units"
+        android:summary="@string/options_units2"
+        android:key="units"
+        />
+    <Preference
         android:title="@string/options_currency"
         android:summary="@string/options_currency2"
         android:key="fiat"

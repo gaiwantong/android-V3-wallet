@@ -6,7 +6,12 @@ import java.text.NumberFormat;
 
 public class MonetaryUtil {
 
-	private static MonetaryUtil instance = null;
+    private static CharSequence[] btcUnits = { "BTC", "mBTC", "bits" };
+    public static final int UNIT_BTC = 0;
+    public static final int MILLI_BTC = 1;
+    public static final int MICRO_BTC = 2;
+
+    private static MonetaryUtil instance = null;
 	private static NumberFormat btcFormat = null;
 	private static NumberFormat fiatFormat = null;
 
@@ -37,5 +42,9 @@ public class MonetaryUtil {
     	fiatFormat.setCurrency(Currency.getInstance(fiat));
 		return fiatFormat;
 	}
+
+    public CharSequence[] getBTCUnits() {
+        return btcUnits;
+    }
 
 }
