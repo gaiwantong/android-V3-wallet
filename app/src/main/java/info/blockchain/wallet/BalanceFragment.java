@@ -482,7 +482,7 @@ public class BalanceFragment extends Fragment {
 
     	displayBalance();
     	accountsAdapter.notifyDataSetChanged();
-//    	txAdapter.notifyDataSetChanged();
+    	txAdapter.notifyDataSetChanged();
     	updateTx();
     }
 
@@ -575,12 +575,14 @@ public class BalanceFragment extends Fragment {
 				}
 
 		        if(isBTC) {
-					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);
+//                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);
+                    span1 = Spannable.Factory.getInstance().newSpannable(getDisplayAmount(MultiAddrFactory.getInstance().getTotalBalance()) + " " + getDisplayUnits());
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		        }
 		        else	{
 					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		        }
-				span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				if(tx.isMove()) {
 					tvResult.setBackgroundResource(R.drawable.rounded_view_lighter_blue);
 					tvDirection.setTextColor(getActivity().getResources().getColor(R.color.blockchain_lighter_blue));
@@ -747,15 +749,41 @@ public class BalanceFragment extends Fragment {
     	btc_balance = ((double)(MultiAddrFactory.getInstance().getTotalBalance()) / 1e8);
     	fiat_balance = btc_fx * btc_balance;
 
-		span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-		span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC));
-		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		span2.setSpan(new RelativeSizeSpan(0.67f), span2.length() - 3, span2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (getDisplayAmount(MultiAddrFactory.getInstance().getTotalBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+		span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (getDisplayAmount(MultiAddrFactory.getInstance().getTotalBalance()) + " " + getDisplayUnits()));
+		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		span2.setSpan(new RelativeSizeSpan(0.67f), span2.length() - (isBTC ? 3 : getDisplayUnits().length()), span2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		tvBalance1.setText(span1);
 		tvBalance2.setText(span2);
 	}
 
-	public void updateTx() {
+    public String getDisplayAmount(long value) {
+
+        String strAmount = null;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                strAmount = Double.toString((((double)(value * 1000L)) / 1e8));
+                break;
+            default:
+                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
+                break;
+        }
+
+        return strAmount;
+    }
+
+    public String getDisplayUnits() {
+
+        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+
+    }
+
+    public void updateTx() {
 		
     	if(accounts == null || accounts.size() < 1) {
     		return;
