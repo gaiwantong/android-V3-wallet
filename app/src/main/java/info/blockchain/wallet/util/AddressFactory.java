@@ -33,7 +33,8 @@ public class AddressFactory {
     
     private static HashMap<Integer,ReceiveAddress> receiveAddresses = null;
 
-    private static int higestTxReceiveIdx = 0;
+    private static int highestTxReceiveIdx = 0;
+    private static int highestTxChangeIdx = 0;
 
     private AddressFactory() { ; }
     
@@ -69,7 +70,7 @@ public class AddressFactory {
         HD_Address addr = null;
 
         try	{
-        	if(chain == 0)	{
+        	if(chain == RECEIVE_CHAIN)	{
         		idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses();
                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
         	}
@@ -82,6 +83,9 @@ public class AddressFactory {
             }
             else	{
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
+            }
+            if(chain == RECEIVE_CHAIN && ((idx - highestTxReceiveIdx) < (LOOKAHEAD_GAP - 1)))	{
+                HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
             }
     		PayloadFactory.getInstance(context).remoteSaveThread();
 
@@ -130,12 +134,20 @@ public class AddressFactory {
 
     }
 
-    public int getHigestTxReceiveIdx() {
-        return higestTxReceiveIdx;
+    public int getHighestTxReceiveIdx() {
+        return highestTxReceiveIdx;
     }
 
-    public void setHigestTxReceiveIdx(int idx) {
-        higestTxReceiveIdx = idx;
+    public void setHighestTxReceiveIdx(int idx) {
+        highestTxReceiveIdx = idx;
+    }
+
+    public int getHighestTxChangeIdx() {
+        return highestTxChangeIdx;
+    }
+
+    public void setHighestTxReceiveIdx(int idx) {
+        highestTxChangeIdx = idx;
     }
 
 }
