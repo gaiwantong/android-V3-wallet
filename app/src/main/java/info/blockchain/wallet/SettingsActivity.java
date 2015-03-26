@@ -192,7 +192,7 @@ public class SettingsActivity extends PreferenceActivity	{
         			return true;
         		}
         	});
-
+/*
         	Preference hexseedPref = (Preference) findPreference("hexseed");
         	hexseedPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
@@ -263,7 +263,7 @@ public class SettingsActivity extends PreferenceActivity	{
         			return true;
         		}
         	});
-
+*/
         	/*
         	Preference passphrasePref = (Preference) findPreference("passphrase");
         	passphrasePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {

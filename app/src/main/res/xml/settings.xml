@@ -52,12 +52,12 @@
         android:summary="@string/options_mnemonic2"
         android:key="mnemonic"
         />
+    <!--
     <Preference
         android:title="@string/options_hexseed"
         android:summary="@string/options_hexseed2"
         android:key="hexseed"
         />
-    <!--
     <Preference
         android:title="@string/options_passphrase"
         android:summary="@string/options_passphrase2"

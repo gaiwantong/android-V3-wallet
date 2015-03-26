@@ -146,7 +146,7 @@ public class AddressFactory {
         return highestTxChangeIdx;
     }
 
-    public void setHighestTxReceiveIdx(int idx) {
+    public void setHighestTxChangeIdx(int idx) {
         highestTxChangeIdx = idx;
     }
 
