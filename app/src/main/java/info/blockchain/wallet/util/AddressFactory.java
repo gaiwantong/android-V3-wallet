@@ -33,8 +33,8 @@ public class AddressFactory {
     
     private static HashMap<Integer,ReceiveAddress> receiveAddresses = null;
 
-    private static int highestTxReceiveIdx = 0;
-    private static int highestTxChangeIdx = 0;
+    private static HashMap<Integer,Integer> highestTxReceiveIdx = null;
+    private static HashMap<Integer,Integer> highestTxChangeIdx = null;
 
     private AddressFactory() { ; }
     
@@ -49,6 +49,9 @@ public class AddressFactory {
                 double_encryption_wallet = HD_WalletFactory.getInstance(context, xpub).getWatchOnlyWallet();
             }
 
+            highestTxReceiveIdx = new HashMap<Integer,Integer>();
+            highestTxChangeIdx = new HashMap<Integer,Integer>();
+
             instance = new AddressFactory();
         }
 
@@ -58,6 +61,10 @@ public class AddressFactory {
     public static AddressFactory getInstance() {
 
         if(instance == null) {
+
+            highestTxReceiveIdx = new HashMap<Integer,Integer>();
+            highestTxChangeIdx = new HashMap<Integer,Integer>();
+
             instance = new AddressFactory();
         }
 
@@ -84,7 +91,7 @@ public class AddressFactory {
             else	{
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
-            if(chain == RECEIVE_CHAIN && ((idx - highestTxReceiveIdx) < (LOOKAHEAD_GAP - 1)))	{
+            if(chain == RECEIVE_CHAIN && ((idx - highestTxReceiveIdx.get(accountIdx)) < (LOOKAHEAD_GAP - 1)))	{
                 HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
             }
     		PayloadFactory.getInstance(context).remoteSaveThread();
@@ -134,20 +141,30 @@ public class AddressFactory {
 
     }
 
-    public int getHighestTxReceiveIdx() {
-        return highestTxReceiveIdx;
+    public int getHighestTxReceiveIdx(int accountIdx) {
+        if(highestTxReceiveIdx.get(accountIdx) == null) {
+            return 0;
+        }
+        else {
+            return highestTxReceiveIdx.get(accountIdx);
+        }
     }
 
-    public void setHighestTxReceiveIdx(int idx) {
-        highestTxReceiveIdx = idx;
+    public void setHighestTxReceiveIdx(int accountIdx, int idx) {
+        highestTxReceiveIdx.put(accountIdx, idx);
     }
 
-    public int getHighestTxChangeIdx() {
-        return highestTxChangeIdx;
+    public int getHighestTxChangeIdx(int accountIdx) {
+        if(highestTxChangeIdx.get(accountIdx) == null) {
+            return 0;
+        }
+        else {
+            return highestTxChangeIdx.get(accountIdx);
+        }
     }
 
-    public void setHighestTxChangeIdx(int idx) {
-        highestTxChangeIdx = idx;
+    public void setHighestTxChangeIdx(int accountIdx, int idx) {
+        highestTxChangeIdx.put(accountIdx, idx);
     }
 
 }
