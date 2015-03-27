@@ -33,8 +33,9 @@ public class Setup0Activity extends Activity	{
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
-            		Intent intent = new Intent(Setup0Activity.this, Setup1Activity.class);
+            		Intent intent = new Intent(Setup0Activity.this, Setup00Activity.class);
             		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra("starting_fragment",0);
             		startActivity(intent);
 
                 	return false;
@@ -48,6 +49,7 @@ public class Setup0Activity extends Activity	{
 
             		Intent intent = new Intent(Setup0Activity.this, Setup00Activity.class);
             		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra("starting_fragment",1);
             		startActivity(intent);
 
                 	return false;

@@ -20,7 +20,7 @@
 			<ImageView
 				android:layout_width="165dp"
 				android:layout_height="188dp"
-				android:src="@drawable/logo2x"
+				android:src="@drawable/logo3x"
 				android:gravity="center_horizontal"
 				android:layout_gravity="center_horizontal"
 				android:layout_marginTop="40dp"

@@ -90,33 +90,33 @@ public class Setup1Activity extends Activity	{
     		        	}
     		        	else {
 
-        		        	if(PasswordUtil.getInstance().isWeak(pw1)) {
-
-    				    		new AlertDialog.Builder(Setup1Activity.this)
-    				    	    .setTitle(R.string.app_name)
-    							.setMessage(R.string.weak_password)
-    				    	    .setCancelable(false)
-    				    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-    				    	        public void onClick(DialogInterface dialog, int whichButton) {
-    				    	        	edPassword1.setText("");
-    				    	        	edPassword2.setText("");
-    				    	        }
-    				    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-    				    	        public void onClick(DialogInterface dialog, int whichButton) {
-    		        		        	Intent intent = new Intent(Setup1Activity.this, Setup2Activity.class);
-    		        		        	intent.putExtra("_email", em);
-    		        		        	intent.putExtra("_pw", pw1);
-    		        		    		startActivity(intent);
-    				    	        }
-    				    	    }).show();
-
-        		        	}
-        		        	else {
-	        		        	Intent intent = new Intent(Setup1Activity.this, Setup2Activity.class);
-	        		        	intent.putExtra("_email", em);
-	        		        	intent.putExtra("_pw", pw1);
-	        		    		startActivity(intent);
-        		        	}
+//        		        	if(PasswordUtil.getInstance().isWeak(pw1)) {
+//
+//    				    		new AlertDialog.Builder(Setup1Activity.this)
+//    				    	    .setTitle(R.string.app_name)
+//    							.setMessage(R.string.weak_password)
+//    				    	    .setCancelable(false)
+//    				    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+//    				    	        public void onClick(DialogInterface dialog, int whichButton) {
+//    				    	        	edPassword1.setText("");
+//    				    	        	edPassword2.setText("");
+//    				    	        }
+//    				    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+//    				    	        public void onClick(DialogInterface dialog, int whichButton) {
+//    		        		        	Intent intent = new Intent(Setup1Activity.this, Setup2Activity.class);
+//    		        		        	intent.putExtra("_email", em);
+//    		        		        	intent.putExtra("_pw", pw1);
+//    		        		    		startActivity(intent);
+//    				    	        }
+//    				    	    }).show();
+//
+//        		        	}
+//        		        	else {
+//	        		        	Intent intent = new Intent(Setup1Activity.this, Setup2Activity.class);
+//	        		        	intent.putExtra("_email", em);
+//	        		        	intent.putExtra("_pw", pw1);
+//	        		    		startActivity(intent);
+//        		        	}
 
     		        	}
     		        	

@@ -63,8 +63,7 @@
 				android:gravity="center"
 				android:padding="32dp"
 				android:text="@string/disable_two_factor"
-				android:textColor="@color/blockchain_grey"
-				android:textColorHint="@color/blockchain_grey"/>
+				android:textColor="@color/blockchain_grey"/>
 
 		</LinearLayout>
 

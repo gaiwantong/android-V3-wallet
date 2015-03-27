@@ -38,7 +38,10 @@ public class Setup00Activity extends ActionBarActivity {
 		getSupportActionBar().setHomeButtonEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Fragment fragment = new PairWalletFragment();
+		Fragment fragment = new CreateWalletFragment();
+		if(getIntent().getIntExtra("starting_fragment", 1)==1)
+			fragment = new PairWalletFragment();
+
 		FragmentManager fragmentManager = getFragmentManager();
 		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 	}

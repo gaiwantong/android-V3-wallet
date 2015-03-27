@@ -103,7 +103,16 @@
 	<string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
 	<string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
 	<string name="wallet_id">Wallet ID</string>
+
 	<string name="password">Password</string>
+	<string name="email">Email</string>
+	<string name="agree_terms_of_service">By creating a new wallet you agree to the <a href="https://blockchain.info/Resources/TermsofServicePolicy.pdf">Blockchain Terms of Service</a></string>
+	<string name="create_wallet">Create Wallet</string>
+	<string name="new_wallet">New Wallet</string>
+	<string name="strength_weak">Weak</string>
+	<string name="strength_medium">Medium</string>
+	<string name="strength_strong">Strong</string>
+	<string name="strength_very_strong">Very Strong</string>
 
     <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>
@@ -139,6 +148,6 @@
     <string name="merchant_download">Free Merchant app</string>
     <string name="feedback">Send Feedback</string>
 
-    <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
+    <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Please define a new password.</string>
 
 </resources>

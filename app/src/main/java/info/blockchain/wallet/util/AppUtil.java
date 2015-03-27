@@ -1,7 +1,6 @@
 package info.blockchain.wallet.util;
  
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.Setup5Activity;
 import android.content.Context;
 import android.content.Intent;
 

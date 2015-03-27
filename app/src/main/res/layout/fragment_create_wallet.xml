@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:background="#ffffff"
+			  android:orientation="vertical">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="56dp"
+				android:orientation="horizontal">
+
+
+					<TextView
+						android:layout_width="0dp"
+						android:layout_weight="30"
+						android:layout_height="match_parent"
+						android:textColor="@color/blockchain_grey"
+						android:gravity="center_vertical"
+						android:paddingLeft="16dp"
+						android:text="@string/email"/>
+
+					<EditText
+						android:id="@+id/email_address"
+						android:layout_width="0dp"
+						android:layout_weight="70"
+						android:layout_height="match_parent"
+						android:focusable="true"
+						android:focusableInTouchMode="true"
+						android:singleLine="true"
+						android:gravity="center_vertical"
+						android:textColor="@color/blockchain_grey">
+					<requestFocus />
+				</EditText>
+
+			</LinearLayout>
+
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/blockchain_light_grey"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="56dp"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_weight="30"
+				android:layout_height="match_parent"
+				android:textColor="@color/blockchain_grey"
+				android:gravity="center_vertical"
+				android:paddingLeft="16dp"
+				android:text="@string/password"/>
+
+			<EditText
+				android:id="@+id/wallet_pass"
+				android:layout_width="0dp"
+				android:layout_weight="70"
+				android:layout_height="match_parent"
+				android:focusable="true"
+				android:focusableInTouchMode="true"
+				android:singleLine="true"
+				android:gravity="center_vertical"
+				android:password="true"
+				android:textColor="@color/blockchain_grey"/>
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="16dp"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_weight="30"
+				android:layout_height="match_parent"
+				android:textColor="@color/blockchain_grey"
+				android:gravity="center_vertical"
+				android:paddingLeft="16dp"
+				android:paddingRight="16dp"
+				android:visibility="invisible"
+				android:text="@string/password"/>
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_weight="70"
+				android:layout_height="wrap_content"
+				android:paddingRight="16dp"
+				android:orientation="vertical">
+
+				<ProgressBar
+					android:id="@+id/pass_strength_bar"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="3dp"
+					android:background="@color/blockchain_light_grey"
+					android:progressDrawable="@drawable/progress_orange"
+					/>
+
+				<TextView
+					android:id="@+id/pass_strength_verdict"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="5dp"
+					android:text="Weak"
+					android:textColor="@color/blockchain_grey"/>
+			</LinearLayout>
+
+
+		</LinearLayout>
+
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/blockchain_light_grey"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="56dp"
+				android:orientation="horizontal">
+
+				<TextView
+					android:layout_width="0dp"
+					android:layout_weight="30"
+					android:layout_height="match_parent"
+					android:maxWidth="100dp"
+					android:textColor="@color/blockchain_grey"
+					android:gravity="center_vertical"
+					android:paddingLeft="16dp"
+					android:paddingRight="16dp"
+					android:text="Confirm Password"/>
+
+				<EditText
+					android:id="@+id/wallet_pass_confrirm"
+					android:layout_width="0dp"
+					android:layout_weight="70"
+					android:layout_height="match_parent"
+					android:focusable="true"
+					android:focusableInTouchMode="true"
+					android:singleLine="true"
+					android:gravity="center_vertical"
+					android:password="true"
+					android:textColor="@color/blockchain_grey"/>
+
+			</LinearLayout>
+
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/blockchain_light_grey"/>
+
+			<TextView
+				android:id="@+id/tos"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:padding="32dp"
+				android:linksClickable="true"
+				android:text="@string/agree_terms_of_service"
+				android:textColor="@color/blockchain_grey"/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+	<TextView
+		android:id="@+id/command_next"
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:layout_gravity="center_horizontal|center_vertical"
+		android:background="@color/blockchain_blue"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="@string/create_wallet"
+		android:textAlignment="gravity"
+		android:textColor="#FFFFFFFF"
+		android:textSize="16sp"
+		/>
+
+</LinearLayout>
