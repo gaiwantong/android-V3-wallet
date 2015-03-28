@@ -742,7 +742,7 @@ public class BalanceFragment extends Fragment {
 
     }
 
-	public void displayBalance() {
+	private void displayBalance() {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
@@ -757,7 +757,7 @@ public class BalanceFragment extends Fragment {
 		tvBalance2.setText(span2);
 	}
 
-    public String getDisplayAmount(long value) {
+    private String getDisplayAmount(long value) {
 
         String strAmount = null;
 
@@ -777,13 +777,13 @@ public class BalanceFragment extends Fragment {
         return strAmount;
     }
 
-    public String getDisplayUnits() {
+    private String getDisplayUnits() {
 
         return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
     }
 
-    public void updateTx() {
+    private void updateTx() {
 		
     	if(accounts == null || accounts.size() < 1) {
     		return;
@@ -829,7 +829,7 @@ public class BalanceFragment extends Fragment {
 	}
 	*/
 
-	public String account2Xpub(int sel) {
+	private String account2Xpub(int sel) {
 
 		Account hda = accounts.get(sel);
 		String xpub = null;
