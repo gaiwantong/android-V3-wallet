@@ -71,7 +71,7 @@ public class SendFragment2 extends Fragment {
 	private LegacyAddress legacyAddress = null;
 	private String seed = null;
 
-	private final String strBTC = "BTC";
+	private String strBTC = null;
 	
 	private String strNote = null;
 
@@ -84,7 +84,6 @@ public class SendFragment2 extends Fragment {
 
     	hideActionBar();
 
-        // get bundle
         Bundle bundle = this.getArguments();
         if(bundle != null) {
             isHD = bundle.getBoolean("hd", true);
@@ -101,6 +100,7 @@ public class SendFragment2 extends Fragment {
             	legacyAddress = new LegacyAddress(legacy_priv, legacy_addr);
             }
             seed = bundle.getString("seed", null);
+            strBTC = bundle.getString("btc_units", null);
         }
 
         tvDirection = ((TextView)rootView.findViewById(R.id.direction));
@@ -117,7 +117,7 @@ public class SendFragment2 extends Fragment {
 
         tvBTC = ((TextView)rootView.findViewById(R.id.btc));
         tvBTC.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoBoldTypeface());
-        tvBTC.setText(btc_amount + " BTC");
+        tvBTC.setText(btc_amount + " " + strBTC);
 
         tvFiat = ((TextView)rootView.findViewById(R.id.fiat));
         tvFiat.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
