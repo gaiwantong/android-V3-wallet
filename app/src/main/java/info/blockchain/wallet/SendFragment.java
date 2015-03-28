@@ -94,7 +94,7 @@ public class SendFragment extends Fragment {
 	private List<LegacyAddress> legacy = null;
     private List<Account> accounts = null;
 
-	private final String strBTC = "BTC";
+	private String strBTC = "BTC";
 	private String strFiat = null;
 	private boolean isBTC = true;
 	private double btc_fx = 319.13;
@@ -622,6 +622,7 @@ public class SendFragment extends Fragment {
             );
         spAccounts.setSelection(0);
 
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, 0));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
@@ -689,8 +690,11 @@ public class SendFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if(isVisibleToUser) {
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, 0));
             strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            tvCurrency1.setText(isBTC ? strBTC : strFiat);
+            tvFiat2.setText(isBTC ? strFiat : strBTC);
         }
         else {
         	;
@@ -700,8 +704,11 @@ public class SendFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, 0));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        tvCurrency1.setText(isBTC ? strBTC : strFiat);
+        tvFiat2.setText(isBTC ? strFiat : strBTC);
     }
 
     @Override
