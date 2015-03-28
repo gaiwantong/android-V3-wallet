@@ -427,7 +427,7 @@ public class ReceiveFragment extends Fragment {
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvAmount2.setText("0.00" + "\u00A0");
-        tvCurrency1.setText("BTC");
+        tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
 
         Log.i("ReceiveFragment", "assignHDReceiveAddress() onCreateView");
@@ -552,8 +552,8 @@ public class ReceiveFragment extends Fragment {
     	}
     	edAmount1.setText(tvAmount2.getText().toString());
     	tvAmount2.setText(tmp);
-    	tvCurrency1.setText(isBTC ? strFiat : "BTC");
-    	tvFiat2.setText(isBTC ? "BTC" : strFiat);
+    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
+    	tvFiat2.setText(isBTC ? strBTC : strFiat);
     	isBTC = (isBTC) ? false : true;
     }
 
