@@ -47,4 +47,8 @@ public class MonetaryUtil {
         return btcUnits;
     }
 
+    public String getBTCUnit(int unit) {
+        return (String)btcUnits[unit];
+    }
+
 }
