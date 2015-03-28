@@ -835,6 +835,8 @@ public class SendFragment extends Fragment {
     	tvCurrency1.setText(isBTC ? strFiat : "BTC");
     	tvFiat2.setText(isBTC ? "BTC" : strFiat);
     	isBTC = (isBTC) ? false : true;
+
+        validateSpend(true);
     }
 
     private void displayMaxAvailable() {
