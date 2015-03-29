@@ -159,7 +159,7 @@ public class BalanceFragment extends Fragment {
         ivReceive = (ImageView)rootView.findViewById(R.id.view_receive);
         ivHome = (ImageView)rootView.findViewById(R.id.view_home);
         ivSend = (ImageView)rootView.findViewById(R.id.view_send);
-        
+
         tvSwipe = (TextView)rootView.findViewById(R.id.swipe);
         tvSwipe.setTypeface(TypefaceUtil.getInstance(getActivity()).getAwesomeTypeface());
         tvSwipe.setText(Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));

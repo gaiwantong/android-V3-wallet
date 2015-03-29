@@ -744,9 +744,6 @@ public class SendFragment extends Fragment {
 		long lamount = 0L;
 		double damount = 0.0;
 		try {
-//			damount = NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue();
-//			lamount = (long)(damount * 1e8);
-//            pendingSpend.bamount = BigInteger.valueOf(lamount);
             lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
             pendingSpend.bamount = getUndenominatedAmount(lamount);
 			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {

@@ -418,8 +418,6 @@ public class ReceiveFragment extends Fragment {
             strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-//            tvCurrency1.setText(isBTC ? strBTC : strFiat);
-//            tvFiat2.setText(isBTC ? strFiat : strBTC);
             updateTextFields();
         }
         else {
@@ -433,8 +431,6 @@ public class ReceiveFragment extends Fragment {
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-//        tvCurrency1.setText(isBTC ? strBTC : strFiat);
-//        tvFiat2.setText(isBTC ? strFiat : strBTC);
         updateTextFields();
     }
 
@@ -456,15 +452,11 @@ public class ReceiveFragment extends Fragment {
 		try {
 			long lamount = 0L;
 			if(isBTC) {
-//                amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
                 lamount = (long)(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8);
 			}
 			else {
-//    			amount = NumberFormat.getInstance(locale).parse(tvAmount2.getText().toString()).doubleValue();
                 lamount = (long)(NumberFormat.getInstance(locale).parse(tvAmount2.getText().toString()).doubleValue() * 1e8);
 			}
-//			long lamount = (long)(amount * 1e8);
-//            bamount = BigInteger.valueOf(lamount);
             bamount = getUndenominatedAmount(lamount);
 			if(!bamount.equals(BigInteger.ZERO)) {
 				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));		        		
