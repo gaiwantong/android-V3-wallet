@@ -2,6 +2,9 @@ package info.blockchain.wallet.util;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -16,6 +19,7 @@ import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 
@@ -30,14 +34,14 @@ public class AddressFactory {
 
     private static Context context = null;
     private static AddressFactory instance = null;
-    
+
     private static HashMap<Integer,ReceiveAddress> receiveAddresses = null;
 
     private static HashMap<Integer,Integer> highestTxReceiveIdx = null;
     private static HashMap<Integer,Integer> highestTxChangeIdx = null;
 
     private AddressFactory() { ; }
-    
+
     public static AddressFactory getInstance(Context ctx, String[] xpub) throws AddressFormatException {
 
         context = ctx;
@@ -51,6 +55,13 @@ public class AddressFactory {
 
             highestTxReceiveIdx = new HashMap<Integer,Integer>();
             highestTxChangeIdx = new HashMap<Integer,Integer>();
+
+            Map<String,Integer> xmap = PayloadFactory.getInstance().get().getXpub2Account();
+            Set<String> keys = xmap.keySet();
+            for(String s : keys) {
+                int highIdx = MultiAddrFactory.getInstance().getHighestTxReceiveIdx(s);
+                highestTxReceiveIdx.put(xmap.get(s), highIdx);
+            }
 
             instance = new AddressFactory();
         }
@@ -77,24 +88,24 @@ public class AddressFactory {
         HD_Address addr = null;
 
         try	{
-        	if(chain == RECEIVE_CHAIN)	{
-        		idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses();
+            if(chain == RECEIVE_CHAIN)	{
+                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses();
                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
-        	}
-        	else	{
+            }
+            else	{
                 idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
-        	}
+            }
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
                 addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
             else	{
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
-            if(chain == RECEIVE_CHAIN && ((idx - highestTxReceiveIdx.get(accountIdx)) < (LOOKAHEAD_GAP - 1)))	{
+            if(chain == RECEIVE_CHAIN && ((idx - getHighestTxReceiveIdx(accountIdx)) < (LOOKAHEAD_GAP - 1)))	{
                 HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
             }
-    		PayloadFactory.getInstance(context).remoteSaveThread();
+            PayloadFactory.getInstance(context).remoteSaveThread();
 
         }
         catch(IOException ioe)	{
@@ -110,7 +121,7 @@ public class AddressFactory {
         if(receiveAddresses.get(accountIdx) != null && ((ReceiveAddress)receiveAddresses.get(accountIdx)).getAddress().equals(ret.getAddress()))	{
             ret = new ReceiveAddress(addr.getAddressString(), idx);
         }
-    	receiveAddresses.put(accountIdx, ret);
+        receiveAddresses.put(accountIdx, ret);
 
         return ret;
 

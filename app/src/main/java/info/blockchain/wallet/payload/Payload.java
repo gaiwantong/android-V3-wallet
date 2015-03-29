@@ -32,6 +32,8 @@ public class Payload {
     private Map<String,List<Integer>> tags = null;
     private Map<Integer,String> tag_names = null;
     private Map<String,PaidTo> paidTo = null;
+    private Map<String,Integer> xpub2Account = null;
+    private Map<Integer,String> account2Xpub = null;
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
     private double version = 2.0;
 
@@ -44,6 +46,8 @@ public class Payload {
         tag_names = new HashMap<Integer,String>();
         paidTo = new HashMap<String,PaidTo>();
         options = new Options();
+        xpub2Account = new HashMap<String,Integer>();
+        account2Xpub = new HashMap<Integer,String>();
     }
 
     public Payload(String json) {
@@ -55,7 +59,9 @@ public class Payload {
         tag_names = new HashMap<Integer,String>();
         paidTo = new HashMap<String,PaidTo>();
         options = new Options();
-        
+        xpub2Account = new HashMap<String,Integer>();
+        account2Xpub = new HashMap<Integer,String>();
+
         try {
             jsonObject = new JSONObject(json);
         }
@@ -390,6 +396,8 @@ public class Payload {
                             account.setLabel(accountObj.has("label") ? (String)accountObj.get("label") : "");
                             if(accountObj.has("xpub") && ((String)accountObj.get("xpub")) != null && ((String)accountObj.get("xpub")).length() > 0)  {
                                 account.setXpub((String)accountObj.get("xpub"));
+                                xpub2Account.put((String)accountObj.get("xpub"), i);
+                                account2Xpub.put(i, (String)accountObj.get("xpub"));
                             }
                             else  {
                             	continue;
@@ -492,6 +500,14 @@ public class Payload {
 
         }
 
+    }
+
+    public Map<String,Integer> getXpub2Account()    {
+        return xpub2Account;
+    }
+
+    public Map<Integer,String> getAccount2Xpub()    {
+        return account2Xpub;
     }
 
     public JSONObject dumpJSON() throws JSONException{
