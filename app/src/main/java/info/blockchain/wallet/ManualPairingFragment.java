@@ -152,14 +152,4 @@ public class ManualPairingFragment extends Fragment {
 			}
 		}).start();
 	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-
-		//Select first edittext field and popup softkeyboard
-		edGuid.requestFocus();
-		InputMethodManager mgr = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-		mgr.showSoftInput(edGuid, InputMethodManager.SHOW_IMPLICIT);
-	}
 }

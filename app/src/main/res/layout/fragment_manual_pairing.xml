@@ -28,6 +28,8 @@
 				android:text=""
 				android:paddingLeft="16dp"
 				android:textColor="@color/blockchain_grey"
+				android:background="#ffffff"
+				android:textCursorDrawable="@null"
 				android:textColorHint="@color/blockchain_grey">
 			<requestFocus />
 			</EditText>
@@ -50,6 +52,8 @@
 				android:paddingLeft="16dp"
 				android:password="true"
 				android:textColor="@color/blockchain_grey"
+				android:background="#ffffff"
+				android:textCursorDrawable="@null"
 				android:textColorHint="@color/blockchain_grey"/>
 
 			<View
