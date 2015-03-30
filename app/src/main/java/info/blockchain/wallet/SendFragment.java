@@ -94,7 +94,7 @@ public class SendFragment extends Fragment {
 	private List<LegacyAddress> legacy = null;
     private List<Account> accounts = null;
 
-	private final String strBTC = "BTC";
+	private String strBTC = "BTC";
 	private String strFiat = null;
 	private boolean isBTC = true;
 	private double btc_fx = 319.13;
@@ -109,7 +109,8 @@ public class SendFragment extends Fragment {
 		String destination;
 		String sending_from;
 		String btc_amount;
-		String fiat_amount;
+        String fiat_amount;
+        String btc_units;
 	};
 	
 	private PendingSpend pendingSpend = new PendingSpend();
@@ -266,7 +267,9 @@ public class SendFragment extends Fragment {
             		pendingSpend.btc_amount = tvAmount2.getText().toString();
             	}
 
-	        	btSend.setVisibility(View.INVISIBLE);
+                pendingSpend.btc_units = strBTC;
+
+                btSend.setVisibility(View.INVISIBLE);
 	        	
         		final FragmentManager fragmentManager = getFragmentManager();
         		final Fragment fragment = new SendFragment2();
@@ -282,6 +285,7 @@ public class SendFragment extends Fragment {
 		        		args.putString("sending_from", pendingSpend.sending_from);
 		        		args.putString("btc_amount", pendingSpend.btc_amount);
 		        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                        args.putString("btc_units", pendingSpend.btc_units);
 		        		fragment.setArguments(args);
 		        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	}
@@ -294,6 +298,7 @@ public class SendFragment extends Fragment {
 		        		args.putString("sending_from", pendingSpend.sending_from);
 		        		args.putString("btc_amount", pendingSpend.btc_amount);
 		        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                        args.putString("btc_units", pendingSpend.btc_units);
 		        		fragment.setArguments(args);
 		        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	}
@@ -357,6 +362,7 @@ public class SendFragment extends Fragment {
 					        		args.putString("sending_from", pendingSpend.sending_from);
 					        		args.putString("btc_amount", pendingSpend.btc_amount);
 					        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                                    args.putString("btc_units", pendingSpend.btc_units);
 	            	        		fragment.setArguments(args);
 		        	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	        	}
@@ -394,6 +400,7 @@ public class SendFragment extends Fragment {
     	        		args.putString("sending_from", pendingSpend.sending_from);
     	        		args.putString("btc_amount", pendingSpend.btc_amount);
     	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                        args.putString("btc_units", pendingSpend.btc_units);
     	        		fragment.setArguments(args);
     	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	}
@@ -408,6 +415,7 @@ public class SendFragment extends Fragment {
     	        		args.putString("sending_from", pendingSpend.sending_from);
     	        		args.putString("btc_amount", pendingSpend.btc_amount);
     	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                        args.putString("btc_units", pendingSpend.btc_units);
     	        		fragment.setArguments(args);
     	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	}
@@ -440,6 +448,7 @@ public class SendFragment extends Fragment {
 	            	        		args.putString("sending_from", pendingSpend.sending_from);
 	            	        		args.putString("btc_amount", pendingSpend.btc_amount);
 	            	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
+                                    args.putString("btc_units", pendingSpend.btc_units);
 	            	        		fragment.setArguments(args);
 		        	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 			    	        	}
@@ -498,47 +507,9 @@ public class SendFragment extends Fragment {
 		});
         edAmount1.addTextChangedListener(new TextWatcher()	{
         	public void afterTextChanged(Editable s) {
-        		
-            	double btc_amount = 0.0;
-        		if(isBTC) {
-                	try {
-            			btc_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-                	}
-                	catch(NumberFormatException nfe) {
-                    	btc_amount = 0.0;
-                	}
-                	catch(ParseException pe) {
-                    	btc_amount = 0.0;
-                	}
-                	
-                	// sanity check on strFiat, necessary if the result of a URI scan
-                	if(strFiat == null) {
-                    	strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
-                        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-                	}
 
-                	double fiat_amount = btc_fx * btc_amount;
-                	tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
-                	tvCurrency1.setText(strBTC);
-                	tvFiat2.setText(strFiat);
-        		}
-        		else {
-                	double fiat_amount = 0.0;
-                	try {
-            			fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-                	}
-                	catch(NumberFormatException nfe) {
-                    	fiat_amount = 0.0;
-                	}
-                	catch(ParseException pe) {
-                    	fiat_amount = 0.0;
-                	}
-                	btc_amount = fiat_amount / btc_fx;
-                	tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(btc_amount) + "\u00A0");
-                	tvCurrency1.setText(strFiat);
-                	tvFiat2.setText(strBTC);
-        		}
-        		
+                updateTextFields();
+
         		if(edAmount1 != null && edDestination != null && tvAmount2 != null && spAccounts != null) {
             		validateSpend(false);
         		}
@@ -622,11 +593,12 @@ public class SendFragment extends Fragment {
             );
         spAccounts.setSelection(0);
 
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvAmount2.setText("0.00" + "\u00A0");
-        tvCurrency1.setText("BTC");
+        tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
 
         tvMax = (TextView)rootView.findViewById(R.id.max);
@@ -666,6 +638,8 @@ public class SendFragment extends Fragment {
 
                 double fiat_amount = btc_fx * btc_amount;
                 tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
+                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
                 tvFiat2.setText(strFiat);
 
@@ -689,8 +663,12 @@ public class SendFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if(isVisibleToUser) {
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            tvCurrency1.setText(isBTC ? strBTC : strFiat);
+            tvFiat2.setText(isBTC ? strFiat : strBTC);
+            displayMaxAvailable();
         }
         else {
         	;
@@ -700,8 +678,12 @@ public class SendFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        tvCurrency1.setText(isBTC ? strBTC : strFiat);
+        tvFiat2.setText(isBTC ? strFiat : strBTC);
+        displayMaxAvailable();
     }
 
     @Override
@@ -724,7 +706,8 @@ public class SendFragment extends Fragment {
 		pendingSpend.destination = null;
 		pendingSpend.bamount = BigInteger.ZERO;
 		pendingSpend.bfee = bFee;
-		pendingSpend.isHD = true;
+        pendingSpend.isHD = true;
+        pendingSpend.btc_units = strBTC;
 
         int position = spAccounts.getSelectedItemPosition();
         if(position >= hdAccountsIdx) {
@@ -761,9 +744,8 @@ public class SendFragment extends Fragment {
 		long lamount = 0L;
 		double damount = 0.0;
 		try {
-			damount = NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue();
-			lamount = (long)(damount * 1e8);
-			pendingSpend.bamount = BigInteger.valueOf(lamount);
+            lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+            pendingSpend.bamount = getUndenominatedAmount(lamount);
 			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
@@ -792,7 +774,7 @@ public class SendFragment extends Fragment {
 
 			if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-				if((lamount + bFee.longValue()) > _lamount) {
+				if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 					if(showMessages) {
 			            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 					}
@@ -803,7 +785,7 @@ public class SendFragment extends Fragment {
 		}
 		else {
 			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
-			if((lamount + bFee.longValue()) > _lamount) {
+			if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 				}
@@ -832,9 +814,46 @@ public class SendFragment extends Fragment {
         	edAmount1.setText(tvAmount2.getText().toString());
     	}
     	tvAmount2.setText(tmp + "\u00A0");
-    	tvCurrency1.setText(isBTC ? strFiat : "BTC");
-    	tvFiat2.setText(isBTC ? "BTC" : strFiat);
+    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
+    	tvFiat2.setText(isBTC ? strBTC : strFiat);
     	isBTC = (isBTC) ? false : true;
+
+        validateSpend(true);
+    }
+
+    private void updateTextFields() {
+        if(isBTC) {
+            double btc_amount = 0.0;
+            try {
+                btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue());
+            }
+            catch(NumberFormatException nfe) {
+                btc_amount = 0.0;
+            }
+            catch(ParseException pe) {
+                btc_amount = 0.0;
+            }
+            double fiat_amount = btc_fx * btc_amount;
+            tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+            tvCurrency1.setText(strBTC);
+            tvFiat2.setText(strFiat);
+        }
+        else {
+            double fiat_amount = 0.0;
+            try {
+                fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+            }
+            catch(NumberFormatException nfe) {
+                fiat_amount = 0.0;
+            }
+            catch(ParseException pe) {
+                fiat_amount = 0.0;
+            }
+            double btc_amount = fiat_amount / btc_fx;
+            tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
+            tvCurrency1.setText(strFiat);
+            tvFiat2.setText(strBTC);
+        }
     }
 
     private void displayMaxAvailable() {
@@ -858,7 +877,7 @@ public class SendFragment extends Fragment {
         long amount_available = amount - bFee.longValue();
         if(amount_available > 0L) {
         	double btc_balance = (((double)amount_available) / 1e8);
-        	tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);
+        	tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_balance)) + " " + strBTC);
         }
         else {
         	tvMax.setText(R.string.no_funds_available);
@@ -879,5 +898,85 @@ public class SendFragment extends Fragment {
 	    
 	    return xpub;
 	}
+
+    private String getDisplayAmount(long value) {
+
+        String strAmount = null;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                strAmount = Double.toString((((double)(value * 1000L)) / 1e8));
+                break;
+            default:
+                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
+                break;
+        }
+
+        return strAmount;
+    }
+
+    private BigInteger getUndenominatedAmount(long value) {
+
+        BigInteger amount = BigInteger.ZERO;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = BigInteger.valueOf(value / 1000000L);
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = BigInteger.valueOf(value / 1000L);
+                break;
+            default:
+                amount = BigInteger.valueOf(value);
+                break;
+        }
+
+        return amount;
+    }
+
+    private double getUndenominatedAmount(double value) {
+
+        double amount = 0.0;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = value / 1000000.0;
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = value / 1000.0;
+                break;
+            default:
+                amount = value;
+                break;
+        }
+
+        return amount;
+    }
+
+    private double getDenominatedAmount(double value) {
+
+        double amount = 0.0;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = value * 1000000.0;
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = value * 1000.0;
+                break;
+            default:
+                amount = value;
+                break;
+        }
+
+        return amount;
+    }
 
 }

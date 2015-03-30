@@ -8,6 +8,7 @@ import java.util.Map;
 
 import android.text.style.StyleSpan;
 import android.text.Spannable;
+import android.util.Log;
 //import android.util.Log;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +30,9 @@ public class MultiAddrFactory	{
 	private static List<Tx> legacy_txs = null;
 	private static HashMap<String,List<String>> haveUnspentOuts = null;
 
+    private static HashMap<String,Integer> highestTxReceiveIdx = null;
+    private static HashMap<String,Integer> highestTxChangeIdx = null;
+
     private static MultiAddrFactory instance = null;
 
 //    private static Logger mLogger = LoggerFactory.getLogger(MultiAddrFactory.class);
@@ -43,6 +47,8 @@ public class MultiAddrFactory	{
         	xpub_txs = new HashMap<String,List<Tx>>();
         	legacy_txs = new ArrayList<Tx>();
         	haveUnspentOuts = new HashMap<String,List<String>>();
+            highestTxReceiveIdx = new HashMap<String,Integer>();
+            highestTxChangeIdx = new HashMap<String,Integer>();
         	legacy_balance = 0L;
         	xpub_balance = 0L;
             instance = new MultiAddrFactory();
@@ -174,6 +180,36 @@ public class MultiAddrFactory	{
                                 	JSONObject xpubObj = (JSONObject)prevOutObj.get("xpub");
                                 	addr = (String)xpubObj.get("m");
                                 	mf_addr = addr;
+                                    String path = (String)xpubObj.get("path");
+                                    String[] s = path.split("/");
+//                                    Log.i("Path", path + "," + s[2]);
+                                    if(s.length == 3)  {
+                                        if(s[1].equals("0"))  {
+                                            int receiveIdx = Integer.parseInt(s[2]);
+                                            if(highestTxReceiveIdx.get(addr) == null)  {
+                                                highestTxReceiveIdx.put(addr, receiveIdx);
+                                            }
+                                            else if(receiveIdx > highestTxReceiveIdx.get(addr))  {
+                                                highestTxReceiveIdx.put(addr, receiveIdx);
+                                            }
+                                            else  {
+                                                ;
+                                            }
+                                        }
+                                        if(s[1].equals("1"))  {
+                                            int changeIdx = Integer.parseInt(s[2]);
+                                            if(highestTxChangeIdx.get(addr) == null)  {
+                                                highestTxChangeIdx.put(addr, changeIdx);
+                                            }
+                                            else if(changeIdx > highestTxChangeIdx.get(addr))  {
+                                                highestTxChangeIdx.put(addr, changeIdx);
+                                            }
+                                            else  {
+                                                ;
+                                            }
+                                        }
+                                    }
+
                                 }
                                 else  {
                                 	o_addr = (String)prevOutObj.get("addr");
@@ -197,7 +233,36 @@ public class MultiAddrFactory	{
                                 	move_amount = outObj.getLong("value");
                                 	mt_addr = addr;
                             	}
-                            	//
+                                String[] s = path.split("/");
+//                                    Log.i("Path", path + "," + s[2]);
+                                if(s.length == 3)  {
+                                    if(s[1].equals("0"))  {
+                                        int receiveIdx = Integer.parseInt(s[2]);
+                                        if(highestTxReceiveIdx.get(addr) == null)  {
+                                            highestTxReceiveIdx.put(addr, receiveIdx);
+                                        }
+                                        else if(receiveIdx > highestTxReceiveIdx.get(addr))  {
+                                            highestTxReceiveIdx.put(addr, receiveIdx);
+                                        }
+                                        else  {
+                                            ;
+                                        }
+                                    }
+                                    if(s[1].equals("1"))  {
+                                        int changeIdx = Integer.parseInt(s[2]);
+                                        if(highestTxChangeIdx.get(addr) == null)  {
+                                            highestTxChangeIdx.put(addr, changeIdx);
+                                        }
+                                        else if(changeIdx > highestTxChangeIdx.get(addr))  {
+                                            highestTxChangeIdx.put(addr, changeIdx);
+                                        }
+                                        else  {
+                                            ;
+                                        }
+                                    }
+                                }
+
+                                //
                             	// collect unspent outputs for each xpub
                             	// store path info in order to generate private key later on
                             	//
@@ -409,6 +474,32 @@ public class MultiAddrFactory	{
 
     public HashMap<String,List<String>> getUnspentOuts()  {
     	return haveUnspentOuts;
+    }
+
+    public int getHighestTxReceiveIdx(String xpub) {
+        if(highestTxReceiveIdx.get(xpub) != null) {
+            return highestTxReceiveIdx.get(xpub);
+        }
+        else {
+            return 0;
+        }
+    }
+
+    public void setHighestTxReceiveIdx(String xpub, int idx) {
+        highestTxReceiveIdx.put(xpub, idx);
+    }
+
+    public int getHighestTxChangeIdx(String xpub) {
+        if(highestTxChangeIdx.get(xpub) != null) {
+            return highestTxChangeIdx.get(xpub);
+        }
+        else {
+            return 0;
+        }
+    }
+
+    public void setHighestTxChangeIdx(String xpub, int idx) {
+        highestTxChangeIdx.put(xpub, idx);
     }
 
 }

@@ -97,7 +97,7 @@ public class ReceiveFragment extends Fragment {
 	
 	private int currentSelectedAccount = 0;
 
-	private final String strBTC = "BTC";
+	private String strBTC = "BTC";
 	private String strFiat = null;
 	private boolean isBTC = true;
 	private double btc_fx = 319.13;
@@ -242,7 +242,7 @@ public class ReceiveFragment extends Fragment {
 		    clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
 			Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
   		    clipboard.setPrimaryClip(clip);
-          }
+                  }
     	});
       
         ivReceivingQR.setOnLongClickListener(new View.OnLongClickListener() {
@@ -299,38 +299,7 @@ public class ReceiveFragment extends Fragment {
         edAmount1.addTextChangedListener(new TextWatcher()	{
         	public void afterTextChanged(Editable s) {
 
-        		if(isBTC) {
-                	double btc_amount = 0.0;
-                	try {
-            			btc_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-                	}
-                	catch(NumberFormatException nfe) {
-                    	btc_amount = 0.0;
-                	}
-                	catch(ParseException pe) {
-                    	btc_amount = 0.0;
-                	}
-                	double fiat_amount = btc_fx * btc_amount;
-                	tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
-                	tvCurrency1.setText(strBTC);
-                	tvFiat2.setText(strFiat);
-        		}
-        		else {
-                	double fiat_amount = 0.0;
-                	try {
-            			fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-                	}
-                	catch(NumberFormatException nfe) {
-                    	fiat_amount = 0.0;
-                	}
-                	catch(ParseException pe) {
-                    	fiat_amount = 0.0;
-                	}
-                	double btc_amount = fiat_amount / btc_fx;
-                	tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(btc_amount));
-                	tvCurrency1.setText(strFiat);
-                	tvFiat2.setText(strBTC);
-        		}
+                updateTextFields();
 
         		if(currentSelectedAddress != null) {
         			displayQRCode();
@@ -423,11 +392,12 @@ public class ReceiveFragment extends Fragment {
         });
 //        spAccounts.setSelection(0);
 
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvAmount2.setText("0.00" + "\u00A0");
-        tvCurrency1.setText("BTC");
+        tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
 
         Log.i("ReceiveFragment", "assignHDReceiveAddress() onCreateView");
@@ -445,8 +415,10 @@ public class ReceiveFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if(isVisibleToUser) {
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            updateTextFields();
         }
         else {
         	;
@@ -456,8 +428,10 @@ public class ReceiveFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        updateTextFields();
     }
 
     @Override
@@ -476,15 +450,14 @@ public class ReceiveFragment extends Fragment {
 
 		BigInteger bamount = null;
 		try {
-			double amount = 0.0;
+			long lamount = 0L;
 			if(isBTC) {
-    			amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+                lamount = (long)(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8);
 			}
 			else {
-    			amount = NumberFormat.getInstance(locale).parse(tvAmount2.getText().toString()).doubleValue();
+                lamount = (long)(NumberFormat.getInstance(locale).parse(tvAmount2.getText().toString()).doubleValue() * 1e8);
 			}
-			long lamount = (long)(amount * 1e8);
-			bamount = BigInteger.valueOf(lamount);
+            bamount = getUndenominatedAmount(lamount);
 			if(!bamount.equals(BigInteger.ZERO)) {
 				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));		        		
 			}
@@ -552,9 +525,104 @@ public class ReceiveFragment extends Fragment {
     	}
     	edAmount1.setText(tvAmount2.getText().toString());
     	tvAmount2.setText(tmp);
-    	tvCurrency1.setText(isBTC ? strFiat : "BTC");
-    	tvFiat2.setText(isBTC ? "BTC" : strFiat);
+    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
+    	tvFiat2.setText(isBTC ? strBTC : strFiat);
     	isBTC = (isBTC) ? false : true;
+    }
+
+    private void updateTextFields() {
+        if(isBTC) {
+            double btc_amount = 0.0;
+            try {
+                btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue());
+            }
+            catch(NumberFormatException nfe) {
+                btc_amount = 0.0;
+            }
+            catch(ParseException pe) {
+                btc_amount = 0.0;
+            }
+            double fiat_amount = btc_fx * btc_amount;
+            tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+            tvCurrency1.setText(strBTC);
+            tvFiat2.setText(strFiat);
+        }
+        else {
+            double fiat_amount = 0.0;
+            try {
+                fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+            }
+            catch(NumberFormatException nfe) {
+                fiat_amount = 0.0;
+            }
+            catch(ParseException pe) {
+                fiat_amount = 0.0;
+            }
+            double btc_amount = fiat_amount / btc_fx;
+            tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
+            tvCurrency1.setText(strFiat);
+            tvFiat2.setText(strBTC);
+        }
+    }
+
+    private BigInteger getUndenominatedAmount(long value) {
+
+        BigInteger amount = BigInteger.ZERO;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = BigInteger.valueOf(value / 1000000L);
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = BigInteger.valueOf(value / 1000L);
+                break;
+            default:
+                amount = BigInteger.valueOf(value);
+                break;
+        }
+
+        return amount;
+    }
+
+    private double getUndenominatedAmount(double value) {
+
+        double amount = 0.0;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = value / 1000000.0;
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = value / 1000.0;
+                break;
+            default:
+                amount = value;
+                break;
+        }
+
+        return amount;
+    }
+
+    private double getDenominatedAmount(double value) {
+
+        double amount = 0.0;
+
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        switch(unit) {
+            case MonetaryUtil.MICRO_BTC:
+                amount = value * 1000000.0;
+                break;
+            case MonetaryUtil.MILLI_BTC:
+                amount = value * 1000.0;
+                break;
+            default:
+                amount = value;
+                break;
+        }
+
+        return amount;
     }
 
 }

@@ -29,6 +29,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
 //public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener	{
@@ -59,7 +60,15 @@ public class SettingsActivity extends PreferenceActivity	{
         		}
         	});
 
-        	Preference fiatPref = (Preference) findPreference("fiat");
+        Preference unitsPref = (Preference) findPreference("units");
+        unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                getUnits();
+                return true;
+            }
+        });
+
+        Preference fiatPref = (Preference) findPreference("fiat");
         	fiatPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
         	    	Intent intent = new Intent(SettingsActivity.this, CurrencySelector.class);
@@ -192,7 +201,7 @@ public class SettingsActivity extends PreferenceActivity	{
         			return true;
         		}
         	});
-
+/*
         	Preference hexseedPref = (Preference) findPreference("hexseed");
         	hexseedPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
@@ -263,7 +272,7 @@ public class SettingsActivity extends PreferenceActivity	{
         			return true;
         		}
         	});
-
+*/
         	/*
         	Preference passphrasePref = (Preference) findPreference("passphrase");
         	passphrasePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -367,6 +376,24 @@ public class SettingsActivity extends PreferenceActivity	{
 		android.content.ClipData clip = null;
 	    clip = android.content.ClipData.newPlainText("Passphrase", passphrase);
 		clipboard.setPrimaryClip(clip);
+
+    }
+
+    private void getUnits()	{
+
+        final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
+        final int sel = PrefsUtil.getInstance(SettingsActivity.this).getValue(PrefsUtil.BTC_UNITS, 0);
+
+        new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.select_units)
+//                .setCancelable(false)
+                .setSingleChoiceItems(units, sel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                PrefsUtil.getInstance(SettingsActivity.this).setValue(PrefsUtil.BTC_UNITS, which);
+                                dialog.dismiss();
+                            }
+                        }
+                ).show();
 
     }
 
