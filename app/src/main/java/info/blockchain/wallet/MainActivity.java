@@ -116,9 +116,78 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+
+		if(!ConnectivityStatus.hasConnectivity(this)) {
+			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			final String message = getString(R.string.check_connectivity_exit);
+
+			builder.setMessage(message)
+					.setCancelable(false)
+					.setPositiveButton(R.string.dialog_continue,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface d, int id) {
+									d.dismiss();
+									Class c = null;
+									if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.GUID, "").length() < 1) {
+										c = Setup0Activity.class;
+									}
+									else {
+										c = PinEntryActivity.class;
+									}
+									Intent intent = new Intent(MainActivity.this, c);
+									intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+									startActivity(intent);
+								}
+							});
+
+			builder.create().show();
+		}
+		else {
+
+			exchangeRateThread();
+
+			boolean verified = false;
+			Bundle extras = getIntent().getExtras();
+			if(extras != null && extras.containsKey("verified"))	{
+				verified = extras.getBoolean("verified");
+			}
+
+			if(PrefsUtil.getInstance(this).getValue(PrefsUtil.GUID, "").length() < 1) {
+				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
+				Intent intent = new Intent(MainActivity.this, Setup0Activity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			}
+			else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
+				Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			}
+			else if(verified) {
+				AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+
+				TimeOutUtil.getInstance().updatePin();
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !TimeOutUtil.getInstance().isTimedOut()) {
+				TimeOutUtil.getInstance().updatePin();
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else {
+				Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			}
+		}
+
 		setContentView(R.layout.activity_main);
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
+
 		locale = Locale.getDefault();
 
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
@@ -170,74 +239,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 //        mNfcAdapter.setNdefPushMessageCallback(this, this);
         // Register callback to listen for message-sent success
 //        mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
-		
-		if(!ConnectivityStatus.hasConnectivity(this)) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	        
-	        final String message = getString(R.string.check_connectivity_exit);
-	 
-	        builder.setMessage(message)
-	        	.setCancelable(false)
-	            .setPositiveButton(R.string.dialog_continue,
-	                new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface d, int id) {
-	                        d.dismiss();
-	                        Class c = null;
-	            			if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.GUID, "").length() < 1) {
-	            				c = Setup0Activity.class;
-	            			}
-	            			else {
-	            				c = PinEntryActivity.class;
-	            			}
-							Intent intent = new Intent(MainActivity.this, c);
-							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-							startActivity(intent);
-	                    }
-	            });
-
-	        builder.create().show();
-		}
-		else {
-
-            exchangeRateThread();
-
-	        boolean verified = false;
-			Bundle extras = getIntent().getExtras();
-			if(extras != null && extras.containsKey("verified"))	{
-				verified = extras.getBoolean("verified");
-			}
-
-			if(PrefsUtil.getInstance(this).getValue(PrefsUtil.GUID, "").length() < 1) {
-				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-	    		Intent intent = new Intent(MainActivity.this, Setup0Activity.class);
-	    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-	    		startActivity(intent);
-			}
-			else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
-	    		Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-	    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-	    		startActivity(intent);
-			}
-			else if(verified) {
-	    		AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
-	    		
-				TimeOutUtil.getInstance().updatePin();
-	    		Fragment fragment = new BalanceFragment();
-	    		FragmentManager fragmentManager = getFragmentManager();
-	    		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			}
-	    	else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !TimeOutUtil.getInstance().isTimedOut()) {
-				TimeOutUtil.getInstance().updatePin();
-	    		Fragment fragment = new BalanceFragment();
-	    		FragmentManager fragmentManager = getFragmentManager();
-	    		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			}
-			else {
-	    		Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-	    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-	    		startActivity(intent);
-			}
-		}
 
 	}
 
