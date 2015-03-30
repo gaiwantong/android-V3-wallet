@@ -11,6 +11,7 @@ public class Tx {
     private long ts = 0L;
     private Map<Integer,String> tags = null;
     private boolean isMove = false;
+    private long confirmations = 0L;
 
     public Tx(String hash, String note, String direction, double amount, long date, Map<Integer,String> tags) {
         strHash = hash;
@@ -83,6 +84,14 @@ public class Tx {
 
     public void setTags(Map<Integer,String> tags) {
         this.tags = tags;
+    }
+
+    public long getConfirmations() {
+        return confirmations;
+    }
+
+    public void setConfirmations(long confirmations) {
+        this.confirmations = confirmations;
     }
 
 }

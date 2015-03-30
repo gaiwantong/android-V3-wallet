@@ -20,6 +20,10 @@
     <color name="magiclist_bg_selected">#FF1B8AC7</color>
     <color name="magiclist_bg_unselected">#FFFFFFFF</color>
 
-	<color name="color_primary_dark">#1476ab</color>
+    <color name="blockchain_red_50">#7Fff8889</color>
+    <color name="blockchain_green_50">#7F8ab75e</color>
+    <color name="blockchain_lighter_blue_50">#7Fa4cce0</color>
+
+    <color name="color_primary_dark">#1476ab</color>
 
 </resources>

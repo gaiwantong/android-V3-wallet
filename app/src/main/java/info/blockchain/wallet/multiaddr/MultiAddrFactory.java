@@ -123,7 +123,19 @@ public class MultiAddrFactory	{
                 	xpub_balance = walletObj.getLong("final_balance");
                 }
             }
-            
+
+            long latest_block = 0L;
+
+            if(jsonObject.has("info"))  {
+                JSONObject infoObj = (JSONObject)jsonObject.get("info");
+                if(infoObj.has("latest_block"))  {
+                    JSONObject blockObj = (JSONObject)infoObj.get("latest_block");
+                    if(blockObj.has("height"))  {
+                        latest_block = blockObj.getLong("height");
+                    }
+                }
+            }
+
             if(jsonObject.has("addresses"))  {
             	
             	xpub_amounts = new HashMap<String, Long>();
@@ -147,6 +159,7 @@ public class MultiAddrFactory	{
             	for(int i = 0; i < txArray.length(); i++)  {
 
             		txObj = (JSONObject)txArray.get(i);
+                    long height = 0L;
             		long amount = 0L;
             		long inputs_amount = 0L;
             		long outputs_amount = 0L;
@@ -158,6 +171,13 @@ public class MultiAddrFactory	{
             		String mt_addr = null;
             		String o_addr = null;
             		boolean isMove = false;
+
+                    if(txObj.has("block_height"))  {
+                        height = txObj.getLong("block_height");
+                    }
+                    else  {
+                        height = -1L;  // 0 confirmations
+                    }
 
 //            		if(txObj.has("hash"))  {
                     	hash = (String)txObj.get("hash");
@@ -293,15 +313,16 @@ public class MultiAddrFactory	{
                     if(addr != null)  {
                 		Tx tx = null;
                 		if(isMove)  {
-//                    		tx = new Tx(hash, "", "You moved bitcoins between addresses", move_amount, ts, new HashMap<Integer,String>());
                     		tx = new Tx(hash, "", "MOVED", move_amount, ts, new HashMap<Integer,String>());
                     		tx.setIsMove(true);
                 		}
                 		else  {
-//                    		tx = new Tx(hash, "", amount > 0L ? "You received bitcoin from a bitcoin address" : "You sent bitcoin to a bitcoin address", amount, ts, new HashMap<Integer,String>());
                     		tx = new Tx(hash, "", amount > 0L ? "RECEIVED" : "SENT", amount, ts, new HashMap<Integer,String>());
                 		}
-                		if(isMove)  {
+
+                        tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
+
+                        if(isMove)  {
                     		if(xpub_txs.containsKey(mf_addr))  {
                         		xpub_txs.get(mf_addr).add(tx);
                     		}
@@ -347,6 +368,18 @@ public class MultiAddrFactory	{
                 }
             }
 
+            long latest_block = 0L;
+
+            if(jsonObject.has("info"))  {
+                JSONObject infoObj = (JSONObject)jsonObject.get("info");
+                if(infoObj.has("latest_block"))  {
+                    JSONObject blockObj = (JSONObject)infoObj.get("latest_block");
+                    if(blockObj.has("height"))  {
+                        latest_block = blockObj.getLong("height");
+                    }
+                }
+            }
+
             if(jsonObject.has("addresses"))  {
             	JSONArray addressArray = (JSONArray)jsonObject.get("addresses");
             	JSONObject addrObj = null;
@@ -375,12 +408,20 @@ public class MultiAddrFactory	{
             	for(int i = 0; i < txArray.length(); i++)  {
 
             		txObj = (JSONObject)txArray.get(i);
-            		long amount = 0L;
+                    long height = 0L;
+                    long amount = 0L;
             		long ts = 0L;
             		String hash = null;
             		String addr = null;
 
-            		if(txObj.has("hash"))  {
+                    if(txObj.has("block_height"))  {
+                        height = txObj.getLong("block_height");
+                    }
+                    else  {
+                        height = -1L;  // 0 confirmations
+                    }
+
+                    if(txObj.has("hash"))  {
                     	hash = (String)txObj.get("hash");
                     }
             		if(txObj.has("result"))  {
@@ -412,8 +453,8 @@ public class MultiAddrFactory	{
                     }
 
                     if(addr != null)  {
-//                		Tx tx = new Tx(hash, "", amount > 0L ? "You received bitcoin from a bitcoin address" : "You sent bitcoin to a bitcoin address", amount, ts, new HashMap<Integer,String>());
                 		Tx tx = new Tx(hash, "", amount > 0L ? "RECEIVED" : "SENT", amount, ts, new HashMap<Integer,String>());
+                        tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
                 		legacy_txs.add(tx);
                     }
             	}
