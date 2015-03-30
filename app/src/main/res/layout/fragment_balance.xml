@@ -51,7 +51,8 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-		android:src="@drawable/request"
+		android:src="@android:drawable/ic_menu_send"
+        android:rotation="90.0"
     	/>
         </LinearLayout>
     	<LinearLayout
@@ -68,7 +69,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-		android:src="@drawable/accounts"
+        android:src="@android:drawable/ic_menu_sort_by_size"
     	/>
         </LinearLayout>
     	<LinearLayout
@@ -85,7 +86,8 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-		android:src="@drawable/send"
+        android:src="@android:drawable/ic_menu_send"
+        android:rotation="-90.0"
     	/>
         </LinearLayout>
     </LinearLayout>
