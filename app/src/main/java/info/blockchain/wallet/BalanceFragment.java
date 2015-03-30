@@ -584,16 +584,16 @@ public class BalanceFragment extends Fragment {
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		        }
 				if(tx.isMove()) {
-					tvResult.setBackgroundResource(R.drawable.rounded_view_lighter_blue);
-					tvDirection.setTextColor(getActivity().getResources().getColor(R.color.blockchain_lighter_blue));
+					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
+					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_lighter_blue_50 : R.color.blockchain_lighter_blue));
 				}
 				else if(_btc_balance < 0.0) {
-					tvResult.setBackgroundResource(R.drawable.rounded_view_red);
-					tvDirection.setTextColor(getActivity().getResources().getColor(R.color.blockchain_red));
+					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
+					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_red));
 				}
 				else {
-					tvResult.setBackgroundResource(R.drawable.rounded_view_green);
-					tvDirection.setTextColor(getActivity().getResources().getColor(R.color.blockchain_green));
+					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
+					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_green));
 				}
 				tvResult.setText(span1);
                 tvResult.setOnTouchListener(new OnTouchListener() {
