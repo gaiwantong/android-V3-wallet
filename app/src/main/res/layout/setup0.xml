@@ -15,15 +15,14 @@
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="50"
+			android:gravity="center"
 			android:orientation="vertical">
 
 			<ImageView
 				android:layout_width="165dp"
-				android:layout_height="188dp"
+				android:layout_height="151dp"
 				android:src="@drawable/logo3x"
 				android:gravity="center_horizontal"
-				android:layout_gravity="center_horizontal"
-				android:layout_marginTop="40dp"
 				android:layout_centerInParent="true"
 				android:layout_alignParentTop="true"
 				/>
