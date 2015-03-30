@@ -7,32 +7,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.app.AlertDialog;
-import android.app.ActivityManager.RunningServiceInfo;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Typeface;
 import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnTouchListener;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-//import android.util.Log;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
@@ -45,9 +36,6 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.DeviceUtil;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
@@ -58,7 +46,6 @@ public class PinEntryActivity extends Activity {
 
 	final int PIN_LENGTH = 4;
 	boolean keyPadLockedFlag = false;
-	Context context = null;
 
 	TextView titleView = null;
 
@@ -91,25 +78,64 @@ public class PinEntryActivity extends Activity {
 
 	private ProgressDialog progress = null;
 
+	private String strEmail = null;
+	private String strPassword = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		context = this;
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_pin_entry);
 
-		//by using values-small/dimens.xml in activity_pin_entry, the below shouldn't be a problem anymore
-//		if(!DeviceUtil.getInstance(this).isSmallScreen()) {
-//			setContentView(R.layout.activity_pin_entry);
-//		}
-//		else {
-//			setContentView(R.layout.activity_pin_entry_small);
-//		}
-
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		boolean isPairing = false;
+		Bundle extras = getIntent().getExtras();
+
+		if(extras != null && extras.containsKey("pairing"))	{
+			isPairing = extras.getBoolean("pairing");
+		}
+		else	{
+			isPairing = false;
+		}
+		if(extras != null && extras.containsKey("_email"))	{
+			strEmail = extras.getString("_email");
+		}
+		if(extras != null && extras.containsKey("_pw"))	{
+			strPassword = extras.getString("_pw");
+		}
+
+		if(isPairing) {
+			AppUtil.getInstance(this).restartApp();
+		}
+		else if(extras!=null){
+
+			//
+			// save email here
+			//
+
+			// create wallet
+			// restart
+			try {
+				HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
+				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
+
+				PayloadFactory.getInstance(this).remoteSaveThread();
+
+				AppUtil.getInstance(this).restartApp();
+			}
+			catch(IOException ioe) {
+				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+				AppUtil.getInstance(this).wipeApp();
+			}
+			catch(MnemonicException.MnemonicLengthException mle) {
+				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+				AppUtil.getInstance(this).wipeApp();
+			}
+
+		}
 
 	    String action = getIntent().getAction();
 	    String scheme = getIntent().getScheme();

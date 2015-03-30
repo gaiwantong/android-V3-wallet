@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class CreateWalletFragment extends Fragment {
 	private EditText edPassword1 = null;
 	private EditText edPassword2 = null;
 
+	LinearLayout entropyMeter;
 	ProgressBar passStrengthBar;
 	TextView passStrengthVerdict;
 	TextView next;
@@ -63,42 +65,64 @@ public class CreateWalletFragment extends Fragment {
 		passStrengthBar = (ProgressBar)rootView.findViewById(R.id.pass_strength_bar);
 		passStrengthBar.setMax(100);
 		passStrengthVerdict = (TextView)rootView.findViewById(R.id.pass_strength_verdict);
+		entropyMeter = (LinearLayout)rootView.findViewById(R.id.entropy_meter);
 
-		edPassword1.addTextChangedListener(new TextWatcher()
-		{
+		edEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after)
-			{
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(hasFocus)setEntropyMeterVisible(View.GONE);
+			}
+		});
+
+		edPassword2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(hasFocus)setEntropyMeterVisible(View.GONE);
+			}
+		});
+
+		edPassword1.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
 			}
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count)
-			{
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
 			}
 
-			private Timer timer=new Timer();
+			private Timer timer = new Timer();
 			private final long DELAY = 200; // small delay before pass entropy calc - increases performance when user types fast.
 
 			@Override
-			public void afterTextChanged(final Editable editable)
-			{
+			public void afterTextChanged(final Editable editable) {
 				timer.cancel();
 				timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
 					public void run() {
+
+						setEntropyMeterVisible(View.VISIBLE);
+
 						final String pw = editable.toString();
 
-						if(pw.equals(edEmail.getText().toString()))//Email and password can't be the same
+						if (pw.equals(edEmail.getText().
+
+										toString()
+
+						))//Email and password can't be the same
 							pwStrength = 0;
 						else
-							pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
+							pwStrength = (int) Math.round(PasswordUtil.getInstance().
+
+											getStrength(pw)
+
+							);
 
 						int pwStrengthLevel = 0;//red
-						if(pwStrength >= 75)pwStrengthLevel = 3;//green
-						else if(pwStrength >= 50)pwStrengthLevel = 2;//green
-						else if(pwStrength >= 25)pwStrengthLevel = 1;//orange
+						if (pwStrength >= 75) pwStrengthLevel = 3;//green
+						else if (pwStrength >= 50) pwStrengthLevel = 2;//green
+						else if (pwStrength >= 25) pwStrengthLevel = 1;//orange
 
 						setProgress(pwStrengthLevel, pwStrength);
 					}
@@ -149,18 +173,20 @@ public class CreateWalletFragment extends Fragment {
     				    	        }
     				    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
-    		        		        	Intent intent = new Intent(getActivity(), Setup2Activity.class);
+    		        		        	Intent intent = new Intent(getActivity(), PinEntryActivity.class);
     		        		        	intent.putExtra("_email", em);
     		        		        	intent.putExtra("_pw", pw1);
-    		        		    		startActivity(intent);
+    		        		    		getActivity().startActivity(intent);
+										getActivity().finish();
     				    	        }
     				    	    }).show();
 				}
 				else {
-					Intent intent = new Intent(getActivity(), Setup2Activity.class);
+					Intent intent = new Intent(getActivity(), PinEntryActivity.class);
 					intent.putExtra("_email", em);
 					intent.putExtra("_pw", pw1);
-					startActivity(intent);
+					getActivity().startActivity(intent);
+					getActivity().finish();
 				}
 			}
 		});
@@ -168,4 +194,13 @@ public class CreateWalletFragment extends Fragment {
 		return rootView;
 	}
 
+	private void setEntropyMeterVisible(final int visible){
+
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				entropyMeter.setVisibility(visible);
+			}
+		});
+	}
 }

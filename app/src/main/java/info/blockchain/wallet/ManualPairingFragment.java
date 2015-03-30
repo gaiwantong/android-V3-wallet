@@ -109,7 +109,7 @@ public class ManualPairingFragment extends Fragment {
 								if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
 									PayloadFactory.getInstance(getActivity()).setTempPassword(password);
 									Toast.makeText(getActivity(), "Pairing OK", Toast.LENGTH_SHORT).show();
-									Intent intent = new Intent(getActivity(), Setup2Activity.class);
+									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
 									intent.putExtra("pairing", true);
 									getActivity().startActivity(intent);
 									getActivity().finish();

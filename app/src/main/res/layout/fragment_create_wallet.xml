@@ -40,6 +40,7 @@
 						android:focusableInTouchMode="true"
 						android:singleLine="true"
 						android:gravity="center_vertical"
+						android:background="#ffffff"
 						android:textColor="@color/blockchain_grey">
 					<requestFocus />
 				</EditText>
@@ -75,11 +76,14 @@
 				android:singleLine="true"
 				android:gravity="center_vertical"
 				android:password="true"
+				android:background="#ffffff"
 				android:textColor="@color/blockchain_grey"/>
 
 		</LinearLayout>
 
 		<LinearLayout
+			android:id="@+id/entropy_meter"
+			android:visibility="gone"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingBottom="16dp"
@@ -155,6 +159,7 @@
 					android:singleLine="true"
 					android:gravity="center_vertical"
 					android:password="true"
+					android:background="#ffffff"
 					android:textColor="@color/blockchain_grey"/>
 
 			</LinearLayout>
