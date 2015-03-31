@@ -2,11 +2,11 @@
     xmlns:material-navigation-drawer-example="http://schemas.android.com/apk/res-auto"
     >
     <item android:id="@+id/action_merchant_directory"
-          android:icon="@android:drawable/ic_menu_mylocation"
+          android:icon="@drawable/icon_merchantdirectory"
           material-navigation-drawer-example:showAsAction="always"
           android:title=""/>
     <item android:id="@+id/action_qr"
-          android:icon="@android:drawable/ic_menu_camera"
+          android:icon="@drawable/icon_qrcode"
           material-navigation-drawer-example:showAsAction="always"
           android:title="" />
 </menu>
