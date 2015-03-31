@@ -149,6 +149,9 @@
     <string name="about">Blockchain Wallet %1$s\n©%2$s Blockchain.info</string>
     <string name="merchant_download">Free Merchant app</string>
     <string name="feedback">Send Feedback</string>
+    <string name="password_or_wipe">Enter using your password or forget this wallet</string>
+    <string name="use_password">Use password</string>
+    <string name="wipe_wallet">Forget wallet</string>
 
     <string name="select_units">Select displayable BTC units</string>
     <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
