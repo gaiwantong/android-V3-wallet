@@ -619,8 +619,27 @@ public class PinEntryActivity extends Activity {
     	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_FAILS, 0);
     	if(fails >= 3)	{
         	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes, Toast.LENGTH_SHORT).show();
-        	validationDialog();
-    	}
+//        	validationDialog();
+
+            new AlertDialog.Builder(PinEntryActivity.this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.password_or_wipe)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.use_password, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            validationDialog();
+
+                        }
+                    }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                    AppUtil.getInstance(PinEntryActivity.this).wipeApp();
+
+                }
+            }).show();
+
+        }
 
 	}
 
