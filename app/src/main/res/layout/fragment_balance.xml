@@ -51,8 +51,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-		android:src="@android:drawable/ic_menu_send"
-        android:rotation="90.0"
+		android:src="@drawable/icon_receive"
     	/>
         </LinearLayout>
     	<LinearLayout
@@ -69,7 +68,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-        android:src="@android:drawable/ic_menu_sort_by_size"
+        android:src="@drawable/icon_accounts"
     	/>
         </LinearLayout>
     	<LinearLayout
@@ -86,8 +85,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-        android:src="@android:drawable/ic_menu_send"
-        android:rotation="-90.0"
+        android:src="@drawable/icon_send"
     	/>
         </LinearLayout>
     </LinearLayout>
