@@ -175,7 +175,7 @@ public class BalanceFragment extends Fragment {
             	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
             	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
 
-        		Fragment fragment = new ReceiveFragment();
+        		Fragment fragment = new ReceiveFragment2();
         		FragmentManager fragmentManager = getFragmentManager();
         		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 

@@ -9,4 +9,9 @@
           android:icon="@android:drawable/ic_menu_camera"
           material-navigation-drawer-example:showAsAction="always"
           android:title="" />
+	<item android:id="@+id/action_share_receive"
+		  android:icon="@android:drawable/ic_menu_share"
+		  material-navigation-drawer-example:showAsAction="always"
+		  android:visible="false"
+		  android:title="" />
 </menu>

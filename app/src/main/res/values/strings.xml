@@ -12,7 +12,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="send">Send</string>
-    <string name="receive">Receive</string>
+    <string name="receive">Receive Bitcoin</string>
     <string name="blockchain">Blockchain</string>
 
     <string name="ok">Ok</string>
@@ -152,5 +152,7 @@
 
     <string name="select_units">Select displayable BTC units</string>
     <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
+
+	<string name="from">From</string>
 
 </resources>
