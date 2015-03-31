@@ -22,6 +22,7 @@
 
     <string name="YESTERDAY">Yesterday</string>
     <string name="TODAY">Today</string>
+    <string name="AGO">ago</string>
 
     <string name="SENT">SENT</string>
     <string name="RECEIVED">RECEIVED</string>

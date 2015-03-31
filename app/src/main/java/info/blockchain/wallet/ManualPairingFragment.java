@@ -34,9 +34,9 @@ import info.blockchain.wallet.util.TypefaceUtil;
  */
 public class ManualPairingFragment extends Fragment {
 
-	EditText edGuid;
-	EditText edPassword;
-	TextView next;
+	private EditText edGuid = null;
+    private EditText edPassword = null;
+    private TextView next = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -149,6 +149,7 @@ public class ManualPairingFragment extends Fragment {
 				});
 
 				Looper.loop();
+
 			}
 		}).start();
 	}
