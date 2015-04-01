@@ -18,7 +18,7 @@
     android:layout_gravity="center_horizontal|center_vertical"
     android:textAlignment="gravity"
     android:textColor="#FFFFFFFF"
-    android:textSize="14sp"
+    android:textSize="14dp"
 	/>    
     <TextView
 	android:id="@+id/balance1"
@@ -28,7 +28,7 @@
     android:layout_gravity="center_horizontal|center_vertical"
     android:textAlignment="gravity"
     android:textColor="#FFFFFFFF"
-    android:textSize="34sp"
+    android:textSize="34dp"
 	/>    
 	<TextView
 	android:id="@+id/balance2"
@@ -38,7 +38,7 @@
     android:layout_gravity="center_horizontal|center_vertical"
     android:textAlignment="gravity"
     android:textColor="#FFFFFFFF"
-    android:textSize="14sp"
+    android:textSize="14dp"
     android:paddingTop="5dp"
 	/>    
 	</LinearLayout>
