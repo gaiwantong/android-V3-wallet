@@ -231,7 +231,7 @@ public class BalanceFragment extends Fragment {
             	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
             	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
-            	return false;
+                return false;
             }
         });
 
@@ -446,6 +446,15 @@ public class BalanceFragment extends Fragment {
 			getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 		}
+
+        /*
+         *
+         *
+             Bottom sheet implementation: make temporarily invisible until FAB is worked into balance screen
+         *
+         *
+         */
+        ((LinearLayout)rootView.findViewById(R.id.panel)).setVisibility(View.INVISIBLE);
 
         return rootView;
 	}
