@@ -12,7 +12,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 import org.json.JSONObject;
 
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class AccessFactory	{
 
@@ -143,7 +143,7 @@ public class AccessFactory	{
         args.append("&pin=" + _pin);
         args.append("&method=get");
 
-        String response = Web.postURL(Web.ACCESS_URL, args.toString());
+        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString());
 
         if (response == null || response.length() == 0)
             throw new Exception("Invalid Server Response");
@@ -160,7 +160,7 @@ public class AccessFactory	{
         args.append("&pin=" + _pin);
         args.append("&method=put");
 
-        String response = Web.postURL(Web.ACCESS_URL, args.toString());
+        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString());
 
         if (response == null || response.length() == 0)
             throw new Exception("Invalid Server Response");

@@ -37,7 +37,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class SendFactory	{
 
@@ -217,7 +217,7 @@ public class SendFactory	{
 					}
 
 //					Log.i("SendFactory tx string", hexString);
-					String response = Web.postURL(Web.SPEND_DOMAIN + "pushtx", "tx=" + hexString);
+					String response = WebUtil.getInstance().postURL(WebUtil.SPEND_DOMAIN + "pushtx", "tx=" + hexString);
 //					Log.i("Send response", response);
 					if(response.contains("Transaction Submitted")) {
 
@@ -286,7 +286,7 @@ public class SendFactory	{
 			args = buffer.toString();
 		}
 
-		String response = Web.getURL(Web.UNSPENT_OUTPUTS_DOMAIN + "unspent?active=" + args);
+		String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_DOMAIN + "unspent?active=" + args);
 //		Log.i("Unspent outputs", response);
 
 		List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();

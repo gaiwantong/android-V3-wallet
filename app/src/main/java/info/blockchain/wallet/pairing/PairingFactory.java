@@ -15,7 +15,7 @@ import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class PairingFactory	{
 	
@@ -103,7 +103,7 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        return Web.postURL(Web.PAIRING_DOMAIN + "wallet", args.toString());
+        return WebUtil.getInstance().postURL(WebUtil.PAIRING_DOMAIN + "wallet", args.toString());
     }
 
     public String getWalletManualPairing(final String guid) throws Exception {
@@ -112,7 +112,7 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        String response = Web.getURL(Web.PAIRING_DOMAIN + "wallet/" + guid + "?format=json&resend_code=false");
+        String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_DOMAIN + "wallet/" + guid + "?format=json&resend_code=false");
 
         JSONObject jsonObject = new JSONObject(response);
 //        Log.i("Pairing", "Returned object:" + jsonObject.toString());

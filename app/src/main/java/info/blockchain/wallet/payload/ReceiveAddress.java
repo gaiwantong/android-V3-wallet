@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class ReceiveAddress {
 
@@ -190,7 +190,7 @@ public class ReceiveAddress {
         	String result = null;
         	
         	try {
-    			result = Web.getURL("https://blockchain.info/address/" + strAddress + "?format=json");
+    			result = WebUtil.getInstance().getURL("https://blockchain.info/address/" + strAddress + "?format=json");
         	}
         	catch(Exception e) {
 				e.printStackTrace();

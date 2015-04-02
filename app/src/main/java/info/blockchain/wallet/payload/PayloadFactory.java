@@ -28,7 +28,7 @@ import info.blockchain.wallet.hd.HD_Account;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class PayloadFactory	{
 	
@@ -136,7 +136,7 @@ public class PayloadFactory	{
     public Payload get(String guid, String sharedKey, CharSequenceX password) {
 
         try {
-            String response = Web.postURL(Web.PAYLOAD_DOMAIN + "wallet","method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
+            String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet","method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
             JSONObject jsonObject = new JSONObject(response);
             int iterations = AESUtil.PasswordPBKDF2Iterations;
             double version = 2.0;
@@ -308,7 +308,7 @@ public class PayloadFactory	{
 		}
 		
 		try	{
-			Web.postURL(Web.PAYLOAD_DOMAIN + "wallet", args.toString());
+			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet", args.toString());
 			isNew = false;
 			store();
 		}
