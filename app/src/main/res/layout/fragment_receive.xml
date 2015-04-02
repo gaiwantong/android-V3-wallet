@@ -137,15 +137,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-		/>        
-	
+		/>
+
 	    <LinearLayout
     	android:layout_width="match_parent"
     	android:layout_height="wrap_content"
     	android:orientation="horizontal"
 		>
 
-	    <EditText 
+	    <EditText
         android:id="@+id/amount1"
     	android:layout_width="0dp"
     	android:layout_height="wrap_content"
@@ -164,7 +164,7 @@
 	    >
 		<requestFocus/>
 		</EditText>
-		<TextView 
+		<TextView
         android:id="@+id/currency1"
     	android:layout_width="0dp"
     	android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
         android:textColor="#FF808080"
 	    android:padding="5dp"
     	/>
-	    <TextView 
+	    <TextView
         android:id="@+id/amount2"
     	android:layout_width="0dp"
     	android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
         android:textColor="#FF808080"
 	    android:padding="5dp"
     	/>
-		<TextView 
+		<TextView
         android:id="@+id/fiat2"
     	android:layout_width="0dp"
     	android:layout_height="wrap_content"
@@ -201,10 +201,10 @@
 	    android:padding="5dp"
     	/>
     	</LinearLayout>
-		
+
 
     </LinearLayout>
-    
+
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="0dp"
@@ -214,7 +214,7 @@
     android:gravity="center_vertical|center_horizontal"
     android:background="#FFf3f3f3"
 	>
-        
+
         <ImageView
         	android:id="@+id/qr"
         	android:layout_width="260dp"
@@ -240,8 +240,8 @@
 		/>
 
     </LinearLayout>
-    
+
     </LinearLayout>
-    
+
 </LinearLayout>
 </RelativeLayout>

@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 
@@ -101,14 +102,13 @@ public class Setup00Activity extends ActionBarActivity {
 				Looper.prepare();
 
 				if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
-					//Toast.makeText(getActivity(), "Pairing OK", Toast.LENGTH_SHORT).show();
+					Toast.makeText(Setup00Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
 					intent.putExtra("pairing", true);
 					startActivity(intent);
-					Setup00Activity.this.finish();
 				}
 				else	{
-					//Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+					Toast.makeText(Setup00Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
 					AppUtil.getInstance(Setup00Activity.this).wipeApp();
 				}
 
