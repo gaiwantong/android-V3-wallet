@@ -38,7 +38,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
     	android:layout_marginLeft="10dp"
     	android:layout_marginRight="10dp"
-    	android:textSize="18sp"
+    	android:textSize="18dp"
     	android:textColor="#FFffffff"
     	/>
 	    <TextView
@@ -49,7 +49,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
     	android:layout_marginLeft="20dp"
     	android:layout_marginRight="20dp"
-    	android:textSize="42sp"
+    	android:textSize="42dp"
     	android:textColor="#FFffffff"
     	android:background="@drawable/round_view"
     	android:layout_marginTop="10dp"
@@ -63,7 +63,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
     	android:layout_marginLeft="10dp"
     	android:layout_marginRight="10dp"
-    	android:textSize="15sp"
+    	android:textSize="15dp"
     	android:textColor="#FFffffff"
     	/>
 	    <TextView
@@ -75,7 +75,7 @@
     	android:layout_marginTop="5dp"
     	android:layout_marginLeft="10dp"
     	android:layout_marginRight="10dp"
-    	android:textSize="26sp"
+    	android:textSize="26dp"
     	android:textColor="#FFffffff"
     	/>
 	    <TextView
@@ -86,7 +86,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
     	android:layout_marginLeft="10dp"
     	android:layout_marginRight="10dp"
-    	android:textSize="14sp"
+    	android:textSize="14dp"
     	android:textColor="#FFffffff"
     	/>
 	</LinearLayout>
@@ -124,7 +124,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="left|top"
 		android:layout_gravity="left|top"
-    	android:textSize="15sp"
+    	android:textSize="15dp"
     	android:text="@string/add_note"
     	android:textColor="#FF6a6a6a"
     	/>
@@ -135,7 +135,7 @@
     	android:layout_marginLeft="5dp"
 	    android:gravity="left|top"
 		android:layout_gravity="left|top"
-    	android:textSize="15sp"
+    	android:textSize="15dp"
     	android:textColor="#FF6a6a6a"
     	/>
 	    </LinearLayout>
@@ -160,7 +160,7 @@
         	android:layout_height="match_parent"
     		android:layout_gravity="top|left"
     		android:gravity="top|left"
-    		android:textSize="14sp"
+    		android:textSize="14dp"
     		android:textColor="#FF000000"
     		/>
 	    </LinearLayout>
@@ -179,7 +179,7 @@
         	android:layout_width="match_parent"
         	android:layout_height="60dp"
         	android:text="@string/CONFIRM" 
-        	android:textSize="28sp"
+        	android:textSize="28dp"
 	    	android:background="#FF3CAA9C"
 	    	android:textColor="#FFFFFFFF"
     		android:layout_gravity="bottom"
@@ -202,7 +202,7 @@
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
     	android:layout_marginLeft="5dp"
-    	android:textSize="28sp"
+    	android:textSize="28dp"
     	android:textColor="#FFffffff"
     	android:layout_marginTop="5dp"
     />

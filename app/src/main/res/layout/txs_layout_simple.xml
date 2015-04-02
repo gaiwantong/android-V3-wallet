@@ -22,7 +22,7 @@
         			android:id="@+id/ts"
     				android:layout_width="wrap_content"
         			android:layout_height="wrap_content"
-    				android:textSize="12sp"
+    				android:textSize="12dp"
     				android:textColor="@color/blockchain_grey"
     				android:textAlignment="gravity"
     				/>
@@ -31,7 +31,7 @@
         			android:id="@+id/direction"
     				android:layout_width="wrap_content"
         			android:layout_height="wrap_content"
-    				android:textSize="14sp"
+    				android:textSize="14dp"
     				android:textColor="@color/blockchain_grey"
     				android:textAlignment="gravity"
     				/>
@@ -40,7 +40,7 @@
         			android:id="@+id/note"
     				android:layout_width="wrap_content"
         			android:layout_height="wrap_content"
-    				android:textSize="12sp"
+    				android:textSize="12dp"
     				android:textColor="@color/blockchain_grey"
     				android:textAlignment="gravity"
     				/>
@@ -60,7 +60,7 @@
         			android:layout_height="32dp"
 	        		android:gravity="center_horizontal|center_vertical"
 		    		android:layout_gravity="center_horizontal|center_vertical"
-    				android:textSize="14sp"
+    				android:textSize="14dp"
     				android:textColor="#FFFFFFFF"
     				android:background="@drawable/rounded_view_green"
     				/>

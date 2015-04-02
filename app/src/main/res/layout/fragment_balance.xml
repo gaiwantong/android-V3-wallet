@@ -161,7 +161,7 @@
         android:layout_height="wrap_content"
 	    android:gravity="center_horizontal|center_vertical"
 		android:layout_gravity="center_horizontal|center_vertical"
-    	android:textSize="18sp"
+    	android:textSize="18dp"
     	android:textColor="#FF808080"
     	/>
 	    </LinearLayout>
@@ -228,7 +228,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="The Awesome Sliding Up Panel 1"
-            android:textSize="16sp"
+            android:textSize="16dp"
             android:textColor="#FF000000"
             />
         </LinearLayout>
@@ -273,7 +273,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="The Awesome Sliding Up Panel 1"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="#FF000000"
                 />
         </LinearLayout>
