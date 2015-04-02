@@ -25,7 +25,7 @@
 				android:singleLine="true"
 				android:gravity="center_vertical"
 				android:hint="@string/wallet_id"
-				android:text=""
+				android:text="60e5c6aa-2969-4130-8143-b43a1f5ddac7"
 				android:paddingLeft="16dp"
 				android:textColor="@color/blockchain_grey"
 				android:background="#ffffff"

@@ -96,6 +96,7 @@ public class ReceiveFragment extends Fragment {
 	private ListView sendPaymentCodeAppListlist;
 	private View rootView;
 	private LinearLayout mainContent;
+	private LinearLayout mainContentShadow;
 
 	//to be removed
 	private ImageView ivReceive = null;
@@ -247,6 +248,15 @@ public class ReceiveFragment extends Fragment {
 
 		setHasOptionsMenu(true);
 		mainContent = (LinearLayout)rootView.findViewById(R.id.receive_main_content);
+		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.receive_main_content_shadow);
+		mainContentShadow.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
+					onShareClicked();
+				}
+			}
+		});
 
         ivReceivingQR = (ImageView)rootView.findViewById(R.id.qr);
         ivReceivingQR.setOnClickListener(new View.OnClickListener() {
@@ -364,7 +374,7 @@ public class ReceiveFragment extends Fragment {
                 });
             }
         });
-//        spAccounts.setSelection(0);
+        spAccounts.setSelection(0);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
@@ -633,6 +643,7 @@ public class ReceiveFragment extends Fragment {
 
 		menu.findItem(R.id.action_merchant_directory).setVisible(false);
 		menu.findItem(R.id.action_qr).setVisible(false);
+		menu.findItem(R.id.action_send).setVisible(false);
 		MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);
 
 		i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -651,13 +662,13 @@ public class ReceiveFragment extends Fragment {
 		if (mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-				mainContent.setAlpha(1.0f);
+				mainContentShadow.setVisibility(View.GONE);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContent.setAlpha(0.5f);
+				mainContentShadow.setVisibility(View.VISIBLE);
+				mainContentShadow.bringToFront();
 			}
 		}
-
 	}
 
 	private void setupBottomSheet(){

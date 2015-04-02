@@ -14,4 +14,9 @@
 		  material-navigation-drawer-example:showAsAction="always"
 		  android:visible="false"
 		  android:title="" />
+	<item android:id="@+id/action_send"
+		  android:icon="@android:drawable/ic_menu_send"
+		  material-navigation-drawer-example:showAsAction="always"
+		  android:visible="false"
+		  android:title="" />
 </menu>

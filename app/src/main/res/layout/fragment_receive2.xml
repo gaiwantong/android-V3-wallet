@@ -18,103 +18,203 @@
 		sothree:umanoShadowHeight="4dp">
 
 		<!-- MAIN CONTENT -->
-		<LinearLayout
-			android:id="@+id/receive_main_content"
+		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="#FFf3f3f3"
 			android:orientation="vertical">
 
-			<!-- receive, balance, send icons  -to be removed-->
 			<LinearLayout
-				android:id="@+id/iconsLayout"
+				android:id="@+id/receive_main_content_shadow"
 				android:layout_width="match_parent"
-				android:layout_height="30dp"
-				android:orientation="horizontal"
-				android:background="@color/blockchain_blue"
-				>
-				<LinearLayout
-					android:id="@+id/view_receive1"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:orientation="vertical"
-					android:gravity="center_horizontal|center_vertical"
-					>
-					<ImageView
-						android:id="@+id/view_receive"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="center_horizontal|center_vertical"
-						android:layout_gravity="center_horizontal|center_vertical"
-						android:src="@drawable/icon_receive"
-						/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/view_home1"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:orientation="vertical"
-					android:gravity="center_horizontal|center_vertical"
-					>
-					<ImageView
-						android:id="@+id/view_home"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="center_horizontal|center_vertical"
-						android:layout_gravity="center_horizontal|center_vertical"
-						android:src="@drawable/icon_accounts"
-						/>
-				</LinearLayout>
-				<LinearLayout
-					android:id="@+id/view_send1"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:orientation="vertical"
-					android:gravity="center_horizontal|center_vertical"
-					>
-					<ImageView
-						android:id="@+id/view_send"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="center_horizontal|center_vertical"
-						android:layout_gravity="center_horizontal|center_vertical"
-						android:src="@drawable/icon_send"
-						/>
-				</LinearLayout>
-			</LinearLayout>
+				android:layout_height="match_parent"
+				android:background="#000000"
+				android:alpha="0.5"
+				android:orientation="horizontal"/>
 
 			<LinearLayout
+				android:id="@+id/receive_main_content"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:background="#FFffff"
-				android:orientation="vertical"
-				android:padding="16dp"
-				>
+				android:layout_height="match_parent"
+				android:background="#FFf3f3f3"
+				android:orientation="vertical">
+
+				<!-- receive, balance, send icons  -to be removed-->
+				<LinearLayout
+					android:id="@+id/iconsLayout"
+					android:layout_width="match_parent"
+					android:layout_height="30dp"
+					android:orientation="horizontal"
+					android:background="@color/blockchain_blue"
+					>
+					<LinearLayout
+						android:id="@+id/view_receive1"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
+						android:orientation="vertical"
+						android:gravity="center_horizontal|center_vertical"
+						>
+						<ImageView
+							android:id="@+id/view_receive"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:gravity="center_horizontal|center_vertical"
+							android:layout_gravity="center_horizontal|center_vertical"
+							android:src="@drawable/icon_receive"
+							/>
+					</LinearLayout>
+					<LinearLayout
+						android:id="@+id/view_home1"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
+						android:orientation="vertical"
+						android:gravity="center_horizontal|center_vertical"
+						>
+						<ImageView
+							android:id="@+id/view_home"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:gravity="center_horizontal|center_vertical"
+							android:layout_gravity="center_horizontal|center_vertical"
+							android:src="@drawable/icon_accounts"
+							/>
+					</LinearLayout>
+					<LinearLayout
+						android:id="@+id/view_send1"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
+						android:orientation="vertical"
+						android:gravity="center_horizontal|center_vertical"
+						>
+						<ImageView
+							android:id="@+id/view_send"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:gravity="center_horizontal|center_vertical"
+							android:layout_gravity="center_horizontal|center_vertical"
+							android:src="@drawable/icon_send"
+							/>
+					</LinearLayout>
+				</LinearLayout>
 
 				<LinearLayout
 					android:layout_width="match_parent"
-					android:layout_height="48dp"
-					android:gravity="center_vertical"
-					android:orientation="horizontal"
+					android:layout_height="wrap_content"
+					android:background="#FFffff"
+					android:orientation="vertical"
+					android:padding="16dp"
 					>
 
-					<TextView
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:paddingRight="16dp"
-						android:text="@string/from"
-						android:textColor="@color/blockchain_grey"/>
-
-					<Spinner
-						android:id="@+id/accounts"
-						android:layout_width="0dp"
+					<LinearLayout
+						android:layout_width="match_parent"
 						android:layout_height="48dp"
-						android:layout_weight="1"
-						android:background="@drawable/spinner_bg"
-						/>
+						android:gravity="center_vertical"
+						android:orientation="horizontal"
+						>
+
+						<TextView
+							android:layout_width="0dp"
+							android:layout_weight="3"
+							android:layout_height="wrap_content"
+							android:paddingRight="16dp"
+							android:text="@string/to"
+							android:textColor="@color/blockchain_grey"/>
+
+						<Spinner
+							android:id="@+id/accounts"
+							android:layout_width="0dp"
+							android:layout_height="48dp"
+							android:layout_weight="17"
+							android:background="@drawable/spinner_bg"
+							/>
+
+					</LinearLayout>
+
+					<View
+						android:layout_width="fill_parent"
+						android:layout_height="1dp"
+						android:background="@color/blockchain_light_grey"/>
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="48dp"
+						android:gravity="center_vertical"
+						android:orientation="horizontal"
+						android:paddingTop="16dp"
+						>
+
+						<LinearLayout
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:orientation="horizontal"
+							>
+
+							<TextView
+								android:id="@+id/currency1"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="3"
+								android:text="BTC"
+								android:textColor="@color/blockchain_grey"
+								/>
+
+							<EditText
+								android:id="@+id/amount1"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="7"
+								android:background="#ffffff"
+								android:focusable="true"
+								android:focusableInTouchMode="true"
+								android:hint="0.00"
+								android:imeOptions="actionDone"
+								android:inputType="numberDecimal"
+								android:singleLine="true"
+								android:textColor="@color/primary_text_default_material_light"
+								android:textColorHint="@color/blockchain_light_grey"
+								android:textCursorDrawable="@null"
+								>
+
+								<requestFocus/>
+							</EditText>
+
+						</LinearLayout>
+
+						<LinearLayout
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:orientation="horizontal"
+							>
+
+							<TextView
+								android:id="@+id/fiat2"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="3"
+								android:gravity="center_horizontal"
+								android:text="USD"
+								android:textColor="@color/blockchain_grey"
+								/>
+
+							<TextView
+								android:id="@+id/amount2"
+								android:layout_width="0dp"
+								android:layout_height="wrap_content"
+								android:layout_weight="7"
+								android:textColor="@color/primary_text_default_material_light"
+
+								/>
+
+						</LinearLayout>
+					</LinearLayout>
+
 
 				</LinearLayout>
 
@@ -125,125 +225,41 @@
 
 				<LinearLayout
 					android:layout_width="match_parent"
-					android:layout_height="48dp"
-					android:gravity="center_vertical"
-					android:orientation="horizontal"
-					android:paddingTop="16dp"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical|center_horizontal"
+					android:gravity="center_vertical|center_horizontal"
+					android:orientation="vertical"
 					>
 
-					<LinearLayout
-						android:layout_width="0dp"
+					<ImageView
+						android:id="@+id/qr"
+						android:layout_width="260dp"
+						android:layout_height="260dp"
+						android:layout_gravity="center_vertical|center_horizontal"
+						android:layout_marginBottom="5dp"
+						android:gravity="center_vertical|center_horizontal"
+						android:src="@drawable/qr"
+						/>
+
+					<EditText
+						android:id="@+id/receiving_address"
+						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:gravity="center_vertical"
-						android:orientation="horizontal"
-						>
+						android:layout_gravity="center_horizontal|center_vertical"
+						android:background="#00FFFFFF"
+						android:gravity="center_horizontal|center_vertical"
+						android:inputType="none"
+						android:singleLine="true"
+						android:textAlignment="gravity"
+						android:textColor="#FF808080"
+						android:textIsSelectable="true"
+						android:textSize="14sp"
+						/>
 
-						<TextView
-							android:id="@+id/currency1"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="3"
-							android:text="BTC"
-							android:textColor="@color/blockchain_grey"
-							/>
-
-						<EditText
-							android:id="@+id/amount1"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="7"
-							android:background="#ffffff"
-							android:focusable="true"
-							android:focusableInTouchMode="true"
-							android:hint="0.00"
-							android:imeOptions="actionDone"
-							android:inputType="numberDecimal"
-							android:singleLine="true"
-							android:textColor="@color/primary_text_default_material_light"
-							android:textColorHint="@color/blockchain_light_grey"
-							android:textCursorDrawable="@null"
-							>
-
-							<requestFocus/>
-						</EditText>
-
-					</LinearLayout>
-
-					<LinearLayout
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:gravity="center_vertical"
-						android:orientation="horizontal"
-						>
-
-						<TextView
-							android:id="@+id/fiat2"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="3"
-							android:gravity="center_horizontal"
-							android:text="USD"
-							android:textColor="@color/blockchain_grey"
-							/>
-
-						<TextView
-							android:id="@+id/amount2"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="7"
-							android:textColor="@color/primary_text_default_material_light"
-
-							/>
-
-					</LinearLayout>
 				</LinearLayout>
-
-
 			</LinearLayout>
 
-			<View
-				android:layout_width="fill_parent"
-				android:layout_height="1dp"
-				android:background="@color/blockchain_light_grey"/>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical|center_horizontal"
-				android:gravity="center_vertical|center_horizontal"
-				android:orientation="vertical"
-				>
-
-				<ImageView
-					android:id="@+id/qr"
-					android:layout_width="260dp"
-					android:layout_height="260dp"
-					android:layout_gravity="center_vertical|center_horizontal"
-					android:layout_marginBottom="5dp"
-					android:gravity="center_vertical|center_horizontal"
-					android:src="@drawable/qr"
-					/>
-
-				<EditText
-					android:id="@+id/receiving_address"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal|center_vertical"
-					android:background="#00FFFFFF"
-					android:gravity="center_horizontal|center_vertical"
-					android:inputType="none"
-					android:singleLine="true"
-					android:textAlignment="gravity"
-					android:textColor="#FF808080"
-					android:textIsSelectable="true"
-					android:textSize="14sp"
-					/>
-
-			</LinearLayout>
-
-		</LinearLayout>
+		</RelativeLayout>
 
 		<!-- SLIDING LAYOUT -->
 		<LinearLayout

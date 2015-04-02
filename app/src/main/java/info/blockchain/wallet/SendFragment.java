@@ -1,48 +1,47 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.text.NumberFormat;
-import java.text.ParseException;
-
-import android.content.DialogInterface;
-import android.os.Bundle;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
-import android.graphics.Typeface;
-import android.util.Log;
-
-import org.apache.commons.codec.DecoderException;
+import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.crypto.MnemonicException;
+
+import org.apache.commons.codec.DecoderException;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -54,8 +53,8 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
@@ -74,16 +73,16 @@ public class SendFragment extends Fragment {
     private LinearLayout layoutReceiveIcon = null;
     private LinearLayout layoutHomeIcon = null;
     private LinearLayout layoutSendIcon = null;
-    
-    private EditText edDestination = null;
+
+	private EditText edDestination = null;
     private EditText edAmount1 = null;
 	private TextView tvCurrency1 = null;
 	private TextView tvAmount2 = null;
 	private TextView tvFiat2 = null;
 	private Spinner spAccounts = null;
-	private Button btSend = null;
+	private MenuItem btSend;
 	private TextView tvMax = null;
-	
+
 	private int currentSelectedAccount = 0;
 	private String currentSelectedAddress = null;
 	private static int currentSelectedItem = 0;
@@ -118,11 +117,12 @@ public class SendFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
-		View rootView = inflater.inflate(R.layout.fragment_send, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_send_r, container, false);
 		
 		locale = Locale.getDefault();
 
 		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.send);
+		setHasOptionsMenu(true);
 
         layoutReceive = (LinearLayout)rootView.findViewById(R.id.iconsReceive2);
         layoutHome = (LinearLayout)rootView.findViewById(R.id.iconsHome2);
@@ -252,247 +252,30 @@ public class SendFragment extends Fragment {
     	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
     	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
-        btSend = ((Button)rootView.findViewById(R.id.send));
-        btSend.setVisibility(View.INVISIBLE);
-        btSend.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	
-            	if(isBTC) {
-            		pendingSpend.btc_amount = edAmount1.getText().toString();
-            		pendingSpend.fiat_amount = tvAmount2.getText().toString();
-            	}
-            	else {
-            		pendingSpend.fiat_amount = edAmount1.getText().toString();
-            		pendingSpend.btc_amount = tvAmount2.getText().toString();
-            	}
-
-                pendingSpend.btc_units = strBTC;
-
-                btSend.setVisibility(View.INVISIBLE);
-	        	
-        		final FragmentManager fragmentManager = getFragmentManager();
-        		final Fragment fragment = new SendFragment2();
-        		final Bundle args = new Bundle();
-
-				if(pendingSpend.isHD) {
-			    	if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-		        		args.putBoolean("hd", true);
-		        		args.putInt("account", currentSelectedAccount);
-		        		args.putString("destination", pendingSpend.destination);
-		        		args.putString("bamount", pendingSpend.bamount.toString());
-		        		args.putString("bfee", pendingSpend.bfee.toString());
-		        		args.putString("sending_from", pendingSpend.sending_from);
-		        		args.putString("btc_amount", pendingSpend.btc_amount);
-		        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                        args.putString("btc_units", pendingSpend.btc_units);
-		        		fragment.setArguments(args);
-		        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	}
-			    	else if(DoubleEncryptionFactory.getInstance().isActivated()) {
-		        		args.putBoolean("hd", true);
-		        		args.putInt("account", currentSelectedAccount);
-		        		args.putString("destination", pendingSpend.destination);
-		        		args.putString("bamount", pendingSpend.bamount.toString());
-		        		args.putString("bfee", pendingSpend.bfee.toString());
-		        		args.putString("sending_from", pendingSpend.sending_from);
-		        		args.putString("btc_amount", pendingSpend.btc_amount);
-		        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                        args.putString("btc_units", pendingSpend.btc_units);
-		        		fragment.setArguments(args);
-		        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	}
-			    	else {
-
-			    		final EditText password = new EditText(getActivity());
-		        		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-			    		
-			    		new AlertDialog.Builder(getActivity())
-			    	    .setTitle(R.string.app_name)
-			    	    .setMessage(R.string.enter_double_encryption_pw)
-			    	    .setView(password)
-			    	    .setCancelable(false)
-			    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			    	        public void onClick(DialogInterface dialog, int whichButton) {
-
-			    	        	final String pw = password.getText().toString();
-			    	        	
-			    	        	PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-			    	        	
-			    	        	if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
-			    	        		
-			    	        		String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
-			    	        		String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-			    	        				encrypted_hex,
-			    	        				PayloadFactory.getInstance().get().getSharedKey(),
-			    	        				pw,
-			    	        				PayloadFactory.getInstance().get().getIterations());
-			    	        		
-			    	    			try {
-			    	    				HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-			    	    				HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
-			    	    			}
-			    	            	catch(IOException ioe) {
-			    	            		ioe.printStackTrace();
-			    	            	}
-			    	            	catch(DecoderException de) {
-			    	            		de.printStackTrace();
-			    	            	}
-			    	            	catch(AddressFormatException afe) {
-			    	            		afe.printStackTrace();
-			    	            	}
-			    	            	catch(MnemonicException.MnemonicLengthException mle) {
-			    	            		mle.printStackTrace();
-			    	            	}
-			    	            	catch(MnemonicException.MnemonicChecksumException mce) {
-			    	            		mce.printStackTrace();
-			    	            	}
-			    	            	catch(MnemonicException.MnemonicWordException mwe) {
-			    	            		mwe.printStackTrace();
-			    	            	}
-			    	    			finally {
-			    	    				;
-			    	    			}
-
-					        		args.putBoolean("hd", true);
-					        		args.putInt("account", currentSelectedAccount);
-					        		args.putString("destination", pendingSpend.destination);
-					        		args.putString("bamount", pendingSpend.bamount.toString());
-					        		args.putString("bfee", pendingSpend.bfee.toString());
-					        		args.putString("sending_from", pendingSpend.sending_from);
-					        		args.putString("btc_amount", pendingSpend.btc_amount);
-					        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                                    args.putString("btc_units", pendingSpend.btc_units);
-	            	        		fragment.setArguments(args);
-		        	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	        	}
-			    	        	else {
-			                        Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
-			    	        		PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-			    	        	}
-
-			    	        }
-			    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			    	        public void onClick(DialogInterface dialog, int whichButton) {
-			    	        	;
-			    	        }
-			    	    }).show();
-
-			    	}
+		edDestination = ((EditText)rootView.findViewById(R.id.destination));
+		edDestination.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if(actionId == EditorInfo.IME_ACTION_DONE) {
+					validateSpend(true);
 				}
-				else {
-		    		LegacyAddress addr = null;
-		            for(int i = 0; i < legacy.size(); i++) {
-		            	if(legacy.get(i).getAddress().equals(currentSelectedAddress)) {
-		            		addr = legacy.get(i);
-		            		break;
-		            	}
-		            }
 
-			    	if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-    	        		args.putBoolean("hd", false);
-    	        		args.putInt("account", -1);
-    	        		args.putString("destination", pendingSpend.destination);
-    	        		args.putString("bamount", pendingSpend.bamount.toString());
-    	        		args.putString("bfee", pendingSpend.bfee.toString());
-    	        		args.putString("legacy_addr", addr.getAddress());
-    	        		args.putString("legacy_priv", addr.getEncryptedKey());
-    	        		args.putString("sending_from", pendingSpend.sending_from);
-    	        		args.putString("btc_amount", pendingSpend.btc_amount);
-    	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                        args.putString("btc_units", pendingSpend.btc_units);
-    	        		fragment.setArguments(args);
-    	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	}
-			    	else if(DoubleEncryptionFactory.getInstance().isActivated()) {
-    	        		args.putBoolean("hd", false);
-    	        		args.putInt("account", -1);
-    	        		args.putString("destination", pendingSpend.destination);
-    	        		args.putString("bamount", pendingSpend.bamount.toString());
-    	        		args.putString("bfee", pendingSpend.bfee.toString());
-    	        		args.putString("legacy_addr", addr.getAddress());
-    	        		args.putString("legacy_priv", addr.getEncryptedKey());
-    	        		args.putString("sending_from", pendingSpend.sending_from);
-    	        		args.putString("btc_amount", pendingSpend.btc_amount);
-    	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                        args.putString("btc_units", pendingSpend.btc_units);
-    	        		fragment.setArguments(args);
-    	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	}
-			    	else {
-
-			    		final LegacyAddress legacyAddress = addr;
-			    		final EditText password = new EditText(getActivity());
-		        		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-			    		
-			    		new AlertDialog.Builder(getActivity())
-			    	    .setTitle(R.string.app_name)
-			    	    .setMessage(R.string.enter_double_encryption_pw)
-			    	    .setView(password)
-			    	    .setCancelable(false)
-			    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			    	        public void onClick(DialogInterface dialog, int whichButton) {
-
-			    	        	final String pw = password.getText().toString();
-			    	        	
-			    	        	PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-			    	        	
-			    	        	if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
-	            	        		args.putBoolean("hd", false);
-	            	        		args.putInt("account", -1);
-	            	        		args.putString("destination", pendingSpend.destination);
-	            	        		args.putString("bamount", pendingSpend.bamount.toString());
-	            	        		args.putString("bfee", pendingSpend.bfee.toString());
-	            	        		args.putString("legacy_addr", legacyAddress.getAddress());
-	            	        		args.putString("legacy_priv", legacyAddress.getEncryptedKey());
-	            	        		args.putString("sending_from", pendingSpend.sending_from);
-	            	        		args.putString("btc_amount", pendingSpend.btc_amount);
-	            	        		args.putString("fiat_amount", pendingSpend.fiat_amount);
-                                    args.putString("btc_units", pendingSpend.btc_units);
-	            	        		fragment.setArguments(args);
-		        	        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			    	        	}
-			    	        	else {
-			                        Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
-			    	        		PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-			    	        	}
-
-			    	        }
-			    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			    	        public void onClick(DialogInterface dialog, int whichButton) {
-			    	        	;
-			    	        }
-			    	    }).show();
-			    	}
-		    	}
-
-            }
-        });
-
-        edDestination = ((EditText)rootView.findViewById(R.id.destination));
-        edDestination.setOnEditorActionListener(new OnEditorActionListener() {
-		    @Override
-		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		        if(actionId == EditorInfo.IME_ACTION_DONE) {
-		        	validateSpend(true);
-		        }
-
-		        return false;
-		    }
+				return false;
+			}
 		});
-        edDestination.addTextChangedListener(new TextWatcher()	{
-        	public void afterTextChanged(Editable s) {
+		edDestination.addTextChangedListener(new TextWatcher()	{
+			public void afterTextChanged(Editable s) {
 
-        		if(edAmount1 != null && edDestination != null && tvAmount2 != null && spAccounts != null) {
-            		validateSpend(false);
-        		}
+				if(edAmount1 != null && edDestination != null && tvAmount2 != null && spAccounts != null) {
+					validateSpend(false);
+				}
 
-        	}
+			}
 
-        	public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
-        
-        	public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
-        });
+			public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
+
+			public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
+		});
         
         edAmount1 = ((EditText)rootView.findViewById(R.id.amount1));
         edAmount1.setOnEditorActionListener(new OnEditorActionListener() {
@@ -731,7 +514,7 @@ public class SendFragment extends Fragment {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
 			}
-    		btSend.setVisibility(View.INVISIBLE);
+			if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 		
@@ -750,7 +533,7 @@ public class SendFragment extends Fragment {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 				}
-	    		btSend.setVisibility(View.INVISIBLE);
+				if(btSend!=null)btSend.setVisible(false);
 				return;
 			}
 		}
@@ -758,14 +541,14 @@ public class SendFragment extends Fragment {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 			}
-    		btSend.setVisibility(View.INVISIBLE);
+			if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 		catch(ParseException pe) {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 			}
-    		btSend.setVisibility(View.INVISIBLE);
+    		if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 
@@ -778,7 +561,7 @@ public class SendFragment extends Fragment {
 					if(showMessages) {
 			            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 					}
-		    		btSend.setVisibility(View.INVISIBLE);
+					if(btSend!=null)btSend.setVisible(false);
 					return;
 				}
 			}
@@ -789,12 +572,12 @@ public class SendFragment extends Fragment {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 				}
-	    		btSend.setVisibility(View.INVISIBLE);
+				if(btSend!=null)btSend.setVisible(false);
 				return;
 			}
 		}
-		
-		btSend.setVisibility(View.VISIBLE);
+
+		if(btSend!=null)btSend.setVisible(true);
 
 	}
 
@@ -979,4 +762,236 @@ public class SendFragment extends Fragment {
         return amount;
     }
 
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		menu.findItem(R.id.action_merchant_directory).setVisible(false);
+		menu.findItem(R.id.action_qr).setVisible(true);
+		menu.findItem(R.id.action_share_receive).setVisible(false);
+
+		btSend = menu.findItem(R.id.action_send);
+		btSend.setVisible(false);
+
+		btSend.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+
+				sendClicked();
+
+				return false;
+			}
+		});
+	}
+
+	private void sendClicked(){
+
+		if(isBTC) {
+			pendingSpend.btc_amount = edAmount1.getText().toString();
+			pendingSpend.fiat_amount = tvAmount2.getText().toString();
+		}
+		else {
+			pendingSpend.fiat_amount = edAmount1.getText().toString();
+			pendingSpend.btc_amount = tvAmount2.getText().toString();
+		}
+
+		pendingSpend.btc_units = strBTC;
+
+		if(btSend!=null)btSend.setVisible(false);
+
+		final FragmentManager fragmentManager = getFragmentManager();
+		final Fragment fragment = new SendFragment2();
+		final Bundle args = new Bundle();
+
+		if(pendingSpend.isHD) {
+			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+				args.putBoolean("hd", true);
+				args.putInt("account", currentSelectedAccount);
+				args.putString("destination", pendingSpend.destination);
+				args.putString("bamount", pendingSpend.bamount.toString());
+				args.putString("bfee", pendingSpend.bfee.toString());
+				args.putString("sending_from", pendingSpend.sending_from);
+				args.putString("btc_amount", pendingSpend.btc_amount);
+				args.putString("fiat_amount", pendingSpend.fiat_amount);
+				args.putString("btc_units", pendingSpend.btc_units);
+				fragment.setArguments(args);
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else if(DoubleEncryptionFactory.getInstance().isActivated()) {
+				args.putBoolean("hd", true);
+				args.putInt("account", currentSelectedAccount);
+				args.putString("destination", pendingSpend.destination);
+				args.putString("bamount", pendingSpend.bamount.toString());
+				args.putString("bfee", pendingSpend.bfee.toString());
+				args.putString("sending_from", pendingSpend.sending_from);
+				args.putString("btc_amount", pendingSpend.btc_amount);
+				args.putString("fiat_amount", pendingSpend.fiat_amount);
+				args.putString("btc_units", pendingSpend.btc_units);
+				fragment.setArguments(args);
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else {
+
+				final EditText password = new EditText(getActivity());
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+				new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.app_name)
+						.setMessage(R.string.enter_double_encryption_pw)
+						.setView(password)
+						.setCancelable(false)
+						.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int whichButton) {
+
+								final String pw = password.getText().toString();
+
+								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+
+								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+
+									String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
+									String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
+											encrypted_hex,
+											PayloadFactory.getInstance().get().getSharedKey(),
+											pw,
+											PayloadFactory.getInstance().get().getIterations());
+
+									try {
+										HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+										HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
+									}
+									catch(IOException ioe) {
+										ioe.printStackTrace();
+									}
+									catch(DecoderException de) {
+										de.printStackTrace();
+									}
+									catch(AddressFormatException afe) {
+										afe.printStackTrace();
+									}
+									catch(MnemonicException.MnemonicLengthException mle) {
+										mle.printStackTrace();
+									}
+									catch(MnemonicException.MnemonicChecksumException mce) {
+										mce.printStackTrace();
+									}
+									catch(MnemonicException.MnemonicWordException mwe) {
+										mwe.printStackTrace();
+									}
+									finally {
+										;
+									}
+
+									args.putBoolean("hd", true);
+									args.putInt("account", currentSelectedAccount);
+									args.putString("destination", pendingSpend.destination);
+									args.putString("bamount", pendingSpend.bamount.toString());
+									args.putString("bfee", pendingSpend.bfee.toString());
+									args.putString("sending_from", pendingSpend.sending_from);
+									args.putString("btc_amount", pendingSpend.btc_amount);
+									args.putString("fiat_amount", pendingSpend.fiat_amount);
+									args.putString("btc_units", pendingSpend.btc_units);
+									fragment.setArguments(args);
+									fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+								}
+								else {
+									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+									PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+								}
+
+							}
+						}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						;
+					}
+				}).show();
+
+			}
+		}
+		else {
+			LegacyAddress addr = null;
+			for(int i = 0; i < legacy.size(); i++) {
+				if(legacy.get(i).getAddress().equals(currentSelectedAddress)) {
+					addr = legacy.get(i);
+					break;
+				}
+			}
+
+			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+				args.putBoolean("hd", false);
+				args.putInt("account", -1);
+				args.putString("destination", pendingSpend.destination);
+				args.putString("bamount", pendingSpend.bamount.toString());
+				args.putString("bfee", pendingSpend.bfee.toString());
+				args.putString("legacy_addr", addr.getAddress());
+				args.putString("legacy_priv", addr.getEncryptedKey());
+				args.putString("sending_from", pendingSpend.sending_from);
+				args.putString("btc_amount", pendingSpend.btc_amount);
+				args.putString("fiat_amount", pendingSpend.fiat_amount);
+				args.putString("btc_units", pendingSpend.btc_units);
+				fragment.setArguments(args);
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else if(DoubleEncryptionFactory.getInstance().isActivated()) {
+				args.putBoolean("hd", false);
+				args.putInt("account", -1);
+				args.putString("destination", pendingSpend.destination);
+				args.putString("bamount", pendingSpend.bamount.toString());
+				args.putString("bfee", pendingSpend.bfee.toString());
+				args.putString("legacy_addr", addr.getAddress());
+				args.putString("legacy_priv", addr.getEncryptedKey());
+				args.putString("sending_from", pendingSpend.sending_from);
+				args.putString("btc_amount", pendingSpend.btc_amount);
+				args.putString("fiat_amount", pendingSpend.fiat_amount);
+				args.putString("btc_units", pendingSpend.btc_units);
+				fragment.setArguments(args);
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+			else {
+
+				final LegacyAddress legacyAddress = addr;
+				final EditText password = new EditText(getActivity());
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+				new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.app_name)
+						.setMessage(R.string.enter_double_encryption_pw)
+						.setView(password)
+						.setCancelable(false)
+						.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int whichButton) {
+
+								final String pw = password.getText().toString();
+
+								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+
+								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+									args.putBoolean("hd", false);
+									args.putInt("account", -1);
+									args.putString("destination", pendingSpend.destination);
+									args.putString("bamount", pendingSpend.bamount.toString());
+									args.putString("bfee", pendingSpend.bfee.toString());
+									args.putString("legacy_addr", legacyAddress.getAddress());
+									args.putString("legacy_priv", legacyAddress.getEncryptedKey());
+									args.putString("sending_from", pendingSpend.sending_from);
+									args.putString("btc_amount", pendingSpend.btc_amount);
+									args.putString("fiat_amount", pendingSpend.fiat_amount);
+									args.putString("btc_units", pendingSpend.btc_units);
+									fragment.setArguments(args);
+									fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+								}
+								else {
+									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+									PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+								}
+
+							}
+						}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						;
+					}
+				}).show();
+			}
+		}
+	}
 }
