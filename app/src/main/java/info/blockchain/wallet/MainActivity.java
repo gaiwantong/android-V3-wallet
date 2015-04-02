@@ -86,7 +86,7 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.TimeOutUtil;
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback	{
 
@@ -839,7 +839,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 				
 				String response = null;
 				try {
-					response = Web.getURL(Web.EXCHANGE_URL);
+					response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
 				}
 				catch(Exception e) {
 					e.printStackTrace();

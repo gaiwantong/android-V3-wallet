@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.Web;
+import info.blockchain.wallet.util.WebUtil;
 
 public class MultiAddrFactory	{
 	
@@ -66,10 +66,10 @@ public class MultiAddrFactory	{
         JSONObject jsonObject  = null;
 
         try {
-            StringBuilder url = new StringBuilder(Web.MULTIADDR_DOMAIN);
+            StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
             url.append("multiaddr?active=");
             url.append(StringUtils.join(xpubs, "|"));
-            String response = Web.getURL(url.toString());
+            String response = WebUtil.getInstance().getURL(url.toString());
             try {
                 jsonObject = new JSONObject(response);
                 parseXPUB(jsonObject);
@@ -91,7 +91,7 @@ public class MultiAddrFactory	{
 
         JSONObject jsonObject  = null;
 
-        StringBuilder url = new StringBuilder(Web.MULTIADDR_DOMAIN);
+        StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
         url.append("multiaddr?active=");
         url.append(StringUtils.join(addresses, "|"));
         if(simple) {
@@ -102,7 +102,7 @@ public class MultiAddrFactory	{
         }
 
         try {
-            String response = Web.getURL(url.toString());
+            String response = WebUtil.getInstance().getURL(url.toString());
             jsonObject = new JSONObject(response);
             parseLegacy(jsonObject);
         }

@@ -1,25 +1,45 @@
 package info.blockchain.wallet.util;
 
+import android.content.Context;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-public class Web	{
+public class WebUtil	{
 
     public static final String SPEND_DOMAIN = "https://blockchain.info/";
     public static final String PAYLOAD_DOMAIN = "https://blockchain.info/";
     public static final String PAIRING_DOMAIN = "https://blockchain.info/";
     public static final String MULTIADDR_DOMAIN = "https://blockchain.info/";
-	public static final String EXCHANGE_URL = "https://blockchain.info/ticker";
+    public static final String EXCHANGE_URL = "https://blockchain.info/ticker";
     public static final String ACCESS_URL = "https://blockchain.info/pin-store";
     public static final String UNSPENT_OUTPUTS_DOMAIN = "https://blockchain.info/";
 
     private static final int DefaultRequestRetry = 2;
     private static final int DefaultRequestTimeout = 60000;
 
-    public static String postURL(String request, String urlParameters) throws Exception {
+    private static WebUtil instance = null;
+
+    private WebUtil() { ; }
+
+    public static WebUtil getInstance() {
+
+        if(instance == null) {
+            instance = new WebUtil();
+        }
+
+        return instance;
+    }
+
+    public String postURL(String request, String urlParameters) throws Exception {
 
         String error = null;
 
@@ -69,7 +89,7 @@ public class Web	{
         throw new Exception("Invalid Response " + error);
     }
 
-    public static String getURL(String URL) throws Exception {
+    public String getURL(String URL) throws Exception {
 
         URL url = new URL(URL);
 
@@ -104,12 +124,13 @@ public class Web	{
 
         return error;
     }
+
 /*
 	public String securePost(String url, Map<Object, Object> data) throws Exception {  
 		Map<Object, Object> params = new HashMap<Object, Object>(data);
 
 		if (! data.containsKey("sharedKey")) {
-			serverTimeOffset = 500; //TODO dont hard code serverTimeOffset
+			serverTimeOffset = 500;
 
 			String sharedKey = getSharedKey().toLowerCase();
 			long now = new Date().getTime();
@@ -139,4 +160,78 @@ public class Web	{
 		return response;
 	}
 */
+
+    public String getCookie(String url, String cname) throws Exception {
+
+        String ret = null;
+
+        URLConnection conn = new URL(url).openConnection();
+
+        Map<String, List<String>> headerFields = conn.getHeaderFields();
+
+        Set<String> headerFieldsSet = headerFields.keySet();
+        Iterator<String> hearerFieldsIter = headerFieldsSet.iterator();
+
+        while(hearerFieldsIter.hasNext()) {
+
+            String headerFieldKey = hearerFieldsIter.next();
+
+            if("Set-Cookie".equalsIgnoreCase(headerFieldKey)) {
+
+                List<String> headerFieldValue = headerFields.get(headerFieldKey);
+
+                for (String headerValue : headerFieldValue) {
+
+                    String[] fields = headerValue.split(";\\s*");
+
+                    String cookieValue = fields[0];
+
+                    /*
+                    String expires = null;
+                    String path = null;
+                    String domain = null;
+                    boolean secure = false;
+
+                    // Parse each field
+                    for(int j = 1; j < fields.length; j++) {
+                        if("secure".equalsIgnoreCase(fields[j])) {
+                            secure = true;
+                        }
+                        else if(fields[j].indexOf('=') > 0) {
+                            String[] f = fields[j].split("=");
+                            if("expires".equalsIgnoreCase(f[0])) {
+                                expires = f[1];
+                            }
+                            else if("domain".equalsIgnoreCase(f[0])) {
+                                domain = f[1];
+                            }
+                            else if("path".equalsIgnoreCase(f[0])) {
+                                path = f[1];
+                            }
+                        }
+                    }
+                    */
+
+                    /*
+                    System.out.println("cookieValue:" + cookieValue);
+                    System.out.println("expires:" + expires);
+                    System.out.println("path:" + path);
+                    System.out.println("domain:" + domain);
+                    System.out.println("secure:" + secure);
+                    */
+
+                    if(cookieValue.startsWith(cname + "=")) {
+                        ret = cookieValue.substring(cname.length() + 1);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
 }
