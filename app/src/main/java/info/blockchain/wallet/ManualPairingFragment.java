@@ -1,9 +1,6 @@
 package info.blockchain.wallet;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,8 +9,6 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -112,7 +107,6 @@ public class ManualPairingFragment extends Fragment {
 									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
 									intent.putExtra("pairing", true);
 									getActivity().startActivity(intent);
-									getActivity().finish();
 								}
 								else {
 									Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();

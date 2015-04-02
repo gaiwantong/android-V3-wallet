@@ -1,88 +1,78 @@
 package info.blockchain.wallet;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
+import com.google.bitcoin.uri.BitcoinURI;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.apache.commons.codec.DecoderException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.text.ParseException;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.BitmapDrawable;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Spinner;
-import android.widget.ArrayAdapter;
-import android.widget.AdapterView;
-import android.widget.Toast;
-import android.graphics.Typeface;
-import android.text.InputType;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-
-import com.google.bitcoin.crypto.MnemonicException;
-import com.google.bitcoin.uri.BitcoinURI;
-import com.google.bitcoin.core.AddressFormatException;
-
-import org.apache.commons.codec.DecoderException;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-//import info.blockchain.wallet.util.ReceiveAddressPool;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+//import info.blockchain.wallet.util.ReceiveAddressPool;
 
 public class ReceiveFragment extends Fragment {
 	
 	private Locale locale = null;
 	
-	private ImageView ivReceive = null;
-	private ImageView ivHome = null;
-	private ImageView ivSend = null;
-
-    private LinearLayout layoutReceive = null;
-    private LinearLayout layoutHome = null;
-    private LinearLayout layoutSend = null;
-    
-    private LinearLayout layoutReceiveIcon = null;
-    private LinearLayout layoutHomeIcon = null;
-    private LinearLayout layoutSendIcon = null;
-    
     private ImageView ivReceivingQR = null;
 	private TextView edReceivingAddress = null;
     private String currentSelectedAddress = null;
@@ -102,137 +92,162 @@ public class ReceiveFragment extends Fragment {
 	private boolean isBTC = true;
 	private double btc_fx = 319.13;
 
+	private SlidingUpPanelLayout mLayout;
+	private ListView sendPaymentCodeAppListlist;
+	private View rootView;
+	private LinearLayout mainContent;
+
+	//to be removed
+	private ImageView ivReceive = null;
+	private ImageView ivHome = null;
+	private ImageView ivSend = null;
+
+	private LinearLayout layoutReceive = null;
+	private LinearLayout layoutHome = null;
+	private LinearLayout layoutSend = null;
+
+	private LinearLayout layoutReceiveIcon = null;
+	private LinearLayout layoutHomeIcon = null;
+	private LinearLayout layoutSendIcon = null;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
-		View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_receive2, container, false);
+		this.rootView = rootView;
 		Log.i("ReceiveFragment", "onCreateView");
 		
 		locale = Locale.getDefault();
-		
+
 		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.receive);
-		
-        layoutReceive = (LinearLayout)rootView.findViewById(R.id.iconsReceive2);
-        layoutHome = (LinearLayout)rootView.findViewById(R.id.iconsHome2);
-        layoutSend = (LinearLayout)rootView.findViewById(R.id.iconsSend2);
 
-        ivReceive = (ImageView)rootView.findViewById(R.id.view_receive);
-        ivHome = (ImageView)rootView.findViewById(R.id.view_home);
-        ivSend = (ImageView)rootView.findViewById(R.id.view_send);
+		//vvv to be removed after back button implemented vvv
+		layoutReceive = (LinearLayout)rootView.findViewById(R.id.view_receive1);
+		layoutHome = (LinearLayout)rootView.findViewById(R.id.view_home1);
+		layoutSend = (LinearLayout)rootView.findViewById(R.id.view_send1);
 
-        layoutReceiveIcon = (LinearLayout)rootView.findViewById(R.id.view_receive1);
-        layoutHomeIcon = (LinearLayout)rootView.findViewById(R.id.view_home1);
-        layoutSendIcon = (LinearLayout)rootView.findViewById(R.id.view_send1);
-        
-        layoutReceiveIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	return false;
-            }
-        });
+		ivReceive = (ImageView)rootView.findViewById(R.id.view_receive);
+		ivHome = (ImageView)rootView.findViewById(R.id.view_home);
+		ivSend = (ImageView)rootView.findViewById(R.id.view_send);
 
-        layoutHomeIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	
-        		Fragment fragment = new BalanceFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+		layoutReceiveIcon = (LinearLayout)rootView.findViewById(R.id.view_receive1);
+		layoutHomeIcon = (LinearLayout)rootView.findViewById(R.id.view_home1);
+		layoutSendIcon = (LinearLayout)rootView.findViewById(R.id.view_send1);
 
-            	return false;
-            }
-        });
+		layoutReceiveIcon.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				return false;
+			}
+		});
 
-        layoutSendIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	
-        		Fragment fragment = new SendFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+		layoutHomeIcon.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
 
-            	return false;
-            }
-        });
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        layoutReceive.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	return false;
-            }
-        });
+				return false;
+			}
+		});
 
-        layoutHome.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+		layoutSendIcon.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
-        		Fragment fragment = new BalanceFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+				Fragment fragment = new SendFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-            	return false;
-            }
-        });
+				return false;
+			}
+		});
 
-        layoutSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+		layoutReceive.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				return false;
+			}
+		});
 
-        		Fragment fragment = new SendFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+		layoutHome.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
 
-            	return false;
-            }
-        });
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        ivReceive.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+				return false;
+			}
+		});
 
-            	return false;
-            }
-        });
+		layoutSend.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
-        ivHome.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				Fragment fragment = new SendFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-            	return false;
-            }
-        });
+				return false;
+			}
+		});
 
-        ivSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+		ivReceive.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
 
-            	return false;
-            }
-        });
-        
-    	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-    	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-    	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-    	
+				return false;
+			}
+		});
+
+		ivHome.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+
+				return false;
+			}
+		});
+
+		ivSend.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+				layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+
+				return false;
+			}
+		});
+
+		layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
+		layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+		layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
+
+		//^^^ to be removed ^^^
+
+
+		setHasOptionsMenu(true);
+		mainContent = (LinearLayout)rootView.findViewById(R.id.receive_main_content);
+
         ivReceivingQR = (ImageView)rootView.findViewById(R.id.qr);
         ivReceivingQR.setOnClickListener(new View.OnClickListener() {
           @Override
@@ -247,52 +262,11 @@ public class ReceiveFragment extends Fragment {
       
         ivReceivingQR.setOnLongClickListener(new View.OnLongClickListener() {
     	  public boolean onLongClick(View view) {
-  			
-    		  String strFileName = getActivity().getExternalCacheDir() + File.separator + "qr.png";
-    		  File file = new File(strFileName);
-    		  if(!file.exists()) {
-    			  try {
-        			  file.createNewFile();
-    			  }
-    			  catch(Exception e) {
-						Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-    			  }
-    		  }
-    		  file.setReadable(true, false);
 
-  			FileOutputStream fos = null;
-  			try {
-      			fos = new FileOutputStream(file);
-  			}
-  			catch(FileNotFoundException fnfe) {
-  				;
-  			}
-  			
-  			android.content.ClipboardManager clipboard = (android.content.ClipboardManager)getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-  		    android.content.ClipData clip = null;
-		    clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
-  		    clipboard.setPrimaryClip(clip);
+			  onShareClicked();
 
-  			if(file != null && fos != null) {
-      			Bitmap bitmap = ((BitmapDrawable)ivReceivingQR.getDrawable()).getBitmap();
-      	        bitmap.compress(CompressFormat.PNG, 0, fos);
-      	        
-      			try {
-          			fos.close();
-      			}
-      			catch(IOException ioe) {
-      				;
-      			}
-
-      	        Intent intent = new Intent(); 
-      	        intent.setAction(Intent.ACTION_SEND); 
-      	        intent.setType("image/png"); 
-      	        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-      	        startActivity(Intent.createChooser(intent, getActivity().getText(R.string.send_payment_code)));
-  			}
-  	        
-    	    return true;
-    	  }
+			  return true;
+		  }
     	});
         
         edAmount1 = (EditText)rootView.findViewById(R.id.amount1);
@@ -405,6 +379,32 @@ public class ReceiveFragment extends Fragment {
 
       	edReceivingAddress = (TextView)rootView.findViewById(R.id.receiving_address);
 
+		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+			@Override
+			public void onPanelSlide(View panel, float slideOffset) {
+			}
+
+			@Override
+			public void onPanelExpanded(View panel) {
+
+			}
+
+			@Override
+			public void onPanelCollapsed(View panel) {
+
+			}
+
+			@Override
+			public void onPanelAnchored(View panel) {
+			}
+
+			@Override
+			public void onPanelHidden(View panel) {
+			}
+		});
+
         displayQRCode();
 
     	return rootView;
@@ -471,6 +471,8 @@ public class ReceiveFragment extends Fragment {
 		catch(ParseException pe) {
 			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));		        		
 		}
+
+		setupBottomSheet();
     }
 
     private Bitmap generateQRCode(String uri) {
@@ -625,4 +627,183 @@ public class ReceiveFragment extends Fragment {
         return amount;
     }
 
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		menu.findItem(R.id.action_merchant_directory).setVisible(false);
+		menu.findItem(R.id.action_qr).setVisible(false);
+		MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);
+
+		i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+
+				onShareClicked();
+
+				return false;
+			}
+		});
+	}
+
+	private void onShareClicked(){
+
+		if (mLayout != null) {
+			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+				mainContent.setAlpha(1.0f);
+			} else {
+				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+				mainContent.setAlpha(0.5f);
+			}
+		}
+
+	}
+
+	private void setupBottomSheet(){
+
+		//Re-Populate list
+		String strFileName = getActivity().getExternalCacheDir() + File.separator + "qr.png";
+		File file = new File(strFileName);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (Exception e) {
+				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
+		file.setReadable(true, false);
+
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException fnfe) {
+			;
+		}
+
+		android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+		android.content.ClipData clip = null;
+		clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
+		clipboard.setPrimaryClip(clip);
+
+		if (file != null && fos != null) {
+			Bitmap bitmap = ((BitmapDrawable) ivReceivingQR.getDrawable()).getBitmap();
+			bitmap.compress(CompressFormat.PNG, 0, fos);
+
+			try {
+				fos.close();
+			} catch (IOException ioe) {
+				;
+			}
+
+			ArrayList<SendPaymentCodeData> dataList = new ArrayList<SendPaymentCodeData>();
+
+			PackageManager pm = getActivity().getPackageManager();
+
+			Intent intent = new Intent();
+			intent.setAction(Intent.ACTION_SEND);
+			intent.setType("image/png");
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+			List<ResolveInfo> resInfos = pm.queryIntentActivities(intent, 0);
+
+			SendPaymentCodeData d;
+			for (ResolveInfo resInfo : resInfos) {
+
+				String context = resInfo.activityInfo.packageName;
+				String packageClassName = resInfo.activityInfo.name;
+				CharSequence label = resInfo.loadLabel(pm);
+				Drawable icon = resInfo.loadIcon(pm);
+
+				Intent shareIntent = new Intent();
+				shareIntent.setAction(Intent.ACTION_SEND);
+				shareIntent.setType("image/png");
+				shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+				shareIntent.setClassName(context, packageClassName);
+
+				d = new SendPaymentCodeData();
+				d.setTitle(label.toString());
+				d.setLogo(icon);
+				d.setIntent(shareIntent);
+				dataList.add(d);
+			}
+
+			ArrayAdapter adapter = new SendPaymentCodeAdapter(getActivity(), dataList);
+			sendPaymentCodeAppListlist = (ListView) rootView.findViewById(R.id.share_app_list);
+			sendPaymentCodeAppListlist.setAdapter(adapter);
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	class SendPaymentCodeAdapter extends ArrayAdapter<SendPaymentCodeData>
+	{
+		private final Context context;
+		private final ArrayList<SendPaymentCodeData> repoDataArrayList;
+
+		public SendPaymentCodeAdapter(Context context, ArrayList<SendPaymentCodeData> repoDataArrayList) {
+
+			super(context, R.layout.fragment_receive_share_row, repoDataArrayList);
+
+			this.context = context;
+			this.repoDataArrayList = repoDataArrayList;
+		}
+
+		@Override
+		public View getView(final int position, View convertView, ViewGroup parent)
+		{
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+			View rowView = null;
+			rowView = inflater.inflate(R.layout.fragment_receive_share_row, parent, false);
+
+			ImageView image = (ImageView) rowView.findViewById(R.id.share_app_image);
+			TextView title = (TextView) rowView.findViewById(R.id.share_app_title);
+
+			image.setImageDrawable(repoDataArrayList.get(position).getLogo());
+			title.setText(repoDataArrayList.get(position).getTitle());
+
+			rowView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					startActivity(repoDataArrayList.get(position).getIntent());
+				}
+			});
+
+			return rowView;
+		}
+	}
+
+	class SendPaymentCodeData
+	{
+		private Drawable logo;
+		private String title;
+		private Intent intent;
+
+		public SendPaymentCodeData() {
+
+		}
+
+		public Intent getIntent() {
+			return intent;
+		}
+
+		public void setIntent(Intent intent) {
+			this.intent = intent;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public Drawable getLogo() {
+			return logo;
+		}
+
+		public void setLogo(Drawable logo) {
+			this.logo = logo;
+		}
+	}
 }

@@ -1,26 +1,27 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.HashMap;
-
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.text.Spannable;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -29,21 +30,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
-//import android.widget.ImageView;
-import android.text.Spannable;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
-//import android.text.TextUtils;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Animation;
-//import android.view.animation.RotateAnimation;
-//import android.view.animation.TranslateAnimation;
-import android.net.Uri;
-import android.util.Log;
 
-import com.google.bitcoin.crypto.MnemonicException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -56,6 +47,11 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+//import android.widget.ImageView;
+//import android.text.TextUtils;
+//import android.view.animation.RotateAnimation;
+//import android.view.animation.TranslateAnimation;
 
 public class BalanceFragment extends Fragment {
 
@@ -175,9 +171,9 @@ public class BalanceFragment extends Fragment {
             	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
             	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
 
-        		Fragment fragment = new ReceiveFragment2();
+        		Fragment fragment = new ReceiveFragment();
         		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 
             	return false;
             }
