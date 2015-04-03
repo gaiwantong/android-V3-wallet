@@ -99,12 +99,12 @@ public class WebSocketHandler {
 
 		Log.i("WebSocketHandler", "Websocket subscribe");
 
-//		send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
+		send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 //		Log.i("WebSocketHandler", "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
 		for(int i = 0; i < xpubs.length; i++) {
 			if(xpubs[i] != null && xpubs[i].length() > 0) {
-				send("{\"op\":\"xpub_sub\", \"xpub\":\""+ xpubs[i] + "\"}");
+				send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
 //				Log.i("WebSocketHandler", "{\"op\":\"xpub_sub\",\"xpub\":\"" + xpubs[i] + "\"}");
 			}
 		}
