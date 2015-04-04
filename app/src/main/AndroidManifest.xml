@@ -33,17 +33,9 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="empty_action" />
-                <!--
-				<action android:name="android.nfc.action.NDEF_DISCOVERED" />
-			    <category android:name="android.intent.category.DEFAULT" />
-			    <data android:mimeType="text/plain" />
-			    -->
-                <!--
-				<action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/info.blockchain.wallet.beam" />
-			    -->
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="bitcoin" />
             </intent-filter>
 
         </activity>
