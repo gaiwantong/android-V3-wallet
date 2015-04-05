@@ -12,6 +12,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -469,17 +474,21 @@ public class ReceiveFragment extends Fragment {
 			}
             bamount = getUndenominatedAmount(lamount);
 			if(!bamount.equals(BigInteger.ZERO)) {
-				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));		        		
+				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));
+                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
 			}
 			else {
-				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));		        		
+				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
 			}
 		}
 		catch(NumberFormatException nfe) {
-			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));		        		
+			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+            write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
 		}
 		catch(ParseException pe) {
-			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));		        		
+			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+            write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
 		}
 
 		setupBottomSheet();
@@ -637,7 +646,26 @@ public class ReceiveFragment extends Fragment {
         return amount;
     }
 
-	@Override
+    private void write2NFC(final String uri) {
+
+        if (Build.VERSION.SDK_INT < 16){
+            return;
+        }
+
+        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(getActivity());
+        if (nfc != null && nfc.isNdefPushEnabled() ) {
+            nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
+                @Override
+                public NdefMessage createNdefMessage(NfcEvent event) {
+                    NdefRecord uriRecord = NdefRecord.createUri(uri);
+                    return new NdefMessage(new NdefRecord[]{ uriRecord });
+                }
+            }, getActivity());
+        }
+
+    }
+
+    @Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
