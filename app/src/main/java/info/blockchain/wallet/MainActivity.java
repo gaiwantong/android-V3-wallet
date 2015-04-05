@@ -317,7 +317,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return null;
         }
 
-        NdefRecord rtdUriRecord = NdefRecord.createUri("");
+        NdefRecord rtdUriRecord = NdefRecord.createUri("market://details?id=piuk.blockchain.android");
         NdefMessage ndefMessageout = new NdefMessage(rtdUriRecord);
         return ndefMessageout;
     }
