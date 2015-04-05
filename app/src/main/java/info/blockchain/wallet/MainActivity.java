@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -247,17 +248,19 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 			TimeOutUtil.getInstance().updatePin();
 		}
 
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        if(action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
-            Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
-            NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
-            NdefRecord NdefRecord_0 = inNdefRecords[0];
-            String inMsg = new String(NdefRecord_0.getPayload(), 1, NdefRecord_0.getPayload().length - 1, Charset.forName("US-ASCII"));
+        if(Build.VERSION.SDK_INT >= 16){
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if(action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+                Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
+                NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
+                NdefRecord NdefRecord_0 = inNdefRecords[0];
+                String inMsg = new String(NdefRecord_0.getPayload(), 1, NdefRecord_0.getPayload().length - 1, Charset.forName("US-ASCII"));
 //            Toast.makeText(MainActivity.this, inMsg, Toast.LENGTH_SHORT).show();
-            doScanInput(inMsg);
+                doScanInput(inMsg);
 
+            }
         }
 
     }
@@ -291,6 +294,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public void onNdefPushComplete(NfcEvent event) {
 
+        if(Build.VERSION.SDK_INT < 16){
+            return;
+        }
+
         final String eventString = "onNdefPushComplete\n" + event.toString();
 
         runOnUiThread(new Runnable() {
@@ -305,7 +312,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        NdefRecord rtdUriRecord = NdefRecord.createUri("bitcoin:1FoNEBtcqSA9k7iXqvoEPZnQi7FvDrmpEp");
+
+        if(Build.VERSION.SDK_INT < 16){
+            return null;
+        }
+
+        NdefRecord rtdUriRecord = NdefRecord.createUri("");
         NdefMessage ndefMessageout = new NdefMessage(rtdUriRecord);
         return ndefMessageout;
     }
