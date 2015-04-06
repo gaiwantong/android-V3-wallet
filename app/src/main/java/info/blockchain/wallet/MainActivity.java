@@ -211,10 +211,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter == null)   {
-            Toast.makeText(MainActivity.this, "nfcAdapter == null, no NFC adapter exists", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "nfcAdapter == null, no NFC adapter exists", Toast.LENGTH_SHORT).show();
         }
         else    {
-            Toast.makeText(MainActivity.this, "Set NFC Callback(s)", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "Set NFC Callback(s)", Toast.LENGTH_SHORT).show();
             mNfcAdapter.setNdefPushMessageCallback(this, this);
             mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
         }
@@ -251,7 +251,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         if(Build.VERSION.SDK_INT >= 16){
             Intent intent = getIntent();
             String action = intent.getAction();
-            if(action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+            if(mNfcAdapter != null && action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
                 Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
                 NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
                 NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
@@ -298,6 +298,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
+        /*
         final String eventString = "onNdefPushComplete\n" + event.toString();
 
         runOnUiThread(new Runnable() {
@@ -307,6 +308,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 Toast.makeText(getApplicationContext(), eventString, Toast.LENGTH_SHORT).show();
             }
         });
+        */
 
     }
 
