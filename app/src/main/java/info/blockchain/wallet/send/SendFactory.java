@@ -364,6 +364,8 @@ public class SendFactory	{
 			fee = BigInteger.ZERO;
 		}
 
+        List<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
+
 		//Construct a new transaction
 		Transaction tx = new Transaction(MainNetParams.get());
 
@@ -384,8 +386,8 @@ public class SendFactory	{
 //			Log.d("MyRemoteWallet", "MyRemoteWallet makeTransaction toAddress: " + toAddress + "amount: " + amount);
 
 			TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
-
-			tx.addOutput(output);
+//			tx.addOutput(output);
+            outputs.add(output);
 		}
 
 		//Now select the appropriate inputs
@@ -455,12 +457,16 @@ public class SendFactory	{
 				throw new Exception("Invalid transaction attempt");
 			}
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
-
-			tx.addOutput(change_output);				
+//			tx.addOutput(change_output);
+            outputs.add(change_output);
 		}
 
-		long estimatedSize = tx.bitcoinSerialize().length + (114 * tx.getInputs().size());
+        Collections.shuffle(outputs, new SecureRandom());
+        for(TransactionOutput to : outputs) {
+            tx.addOutput(to);
+        }
 
+        long estimatedSize = tx.bitcoinSerialize().length + (114 * tx.getInputs().size());
 		priority /= estimatedSize;
 
 		return new Pair<Transaction, Long>(tx, priority);
