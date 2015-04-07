@@ -324,7 +324,7 @@ public class SendFactory	{
 			// Construct the output
 			MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
 			outPoint.setConfirmations(confirmations);
-            // return single output equal or greater than totalValue, otherwise save for randomization
+            // return single output >= totalValue, otherwise save for randomization
             if(outPoint.getValue().compareTo(totalAmount) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
@@ -336,6 +336,7 @@ public class SendFactory	{
 
 		}
 
+        // no single output >= totalValue, so randomize
         List<MyTransactionOutPoint> _outputs = new ArrayList<MyTransactionOutPoint>();
         Collections.shuffle(outputs, new SecureRandom());
         BigInteger totalValue = BigInteger.ZERO;
