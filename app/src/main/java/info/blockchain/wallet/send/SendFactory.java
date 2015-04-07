@@ -1,7 +1,9 @@
 package info.blockchain.wallet.send;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -268,8 +270,6 @@ public class SendFactory	{
 
 	private List<MyTransactionOutPoint> getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 		
-		BigInteger totalValue = BigInteger.ZERO;
-
 		String args = null;
 		if(isHD) {
 			args = from[0];
@@ -306,7 +306,6 @@ public class SendFactory	{
 
 			int txOutputN = ((Number)outDict.get("tx_output_n")).intValue();
 			BigInteger value = BigInteger.valueOf(((Number)outDict.get("value")).longValue());
-			totalValue = totalValue.add(value);
 			byte[] scriptBytes = Hex.decode((String)outDict.get("script"));
 			int confirmations = ((Number)outDict.get("confirmations")).intValue();
 
@@ -325,15 +324,30 @@ public class SendFactory	{
 			// Construct the output
 			MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
 			outPoint.setConfirmations(confirmations);
-			outputs.add(outPoint);
-			
-			if(totalValue.compareTo(totalAmount) >= 0) {
-				break;
-			}
+            // return single output equal or greater than totalValue, otherwise save for randomization
+            if(outPoint.getValue().compareTo(totalAmount) >= 0) {
+                outputs.clear();
+                outputs.add(outPoint);
+                return outputs;
+            }
+            else {
+                outputs.add(outPoint);
+            }
 
 		}
 
-		return outputs;
+        List<MyTransactionOutPoint> _outputs = new ArrayList<MyTransactionOutPoint>();
+        Collections.shuffle(outputs, new SecureRandom());
+        BigInteger totalValue = BigInteger.ZERO;
+        for (MyTransactionOutPoint output : outputs) {
+            totalValue = totalValue.add(output.getValue());
+            _outputs.add(output);
+            if(totalValue.compareTo(totalAmount) >= 0) {
+                break;
+            }
+        }
+
+        return _outputs;
 	}
 
 	private Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
