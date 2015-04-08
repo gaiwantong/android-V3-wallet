@@ -125,7 +125,7 @@ public class ReceiveFragment extends Fragment {
 		
 		locale = Locale.getDefault();
 
-		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.receive);
+		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
 
 		//vvv to be removed after back button implemented vvv
 		layoutReceive = (LinearLayout)rootView.findViewById(R.id.view_receive1);

@@ -12,74 +12,69 @@
 		android:orientation="vertical"
 		>
 
-		<!-- receive, balance, send icons -->
+		<!-- receive, balance, send icons  -to be removed-->
 		<LinearLayout
 			android:id="@+id/iconsLayout"
 			android:layout_width="match_parent"
 			android:layout_height="30dp"
-			android:background="@color/blockchain_blue"
 			android:orientation="horizontal"
+			android:background="@color/blockchain_blue"
 			>
-
 			<LinearLayout
 				android:id="@+id/view_receive1"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
-				android:gravity="center_horizontal|center_vertical"
 				android:orientation="vertical"
+				android:gravity="center_horizontal|center_vertical"
 				>
-
 				<ImageView
 					android:id="@+id/view_receive"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal|center_vertical"
 					android:gravity="center_horizontal|center_vertical"
+					android:layout_gravity="center_horizontal|center_vertical"
 					android:src="@drawable/icon_receive"
 					/>
 			</LinearLayout>
-
 			<LinearLayout
 				android:id="@+id/view_home1"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
-				android:gravity="center_horizontal|center_vertical"
 				android:orientation="vertical"
+				android:gravity="center_horizontal|center_vertical"
 				>
-
 				<ImageView
 					android:id="@+id/view_home"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal|center_vertical"
 					android:gravity="center_horizontal|center_vertical"
+					android:layout_gravity="center_horizontal|center_vertical"
 					android:src="@drawable/icon_accounts"
 					/>
 			</LinearLayout>
-
 			<LinearLayout
 				android:id="@+id/view_send1"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
-				android:gravity="center_horizontal|center_vertical"
 				android:orientation="vertical"
+				android:gravity="center_horizontal|center_vertical"
 				>
-
 				<ImageView
 					android:id="@+id/view_send"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal|center_vertical"
 					android:gravity="center_horizontal|center_vertical"
+					android:layout_gravity="center_horizontal|center_vertical"
 					android:src="@drawable/icon_send"
 					/>
 			</LinearLayout>
 		</LinearLayout>
 
 		<LinearLayout
+			android:visibility="gone"
 			android:id="@+id/iconsLayout2"
 			android:layout_width="match_parent"
 			android:layout_height="2dp"
@@ -118,6 +113,7 @@
 		</LinearLayout>
 
 		<LinearLayout
+			android:visibility="gone"
 			android:layout_width="match_parent"
 			android:layout_height="5dp"
 			android:background="@color/blockchain_blue"
@@ -133,110 +129,167 @@
 
 			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="0dp"
-				android:layout_weight="4"
-				android:background="@drawable/container_dropshadow"
+				android:layout_height="wrap_content"
+				android:background="#FFffff"
 				android:orientation="vertical"
-				android:paddingBottom="10dp"
-				android:paddingLeft="10dp"
-				android:paddingRight="10dp"
-				android:paddingTop="10dp"
 				>
-
-				<Spinner
-					android:id="@+id/accounts"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					/>
-
-				<EditText
-					android:id="@+id/destination"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:background="#FFFFFFFF"
-					android:focusable="true"
-					android:focusableInTouchMode="true"
-					android:hint="Send to..."
-					android:imeOptions="actionDone"
-					android:padding="5dp"
-					android:singleLine="true"
-					android:textColor="#FF000000"
-					android:textColorHint="#FFc0c0c0"
-					android:textSize="20dp"
-					>
-
-					<requestFocus/>
-				</EditText>
 
 				<LinearLayout
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="48dp"
+					android:gravity="center_vertical"
+					android:paddingLeft="16dp"
 					android:orientation="horizontal"
 					>
 
-					<EditText
-						android:id="@+id/amount1"
+					<TextView
 						android:layout_width="0dp"
+						android:layout_weight="2"
 						android:layout_height="wrap_content"
+						android:text="@string/from"
+						android:textColor="@color/blockchain_grey"/>
+
+					<Spinner
+						android:id="@+id/accounts"
+						android:layout_width="0dp"
+						android:layout_height="48dp"
 						android:layout_weight="8"
-						android:background="#FFFFFFFF"
+						/>
+
+				</LinearLayout>
+
+				<View
+					android:layout_width="fill_parent"
+					android:layout_height="1dp"
+					android:background="@color/blockchain_light_grey"/>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="48dp"
+					android:gravity="center_vertical"
+					android:paddingLeft="16dp"
+					android:paddingRight="16dp"
+					android:orientation="horizontal"
+					>
+
+					<TextView
+						android:layout_width="0dp"
+						android:layout_weight="2"
+						android:layout_height="wrap_content"
+						android:text="@string/to"
+						android:textColor="@color/blockchain_grey"/>
+
+					<!--<Spinner-->
+						<!--android:id="@+id/sp_destination"-->
+						<!--android:layout_width="0dp"-->
+						<!--android:layout_height="48dp"-->
+						<!--android:layout_weight="1"-->
+						<!--android:background="@drawable/spinner_bg"-->
+						<!--/>-->
+
+					<EditText
+						android:id="@+id/destination"
+						android:layout_width="0dp"
+						android:layout_weight="8"
+						android:layout_height="wrap_content"
 						android:focusable="true"
 						android:focusableInTouchMode="true"
-						android:hint="0.00"
-						android:imeOptions="actionDone"
-						android:inputType="numberDecimal"
-						android:padding="5dp"
 						android:singleLine="true"
-						android:textColor="#FF000000"
-						android:textColorHint="#FFc0c0c0"
-						android:textSize="20dp"
+						android:background="#FFffff"
+						android:textCursorDrawable="@null"
+						android:textColor="@color/primary_text_default_material_light"
+						/>
+
+				</LinearLayout>
+
+				<View
+					android:layout_width="fill_parent"
+					android:layout_height="1dp"
+					android:background="@color/blockchain_light_grey"/>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="48dp"
+					android:gravity="center_vertical"
+					android:orientation="horizontal"
+					>
+
+					<LinearLayout
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center_vertical"
+						android:paddingLeft="16dp"
+						android:paddingRight="16dp"
+						android:orientation="horizontal"
 						>
 
-						<requestFocus/>
-					</EditText>
+						<TextView
+							android:id="@+id/currency1"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="4"
+							android:text="BTC"
+							android:textColor="@color/blockchain_grey"
+							/>
 
-					<TextView
-						android:id="@+id/currency1"
+						<EditText
+							android:id="@+id/amount1"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="6"
+							android:background="#ffffff"
+							android:focusable="true"
+							android:focusableInTouchMode="true"
+							android:hint="0.00"
+							android:imeOptions="actionDone"
+							android:inputType="numberDecimal"
+							android:singleLine="true"
+							android:textColor="@color/primary_text_default_material_light"
+							android:textColorHint="@color/blockchain_light_grey"
+							android:textCursorDrawable="@null"
+							>
+
+							<requestFocus/>
+						</EditText>
+
+					</LinearLayout>
+
+					<LinearLayout
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
-						android:layout_gravity="left|center_vertical"
-						android:layout_weight="3"
-						android:gravity="left|center_vertical"
-						android:padding="5dp"
-						android:textAlignment="gravity"
-						android:textColor="#FF808080"
-						android:textSize="14dp"
-						/>
+						android:layout_weight="1"
+						android:gravity="center_vertical"
+						android:orientation="horizontal"
+						>
 
-					<TextView
-						android:id="@+id/amount2"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_gravity="right|center_vertical"
-						android:layout_weight="6"
-						android:gravity="right|center_vertical"
-						android:paddingLeft="0dp"
-						android:paddingRight="5dp"
-						android:textAlignment="gravity"
-						android:textColor="#FF808080"
-						android:textSize="14dp"
-						/>
+						<TextView
+							android:id="@+id/fiat2"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="4"
+							android:gravity="center_horizontal"
+							android:text="USD"
+							android:textColor="@color/blockchain_grey"
+							/>
 
-					<TextView
-						android:id="@+id/fiat2"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal|center_vertical"
-						android:layout_weight="3"
-						android:gravity="center_horizontal|center_vertical"
-						android:padding="5dp"
-						android:textAlignment="gravity"
-						android:textColor="#FF808080"
-						android:textSize="14dp"
-						/>
+						<TextView
+							android:id="@+id/amount2"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="6"
+							android:textColor="@color/primary_text_default_material_light"
+
+							/>
+
+					</LinearLayout>
+
 				</LinearLayout>
+
+				<View
+					android:layout_width="fill_parent"
+					android:layout_height="1dp"
+					android:background="@color/blockchain_light_grey"/>
 
 				<TextView
 					android:id="@+id/max"
@@ -246,33 +299,9 @@
 					android:gravity="center_horizontal|center_vertical"
 					android:paddingTop="15dp"
 					android:textAlignment="gravity"
-					android:textColor="#FF808080"
-					android:textSize="16dp"
+					android:textColor="@color/blockchain_grey"
 					/>
 
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="0dp"
-				android:layout_gravity="top|center_horizontal"
-				android:layout_weight="6"
-				android:background="#FFf3f3f3"
-				android:gravity="top|center_horizontal"
-				android:orientation="vertical"
-				>
-
-				<Button
-					android:id="@+id/send"
-					android:layout_width="match_parent"
-					android:layout_height="60dp"
-					android:layout_gravity="top|center_horizontal"
-					android:layout_marginTop="1dp"
-					android:background="#FF3CAA9C"
-					android:text="@string/SEND"
-					android:textColor="#FFFFFFFF"
-					android:textSize="20dp"
-					/>
 			</LinearLayout>
 
 		</LinearLayout>

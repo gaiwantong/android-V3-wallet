@@ -3,6 +3,7 @@ package info.blockchain.wallet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -99,7 +101,7 @@ public class SendFragment extends Fragment {
 	private double btc_fx = 319.13;
 	
 	private BigInteger bFee = Utils.toNanoCoins("0.0001");
-	
+
 	private class PendingSpend {
 		boolean isHD;
 		String amount;
@@ -117,11 +119,11 @@ public class SendFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
-		View rootView = inflater.inflate(R.layout.fragment_send_r, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_send, container, false);
 		
 		locale = Locale.getDefault();
 
-		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.send);
+		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
 		setHasOptionsMenu(true);
 
         layoutReceive = (LinearLayout)rootView.findViewById(R.id.iconsReceive2);
@@ -253,6 +255,7 @@ public class SendFragment extends Fragment {
     	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
 		edDestination = ((EditText)rootView.findViewById(R.id.destination));
+		edDestination.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
 		edDestination.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -278,6 +281,7 @@ public class SendFragment extends Fragment {
 		});
         
         edAmount1 = ((EditText)rootView.findViewById(R.id.amount1));
+		edAmount1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
         edAmount1.setOnEditorActionListener(new OnEditorActionListener() {
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -349,9 +353,12 @@ public class SendFragment extends Fragment {
             	_accounts.add((legacy.get(j).getLabel() == null || legacy.get(j).getLabel().length() == 0) ? legacy.get(j).getAddress() : legacy.get(j).getLabel());
             }
         }
-    	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, _accounts);
-    	dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
-    	spAccounts.setAdapter(dataAdapter);
+
+    	//ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.fragment_send_account_row, R.layout.spinner_item, _accounts);
+    	//dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
+
+		AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.fragment_send_account_row, _accounts);
+		spAccounts.setAdapter(dataAdapter);
     	spAccounts.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -514,7 +521,6 @@ public class SendFragment extends Fragment {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
 			}
-			if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 		
@@ -533,7 +539,6 @@ public class SendFragment extends Fragment {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 				}
-				if(btSend!=null)btSend.setVisible(false);
 				return;
 			}
 		}
@@ -541,14 +546,12 @@ public class SendFragment extends Fragment {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 			}
-			if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 		catch(ParseException pe) {
 			if(showMessages) {
 	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 			}
-    		if(btSend!=null)btSend.setVisible(false);
 			return;
 		}
 
@@ -561,7 +564,6 @@ public class SendFragment extends Fragment {
 					if(showMessages) {
 			            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 					}
-					if(btSend!=null)btSend.setVisible(false);
 					return;
 				}
 			}
@@ -572,12 +574,9 @@ public class SendFragment extends Fragment {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 				}
-				if(btSend!=null)btSend.setVisible(false);
 				return;
 			}
 		}
-
-		if(btSend!=null)btSend.setVisible(true);
 
 	}
 
@@ -771,7 +770,7 @@ public class SendFragment extends Fragment {
 		menu.findItem(R.id.action_share_receive).setVisible(false);
 
 		btSend = menu.findItem(R.id.action_send);
-		btSend.setVisible(false);
+		btSend.setVisible(true);
 
 		btSend.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 			@Override
@@ -797,38 +796,14 @@ public class SendFragment extends Fragment {
 
 		pendingSpend.btc_units = strBTC;
 
-		if(btSend!=null)btSend.setVisible(false);
-
-		final FragmentManager fragmentManager = getFragmentManager();
-		final Fragment fragment = new SendFragment2();
-		final Bundle args = new Bundle();
-
 		if(pendingSpend.isHD) {
 			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-				args.putBoolean("hd", true);
-				args.putInt("account", currentSelectedAccount);
-				args.putString("destination", pendingSpend.destination);
-				args.putString("bamount", pendingSpend.bamount.toString());
-				args.putString("bfee", pendingSpend.bfee.toString());
-				args.putString("sending_from", pendingSpend.sending_from);
-				args.putString("btc_amount", pendingSpend.btc_amount);
-				args.putString("fiat_amount", pendingSpend.fiat_amount);
-				args.putString("btc_units", pendingSpend.btc_units);
-				fragment.setArguments(args);
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				confirmPayment(true, currentSelectedAccount, null);
 			}
 			else if(DoubleEncryptionFactory.getInstance().isActivated()) {
-				args.putBoolean("hd", true);
-				args.putInt("account", currentSelectedAccount);
-				args.putString("destination", pendingSpend.destination);
-				args.putString("bamount", pendingSpend.bamount.toString());
-				args.putString("bfee", pendingSpend.bfee.toString());
-				args.putString("sending_from", pendingSpend.sending_from);
-				args.putString("btc_amount", pendingSpend.btc_amount);
-				args.putString("fiat_amount", pendingSpend.fiat_amount);
-				args.putString("btc_units", pendingSpend.btc_units);
-				fragment.setArguments(args);
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				confirmPayment(true, currentSelectedAccount, null);
 			}
 			else {
 
@@ -882,17 +857,7 @@ public class SendFragment extends Fragment {
 										;
 									}
 
-									args.putBoolean("hd", true);
-									args.putInt("account", currentSelectedAccount);
-									args.putString("destination", pendingSpend.destination);
-									args.putString("bamount", pendingSpend.bamount.toString());
-									args.putString("bfee", pendingSpend.bfee.toString());
-									args.putString("sending_from", pendingSpend.sending_from);
-									args.putString("btc_amount", pendingSpend.btc_amount);
-									args.putString("fiat_amount", pendingSpend.fiat_amount);
-									args.putString("btc_units", pendingSpend.btc_units);
-									fragment.setArguments(args);
-									fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+									confirmPayment(true, currentSelectedAccount, null);
 								}
 								else {
 									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
@@ -918,34 +883,12 @@ public class SendFragment extends Fragment {
 			}
 
 			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-				args.putBoolean("hd", false);
-				args.putInt("account", -1);
-				args.putString("destination", pendingSpend.destination);
-				args.putString("bamount", pendingSpend.bamount.toString());
-				args.putString("bfee", pendingSpend.bfee.toString());
-				args.putString("legacy_addr", addr.getAddress());
-				args.putString("legacy_priv", addr.getEncryptedKey());
-				args.putString("sending_from", pendingSpend.sending_from);
-				args.putString("btc_amount", pendingSpend.btc_amount);
-				args.putString("fiat_amount", pendingSpend.fiat_amount);
-				args.putString("btc_units", pendingSpend.btc_units);
-				fragment.setArguments(args);
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				confirmPayment(false, -1, addr);
 			}
 			else if(DoubleEncryptionFactory.getInstance().isActivated()) {
-				args.putBoolean("hd", false);
-				args.putInt("account", -1);
-				args.putString("destination", pendingSpend.destination);
-				args.putString("bamount", pendingSpend.bamount.toString());
-				args.putString("bfee", pendingSpend.bfee.toString());
-				args.putString("legacy_addr", addr.getAddress());
-				args.putString("legacy_priv", addr.getEncryptedKey());
-				args.putString("sending_from", pendingSpend.sending_from);
-				args.putString("btc_amount", pendingSpend.btc_amount);
-				args.putString("fiat_amount", pendingSpend.fiat_amount);
-				args.putString("btc_units", pendingSpend.btc_units);
-				fragment.setArguments(args);
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				confirmPayment(false, -1, addr);
 			}
 			else {
 
@@ -966,19 +909,8 @@ public class SendFragment extends Fragment {
 								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
 								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
-									args.putBoolean("hd", false);
-									args.putInt("account", -1);
-									args.putString("destination", pendingSpend.destination);
-									args.putString("bamount", pendingSpend.bamount.toString());
-									args.putString("bfee", pendingSpend.bfee.toString());
-									args.putString("legacy_addr", legacyAddress.getAddress());
-									args.putString("legacy_priv", legacyAddress.getEncryptedKey());
-									args.putString("sending_from", pendingSpend.sending_from);
-									args.putString("btc_amount", pendingSpend.btc_amount);
-									args.putString("fiat_amount", pendingSpend.fiat_amount);
-									args.putString("btc_units", pendingSpend.btc_units);
-									fragment.setArguments(args);
-									fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+									confirmPayment(false, -1, legacyAddress);
 								}
 								else {
 									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
@@ -993,5 +925,243 @@ public class SendFragment extends Fragment {
 				}).show();
 			}
 		}
+	}
+
+	class AccountAdapter extends ArrayAdapter<String>{
+
+		public AccountAdapter(Context context, int textViewResourceId, List<String> accounts) {
+			super(context, textViewResourceId, accounts);
+		}
+
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			return getCustomView(position, convertView, parent, true);
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			return getCustomView(position, convertView, parent, false);
+		}
+
+		public View getCustomView(int position, View convertView, ViewGroup parent, boolean isDropdown) {
+
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+
+			int layoutRes = R.layout.fragment_send_account_row;
+			if(isDropdown)layoutRes = R.layout.fragment_send_account_row_dropdown;
+
+			View row =  inflater.inflate(layoutRes, parent, false);
+
+			TextView label = (TextView) row.findViewById(R.id.receive_account_label);
+			TextView balance = (TextView) row.findViewById(R.id.receive_account_balance);
+
+			String labelText = "";
+			long amount = 0L;
+
+			if(position >= hdAccountsIdx) {
+				if(legacy.get(position - hdAccountsIdx).getLabel() != null && legacy.get(position - hdAccountsIdx).getLabel().length() > 0) {
+					labelText = legacy.get(position - hdAccountsIdx).getLabel();
+				}
+				else {
+					labelText = legacy.get(position - hdAccountsIdx).getAddress();
+				}
+			}
+			else {
+				labelText = accounts.get(position).getLabel();
+			}
+
+			if(position >= hdAccountsIdx) {
+				amount = MultiAddrFactory.getInstance().getLegacyBalance(legacy.get(position - hdAccountsIdx).getAddress());
+			}
+			else {
+				String xpub = account2Xpub(position);
+				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
+				}
+				else {
+					amount = 0L;
+				}
+			}
+
+			if(isDropdown)balance.setText("("+getDisplayAmount(amount)+" "+strBTC+")");
+
+			label.setText(labelText);
+
+			return row;
+		}
+	}
+
+	private void confirmPayment(final boolean isHd, final int currentAcc, final LegacyAddress legacyAddress){
+
+		if(isValidSpend()) {
+
+			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+			View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
+			dialogBuilder.setView(dialogView);
+
+			final AlertDialog alertDialog = dialogBuilder.create();
+			alertDialog.setCanceledOnTouchOutside(false);
+
+			TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
+			confirmDestination.setText(pendingSpend.destination);
+
+			TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
+			confirmFee.setText(getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
+
+			TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
+			BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
+			confirmTotal.setText(getDisplayAmount(cTotal.longValue()) + " " + strBTC);
+
+			TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+			confirmCancel.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+				}
+			});
+
+			TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+			confirmSend.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+
+					final int account = currentAcc;
+					final String destination = pendingSpend.destination;
+					final BigInteger bamount = pendingSpend.bamount;
+					final BigInteger bfee = pendingSpend.bfee;
+					final String strNote = null;
+
+					if (isHd) {
+						SendFactory.getInstance(getActivity()).send(account, destination, bamount, null, bfee, strNote, new OpCallback() {
+
+							public void onSuccess() {
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+										PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+
+										MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+										MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
+										if (alertDialog != null && alertDialog.isShowing())
+											alertDialog.cancel();
+										Fragment fragment = new BalanceFragment();
+										FragmentManager fragmentManager = getFragmentManager();
+										fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+									}
+								});
+							}
+
+							public void onFail() {
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+										if (alertDialog != null && alertDialog.isShowing())
+											alertDialog.cancel();
+										Fragment fragment = new BalanceFragment();
+										FragmentManager fragmentManager = getFragmentManager();
+										fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+									}
+								});
+							}
+
+						});
+					} else if (legacyAddress != null) {
+						SendFactory.getInstance(getActivity()).send(-1, destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
+
+							public void onSuccess() {
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+										if (strNote != null) {
+											PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+										}
+										MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+										MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
+										MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
+										if (alertDialog != null && alertDialog.isShowing())
+											alertDialog.cancel();
+										Fragment fragment = new BalanceFragment();
+										FragmentManager fragmentManager = getFragmentManager();
+										fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+									}
+								});
+							}
+
+							public void onFail() {
+								getActivity().runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+										if (alertDialog != null && alertDialog.isShowing())
+											alertDialog.cancel();
+										Fragment fragment = new BalanceFragment();
+										FragmentManager fragmentManager = getFragmentManager();
+										fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+									}
+								});
+							}
+
+						});
+					}
+				}
+			});
+
+			alertDialog.show();
+		}
+	}
+
+	private boolean isValidSpend() {
+
+		try{
+			if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)) {
+				Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
+				return false;
+			}
+		}catch(Exception e){
+			Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
+			return false;
+		}
+
+		long lamount = 0L;
+		try {
+			lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
+				Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+				return false;
+			}
+		}
+		catch(NumberFormatException nfe) {
+			Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		catch(ParseException pe) {
+			Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+			return false;
+		}
+
+		if(pendingSpend.isHD) {
+			String xpub = HDPayloadBridge.getInstance().account2Xpub(currentSelectedAccount);
+
+			if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
+				if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+					Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+					return false;
+				}
+			}
+		}
+		else {
+			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
+			if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+				Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

@@ -105,29 +105,29 @@
 					android:layout_height="wrap_content"
 					android:background="#FFffff"
 					android:orientation="vertical"
-					android:padding="16dp"
 					>
 
 					<LinearLayout
 						android:layout_width="match_parent"
 						android:layout_height="48dp"
 						android:gravity="center_vertical"
+						android:paddingLeft="16dp"
+						android:paddingRight="16dp"
 						android:orientation="horizontal"
 						>
 
 						<TextView
 							android:layout_width="0dp"
-							android:layout_weight="3"
+							android:layout_weight="2"
 							android:layout_height="wrap_content"
-							android:paddingRight="16dp"
-							android:text="@string/to"
+							android:text="@string/from"
 							android:textColor="@color/blockchain_grey"/>
 
 						<Spinner
 							android:id="@+id/accounts"
 							android:layout_width="0dp"
 							android:layout_height="48dp"
-							android:layout_weight="17"
+							android:layout_weight="8"
 							android:background="@drawable/spinner_bg"
 							/>
 
@@ -143,7 +143,6 @@
 						android:layout_height="48dp"
 						android:gravity="center_vertical"
 						android:orientation="horizontal"
-						android:paddingTop="16dp"
 						>
 
 						<LinearLayout
@@ -151,6 +150,8 @@
 							android:layout_height="wrap_content"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
+							android:paddingLeft="16dp"
+							android:paddingRight="16dp"
 							android:orientation="horizontal"
 							>
 
@@ -158,7 +159,7 @@
 								android:id="@+id/currency1"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:layout_weight="3"
+								android:layout_weight="4"
 								android:text="BTC"
 								android:textColor="@color/blockchain_grey"
 								/>
@@ -167,7 +168,7 @@
 								android:id="@+id/amount1"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:layout_weight="7"
+								android:layout_weight="6"
 								android:background="#ffffff"
 								android:focusable="true"
 								android:focusableInTouchMode="true"
@@ -197,7 +198,7 @@
 								android:id="@+id/fiat2"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:layout_weight="3"
+								android:layout_weight="4"
 								android:gravity="center_horizontal"
 								android:text="USD"
 								android:textColor="@color/blockchain_grey"
@@ -207,7 +208,7 @@
 								android:id="@+id/amount2"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:layout_weight="7"
+								android:layout_weight="6"
 								android:textColor="@color/primary_text_default_material_light"
 
 								/>

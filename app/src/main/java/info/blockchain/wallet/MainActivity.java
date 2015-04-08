@@ -542,7 +542,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public boolean onKeyDown(int keyCode, KeyEvent event) { 
 
 		if(keyCode == KeyEvent.KEYCODE_BACK) {
-        	
+
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.ask_you_sure_exit).setCancelable(false);
 			AlertDialog alert = builder.create();

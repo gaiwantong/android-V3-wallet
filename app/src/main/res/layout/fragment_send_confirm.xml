@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:background="#ffffff"
+			  android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_marginTop="24dp"
+		android:layout_marginLeft="24dp"
+		android:layout_marginRight="24dp"
+		android:layout_marginBottom="16dp">
+
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_weight="1"
+				android:layout_height="wrap_content"
+				android:text="@string/confirm_details"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="24sp"/>
+
+			<TextView
+				android:id="@+id/direction"
+				android:visibility="invisible"
+				android:layout_width="35dp"
+				android:layout_height="35dp"
+				android:layout_gravity="center_horizontal|center_vertical"
+				android:layout_marginBottom="10dp"
+				android:layout_marginLeft="20dp"
+				android:layout_marginRight="20dp"
+				android:layout_marginTop="10dp"
+				android:background="@drawable/round_view"
+				android:gravity="center_horizontal|center_vertical"
+				android:textColor="#FFffffff"
+				android:textSize="42dp"
+				/>
+
+		</LinearLayout>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/to"
+			android:layout_marginTop="16dp"
+			android:textColor="@color/blockchain_grey"/>
+
+		<TextView
+			android:id="@+id/confirm_to"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/primary_text_default_material_light"/>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/fee"
+			android:layout_marginTop="16dp"
+			android:textColor="@color/blockchain_grey"/>
+
+		<TextView
+			android:id="@+id/confirm_fee"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/primary_text_default_material_light"/>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/total_to_send"
+			android:layout_marginTop="16dp"
+			android:textColor="@color/blockchain_grey"/>
+
+		<TextView
+			android:id="@+id/confirm_total_to_send"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/primary_text_default_material_light"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:orientation="horizontal"
+		android:gravity="center_vertical|right">
+
+		<TextView
+			android:id="@+id/confirm_cancel"
+			android:layout_width="wrap_content"
+			android:layout_height="36dp"
+			android:text="@string/dialog_cancel"
+			android:gravity="center"
+			android:layout_marginRight="8dp"
+			android:paddingLeft="8dp"
+			android:paddingRight="8dp"
+			android:textColor="@color/primary_text_default_material_light"/>
+
+		<TextView
+			android:id="@+id/confirm_send"
+			android:layout_width="wrap_content"
+			android:layout_height="36dp"
+			android:text="@string/dialog_send"
+			android:gravity="center"
+			android:layout_marginRight="16dp"
+			android:paddingLeft="8dp"
+			android:paddingRight="8dp"
+			android:textColor="@color/blockchain_blue"/>
+
+	</LinearLayout>
+
+
+</LinearLayout>

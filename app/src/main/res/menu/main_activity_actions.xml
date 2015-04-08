@@ -10,12 +10,12 @@
           material-navigation-drawer-example:showAsAction="always"
           android:title="" />
 	<item android:id="@+id/action_share_receive"
-		  android:icon="@android:drawable/ic_menu_share"
+		  android:icon="@drawable/ic_share_white_48dp"
 		  material-navigation-drawer-example:showAsAction="always"
 		  android:visible="false"
 		  android:title="" />
 	<item android:id="@+id/action_send"
-		  android:icon="@android:drawable/ic_menu_send"
+		  android:icon="@drawable/ic_send_white_48dp"
 		  material-navigation-drawer-example:showAsAction="always"
 		  android:visible="false"
 		  android:title="" />

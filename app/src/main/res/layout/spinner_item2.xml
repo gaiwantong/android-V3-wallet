@@ -8,7 +8,7 @@
     android:gravity="left|center_vertical"
     android:textColor="#FF000000"         
     android:background="#FFffffff"
-    android:paddingLeft="16dp"
+	android:paddingLeft="16dp"
 	android:paddingRight="16dp"
 	android:paddingBottom="20dp"
 	android:paddingTop="8dp"
