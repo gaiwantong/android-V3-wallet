@@ -41,12 +41,15 @@ import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 
+/**
+ *
+ * SendFactory.java : singleton class for spending from Blockchain Android HD wallet
+ *
+ */
 public class SendFactory	{
 
 	private static SendFactory instance = null;
 	private static Context context = null;
-
-//	private ProgressDialog progress = null;
 
 	private SendFactory () { ; }
 
@@ -64,12 +67,30 @@ public class SendFactory	{
     	return instance;
     }
 
+    /**
+     * Send coins from this wallet.
+     * <p>
+     * Collects sending addresses for HD or legacy spend
+     * Collects unspent outputs from sending addresses
+     * Creates transaction
+     * Signs tx
+     * <p>
+     * And even more explanations to follow in consecutive
+     * paragraphs separated by HTML paragraph breaks.
+     *
+     * @param  int accountIdx HD account index, -1 if legacy spend
+     * @param  String toAddress Receiving public address
+     * @param  BigInteger amount Spending amount (not including fee)
+     * @param  LegacyAddress If legacy spend, spend from this LegacyAddress
+     * @param  BigInteger fee Miner's fee
+     * @param  String note Note to be attached to this tx
+     * @param  OpCallback opc
+     *
+     */
     public void send(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc) {
 
     	final boolean isHD = accountIdx == -1 ? false : true;
 
-//		final String[] from;
-//		final HashMap<String,String> froms;
     	final String xpub;
 		
 		if(isHD) {
@@ -82,6 +103,7 @@ public class SendFactory	{
 				if(f != null) {
 					String[] s = f.split(",");
 //					Log.i("address path", s[1] + " " + s[0]);
+                    // get path info which will be used to calculate private key
 					froms.put(s[1], s[0]);
 				}
 			}
@@ -100,16 +122,7 @@ public class SendFactory	{
 		receivers.put(toAddress, amount);
 
 		final Handler handler = new Handler();
-/*		
-		if(progress != null && progress.isShowing()) {
-			progress.dismiss();
-			progress = null;
-		}
-		progress = new ProgressDialog(context);
-		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
-		progress.show();
-*/
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -135,11 +148,9 @@ public class SendFactory	{
 						return;
 					}
 					Pair<Transaction, Long> pair = null;
-//					pair = makeTransaction(isSimpleSend, unspent, receivingAddresses, feeAmount, changeAddress);
 					String changeAddr = null;
 					if(isHD) {
 						int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
-//						Log.i("change idx", "" + changeIdx);
 						if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 							changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
 						}
@@ -152,16 +163,8 @@ public class SendFactory	{
 					}
 //					Log.i("change address", changeAddr);
 					pair = makeTransaction(true, allUnspent, receivers, fee, changeAddr);
-//					Log.i("pair is", pair == null ? "null" : "not null");
 					// Transaction cancelled
 					if(pair == null) {
-//						Log.i("pair is", "null");
-/*						
-						if(progress != null && progress.isShowing()) {
-							progress.dismiss();
-							progress = null;
-						}
-*/
 						opc.onFail();
 						return;
 					}
@@ -241,13 +244,6 @@ public class SendFactory	{
 			        	Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
 						opc.onFail();
 					}
-					
-		        	/*						
-					if(progress != null && progress.isShowing()) {
-						progress.dismiss();
-						progress = null;
-					}
-		        	 */
 
 //					progress.onSend(tx, response);
 
@@ -268,6 +264,18 @@ public class SendFactory	{
 		}).start();
 	}
 
+    /**
+     * Collect unspent outputs for this spend.
+     * <p>
+     * Collects all unspent outputs for spending addresses,
+     * randomizes them, and then selects outputs until amount
+     * of selected outputs >= totalAmount
+     *
+     * @param  boolean isHD true == HD account spend, false == legacy address spend
+     * @param  String[] Sending addresses (contains XPUB if HD spend, public addresses if legacy spend
+     * @param  BigInteger totalAmount Amount including fee
+     *
+     */
 	private List<MyTransactionOutPoint> getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 		
 		String args = null;
@@ -351,6 +359,19 @@ public class SendFactory	{
         return _outputs;
 	}
 
+    /**
+     * Creates, populates, and returns transaction instance for this
+     * spend and returns it with calculated priority. Change output
+     * is positioned randomly.
+     *
+     * @param  boolean isSimpleSend Always true, not currently used
+     * @param  List<MyTransactionOutPoint> unspent Unspent outputs
+     * @param  BigInteger amount Spending amount (not including fee)
+     * @param  HashMap<String, BigInteger> receivingAddresses
+     * @param  BigInteger fee Miner's fee for this spend
+     * @param  String changeAddress Change address for this spend
+     *
+     */
 	private Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
 
 		long priority = 0;
@@ -365,10 +386,8 @@ public class SendFactory	{
 		}
 
         List<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
-
-		//Construct a new transaction
+		// Construct a new transaction
 		Transaction tx = new Transaction(MainNetParams.get());
-
 		BigInteger outputValueSum = BigInteger.ZERO;
 
 		for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();) {
@@ -381,16 +400,13 @@ public class SendFactory	{
 			}
 
 			outputValueSum = outputValueSum.add(amount);
-			//Add the output
+			// Add the output
 			BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
-//			Log.d("MyRemoteWallet", "MyRemoteWallet makeTransaction toAddress: " + toAddress + "amount: " + amount);
-
 			TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
-//			tx.addOutput(output);
             outputs.add(output);
 		}
 
-		//Now select the appropriate inputs
+		// Now select the appropriate inputs
 		BigInteger valueSelected = BigInteger.ZERO;
 		BigInteger valueNeeded =  outputValueSum.add(fee);
 		BigInteger minFreeOutputSize = BigInteger.valueOf(1000000);
@@ -414,10 +430,7 @@ public class SendFactory	{
 			}
 
 			MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
-			
 			input.outpoint = outPoint;
-//			Log.d("MyRemoteWallet", "MyRemoteWallet makeTransaction fromAddress: " + address + "amount: " + outPoint.value);
-
 			tx.addInput(input);
 
 			valueSelected = valueSelected.add(outPoint.getValue());
@@ -433,7 +446,7 @@ public class SendFactory	{
 			}
 		}
 
-		//Check the amount we have selected is greater than the amount we need
+		// Check the amount we have selected is greater than the amount we need
 		if(valueSelected.compareTo(valueNeeded) < 0) {
 //			throw new InsufficientFundsException("Insufficient Funds");
 			return null;
@@ -441,23 +454,19 @@ public class SendFactory	{
 
 		BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
 
-		//Now add the change if there is any
+		// Now add the change if there is any
 		if (change.compareTo(BigInteger.ZERO) > 0) {
 			BitcoinScript change_script;
 			if (changeAddress != null) {
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
-//				Log.d("MyRemoteWallet", "MyRemoteWallet makeTransaction changeAddress != null: " + changeAddress + "change: " + change);
 			} else if (changeOutPoint != null) {
 				BitcoinScript inputScript = new BitcoinScript(changeOutPoint.getConnectedPubKeyScript());
-//    			Log.d("MyRemoteWallet", "MyRemoteWallet makeTransaction changeAddress == null: " + inputScript.getAddress() + "change: " + change);
-
-				//Return change to the first address
+				// Return change to the first address
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(inputScript.getAddress());
 			} else {
 				throw new Exception("Invalid transaction attempt");
 			}
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
-//			tx.addOutput(change_output);
             outputs.add(change_output);
 		}
 
