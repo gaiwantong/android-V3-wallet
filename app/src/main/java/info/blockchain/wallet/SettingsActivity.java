@@ -340,6 +340,18 @@ public class SettingsActivity extends PreferenceActivity	{
                 }
             });
 
+            Preference privacyPref = (Preference) findPreference("privacy");
+            privacyPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://blockchain.info/Resources/PrivacyPolicy.pdf"));
+                startActivity(intent);
+
+                return true;
+                }
+            });
+
     }
     
     private void getHDSeed(boolean mnemonic)	{
