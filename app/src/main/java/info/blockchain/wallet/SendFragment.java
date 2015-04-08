@@ -79,7 +79,7 @@ public class SendFragment extends Fragment {
 	private EditText edDestination = null;
     private EditText edAmount1 = null;
 	private TextView tvCurrency1 = null;
-	private TextView tvAmount2 = null;
+	private EditText edAmount2 = null;
 	private TextView tvFiat2 = null;
 	private Spinner spAccounts = null;
 	private MenuItem btSend;
@@ -101,6 +101,8 @@ public class SendFragment extends Fragment {
 	private double btc_fx = 319.13;
 	
 	private BigInteger bFee = Utils.toNanoCoins("0.0001");
+
+	private boolean textChangeAllowed = true;
 
 	private class PendingSpend {
 		boolean isHD;
@@ -269,7 +271,7 @@ public class SendFragment extends Fragment {
 		edDestination.addTextChangedListener(new TextWatcher()	{
 			public void afterTextChanged(Editable s) {
 
-				if(edAmount1 != null && edDestination != null && tvAmount2 != null && spAccounts != null) {
+				if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
 					validateSpend(false);
 				}
 
@@ -295,12 +297,21 @@ public class SendFragment extends Fragment {
         edAmount1.addTextChangedListener(new TextWatcher()	{
         	public void afterTextChanged(Editable s) {
 
-                updateTextFields();
+//               updateTextFields();
 
-        		if(edAmount1 != null && edDestination != null && tvAmount2 != null && spAccounts != null) {
-            		validateSpend(false);
-        		}
+//        		if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+//            		validateSpend(false);
+//        		}
 
+				if(textChangeAllowed) {
+					textChangeAllowed = false;
+					updateFiatTextField(s.toString());
+
+					if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+						validateSpend(false);
+					}
+					textChangeAllowed = true;
+				}
         	}
 
         	public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
@@ -309,30 +320,32 @@ public class SendFragment extends Fragment {
         });
 
         tvCurrency1 = (TextView)rootView.findViewById(R.id.currency1);
-        tvAmount2 = (TextView)rootView.findViewById(R.id.amount2);
-        tvAmount2.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.ITALIC);
-        tvAmount2.setTextColor(0xff9f9f9f);
+        edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
         tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
-        tvFiat2.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.ITALIC);
-        tvFiat2.setTextColor(0xff9f9f9f);
-        tvAmount2.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	
-            	toggleAmounts();
+        edAmount2.addTextChangedListener(new TextWatcher()	{
+			public void afterTextChanged(Editable s) {
 
-            	return false;
-            }
-        });
-        tvFiat2.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	
-            	toggleAmounts();
+//				updateTextFields();
+//
+//				if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+//					validateSpend(false);
+//				}
 
-            	return false;
-            }
-        });
+				if(textChangeAllowed) {
+					textChangeAllowed = false;
+					updateBtcTextField(s.toString());
+
+					if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+					validateSpend(false);
+					}
+					textChangeAllowed = true;
+				}
+			}
+
+			public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
+
+			public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
+		});
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
         accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
@@ -387,7 +400,7 @@ public class SendFragment extends Fragment {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
-        tvAmount2.setText("0.00" + "\u00A0");
+        //edAmount2.setText("0.00" + "\u00A0");
         tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
 
@@ -427,7 +440,8 @@ public class SendFragment extends Fragment {
                 btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
                 double fiat_amount = btc_fx * btc_amount;
-                tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
+//                edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
+				edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
@@ -528,7 +542,7 @@ public class SendFragment extends Fragment {
 			pendingSpend.amount = edAmount1.getText().toString();
 		}
 		else {
-			pendingSpend.amount = tvAmount2.getText().toString();
+			pendingSpend.amount = edAmount2.getText().toString();
 		}
 		long lamount = 0L;
 		double damount = 0.0;
@@ -580,63 +594,95 @@ public class SendFragment extends Fragment {
 
 	}
 
-    private void toggleAmounts() {
-    	String tmp = edAmount1.getText().toString();
-    	if(tmp == null || tmp.length() == 0) {
-    		tmp = MonetaryUtil.getInstance().getFiatFormat(strFiat).format(0.00);
-    	}
+//    private void toggleAmounts() {
+//    	String tmp = edAmount1.getText().toString();
+//    	if(tmp == null || tmp.length() == 0) {
+//    		tmp = MonetaryUtil.getInstance().getFiatFormat(strFiat).format(0.00);
+//    	}
+//
+//    	//
+//    	// hack to prevent clipping of right-justified italic text
+//    	//
+//    	if(tvAmount2.getText().toString().endsWith("\u00A0")) {
+//        	edAmount1.setText(tvAmount2.getText().toString().substring(0, tvAmount2.getText().toString().length() - 1));
+//    	}
+//    	else {
+//        	edAmount1.setText(tvAmount2.getText().toString());
+//    	}
+//    	tvAmount2.setText(tmp + "\u00A0");
+//    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
+//    	tvFiat2.setText(isBTC ? strBTC : strFiat);
+//    	isBTC = (isBTC) ? false : true;
+//
+//        validateSpend(true);
+//    }
+//
+//    private void updateTextFields() {
+//        if(isBTC) {
+//            double btc_amount = 0.0;
+//            try {
+//                btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue());
+//            }
+//            catch(NumberFormatException nfe) {
+//                btc_amount = 0.0;
+//            }
+//            catch(ParseException pe) {
+//                btc_amount = 0.0;
+//            }
+//            double fiat_amount = btc_fx * btc_amount;
+//            tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+//            tvCurrency1.setText(strBTC);
+//            tvFiat2.setText(strFiat);
+//        }
+//        else {
+//            double fiat_amount = 0.0;
+//            try {
+//                fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+//            }
+//            catch(NumberFormatException nfe) {
+//                fiat_amount = 0.0;
+//            }
+//            catch(ParseException pe) {
+//                fiat_amount = 0.0;
+//            }
+//            double btc_amount = fiat_amount / btc_fx;
+//            tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
+//            tvCurrency1.setText(strFiat);
+//            tvFiat2.setText(strBTC);
+//        }
+//    }
 
-    	//
-    	// hack to prevent clipping of right-justified italic text
-    	//
-    	if(tvAmount2.getText().toString().endsWith("\u00A0")) {
-        	edAmount1.setText(tvAmount2.getText().toString().substring(0, tvAmount2.getText().toString().length() - 1));
-    	}
-    	else {
-        	edAmount1.setText(tvAmount2.getText().toString());
-    	}
-    	tvAmount2.setText(tmp + "\u00A0");
-    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
-    	tvFiat2.setText(isBTC ? strBTC : strFiat);
-    	isBTC = (isBTC) ? false : true;
+	private void updateFiatTextField(String cBtc) {
+		double btc_amount = 0.0;
+		try {
+			btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
+		}
+		catch(NumberFormatException nfe) {
+			btc_amount = 0.0;
+		}
+		catch(ParseException pe) {
+			btc_amount = 0.0;
+		}
+		double fiat_amount = btc_fx * btc_amount;
+		edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+	}
 
-        validateSpend(true);
-    }
+	private void updateBtcTextField(String cfiat){
 
-    private void updateTextFields() {
-        if(isBTC) {
-            double btc_amount = 0.0;
-            try {
-                btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue());
-            }
-            catch(NumberFormatException nfe) {
-                btc_amount = 0.0;
-            }
-            catch(ParseException pe) {
-                btc_amount = 0.0;
-            }
-            double fiat_amount = btc_fx * btc_amount;
-            tvAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
-            tvCurrency1.setText(strBTC);
-            tvFiat2.setText(strFiat);
-        }
-        else {
-            double fiat_amount = 0.0;
-            try {
-                fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-            }
-            catch(NumberFormatException nfe) {
-                fiat_amount = 0.0;
-            }
-            catch(ParseException pe) {
-                fiat_amount = 0.0;
-            }
-            double btc_amount = fiat_amount / btc_fx;
-            tvAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
-            tvCurrency1.setText(strFiat);
-            tvFiat2.setText(strBTC);
-        }
-    }
+		double fiat_amount = 0.0;
+		try {
+			fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
+		}
+		catch(NumberFormatException nfe) {
+			fiat_amount = 0.0;
+		}
+		catch(ParseException pe) {
+			fiat_amount = 0.0;
+		}
+		double btc_amount = fiat_amount / btc_fx;
+//		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
+		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)));
+	}
 
     private void displayMaxAvailable() {
 
@@ -787,11 +833,11 @@ public class SendFragment extends Fragment {
 
 		if(isBTC) {
 			pendingSpend.btc_amount = edAmount1.getText().toString();
-			pendingSpend.fiat_amount = tvAmount2.getText().toString();
+			pendingSpend.fiat_amount = edAmount2.getText().toString();
 		}
 		else {
 			pendingSpend.fiat_amount = edAmount1.getText().toString();
-			pendingSpend.btc_amount = tvAmount2.getText().toString();
+			pendingSpend.btc_amount = edAmount2.getText().toString();
 		}
 
 		pendingSpend.btc_units = strBTC;
