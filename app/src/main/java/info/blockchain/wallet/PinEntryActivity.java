@@ -1,35 +1,34 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnTouchListener;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
+
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import java.io.IOException;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -643,9 +642,29 @@ public class PinEntryActivity extends Activity {
 
 	}
 
+	int exitClicked = 0;
+	int exitCooldown = 2;//seconds
 	@Override
-	public void onBackPressed() {
-		return;
+	public void onBackPressed()
+	{
+		exitClicked++;
+		if(exitClicked==2)
+			finish();
+		else
+			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(int j = 0; j <= exitCooldown; j++)
+				{
+					try{Thread.sleep(1000);} catch (InterruptedException e){e.printStackTrace();}
+					if(j >= exitCooldown)exitClicked = 0;
+				}
+			}
+		}).start();
 	}
 
 	@Override

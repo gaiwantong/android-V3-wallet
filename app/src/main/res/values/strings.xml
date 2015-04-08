@@ -164,5 +164,6 @@
 	<string name="fee">Fee</string>
 	<string name="dialog_send">SEND</string>
 	<string name="dialog_cancel">CANCEL</string>
+	<string name="exit_confirm">Press back button again to exit</string>
 
 </resources>
