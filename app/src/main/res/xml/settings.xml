@@ -79,4 +79,9 @@
         android:summary="@string/about_us"
         android:key="about"
         />
+    <Preference
+        android:title="@string/options_tos"
+        android:summary="@string/options_tos2"
+        android:key="tos"
+        />
 </PreferenceScreen>
