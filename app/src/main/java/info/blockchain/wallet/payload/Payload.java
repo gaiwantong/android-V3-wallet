@@ -442,6 +442,33 @@ public class Payload {
                                 }
                             }
 
+                            if(accountObj.has("address_labels"))  {
+                                JSONArray labels = (JSONArray)accountObj.get("address_labels");
+                                List<String> addressLabels = new ArrayList<String>();
+                                account.setAddressLabels(addressLabels);
+                            }
+
+                            if(accountObj.has("cache"))  {
+
+                                JSONObject cacheObj = (JSONObject)accountObj.get("cache");
+
+                                Cache cache = new Cache();
+                                if(cacheObj.has("externalAccountPubKey"))  {
+                                    cache.setExternalAccountPubKey((String)cacheObj.get("externalAccountPubKey"));
+                                }
+                                if(cacheObj.has("externalAccountChainCode"))  {
+                                    cache.setExternalAccountChainCode((String)cacheObj.get("externalAccountChainCode"));
+                                }
+                                if(cacheObj.has("internalAccountPubKey"))  {
+                                    cache.setInternalAccountPubKey((String)cacheObj.get("internalAccountPubKey"));
+                                }
+                                if(cacheObj.has("internalAccountChainCode"))  {
+                                    cache.setInternalAccountChainCode((String)cacheObj.get("internalAccountChainCode"));
+                                }
+
+                                account.setCache(cache);
+                            }
+
                             walletAccounts.add(account);
                         }
 
