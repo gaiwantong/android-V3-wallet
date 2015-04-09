@@ -1010,6 +1010,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }
 
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
     }
 

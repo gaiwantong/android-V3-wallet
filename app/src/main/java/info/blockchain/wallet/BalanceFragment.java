@@ -254,8 +254,8 @@ public class BalanceFragment extends Fragment {
         	accounts.add(iAccount);
         }
 
+		//Must be a smarter way to do this
 		String[] accountListToolbar = new String[accounts.size()];
-
 		int k = 0;
 		for(Account item : accounts){
 			accountListToolbar[k] = item.getLabel();
@@ -307,6 +307,7 @@ public class BalanceFragment extends Fragment {
 				});
 			}
 		});
+		accountSpinner.setSelection(selectedAccount);
 
         accountsList = (ListView)rootView.findViewById(R.id.accountsList);
         accountsList.getLayoutParams().height = 600;
@@ -459,7 +460,9 @@ public class BalanceFragment extends Fragment {
 		bottomSel1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(getActivity(), SendActivity.class));
+				Intent intent = new Intent(getActivity(), SendActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
 				onAddClicked();
 
 			}
@@ -468,7 +471,9 @@ public class BalanceFragment extends Fragment {
 		bottomSel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(getActivity(), ReceiveActivity.class));
+				Intent intent = new Intent(getActivity(), ReceiveActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
 				onAddClicked();
 			}
 		});
