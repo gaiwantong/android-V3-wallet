@@ -460,7 +460,7 @@ public class BalanceFragment extends Fragment {
 		bottomSel1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Fragment fragment = new ReceiveFragment();
+				Fragment fragment = new SendFragment();
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 
@@ -470,7 +470,7 @@ public class BalanceFragment extends Fragment {
 		bottomSel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Fragment fragment = new SendFragment();
+				Fragment fragment = new ReceiveFragment();
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 			}
