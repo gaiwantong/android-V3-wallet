@@ -592,52 +592,31 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	int exitClicked = 0;
+	int exitCooldown = 2;//seconds
+	@Override
+	public void onBackPressed()
+	{
+		exitClicked++;
+		if (exitClicked == 2)
+			finish();
+		else
+			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
 
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.ask_you_sure_exit).setCancelable(false);
-            AlertDialog alert = builder.create();
-
-            alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
-                    PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-
-                    dialog.dismiss();
-
-                    AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(false);
-
-                    /*
-					final Intent relaunch = new Intent(MainActivity.this, Exit.class)
-					.addFlags(
-							Intent.FLAG_ACTIVITY_NEW_TASK |
-							Intent.FLAG_ACTIVITY_CLEAR_TASK |
-							Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-					startActivity(relaunch);
-					*/
-
-                    finish();
-
-                }});
-
-            alert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }});
-
-            alert.show();
-
-            return true;
-        }
-        else	{
-            ;
-        }
-
-        return false;
-    }
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int j = 0; j <= exitCooldown; j++) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if (j >= exitCooldown) exitClicked = 0;
+				}
+			}
+		}).start();
+	}
 
     private void updatePayloadThread(final CharSequenceX pw) {
 
