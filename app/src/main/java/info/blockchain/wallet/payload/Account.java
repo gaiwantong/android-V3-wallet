@@ -2,6 +2,7 @@ package info.blockchain.wallet.payload;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -18,7 +19,7 @@ public class Account {
     protected long amount = 0L;
     protected String strXpub = null;
     protected String strXpriv = null;
-    protected List<String> addressLabels = null;
+    protected TreeMap<Integer,String> addressLabels = null;
     protected Cache cache = null;
 
     public Account() {
@@ -26,7 +27,7 @@ public class Account {
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
-        addressLabels = new ArrayList<String>();
+        addressLabels = new TreeMap<Integer,String>();
         cache = new Cache();
     }
 
@@ -51,7 +52,7 @@ public class Account {
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
-        addressLabels = new ArrayList<String>();
+        addressLabels = new TreeMap<Integer,String>();
         cache = new Cache();
     }
 
@@ -64,7 +65,7 @@ public class Account {
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
-        addressLabels = new ArrayList<String>();
+        addressLabels = new TreeMap<Integer,String>();
         cache = new Cache();
     }
 
@@ -165,12 +166,20 @@ public class Account {
         this.strXpriv = strXpriv;
     }
 
-    public List<String> getAddressLabels() {
+    public TreeMap<Integer,String> getAddressLabels() {
         return addressLabels;
     }
 
-    public void setAddressLabels(List<String> addressLabels) {
+    public void setAddressLabels(TreeMap<Integer,String> addressLabels) {
         this.addressLabels = addressLabels;
+    }
+
+    public String getAddressLabel(int index) {
+        return addressLabels.get(index);
+    }
+
+    public void setAddressLabel(int index, String label) {
+        this.addressLabels.put(index, label);
     }
 
     public Cache getCache() {
@@ -212,9 +221,14 @@ public class Account {
         */
 
         JSONArray labels = new JSONArray();
-        /*
-        fill address labels here
-         */
+        for(Integer key : addressLabels.keySet()) {
+            JSONObject labelObj = new JSONObject();
+
+            labelObj.put("index", key);
+            labelObj.put("label", addressLabels.get(key));
+
+            labels.put(labelObj);
+        }
         obj.put("address_labels", labels);
 
         JSONObject _cache = cache.dumpJSON();
