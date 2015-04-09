@@ -39,6 +39,8 @@
 				android:background="#FFf3f3f3"
 				android:orientation="vertical">
 
+				<include layout="@layout/toolbar"/>
+
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

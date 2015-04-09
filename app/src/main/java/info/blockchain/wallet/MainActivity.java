@@ -30,7 +30,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,7 +47,6 @@ import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
 import android.widget.Toast;
 import android.os.Parcelable;
 import android.text.InputType;
-import android.util.Log;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -330,7 +328,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity_actions, menu);
+        inflater.inflate(R.menu.menu_actions_balance, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -525,19 +523,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                                                     .setView(address_label)
                                                                     .setCancelable(false)
                                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                                                            String label = address_label.getText().toString();
-                                                                            if(label != null && label.length() > 0) {
-                                                                                legacyAddress.setLabel(label);
-                                                                            }
-                                                                            else {
-                                                                                legacyAddress.setLabel("");
-                                                                            }
-                                                                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                                                                            Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-                                                                            PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-                                                                        }
-                                                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+																		public void onClick(DialogInterface dialog, int whichButton) {
+																			String label = address_label.getText().toString();
+																			if (label != null && label.length() > 0) {
+																				legacyAddress.setLabel(label);
+																			} else {
+																				legacyAddress.setLabel("");
+																			}
+																			PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+																			Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+																			PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+																		}
+																	}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                                                 public void onClick(DialogInterface dialog, int whichButton) {
                                                                     legacyAddress.setLabel("");
                                                                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
@@ -999,24 +996,21 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
-        Fragment fragment = new SendFragment();
-        Bundle args = new Bundle();
-        args.putString("btc_address", btc_address);
+		Intent intent = new Intent(this, SendActivity.class);
+		intent.putExtra("btc_address", btc_address);
         if(btc_amount != null) {
             try {
                 NumberFormat btcFormat = NumberFormat.getInstance(locale);
                 btcFormat.setMaximumFractionDigits(8);
                 btcFormat.setMinimumFractionDigits(1);
-                args.putString("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
+				intent.putExtra("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
             }
             catch(NumberFormatException nfe) {
                 ;
             }
         }
-        fragment.setArguments(args);
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
+		startActivity(intent);
     }
 
 }

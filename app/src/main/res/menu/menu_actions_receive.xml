@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:material-navigation-drawer-example="http://schemas.android.com/apk/res-auto"
+    >
+	<item android:id="@+id/action_share_receive"
+		  android:icon="@drawable/ic_share_white_24dp"
+		  material-navigation-drawer-example:showAsAction="always"
+		  android:title="" />
+</menu>
