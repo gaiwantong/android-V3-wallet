@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -60,21 +61,21 @@ public class SettingsActivity extends PreferenceActivity	{
         		}
         	});
 
-        Preference unitsPref = (Preference) findPreference("units");
-        unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            Preference unitsPref = (Preference) findPreference("units");
+            unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                getUnits();
-                return true;
+                    getUnits();
+                    return true;
             }
         });
 
-        Preference fiatPref = (Preference) findPreference("fiat");
-        	fiatPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            Preference fiatPref = (Preference) findPreference("fiat");
+            	fiatPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
-        	    	Intent intent = new Intent(SettingsActivity.this, CurrencySelector.class);
-        			startActivity(intent);
-        			return true;
-        		}
+        	        	Intent intent = new Intent(SettingsActivity.this, CurrencySelector.class);
+        		    	startActivity(intent);
+        			    return true;
+               		}
         	});
 
         	Preference mnemonicPref = (Preference) findPreference("mnemonic");
@@ -316,16 +317,40 @@ public class SettingsActivity extends PreferenceActivity	{
         		}
         	});
 
-        	Preference aboutPref = (Preference) findPreference("about");
-        	aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        		public boolean onPreferenceClick(Preference preference) {
-        			
-        	    	Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
-        			startActivity(intent);
+            Preference aboutPref = (Preference) findPreference("about");
+            aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
 
-        			return true;
-        		}
-        	});
+                    Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
+                    startActivity(intent);
+
+                    return true;
+                }
+            });
+
+            Preference tosPref = (Preference) findPreference("tos");
+            tosPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("https://blockchain.info/Resources/TermsofServicePolicy.pdf"));
+                    startActivity(intent);
+
+                    return true;
+                }
+            });
+
+            Preference privacyPref = (Preference) findPreference("privacy");
+            privacyPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://blockchain.info/Resources/PrivacyPolicy.pdf"));
+                startActivity(intent);
+
+                return true;
+                }
+            });
 
     }
     

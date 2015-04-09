@@ -59,6 +59,10 @@
     <string name="options_passphrase2">Show BIP39 passphrase for this wallet</string>
     <string name="options_units">BTC units</string>
     <string name="options_units2">BTC, mBTC or bits</string>
+    <string name="options_tos">Terms of service</string>
+    <string name="options_tos2">Blockchain Android Bitcoin Wallet terms of service</string>
+    <string name="options_privacy">Privacy policy</string>
+    <string name="options_privacy2">Blockchain privacy policy</string>
 
     <string name="invalid_email">Invalid email address</string>
     <string name="invalid_mobile">Invalid mobile phone number</string>

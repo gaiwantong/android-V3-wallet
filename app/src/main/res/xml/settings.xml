@@ -79,4 +79,14 @@
         android:summary="@string/about_us"
         android:key="about"
         />
+    <Preference
+        android:title="@string/options_tos"
+        android:summary="@string/options_tos2"
+        android:key="tos"
+        />
+    <Preference
+        android:title="@string/options_privacy"
+        android:summary="@string/options_privacy2"
+        android:key="privacy"
+        />
 </PreferenceScreen>
