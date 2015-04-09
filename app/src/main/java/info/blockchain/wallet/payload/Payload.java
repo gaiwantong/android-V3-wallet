@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -444,8 +445,14 @@ public class Payload {
 
                             if(accountObj.has("address_labels"))  {
                                 JSONArray labels = (JSONArray)accountObj.get("address_labels");
-                                List<String> addressLabels = new ArrayList<String>();
-                                account.setAddressLabels(addressLabels);
+                                if(labels != null && labels.length() > 0)  {
+                                    TreeMap<Integer,String> addressLabels = new TreeMap<Integer,String>();
+                                    for(int j = 0; j < labels.length(); j++)  {
+                                        JSONObject obj = labels.getJSONObject(j);
+                                        addressLabels.put(obj.getInt("index"), obj.getString("label"));
+                                    }
+                                    account.setAddressLabels(addressLabels);
+                                }
                             }
 
                             if(accountObj.has("cache"))  {
