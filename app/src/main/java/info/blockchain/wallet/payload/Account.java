@@ -18,12 +18,16 @@ public class Account {
     protected long amount = 0L;
     protected String strXpub = null;
     protected String strXpriv = null;
+    protected List<String> addressLabels = null;
+    protected Cache cache = null;
 
     public Account() {
         receiveAddresses = new ArrayList<ReceiveAddress>();
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
+        addressLabels = new ArrayList<String>();
+        cache = new Cache();
     }
 
     /*
@@ -47,6 +51,8 @@ public class Account {
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
+        addressLabels = new ArrayList<String>();
+        cache = new Cache();
     }
 
     public Account(String label) {
@@ -58,6 +64,8 @@ public class Account {
         tags = new ArrayList<String>();
         strXpub = "";
         strXpriv = "";
+        addressLabels = new ArrayList<String>();
+        cache = new Cache();
     }
 
     public void incChange() {
@@ -157,6 +165,22 @@ public class Account {
         this.strXpriv = strXpriv;
     }
 
+    public List<String> getAddressLabels() {
+        return addressLabels;
+    }
+
+    public void setAddressLabels(List<String> addressLabels) {
+        this.addressLabels = addressLabels;
+    }
+
+    public Cache getCache() {
+        return cache;
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
+    }
+
     public JSONObject dumpJSON() throws JSONException {
 
         JSONObject obj = new JSONObject();
@@ -186,6 +210,15 @@ public class Account {
 
         obj.put("amount", amount);
         */
+
+        JSONArray labels = new JSONArray();
+        /*
+        fill address labels here
+         */
+        obj.put("address_labels", labels);
+
+        JSONObject _cache = cache.dumpJSON();
+        obj.put("cache", _cache);
 
         return obj;
     }
