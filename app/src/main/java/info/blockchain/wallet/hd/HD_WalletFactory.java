@@ -109,12 +109,6 @@ public class HD_WalletFactory	{
 
         NetworkParameters params = MainNetParams.get();
 
-        /*
-        SecureRandom random = new SecureRandom();
-        byte seed[] = new byte[len];
-        random.nextBytes(seed);
-        */
-        
         LinuxSecureRandom random = new LinuxSecureRandom();
         byte seed[] = new byte[len];
         random.engineNextBytes(seed);
@@ -180,10 +174,13 @@ public class HD_WalletFactory	{
     public HD_Wallet get() throws IOException, MnemonicException.MnemonicLengthException {
 
         if(wallets.size() < 1) {
+            /*
             // if wallets list is empty, create 12-word wallet without passphrase and 2 accounts
 //            wallets.add(0, newWallet(12, "", 2));
             wallets.clear();
             wallets.add(newWallet(12, "", 2));
+            */
+            return null;
         }
 
         return wallets.get(0);
