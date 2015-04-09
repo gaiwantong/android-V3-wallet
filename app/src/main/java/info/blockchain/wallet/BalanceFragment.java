@@ -16,6 +16,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -23,13 +25,16 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,20 +76,8 @@ public class BalanceFragment extends Fragment {
 	private Animation slideUp = null;
 	private Animation slideDown = null;
 
-	private ImageView ivReceive = null;
-	private ImageView ivHome = null;
-	private ImageView ivSend = null;
-
 	private TextView tvSwipe = null;
 
-    private LinearLayout layoutReceive = null;
-    private LinearLayout layoutHome = null;
-    private LinearLayout layoutSend = null;
-    
-    private LinearLayout layoutReceiveIcon = null;
-    private LinearLayout layoutHomeIcon = null;
-    private LinearLayout layoutSendIcon = null;
-    
     private LinearLayout layoutAnchor = null;
 
 	private double btc_balance = 0.0;
@@ -104,6 +97,7 @@ public class BalanceFragment extends Fragment {
 	private ListView accountsList = null;
 	private AccountAdapter accountsAdapter = null;
 	private static int selectedAccount = 0;
+	private Spinner accountSpinner = null;
 
 	//
 	// tx list
@@ -135,6 +129,12 @@ public class BalanceFragment extends Fragment {
         }
     };
 
+	private SlidingUpPanelLayout mLayout;
+	private LinearLayout bottomSel1 = null;
+	private LinearLayout bottomSel2 = null;
+	private LinearLayout mainContent;
+	private LinearLayout mainContentShadow;
+
 	public BalanceFragment() { ; }
 		
 	@Override
@@ -144,92 +144,17 @@ public class BalanceFragment extends Fragment {
 
 		locale = Locale.getDefault();
 
-		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.blockchain);
+		setHasOptionsMenu(true);
+		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
+		accountSpinner.setVisibility(View.VISIBLE);
 
         layoutAnchor = (LinearLayout)rootView.findViewById(R.id.anchor);
 
-        layoutReceive = (LinearLayout)rootView.findViewById(R.id.iconsReceive2);
-        layoutHome = (LinearLayout)rootView.findViewById(R.id.iconsHome2);
-        layoutSend = (LinearLayout)rootView.findViewById(R.id.iconsSend2);
-
-        ivReceive = (ImageView)rootView.findViewById(R.id.view_receive);
-        ivHome = (ImageView)rootView.findViewById(R.id.view_home);
-        ivSend = (ImageView)rootView.findViewById(R.id.view_send);
 
         tvSwipe = (TextView)rootView.findViewById(R.id.swipe);
         tvSwipe.setTypeface(TypefaceUtil.getInstance(getActivity()).getAwesomeTypeface());
         tvSwipe.setText(Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-
-        layoutReceiveIcon = (LinearLayout)rootView.findViewById(R.id.view_receive1);
-        layoutHomeIcon = (LinearLayout)rootView.findViewById(R.id.view_home1);
-        layoutSendIcon = (LinearLayout)rootView.findViewById(R.id.view_send1);
-
-        layoutReceiveIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-        		Fragment fragment = new ReceiveFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-
-            	return false;
-            }
-        });
-
-        layoutHomeIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	return false;
-            }
-        });
-
-        layoutSendIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	
-        		Fragment fragment = new SendFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            	return false;
-            }
-        });
-
-        ivReceive.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-            	return false;
-            }
-        });
-
-        ivHome.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-            	return false;
-            }
-        });
-
-        ivSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-
-                return false;
-            }
-        });
 
         layoutBalance = (LinearLayout)rootView.findViewById(R.id.balanceLayout);
         layoutAccounts = (LinearLayout)rootView.findViewById(R.id.accountsLayout);
@@ -329,6 +254,61 @@ public class BalanceFragment extends Fragment {
         	ImportedAccount iAccount = new ImportedAccount("Imported addresses", PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         	accounts.add(iAccount);
         }
+
+		String[] accountListToolbar = new String[accounts.size()];
+
+		int k = 0;
+		for(Account item : accounts){
+			accountListToolbar[k] = item.getLabel();
+			k++;
+		}
+		ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1, accountListToolbar);
+		accountAdapter.setDropDownViewResource(R.layout.spinner_item2);
+		accountSpinner.setAdapter(accountAdapter);
+		accountSpinner.post(new Runnable() {
+			public void run() {
+				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+						int position = accountSpinner.getSelectedItemPosition();
+
+						selectedAccount = position;
+//		        		Log.i("account2Xpub", "position:" + selectedAccount);
+
+						if(accounts == null || accounts.size() < 1) {
+							return;
+						}
+
+						String xpub = account2Xpub(selectedAccount);
+//		        		Log.i("account2Xpub", xpub);
+
+						if(xpub != null) {
+							if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+								txs = txMap.get(xpub);
+//        		        Log.i("account2Xpub", "M:" + txs.size());
+							}
+						}
+						else {
+//    		       		 Log.i("account2Xpub", "xpub is null");
+							Account hda = accounts.get(selectedAccount);
+							if(hda instanceof ImportedAccount) {
+								txs = MultiAddrFactory.getInstance().getLegacyTxs();
+//        		        Log.i("account2Xpub", "I:" + txs.size());
+							}
+						}
+
+						tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
+
+						txAdapter.notifyDataSetInvalidated();
+					}
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						;
+					}
+				});
+			}
+		});
+
         accountsList = (ListView)rootView.findViewById(R.id.accountsList);
         accountsList.getLayoutParams().height = 600;
         accountsAdapter = new AccountAdapter();
@@ -450,7 +430,62 @@ public class BalanceFragment extends Fragment {
          *
          *
          */
-        ((LinearLayout)rootView.findViewById(R.id.panel)).setVisibility(View.INVISIBLE);
+
+		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+			@Override
+			public void onPanelSlide(View panel, float slideOffset) {
+			}
+
+			@Override
+			public void onPanelExpanded(View panel) {
+
+			}
+
+			@Override
+			public void onPanelCollapsed(View panel) {
+
+			}
+
+			@Override
+			public void onPanelAnchored(View panel) {
+			}
+
+			@Override
+			public void onPanelHidden(View panel) {
+			}
+		});
+		bottomSel1 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel1));
+		bottomSel1.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new ReceiveFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+
+			}
+		});
+		bottomSel2 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel2));
+		bottomSel2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new SendFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+			}
+		});
+
+		mainContent = (LinearLayout)rootView.findViewById(R.id.balance_main_content);
+		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.balance_main_content_shadow);
+		mainContentShadow.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
+					onAddClicked();
+				}
+			}
+		});
 
         return rootView;
 	}
@@ -473,6 +508,8 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+
+
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
@@ -901,4 +938,39 @@ public class BalanceFragment extends Fragment {
         }
 	}
 
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		menu.findItem(R.id.action_merchant_directory).setVisible(true);
+		menu.findItem(R.id.action_qr).setVisible(true);
+		menu.findItem(R.id.action_send).setVisible(false);
+		menu.findItem(R.id.action_share_receive).setVisible(false);
+
+		MenuItem i = menu.findItem(R.id.action_temp_add).setVisible(true);//temporary until fab
+
+		i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+
+				onAddClicked();
+
+				return false;
+			}
+		});
+	}
+
+	private void onAddClicked(){
+
+		if (mLayout != null) {
+			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+				mainContentShadow.setVisibility(View.GONE);
+			} else {
+				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+				mainContentShadow.setVisibility(View.VISIBLE);
+				mainContentShadow.bringToFront();
+			}
+		}
+	}
 }

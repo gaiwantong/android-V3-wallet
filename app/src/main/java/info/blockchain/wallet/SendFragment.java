@@ -15,16 +15,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -63,18 +59,6 @@ import info.blockchain.wallet.util.TypefaceUtil;
 public class SendFragment extends Fragment {
 	
 	private Locale locale = null;
-
-	private ImageView ivReceive = null;
-	private ImageView ivHome = null;
-	private ImageView ivSend = null;
-
-    private LinearLayout layoutReceive = null;
-    private LinearLayout layoutHome = null;
-    private LinearLayout layoutSend = null;
-
-    private LinearLayout layoutReceiveIcon = null;
-    private LinearLayout layoutHomeIcon = null;
-    private LinearLayout layoutSendIcon = null;
 
 	private EditText edDestination = null;
     private EditText edAmount1 = null;
@@ -125,136 +109,10 @@ public class SendFragment extends Fragment {
 		
 		locale = Locale.getDefault();
 
+		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+		((ActionBarActivity)getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
 		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
 		setHasOptionsMenu(true);
-
-        layoutReceive = (LinearLayout)rootView.findViewById(R.id.iconsReceive2);
-        layoutHome = (LinearLayout)rootView.findViewById(R.id.iconsHome2);
-        layoutSend = (LinearLayout)rootView.findViewById(R.id.iconsSend2);
-
-        ivReceive = (ImageView)rootView.findViewById(R.id.view_receive);
-        ivHome = (ImageView)rootView.findViewById(R.id.view_home);
-        ivSend = (ImageView)rootView.findViewById(R.id.view_send);
-
-        layoutReceiveIcon = (LinearLayout)rootView.findViewById(R.id.view_receive1);
-        layoutHomeIcon = (LinearLayout)rootView.findViewById(R.id.view_home1);
-        layoutSendIcon = (LinearLayout)rootView.findViewById(R.id.view_send1);
-        
-        layoutReceiveIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	
-        		Fragment fragment = new ReceiveFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            	return false;
-            }
-        });
-
-        layoutHomeIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	
-        		Fragment fragment = new BalanceFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            	return false;
-            }
-        });
-
-        layoutSendIcon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-
-            	return false;
-            }
-        });
-
-        layoutReceive.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-        		Fragment fragment = new ReceiveFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            	return false;
-            }
-        });
-
-        layoutHome.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-        		Fragment fragment = new BalanceFragment();
-        		FragmentManager fragmentManager = getFragmentManager();
-        		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            	return false;
-            }
-        });
-
-        layoutSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-
-            	return false;
-            }
-        });
-
-        ivReceive.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-            	return false;
-            }
-        });
-
-        ivHome.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-            	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-            	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-
-            	return false;
-            }
-        });
-
-        ivSend.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-            	return false;
-            }
-        });
-
-    	layoutReceive.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-    	layoutHome.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_blue));
-    	layoutSend.setBackgroundColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
 
 		edDestination = ((EditText)rootView.findViewById(R.id.destination));
 		edDestination.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
@@ -813,6 +671,7 @@ public class SendFragment extends Fragment {
 
 		menu.findItem(R.id.action_merchant_directory).setVisible(false);
 		menu.findItem(R.id.action_qr).setVisible(true);
+		menu.findItem(R.id.action_temp_add).setVisible(false);//temporary until fab
 		menu.findItem(R.id.action_share_receive).setVisible(false);
 
 		btSend = menu.findItem(R.id.action_send);

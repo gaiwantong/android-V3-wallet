@@ -1,21 +1,13 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.nio.charset.Charset;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.nfc.NfcAdapter;
-import android.os.Build;
-import android.os.Bundle;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -23,46 +15,50 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
+import android.nfc.NfcEvent;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
-import android.view.View;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.EditText;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-//import android.nfc.Tag;
-import android.nfc.NfcEvent;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
+import android.widget.ListView;
 import android.widget.Toast;
-import android.os.Parcelable;
-import android.text.InputType;
-import android.util.Log;
-
-import org.apache.commons.codec.DecoderException;
-
-import org.json.JSONException;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 import com.dm.zbar.android.scanner.ZBarScannerActivity;
-import net.sourceforge.zbar.Symbol;
-
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.crypto.MnemonicException;
 import com.google.bitcoin.params.MainNetParams;
+
+import net.sourceforge.zbar.Symbol;
+
+import org.apache.commons.codec.DecoderException;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.hd.HD_Wallet;
@@ -80,6 +76,8 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.WebUtil;
+
+//import android.nfc.Tag;
 
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback	{
 
@@ -208,7 +206,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		// enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
-		
+
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter == null)   {
 //            Toast.makeText(MainActivity.this, "nfcAdapter == null, no NFC adapter exists", Toast.LENGTH_SHORT).show();
@@ -538,52 +536,31 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
 	}
 
+	int exitClicked = 0;
+	int exitCooldown = 2;//seconds
 	@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) { 
+	public void onBackPressed()
+	{
+		exitClicked++;
+		if (exitClicked == 2)
+			finish();
+		else
+			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
 
-		if(keyCode == KeyEvent.KEYCODE_BACK) {
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.ask_you_sure_exit).setCancelable(false);
-			AlertDialog alert = builder.create();
-
-			alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-
-		    		PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-
-					dialog.dismiss();
-
-		    		AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(false);
-
-                    /*
-					final Intent relaunch = new Intent(MainActivity.this, Exit.class)
-					.addFlags(
-							Intent.FLAG_ACTIVITY_NEW_TASK |
-							Intent.FLAG_ACTIVITY_CLEAR_TASK |
-							Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-					startActivity(relaunch);
-					*/
-
-                    finish();
-
-				}}); 
-
-			alert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.dismiss();
-				}});
-
-			alert.show();
-        	
-            return true;
-        }
-        else	{
-        	;
-        }
-
-        return false;
-    }
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int j = 0; j <= exitCooldown; j++) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if (j >= exitCooldown) exitClicked = 0;
+				}
+			}
+		}).start();
+	}
 
     private void updatePayloadThread(final CharSequenceX pw) {
 
