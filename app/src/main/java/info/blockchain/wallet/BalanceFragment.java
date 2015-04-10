@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -254,8 +255,8 @@ public class BalanceFragment extends Fragment {
         	accounts.add(iAccount);
         }
 
-		//Must be a smarter way to do this
 		String[] accountListToolbar = new String[accounts.size()];
+
 		int k = 0;
 		for(Account item : accounts){
 			accountListToolbar[k] = item.getLabel();
@@ -307,7 +308,6 @@ public class BalanceFragment extends Fragment {
 				});
 			}
 		});
-		accountSpinner.setSelection(selectedAccount);
 
         accountsList = (ListView)rootView.findViewById(R.id.accountsList);
         accountsList.getLayoutParams().height = 600;
@@ -460,10 +460,9 @@ public class BalanceFragment extends Fragment {
 		bottomSel1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), SendActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-				onAddClicked();
+				Fragment fragment = new SendFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 
 			}
 		});
@@ -471,10 +470,9 @@ public class BalanceFragment extends Fragment {
 		bottomSel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), ReceiveActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-				onAddClicked();
+				Fragment fragment = new ReceiveFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 			}
 		});
 
@@ -946,6 +944,8 @@ public class BalanceFragment extends Fragment {
 
 		menu.findItem(R.id.action_merchant_directory).setVisible(true);
 		menu.findItem(R.id.action_qr).setVisible(true);
+		menu.findItem(R.id.action_send).setVisible(false);
+		menu.findItem(R.id.action_share_receive).setVisible(false);
 
 		MenuItem i = menu.findItem(R.id.action_temp_add).setVisible(true);//temporary until fab
 

@@ -30,6 +30,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +48,7 @@ import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
 import android.widget.Toast;
 import android.os.Parcelable;
 import android.text.InputType;
+import android.util.Log;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -328,7 +330,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_actions_balance, menu);
+        inflater.inflate(R.menu.main_activity_actions, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -523,18 +525,19 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                                                     .setView(address_label)
                                                                     .setCancelable(false)
                                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-																		public void onClick(DialogInterface dialog, int whichButton) {
-																			String label = address_label.getText().toString();
-																			if (label != null && label.length() > 0) {
-																				legacyAddress.setLabel(label);
-																			} else {
-																				legacyAddress.setLabel("");
-																			}
-																			PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-																			Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-																			PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-																		}
-																	}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                                                            String label = address_label.getText().toString();
+                                                                            if(label != null && label.length() > 0) {
+                                                                                legacyAddress.setLabel(label);
+                                                                            }
+                                                                            else {
+                                                                                legacyAddress.setLabel("");
+                                                                            }
+                                                                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                                            Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+                                                                            PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+                                                                        }
+                                                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                                                 public void onClick(DialogInterface dialog, int whichButton) {
                                                                     legacyAddress.setLabel("");
                                                                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
@@ -589,31 +592,52 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-	int exitClicked = 0;
-	int exitCooldown = 2;//seconds
-	@Override
-	public void onBackPressed()
-	{
-		exitClicked++;
-		if (exitClicked == 2)
-			finish();
-		else
-			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				for (int j = 0; j <= exitCooldown; j++) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					if (j >= exitCooldown) exitClicked = 0;
-				}
-			}
-		}).start();
-	}
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.ask_you_sure_exit).setCancelable(false);
+            AlertDialog alert = builder.create();
+
+            alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                    PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+
+                    dialog.dismiss();
+
+                    AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(false);
+
+                    /*
+					final Intent relaunch = new Intent(MainActivity.this, Exit.class)
+					.addFlags(
+							Intent.FLAG_ACTIVITY_NEW_TASK |
+							Intent.FLAG_ACTIVITY_CLEAR_TASK |
+							Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+					startActivity(relaunch);
+					*/
+
+                    finish();
+
+                }});
+
+            alert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }});
+
+            alert.show();
+
+            return true;
+        }
+        else	{
+            ;
+        }
+
+        return false;
+    }
 
     private void updatePayloadThread(final CharSequenceX pw) {
 
@@ -996,22 +1020,24 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
-		Intent intent = new Intent(this, SendActivity.class);
-		intent.putExtra("btc_address", btc_address);
+        Fragment fragment = new SendFragment();
+        Bundle args = new Bundle();
+        args.putString("btc_address", btc_address);
         if(btc_amount != null) {
             try {
                 NumberFormat btcFormat = NumberFormat.getInstance(locale);
                 btcFormat.setMaximumFractionDigits(8);
                 btcFormat.setMinimumFractionDigits(1);
-				intent.putExtra("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
+                args.putString("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
             }
             catch(NumberFormatException nfe) {
                 ;
             }
         }
+        fragment.setArguments(args);
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(intent);
     }
 
 }
