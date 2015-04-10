@@ -11,10 +11,10 @@
 		android:layout_height="match_parent"
 		android:gravity="bottom"
 		sothree:umanoDragView="@+id/dragView"
+		sothree:umanoInitialState="hidden"
 		sothree:umanoOverlay="false"
 		sothree:umanoPanelHeight="96dp"
 		sothree:umanoParalaxOffset="100dp"
-		sothree:umanoInitialState="hidden"
 		sothree:umanoShadowHeight="4dp">
 
 		<!-- MAIN CONTENT -->
@@ -23,6 +23,7 @@
 			android:layout_height="match_parent"
 			android:background="#FFf3f3f3">
 
+			<!--Shadow for bottom sheet-->
 			<LinearLayout
 				android:id="@+id/balance_main_content_shadow"
 				android:layout_width="match_parent"
@@ -31,86 +32,50 @@
 				android:background="#000000"
 				android:orientation="horizontal"/>
 
+			<!-- Balance -->
+			<TextView
+				android:id="@+id/balance1"
+				android:layout_width="match_parent"
+				android:layout_height="72dp"
+				android:layout_gravity="center_horizontal|center_vertical"
+				android:background="@color/blockchain_blue"
+				android:gravity="center_horizontal|center_vertical"
+				android:textAlignment="gravity"
+				android:textColor="#FFFFFFFF"
+				android:textSize="24dp"
+				/>
+
+			<ImageButton
+				android:id="@+id/btActivateBottomSheet"
+				android:layout_width="@dimen/fab_size"
+				android:layout_height="@dimen/fab_size"
+				android:layout_alignBottom="@+id/balance1"
+				android:layout_alignParentRight="true"
+				android:layout_marginBottom="-30dp"
+				android:layout_marginRight="16dp"
+				android:background="@drawable/ripple_fab"
+				android:elevation="4dp"
+				android:src="@drawable/ic_add_black_24dp"/>
+
 			<LinearLayout
 				android:id="@+id/balance_main_content"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
+				android:layout_below="@+id/balance1"
 				android:background="#FFf3f3f3"
 				android:orientation="vertical">
 
-				<LinearLayout
+				<ListView
+					android:id="@+id/txList"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:background="#FFf3f3f3"
-					android:orientation="vertical"
-					>
+					android:layout_marginLeft="16dp"
+					android:layout_marginRight="16dp"
+					android:background="#FFffff"
+					android:divider="@drawable/list_divider"
+					android:listSelector="@android:color/transparent"
 
-					<include
-						android:id="@+id/balanceLayout"
-						layout="@layout/balance_layout"/>
-
-					<!-- accounts list -->
-					<LinearLayout
-						android:id="@+id/accountsLayout"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:background="@color/blockchain_blue"
-						android:orientation="vertical"
-						>
-
-						<ListView
-							android:id="@+id/accountsList"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							/>
-					</LinearLayout>
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="5dp"
-						android:background="@color/blockchain_blue"
-						android:orientation="horizontal"
-						/>
-
-					<!-- anchor & tx list -->
-					<LinearLayout
-						android:id="@+id/anchor"
-						android:layout_width="match_parent"
-						android:layout_height="fill_parent"
-						android:background="@color/blockchain_light_grey"
-						android:orientation="vertical"
-						>
-
-						<LinearLayout
-							android:visibility="gone"
-							android:layout_width="match_parent"
-							android:layout_height="65dp"
-							android:layout_gravity="center_horizontal|center_vertical"
-							android:gravity="center_horizontal|center_vertical"
-							android:orientation="horizontal"
-							>
-
-							<TextView
-								android:id="@+id/swipe"
-								android:layout_width="wrap_content"
-								android:layout_height="wrap_content"
-								android:layout_gravity="center_horizontal|center_vertical"
-								android:gravity="center_horizontal|center_vertical"
-								android:textColor="#FF808080"
-								android:textSize="18dp"
-								/>
-						</LinearLayout>
-
-						<ListView
-							android:id="@+id/txList"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							android:layout_marginLeft="10dp"
-							android:divider="@drawable/list_divider"
-							android:listSelector="@android:color/transparent"
-							/>
-					</LinearLayout>
-				</LinearLayout>
+					/>
 			</LinearLayout>
 
 		</RelativeLayout>
@@ -120,10 +85,10 @@
 			android:id="@+id/dragView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:background="#FFffff"
 			android:clickable="true"
 			android:focusable="false"
-			android:orientation="vertical"
-			android:background="#FFffff">
+			android:orientation="vertical">
 
 			<include layout="@layout/include_balance_bottom_sheet"/>
 

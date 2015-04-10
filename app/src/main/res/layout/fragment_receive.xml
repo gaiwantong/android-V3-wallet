@@ -56,8 +56,7 @@
 						>
 
 						<TextView
-							android:layout_width="0dp"
-							android:layout_weight="3"
+							android:layout_width="50dp"
 							android:layout_height="wrap_content"
 							android:text="@string/to"
 							android:textColor="@color/blockchain_grey"/>
@@ -66,7 +65,7 @@
 							android:id="@+id/accounts"
 							android:layout_width="0dp"
 							android:layout_height="48dp"
-							android:layout_weight="16"
+							android:layout_weight="1"
 							android:background="@drawable/spinner_bg"
 							/>
 

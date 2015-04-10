@@ -683,7 +683,6 @@ public class SendFragment extends Fragment {
 
 		menu.findItem(R.id.action_merchant_directory).setVisible(false);
 		menu.findItem(R.id.action_qr).setVisible(true);
-		menu.findItem(R.id.action_temp_add).setVisible(false);//temporary until fab
 		menu.findItem(R.id.action_share_receive).setVisible(false);
 
 		btSend = menu.findItem(R.id.action_send);

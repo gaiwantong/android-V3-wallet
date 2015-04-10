@@ -83,8 +83,7 @@
 					>
 
 					<TextView
-						android:layout_width="0dp"
-						android:layout_weight="2"
+						android:layout_width="50dp"
 						android:layout_height="wrap_content"
 						android:text="@string/from"
 						android:textColor="@color/blockchain_grey"/>
@@ -93,7 +92,7 @@
 						android:id="@+id/accounts"
 						android:layout_width="0dp"
 						android:layout_height="48dp"
-						android:layout_weight="8"
+						android:layout_weight="1"
 						/>
 
 				</LinearLayout>
@@ -113,8 +112,7 @@
 					>
 
 					<TextView
-						android:layout_width="0dp"
-						android:layout_weight="2"
+						android:layout_width="50dp"
 						android:layout_height="wrap_content"
 						android:text="@string/to"
 						android:textColor="@color/blockchain_grey"/>
@@ -130,7 +128,7 @@
 					<EditText
 						android:id="@+id/destination"
 						android:layout_width="0dp"
-						android:layout_weight="8"
+						android:layout_weight="1"
 						android:layout_height="wrap_content"
 						android:focusable="true"
 						android:focusableInTouchMode="true"

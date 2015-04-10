@@ -1,12 +1,10 @@
 package info.blockchain.wallet;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -18,22 +16,18 @@ import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -54,11 +48,6 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
-//import android.widget.ImageView;
-//import android.text.TextUtils;
-//import android.view.animation.RotateAnimation;
-//import android.view.animation.TranslateAnimation;
-
 public class BalanceFragment extends Fragment {
 
 	private Locale locale = null;
@@ -66,20 +55,16 @@ public class BalanceFragment extends Fragment {
 	//
 	// main balance display
 	//
-	private TextView tvBalance0 = null;				// header, not used in main display
 	private TextView tvBalance1 = null;
-	private TextView tvBalance2 = null;
 
-    private LinearLayout layoutBalance = null;
-    private LinearLayout layoutAccounts = null;
-//    private LinearLayout layoutIcons = null;
-    
-	private Animation slideUp = null;
-	private Animation slideDown = null;
+//    private LinearLayout layoutAccounts = null;
 
-	private TextView tvSwipe = null;
+//	private Animation slideUp = null;
+//	private Animation slideDown = null;
 
-    private LinearLayout layoutAnchor = null;
+//	private TextView tvSwipe = null;
+
+//    private LinearLayout layoutAnchor = null;
 
 	private double btc_balance = 0.0;
 	private double fiat_balance = 0.0;
@@ -95,10 +80,11 @@ public class BalanceFragment extends Fragment {
 	// accounts list
 	//
 	private List<Account> accounts = null;
-	private ListView accountsList = null;
-	private AccountAdapter accountsAdapter = null;
-	private static int selectedAccount = 0;
+//	private ListView accountsList = null;
+//	private AccountAdapter accountsAdapter = null;
 	private Spinner accountSpinner = null;
+	ArrayAdapter<String> accountAdapter = null;
+	private static int selectedAccount = 0;
 
 	//
 	// tx list
@@ -120,7 +106,7 @@ public class BalanceFragment extends Fragment {
    	    	     @Override
    	    	     public void run() {
                     displayBalance();
-           	    	accountsAdapter.notifyDataSetChanged();
+//           	    	accountsAdapter.notifyDataSetChanged();
            	    	updateTx();
                    	txAdapter.notifyDataSetChanged();
    	    	     }
@@ -139,6 +125,7 @@ public class BalanceFragment extends Fragment {
 	public BalanceFragment() { ; }
 
 	Communicator comm;
+	private ImageButton fab = null;
 		
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -152,101 +139,29 @@ public class BalanceFragment extends Fragment {
 		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
 		accountSpinner.setVisibility(View.VISIBLE);
 
-        layoutAnchor = (LinearLayout)rootView.findViewById(R.id.anchor);
-
-
-        tvSwipe = (TextView)rootView.findViewById(R.id.swipe);
-        tvSwipe.setTypeface(TypefaceUtil.getInstance(getActivity()).getAwesomeTypeface());
-        tvSwipe.setText(Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-
-        layoutBalance = (LinearLayout)rootView.findViewById(R.id.balanceLayout);
-        layoutAccounts = (LinearLayout)rootView.findViewById(R.id.accountsLayout);
-//        layoutIcons = (LinearLayout)rootView.findViewById(R.id.iconsLayout);
-
-        layoutAccounts.setVisibility(View.GONE);
-
-        slideUp = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up2);
-        slideDown = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down1);
-        slideDown.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                // Called when the Animation starts
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                // Called when the Animation ended
-                // Since we are fading a View out we set the visibility
-                // to GONE once the Animation is finished
-//                view.setVisibility(View.GONE);
-		        layoutAccounts.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                // This is called each time the Animation repeats
-            }
-        });
-
-        layoutAnchor.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
-		    public void onSwipeTop() {
-		        if(layoutAccounts.getVisibility() == View.VISIBLE) {
-		        	layoutAccounts.setVisibility(View.GONE);
-		        	//layoutAnchor.startAnimation(slideUp);
-			        tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-			        PrefsUtil.getInstance(getActivity()).setValue("BalanceDropDownState", 1);
-		        }
-		        else if(layoutBalance.getVisibility() == View.VISIBLE) {
-		        	layoutBalance.setVisibility(View.GONE);
-		            tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-			        PrefsUtil.getInstance(getActivity()).setValue("BalanceDropDownState", 3);
-		        }
-		        else {
-		        	;
-		        }
-		    }
-
-		    public void onSwipeBottom() {
-		        if(layoutBalance.getVisibility() == View.GONE) {
-			        layoutBalance.setVisibility(View.VISIBLE);
-			        tvSwipe.setText(getAccountLabel() + "\n" +  Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-			        PrefsUtil.getInstance(getActivity()).setValue("BalanceDropDownState", 1);
-		        }
-		        else if(layoutAccounts.getVisibility() == View.GONE) {
-			        layoutAccounts.setVisibility(View.VISIBLE);
-			        tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up));
-			        PrefsUtil.getInstance(getActivity()).setValue("BalanceDropDownState", 2);
-		        }
-		        else {
-		        	;
-		        }
-		    }
+//        layoutAnchor = (LinearLayout)rootView.findViewById(R.id.anchor);
+		fab = (ImageButton)rootView.findViewById(R.id.btActivateBottomSheet);
+		fab.bringToFront();
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onAddClicked();
+			}
 		});
 
-		tvBalance0 = (TextView)rootView.findViewById(R.id.header);
-		tvBalance0.setVisibility(View.GONE);
+//        tvSwipe = (TextView)rootView.findViewById(R.id.swipe);
+//        tvSwipe.setTypeface(TypefaceUtil.getInstance(getActivity()).getAwesomeTypeface());
+//        tvSwipe.setText(Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
+
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-		tvBalance2 = (TextView)rootView.findViewById(R.id.balance2);
-		tvBalance2.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 
 		tvBalance1.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
             	isBTC = (isBTC) ? false : true;
             	displayBalance();
-            	accountsAdapter.notifyDataSetChanged();
-            	txAdapter.notifyDataSetChanged();
-            	return false;
-            }
-        });
-
-		tvBalance2.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	isBTC = (isBTC) ? false : true;
-            	displayBalance();
-            	accountsAdapter.notifyDataSetChanged();
+//            	accountsAdapter.notifyDataSetChanged();
             	txAdapter.notifyDataSetChanged();
             	return false;
             }
@@ -265,8 +180,8 @@ public class BalanceFragment extends Fragment {
 			accountListToolbar[k] = item.getLabel();
 			k++;
 		}
-		ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1, accountListToolbar);
-		accountAdapter.setDropDownViewResource(R.layout.spinner_item2);
+		accountAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountListToolbar);
+		accountAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountAdapter);
 		accountSpinner.post(new Runnable() {
 			public void run() {
@@ -300,7 +215,7 @@ public class BalanceFragment extends Fragment {
 							}
 						}
 
-						tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
+//						tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
 
 						txAdapter.notifyDataSetInvalidated();
 					}
@@ -311,83 +226,6 @@ public class BalanceFragment extends Fragment {
 				});
 			}
 		});
-
-        accountsList = (ListView)rootView.findViewById(R.id.accountsList);
-        accountsList.getLayoutParams().height = 600;
-        accountsAdapter = new AccountAdapter();
-        accountsList.setAdapter(accountsAdapter);
-        accountsList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-
-        	        Account hda = accounts.get(position);
-        	        if(hda instanceof ImportedAccount) {
-    		        	Toast.makeText(getActivity(), getString(R.string.cannot_edit_imported_label), Toast.LENGTH_SHORT).show();
-    		        	return false;
-        	        }
-
-            		final EditText label = new EditText(getActivity());
-            		if(hda.getLabel() != null && hda.getLabel().length() > 0) {
-            			label.setText(hda.getFullLabel());
-            		}
-
-            		new AlertDialog.Builder(getActivity())
-            	    .setTitle(R.string.app_name)
-            	    .setMessage(R.string.edit_label)
-            	    .setView(label)
-            	    .setCancelable(false)
-            	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            	        public void onClick(DialogInterface dialog, int whichButton) {
-
-            	        	final String strLabel = label.getText().toString();
-            	        	PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(position).setLabel(strLabel);
-            	        	PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-                        	accountsAdapter.notifyDataSetChanged();
-                        	updateDropDownAnchor();
-            	        }
-            	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            	        public void onClick(DialogInterface dialog, int whichButton) {
-            	        	;
-            	        }
-            	    }).show();
-
-                return true;       
-            }
-        });
-        accountsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-
-            	selectedAccount = position;
-//		        Log.i("account2Xpub", "position:" + selectedAccount);
-            	
-            	if(accounts == null || accounts.size() < 1) {
-            		return;
-            	}
-
-                String xpub = account2Xpub(selectedAccount);
-//		        Log.i("account2Xpub", xpub);
-
-                if(xpub != null) {
-        			if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-        		        txs = txMap.get(xpub);
-//        		        Log.i("account2Xpub", "M:" + txs.size());
-        			}
-                }
-                else {
-//    		        Log.i("account2Xpub", "xpub is null");
-        	        Account hda = accounts.get(selectedAccount);
-        	        if(hda instanceof ImportedAccount) {
-        	            txs = MultiAddrFactory.getInstance().getLegacyTxs();
-//        		        Log.i("account2Xpub", "I:" + txs.size());
-        	        }
-                }
-
-		        tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-
-                txAdapter.notifyDataSetInvalidated();
-            }
-
-        });
 
         txList = (ListView)rootView.findViewById(R.id.txList);
         txAdapter = new TransactionAdapter();
@@ -413,10 +251,8 @@ public class BalanceFragment extends Fragment {
     		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", ""));
     		PrefsUtil.getInstance(getActivity()).removeValue("_1ST_ACCOUNT_NAME");
     		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-        	accountsAdapter.notifyDataSetChanged();
+//        	accountsAdapter.notifyDataSetChanged();
         }
-        
-        updateDropDownAnchor();
         
 		if(!OSUtil.getInstance(getActivity()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
 			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
@@ -499,7 +335,7 @@ public class BalanceFragment extends Fragment {
 
         if(isVisibleToUser) {
         	displayBalance();
-        	accountsAdapter.notifyDataSetChanged();
+//        	accountsAdapter.notifyDataSetChanged();
 //        	txAdapter.notifyDataSetChanged();
         	updateTx();
         }
@@ -526,7 +362,7 @@ public class BalanceFragment extends Fragment {
 		}
 
     	displayBalance();
-    	accountsAdapter.notifyDataSetChanged();
+//    	accountsAdapter.notifyDataSetChanged();
     	txAdapter.notifyDataSetChanged();
     	updateTx();
     }
@@ -537,11 +373,6 @@ public class BalanceFragment extends Fragment {
     	
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
     }
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
 
     private class TransactionAdapter extends BaseAdapter {
     	
@@ -646,7 +477,7 @@ public class BalanceFragment extends Fragment {
                     public boolean onTouch(View v, MotionEvent event) {
                         isBTC = (isBTC) ? false : true;
                         displayBalance();
-                        accountsAdapter.notifyDataSetChanged();
+//                        accountsAdapter.notifyDataSetChanged();
                         txAdapter.notifyDataSetChanged();
                         return false;
                     }
@@ -712,81 +543,6 @@ public class BalanceFragment extends Fragment {
 
     }
 
-    private class AccountAdapter extends BaseAdapter {
-    	
-		private LayoutInflater inflater = null;
-
-	    AccountAdapter() {
-	        inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-
-		@Override
-		public int getCount() {
-			return accounts.size();
-		}
-
-		@Override
-		public String getItem(int position) {
-			return accounts.get(position).getLabel();
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			View view = null;
-	        
-	        if (convertView == null) {
-	            view = inflater.inflate(R.layout.balance_layout, parent, false);
-	        } else {
-	            view = convertView;
-	        }
-
-			long amount = 0L;
-	        Account hda = accounts.get(position);
-	        String xpub = account2Xpub(position);
-	        if(xpub != null) {
-				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-				}
-	        }
-	        else {
-		        if(hda instanceof ImportedAccount) {
-		        	amount = hda.getAmount();
-		        }
-	        }
-
-	    	double btc_balance = (((double)amount) / 1e8);
-	    	double fiat_balance = btc_fx * btc_balance;
-
-	        TextView tvBalance0 = (TextView)view.findViewById(R.id.header);
-			tvBalance0.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-			tvBalance0.setTextColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-			TextView tvBalance1 = (TextView)view.findViewById(R.id.balance1);
-			tvBalance1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-			tvBalance1.setTextSize(28.0f);
-			tvBalance1.setTextColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-			TextView tvBalance2 = (TextView)view.findViewById(R.id.balance2);
-			tvBalance2.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-			tvBalance2.setTextColor(getActivity().getResources().getColor(R.color.blockchain_light_blue));
-
-			tvBalance0.setText(hda.getLabel());
-			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-			span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC));
-			span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			span2.setSpan(new RelativeSizeSpan(0.67f), span2.length() - 3, span2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			tvBalance1.setText(span1);
-			tvBalance2.setText(span2);
-
-	        return view;
-		}
-
-    }
-
 	private void displayBalance() {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
@@ -799,7 +555,6 @@ public class BalanceFragment extends Fragment {
 		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		span2.setSpan(new RelativeSizeSpan(0.67f), span2.length() - (isBTC ? 3 : getDisplayUnits().length()), span2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		tvBalance1.setText(span1);
-		tvBalance2.setText(span2);
 	}
 
     private String getDisplayAmount(long value) {
@@ -876,24 +631,6 @@ public class BalanceFragment extends Fragment {
 
 	}
 
-	/*
-	private void slideToBottom(View view)	{
-		TranslateAnimation animate = new TranslateAnimation(0, 0, 0, view.getHeight());
-		animate.setDuration(1500);
-		animate.setFillAfter(true);
-		view.startAnimation(animate);
-		view.setVisibility(View.GONE);
-	}
-	 
-	private void slideToTop(View view)	{
-		TranslateAnimation animate = new TranslateAnimation(0, 0, 0, -view.getHeight());
-		animate.setDuration(1500);
-		animate.setFillAfter(true);
-		view.startAnimation(animate);
-		view.setVisibility(View.GONE);
-	}
-	*/
-
 	private String account2Xpub(int sel) {
 
 		Account hda = accounts.get(sel);
@@ -924,23 +661,6 @@ public class BalanceFragment extends Fragment {
         return ret;
 	}
 
-	private void updateDropDownAnchor() {
-        int dropDownState = PrefsUtil.getInstance(getActivity()).getValue("BalanceDropDownState", 1);
-        switch(dropDownState) {
-        case 2:
-	        layoutAccounts.setVisibility(View.VISIBLE);
-            tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up));
-            break;
-        case 3:
-        	layoutBalance.setVisibility(View.GONE);
-            tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-            break;
-        default:
-            tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-            break;
-        }
-	}
-
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
@@ -949,18 +669,6 @@ public class BalanceFragment extends Fragment {
 		menu.findItem(R.id.action_qr).setVisible(true);
 		menu.findItem(R.id.action_send).setVisible(false);
 		menu.findItem(R.id.action_share_receive).setVisible(false);
-
-		MenuItem i = menu.findItem(R.id.action_temp_add).setVisible(true);//temporary until fab
-
-		i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-
-				onAddClicked();
-
-				return false;
-			}
-		});
 	}
 
 	private void onAddClicked(){

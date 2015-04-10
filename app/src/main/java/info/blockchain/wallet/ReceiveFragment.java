@@ -586,7 +586,6 @@ public class ReceiveFragment extends Fragment {
 		menu.findItem(R.id.action_merchant_directory).setVisible(false);
 		menu.findItem(R.id.action_qr).setVisible(false);
 		menu.findItem(R.id.action_send).setVisible(false);
-		menu.findItem(R.id.action_temp_add).setVisible(false);//temporary until fab
 		MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);
 
 		i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
