@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -113,6 +114,17 @@ public class SendFragment extends Fragment {
 		((ActionBarActivity)getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
 		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
 		setHasOptionsMenu(true);
+
+		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+		});
 
 		edDestination = ((EditText)rootView.findViewById(R.id.destination));
 		edDestination.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
@@ -1069,4 +1081,5 @@ public class SendFragment extends Fragment {
 
 		return true;
 	}
+
 }

@@ -31,6 +31,7 @@
     android:textSize="34dp"
 	/>    
 	<TextView
+		android:visibility="invisible"
 	android:id="@+id/balance2"
     android:layout_width="match_parent"
     android:layout_height="22dp"

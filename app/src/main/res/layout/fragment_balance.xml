@@ -11,7 +11,7 @@
 		android:layout_height="match_parent"
 		android:gravity="bottom"
 		sothree:umanoDragView="@+id/dragView"
-		sothree:umanoOverlay="true"
+		sothree:umanoOverlay="false"
 		sothree:umanoPanelHeight="96dp"
 		sothree:umanoParalaxOffset="100dp"
 		sothree:umanoInitialState="hidden"
@@ -82,6 +82,7 @@
 						>
 
 						<LinearLayout
+							android:visibility="gone"
 							android:layout_width="match_parent"
 							android:layout_height="65dp"
 							android:layout_gravity="center_horizontal|center_vertical"

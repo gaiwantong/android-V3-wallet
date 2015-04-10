@@ -1,5 +1,6 @@
 package info.blockchain.wallet;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -136,6 +137,8 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout mainContentShadow;
 
 	public BalanceFragment() { ; }
+
+	Communicator comm;
 		
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -509,7 +512,7 @@ public class BalanceFragment extends Fragment {
     public void onResume() {
     	super.onResume();
 
-
+		setNavigationDrawer();
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
@@ -972,5 +975,21 @@ public class BalanceFragment extends Fragment {
 				mainContentShadow.bringToFront();
 			}
 		}
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		comm=(Communicator)activity;
+	}
+
+	interface Communicator{
+
+		public void setNavigationDrawer();
+	}
+
+	private void setNavigationDrawer(){
+		comm.setNavigationDrawer();
 	}
 }

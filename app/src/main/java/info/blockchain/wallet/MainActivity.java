@@ -81,7 +81,7 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.WebUtil;
 
-public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback	{
+public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
     private static final int SCAN_URI = 2007;
@@ -183,31 +183,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         locale = Locale.getDefault();
 
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-//		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() ^ ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
-//		getSupportActionBar().setLogo(R.drawable.masthead);
-        getSupportActionBar().setTitle("Blockchain");
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
-
-        navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_items);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        listView = (ListView) findViewById(R.id.left_drawer);
-
-        // set a custom shadow that overlays the main content when the drawer opens
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        // set up the drawer's list view with items and click listener
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, navigationDrawerItems));
-        listView.setOnItemClickListener(new DrawerItemClickListener());
-
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
-        drawerLayout.setDrawerListener(actionBarDrawerToggle);
-
-        // enable ActionBar app icon to behave as action to toggle nav drawer
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+		setNavigationDrawer();
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter == null)   {
@@ -349,7 +325,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
-    /* The click listener for ListView in the navigation drawer */
+	/* The click listener for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -592,52 +568,30 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	int exitClicked = 0;
+	int exitCooldown = 2;//seconds
+	@Override
+	public void onBackPressed()
+	{
+		exitClicked++;
+		if(exitClicked==2)
+			finish();
+		else
+			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
 
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.ask_you_sure_exit).setCancelable(false);
-            AlertDialog alert = builder.create();
-
-            alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
-                    PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-
-                    dialog.dismiss();
-
-                    AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(false);
-
-                    /*
-					final Intent relaunch = new Intent(MainActivity.this, Exit.class)
-					.addFlags(
-							Intent.FLAG_ACTIVITY_NEW_TASK |
-							Intent.FLAG_ACTIVITY_CLEAR_TASK |
-							Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-					startActivity(relaunch);
-					*/
-
-                    finish();
-
-                }});
-
-            alert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }});
-
-            alert.show();
-
-            return true;
-        }
-        else	{
-            ;
-        }
-
-        return false;
-    }
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(int j = 0; j <= exitCooldown; j++)
+				{
+					try{Thread.sleep(1000);} catch (InterruptedException e){e.printStackTrace();}
+					if(j >= exitCooldown)exitClicked = 0;
+				}
+			}
+		}).start();
+	}
 
     private void updatePayloadThread(final CharSequenceX pw) {
 
@@ -1040,4 +994,34 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
+	@Override
+	public void setNavigationDrawer() {
+
+		toolbar = (Toolbar)findViewById(R.id.toolbar);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+		setSupportActionBar(toolbar);
+
+//		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() ^ ActionBar.DISPLAY_SHOW_TITLE);
+		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
+//		getSupportActionBar().setLogo(R.drawable.masthead);
+		getSupportActionBar().setTitle("Blockchain");
+		getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
+
+		navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_items);
+		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		listView = (ListView) findViewById(R.id.left_drawer);
+
+		// set a custom shadow that overlays the main content when the drawer opens
+		drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		// set up the drawer's list view with items and click listener
+		listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, navigationDrawerItems));
+		listView.setOnItemClickListener(new DrawerItemClickListener());
+
+		actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+		drawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+		// enable ActionBar app icon to behave as action to toggle nav drawer
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+	}
 }

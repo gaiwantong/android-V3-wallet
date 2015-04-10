@@ -1,6 +1,7 @@
 package info.blockchain.wallet;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -112,11 +114,19 @@ public class ReceiveFragment extends Fragment {
 		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 		((ActionBarActivity)getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
 		((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
-
-		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		((ActionBarActivity)getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
-
 		setHasOptionsMenu(true);
+
+		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new BalanceFragment();
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+			}
+		});
+
 		mainContent = (LinearLayout)rootView.findViewById(R.id.receive_main_content);
 		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.receive_main_content_shadow);
 		mainContentShadow.setOnClickListener(new View.OnClickListener() {
