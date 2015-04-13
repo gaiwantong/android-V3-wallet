@@ -264,7 +264,7 @@ public class SendFragment extends Fragment {
                     }
                 }
             );
-        spAccounts.setSelection(0);
+        spAccounts.setSelection(currentSelectedItem);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
@@ -358,6 +358,11 @@ public class SendFragment extends Fragment {
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);
         displayMaxAvailable();
+
+		currentSelectedItem = getArguments().getInt("selected_account");
+		if(spAccounts != null) {
+			spAccounts.setSelection(currentSelectedItem);
+		}
     }
 
     @Override

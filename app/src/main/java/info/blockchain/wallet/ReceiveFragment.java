@@ -88,6 +88,7 @@ public class ReceiveFragment extends Fragment {
 	private List<LegacyAddress> legacy = null;
 	
 	private int currentSelectedAccount = 0;
+	private static int currentSelectedItem = 0;
 
 	private String strBTC = "BTC";
 	private String strFiat = null;
@@ -258,7 +259,7 @@ public class ReceiveFragment extends Fragment {
                 });
             }
         });
-        spAccounts.setSelection(0);
+        spAccounts.setSelection(currentSelectedItem);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
@@ -329,11 +330,20 @@ public class ReceiveFragment extends Fragment {
 		tvCurrency1.setText(isBTC ? strBTC : strFiat);
 		tvFiat2.setText(isBTC ? strFiat : strBTC);
 //        updateTextFields();
+
+		currentSelectedItem = getArguments().getInt("selected_account");
+		if(spAccounts != null) {
+			spAccounts.setSelection(currentSelectedItem);
+		}
     }
 
     @Override
     public void onPause() {
     	super.onPause();
+
+		if(spAccounts != null) {
+			currentSelectedItem = spAccounts.getSelectedItemPosition();
+		}
     }
 
 	@Override

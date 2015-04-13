@@ -57,15 +57,6 @@ public class BalanceFragment extends Fragment {
 	//
 	private TextView tvBalance1 = null;
 
-//    private LinearLayout layoutAccounts = null;
-
-//	private Animation slideUp = null;
-//	private Animation slideDown = null;
-
-//	private TextView tvSwipe = null;
-
-//    private LinearLayout layoutAnchor = null;
-
 	private double btc_balance = 0.0;
 	private double fiat_balance = 0.0;
 	private double btc_fx = 319.13;
@@ -80,10 +71,8 @@ public class BalanceFragment extends Fragment {
 	// accounts list
 	//
 	private List<Account> accounts = null;
-//	private ListView accountsList = null;
-//	private AccountAdapter accountsAdapter = null;
 	private Spinner accountSpinner = null;
-	ArrayAdapter<String> accountAdapter = null;
+	ArrayAdapter<String> accountsAdapter = null;
 	private static int selectedAccount = 0;
 
 	//
@@ -106,7 +95,7 @@ public class BalanceFragment extends Fragment {
    	    	     @Override
    	    	     public void run() {
                     displayBalance();
-//           	    	accountsAdapter.notifyDataSetChanged();
+           	    	accountsAdapter.notifyDataSetChanged();
            	    	updateTx();
                    	txAdapter.notifyDataSetChanged();
    	    	     }
@@ -139,7 +128,6 @@ public class BalanceFragment extends Fragment {
 		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
 		accountSpinner.setVisibility(View.VISIBLE);
 
-//        layoutAnchor = (LinearLayout)rootView.findViewById(R.id.anchor);
 		fab = (FloatingActionButton)rootView.findViewById(R.id.btActivateBottomSheet);
 		fab.bringToFront();
 		fab.setOnClickListener(new View.OnClickListener() {
@@ -149,10 +137,6 @@ public class BalanceFragment extends Fragment {
 			}
 		});
 
-//        tvSwipe = (TextView)rootView.findViewById(R.id.swipe);
-//        tvSwipe.setTypeface(TypefaceUtil.getInstance(getActivity()).getAwesomeTypeface());
-//        tvSwipe.setText(Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
-
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 
@@ -161,7 +145,7 @@ public class BalanceFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
             	isBTC = (isBTC) ? false : true;
             	displayBalance();
-//            	accountsAdapter.notifyDataSetChanged();
+            	accountsAdapter.notifyDataSetChanged();
             	txAdapter.notifyDataSetChanged();
             	return false;
             }
@@ -173,16 +157,12 @@ public class BalanceFragment extends Fragment {
         	accounts.add(iAccount);
         }
 
-		String[] accountListToolbar = new String[accounts.size()];
+		ArrayList<String> accountList = new ArrayList<String>();
+		for(Account item : accounts)accountList.add(item.getLabel());
 
-		int k = 0;
-		for(Account item : accounts){
-			accountListToolbar[k] = item.getLabel();
-			k++;
-		}
-		accountAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountListToolbar);
-		accountAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
-		accountSpinner.setAdapter(accountAdapter);
+		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
+		accountSpinner.setAdapter(accountsAdapter);
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -226,6 +206,7 @@ public class BalanceFragment extends Fragment {
 				});
 			}
 		});
+		accountSpinner.setSelection(selectedAccount);
 
         txList = (ListView)rootView.findViewById(R.id.txList);
         txAdapter = new TransactionAdapter();
@@ -251,7 +232,7 @@ public class BalanceFragment extends Fragment {
     		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", ""));
     		PrefsUtil.getInstance(getActivity()).removeValue("_1ST_ACCOUNT_NAME");
     		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-//        	accountsAdapter.notifyDataSetChanged();
+        	accountsAdapter.notifyDataSetChanged();
         }
         
 		if(!OSUtil.getInstance(getActivity()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
@@ -300,6 +281,9 @@ public class BalanceFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Fragment fragment = new SendFragment();
+				Bundle args = new Bundle();
+				args.putInt("selected_account",selectedAccount);
+				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 
@@ -310,6 +294,9 @@ public class BalanceFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
+				Bundle args = new Bundle();
+				args.putInt("selected_account",selectedAccount);
+				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 			}
@@ -335,8 +322,8 @@ public class BalanceFragment extends Fragment {
 
         if(isVisibleToUser) {
         	displayBalance();
-//        	accountsAdapter.notifyDataSetChanged();
-//        	txAdapter.notifyDataSetChanged();
+        	accountsAdapter.notifyDataSetChanged();
+        	txAdapter.notifyDataSetChanged();
         	updateTx();
         }
         else {
@@ -362,7 +349,7 @@ public class BalanceFragment extends Fragment {
 		}
 
     	displayBalance();
-//    	accountsAdapter.notifyDataSetChanged();
+    	accountsAdapter.notifyDataSetChanged();
     	txAdapter.notifyDataSetChanged();
     	updateTx();
     }
@@ -477,7 +464,7 @@ public class BalanceFragment extends Fragment {
                     public boolean onTouch(View v, MotionEvent event) {
                         isBTC = (isBTC) ? false : true;
                         displayBalance();
-//                        accountsAdapter.notifyDataSetChanged();
+                        accountsAdapter.notifyDataSetChanged();
                         txAdapter.notifyDataSetChanged();
                         return false;
                     }
