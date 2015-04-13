@@ -424,17 +424,14 @@ public class SendFactory	{
 			BitcoinScript inputScript = new BitcoinScript(outPoint.getConnectedPubKeyScript());
 			String address = inputScript.getAddress().toString();
 
-			//if isSimpleSend don't use address as input if is output 
+			// if isSimpleSend don't use address as input if is output
 			if(isSimpleSend && receivingAddresses.get(address) != null) {
 				continue;
 			}
 
 			MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
-			input.outpoint = outPoint;
 			tx.addInput(input);
-
 			valueSelected = valueSelected.add(outPoint.getValue());
-
 			priority += outPoint.getValue().longValue() * outPoint.getConfirmations();
 
 			if(changeAddress == null) {
