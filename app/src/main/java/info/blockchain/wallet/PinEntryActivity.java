@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -109,7 +110,7 @@ public class PinEntryActivity extends Activity {
 		if(isPairing) {
 			AppUtil.getInstance(this).restartApp();
 		}
-		else if(extras!=null){
+		else if(extras != null){
 
 			//
 			// save email here
@@ -120,6 +121,7 @@ public class PinEntryActivity extends Activity {
 			try {
 				HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("1st account");
 
 				PayloadFactory.getInstance(this).remoteSaveThread();
 
