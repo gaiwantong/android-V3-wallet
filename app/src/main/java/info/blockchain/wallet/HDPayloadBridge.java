@@ -87,6 +87,7 @@ public class HDPayloadBridge	{
             a.setNbReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()));
             a.setNbChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()));
         }
+        PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
 
         return true;
      }
