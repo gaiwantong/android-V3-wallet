@@ -45,18 +45,6 @@
 				android:textSize="24dp"
 				/>
 
-			<ImageButton
-				android:id="@+id/btActivateBottomSheet"
-				android:layout_width="@dimen/fab_size"
-				android:layout_height="@dimen/fab_size"
-				android:layout_alignBottom="@+id/balance1"
-				android:layout_alignParentRight="true"
-				android:layout_marginBottom="-30dp"
-				android:layout_marginRight="16dp"
-				android:background="@drawable/ripple_fab"
-				android:elevation="4dp"
-				android:src="@drawable/ic_add_black_24dp"/>
-
 			<LinearLayout
 				android:id="@+id/balance_main_content"
 				android:layout_width="match_parent"
@@ -77,6 +65,20 @@
 
 					/>
 			</LinearLayout>
+
+			<info.blockchain.wallet.util.FloatingActionButton
+				xmlns:fab="http://schemas.android.com/apk/res-auto"
+				android:id="@+id/btActivateBottomSheet"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				fab:fab_icon="@drawable/ic_add_black_24dp"
+				fab:fab_colorNormal="#2cd9aa"
+				fab:fab_colorPressed="@color/blockchain_light_grey"
+				fab:fab_size="normal"
+				android:layout_alignBottom="@+id/balance1"
+				android:layout_alignParentRight="true"
+				android:layout_marginBottom="-40dp"
+				android:layout_marginRight="16dp"/>
 
 		</RelativeLayout>
 
