@@ -9,67 +9,21 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:background="@color/blockchain_pearl_white"
 		android:orientation="vertical"
 		>
 
 		<LinearLayout
-			android:visibility="gone"
-			android:id="@+id/iconsLayout2"
-			android:layout_width="match_parent"
-			android:layout_height="2dp"
-			android:background="@color/blockchain_blue"
-			android:orientation="horizontal"
-			android:paddingLeft="3dp"
-			android:paddingRight="3dp"
-			>
-
-			<LinearLayout
-				android:id="@+id/iconsReceive2"
-				android:layout_width="0dp"
-				android:layout_height="2dp"
-				android:layout_weight="1"
-				android:background="@color/blockchain_blue"
-				android:orientation="vertical"
-				/>
-
-			<LinearLayout
-				android:id="@+id/iconsHome2"
-				android:layout_width="0dp"
-				android:layout_height="2dp"
-				android:layout_weight="1"
-				android:background="@color/blockchain_light_blue"
-				android:orientation="vertical"
-				/>
-
-			<LinearLayout
-				android:id="@+id/iconsSend2"
-				android:layout_width="0dp"
-				android:layout_height="2dp"
-				android:layout_weight="1"
-				android:background="@color/blockchain_blue"
-				android:orientation="vertical"
-				/>
-		</LinearLayout>
-
-		<LinearLayout
-			android:visibility="gone"
-			android:layout_width="match_parent"
-			android:layout_height="5dp"
-			android:background="@color/blockchain_blue"
-			android:orientation="horizontal"
-			/>
-
-		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="fill_parent"
-			android:background="#FFFFFFFF"
+			android:background="@color/blockchain_pearl_white"
 			android:orientation="vertical"
 			>
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:background="#FFffff"
+				android:background="@color/blockchain_pearl_white"
 				android:orientation="vertical"
 				>
 
@@ -133,7 +87,7 @@
 						android:focusable="true"
 						android:focusableInTouchMode="true"
 						android:singleLine="true"
-						android:background="#FFffff"
+						android:background="@color/blockchain_pearl_white"
 						android:textCursorDrawable="@null"
 						android:textColor="@color/primary_text_default_material_light"
 						/>

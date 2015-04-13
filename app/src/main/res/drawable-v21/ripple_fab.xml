@@ -2,7 +2,7 @@
 		android:color="@color/blockchain_light_grey">
 	<item>
 		<shape android:shape="oval">
-			<solid android:color="#2cd9aa"/>
+			<solid android:color="@color/blockchain_fab_green"/>
 		</shape>
 	</item>
 </ripple>

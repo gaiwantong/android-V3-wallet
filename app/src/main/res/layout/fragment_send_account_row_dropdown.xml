@@ -5,7 +5,7 @@
 			  android:paddingLeft="16dp"
 			  android:paddingRight="16dp"
 			  android:gravity="center_vertical"
-			  android:background="#FFffff"
+			  android:background="@color/blockchain_pearl_white"
 			  android:layout_height="48dp">
 
 	<TextView

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
-			  android:background="#ffffff"
+			  android:background="@color/blockchain_pearl_white"
 			  android:orientation="vertical">
 
 	<ScrollView
@@ -28,7 +28,7 @@
 				android:text=""
 				android:paddingLeft="16dp"
 				android:textColor="@color/blockchain_grey"
-				android:background="#ffffff"
+				android:background="@color/blockchain_pearl_white"
 				android:textCursorDrawable="@null"
 				android:textColorHint="@color/blockchain_grey">
 			<requestFocus />
@@ -52,7 +52,7 @@
 				android:paddingLeft="16dp"
 				android:password="true"
 				android:textColor="@color/blockchain_grey"
-				android:background="#ffffff"
+				android:background="@color/blockchain_pearl_white"
 				android:textCursorDrawable="@null"
 				android:textColorHint="@color/blockchain_grey"/>
 
@@ -82,7 +82,7 @@
 		android:gravity="center_horizontal|center_vertical"
 		android:text="@string/CONTINUE"
 		android:textAlignment="gravity"
-		android:textColor="#FFFFFFFF"
+		android:textColor="@color/white_50"
 		android:textSize="16sp"
 		/>
 

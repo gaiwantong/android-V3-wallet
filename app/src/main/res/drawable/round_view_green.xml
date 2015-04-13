@@ -4,6 +4,6 @@
     android:shape="oval"
     >
     <!-- The fill color -->
-    <solid android:color="#2cd9aa" />
+    <solid android:color="@color/blockchain_fab_green" />
 </shape>
 

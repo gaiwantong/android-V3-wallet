@@ -6,22 +6,22 @@
 			<shape>
 				<corners android:radius="5dip" />
 
-				<solid android:color="@color/blockchain_red" />
+				<solid android:color="@color/blockchain_send_red" />
 			</shape>
 		</clip>
 
-		<color android:color="@color/blockchain_red" />
+		<color android:color="@color/blockchain_send_red" />
 	</item>
 	<item android:id="@android:id/progress">
 		<clip>
 			<shape>
 				<corners android:radius="5dip" />
 
-				<solid android:color="@color/blockchain_red" />
+				<solid android:color="@color/blockchain_send_red" />
 			</shape>
 		</clip>
 
-		<color android:color="@color/blockchain_red" />
+		<color android:color="@color/blockchain_send_red" />
 	</item>
 
 </layer-list>

@@ -72,65 +72,6 @@
 					android:background="@drawable/rounded_view_blue_white_border"
 					/>
 
-				<!--<TextView-->
-					<!--android:id="@+id/pinBox0"-->
-					<!--android:layout_width="50dip"-->
-					<!--android:layout_height="50dip"-->
-					<!--android:layout_margin="10dip"-->
-					<!--android:background="@drawable/pinbox_back"-->
-					<!--android:editable="false"-->
-					<!--android:gravity="center"-->
-					<!--android:inputType="numberPassword"-->
-					<!--android:maxLength="1"-->
-					<!--android:password="true"-->
-					<!--android:singleLine="true"-->
-					<!--android:textColor="#FF1a87c6"-->
-					<!--android:textSize="40sp"/>-->
-
-				<!--<TextView-->
-					<!--android:id="@+id/pinBox1"-->
-					<!--android:layout_width="50dip"-->
-					<!--android:layout_height="50dip"-->
-					<!--android:layout_margin="10dip"-->
-					<!--android:background="@drawable/pinbox_back"-->
-					<!--android:editable="false"-->
-					<!--android:gravity="center"-->
-					<!--android:inputType="numberPassword"-->
-					<!--android:maxLength="1"-->
-					<!--android:password="true"-->
-					<!--android:singleLine="true"-->
-					<!--android:textColor="#FF1a87c6"-->
-					<!--android:textSize="40sp"/>-->
-
-				<!--<TextView-->
-					<!--android:id="@+id/pinBox2"-->
-					<!--android:layout_width="50dip"-->
-					<!--android:layout_height="50dip"-->
-					<!--android:layout_margin="10dip"-->
-					<!--android:background="@drawable/pinbox_back"-->
-					<!--android:editable="false"-->
-					<!--android:gravity="center"-->
-					<!--android:inputType="numberPassword"-->
-					<!--android:maxLength="1"-->
-					<!--android:password="true"-->
-					<!--android:singleLine="true"-->
-					<!--android:textColor="#FF1a87c6"-->
-					<!--android:textSize="40sp"/>-->
-
-				<!--<TextView-->
-					<!--android:id="@+id/pinBox3"-->
-					<!--android:layout_width="50dip"-->
-					<!--android:layout_height="50dip"-->
-					<!--android:layout_margin="10dip"-->
-					<!--android:background="@drawable/pinbox_back"-->
-					<!--android:editable="false"-->
-					<!--android:gravity="center"-->
-					<!--android:inputType="numberPassword"-->
-					<!--android:maxLength="1"-->
-					<!--android:password="true"-->
-					<!--android:singleLine="true"-->
-					<!--android:textColor="#FF1a87c6"-->
-					<!--android:textSize="40sp"/>-->
 			</LinearLayout>
 
 			<TextView
@@ -141,7 +82,7 @@
 				android:gravity="center"
 				android:padding="10dip"
 				android:text="@string/pin_entry"
-				android:textColor="#FFffffff"
+				android:textColor="@color/white_50"
 				android:textSize="18sp"
 				/>
 
@@ -152,7 +93,7 @@
 				android:gravity="center"
 				android:padding="5dip"
 				android:text=""
-				android:textColor="#ff0000"
+				android:textColor="@color/blockchain_send_red"
 				android:textSize="20sp"
 				/>
 
@@ -160,7 +101,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_centerVertical="true"
-				android:background="#FF333333"
+				android:background="@color/black"
 				android:orientation="horizontal">
 
 				<TableLayout
@@ -169,7 +110,7 @@
 					android:layout_height="match_parent"
 					android:layout_gravity="center_horizontal"
 					android:layout_marginTop="20dip"
-					android:background="#FF333333"
+					android:background="@color/blockchain_navigation_bar"
 					android:gravity="center_horizontal"
 					android:shrinkColumns="*"
 					android:stretchColumns="*"
@@ -186,7 +127,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:tag="1"
@@ -221,7 +162,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="2"
 							android:orientation="vertical">
@@ -255,7 +196,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="3"
 							android:orientation="vertical">
@@ -297,7 +238,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:tag="4"
@@ -332,7 +273,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="5"
 							android:orientation="vertical">
@@ -366,7 +307,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="6"
 							android:orientation="vertical">
@@ -407,7 +348,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:tag="7"
@@ -442,7 +383,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="8"
 							android:orientation="vertical">
@@ -476,7 +417,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:tag="9"
 							android:orientation="vertical">
@@ -517,7 +458,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:padding="@dimen/pinentry_padding">
@@ -551,7 +492,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:tag="0"
@@ -586,7 +527,7 @@
 							android:layout_width="0dip"
 							android:layout_height="match_parent"
 							android:layout_weight="1"
-							android:background="#FFffff"
+							android:background="@color/white"
 							android:gravity="center"
 							android:orientation="vertical"
 							android:padding="9dp">

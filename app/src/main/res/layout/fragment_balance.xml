@@ -21,7 +21,7 @@
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="#FFf3f3f3">
+			android:background="@color/blockchain_pearl_white">
 
 			<!--Shadow for bottom sheet-->
 			<LinearLayout
@@ -29,7 +29,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:alpha="0.5"
-				android:background="#000000"
+				android:background="@color/black"
 				android:orientation="horizontal"/>
 
 			<!-- Balance -->
@@ -41,7 +41,7 @@
 				android:background="@color/blockchain_blue"
 				android:gravity="center_horizontal|center_vertical"
 				android:textAlignment="gravity"
-				android:textColor="#FFFFFFFF"
+				android:textColor="@color/white_50"
 				android:textSize="24dp"
 				/>
 
@@ -50,7 +50,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:layout_below="@+id/balance1"
-				android:background="#FFffff"
+				android:background="@color/white"
 				android:orientation="vertical">
 
 				<ListView
@@ -59,7 +59,7 @@
 					android:layout_height="match_parent"
 					android:layout_marginLeft="16dp"
 					android:layout_marginRight="16dp"
-					android:background="#FFffff"
+					android:background="@color/white"
 					android:divider="@drawable/list_divider"
 					android:listSelector="@android:color/transparent"
 
@@ -72,7 +72,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				fab:fab_icon="@drawable/ic_add_black_24dp"
-				fab:fab_colorNormal="#2cd9aa"
+				fab:fab_colorNormal="@color/blockchain_fab_green"
 				fab:fab_colorPressed="@color/blockchain_light_grey"
 				fab:fab_size="normal"
 				android:layout_alignBottom="@+id/balance1"
@@ -87,7 +87,7 @@
 			android:id="@+id/dragView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="#FFffff"
+			android:background="@color/white"
 			android:clickable="true"
 			android:focusable="false"
 			android:orientation="vertical">

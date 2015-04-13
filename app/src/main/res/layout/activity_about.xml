@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minWidth="420dp"
-    android:background="#FF1B8AC7"
+    android:background="@color/blockchain_blue"
     android:orientation="vertical"
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
@@ -26,7 +26,7 @@
 	    android:layout_gravity="center_horizontal"
     	android:layout_marginTop="10dp"
     	android:textSize="22sp"
-    	android:textColor="#FFFFFFFF"
+    	android:textColor="@color/white_50"
     	/>
 
     <LinearLayout

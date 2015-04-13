@@ -16,7 +16,7 @@
     android:layout_height="0dp"
     android:layout_weight="55"
     android:orientation="vertical"
-    android:background="#FFffffff"
+    android:background="@color/white_50"
 	/>
 
 	<LinearLayout
@@ -45,7 +45,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
         android:textAlignment="gravity"
     	android:textSize="12sp"
-    	android:textColor="#FFFFFFFF"
+    	android:textColor="@color/white_50"
     	android:layout_marginLeft="20dp"
     	android:layout_marginRight="20dp"
     	android:text="@string/setup1"
@@ -59,7 +59,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
         android:textAlignment="gravity"
     	android:textSize="16sp"
-    	android:textColor="#FFFFFFFF"
+    	android:textColor="@color/white_50"
     	android:layout_marginLeft="20dp"
     	android:layout_marginRight="20dp"
     	android:text="@string/command1"

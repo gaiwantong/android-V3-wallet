@@ -1,14 +1,15 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">#FFadd8e6</item>
-        <item name="colorPrimaryDark">#FF1B8AC7</item>
+        <item name="colorPrimary">@color/blockchain_blue</item>
+        <item name="colorPrimaryDark">@color/blockchain_dark_blue</item>
         <item name="colorAccent">#FFadd8e6</item>
+		<item name="android:windowBackground">@color/blockchain_pearl_white</item>
     </style>
 
     <style name="ToolbarCustomIconColor" parent="AppTheme">
         <!-- android:textColorSecondary is used for coloring the navigation drawer icon and up arrow. -->
-        <item name="android:textColorSecondary">#FFffffff</item>
+        <item name="android:textColorSecondary">@color/white_50</item>
     </style>
 
 </resources>

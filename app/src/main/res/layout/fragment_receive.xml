@@ -21,14 +21,14 @@
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="#FFf3f3f3"
+			android:background="@color/blockchain_pearl_white"
 			android:orientation="vertical">
 
 			<LinearLayout
 				android:id="@+id/receive_main_content_shadow"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:background="#000000"
+				android:background="@color/black"
 				android:alpha="0.5"
 				android:orientation="horizontal"/>
 
@@ -36,13 +36,12 @@
 				android:id="@+id/receive_main_content"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:background="#FFf3f3f3"
+				android:background="@color/blockchain_pearl_white"
 				android:orientation="vertical">
 
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="#FFffff"
 					android:orientation="vertical"
 					>
 
@@ -108,12 +107,12 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal|center_vertical"
-						android:background="#00FFFFFF"
+						android:background="@color/blockchain_pearl_white"
 						android:gravity="center_horizontal|center_vertical"
 						android:inputType="none"
 						android:singleLine="true"
 						android:textAlignment="gravity"
-						android:textColor="#FF808080"
+						android:textColor="@color/blockchain_grey"
 						android:textIsSelectable="true"
 						android:textSize="14sp"
 						/>
@@ -131,7 +130,7 @@
 			android:clickable="true"
 			android:focusable="false"
 			android:orientation="vertical"
-			android:background="#FFffff">
+			android:background="@color/white">
 
 			<LinearLayout
 				android:layout_width="match_parent"

@@ -16,7 +16,7 @@
 			android:layout_weight="1"
 			android:orientation="vertical"
 			android:gravity="center"
-			android:background="#FFFFFF">
+			android:background="@color/blockchain_pearl_white">
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -37,7 +37,7 @@
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
-					android:textColor="#000000"
+					android:textColor="@color/black"
 					android:gravity="center_vertical"
 					android:paddingRight="16dp"
 					android:text="@string/pair_wallet_step_1"/>
@@ -63,7 +63,7 @@
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
-					android:textColor="#000000"
+					android:textColor="@color/black"
 					android:gravity="center_vertical"
 					android:paddingRight="16dp"
 					android:text="@string/pair_wallet_step_2"/>
@@ -89,7 +89,7 @@
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
-					android:textColor="#000000"
+					android:textColor="@color/black"
 					android:gravity="center_vertical"
 					android:paddingRight="16dp"
 					android:text="@string/pair_wallet_step_3"/>
@@ -114,7 +114,7 @@
 				android:gravity="center_horizontal|center_vertical"
 				android:text="@string/command2"
 				android:textAlignment="gravity"
-				android:textColor="#FFFFFFFF"
+				android:textColor="@color/white_50"
 				android:textSize="16sp"
 				/>
 

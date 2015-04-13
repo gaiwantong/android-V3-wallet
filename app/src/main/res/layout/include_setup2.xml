@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFffffff"
+    android:background="@color/white_50"
 	>
 <!--	
 	    <info.blockchain.wallet.SelectedSpinner
@@ -39,7 +39,7 @@
     	android:textColor="#FF000000"
 	    android:padding="5dp"
 		android:singleLine="true"
-		android:background="#FFFFFFFF"
+		android:background="@color/white_50"
 		android:focusable="true"
 	    android:focusableInTouchMode="true"
 		android:textColorHint="#FFc0c0c0"
@@ -58,7 +58,7 @@
         android:text="@string/CONTINUE" 
         android:textSize="20sp"
 	    android:background="@color/blockchain_blue"
-	    android:textColor="#FFFFFFFF"
+	    android:textColor="@color/white_50"
         android:layout_gravity="center_horizontal" 
         android:layout_marginTop="20dp"
     	/>

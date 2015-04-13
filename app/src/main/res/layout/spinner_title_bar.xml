@@ -9,5 +9,5 @@
 		  android:textSize="20sp"
 		  android:fontFamily="sans-serif-medium"
 		  android:paddingLeft="5dp"
-		  android:textColor="#FFffff"
+		  android:textColor="@color/white"
 		  android:minHeight="?android:attr/listPreferredItemHeightSmall" />

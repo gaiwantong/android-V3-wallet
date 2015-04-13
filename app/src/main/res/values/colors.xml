@@ -1,29 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<color name="significant">#ff000000</color>
-    <color name="color_sent">#C73E38</color>
-    <color name="color_received">#4BB047</color>
-	<color name="less_significant">#ff666666</color>
-	<color name="insignificant">#ffcccccc</color>
-	<color name="error">#ffff0000</color>
-	<color name="background_bright">#ffffffff</color>
-	<color name="background_less_bright">#ffd8d8e0</color>
-
-	<color name="blockchain_red">#FFff8889</color>
-    <color name="blockchain_green">#FF8ab75e</color>
-    <color name="blockchain_blue">#FF1B8AC7</color>
+	<!--Spec v1.3-->
+	<color name="blockchain_blue">#FF1B8AC7</color>
+	<color name="blockchain_dark_blue">#1476ab</color>
+	<color name="blockchain_fab_green">#2cd9aa</color>
+	<color name="blockchain_send_red">#FFff8889</color>
+    <color name="blockchain_receive_green">#FF8ab75e</color>
+	<color name="blockchain_transfer_blue">#FFa4cce0</color>
+	<color name="blockchain_pearl_white">#fafafa</color>
     <color name="blockchain_grey">#FF808080</color>
     <color name="blockchain_light_grey">#FFe0e0e0</color>
-    <color name="blockchain_light_blue">#FFcFEFFF</color>
-    <color name="blockchain_lighter_blue">#FFa4cce0</color>
-    <color name="magiclist_bg_selected">#FF1B8AC7</color>
-    <color name="magiclist_bg_unselected">#FFFFFFFF</color>
+	<color name="blockchain_navigation_bar">#FF000000</color>
 
     <color name="blockchain_red_50">#7Fff8889</color>
     <color name="blockchain_green_50">#7F8ab75e</color>
-    <color name="blockchain_lighter_blue_50">#7Fa4cce0</color>
+    <color name="blockchain_transfer_blue_50">#7Fa4cce0</color>
 
-    <color name="color_primary_dark">#1476ab</color>
+	<color name="white">#FFffff</color>
+	<color name="white_50">#FFffffff</color>
+
+	<color name="black">#000000</color>
 
 </resources>

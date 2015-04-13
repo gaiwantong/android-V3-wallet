@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFffffff"
+    android:background="@color/white_50"
     >
 
     <EditText
@@ -15,7 +15,7 @@
         android:textColor="#FF000000"
         android:padding="5dp"
         android:singleLine="true"
-        android:background="#FFFFFFFF"
+        android:background="@color/white_50"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:textColorHint="#FFc0c0c0"
@@ -33,7 +33,7 @@
         android:textColor="#FF000000"
         android:padding="5dp"
         android:singleLine="true"
-        android:background="#FFFFFFFF"
+        android:background="@color/white_50"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:textColorHint="#FFc0c0c0"
