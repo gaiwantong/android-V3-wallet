@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -43,6 +42,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.FloatingActionButton;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -125,7 +125,7 @@ public class BalanceFragment extends Fragment {
 	public BalanceFragment() { ; }
 
 	Communicator comm;
-	private ImageButton fab = null;
+	private FloatingActionButton fab = null;
 		
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -140,7 +140,7 @@ public class BalanceFragment extends Fragment {
 		accountSpinner.setVisibility(View.VISIBLE);
 
 //        layoutAnchor = (LinearLayout)rootView.findViewById(R.id.anchor);
-		fab = (ImageButton)rootView.findViewById(R.id.btActivateBottomSheet);
+		fab = (FloatingActionButton)rootView.findViewById(R.id.btActivateBottomSheet);
 		fab.bringToFront();
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
