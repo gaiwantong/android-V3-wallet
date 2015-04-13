@@ -5,6 +5,7 @@
 	<color name="blockchain_blue">#FF1B8AC7</color>
 	<color name="blockchain_dark_blue">#1476ab</color>
 	<color name="blockchain_fab_green">#2cd9aa</color>
+	<color name="blockchain_fab_dark_green">#00A477</color>
 	<color name="blockchain_send_red">#FFff8889</color>
     <color name="blockchain_receive_green">#FF8ab75e</color>
 	<color name="blockchain_transfer_blue">#FFa4cce0</color>

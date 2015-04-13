@@ -73,7 +73,7 @@
 				android:layout_height="wrap_content"
 				fab:fab_icon="@drawable/ic_add_black_24dp"
 				fab:fab_colorNormal="@color/blockchain_fab_green"
-				fab:fab_colorPressed="@color/blockchain_light_grey"
+				fab:fab_colorPressed="@color/blockchain_fab_dark_green"
 				fab:fab_size="normal"
 				android:layout_alignBottom="@+id/balance1"
 				android:layout_alignParentRight="true"

@@ -681,9 +681,9 @@ public class BalanceFragment extends Fragment {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(4);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContentShadow.setVisibility(View.VISIBLE);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 				mainContentShadow.bringToFront();
+				mainContentShadow.setVisibility(View.VISIBLE);
 			}
 		}
 	}
