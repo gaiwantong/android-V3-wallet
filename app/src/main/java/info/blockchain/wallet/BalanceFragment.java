@@ -678,12 +678,12 @@ public class BalanceFragment extends Fragment {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(4);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(8);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 				mainContentShadow.bringToFront();
 				mainContentShadow.setVisibility(View.VISIBLE);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 			}
 		}
 	}

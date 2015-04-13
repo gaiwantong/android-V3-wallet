@@ -68,7 +68,7 @@
 				android:layout_marginRight="16dp"
 				android:src="@drawable/ic_add_black_24dp"
 				android:background="@drawable/ripple_fab"
-				android:elevation="4dp"
+				android:elevation="8dp"
 				android:stateListAnimator="@anim/fab_anim"
 				/>
 
