@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -114,8 +116,8 @@ public class BalanceFragment extends Fragment {
 	public BalanceFragment() { ; }
 
 	Communicator comm;
-	private FloatingActionButton fab = null;
-		
+	ImageButton fab;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -128,7 +130,11 @@ public class BalanceFragment extends Fragment {
 		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
 		accountSpinner.setVisibility(View.VISIBLE);
 
-		fab = (FloatingActionButton)rootView.findViewById(R.id.btActivateBottomSheet);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
+		else
+			fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
+
 		fab.bringToFront();
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -672,9 +678,11 @@ public class BalanceFragment extends Fragment {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(4);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.setVisibility(View.VISIBLE);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 				mainContentShadow.bringToFront();
 			}
 		}
