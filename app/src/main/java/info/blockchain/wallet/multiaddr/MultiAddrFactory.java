@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.WebUtil;
 
 public class MultiAddrFactory	{
