@@ -4,7 +4,9 @@
         <item name="colorPrimary">@color/blockchain_blue</item>
         <item name="colorPrimaryDark">@color/blockchain_dark_blue</item>
         <item name="colorAccent">#FFadd8e6</item>
+        <!--
 		<item name="android:windowBackground">@color/blockchain_pearl_white</item>
+		-->
     </style>
 
     <style name="ToolbarCustomIconColor" parent="AppTheme">
