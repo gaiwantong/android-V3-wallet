@@ -400,7 +400,7 @@ public class BalanceFragment extends Fragment {
 	        } else {
 	            view = convertView;
 	        }
-	        
+
 	        if(txs != null) {
 		        final Tx tx = txs.get(position);
 		        double _btc_balance = tx.getAmount() / 1e8;
