@@ -1004,7 +1004,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 //		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() ^ ActionBar.DISPLAY_SHOW_TITLE);
 		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
 //		getSupportActionBar().setLogo(R.drawable.masthead);
-		getSupportActionBar().setTitle("Blockchain");
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
 
 		navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_items);
