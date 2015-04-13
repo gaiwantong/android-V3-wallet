@@ -148,6 +148,7 @@ public class PayloadFactory	{
                 }
                 catch(Exception e) {
                     _jsonObject = null;
+//                    Log.i("PayloadFactory", "_jsonObject is null");
                 }
                 if(_jsonObject != null && _jsonObject.has("payload")) {
                     if(_jsonObject.has("pbkdf2_iterations")) {
@@ -171,6 +172,7 @@ public class PayloadFactory	{
                 String decrypted = null;
                 try {
                     decrypted = AESUtil.decrypt(encrypted_payload, password, iterations);
+//                    Log.i("PayloadFactory", decrypted);
                 }
                 catch(Exception e) {
                 	payload = null;
@@ -200,6 +202,7 @@ public class PayloadFactory	{
                 payload.setVersion(version);
             }
             else {
+//                Log.i("PayloadFactory", "jsonObject has no payload");
                 return null;
             }
         }
