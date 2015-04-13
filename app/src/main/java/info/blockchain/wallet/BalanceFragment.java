@@ -365,6 +365,8 @@ public class BalanceFragment extends Fragment {
     	
 		private LayoutInflater inflater = null;
 
+		TextView tvResult;
+
 	    TransactionAdapter() {
 	        inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
@@ -406,7 +408,7 @@ public class BalanceFragment extends Fragment {
 		        double _btc_balance = tx.getAmount() / 1e8;
 		    	double _fiat_balance = btc_fx * _btc_balance;
 		    	
-		    	TextView tvResult = (TextView)view.findViewById(R.id.result);
+		    	tvResult = (TextView)view.findViewById(R.id.result);
 				tvResult.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 				tvResult.setTextColor(Color.WHITE);
 
@@ -462,11 +464,14 @@ public class BalanceFragment extends Fragment {
                 tvResult.setOnTouchListener(new OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        isBTC = (isBTC) ? false : true;
-                        displayBalance();
-                        accountsAdapter.notifyDataSetChanged();
-                        txAdapter.notifyDataSetChanged();
-                        return false;
+
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							isBTC = (isBTC) ? false : true;
+							displayBalance();
+							accountsAdapter.notifyDataSetChanged();
+							txAdapter.notifyDataSetChanged();
+						}
+                        return true;
                     }
                 });
 
@@ -474,12 +479,15 @@ public class BalanceFragment extends Fragment {
                 layoutTxInfo.setOnTouchListener(new OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        String strTx = tx.getHash();
-                        if(strTx != null) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-                            startActivity(browserIntent);
-                        }
-                        return false;
+
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							String strTx = tx.getHash();
+							if (strTx != null) {
+								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+								startActivity(browserIntent);
+							}
+						}
+                        return true;
                     }
                 });
 
