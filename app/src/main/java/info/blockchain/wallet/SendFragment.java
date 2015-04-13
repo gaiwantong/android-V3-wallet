@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Utils;
@@ -35,6 +36,8 @@ import org.apache.commons.codec.DecoderException;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -167,13 +170,52 @@ public class SendFragment extends Fragment {
         edAmount1.addTextChangedListener(new TextWatcher()	{
         	public void afterTextChanged(Editable s) {
 
-//               updateTextFields();
+                edAmount1.removeTextChangedListener(this);
 
-//        		if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
-//            		validateSpend(false);
-//        		}
+                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int max_len = 8;
+                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
+                switch(unit) {
+                    case MonetaryUtil.MICRO_BTC:
+                        max_len = 2;
+                        break;
+                    case MonetaryUtil.MILLI_BTC:
+                        max_len = 4;
+                        break;
+                    default:
+                        max_len = 8;
+                        break;
+                }
+                btcFormat.setMaximumFractionDigits(max_len + 1);
+                btcFormat.setMinimumFractionDigits(0);
 
-				if(textChangeAllowed) {
+                DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+                char sep = decFormatSymbols.getDecimalSeparator();
+
+                try	{
+                    double d = Double.parseDouble(s.toString());
+                    String s1 = btcFormat.format(d);
+//                    Log.i("SendFragment", "s1:" + s1);
+                    if(s1.indexOf(sep) != -1)	{
+                        String dec = s1.substring(s1.indexOf(sep));
+//                        Log.i("SendFragment", "dec:" + dec);
+                        if(dec.length() > 0)	{
+                            dec = dec.substring(1);
+//                            Log.i("SendFragment", "dec sub:" + dec);
+                            if(dec.length() > max_len)	{
+                                edAmount1.setText(s1.substring(0, s1.length() - 1));
+//                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
+                            }
+                        }
+                    }
+                }
+                catch(NumberFormatException nfe)	{
+                    ;
+                }
+
+                edAmount1.addTextChangedListener(this);
+
+                if(textChangeAllowed) {
 					textChangeAllowed = false;
 					updateFiatTextField(s.toString());
 
@@ -182,7 +224,8 @@ public class SendFragment extends Fragment {
 					}
 					textChangeAllowed = true;
 				}
-        	}
+
+            }
 
         	public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
         
