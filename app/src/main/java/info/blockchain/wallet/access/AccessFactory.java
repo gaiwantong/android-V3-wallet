@@ -38,7 +38,7 @@ public class AccessFactory	{
         return instance;
     }
 
-    public boolean createPÏN(CharSequenceX password, String pin) {
+    public boolean createPIN(CharSequenceX password, String pin) {
 
         if(pin == null || pin.equals("0000") || pin.length() != 4) {
             return false;

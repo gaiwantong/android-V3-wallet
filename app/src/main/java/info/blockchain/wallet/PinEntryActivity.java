@@ -832,7 +832,7 @@ public class PinEntryActivity extends Activity {
 			public void run() {
 				Looper.prepare();
 
-				if(AccessFactory.getInstance(PinEntryActivity.this).createPÏN(PayloadFactory.getInstance().getTempPassword(), pin)) {
+				if(AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
 
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
@@ -887,7 +887,7 @@ public class PinEntryActivity extends Activity {
 			public void run() {
 				Looper.prepare();
 
-				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePÏN(pin);
+				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
 
 				if(password != null) {
 
