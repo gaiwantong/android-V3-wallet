@@ -195,11 +195,11 @@ public class HD_WalletFactory	{
 
     }
 
-    public void saveWalletToJSON(String password) throws MnemonicException.MnemonicLengthException, IOException, JSONException {
+    public void saveWalletToJSON(CharSequenceX password) throws MnemonicException.MnemonicLengthException, IOException, JSONException {
         serialize(get().toJSON(), password);
     }
 
-    public HD_Wallet restoreWalletfromJSON(String password) throws DecoderException, MnemonicException.MnemonicLengthException {
+    public HD_Wallet restoreWalletfromJSON(CharSequenceX password) throws DecoderException, MnemonicException.MnemonicLengthException {
 
         HD_Wallet hdw = null;
 
@@ -225,7 +225,7 @@ public class HD_WalletFactory	{
         return hdw;
     }
 
-    private void serialize(JSONObject jsonobj, String password) throws IOException, JSONException {
+    private void serialize(JSONObject jsonobj, CharSequenceX password) throws IOException, JSONException {
 
         File newfile = new File(strJSONFilePath + "bc_wallet.dat");
         File tmpfile = new File(strJSONFilePath + "bc_wallet.tmp");
@@ -241,7 +241,7 @@ public class HD_WalletFactory	{
 
         String data = null;
         if(password != null) {
-            data = AESUtil.encrypt(jsonstr, new CharSequenceX(password), AESUtil.DefaultPBKDF2Iterations);
+            data = AESUtil.encrypt(jsonstr, password, AESUtil.DefaultPBKDF2Iterations);
         }
         else {
             data = jsonstr;
@@ -263,7 +263,7 @@ public class HD_WalletFactory	{
         }
     }
 
-    private JSONObject deserialize(String password) throws IOException, JSONException {
+    private JSONObject deserialize(CharSequenceX password) throws IOException, JSONException {
 
         File file = new File(strJSONFilePath + "bc_wallet.dat");
         StringBuilder sb = new StringBuilder();
@@ -280,7 +280,7 @@ public class HD_WalletFactory	{
             node = new JSONObject(sb.toString());
         }
         else {
-            node = new JSONObject(AESUtil.decrypt(sb.toString(), new CharSequenceX(password), AESUtil.DefaultPBKDF2Iterations));
+            node = new JSONObject(AESUtil.decrypt(sb.toString(), password, AESUtil.DefaultPBKDF2Iterations));
         }
 
         return node;

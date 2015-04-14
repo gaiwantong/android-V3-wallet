@@ -21,7 +21,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +35,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+//import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -109,8 +109,7 @@ public class ReceiveFragment extends Fragment {
 		
 		View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
 		this.rootView = rootView;
-		Log.i("ReceiveFragment", "onCreateView");
-		
+
 		locale = Locale.getDefault();
 
 		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -193,16 +192,12 @@ public class ReceiveFragment extends Fragment {
                 try	{
                     double d = Double.parseDouble(s.toString());
                     String s1 = btcFormat.format(d);
-//                    Log.i("SendFragment", "s1:" + s1);
                     if(s1.indexOf(sep) != -1)	{
                         String dec = s1.substring(s1.indexOf(sep));
-//                        Log.i("SendFragment", "dec:" + dec);
                         if(dec.length() > 0)	{
                             dec = dec.substring(1);
-//                            Log.i("SendFragment", "dec sub:" + dec);
                             if(dec.length() > max_len)	{
                                 edAmount1.setText(s1.substring(0, s1.length() - 1));
-//                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
                                 edAmount1.setSelection(edAmount1.getText().length());
                                 s = edAmount1.getEditableText();
                             }
@@ -249,16 +244,12 @@ public class ReceiveFragment extends Fragment {
                 try	{
                     double d = Double.parseDouble(s.toString());
                     String s1 = fiatFormat.format(d);
-//                    Log.i("SendFragment", "s1:" + s1);
                     if(s1.indexOf(sep) != -1)	{
                         String dec = s1.substring(s1.indexOf(sep));
-//                        Log.i("SendFragment", "dec:" + dec);
                         if(dec.length() > 0)	{
                             dec = dec.substring(1);
-//                            Log.i("SendFragment", "dec sub:" + dec);
                             if(dec.length() > max_len)	{
                                 edAmount2.setText(s1.substring(0, s1.length() - 1));
-//                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
                                 edAmount2.setSelection(edAmount2.getText().length());
                                 s = edAmount2.getEditableText();
                             }
@@ -329,8 +320,8 @@ public class ReceiveFragment extends Fragment {
                       else {
                           Toast.makeText(getActivity(), "Account " + position + ":" + accounts.get(position).getLabel(), Toast.LENGTH_SHORT).show();
                           currentSelectedAccount = position;
-                          Log.i("ReceiveFragment", "assignHDReceiveAddress() OnItemSelectedListener, !(position >= hdAccountsIdx)");
-                          Log.i("ReceiveFragment", "currentSelectedAccount:" + currentSelectedAccount);
+                          //Log.i("ReceiveFragment", "assignHDReceiveAddress() OnItemSelectedListener, !(position >= hdAccountsIdx)");
+                          //Log.i("ReceiveFragment", "currentSelectedAccount:" + currentSelectedAccount);
                           assignHDReceiveAddress();
                           displayQRCode();
                       }
@@ -351,7 +342,6 @@ public class ReceiveFragment extends Fragment {
 		tvCurrency1.setText(strBTC);
 		tvFiat2.setText(strFiat);
 
-        Log.i("ReceiveFragment", "assignHDReceiveAddress() onCreateView");
         assignHDReceiveAddress();
 
       	edReceivingAddress = (TextView)rootView.findViewById(R.id.receiving_address);
