@@ -347,7 +347,7 @@ public class SendFragment extends Fragment {
         spAccounts.setSelection(currentSelectedItem);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         //edAmount2.setText("0.00" + "\u00A0");
@@ -385,7 +385,7 @@ public class SendFragment extends Fragment {
 
                 // sanity check on strFiat, necessary if the result of a URI scan
                 if(strFiat == null) {
-                    strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+                    strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
                 }
                 btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
@@ -418,7 +418,7 @@ public class SendFragment extends Fragment {
 
         if(isVisibleToUser) {
             strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-            strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+            strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(isBTC ? strBTC : strFiat);
             tvFiat2.setText(isBTC ? strFiat : strBTC);
@@ -433,7 +433,7 @@ public class SendFragment extends Fragment {
     public void onResume() {
     	super.onResume();
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);

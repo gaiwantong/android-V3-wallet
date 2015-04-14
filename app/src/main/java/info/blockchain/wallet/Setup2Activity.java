@@ -36,7 +36,7 @@ public class Setup2Activity extends Activity	{
 	
 	private SelectedSpinner spCurrencies = null;
     private ArrayAdapter<CharSequence> spCurrenciesAdapter = null;
-    private String[] currencies = null;
+    private String[] currencyLabels = null;
     
     private String strEmail = null;
     private String strPassword = null;
@@ -96,7 +96,7 @@ public class Setup2Activity extends Activity	{
                 	}
                 	else {
                     	int currency = spCurrencies.getSelectedItemPosition();
-        	            PrefsUtil.getInstance(Setup2Activity.this).setValue("ccurrency", currencies[currency].substring(currencies[currency].length() - 3));
+        	            PrefsUtil.getInstance(Setup2Activity.this).setValue(KEY_SELECTED_FIAT, currenciesLabels[currency].substring(currenciesLabel[currency].length() - 3));
 
         	            //
         	            // save email here
@@ -130,8 +130,8 @@ public class Setup2Activity extends Activity	{
             spCurrencies = (SelectedSpinner)findViewById(R.id.currency);
 
         	if(!_isPairing) {
-                currencies = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
-                spCurrenciesAdapter = new ArrayAdapter(this, R.layout.spinner_item, currencies);
+                currencyLabels = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
+                spCurrenciesAdapter = new ArrayAdapter(this, R.layout.spinner_item, currencyLabels);
             	spCurrenciesAdapter.setDropDownViewResource(R.layout.spinner_item2);
             	spCurrencies.setAdapter(spCurrenciesAdapter);
         	}
