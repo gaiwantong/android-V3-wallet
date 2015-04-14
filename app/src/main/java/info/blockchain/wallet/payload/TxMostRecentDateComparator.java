@@ -14,10 +14,10 @@ public class TxMostRecentDateComparator implements Comparator<Tx> {
 
         int ret = 0;
 
-        if(t1.getTS() < t2.getTS()) {
+        if(t1.getTS() > t2.getTS()) {
             ret = BEFORE;
         }
-        else if(t1.getTS() > t2.getTS()) {
+        else if(t1.getTS() < t2.getTS()) {
             ret = AFTER;
         }
         else    {
