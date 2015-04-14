@@ -431,7 +431,7 @@ public class BalanceFragment extends Fragment {
 				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 //				tvTS.setTextColor(0xffadc0c9);
 				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
-				
+
 		    	TextView tvDirection = (TextView)view.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 //				tvDirection.setTextColor(0xff828181);
@@ -490,10 +490,9 @@ public class BalanceFragment extends Fragment {
                     }
                 });
 
-                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
-                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+				tvTS.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							String strTx = tx.getHash();
@@ -502,9 +501,40 @@ public class BalanceFragment extends Fragment {
 								startActivity(browserIntent);
 							}
 						}
-                        return true;
-                    }
-                });
+						return true;
+					}
+				});
+
+				tvDirection.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							String strTx = tx.getHash();
+							if (strTx != null) {
+								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+								startActivity(browserIntent);
+							}
+						}
+						return true;
+					}
+				});
+
+//                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
+//                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
+//                    @Override
+//                    public boolean onTouch(View v, MotionEvent event) {
+//
+//						if (event.getAction() == MotionEvent.ACTION_UP) {
+//							String strTx = tx.getHash();
+//							if (strTx != null) {
+//								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+//								startActivity(browserIntent);
+//							}
+//						}
+//                        return true;
+//                    }
+//                });
 
 				/*
 		    	TextView tvTags = (TextView)view.findViewById(R.id.tags);
