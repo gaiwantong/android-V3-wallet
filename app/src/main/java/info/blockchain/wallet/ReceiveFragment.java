@@ -203,6 +203,8 @@ public class ReceiveFragment extends Fragment {
                             if(dec.length() > max_len)	{
                                 edAmount1.setText(s1.substring(0, s1.length() - 1));
 //                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
+                                edAmount1.setSelection(edAmount1.getText().length());
+                                s = edAmount1.getEditableText();
                             }
                         }
                     }
@@ -257,6 +259,8 @@ public class ReceiveFragment extends Fragment {
                             if(dec.length() > max_len)	{
                                 edAmount2.setText(s1.substring(0, s1.length() - 1));
 //                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
+                                edAmount2.setSelection(edAmount2.getText().length());
+                                s = edAmount2.getEditableText();
                             }
                         }
                     }
