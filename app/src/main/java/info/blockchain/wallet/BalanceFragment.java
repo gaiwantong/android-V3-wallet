@@ -185,9 +185,7 @@ public class BalanceFragment extends Fragment {
 						}
 
                         if(selectedAccount == 0) {
-
-
-
+                            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
                         }
                         else {
                             String xpub = account2Xpub(selectedAccount - 1);
@@ -650,29 +648,31 @@ public class BalanceFragment extends Fragment {
     }
 
     private void updateTx() {
+
+        txMap = MultiAddrFactory.getInstance().getXpubTxs();
 		
     	if(accounts == null || accounts.size() < 1) {
     		return;
     	}
 
-        txMap = MultiAddrFactory.getInstance().getXpubTxs();
-        String xpub = account2Xpub(selectedAccount);
-        if(xpub != null) {
-			if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-		        txs = txMap.get(xpub); 
-			}
-			else {
-				txs = new ArrayList<Tx>();
-			}
+        if(selectedAccount == 0) {
+            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
         }
         else {
-	        Account hda = accounts.get(selectedAccount);
-	        if(hda instanceof ImportedAccount) {
-	            txs = MultiAddrFactory.getInstance().getLegacyTxs();
-	        }
-			else {
-				txs = new ArrayList<Tx>();
-			}
+            String xpub = account2Xpub(selectedAccount - 1);
+
+            if(xpub != null) {
+                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                    txs = txMap.get(xpub);
+                }
+            }
+            else {
+                Account hda = accounts.get(selectedAccount - 1);
+                if(hda instanceof ImportedAccount) {
+                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                }
+            }
+
         }
 
 	}
