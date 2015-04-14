@@ -345,7 +345,7 @@ public class ReceiveFragment extends Fragment {
         spAccounts.setSelection(currentSelectedItem);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
 		tvCurrency1.setText(strBTC);
@@ -393,7 +393,7 @@ public class ReceiveFragment extends Fragment {
 
         if(isVisibleToUser) {
             strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-            strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
+            strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 			tvCurrency1.setText(isBTC ? strBTC : strFiat);
 			tvFiat2.setText(isBTC ? strFiat : strBTC);
@@ -408,7 +408,7 @@ public class ReceiveFragment extends Fragment {
     public void onResume() {
     	super.onResume();
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(KEY_SELECTED_FIAT, DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 		tvCurrency1.setText(isBTC ? strBTC : strFiat);
 		tvFiat2.setText(isBTC ? strFiat : strBTC);

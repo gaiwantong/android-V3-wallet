@@ -7,6 +7,9 @@ import android.content.SharedPreferences.Editor;
 
 public class PrefsUtil {
 
+    public static final String DEFAULT_CURRENCY              = "USD";
+
+
     public static final String KEY_PIN_LOOKUP                = "pin_kookup_key";
     public static final String KEY_ENCRYPTED_PASSWORD        = "encrypted_password";
     public static final String KEY_GUID                      = "guid";
