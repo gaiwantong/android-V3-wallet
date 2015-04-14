@@ -1,14 +1,10 @@
 package info.blockchain.wallet.multiaddr;
 
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import android.text.style.StyleSpan;
-import android.text.Spannable;
-import android.util.Log;
 //import android.util.Log;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AddressFactory;
+import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.util.WebUtil;
 
 public class MultiAddrFactory	{
@@ -508,6 +504,18 @@ public class MultiAddrFactory	{
 
     public HashMap<String,List<Tx>> getXpubTxs()  {
     	return xpub_txs;
+    }
+
+    public List<Tx> getAllXpubTxs()  {
+
+        List<Tx> ret = new ArrayList<Tx>();
+        for(String key : xpub_txs.keySet())  {
+            ret.addAll(xpub_txs.get(key));
+        }
+
+        Collections.sort(ret, new TxMostRecentDateComparator());
+
+        return ret;
     }
 
     public List<Tx> getLegacyTxs()  {
