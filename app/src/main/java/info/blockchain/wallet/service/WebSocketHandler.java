@@ -39,7 +39,7 @@ import info.blockchain.wallet.R;
 
 public class WebSocketHandler {
 
-	private static String URL = "wss://ws.blockchain.info/inv";		// use secure sockets
+	private static String WEBSOCKET_URL = "wss://ws.blockchain.info/inv";		// use secure sockets
 	private int nfailures = 0;
 	private boolean isRunning = true;
 	private long lastConnectAttempt = 0;
@@ -143,7 +143,7 @@ public class WebSocketHandler {
 		}
 
 		try {
-			mConnection.connect(new URI(URL), new de.tavendo.autobahn.secure.WebSocketConnectionHandler() {			 
+			mConnection.connect(new URI(WEBSOCKET_URL), new de.tavendo.autobahn.secure.WebSocketConnectionHandler() {
 				@Override
 				public void onOpen() {
 					handler.subscribe();
