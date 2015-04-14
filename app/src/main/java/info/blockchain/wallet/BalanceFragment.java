@@ -164,6 +164,7 @@ public class BalanceFragment extends Fragment {
         }
 
 		ArrayList<String> accountList = new ArrayList<String>();
+        accountList.add("All accounts");
 		for(Account item : accounts)accountList.add(item.getLabel());
 
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
@@ -183,23 +184,31 @@ public class BalanceFragment extends Fragment {
 							return;
 						}
 
-						String xpub = account2Xpub(selectedAccount);
+                        if(selectedAccount == 0) {
+
+
+
+                        }
+                        else {
+                            String xpub = account2Xpub(selectedAccount - 1);
 //		        		Log.i("account2Xpub", xpub);
 
-						if(xpub != null) {
-							if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-								txs = txMap.get(xpub);
+                            if(xpub != null) {
+                                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                                    txs = txMap.get(xpub);
 //        		        Log.i("account2Xpub", "M:" + txs.size());
-							}
-						}
-						else {
+                                }
+                            }
+                            else {
 //    		       		 Log.i("account2Xpub", "xpub is null");
-							Account hda = accounts.get(selectedAccount);
-							if(hda instanceof ImportedAccount) {
-								txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                                Account hda = accounts.get(selectedAccount - 1);
+                                if(hda instanceof ImportedAccount) {
+                                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
 //        		        Log.i("account2Xpub", "I:" + txs.size());
-							}
-						}
+                                }
+                            }
+
+                        }
 
 //						tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
 
@@ -547,25 +556,47 @@ public class BalanceFragment extends Fragment {
     }
 
 	private void displayBalance() {
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.SELECTED_FIAT, "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
-        Account hda = accounts.get(selectedAccount);
+        /*
         if(hda instanceof ImportedAccount) {
             btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
         }
-        else {
-            btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
+        else if(selectedAccount == 0) {
+            btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubBalance()) / 1e8);
         }
-    	fiat_balance = btc_fx * btc_balance;
+        else {
+            btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount - 1))) / 1e8);
+        }
+        */
+        Account hda = null;
+        if(selectedAccount == 0) {
+            btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+        }
+        else {
+            hda = accounts.get(selectedAccount - 1);
+            if(hda instanceof ImportedAccount) {
+                btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+            }
+            else {
+                btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount - 1))) / 1e8);
+            }
+        }
 
-        if(hda instanceof ImportedAccount) {
+        fiat_balance = btc_fx * btc_balance;
+
+        if(hda != null && hda instanceof ImportedAccount) {
             span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (getDisplayAmount(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
             span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (getDisplayAmount(MultiAddrFactory.getInstance().getLegacyBalance())));
         }
+        else if(selectedAccount == 0) {
+            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (getDisplayAmount(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+            span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (getDisplayAmount(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()));
+        }
         else {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (getDisplayAmount(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-            span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (getDisplayAmount(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()));
+            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (getDisplayAmount(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount - 1))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+            span2 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat) : (getDisplayAmount(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount - 1))) + " " + getDisplayUnits()));
         }
 		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		span2.setSpan(new RelativeSizeSpan(0.67f), span2.length() - (isBTC ? 3 : getDisplayUnits().length()), span2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
