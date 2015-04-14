@@ -89,7 +89,7 @@ public class Setup2Activity extends Activity	{
                 public boolean onTouch(View v, MotionEvent event) {
 
             		String strAccountName = edAccountName.getText().toString();
-            		PrefsUtil.getInstance(Setup2Activity.this).setValue("_1ST_ACCOUNT_NAME", strAccountName);
+            		PrefsUtil.getInstance(Setup2Activity.this).setValue(KEY_INITIAL_ACCOUNT_NAME, strAccountName);
 
                 	if(_isPairing) {
                 		AppUtil.getInstance(Setup2Activity.this).restartApp();
@@ -140,5 +140,4 @@ public class Setup2Activity extends Activity	{
         	}
 
     }
-
 }

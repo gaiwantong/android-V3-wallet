@@ -7,14 +7,15 @@ import android.content.SharedPreferences.Editor;
 
 public class PrefsUtil {
 
-    public static final String KEY_PIN_LOOKUP         = "pin_kookup_key";
-    public static final String KEY_ENCRYPTED_PASSWORD = "encrypted_password";
-    public static final String KEY_GUID               = "guid";
-    public static final String KEY_SHARED_KEY         = "sharedKey";
-    public static final String KEY_PIN_FAILS          = "pin_fails";
-    // public static final String KEY_LOGGED_IN          = "logged_in";
-    public static final String KEY_BTC_UNITS          = "btcUnits";
-    public static final String KEY_SELECTED_FIAT      = "ccurrency";
+    public static final String KEY_PIN_LOOKUP                = "pin_kookup_key";
+    public static final String KEY_ENCRYPTED_PASSWORD        = "encrypted_password";
+    public static final String KEY_GUID                      = "guid";
+    public static final String KEY_SHARED_KEY                = "sharedKey";
+    public static final String KEY_PIN_FAILS                 = "pin_fails";
+    // public static final String KEY_LOGGED_IN              = "logged_in";
+    public static final String KEY_BTC_UNITS                 = "btcUnits";
+    public static final String KEY_SELECTED_FIAT             = "ccurrency";
+    public static final String KEY_INITIAL_ACCOUNT_NAME      = "_1ST_ACCOUNT_NAME";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;

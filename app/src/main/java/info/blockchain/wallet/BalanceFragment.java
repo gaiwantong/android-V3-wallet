@@ -245,9 +245,10 @@ public class BalanceFragment extends Fragment {
 		displayBalance();
         updateTx();
 
-        if(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", "").length() > 0) {
-    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", ""));
-    		PrefsUtil.getInstance(getActivity()).removeValue("_1ST_ACCOUNT_NAME");
+        // Name account now that wallet has been created
+        if(PrefsUtil.getInstance(getActivity()).getValue(KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(KEY_INITIAL_ACCOUNT_NAME, ""));
+    		PrefsUtil.getInstance(getActivity()).removeValue(KEY_INITIAL_ACCOUNT_NAME);
     		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
         	accountsAdapter.notifyDataSetChanged();
         }
