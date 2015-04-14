@@ -42,7 +42,7 @@
 				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
-				android:textSize="24dp"
+				android:textSize="26dp"
                 android:paddingLeft="64dp"
 				/>
 
