@@ -26,7 +26,7 @@ public class CurrencySelector extends Activity	{
 	    setContentView(R.layout.activity_currency);
 
 //        String[] blockchain_currencies = CurrencyExchange.getInstance(this).getBlockchainCurrencies();
-        String strFiatCode = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, DEFAULT_CURRENCY);
+        String strFiatCode = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
 //        OtherCurrencyExchange.getInstance(this, blockchain_currencies, strFiatCode);
 
         currencies = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
@@ -67,7 +67,7 @@ public class CurrencySelector extends Activity	{
     }
 
     private void initValues() {
-        String strCurrency = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, DEFAULT_CURRENCY);
+        String strCurrency = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
     	int sel = -1;
     	for(int i = 0; i < currencies.length; i++) {
     		if(currencies[i].endsWith(strCurrency)) {

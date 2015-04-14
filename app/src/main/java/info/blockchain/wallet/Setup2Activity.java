@@ -44,100 +44,99 @@ public class Setup2Activity extends Activity	{
     /** Called when the activity is first created. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-    		setContentView(R.layout.setup);
-    	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            setTitle(R.string.app_name);
-            
-            boolean isPairing = false;
-    		Bundle extras = getIntent().getExtras();
-    		if(extras != null && extras.containsKey("pairing"))	{
-    			isPairing = extras.getBoolean("pairing");
-    		}
-    		else	{
-    			isPairing = false;
-    		}
-    		if(extras != null && extras.containsKey("_email"))	{
-    			strEmail = extras.getString("_email");
-    		}
-    		if(extras != null && extras.containsKey("_pw"))	{
-    			strPassword = extras.getString("_pw");
-    		}
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.setup);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setTitle(R.string.app_name);
 
-            ivImage = (ImageView)findViewById(R.id.image1);
-            ivImage.setImageResource(R.drawable.graphic_accounts);
-            tvCaption = (TextView)findViewById(R.id.caption);
-            tvCaption.setText(R.string.setup2);
-            tvCommand = (TextView)findViewById(R.id.command);
-            tvCommand.setVisibility(View.GONE);
-            
-            layoutTop = (ViewStub)findViewById(R.id.content);
-            layoutTop.setLayoutResource(R.layout.include_setup2);
-            View inflated = layoutTop.inflate();
+        boolean isPairing = false;
+        Bundle extras = getIntent().getExtras();
+        if(extras != null && extras.containsKey("pairing"))	{
+            isPairing = extras.getBoolean("pairing");
+        }
+        else	{
+            isPairing = false;
+        }
+        if(extras != null && extras.containsKey("_email"))	{
+            strEmail = extras.getString("_email");
+        }
+        if(extras != null && extras.containsKey("_pw"))	{
+            strPassword = extras.getString("_pw");
+        }
 
-            edAccountName = (EditText)inflated.findViewById(R.id.account_name);
-            /*
-            if(isPairing && PayloadFactory.getInstance(Setup2Activity.this).get().getHdWallets().size() > 0) {
-            	edAccountName.setVisibility(View.GONE);
-            }
-            */
+        ivImage = (ImageView)findViewById(R.id.image1);
+        ivImage.setImageResource(R.drawable.graphic_accounts);
+        tvCaption = (TextView)findViewById(R.id.caption);
+        tvCaption.setText(R.string.setup2);
+        tvCommand = (TextView)findViewById(R.id.command);
+        tvCommand.setVisibility(View.GONE);
 
-            final boolean _isPairing = isPairing;
-            btContinue = (Button)inflated.findViewById(R.id.confirm);
-            btContinue.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
+        layoutTop = (ViewStub)findViewById(R.id.content);
+        layoutTop.setLayoutResource(R.layout.include_setup2);
+        View inflated = layoutTop.inflate();
 
-            		String strAccountName = edAccountName.getText().toString();
-            		PrefsUtil.getInstance(Setup2Activity.this).setValue(KEY_INITIAL_ACCOUNT_NAME, strAccountName);
+        edAccountName = (EditText)inflated.findViewById(R.id.account_name);
+        /*
+        if(isPairing && PayloadFactory.getInstance(Setup2Activity.this).get().getHdWallets().size() > 0) {
+            edAccountName.setVisibility(View.GONE);
+        }
+        */
 
-                	if(_isPairing) {
-                		AppUtil.getInstance(Setup2Activity.this).restartApp();
-                	}
-                	else {
-                    	int currency = spCurrencies.getSelectedItemPosition();
-        	            PrefsUtil.getInstance(Setup2Activity.this).setValue(KEY_SELECTED_FIAT, currenciesLabels[currency].substring(currenciesLabel[currency].length() - 3));
+        final boolean _isPairing = isPairing;
+        btContinue = (Button)inflated.findViewById(R.id.confirm);
+        btContinue.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
 
-        	            //
-        	            // save email here
-        	            //
-        	            
-                		// create wallet
-                		// restart
-			            try {
-				        	HDPayloadBridge.getInstance(Setup2Activity.this).createHDWallet(12, "", 1);
-				        	PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
-				        	
-				        	PayloadFactory.getInstance(Setup2Activity.this).remoteSaveThread();
-				        	
-				        	AppUtil.getInstance(Setup2Activity.this).restartApp();
-			            }
-			            catch(IOException ioe) {
-				        	Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-				        	AppUtil.getInstance(Setup2Activity.this).wipeApp();
-			            }
-			            catch(MnemonicException.MnemonicLengthException mle) {
-				        	Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-				        	AppUtil.getInstance(Setup2Activity.this).wipeApp();
-			            }
+                String strAccountName = edAccountName.getText().toString();
+                PrefsUtil.getInstance(Setup2Activity.this).setValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, strAccountName);
 
-                	}
-
-                	return false;
+                if(_isPairing) {
+                    AppUtil.getInstance(Setup2Activity.this).restartApp();
                 }
-            });
+                else {
+                    int currency = spCurrencies.getSelectedItemPosition();
+                    PrefsUtil.getInstance(Setup2Activity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencyLabels[currency].substring(currencyLabels[currency].length() - 3));
 
-            spCurrencies = (SelectedSpinner)findViewById(R.id.currency);
+                    //
+                    // save email here
+                    //
 
-        	if(!_isPairing) {
-                currencyLabels = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
-                spCurrenciesAdapter = new ArrayAdapter(this, R.layout.spinner_item, currencyLabels);
-            	spCurrenciesAdapter.setDropDownViewResource(R.layout.spinner_item2);
-            	spCurrencies.setAdapter(spCurrenciesAdapter);
-        	}
-        	else {
-        		spCurrencies.setVisibility(View.GONE);
-        	}
+                    // create wallet
+                    // restart
+                    try {
+                        HDPayloadBridge.getInstance(Setup2Activity.this).createHDWallet(12, "", 1);
+                        PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
 
+                        PayloadFactory.getInstance(Setup2Activity.this).remoteSaveThread();
+
+                        AppUtil.getInstance(Setup2Activity.this).restartApp();
+                    }
+                    catch(IOException ioe) {
+                        Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                        AppUtil.getInstance(Setup2Activity.this).wipeApp();
+                    }
+                    catch(MnemonicException.MnemonicLengthException mle) {
+                        Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                        AppUtil.getInstance(Setup2Activity.this).wipeApp();
+                    }
+
+                }
+
+                return false;
+            }
+        });
+
+        spCurrencies = (SelectedSpinner)findViewById(R.id.currency);
+
+        if(!_isPairing) {
+            currencyLabels = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
+            spCurrenciesAdapter = new ArrayAdapter(this, R.layout.spinner_item, currencyLabels);
+            spCurrenciesAdapter.setDropDownViewResource(R.layout.spinner_item2);
+            spCurrencies.setAdapter(spCurrenciesAdapter);
+        }
+        else {
+            spCurrencies.setVisibility(View.GONE);
+        }
     }
 }

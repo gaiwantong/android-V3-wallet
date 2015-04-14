@@ -19,8 +19,9 @@ public class ImportedAccount extends Account {
     public ImportedAccount(String label, List<LegacyAddress> legacyAddresses, List<String> tags, long amount) {
         this.isArchived = false;
         this.nbChangeAddresses = 0;
-        this.strLabel = label;
         this.receiveAddresses = new ArrayList<ReceiveAddress>();
+
+        this.strLabel = label;
         this.legacyAddresses = legacyAddresses;
         this.tags = tags;
         this.amount = amount;
