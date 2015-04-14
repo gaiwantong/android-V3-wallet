@@ -6,33 +6,35 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class PrefsUtil {
-	
-	public static final String PIN_LOOKUP = "pin_kookup_key";
-	public static final String ENCRYPTED_PASSWORD = "encrypted_password";
-	public static final String GUID = "guid";
-	public static final String SHARED_KEY = "sharedKey";
-	public static final String PIN_FAILS = "pin_fails";
-//	public static final String LOGGED_IN = "logged_in";
-    public static final String BTC_UNITS = "btcUnits";
-    public static final String SELECTED_FIAT = "ccurrency";
 
-	private static Context context = null;
-	private static PrefsUtil instance = null;
+    public static final String KEY_PIN_LOOKUP         = "pin_kookup_key";
+    public static final String KEY_ENCRYPTED_PASSWORD = "encrypted_password";
+    public static final String KEY_GUID               = "guid";
+    public static final String KEY_SHARED_KEY         = "sharedKey";
+    public static final String KEY_PIN_FAILS          = "pin_fails";
+    // public static final String KEY_LOGGED_IN          = "logged_in";
+    public static final String KEY_BTC_UNITS          = "btcUnits";
+    public static final String KEY_SELECTED_FIAT      = "ccurrency";
 
-	private PrefsUtil() { ; }
+    private static Context   context  = null;
+    private static PrefsUtil instance = null;
 
-	public static PrefsUtil getInstance(Context ctx) {
+    private PrefsUtil() {
+        ;
+    }
 
-		context = ctx;
-		
-		if(instance == null) {
-			instance = new PrefsUtil();
-		}
-		
-		return instance;
-	}
-	
-	public String getValue(String name, String value) {
+    public static PrefsUtil getInstance(Context ctx) {
+
+        context = ctx;
+
+        if (instance == null) {
+            instance = new PrefsUtil();
+        }
+
+        return instance;
+    }
+
+    public String getValue(String name, String value) {
 	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	    return prefs.getString(name, (value == null || value.length() < 1) ? "" : value);
 	}
@@ -74,11 +76,11 @@ public class PrefsUtil {
 	public boolean clear() {
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		/*
-		editor.remove(PIN_LOOKUP);
-		editor.remove(ENCRYPTED_PASSWORD);
-		editor.remove(GUID);
-		editor.remove(SHARED_KEY);
-		editor.remove(PIN_FAILS);
+		editor.remove(KEY_PIN_LOOKUP);
+		editor.remove(KEY_ENCRYPTED_PASSWORD);
+		editor.remove(KEY_GUID);
+		editor.remove(KEY_SHARED_KEY);
+		editor.remove(KEY_PIN_FAILS);
 		*/
 		editor.clear();
 		return editor.commit();

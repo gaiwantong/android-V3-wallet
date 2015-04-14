@@ -98,8 +98,8 @@ public class ManualPairingFragment extends Fragment {
 						if(decrypted_payload != null) {
 							JSONObject payloadObj = new JSONObject(decrypted_payload);
 							if(payloadObj != null && payloadObj.has("sharedKey")) {
-								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.GUID, guid);
-								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.SHARED_KEY, (String)payloadObj.get("sharedKey"));
+								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
+								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
 
 								if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
 									PayloadFactory.getInstance(getActivity()).setTempPassword(password);

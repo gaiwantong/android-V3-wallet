@@ -10,7 +10,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import org.json.JSONObject;
 
-import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -55,7 +54,7 @@ public class PairingFactory	{
             return false;
         }
 //        Log.i("Pairing", "guid:" + guid);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.GUID, guid);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
 
         String encrypted = components[2];
 
@@ -82,7 +81,7 @@ public class PairingFactory	{
             return false;
         }
 //        Log.i("Pairing", "SharedKey:" + sharedKey);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.SHARED_KEY, sharedKey);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
 
         CharSequenceX password = null;
         try {

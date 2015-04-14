@@ -28,7 +28,7 @@ public class AccessFactory	{
     private AccessFactory()	{ ; }
 
     public static AccessFactory getInstance(Context ctx) {
-    	
+
     	context = ctx;
 
         if (instance == null) {
@@ -60,8 +60,8 @@ public class AccessFactory	{
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
 			if(json.get("success") != null) {
 				String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(_value), AESUtil.PasswordPBKDF2Iterations);
-				PrefsUtil.getInstance(context).setValue(PrefsUtil.ENCRYPTED_PASSWORD, encrypted_password);
-				PrefsUtil.getInstance(context).setValue(PrefsUtil.PIN_LOOKUP, _key);
+				PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
+				PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_LOOKUP, _key);
 				return true;
 			}
 			else {
@@ -79,13 +79,13 @@ public class AccessFactory	{
 
     }
     
-    public CharSequenceX validatePÏN(String pin) {
+    public CharSequenceX validatePIN(String pin) {
     	
     	CharSequenceX password = null;
 
         _pin = pin;
-        _key = PrefsUtil.getInstance(context).getValue(PrefsUtil.PIN_LOOKUP, "");
-        String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.ENCRYPTED_PASSWORD, "");
+        _key = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_PIN_LOOKUP, "");
+        String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
         
         try {
 			final JSONObject json = apiGetValue();

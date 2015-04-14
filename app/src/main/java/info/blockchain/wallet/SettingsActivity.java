@@ -407,14 +407,14 @@ public class SettingsActivity extends PreferenceActivity	{
     private void getUnits()	{
 
         final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-        final int sel = PrefsUtil.getInstance(SettingsActivity.this).getValue(PrefsUtil.BTC_UNITS, 0);
+        final int sel = PrefsUtil.getInstance(SettingsActivity.this).getValue(PrefsUtil.KEY_BTC_UNITS, 0);
 
         new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.select_units)
 //                .setCancelable(false)
                 .setSingleChoiceItems(units, sel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                PrefsUtil.getInstance(SettingsActivity.this).setValue(PrefsUtil.BTC_UNITS, which);
+                                PrefsUtil.getInstance(SettingsActivity.this).setValue(PrefsUtil.KEY_BTC_UNITS, which);
                                 dialog.dismiss();
                             }
                         }

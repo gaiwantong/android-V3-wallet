@@ -172,8 +172,8 @@ public class PinEntryActivity extends Activity {
 //	    	    .setCancelable(false)
 //	    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 //	    	        public void onClick(DialogInterface dialog, int whichButton) {
-//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
-//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_LOOKUP);
 //	    	        	validationDialog();
 //	    	        }
 //	    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -205,7 +205,7 @@ public class PinEntryActivity extends Activity {
 		titleView = (TextView)findViewById(R.id.titleBox);
 		titleView.setTypeface(typeface);
 
-		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
+		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_LOOKUP, "").length() < 1) {
 			validating = false;
 
 			if(userInput == null) {
@@ -617,7 +617,7 @@ public class PinEntryActivity extends Activity {
 	        builder.create().show();
 		}
 
-    	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_FAILS, 0);
+    	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
     	if(fails >= 3)	{
         	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes, Toast.LENGTH_SHORT).show();
 //        	validationDialog();
@@ -839,7 +839,7 @@ public class PinEntryActivity extends Activity {
 						progress = null;
 					}
 
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
 					updatePayloadThread(PayloadFactory.getInstance().getTempPassword());
 
 				}
@@ -896,7 +896,7 @@ public class PinEntryActivity extends Activity {
 		    			progress = null;
 		    		}
 
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
 					TimeOutUtil.getInstance().updatePin();
 					updatePayloadThread(password);
 				}
@@ -907,9 +907,9 @@ public class PinEntryActivity extends Activity {
 		    			progress = null;
 		    		}
 
-		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_FAILS, 0);
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, ++fails);
-//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.LOGGED_IN, false);
+		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
 		        	Toast.makeText(PinEntryActivity.this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
 		    		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -979,8 +979,8 @@ public class PinEntryActivity extends Activity {
 		            	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes_password_accepted, Toast.LENGTH_SHORT).show();
 
 						PayloadFactory.getInstance().setTempPassword(pw);
-			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
-			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
+			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_LOOKUP);
 
 		        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

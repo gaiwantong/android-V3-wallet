@@ -122,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 public void onClick(DialogInterface d, int id) {
                                     d.dismiss();
                                     Class c = null;
-                                    if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.GUID, "").length() < 1) {
+                                    if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                                         c = Setup0Activity.class;
                                     }
                                     else {
@@ -146,13 +146,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 verified = extras.getBoolean("verified");
             }
 
-            if(PrefsUtil.getInstance(this).getValue(PrefsUtil.GUID, "").length() < 1) {
+            if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                 Intent intent = new Intent(MainActivity.this, Setup0Activity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
+            else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_LOOKUP, "").length() < 1) {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -209,7 +209,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         if(TimeOutUtil.getInstance().isTimedOut()) {
             Class c = null;
-            if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.GUID, "").length() < 1) {
+            if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 c = Setup0Activity.class;
             }
             else {

@@ -172,7 +172,7 @@ public class SendFragment extends Fragment {
 
                 edAmount1.removeTextChangedListener(this);
 
-                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 switch(unit) {
@@ -346,7 +346,7 @@ public class SendFragment extends Fragment {
             );
         spAccounts.setSelection(currentSelectedItem);
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
@@ -392,7 +392,7 @@ public class SendFragment extends Fragment {
                 double fiat_amount = btc_fx * btc_amount;
 //                edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
 				edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
-                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
                 tvFiat2.setText(strFiat);
@@ -417,7 +417,7 @@ public class SendFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if(isVisibleToUser) {
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(isBTC ? strBTC : strFiat);
@@ -432,7 +432,7 @@ public class SendFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue("ccurrency", "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
@@ -686,7 +686,7 @@ public class SendFragment extends Fragment {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
@@ -706,7 +706,7 @@ public class SendFragment extends Fragment {
 
         BigInteger amount = BigInteger.ZERO;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = BigInteger.valueOf(value / 1000000L);
@@ -726,7 +726,7 @@ public class SendFragment extends Fragment {
 
         double amount = 0.0;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value / 1000000.0;
@@ -746,7 +746,7 @@ public class SendFragment extends Fragment {
 
         double amount = 0.0;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value * 1000000.0;

@@ -556,7 +556,7 @@ public class BalanceFragment extends Fragment {
     }
 
 	private void displayBalance() {
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.SELECTED_FIAT, "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, "USD");
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         /*
@@ -607,7 +607,7 @@ public class BalanceFragment extends Fragment {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
@@ -627,7 +627,7 @@ public class BalanceFragment extends Fragment {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((value * 1000000.0) / 1e8);
@@ -645,7 +645,7 @@ public class BalanceFragment extends Fragment {
 
     private String getDisplayUnits() {
 
-        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
     }
 

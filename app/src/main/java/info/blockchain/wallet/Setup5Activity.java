@@ -34,8 +34,6 @@ import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 
@@ -196,8 +194,8 @@ public class Setup5Activity extends Activity	{
                         if(decrypted_payload != null) {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
                             if(payloadObj != null && payloadObj.has("sharedKey")) {
-                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.GUID, guid);
-                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.SHARED_KEY, (String)payloadObj.get("sharedKey"));
+                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.KEY_GUID, guid);
+                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
 
                                 if(HDPayloadBridge.getInstance(Setup5Activity.this).init(password)) {
                                     PayloadFactory.getInstance(Setup5Activity.this).setTempPassword(password);
