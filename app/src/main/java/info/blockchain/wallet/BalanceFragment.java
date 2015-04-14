@@ -429,7 +429,7 @@ public class BalanceFragment extends Fragment {
 
 		    	TextView tvTS = (TextView)view.findViewById(R.id.ts);
 				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				tvTS.setTextColor(0xffadc0c9);
+//				tvTS.setTextColor(0xffadc0c9);
 				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
 				
 		    	TextView tvDirection = (TextView)view.findViewById(R.id.direction);
@@ -444,15 +444,15 @@ public class BalanceFragment extends Fragment {
 				tvDirection.setText(msg);
 				*/
 
-		    	TextView tvNote = (TextView)view.findViewById(R.id.note);
-				tvNote.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				if(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()) != null) {
-					tvNote.setVisibility(View.VISIBLE);
-					tvNote.setText(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()));
-				}
-				else {
-					tvNote.setVisibility(View.INVISIBLE);
-				}
+//		    	TextView tvNote = (TextView)view.findViewById(R.id.note);
+//				tvNote.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+//				if(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()) != null) {
+//					tvNote.setVisibility(View.VISIBLE);
+//					tvNote.setText(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()));
+//				}
+//				else {
+//					tvNote.setVisibility(View.INVISIBLE);
+//				}
 
 		        if(isBTC) {
 //                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);

@@ -28,12 +28,13 @@
 				android:id="@+id/balance1"
 				android:layout_width="match_parent"
 				android:layout_height="72dp"
-				android:layout_gravity="center_horizontal|center_vertical"
+				android:layout_gravity="left|center_vertical"
 				android:background="@color/blockchain_blue"
-				android:gravity="center_horizontal|center_vertical"
+				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
 				android:textSize="24dp"
+				android:paddingLeft="64dp"
 				/>
 
 			<LinearLayout
@@ -48,8 +49,8 @@
 					android:id="@+id/txList"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:layout_marginLeft="16dp"
-					android:layout_marginRight="16dp"
+					android:requiresFadingEdge="vertical"
+					android:fadingEdgeLength="28dp"
 					android:background="@color/white"
 					android:divider="@drawable/list_divider"
 					android:listSelector="@android:color/transparent"
