@@ -53,6 +53,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -167,7 +168,52 @@ public class ReceiveFragment extends Fragment {
         edAmount1.addTextChangedListener(new TextWatcher()	{
         	public void afterTextChanged(Editable s) {
 
-				if(textChangeAllowed) {
+                edAmount1.removeTextChangedListener(this);
+
+                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int max_len = 8;
+                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
+                switch(unit) {
+                    case MonetaryUtil.MICRO_BTC:
+                        max_len = 2;
+                        break;
+                    case MonetaryUtil.MILLI_BTC:
+                        max_len = 4;
+                        break;
+                    default:
+                        max_len = 8;
+                        break;
+                }
+                btcFormat.setMaximumFractionDigits(max_len + 1);
+                btcFormat.setMinimumFractionDigits(0);
+
+                DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+                char sep = decFormatSymbols.getDecimalSeparator();
+
+                try	{
+                    double d = Double.parseDouble(s.toString());
+                    String s1 = btcFormat.format(d);
+//                    Log.i("SendFragment", "s1:" + s1);
+                    if(s1.indexOf(sep) != -1)	{
+                        String dec = s1.substring(s1.indexOf(sep));
+//                        Log.i("SendFragment", "dec:" + dec);
+                        if(dec.length() > 0)	{
+                            dec = dec.substring(1);
+//                            Log.i("SendFragment", "dec sub:" + dec);
+                            if(dec.length() > max_len)	{
+                                edAmount1.setText(s1.substring(0, s1.length() - 1));
+//                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
+                            }
+                        }
+                    }
+                }
+                catch(NumberFormatException nfe)	{
+                    ;
+                }
+
+                edAmount1.addTextChangedListener(this);
+
+                if(textChangeAllowed) {
 					textChangeAllowed = false;
 					updateFiatTextField(s.toString());
 
