@@ -244,7 +244,40 @@ public class SendFragment extends Fragment {
 //					validateSpend(false);
 //				}
 
-				if(textChangeAllowed) {
+                edAmount2.removeTextChangedListener(this);
+
+                int max_len = 2;
+                NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
+                fiatFormat.setMaximumFractionDigits(max_len + 1);
+                fiatFormat.setMinimumFractionDigits(0);
+
+                DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+                char sep = decFormatSymbols.getDecimalSeparator();
+
+                try	{
+                    double d = Double.parseDouble(s.toString());
+                    String s1 = fiatFormat.format(d);
+//                    Log.i("SendFragment", "s1:" + s1);
+                    if(s1.indexOf(sep) != -1)	{
+                        String dec = s1.substring(s1.indexOf(sep));
+//                        Log.i("SendFragment", "dec:" + dec);
+                        if(dec.length() > 0)	{
+                            dec = dec.substring(1);
+//                            Log.i("SendFragment", "dec sub:" + dec);
+                            if(dec.length() > max_len)	{
+                                edAmount2.setText(s1.substring(0, s1.length() - 1));
+//                                Log.i("SendFragment", "edAmount1 reset:" + s1.substring(0, s1.length() - 1));
+                            }
+                        }
+                    }
+                }
+                catch(NumberFormatException nfe)	{
+                    ;
+                }
+
+                edAmount2.addTextChangedListener(this);
+
+                if(textChangeAllowed) {
 					textChangeAllowed = false;
 					updateBtcTextField(s.toString());
 
