@@ -37,12 +37,13 @@
 				android:id="@+id/balance1"
 				android:layout_width="match_parent"
 				android:layout_height="72dp"
-				android:layout_gravity="center_horizontal|center_vertical"
+				android:layout_gravity="left|center_vertical"
 				android:background="@color/blockchain_blue"
-				android:gravity="center_horizontal|center_vertical"
+				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
 				android:textSize="24dp"
+                android:paddingLeft="64dp"
 				/>
 
 			<LinearLayout
