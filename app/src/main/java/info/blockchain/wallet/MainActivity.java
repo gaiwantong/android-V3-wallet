@@ -697,7 +697,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     e.printStackTrace();
                 }
                 ExchangeRateFactory.getInstance(MainActivity.this).setData(response);
-                ExchangeRateFactory.getInstance(MainActivity.this).parse();
+                ExchangeRateFactory.getInstance(MainActivity.this).updateFxPricesForEnabledCurrencies();
 
                 handler.post(new Runnable() {
                     @Override

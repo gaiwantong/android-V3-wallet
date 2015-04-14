@@ -204,13 +204,13 @@ public class ExchangeRateFactory	{
      * Parse the data supplied to this instance.
      * 
      */
-    public void parse()	 {
+    public void updateFxPricesForEnabledCurrencies()	 {
     	for(int i = 0; i < currencies.length; i++)	 {
-        	get(currencies[i]);
+        	setFxPriceForCurrency(currencies[i]);
     	}
     }
 
-    private void get(String currency)	 {
+    private void setFxPriceForCurrency(String currency)	 {
         try {
     		JSONObject jsonObject = new JSONObject(strData);
     		if(jsonObject != null)	{
@@ -228,5 +228,4 @@ public class ExchangeRateFactory	{
 			fxSymbols.put(currency, null);
     	}
     }
-
 }
