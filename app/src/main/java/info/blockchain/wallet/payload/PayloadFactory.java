@@ -345,8 +345,8 @@ public class PayloadFactory	{
     	payload.setGuid(guid);
     	payload.setSharedKey(sharedKey);
     	
-    	PrefsUtil.getInstance(context).setValue("guid", guid);
-    	PrefsUtil.getInstance(context).setValue("sharedKey", sharedKey);
+    	PrefsUtil.getInstance(context).setValue(KEY_GUID, guid);
+    	PrefsUtil.getInstance(context).setValue(KEY_SHARED_KEY, sharedKey);
     	
     	HDWallet payloadHDWallet = new HDWallet();
     	payloadHDWallet.setSeedHex(hdw.getSeedHex());
