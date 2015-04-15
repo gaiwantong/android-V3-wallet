@@ -240,7 +240,7 @@ public class BalanceFragment extends Fragment {
         });
         */
 
-		displayBalance();
+        displayBalance();
         updateTx();
 
         if(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", "").length() > 0) {
@@ -600,7 +600,7 @@ public class BalanceFragment extends Fragment {
         */
         Account hda = null;
         if(selectedAccount == 0) {
-            btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+            btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
         }
         else {
             hda = accounts.get(selectedAccount - 1);
