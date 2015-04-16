@@ -513,9 +513,26 @@ public class MultiAddrFactory	{
             ret.addAll(xpub_txs.get(key));
         }
 
-        Collections.sort(ret, new TxMostRecentDateComparator());
+        List<Tx> ret_dedup = new ArrayList<Tx>();
+        List<String> seen_moves = new ArrayList<String>();
+        for(Tx tx : ret)  {
+            if(tx.isMove())  {
+                if(seen_moves.contains(tx.getHash()))  {
+                    continue;
+                }
+                else  {
+                    ret_dedup.add(tx);
+                    seen_moves.add(tx.getHash());
+                }
+            }
+            else  {
+                ret_dedup.add(tx);
+            }
+        }
 
-        return ret;
+        Collections.sort(ret_dedup, new TxMostRecentDateComparator());
+
+        return ret_dedup;
     }
 
     public List<Tx> getLegacyTxs()  {
