@@ -164,7 +164,7 @@ public class BalanceFragment extends Fragment {
         }
 
 		ArrayList<String> accountList = new ArrayList<String>();
-        accountList.add("All accounts");
+        accountList.add(getActivity().getResources().getString(R.string.all_accounts));
 		for(Account item : accounts)accountList.add(item.getLabel());
 
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
@@ -185,9 +185,7 @@ public class BalanceFragment extends Fragment {
 						}
 
                         if(selectedAccount == 0) {
-
-
-
+                            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
                         }
                         else {
                             String xpub = account2Xpub(selectedAccount - 1);
@@ -242,7 +240,7 @@ public class BalanceFragment extends Fragment {
         });
         */
 
-		displayBalance();
+        displayBalance();
         updateTx();
 
         // Name account now that wallet has been created
@@ -432,9 +430,9 @@ public class BalanceFragment extends Fragment {
 
 		    	TextView tvTS = (TextView)view.findViewById(R.id.ts);
 				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				tvTS.setTextColor(0xffadc0c9);
+//				tvTS.setTextColor(0xffadc0c9);
 				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
-				
+
 		    	TextView tvDirection = (TextView)view.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 //				tvDirection.setTextColor(0xff828181);
@@ -447,15 +445,15 @@ public class BalanceFragment extends Fragment {
 				tvDirection.setText(msg);
 				*/
 
-		    	TextView tvNote = (TextView)view.findViewById(R.id.note);
-				tvNote.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				if(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()) != null) {
-					tvNote.setVisibility(View.VISIBLE);
-					tvNote.setText(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()));
-				}
-				else {
-					tvNote.setVisibility(View.INVISIBLE);
-				}
+//		    	TextView tvNote = (TextView)view.findViewById(R.id.note);
+//				tvNote.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+//				if(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()) != null) {
+//					tvNote.setVisibility(View.VISIBLE);
+//					tvNote.setText(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()));
+//				}
+//				else {
+//					tvNote.setVisibility(View.INVISIBLE);
+//				}
 
 		        if(isBTC) {
 //                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);
@@ -493,10 +491,9 @@ public class BalanceFragment extends Fragment {
                     }
                 });
 
-                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
-                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+				tvTS.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							String strTx = tx.getHash();
@@ -505,9 +502,40 @@ public class BalanceFragment extends Fragment {
 								startActivity(browserIntent);
 							}
 						}
-                        return true;
-                    }
-                });
+						return true;
+					}
+				});
+
+				tvDirection.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							String strTx = tx.getHash();
+							if (strTx != null) {
+								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+								startActivity(browserIntent);
+							}
+						}
+						return true;
+					}
+				});
+
+//                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
+//                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
+//                    @Override
+//                    public boolean onTouch(View v, MotionEvent event) {
+//
+//						if (event.getAction() == MotionEvent.ACTION_UP) {
+//							String strTx = tx.getHash();
+//							if (strTx != null) {
+//								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+//								startActivity(browserIntent);
+//							}
+//						}
+//                        return true;
+//                    }
+//                });
 
 				/*
 		    	TextView tvTags = (TextView)view.findViewById(R.id.tags);
@@ -573,7 +601,7 @@ public class BalanceFragment extends Fragment {
         */
         Account hda = null;
         if(selectedAccount == 0) {
-            btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+            btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
         }
         else {
             hda = accounts.get(selectedAccount - 1);
@@ -651,29 +679,31 @@ public class BalanceFragment extends Fragment {
     }
 
     private void updateTx() {
+
+        txMap = MultiAddrFactory.getInstance().getXpubTxs();
 		
     	if(accounts == null || accounts.size() < 1) {
     		return;
     	}
 
-        txMap = MultiAddrFactory.getInstance().getXpubTxs();
-        String xpub = account2Xpub(selectedAccount);
-        if(xpub != null) {
-			if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-		        txs = txMap.get(xpub); 
-			}
-			else {
-				txs = new ArrayList<Tx>();
-			}
+        if(selectedAccount == 0) {
+            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
         }
         else {
-	        Account hda = accounts.get(selectedAccount);
-	        if(hda instanceof ImportedAccount) {
-	            txs = MultiAddrFactory.getInstance().getLegacyTxs();
-	        }
-			else {
-				txs = new ArrayList<Tx>();
-			}
+            String xpub = account2Xpub(selectedAccount - 1);
+
+            if(xpub != null) {
+                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                    txs = txMap.get(xpub);
+                }
+            }
+            else {
+                Account hda = accounts.get(selectedAccount - 1);
+                if(hda instanceof ImportedAccount) {
+                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                }
+            }
+
         }
 
 	}

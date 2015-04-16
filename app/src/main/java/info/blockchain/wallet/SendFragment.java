@@ -26,7 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-import android.util.Log;
+//import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Utils;
@@ -239,12 +239,6 @@ public class SendFragment extends Fragment {
         tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
         edAmount2.addTextChangedListener(new TextWatcher()	{
 			public void afterTextChanged(Editable s) {
-
-//				updateTextFields();
-//
-//				if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
-//					validateSpend(false);
-//				}
 
                 edAmount2.removeTextChangedListener(this);
 

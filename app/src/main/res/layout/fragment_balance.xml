@@ -42,7 +42,7 @@
 				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
-				android:textSize="24dp"
+				android:textSize="26dp"
                 android:paddingLeft="64dp"
 				/>
 
@@ -58,11 +58,12 @@
 					android:id="@+id/txList"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:layout_marginLeft="16dp"
-					android:layout_marginRight="16dp"
+					android:requiresFadingEdge="vertical"
+					android:fadingEdgeLength="28dp"
 					android:background="@color/white"
 					android:divider="@drawable/list_divider"
 					android:listSelector="@android:color/transparent"
+                    android:layout_marginTop="20dp"
 
 					/>
 			</LinearLayout>
@@ -79,7 +80,7 @@
 				android:layout_alignBottom="@+id/balance1"
 				android:layout_alignParentRight="true"
 				android:layout_marginBottom="-40dp"
-				android:layout_marginRight="16dp"/>
+				android:layout_marginRight="10dp"/>
 
 		</RelativeLayout>
 

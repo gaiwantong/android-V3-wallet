@@ -85,6 +85,8 @@
     <string name="create_pin">Create Pin</string>
     <string name="confirm_pin">Confirm Pin</string>
     <string name="create_pin_failed">PIN creation failed. Please pair device again.</string>
+    <string name="pairing_failed">Pairing failed. Please try again.</string>
+    <string name="pairing_success">Pairing OK.</string>
 
     <string name="check_connectivity_exit">Blockchain Wallet cannot obtain an Internet connection. Please check the connectivity on your device and try again.</string>
     <string name="dialog_continue">Continue</string>
@@ -119,7 +121,8 @@
 	<string name="strength_weak">Weak</string>
 	<string name="strength_medium">Medium</string>
 	<string name="strength_strong">Strong</string>
-	<string name="strength_very_strong">Very Strong</string>
+    <string name="strength_very_strong">Very Strong</string>
+    <string name="all_accounts">All Accounts</string>
 
     <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>

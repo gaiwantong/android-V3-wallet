@@ -87,7 +87,8 @@ public class AddressFactory {
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
             if(chain == RECEIVE_CHAIN && ((idx - PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses()) < (LOOKAHEAD_GAP - 1)))	{
-                HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
+//                HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(chain).incReceive();
             }
             PayloadFactory.getInstance(context).remoteSaveThread();
 

@@ -91,7 +91,7 @@ public class ManualPairingFragment extends Fragment {
 						}
 						catch(Exception e) {
 							e.printStackTrace();
-							Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 							AppUtil.getInstance(getActivity()).wipeApp();
 						}
 
@@ -103,13 +103,13 @@ public class ManualPairingFragment extends Fragment {
 
 								if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
 									PayloadFactory.getInstance(getActivity()).setTempPassword(password);
-									Toast.makeText(getActivity(), "Pairing OK", Toast.LENGTH_SHORT).show();
+									Toast.makeText(getActivity(), R.string.pairing_success, Toast.LENGTH_SHORT).show();
 									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
 									intent.putExtra("pairing", true);
 									getActivity().startActivity(intent);
 								}
 								else {
-									Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+									Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 									AppUtil.getInstance(getActivity()).wipeApp();
 								}
 
@@ -117,7 +117,7 @@ public class ManualPairingFragment extends Fragment {
 
 						}
 						else {
-							Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 							AppUtil.getInstance(getActivity()).wipeApp();
 						}
 
@@ -126,12 +126,12 @@ public class ManualPairingFragment extends Fragment {
 				}
 				catch(JSONException je) {
 					je.printStackTrace();
-					Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 					AppUtil.getInstance(getActivity()).wipeApp();
 				}
 				catch(Exception e) {
 					e.printStackTrace();
-					Toast.makeText(getActivity(), "Pairing KO", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 					AppUtil.getInstance(getActivity()).wipeApp();
 				}
 
