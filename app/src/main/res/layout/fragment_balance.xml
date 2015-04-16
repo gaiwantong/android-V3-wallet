@@ -63,6 +63,7 @@
 					android:background="@color/white"
 					android:divider="@drawable/list_divider"
 					android:listSelector="@android:color/transparent"
+                    android:layout_marginTop="20dp"
 
 					/>
 			</LinearLayout>
