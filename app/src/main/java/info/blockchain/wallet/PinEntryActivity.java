@@ -21,7 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -42,96 +41,92 @@ import info.blockchain.wallet.util.TypefaceUtil;
 
 public class PinEntryActivity extends Activity {
 
-	String userEntered = "";
+    String userEntered = "";
 
-	final int PIN_LENGTH = 4;
-	boolean keyPadLockedFlag = false;
+    final int PIN_LENGTH = 4;
+    boolean keyPadLockedFlag = false;
 
-	TextView titleView = null;
+    TextView titleView = null;
 
-	TextView pinBox0 = null;
-	TextView pinBox1 = null;
-	TextView pinBox2 = null;
-	TextView pinBox3 = null;
+    TextView pinBox0 = null;
+    TextView pinBox1 = null;
+    TextView pinBox2 = null;
+    TextView pinBox3 = null;
 
-	TextView[] pinBoxArray = null;
+    TextView[] pinBoxArray = null;
 
-	TextView statusView = null;
+    TextView statusView = null;
 
-	LinearLayout button0 = null;
-	LinearLayout button1 = null;
-	LinearLayout button2 = null;
-	LinearLayout button3 = null;
-	LinearLayout button4 = null;
-	LinearLayout button5 = null;
-	LinearLayout button6 = null;
-	LinearLayout button7 = null;
-	LinearLayout button8 = null;
-	LinearLayout button9 = null;
-//	Button buttonForgot = null; //Forgot pin button disabled in new UI
-	LinearLayout buttonDeleteBack = null;
+    LinearLayout button0          = null;
+    LinearLayout button1          = null;
+    LinearLayout button2          = null;
+    LinearLayout button3          = null;
+    LinearLayout button4          = null;
+    LinearLayout button5          = null;
+    LinearLayout button6          = null;
+    LinearLayout button7          = null;
+    LinearLayout button8          = null;
+    LinearLayout button9          = null;
+    //	Button buttonForgot = null; //Forgot pin button disabled in new UI
+    LinearLayout buttonDeleteBack = null;
 
-	private boolean validating = true;
-	private String userInput = null;
+    private boolean validating     = true;
+    private String  unconfirmedPin = null;
 
-	public String strUri = null;
+    public String strUri = null;
 
-	private ProgressDialog progress = null;
+    private ProgressDialog progress = null;
 
-	private String strEmail = null;
-	private String strPassword = null;
+    private String strEmail    = null;
+    private String strPassword = null;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		setContentView(R.layout.activity_pin_entry);
+        setContentView(R.layout.activity_pin_entry);
 
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		boolean isPairing = false;
-		Bundle extras = getIntent().getExtras();
+        boolean isPairing = false;
+        Bundle extras = getIntent().getExtras();
 
-		if(extras != null && extras.containsKey("pairing"))	{
-			isPairing = extras.getBoolean("pairing");
-		}
-		else	{
-			isPairing = false;
-		}
-		if(extras != null && extras.containsKey("_email"))	{
-			strEmail = extras.getString("_email");
-		}
-		if(extras != null && extras.containsKey("_pw"))	{
-			strPassword = extras.getString("_pw");
-		}
+        if (extras != null && extras.containsKey("pairing")) {
+            isPairing = extras.getBoolean("pairing");
+        } else {
+            isPairing = false;
+        }
+        if (extras != null && extras.containsKey("_email")) {
+            strEmail = extras.getString("_email");
+        }
+        if (extras != null && extras.containsKey("_pw")) {
+            strPassword = extras.getString("_pw");
+        }
 
-		if(isPairing) {
-			AppUtil.getInstance(this).restartApp();
-		}
-		else if(extras != null){
+        if (isPairing) {
+            AppUtil.getInstance(this).restartApp();
+        } else if (extras != null) {
 
-			//
-			// save email here
-			//
+            //
+            // save email here
+            //
 
-			// create wallet
-			// restart
-			try {
-				HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
-				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
+            // create wallet
+            // restart
+            try {
+                HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
+                PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("1st account");
 
-				PayloadFactory.getInstance(this).remoteSaveThread();
+                PayloadFactory.getInstance(this).remoteSaveThread();
 
-				AppUtil.getInstance(this).restartApp();
-			}
-			catch(IOException ioe) {
-				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-				AppUtil.getInstance(this).wipeApp();
-			}
-			catch(MnemonicException.MnemonicLengthException mle) {
+                AppUtil.getInstance(this).restartApp();
+            } catch (IOException ioe) {
+                Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                AppUtil.getInstance(this).wipeApp();
+            } catch (MnemonicException.MnemonicLengthException mle) {
 				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
 				AppUtil.getInstance(this).wipeApp();
 			}
@@ -152,11 +147,11 @@ public class PinEntryActivity extends Activity {
 
 		Typeface typeface = TypefaceUtil.getInstance(this).getRobotoTypeface();
 
-		if(PrefsUtil.getInstance(this).getValue("userInput", "").length() > 0) {
-			userInput = PrefsUtil.getInstance(this).getValue("userInput", "");
+		if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "").length() > 0) {
+			unconfirmedPin = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
 		}
 		else {
-			userInput = null;
+			unconfirmedPin = null;
 		}
 		userEntered = "";
 
@@ -208,7 +203,7 @@ public class PinEntryActivity extends Activity {
 		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_LOOKUP, "").length() < 1) {
 			validating = false;
 
-			if(userInput == null) {
+			if(unconfirmedPin == null) {
 				titleView.setText(R.string.create_pin);
 			}
 			else {
@@ -250,13 +245,13 @@ public class PinEntryActivity extends Activity {
 
 					if(userEntered.length() == PIN_LENGTH)	{
 						if(validating)	{
-							PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
+							PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
 							validatePIN(userEntered);
 						}
 						else	{
-							if(userInput != null)	{
-								PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
-								if(userInput.equals(userEntered))	{
+							if(unconfirmedPin != null)	{
+								PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
+								if(unconfirmedPin.equals(userEntered))	{
 									createPINThread(userEntered);
 								}
 								else	{
@@ -269,13 +264,13 @@ public class PinEntryActivity extends Activity {
 							else	{
 								if(userEntered.equals("0000"))	{
 									Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
+									PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
 					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 					        		startActivity(intent);
 								}
 								else	{
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", userEntered);
+									PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, userEntered); // It's not particularly safe to write this value to disk.
 					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 					        		startActivity(intent);
@@ -1031,5 +1026,4 @@ public class PinEntryActivity extends Activity {
 			}
 		}).start();
 	}
-
 }

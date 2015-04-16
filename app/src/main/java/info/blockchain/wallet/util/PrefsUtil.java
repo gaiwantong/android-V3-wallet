@@ -9,7 +9,6 @@ public class PrefsUtil {
 
     public static final String DEFAULT_CURRENCY              = "USD";
 
-
     public static final String KEY_PIN_LOOKUP                = "pin_kookup_key";
     public static final String KEY_ENCRYPTED_PASSWORD        = "encrypted_password";
     public static final String KEY_GUID                      = "guid";
@@ -19,6 +18,7 @@ public class PrefsUtil {
     public static final String KEY_BTC_UNITS                 = "btcUnits";
     public static final String KEY_SELECTED_FIAT             = "ccurrency";
     public static final String KEY_INITIAL_ACCOUNT_NAME      = "_1ST_ACCOUNT_NAME";
+    public static final String KEY_UNCONFIRMED_PIN           = "userInput";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;
