@@ -164,7 +164,7 @@ public class BalanceFragment extends Fragment {
         }
 
 		ArrayList<String> accountList = new ArrayList<String>();
-        accountList.add("All accounts");
+        accountList.add(getActivity().getResources().getString(R.string.all_accounts));
 		for(Account item : accounts)accountList.add(item.getLabel());
 
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
