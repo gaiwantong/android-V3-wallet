@@ -30,7 +30,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,7 +47,6 @@ import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
 import android.widget.Toast;
 import android.os.Parcelable;
 import android.text.InputType;
-import android.util.Log;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -152,7 +150,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_LOOKUP, "").length() < 1) {
+            else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
