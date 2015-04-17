@@ -40,7 +40,7 @@
 
     <string name="options_id">Blockchain Identifier</string>
     <string name="options_id2">Your Blockchain identifier</string>
-    <string name="preferences_about_title">About us</string>
+    <string name="preferences_about_title">About Us</string>
     <string name="about_us">About us</string>
 
     <string name="ask_you_sure_exit">Are you sure you want to exit Blockchain Wallet?</string>
