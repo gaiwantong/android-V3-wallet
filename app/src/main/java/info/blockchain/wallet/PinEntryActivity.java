@@ -240,6 +240,7 @@ public class PinEntryActivity extends Activity {
 							validatePIN(userEntered);
 						}
 						else	{
+                            // If we're confirming a previously entered PIN
 							if(unconfirmedPin != null)	{
 								PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
 								if(unconfirmedPin.equals(userEntered))	{
@@ -252,23 +253,23 @@ public class PinEntryActivity extends Activity {
 					        		startActivity(intent);
 								}
 							}
+                            // If we're entering in a PIN to be confirmed
 							else	{
-								if(userEntered.equals("0000"))	{
+                                // Throw error on '0000' to avoid server-side type issue
+                                if(userEntered.equals("0000"))	{
 									Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, "");
-					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					        		startActivity(intent);
+                                    userEntered = "";
 								}
-								else	{
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, userEntered); // It's not particularly safe to write this value to disk.
-					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					        		startActivity(intent);
-								}
-							}
-						}
 
+                                // Cache unconfirmed PIN and restart intent
+                                // It's not particularly safe to write this value to disk.
+                                PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_UNCONFIRMED_PIN, userEntered);
+
+                                Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+						}
 					}
 				}
 				else	{
