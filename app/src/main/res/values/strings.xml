@@ -11,6 +11,8 @@
     <string name="app_name">Blockchain HD</string>
     <string name="action_settings">Settings</string>
 
+    <string name="all_accounts">All Accounts</string>
+
     <string name="send_bitcoin">Send Bitcoin</string>
     <string name="receive_bitcoin">Receive Bitcoin</string>
     <string name="blockchain">Blockchain</string>
@@ -36,7 +38,7 @@
     <string name="manual_pairing_prompt">For manual pairing: Enter your 36 character wallet identifier including dashes and your password. Make sure that 2FA is disabled.</string>
     -->
 
-    <string name="options_id">Blockchain identifier</string>
+    <string name="options_id">Blockchain Identifier</string>
     <string name="options_id2">Your Blockchain identifier</string>
     <string name="preferences_about_title">About us</string>
     <string name="about_us">About us</string>
@@ -45,23 +47,23 @@
     <string name="ask_you_sure_unpair">Are you sure you want to unpair your device?</string>
     <string name="ask_you_sure_forget">Are you sure you want to erase your PIN code and define a new one?</string>
 
-    <string name="select_currency">Select currency</string>
+    <string name="select_currency">Select Currency</string>
     <string name="options_currency">Currency</string>
     <string name="options_currency2">Your preferred fiat currency</string>
 
-    <string name="options_unpair">Unpair device</string>
+    <string name="options_unpair">Unpair Device</string>
     <string name="options_unpair2">Unpair this device to import a different wallet</string>
-    <string name="options_mnemonic">Show mnemonic</string>
+    <string name="options_mnemonic">Show Mnemonic</string>
     <string name="options_mnemonic2">Show mnemonic for this wallet</string>
-    <string name="options_hexseed">Show hex seed</string>
+    <string name="options_hexseed">Show Hex Seed</string>
     <string name="options_hexseed2">Show hex seed for this wallet</string>
-    <string name="options_passphrase">Show BIP39 passphrase</string>
-    <string name="options_passphrase2">Show BIP39 passphrase for this wallet</string>
-    <string name="options_units">BTC units</string>
+    <string name="options_passphrase">Show BIP39 Passphrase</string>
+    <string name="options_passphrase2">Show BIP39 Passphrase for this wallet</string>
+    <string name="options_units">BTC Units</string>
     <string name="options_units2">BTC, mBTC or bits</string>
-    <string name="options_tos">Terms of service</string>
+    <string name="options_tos">Terms of Service</string>
     <string name="options_tos2">Blockchain Android Bitcoin Wallet terms of service</string>
-    <string name="options_privacy">Privacy policy</string>
+    <string name="options_privacy">Privacy Policy</string>
     <string name="options_privacy2">Blockchain privacy policy</string>
 
     <string name="invalid_email">Invalid email address</string>
@@ -121,8 +123,7 @@
 	<string name="strength_weak">Weak</string>
 	<string name="strength_medium">Medium</string>
 	<string name="strength_strong">Strong</string>
-    <string name="strength_very_strong">Very Strong</string>
-    <string name="all_accounts">All Accounts</string>
+	<string name="strength_very_strong">Very Strong</string>
 
     <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>
