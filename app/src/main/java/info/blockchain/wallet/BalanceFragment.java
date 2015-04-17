@@ -298,7 +298,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new SendFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
@@ -311,7 +311,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
