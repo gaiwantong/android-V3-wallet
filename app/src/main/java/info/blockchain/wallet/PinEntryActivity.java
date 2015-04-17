@@ -44,7 +44,6 @@ public class PinEntryActivity extends Activity {
     String userEntered = "";
 
     final int PIN_LENGTH = 4;
-    boolean keyPadLockedFlag = false;
 
     TextView titleView = null;
 
@@ -184,10 +183,6 @@ public class PinEntryActivity extends Activity {
 		buttonDeleteBack = (LinearLayout) findViewById(R.id.buttonDeleteBack);
 		buttonDeleteBack.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if(keyPadLockedFlag == true)	{
-					return;
-				}
-
 				if(userEntered.length() > 0)	{
 					for(int i = 0; i < pinBoxArray.length; i++)	{
 						pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);//reset pin buttons blank
@@ -230,10 +225,6 @@ public class PinEntryActivity extends Activity {
 
 		View.OnClickListener pinButtonHandler = new View.OnClickListener() {
 			public void onClick(View v) {
-
-				if(keyPadLockedFlag == true)	{
-					return;
-				}
 
 				LinearLayout pressedButton = (LinearLayout)v;
 
@@ -695,8 +686,6 @@ public class PinEntryActivity extends Activity {
 			}
 
 			userEntered = "";
-
-			keyPadLockedFlag = false;
 		}
 
 		@Override
