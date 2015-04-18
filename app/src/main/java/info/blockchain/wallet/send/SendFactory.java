@@ -81,7 +81,7 @@ public class SendFactory	{
      * @param  int accountIdx HD account index, -1 if legacy spend
      * @param  String toAddress Receiving public address
      * @param  BigInteger amount Spending amount (not including fee)
-     * @param  LegacyAddress If legacy spend, spend from this LegacyAddress
+     * @param  LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
      * @param  BigInteger fee Miner's fee
      * @param  String note Note to be attached to this tx
      * @param  OpCallback opc
@@ -272,7 +272,7 @@ public class SendFactory	{
      * of selected outputs >= totalAmount
      *
      * @param  boolean isHD true == HD account spend, false == legacy address spend
-     * @param  String[] Sending addresses (contains XPUB if HD spend, public addresses if legacy spend
+     * @param  String[] Sending addresses (contains 1 XPUB if HD spend, public address(es) if legacy spend
      * @param  BigInteger totalAmount Amount including fee
      *
      */
@@ -456,11 +456,8 @@ public class SendFactory	{
 			BitcoinScript change_script;
 			if (changeAddress != null) {
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
-			} else if (changeOutPoint != null) {
-				BitcoinScript inputScript = new BitcoinScript(changeOutPoint.getConnectedPubKeyScript());
-				// Return change to the first address
-				change_script = BitcoinScript.createSimpleOutBitcoinScript(inputScript.getAddress());
-			} else {
+			}
+            else {
 				throw new Exception("Invalid transaction attempt");
 			}
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
