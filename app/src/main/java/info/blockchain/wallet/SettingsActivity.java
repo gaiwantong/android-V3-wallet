@@ -1,30 +1,27 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-
-import org.apache.commons.codec.DecoderException;
-
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
 import android.text.InputType;
 import android.widget.EditText;
 import android.widget.Toast;
-//import android.util.Log;
 
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
+
+import org.apache.commons.codec.DecoderException;
+
+import java.io.IOException;
+
 import info.blockchain.wallet.hd.HD_Wallet;
+import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
@@ -32,6 +29,8 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+
+//import android.util.Log;
 
 //public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener	{
 public class SettingsActivity extends PreferenceActivity	{
@@ -52,10 +51,7 @@ public class SettingsActivity extends PreferenceActivity	{
         	guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
 
-          			android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-          		    android.content.ClipData clip = android.content.ClipData.newPlainText("Blockchain identifier", guid);
-          		    clipboard.setPrimaryClip(clip);
-         			Toast.makeText(SettingsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
+         			Toast.makeText(SettingsActivity.this, guid, Toast.LENGTH_LONG).show();
 
         			return true;
         		}
@@ -374,12 +370,6 @@ public class SettingsActivity extends PreferenceActivity	{
 			mle.printStackTrace();
         	Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
 		}
-		
-		android.content.ClipboardManager clipboard = (android.content.ClipboardManager)this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-		android.content.ClipData clip = null;
-	    clip = android.content.ClipData.newPlainText(mnemonic ? "Mnemonic" : "Hex seed", seed);
-		clipboard.setPrimaryClip(clip);
-
     }
 
     private void getPassphrase()	{
@@ -393,15 +383,9 @@ public class SettingsActivity extends PreferenceActivity	{
         	Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
 		}
 		catch(MnemonicException.MnemonicLengthException mle) {
-			mle.printStackTrace();
-        	Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
-		}
-		
-		android.content.ClipboardManager clipboard = (android.content.ClipboardManager)this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-		android.content.ClipData clip = null;
-	    clip = android.content.ClipData.newPlainText("Passphrase", passphrase);
-		clipboard.setPrimaryClip(clip);
-
+            mle.printStackTrace();
+            Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void getUnits()	{
