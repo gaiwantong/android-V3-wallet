@@ -480,7 +480,6 @@ public class SendFactory	{
 		public void onStart();
 
 		// Return false to cancel
-//		public boolean onReady(Transaction tx, BigInteger fee, FeePolicy feePolicy, long priority);
 		public boolean onReady(Transaction tx, BigInteger fee, long priority);
 		public void onSend(Transaction tx, String message);
 
