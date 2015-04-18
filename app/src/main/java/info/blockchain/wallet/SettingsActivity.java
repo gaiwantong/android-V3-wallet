@@ -48,14 +48,6 @@ public class SettingsActivity extends PreferenceActivity	{
         	final String guid = PayloadFactory.getInstance().get().getGuid();
         	Preference guidPref = (Preference) findPreference("guid");
             guidPref.setSummary(guid);
-        	guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        		public boolean onPreferenceClick(Preference preference) {
-
-         			Toast.makeText(SettingsActivity.this, guid, Toast.LENGTH_LONG).show();
-
-        			return true;
-        		}
-        	});
 
             Preference unitsPref = (Preference) findPreference("units");
             unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -93,7 +85,7 @@ public class SettingsActivity extends PreferenceActivity	{
     	    	        		HD_WalletFactory.getInstance(SettingsActivity.this).restoreWallet(decrypted_hex, "", 1);
     	    	        		String mnemonic = HD_WalletFactory.getInstance(SettingsActivity.this).get().getMnemonic();
     	    	        		HD_WalletFactory.getInstance(SettingsActivity.this).set(hdw);
-            	            	Toast.makeText(SettingsActivity.this, mnemonic, Toast.LENGTH_SHORT).show();
+            	            	Toast.makeText(SettingsActivity.this, mnemonic, Toast.LENGTH_LONG).show();
 	    					}
 	    		        	catch(IOException ioe) {
 	    		        		ioe.printStackTrace();
