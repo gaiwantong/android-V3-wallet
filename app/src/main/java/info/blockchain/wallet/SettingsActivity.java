@@ -32,20 +32,18 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 //import android.util.Log;
 
-//public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener	{
 public class SettingsActivity extends PreferenceActivity {
 
     /**
      * Called when the activity is first created.
      */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.app_name);
         addPreferencesFromResource(R.xml.settings);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-//        	PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
         final String guid = PayloadFactory.getInstance().get().getGuid();
         Preference guidPref = (Preference) findPreference("guid");
@@ -67,6 +65,7 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
+
 
         Preference mnemonicPref = (Preference) findPreference("mnemonic");
         mnemonicPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -286,7 +285,16 @@ public class SettingsActivity extends PreferenceActivity {
             mwe.printStackTrace();
         } finally {
             if (mnemonic != null && mnemonic.length() > 0) {
-                Toast.makeText(this, mnemonic, Toast.LENGTH_LONG).show();
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(mnemonic)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+
             } else {
                 Toast.makeText(this, R.string.double_encryption_password_error, Toast.LENGTH_LONG).show();
             }
@@ -298,10 +306,8 @@ public class SettingsActivity extends PreferenceActivity {
         try {
             if (mnemonic) {
                 seed = HDPayloadBridge.getInstance(SettingsActivity.this).getHDMnemonic();
-                Toast.makeText(SettingsActivity.this, seed, Toast.LENGTH_SHORT).show();
             } else {
                 seed = HDPayloadBridge.getInstance(SettingsActivity.this).getHDSeed();
-                Toast.makeText(SettingsActivity.this, seed, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -309,6 +315,16 @@ public class SettingsActivity extends PreferenceActivity {
         } catch (MnemonicException.MnemonicLengthException mle) {
             mle.printStackTrace();
             Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
+        } finally {
+            new AlertDialog.Builder(SettingsActivity.this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(seed)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                        }
+                    }).show();
         }
     }
 
