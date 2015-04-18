@@ -56,6 +56,8 @@ public class SendFactory	{
 	private String[] from = null;
 	private HashMap<String,String> froms = null;
 
+    private boolean sentChange = false;
+
     public static SendFactory getInstance(Context ctx) {
     	
     	context = ctx;
@@ -234,7 +236,7 @@ public class SendFactory	{
 							PayloadFactory.getInstance().get().setNotes(notes);
 						}
 
-						if(isHD) {
+						if(isHD && sentChange) {
 							// increment change address counter
 							PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
 						}
@@ -456,6 +458,7 @@ public class SendFactory	{
 			BitcoinScript change_script;
 			if (changeAddress != null) {
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
+                sentChange = true;
 			}
             else {
 				throw new Exception("Invalid transaction attempt");
