@@ -113,6 +113,7 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout bottomSel2 = null;
 	private LinearLayout mainContent;
 	private LinearLayout mainContentShadow;
+    private static boolean isBottomSheetOpen = false;
 
 	public BalanceFragment() { ; }
 
@@ -175,6 +176,9 @@ public class BalanceFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+                    return true;
+                }
+                else if(isBottomSheetOpen) {
                     return true;
                 }
                 else {
@@ -754,15 +758,17 @@ public class BalanceFragment extends Fragment {
 
 	private void onAddClicked(){
 
-		if (mLayout != null) {
+		if(mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
+                isBottomSheetOpen = false;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(8);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.bringToFront();
 				mainContentShadow.setVisibility(View.VISIBLE);
+                isBottomSheetOpen = true;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 			}
 		}
