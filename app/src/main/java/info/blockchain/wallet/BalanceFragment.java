@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -170,6 +171,17 @@ public class BalanceFragment extends Fragment {
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -258,14 +270,6 @@ public class BalanceFragment extends Fragment {
 			getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 		}
-
-        /*
-         *
-         *
-             Bottom sheet implementation: make temporarily invisible until FAB is worked into balance screen
-         *
-         *
-         */
 
 		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);

@@ -96,6 +96,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private ListView listView = null;
     private ActionBarDrawerToggle actionBarDrawerToggle = null;
     private String[] navigationDrawerItems = null;
+    public static boolean drawerIsOpen = false;
 
     private ProgressDialog progress = null;
 
@@ -1015,7 +1016,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, navigationDrawerItems));
 		listView.setOnItemClickListener(new DrawerItemClickListener());
 
-		actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+		//actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name) {
+
+            public void onDrawerClosed(View view) {
+                drawerIsOpen = false;
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                drawerIsOpen = true;
+            }
+        };
 		drawerLayout.setDrawerListener(actionBarDrawerToggle);
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
