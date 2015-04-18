@@ -277,6 +277,8 @@ public class SendFactory	{
      * @param  String[] Sending addresses (contains 1 XPUB if HD spend, public address(es) if legacy spend
      * @param  BigInteger totalAmount Amount including fee
      *
+     * @return List<MyTransactionOutPoint>
+     *
      */
 	private List<MyTransactionOutPoint> getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 		
@@ -373,6 +375,8 @@ public class SendFactory	{
      * @param  BigInteger fee Miner's fee for this spend
      * @param  String changeAddress Change address for this spend
      *
+     * @return Pair<Transaction, Long>
+     *
      */
 	private Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
 
@@ -466,6 +470,9 @@ public class SendFactory	{
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
             outputs.add(change_output);
 		}
+        else {
+            sentChange = false;
+        }
 
         Collections.shuffle(outputs, new SecureRandom());
         for(TransactionOutput to : outputs) {
