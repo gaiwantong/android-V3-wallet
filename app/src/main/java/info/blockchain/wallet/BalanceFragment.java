@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -112,6 +113,7 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout bottomSel2 = null;
 	private LinearLayout mainContent;
 	private LinearLayout mainContentShadow;
+    private static boolean isBottomSheetOpen = false;
 
 	public BalanceFragment() { ; }
 
@@ -170,6 +172,20 @@ public class BalanceFragment extends Fragment {
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+                    return true;
+                }
+                else if(isBottomSheetOpen) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -259,14 +275,6 @@ public class BalanceFragment extends Fragment {
 			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 		}
 
-        /*
-         *
-         *
-             Bottom sheet implementation: make temporarily invisible until FAB is worked into balance screen
-         *
-         *
-         */
-
 		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -298,7 +306,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new SendFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
@@ -311,7 +319,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
@@ -750,15 +758,17 @@ public class BalanceFragment extends Fragment {
 
 	private void onAddClicked(){
 
-		if (mLayout != null) {
+		if(mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
+                isBottomSheetOpen = false;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(8);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.bringToFront();
 				mainContentShadow.setVisibility(View.VISIBLE);
+                isBottomSheetOpen = true;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 			}
 		}
