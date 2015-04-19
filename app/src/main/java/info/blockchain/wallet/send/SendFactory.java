@@ -31,6 +31,7 @@ import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.core.Transaction.SigHash;
 import com.google.bitcoin.params.MainNetParams;
 
+import info.blockchain.wallet.R;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.OpCallback;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -220,7 +221,7 @@ public class SendFactory	{
 					//if(hexString.length() > 16384) {
 					if(hexString.length() > (100 * 1024)) {
 						opc.onFail();
-						throw new Exception("Blockchain wallet's cannot handle transactions over 100KB in size. Please try splitting your transaction");
+						throw new Exception(context.getString(R.string.tx_length_error));
 					}
 
 //					Log.i("SendFactory tx string", hexString);
@@ -402,7 +403,7 @@ public class SendFactory	{
 			BigInteger amount = mapEntry.getValue();
 
 			if(amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-				throw new Exception("You must provide an amount");
+				throw new Exception(context.getString(R.string.invalid_amount));
 			}
 
 			outputValueSum = outputValueSum.add(amount);
@@ -465,7 +466,7 @@ public class SendFactory	{
                 sentChange = true;
 			}
             else {
-				throw new Exception("Invalid transaction attempt");
+				throw new Exception(context.getString(R.string.invalid_tx));
 			}
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
             outputs.add(change_output);
