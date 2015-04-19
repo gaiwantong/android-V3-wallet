@@ -294,7 +294,7 @@ public class SendFragment extends Fragment {
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
         accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-        	iAccount = new ImportedAccount("Imported addresses", PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
         if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
         	accounts.remove(accounts.size() - 1);
@@ -322,11 +322,11 @@ public class SendFragment extends Fragment {
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                       int position = spAccounts.getSelectedItemPosition();
                       if(position >= hdAccountsIdx) {
-                          Toast.makeText(getActivity(), "Legacy:" + _accounts.get(position), Toast.LENGTH_SHORT).show();
+//                          Toast.makeText(getActivity(), "Legacy:" + _accounts.get(position), Toast.LENGTH_SHORT).show();
                           currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
                       }
                       else {
-                          Toast.makeText(getActivity(), "Account " + position + ":" + accounts.get(position).getLabel(), Toast.LENGTH_SHORT).show();
+//                          Toast.makeText(getActivity(), "Account " + position + ":" + accounts.get(position).getLabel(), Toast.LENGTH_SHORT).show();
                           currentSelectedAccount = position;
                       }
                       
