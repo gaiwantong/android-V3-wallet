@@ -1,14 +1,9 @@
 package info.blockchain.wallet.hd;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
-
-import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.NetworkParameters;
@@ -21,13 +16,15 @@ import com.google.bitcoin.crypto.MnemonicException;
 
 import com.google.common.base.Joiner;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.DecoderException;
-
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+/**
+ *
+ * HD_Wallet.java : Blockchain Android HD wallet
+ *
+ */
 public class HD_Wallet {
 
     private byte[] mSeed = null;
@@ -43,6 +40,16 @@ public class HD_Wallet {
 
     private HD_Wallet() { ; }
 
+    /**
+     * Constructor for HD wallet.
+     *
+     * @param MnemonicCode mc mnemonic code object
+     * @param NetworkParameters params
+     * @param byte[] seed seed for this wallet
+     * @param String passphrase optional BIP39 passphrase
+     * @param int nbAccounts number of accounts to create
+     *
+     */
     public HD_Wallet(MnemonicCode mc, NetworkParameters params, byte[] seed, String passphrase, int nbAccounts) throws MnemonicException.MnemonicLengthException {
 
         mParams = params;
@@ -63,37 +70,12 @@ public class HD_Wallet {
 
     }
 
-    public HD_Wallet(Context ctx, JSONObject jsonobj, NetworkParameters params) throws DecoderException, JSONException, IOException, MnemonicException.MnemonicLengthException {
-
-        mParams = params;
-        int nbAccounts = 2;
-        mSeed = Hex.decodeHex(((String)jsonobj.get("seed")).toCharArray());
-        strPassphrase = (String)jsonobj.getString("passphrase");
-        nbAccounts = (Integer)jsonobj.getInt("size");
-
-        InputStream wis = ctx.getResources().getAssets().open("wordlist/english.txt");
-        MnemonicCode mc = null;
-        if(wis != null) {
-            mc = new MnemonicCode(wis, MnemonicCode.BIP39_ENGLISH_SHA256);
-            wis.close();
-        }
-
-        mWordList = mc.toMnemonic(mSeed);
-        byte[] hd_seed = MnemonicCode.toSeed(mWordList, strPassphrase, MnemonicCode.Version.V0_6);
-        mKey = HDKeyDerivation.createMasterPrivateKey(hd_seed);
-        DeterministicKey t1 = HDKeyDerivation.deriveChildKey(mKey, 44|ChildNumber.PRIV_BIT);
-        mRoot = HDKeyDerivation.deriveChildKey(t1, ChildNumber.PRIV_BIT);
-
-        mAccounts = new ArrayList<HD_Account>();
-        for(int i = 0; i < nbAccounts; i++) {
-            String acctName = String.format("account %02d", i);
-            mAccounts.add(new HD_Account(mParams, mRoot, acctName, i));
-        }
-
-    }
-
-    /*
-    create from account xpub key(s)
+    /**
+     * Constructor for watch-only HD wallet initialized from submitted XPUBs.
+     *
+     * @param NetworkParameters params
+     * @param String[] xpub array of XPUB strings
+     *
      */
     public HD_Wallet(NetworkParameters params, String[] xpub) throws AddressFormatException {
 
@@ -108,35 +90,73 @@ public class HD_Wallet {
 
     }
 
-    public byte[] getSeed() {
-        return mSeed;
-    }
-
+    /**
+     * Return wallet seed as hex string.
+     *
+     * @return String
+     *
+     */
     public String getSeedHex() {
         return Utils.bytesToHexString(mSeed);
     }
 
+    /**
+     * Return wallet mnemonic as string containing space separated words.
+     *
+     * @return String
+     *
+     */
     public String getMnemonic() {
         return Joiner.on(" ").join(mWordList);
     }
 
+    /**
+     * Return wallet BIP39 passphrase.
+     *
+     * @return String
+     *
+     */
     public String getPassphrase() {
         return strPassphrase;
     }
 
+    /**
+     * Return accounts for this wallet.
+     *
+     * @return List<HD_Account>
+     *
+     */
     public List<HD_Account> getAccounts() {
         return mAccounts;
     }
 
+    /**
+     * Return accounts for submitted account id.
+     *
+     * @param int accountId
+     *
+     * @return HD_Account
+     *
+     */
     public HD_Account getAccount(int accountId) {
         return mAccounts.get(accountId);
     }
 
+    /**
+     * Add new account.
+     *
+     */
     public void addAccount() {
         String strName = String.format("Account %d", mAccounts.size());
         mAccounts.add(new HD_Account(mParams, mRoot, strName, mAccounts.size()));
     }
-    
+
+    /**
+     * Add new account and name with label.
+     *
+     * @param String label
+     *
+     */
     public void addAccount(String label) {
 
     	if(label == null) {
@@ -148,32 +168,22 @@ public class HD_Wallet {
 
     }
 
-    public int size() {
-
-        int sz = 0;
-        for(HD_Account acct : mAccounts) {
-            sz += acct.size();
-        }
-
-        return sz;
+    /**
+     * Return wallet seed as byte array.
+     *
+     * @return byte[]
+     *
+     */
+    private byte[] getSeed() {
+        return mSeed;
     }
 
-    /*
-    returns HD_Address if address has been seen for this wallet, null otherwise. account and chain info are included during the search
-    */
-    public HD_Address seenAddress(Address addr) {
-
-        HD_Address ret = null;
-        for(HD_Account acct : mAccounts) {
-            ret = acct.seenAddress(addr);
-            if(ret != null) {
-                return ret;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Restore watch-only account deterministic public key from XPUB.
+     *
+     * @return DeterministicKey
+     *
+     */
     private DeterministicKey createMasterPubKeyFromXPub(String xpubstr) throws AddressFormatException {
 
         byte[] xpubBytes = Base58.decodeChecked(xpubstr);
@@ -197,6 +207,15 @@ public class HD_Wallet {
         return HDKeyDerivation.createMasterPubKeyFromBytes(pub, chain);
     }
 
+    /**
+     * Write entire wallet to JSONObject.
+     * Not used in Blockchain HD wallet.
+     * Use payload classes instead.
+     * For debugging only.
+     *
+     * @return JSONObject
+     *
+     */
     public JSONObject toJSON() {
         try {
             JSONObject obj = new JSONObject();

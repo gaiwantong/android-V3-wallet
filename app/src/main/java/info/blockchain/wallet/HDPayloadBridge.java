@@ -53,8 +53,8 @@ public class HDPayloadBridge	{
 
     public boolean init(CharSequenceX password) throws JSONException, IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException	{
     	
-        PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.GUID, ""),
-        		PrefsUtil.getInstance(context).getValue(PrefsUtil.SHARED_KEY, ""),
+        PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, ""),
+        		PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, ""),
 				password);
 
         if(PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().getJSON() == null) {
@@ -84,8 +84,8 @@ public class HDPayloadBridge	{
         // update highest idxs here, they were just updated above in getBalances();
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         for(Account a : accounts) {
-            a.setNbReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()));
-            a.setNbChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()));
+            a.setNbReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) + 1);
+            a.setNbChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) + 1);
         }
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
 
@@ -116,7 +116,7 @@ public class HDPayloadBridge	{
     		int before = HD_WalletFactory.getInstance(context).get().getAccounts().size();
     		HD_WalletFactory.getInstance(context).get().addAccount();
     		int after = HD_WalletFactory.getInstance(context).get().getAccounts().size();
-        	Toast.makeText(context, "Created account: " + HD_WalletFactory.getInstance(context).get().getAccount(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).getLabel() + ". Wallet had " + before + " accounts, now has " + after + ".", Toast.LENGTH_SHORT).show();
+        	Toast.makeText(context, context.getString(R.string.created_account_colon) + HD_WalletFactory.getInstance(context).get().getAccount(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).getLabel() + ".", Toast.LENGTH_SHORT).show();
 
         	xpub = HD_WalletFactory.getInstance(context).get().getAccounts().get(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).xpubstr();
         	xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).xprvstr();
@@ -125,7 +125,7 @@ public class HDPayloadBridge	{
     		int before = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size();
     		HD_WalletFactory.getInstance(context).getWatchOnlyWallet().addAccount();
     		int after = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size();
-        	Toast.makeText(context, "Created account: " + HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).getLabel() + ". Wallet had " + before + " accounts, now has " + after + ".", Toast.LENGTH_SHORT).show();
+        	Toast.makeText(context, context.getString(R.string.created_account_colon) + HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).getLabel() + ".", Toast.LENGTH_SHORT).show();
 
         	xpub = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().get(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).xpubstr();
         	xpriv = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().get(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).xprvstr();
@@ -136,7 +136,7 @@ public class HDPayloadBridge	{
     	MultiAddrFactory.getInstance().getXpubAmounts().put(xpub, 0L);
 
     	List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        Account account = new Account("Account " + (int)(accounts.size() + 1));
+        Account account = new Account(context.getString(R.string.account_colon) + (int)(accounts.size() + 1));
 
     	account.setXpub(xpub);
     	if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {

@@ -26,7 +26,7 @@ public class CurrencySelector extends Activity	{
 	    setContentView(R.layout.activity_currency);
 
 //        String[] blockchain_currencies = CurrencyExchange.getInstance(this).getBlockchainCurrencies();
-        String strFiatCode = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.SELECTED_FIAT, "USD");
+        String strFiatCode = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
 //        OtherCurrencyExchange.getInstance(this, blockchain_currencies, strFiatCode);
 
         currencies = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
@@ -38,7 +38,7 @@ public class CurrencySelector extends Activity	{
         bOK.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
             	int currency = spCurrencies.getSelectedItemPosition();
-	            PrefsUtil.getInstance(CurrencySelector.this).setValue(PrefsUtil.SELECTED_FIAT, currencies[currency].substring(currencies[currency].length() - 3));
+	            PrefsUtil.getInstance(CurrencySelector.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[currency].substring(currencies[currency].length() - 3));
             	finish();
             }
         });
@@ -67,7 +67,7 @@ public class CurrencySelector extends Activity	{
     }
 
     private void initValues() {
-        String strCurrency = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.SELECTED_FIAT, "USD");
+        String strCurrency = PrefsUtil.getInstance(CurrencySelector.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
     	int sel = -1;
     	for(int i = 0; i < currencies.length; i++) {
     		if(currencies[i].endsWith(strCurrency)) {

@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -112,6 +113,7 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout bottomSel2 = null;
 	private LinearLayout mainContent;
 	private LinearLayout mainContentShadow;
+    private static boolean isBottomSheetOpen = false;
 
 	public BalanceFragment() { ; }
 
@@ -159,17 +161,31 @@ public class BalanceFragment extends Fragment {
 
         accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
-        	ImportedAccount iAccount = new ImportedAccount("Imported addresses", PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        	ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         	accounts.add(iAccount);
         }
 
 		ArrayList<String> accountList = new ArrayList<String>();
-        accountList.add("All accounts");
+        accountList.add(getActivity().getResources().getString(R.string.all_accounts));
 		for(Account item : accounts)accountList.add(item.getLabel());
 
 		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+                    return true;
+                }
+                else if(isBottomSheetOpen) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -240,12 +256,13 @@ public class BalanceFragment extends Fragment {
         });
         */
 
-		displayBalance();
+        displayBalance();
         updateTx();
 
-        if(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", "").length() > 0) {
-    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue("_1ST_ACCOUNT_NAME", ""));
-    		PrefsUtil.getInstance(getActivity()).removeValue("_1ST_ACCOUNT_NAME");
+        // Name account now that wallet has been created
+        if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+    		PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
     		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
         	accountsAdapter.notifyDataSetChanged();
         }
@@ -257,14 +274,6 @@ public class BalanceFragment extends Fragment {
 			getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
 		}
-
-        /*
-         *
-         *
-             Bottom sheet implementation: make temporarily invisible until FAB is worked into balance screen
-         *
-         *
-         */
 
 		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
@@ -297,7 +306,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new SendFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
@@ -310,7 +319,7 @@ public class BalanceFragment extends Fragment {
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
 				Bundle args = new Bundle();
-				args.putInt("selected_account",selectedAccount);
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
@@ -584,7 +593,7 @@ public class BalanceFragment extends Fragment {
     }
 
 	private void displayBalance() {
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.SELECTED_FIAT, "USD");
+        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         /*
@@ -600,7 +609,7 @@ public class BalanceFragment extends Fragment {
         */
         Account hda = null;
         if(selectedAccount == 0) {
-            btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+            btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
         }
         else {
             hda = accounts.get(selectedAccount - 1);
@@ -635,7 +644,7 @@ public class BalanceFragment extends Fragment {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
@@ -655,7 +664,7 @@ public class BalanceFragment extends Fragment {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((value * 1000000.0) / 1e8);
@@ -673,7 +682,7 @@ public class BalanceFragment extends Fragment {
 
     private String getDisplayUnits() {
 
-        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
     }
 
@@ -707,15 +716,15 @@ public class BalanceFragment extends Fragment {
 
 	}
 
-	private String account2Xpub(int sel) {
+	private String account2Xpub(int accountIndex) {
 
-		Account hda = accounts.get(sel);
+		Account hda = accounts.get(accountIndex);
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
 	    }
 	    else {
-			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(sel);
+			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(accountIndex);
 	    }
 	    
 	    return xpub;
@@ -725,13 +734,13 @@ public class BalanceFragment extends Fragment {
 		String ret = null;
         Account hda = accounts.get(selectedAccount);
         if(hda instanceof ImportedAccount) {
-        	ret = "Imported addresses";
+        	ret = getString(R.string.imported_addresses);
         }
         if(hda.getLabel() != null && hda.getLabel().length() > 0) {
         	ret = hda.getLabel();
         }
         else {
-        	ret = "Account:" + selectedAccount;
+        	ret = getString(R.string.account_colon) + selectedAccount;
         }
         
         return ret;
@@ -749,15 +758,17 @@ public class BalanceFragment extends Fragment {
 
 	private void onAddClicked(){
 
-		if (mLayout != null) {
+		if(mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
+                isBottomSheetOpen = false;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(8);
 			} else {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.bringToFront();
 				mainContentShadow.setVisibility(View.VISIBLE);
+                isBottomSheetOpen = true;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 			}
 		}

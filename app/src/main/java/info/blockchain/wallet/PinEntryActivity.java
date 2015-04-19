@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,7 +20,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -32,6 +30,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -42,96 +41,85 @@ import info.blockchain.wallet.util.TypefaceUtil;
 
 public class PinEntryActivity extends Activity {
 
-	String userEntered = "";
+    String userEnteredPIN = "";
 
-	final int PIN_LENGTH = 4;
-	boolean keyPadLockedFlag = false;
+    final int PIN_LENGTH = 4;
+    final String KEY_UNCONFIRMED_PIN = "UNCONFIRMED_PIN";
 
-	TextView titleView = null;
 
-	TextView pinBox0 = null;
-	TextView pinBox1 = null;
-	TextView pinBox2 = null;
-	TextView pinBox3 = null;
+    TextView titleView = null;
 
-	TextView[] pinBoxArray = null;
+    TextView pinBox0 = null;
+    TextView pinBox1 = null;
+    TextView pinBox2 = null;
+    TextView pinBox3 = null;
 
-	TextView statusView = null;
+    TextView[] pinBoxArray = null;
 
-	LinearLayout button0 = null;
-	LinearLayout button1 = null;
-	LinearLayout button2 = null;
-	LinearLayout button3 = null;
-	LinearLayout button4 = null;
-	LinearLayout button5 = null;
-	LinearLayout button6 = null;
-	LinearLayout button7 = null;
-	LinearLayout button8 = null;
-	LinearLayout button9 = null;
-//	Button buttonForgot = null; //Forgot pin button disabled in new UI
-	LinearLayout buttonDeleteBack = null;
+    TextView statusView = null;
 
-	private boolean validating = true;
-	private String userInput = null;
+    LinearLayout button0          = null;
+    LinearLayout button1          = null;
+    LinearLayout button2          = null;
+    LinearLayout button3          = null;
+    LinearLayout button4          = null;
+    LinearLayout button5          = null;
+    LinearLayout button6          = null;
+    LinearLayout button7          = null;
+    LinearLayout button8          = null;
+    LinearLayout button9          = null;
+    //	Button buttonForgot = null; //Forgot pin button disabled in new UI
+    LinearLayout buttonDeleteBack = null;
 
-	public String strUri = null;
+    public String strUri = null;
 
-	private ProgressDialog progress = null;
+    private ProgressDialog progress = null;
 
-	private String strEmail = null;
-	private String strPassword = null;
+    private String strEmail    = null;
+    private String strPassword = null;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		setContentView(R.layout.activity_pin_entry);
+        setContentView(R.layout.activity_pin_entry);
 
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		boolean isPairing = false;
-		Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
 
-		if(extras != null && extras.containsKey("pairing"))	{
-			isPairing = extras.getBoolean("pairing");
-		}
-		else	{
-			isPairing = false;
-		}
-		if(extras != null && extras.containsKey("_email"))	{
-			strEmail = extras.getString("_email");
-		}
-		if(extras != null && extras.containsKey("_pw"))	{
-			strPassword = extras.getString("_pw");
-		}
+        if (extras != null && extras.containsKey("_email")) {
+            strEmail = extras.getString("_email");
+        }
 
-		if(isPairing) {
-			AppUtil.getInstance(this).restartApp();
-		}
-		else if(extras != null){
+        if (extras != null && extras.containsKey("_pw")) {
+            strPassword = extras.getString("_pw");
+        }
 
-			//
-			// save email here
-			//
+        if (extras != null && extras.containsKey(PairingFactory.KEY_EXTRA_IS_PAIRING)) {
+            AppUtil.getInstance(this).restartApp(); // ?
+        } else if (strPassword != null && strEmail != null) {
 
-			// create wallet
-			// restart
-			try {
-				HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
-				PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("1st account");
+            //
+            // save email here
+            //
 
-				PayloadFactory.getInstance(this).remoteSaveThread();
+            // create wallet
+            // restart
+            try {
+                HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
+                PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("Account 1");
 
-				AppUtil.getInstance(this).restartApp();
-			}
-			catch(IOException ioe) {
-				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-				AppUtil.getInstance(this).wipeApp();
-			}
-			catch(MnemonicException.MnemonicLengthException mle) {
+                PayloadFactory.getInstance(this).remoteSaveThread();
+
+                AppUtil.getInstance(this).restartApp();
+            } catch (IOException ioe) {
+                Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                AppUtil.getInstance(this).wipeApp();
+            } catch (MnemonicException.MnemonicLengthException mle) {
 				Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
 				AppUtil.getInstance(this).wipeApp();
 			}
@@ -144,21 +132,7 @@ public class PinEntryActivity extends Activity {
 			strUri = getIntent().getData().toString();
 	    }
 
-		/*
-		Bundle extras = getIntent().getExtras();
-		if(extras != null)	{
-		}
-		*/
-
 		Typeface typeface = TypefaceUtil.getInstance(this).getRobotoTypeface();
-
-		if(PrefsUtil.getInstance(this).getValue("userInput", "").length() > 0) {
-			userInput = PrefsUtil.getInstance(this).getValue("userInput", "");
-		}
-		else {
-			userInput = null;
-		}
-		userEntered = "";
 
 		/*
 		Forgot pin button disabled in new UI
@@ -172,8 +146,8 @@ public class PinEntryActivity extends Activity {
 //	    	    .setCancelable(false)
 //	    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 //	    	        public void onClick(DialogInterface dialog, int whichButton) {
-//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
-//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+//	    	        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 //	    	        	validationDialog();
 //	    	        }
 //	    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -189,26 +163,22 @@ public class PinEntryActivity extends Activity {
 		buttonDeleteBack = (LinearLayout) findViewById(R.id.buttonDeleteBack);
 		buttonDeleteBack.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if(keyPadLockedFlag == true)	{
-					return;
-				}
-
-				if(userEntered.length() > 0)	{
+                // delete button clears pin entirely
+                if(userEnteredPIN.length() > 0)	{
 					for(int i = 0; i < pinBoxArray.length; i++)	{
 						pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);//reset pin buttons blank
 					}
-					userEntered = "";
+					userEnteredPIN = "";
 				}
 			}
 		});
 
-		titleView = (TextView)findViewById(R.id.titleBox);
+        // Set title state
+        titleView = (TextView)findViewById(R.id.titleBox);
 		titleView.setTypeface(typeface);
+		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
 
-		if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_LOOKUP, "").length() < 1) {
-			validating = false;
-
-			if(userInput == null) {
+			if(getIntent().getStringExtra(KEY_UNCONFIRMED_PIN) == null) {
 				titleView.setText(R.string.create_pin);
 			}
 			else {
@@ -234,74 +204,58 @@ public class PinEntryActivity extends Activity {
 		statusView.setTypeface(typeface);
 
 		View.OnClickListener pinButtonHandler = new View.OnClickListener() {
-			public void onClick(View v) {
+			public void onClick(View pressedButton) {
 
-				if(keyPadLockedFlag == true)	{
-					return;
-				}
+                // Roll-over if we're already PIN_LENGTH chars long
+                if (userEnteredPIN.length() >= PIN_LENGTH) {
 
-				LinearLayout pressedButton = (LinearLayout)v;
+                    // Update pin boxes
+                    for(int i = 0; i < pinBoxArray.length; i++)	{
+                        pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+                    }
+                    pinBoxArray[0].setBackgroundResource(R.drawable.rounded_view_dark_blue);
 
-				if(userEntered.length() < PIN_LENGTH)	{
-					userEntered = userEntered + pressedButton.getTag().toString().substring(0, 1);
+                    statusView.setText("");
+                    userEnteredPIN = "";
+                }
 
-					// Update pin boxes
-					pinBoxArray[userEntered.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
+                // Append tapped #
+                userEnteredPIN = userEnteredPIN + pressedButton.getTag().toString().substring(0, 1);
+                pinBoxArray[userEnteredPIN.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
 
-					if(userEntered.length() == PIN_LENGTH)	{
-						if(validating)	{
-							PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
-							validatePIN(userEntered);
-						}
-						else	{
-							if(userInput != null)	{
-								PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
-								if(userInput.equals(userEntered))	{
-									createPINThread(userEntered);
-								}
-								else	{
-									Toast.makeText(PinEntryActivity.this, R.string.pin_mismatch_error, Toast.LENGTH_SHORT).show();
-					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					        		startActivity(intent);
-								}
-							}
-							else	{
-								if(userEntered.equals("0000"))	{
-									Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", "");
-					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					        		startActivity(intent);
-								}
-								else	{
-									PrefsUtil.getInstance(PinEntryActivity.this).setValue("userInput", userEntered);
-					        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-					        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					        		startActivity(intent);
-								}
-							}
-						}
+                // Perform appropriate action if PIN_LENGTH has been reached
+                if(userEnteredPIN.length() == PIN_LENGTH) {
+                    // Validate
+                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
+                        validatePIN(userEnteredPIN);
+                    }
+                    // Confirm PINs & Save to server if appropriate
+                    else if (getIntent().getStringExtra(KEY_UNCONFIRMED_PIN) != null) {
+                        if (getIntent().getStringExtra(KEY_UNCONFIRMED_PIN).equals(userEnteredPIN)) {
+                            createPINThread(userEnteredPIN); // Pin is confirmed. Save to server.
+                        } else {
+                            Toast.makeText(PinEntryActivity.this, R.string.pin_mismatch_error, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    }
+                    // Got 1st PIN, show confirmation screen
+                    else {
+                        Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 
-					}
-				}
-				else	{
-					// Roll over
+                        // Throw error on '0000' to avoid server-side type issue
+                        if (userEnteredPIN.equals("0000")) {
+                            Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Pass userEnteredPIN to next activity for confirmation
+                            intent.putExtra(KEY_UNCONFIRMED_PIN, userEnteredPIN);
+                        }
 
-					for(int i = 0; i < pinBoxArray.length; i++)	{
-						pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
-					}
-
-					userEntered = "";
-
-					statusView.setText("");
-
-					userEntered = userEntered + pressedButton.getTag().toString().substring(0, 1);
-
-					// Update pin boxes
-					pinBoxArray[userEntered.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
-
-				}
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                }
 			}
 		};
 
@@ -617,7 +571,7 @@ public class PinEntryActivity extends Activity {
 	        builder.create().show();
 		}
 
-    	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_FAILS, 0);
+    	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
     	if(fails >= 3)	{
         	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes, Toast.LENGTH_SHORT).show();
 //        	validationDialog();
@@ -672,45 +626,6 @@ public class PinEntryActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return true;
-	}
-
-	private class LockKeyPadOperation extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			for(int i = 0; i < 2; i++) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			return "Executed";
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			statusView.setText("");
-
-			// Roll over
-			for(int i = 0; i < pinBoxArray.length; i++)	{
-				pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
-			}
-
-			userEntered = "";
-
-			keyPadLockedFlag = false;
-		}
-
-		@Override
-		protected void onPreExecute() {
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-		}
 	}
 
 	public void validatePIN(final String PIN) {
@@ -832,14 +747,14 @@ public class PinEntryActivity extends Activity {
 			public void run() {
 				Looper.prepare();
 
-				if(AccessFactory.getInstance(PinEntryActivity.this).createPÏN(PayloadFactory.getInstance().getTempPassword(), pin)) {
+				if(AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
 
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;
 					}
 
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
 					updatePayloadThread(PayloadFactory.getInstance().getTempPassword());
 
 				}
@@ -887,7 +802,7 @@ public class PinEntryActivity extends Activity {
 			public void run() {
 				Looper.prepare();
 
-				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePÏN(pin);
+				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
 
 				if(password != null) {
 
@@ -896,7 +811,7 @@ public class PinEntryActivity extends Activity {
 		    			progress = null;
 		    		}
 
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
 					TimeOutUtil.getInstance().updatePin();
 					updatePayloadThread(password);
 				}
@@ -907,9 +822,9 @@ public class PinEntryActivity extends Activity {
 		    			progress = null;
 		    		}
 
-		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.PIN_FAILS, 0);
-		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.PIN_FAILS, ++fails);
-//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.LOGGED_IN, false);
+		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
 		        	Toast.makeText(PinEntryActivity.this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
 		    		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -979,8 +894,8 @@ public class PinEntryActivity extends Activity {
 		            	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes_password_accepted, Toast.LENGTH_SHORT).show();
 
 						PayloadFactory.getInstance().setTempPassword(pw);
-			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_FAILS);
-			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.PIN_LOOKUP);
+			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
 		        		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1031,5 +946,4 @@ public class PinEntryActivity extends Activity {
 			}
 		}).start();
 	}
-
 }

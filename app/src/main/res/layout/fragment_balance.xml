@@ -42,7 +42,7 @@
 				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
-				android:textSize="24dp"
+				android:textSize="26dp"
                 android:paddingLeft="64dp"
 				/>
 
@@ -63,6 +63,7 @@
 					android:background="@color/white"
 					android:divider="@drawable/list_divider"
 					android:listSelector="@android:color/transparent"
+                    android:layout_marginTop="20dp"
 
 					/>
 			</LinearLayout>

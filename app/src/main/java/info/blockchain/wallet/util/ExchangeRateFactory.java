@@ -171,11 +171,12 @@ public class ExchangeRateFactory	{
 
     public double getLastPrice(String currency)	 {
     	if(fxRates.get(currency) != null && fxRates.get(currency) > 0.0)	 {
-            PrefsUtil.getInstance(context).setValue("CANNED_" + currency, Double.toString(fxRates.get(currency)));
+            // Is preferences really the right place for this?
+            PrefsUtil.getInstance(context).setValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, Double.toString(fxRates.get(currency)));
     		return fxRates.get(currency);
     	}
     	else	 {
-            return Double.parseDouble(PrefsUtil.getInstance(context).getValue("CANNED_" + currency, "0.0"));
+            return Double.parseDouble(PrefsUtil.getInstance(context).getValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, "0.0"));
     	}
     }
 
@@ -204,13 +205,13 @@ public class ExchangeRateFactory	{
      * Parse the data supplied to this instance.
      * 
      */
-    public void parse()	 {
+    public void updateFxPricesForEnabledCurrencies()	 {
     	for(int i = 0; i < currencies.length; i++)	 {
-        	get(currencies[i]);
+        	setFxPriceForCurrency(currencies[i]);
     	}
     }
 
-    private void get(String currency)	 {
+    private void setFxPriceForCurrency(String currency)	 {
         try {
     		JSONObject jsonObject = new JSONObject(strData);
     		if(jsonObject != null)	{
@@ -228,5 +229,4 @@ public class ExchangeRateFactory	{
 			fxSymbols.put(currency, null);
     	}
     }
-
 }

@@ -31,6 +31,7 @@ import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.core.Transaction.SigHash;
 import com.google.bitcoin.params.MainNetParams;
 
+import info.blockchain.wallet.R;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.OpCallback;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -55,6 +56,8 @@ public class SendFactory	{
 
 	private String[] from = null;
 	private HashMap<String,String> froms = null;
+
+    private boolean sentChange = false;
 
     public static SendFactory getInstance(Context ctx) {
     	
@@ -81,7 +84,7 @@ public class SendFactory	{
      * @param  int accountIdx HD account index, -1 if legacy spend
      * @param  String toAddress Receiving public address
      * @param  BigInteger amount Spending amount (not including fee)
-     * @param  LegacyAddress If legacy spend, spend from this LegacyAddress
+     * @param  LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
      * @param  BigInteger fee Miner's fee
      * @param  String note Note to be attached to this tx
      * @param  OpCallback opc
@@ -218,7 +221,7 @@ public class SendFactory	{
 					//if(hexString.length() > 16384) {
 					if(hexString.length() > (100 * 1024)) {
 						opc.onFail();
-						throw new Exception("Blockchain wallet's cannot handle transactions over 100KB in size. Please try splitting your transaction");
+						throw new Exception(context.getString(R.string.tx_length_error));
 					}
 
 //					Log.i("SendFactory tx string", hexString);
@@ -234,7 +237,7 @@ public class SendFactory	{
 							PayloadFactory.getInstance().get().setNotes(notes);
 						}
 
-						if(isHD) {
+						if(isHD && sentChange) {
 							// increment change address counter
 							PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
 						}
@@ -272,8 +275,10 @@ public class SendFactory	{
      * of selected outputs >= totalAmount
      *
      * @param  boolean isHD true == HD account spend, false == legacy address spend
-     * @param  String[] Sending addresses (contains XPUB if HD spend, public addresses if legacy spend
+     * @param  String[] Sending addresses (contains 1 XPUB if HD spend, public address(es) if legacy spend
      * @param  BigInteger totalAmount Amount including fee
+     *
+     * @return List<MyTransactionOutPoint>
      *
      */
 	private List<MyTransactionOutPoint> getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
@@ -371,6 +376,8 @@ public class SendFactory	{
      * @param  BigInteger fee Miner's fee for this spend
      * @param  String changeAddress Change address for this spend
      *
+     * @return Pair<Transaction, Long>
+     *
      */
 	private Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
 
@@ -396,7 +403,7 @@ public class SendFactory	{
 			BigInteger amount = mapEntry.getValue();
 
 			if(amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-				throw new Exception("You must provide an amount");
+				throw new Exception(context.getString(R.string.invalid_amount));
 			}
 
 			outputValueSum = outputValueSum.add(amount);
@@ -456,16 +463,17 @@ public class SendFactory	{
 			BitcoinScript change_script;
 			if (changeAddress != null) {
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
-			} else if (changeOutPoint != null) {
-				BitcoinScript inputScript = new BitcoinScript(changeOutPoint.getConnectedPubKeyScript());
-				// Return change to the first address
-				change_script = BitcoinScript.createSimpleOutBitcoinScript(inputScript.getAddress());
-			} else {
-				throw new Exception("Invalid transaction attempt");
+                sentChange = true;
+			}
+            else {
+				throw new Exception(context.getString(R.string.invalid_tx));
 			}
 			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
             outputs.add(change_output);
 		}
+        else {
+            sentChange = false;
+        }
 
         Collections.shuffle(outputs, new SecureRandom());
         for(TransactionOutput to : outputs) {
@@ -483,7 +491,6 @@ public class SendFactory	{
 		public void onStart();
 
 		// Return false to cancel
-//		public boolean onReady(Transaction tx, BigInteger fee, FeePolicy feePolicy, long priority);
 		public boolean onReady(Transaction tx, BigInteger fee, long priority);
 		public void onSend(Transaction tx, String message);
 

@@ -102,13 +102,13 @@ public class Setup00Activity extends ActionBarActivity {
 				Looper.prepare();
 
 				if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
-					Toast.makeText(Setup00Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
+					Toast.makeText(Setup00Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
-					intent.putExtra("pairing", true);
+					intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
 					startActivity(intent);
 				}
 				else	{
-					Toast.makeText(Setup00Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+					Toast.makeText(Setup00Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 					AppUtil.getInstance(Setup00Activity.this).wipeApp();
 				}
 

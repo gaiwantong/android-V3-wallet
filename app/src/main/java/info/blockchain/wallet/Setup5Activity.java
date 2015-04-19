@@ -1,43 +1,40 @@
 package info.blockchain.wallet;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewStub;
 import android.view.View.OnTouchListener;
+import android.view.ViewStub;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
-//import android.util.Log;
+import android.widget.Toast;
+
+import com.dm.zbar.android.scanner.ZBarConstants;
+import com.dm.zbar.android.scanner.ZBarScannerActivity;
 
 import net.sourceforge.zbar.Symbol;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
-
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.PasswordUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.PrefsUtil;
+
+//import android.util.Log;
 
 public class Setup5Activity extends Activity	{
 
@@ -145,13 +142,13 @@ public class Setup5Activity extends Activity	{
                 Looper.prepare();
 
                 if(PairingFactory.getInstance(Setup5Activity.this).handleQRCode(data))	{
-                    Toast.makeText(Setup5Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(Setup5Activity.this, Setup2Activity.class);
-                    intent.putExtra("pairing", true);
+                    intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                     startActivity(intent);
                 }
                 else	{
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
 
@@ -189,25 +186,25 @@ public class Setup5Activity extends Activity	{
                         }
                         catch(Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                             AppUtil.getInstance(Setup5Activity.this).wipeApp();
                         }
 
                         if(decrypted_payload != null) {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
                             if(payloadObj != null && payloadObj.has("sharedKey")) {
-                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.GUID, guid);
-                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.SHARED_KEY, (String)payloadObj.get("sharedKey"));
+                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.KEY_GUID, guid);
+                                PrefsUtil.getInstance(Setup5Activity.this).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
 
                                 if(HDPayloadBridge.getInstance(Setup5Activity.this).init(password)) {
                                     PayloadFactory.getInstance(Setup5Activity.this).setTempPassword(password);
-                                    Toast.makeText(Setup5Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Setup5Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(Setup5Activity.this, Setup2Activity.class);
-                                    intent.putExtra("pairing", true);
+                                    intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                                     startActivity(intent);
                                 }
                                 else {
-                                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                                 }
 
@@ -215,7 +212,7 @@ public class Setup5Activity extends Activity	{
 
                         }
                         else {
-                            Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                             AppUtil.getInstance(Setup5Activity.this).wipeApp();
                         }
 
@@ -224,12 +221,12 @@ public class Setup5Activity extends Activity	{
                 }
                 catch(JSONException je) {
                     je.printStackTrace();
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
 

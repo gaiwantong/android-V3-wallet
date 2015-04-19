@@ -1,25 +1,26 @@
 package info.blockchain.wallet.pairing;
 
+import android.content.Context;
+
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Hex;
+
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 
-import android.content.Context;
-//import android.util.Log;
-
-import org.spongycastle.util.encoders.Hex;
-
-import org.json.JSONObject;
-
-import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+//import android.util.Log;
+
 public class PairingFactory	{
 	
 	private static Context context = null;
+
+    public static String KEY_EXTRA_IS_PAIRING = "is_pairing";
 
     private static PairingFactory instance = null;
 
@@ -55,7 +56,7 @@ public class PairingFactory	{
             return false;
         }
 //        Log.i("Pairing", "guid:" + guid);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.GUID, guid);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
 
         String encrypted = components[2];
 
@@ -82,7 +83,7 @@ public class PairingFactory	{
             return false;
         }
 //        Log.i("Pairing", "SharedKey:" + sharedKey);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.SHARED_KEY, sharedKey);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
 
         CharSequenceX password = null;
         try {

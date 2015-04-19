@@ -29,6 +29,13 @@ import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.LinuxSecureRandom;
 
+/**
+ *
+ * HD_WalletFactory.java : singleton class for creating/restoring/reading Blockchain Android HD wallet
+ *
+ * BIP39,44 wraparound for BitcoinJ
+ *
+ */
 public class HD_WalletFactory	{
 
     private static HD_WalletFactory instance = null;
@@ -37,12 +44,18 @@ public class HD_WalletFactory	{
 
     private static Logger mLogger = LoggerFactory.getLogger(HD_WalletFactory.class);
 
-    public static String strJSONFilePath = null;
-    
     private static Context context = null;
 
     private HD_WalletFactory()	{ ; }
 
+    /**
+     * Return instance for a full wallet including seed and private keys.
+     *
+     * @param  Context ctx app context
+     *
+     * @return HD_WalletFactory
+     *
+     */
     public static HD_WalletFactory getInstance(Context ctx) {
     	
     	context = ctx;
@@ -55,19 +68,15 @@ public class HD_WalletFactory	{
         return instance;
     }
 
-    public static HD_WalletFactory getInstance(Context ctx, String path) {
-
-    	context = ctx;
-        strJSONFilePath = path;
-
-        if (instance == null) {
-            wallets = new ArrayList<HD_Wallet>();
-            instance = new HD_WalletFactory();
-        }
-
-        return instance;
-    }
-
+    /**
+     * Return instance for a watch only wallet. No seed, no private keys.
+     *
+     * @param  Context ctx app context
+     * @param  String[] xpub restore these accounts only
+     *
+     * @return HD_WalletFactory
+     *
+     */
     public static HD_WalletFactory getInstance(Context ctx, String[] xpub) throws AddressFormatException {
     	
     	context = ctx;
@@ -84,14 +93,36 @@ public class HD_WalletFactory	{
         return instance;
     }
 
+    /**
+     * Return watch only wallet for this instance.
+     *
+     * @return HD_Wallet
+     *
+     */
     public HD_Wallet getWatchOnlyWallet()   {
     	return watch_only_wallet;
     }
 
+    /**
+     * Set watch only wallet for this instance.
+     *
+     * @param  HD_Wallet hdw
+     *
+     */
     public void setWatchOnlyWallet(HD_Wallet hdw)   {
     	watch_only_wallet = hdw;
     }
 
+    /**
+     * Create new HD wallet.
+     *
+     * @param  int nbWords number of words in menmonic
+     * @param  String passphrase optional BIP39 passphrase
+     * @param  int nbAccounts create this number of accounts
+     *
+     * @return HD_Wallet
+     *
+     */
     public HD_Wallet newWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException   {
 
         HD_Wallet hdw = null;
@@ -126,6 +157,16 @@ public class HD_WalletFactory	{
         return hdw;
     }
 
+    /**
+     * Restore HD wallet.
+     *
+     * @param  String data Either BIP39 mnemonic or hex seed
+     * @param  String passphrase optional BIP39 passphrase
+     * @param  int nbAccounts create this number of accounts
+     *
+     * @return HD_Wallet
+     *
+     */
     public HD_Wallet restoreWallet(String data, String passphrase, int nbAccounts) throws AddressFormatException, IOException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException  {
 
         HD_Wallet hdw = null;
@@ -171,6 +212,12 @@ public class HD_WalletFactory	{
         return hdw;
     }
 
+    /**
+     * Get HD wallet for this instance.
+     *
+     * @return HD_Wallet
+     *
+     */
     public HD_Wallet get() throws IOException, MnemonicException.MnemonicLengthException {
 
         if(wallets.size() < 1) {
@@ -186,6 +233,12 @@ public class HD_WalletFactory	{
         return wallets.get(0);
     }
 
+    /**
+     * Set HD wallet for this instance.
+     *
+     * @param  HD_Wallet wallet
+     *
+     */
     public void set(HD_Wallet wallet)	{
     	
     	if(wallet != null)	{
@@ -193,97 +246,6 @@ public class HD_WalletFactory	{
         	wallets.add(wallet);
     	}
 
-    }
-
-    public void saveWalletToJSON(CharSequenceX password) throws MnemonicException.MnemonicLengthException, IOException, JSONException {
-        serialize(get().toJSON(), password);
-    }
-
-    public HD_Wallet restoreWalletfromJSON(CharSequenceX password) throws DecoderException, MnemonicException.MnemonicLengthException {
-
-        HD_Wallet hdw = null;
-
-        NetworkParameters params = MainNetParams.get();
-
-        JSONObject obj = null;
-        try {
-            obj = deserialize(password);
-            if(obj != null) {
-                hdw = new HD_Wallet(context, obj, params);
-            }
-        }
-        catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
-        catch(JSONException je) {
-            je.printStackTrace();
-        }
-
-        wallets.clear();
-        wallets.add(hdw);
-
-        return hdw;
-    }
-
-    private void serialize(JSONObject jsonobj, CharSequenceX password) throws IOException, JSONException {
-
-        File newfile = new File(strJSONFilePath + "bc_wallet.dat");
-        File tmpfile = new File(strJSONFilePath + "bc_wallet.tmp");
-
-        // serialize to byte array.
-        String jsonstr = jsonobj.toString(4);
-        byte[] cleartextBytes = jsonstr.getBytes(Charset.forName("UTF-8"));
-
-        // prepare tmp file.
-        if(tmpfile.exists()) {
-            tmpfile.delete();
-        }
-
-        String data = null;
-        if(password != null) {
-            data = AESUtil.encrypt(jsonstr, password, AESUtil.DefaultPBKDF2Iterations);
-        }
-        else {
-            data = jsonstr;
-        }
-
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpfile), "UTF-8"));
-        try {
-            out.write(data);
-        } finally {
-            out.close();
-        }
-
-        // rename tmp file
-        if(tmpfile.renameTo(newfile)) {
-            mLogger.info("file saved to  " + newfile.getPath());
-        }
-        else {
-            mLogger.warn("rename to " + newfile.getPath() + " failed");
-        }
-    }
-
-    private JSONObject deserialize(CharSequenceX password) throws IOException, JSONException {
-
-        File file = new File(strJSONFilePath + "bc_wallet.dat");
-        StringBuilder sb = new StringBuilder();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
-        String str = null;
-
-        while((str = in.readLine()) != null) {
-            sb.append(str);
-        }
-
-        JSONObject node = null;
-        if(password == null) {
-            node = new JSONObject(sb.toString());
-        }
-        else {
-            node = new JSONObject(AESUtil.decrypt(sb.toString(), password, AESUtil.DefaultPBKDF2Iterations));
-        }
-
-        return node;
     }
 
 }

@@ -9,6 +9,11 @@ import com.google.bitcoin.crypto.HDKeyDerivation;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ *
+ * HD_Account.java : an account in a Blockchain Android HD wallet
+ *
+ */
 public class HD_Account {
 
     private DeterministicKey aKey = null;
@@ -23,6 +28,15 @@ public class HD_Account {
 
     private HD_Account() { ; }
 
+    /**
+     * Constructor for HD account.
+     *
+     * @param NetworkParameters params
+     * @param DeterministicKey mKey deterministic key for this account
+     * @param String label label for this account optional BIP39 passphrase
+     * @param int child id within the wallet for this account
+     *
+     */
     public HD_Account(NetworkParameters params, DeterministicKey mKey, String label, int child) {
 
         mParams = params;
@@ -45,18 +59,22 @@ public class HD_Account {
 
     }
 
-    public boolean hasPubKey(byte[] pubkey, byte[] pubkeyhash) {
-        if(mReceive.hasPubKey(pubkey, pubkeyhash)) {
-            return true;
-        }
-
-        return mChange.hasPubKey(pubkey, pubkeyhash);
-    }
-
+    /**
+     * Return XPUB string for this account.
+     *
+     * @return String
+     *
+     */
     public String xpubstr() {
         return aKey.serializePubB58();
     }
 
+    /**
+     * Return xprv string for this account.
+     *
+     * @return String
+     *
+     */
     public String xprvstr() {
 
         if(aKey.hasPrivate()) {
@@ -68,65 +86,75 @@ public class HD_Account {
 
     }
 
+    /**
+     * Return label for this account.
+     *
+     * @return String
+     *
+     */
     public String getLabel() {
         return strLabel;
     }
 
+    /**
+     * Set label for this account.
+     *
+     * @param String label label to be set to this account.
+     *
+     */
     public void setLabel(String label) {
         strLabel = label;
     }
 
+    /**
+     * Return id for this account.
+     *
+     * @return int
+     *
+     */
     public int getId() {
         return mAID;
     }
 
+    /**
+     * Return receive chain this account.
+     *
+     * @return HD_Chain
+     *
+     */
     public HD_Chain getReceive() {
         return mReceive;
     }
 
+    /**
+     * Return change chain this account.
+     *
+     * @return HD_Chain
+     *
+     */
     public HD_Chain getChange() {
         return mChange;
     }
 
+    /**
+     * Return chain for this account as indicated by index: 0 = receive, 1 = change.
+     *
+     * @return HD_Chain
+     *
+     */
     public HD_Chain getChain(int idx) {
         return (idx == 0) ? mReceive : mChange;
     }
 
-    public int size() {
-        return mReceive.length() + mChange.length();
-    }
-
-    public int receiveSize() {
-        return mReceive.length();
-    }
-
-    public int changeSize() {
-        return mChange.length();
-    }
-
-    public boolean isArchived() {
-        return isArchived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.isArchived = archived;
-    }
-
-    public HD_Address seenAddress(Address addr) {
-        HD_Address retval;
-
-        retval = mReceive.seenAddress(addr);
-        if(retval == null) {
-            retval = mChange.seenAddress(addr);
-        }
-
-        if(retval != null) {
-            retval.setAccount(this);
-        }
-
-        return retval;
-    }
-
+    /**
+     * Write account to JSONObject.
+     * Not used in Blockchain HD wallet.
+     * Use payload classes instead.
+     * For debugging only.
+     *
+     * @return JSONObject
+     *
+     */
     public JSONObject toJSON() {
         try {
             JSONObject obj = new JSONObject();

@@ -12,6 +12,11 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+/**
+ *
+ * HD_Chain.java : a chain in a Blockchain Android HD account
+ *
+ */
 public class HD_Chain {
 
     private DeterministicKey cKey = null;
@@ -28,6 +33,15 @@ public class HD_Chain {
     
     private HD_Chain() { ; }
 
+    /**
+     * Constructor for an HD chain.
+     *
+     * @param NetworkParameters params
+     * @param DeterministicKey mKey deterministic key for this chain
+     * @param boolean isReceive this is the receive chain
+     * @param int nbAddrs number of HD addresses to generate
+     *
+     */
     public HD_Chain(NetworkParameters params, DeterministicKey aKey, boolean isReceive, int nbAddrs) {
 
         mParams = params;
@@ -42,82 +56,59 @@ public class HD_Chain {
 
     }
 
-    public static int maxSafeExtend() {
-        return DESIRED_MARGIN - ADDRESS_GAP_MAX;
-    }
-
+    /**
+     * Test if this is the receive chain.
+     *
+     * @return boolean
+     */
     public boolean isReceive() {
         return isReceive;
     }
 
-    public void addAddress() {
-        mAddresses.add(new HD_Address(mParams, cKey, mAddresses.size()));
-    }
-
-    public void addAddresses(int nbAddresses) {
-        for(int i = 0; i < nbAddresses; i++) {
-            addAddress();
-        }
-    }
-
-    public void addAddressAt(int addrIdx) {
-        if(addrIdx > mAddresses.size()) {
-            mAddresses.ensureCapacity(addrIdx + 1);
-        }
-        mAddresses.add(addrIdx, new HD_Address(mParams, cKey, addrIdx));
-    }
-
-    public void addAddressesAt(int nbAddresses, int addrIdx) {
-        for(int i = addrIdx; i < nbAddresses; i++) {
-            addAddressAt(i);
-        }
-    }
-
+    /**
+     * Return HD_Address at provided index into chain.
+     *
+     * @return HD_Address
+     */
     public HD_Address getAddressAt(int addrIdx) {
     	return new HD_Address(mParams, cKey, addrIdx);
     }
 
-    public List<HD_Address> getAddresses() {
-        return mAddresses;
-    }
-
-    public int length() {
-        return mAddresses.size();
-    }
-
-    public boolean hasPubKey(byte[] pubkey, byte[] pubkeyhash) {
-        for(HD_Address hda : mAddresses) {
-            if(hda.isSameAs(pubkey, pubkeyhash)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public HD_Address seenAddress(Address addr) {
-        for(HD_Address hda : mAddresses) {
-            if(hda.isSameAs(addr)) {
-                hda.setChain(this);
-                return hda;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Get address index for this chain.
+     *
+     * @return int
+     */
     public int getAddrIdx() {
         return addrIdx;
     }
 
+    /**
+     * Set address index for this chain.
+     *
+     * @param int idx index to be set.
+     */
     public void setAddrIdx(int idx) {
         addrIdx = idx;
     }
 
+    /**
+     * Increment address index for this chain.
+     *
+     */
     public void incAddrIdx() {
         addrIdx++;
     }
 
+    /**
+     * Write chain to JSONObject.
+     * Not used in Blockchain HD wallet.
+     * Use payload classes instead.
+     * For debugging only.
+     *
+     * @return JSONObject
+     *
+     */
     public JSONObject toJSON() {
         try {
             JSONObject obj = new JSONObject();
