@@ -161,7 +161,7 @@ public class BalanceFragment extends Fragment {
 
         accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
-        	ImportedAccount iAccount = new ImportedAccount("Imported addresses", PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        	ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         	accounts.add(iAccount);
         }
 
@@ -734,13 +734,13 @@ public class BalanceFragment extends Fragment {
 		String ret = null;
         Account hda = accounts.get(selectedAccount);
         if(hda instanceof ImportedAccount) {
-        	ret = "Imported addresses";
+        	ret = getString(R.string.imported_addresses);
         }
         if(hda.getLabel() != null && hda.getLabel().length() > 0) {
         	ret = hda.getLabel();
         }
         else {
-        	ret = "Account:" + selectedAccount;
+        	ret = getString(R.string.account_colon) + selectedAccount;
         }
         
         return ret;
