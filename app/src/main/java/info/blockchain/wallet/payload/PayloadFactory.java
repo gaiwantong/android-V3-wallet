@@ -22,6 +22,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
+import info.blockchain.wallet.R;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_Account;
@@ -390,15 +391,15 @@ public class PayloadFactory	{
 				
 				if(PayloadFactory.getInstance(context).get() != null)	{
 					if(PayloadFactory.getInstance(context).put(strTempPassword))	{
-			        	Toast.makeText(context, "Remote save OK", Toast.LENGTH_SHORT).show();
+//			        	Toast.makeText(context, "Remote save OK", Toast.LENGTH_SHORT).show();
 					}
 					else	{
-			        	Toast.makeText(context, "Remote save KO", Toast.LENGTH_SHORT).show();
+			        	Toast.makeText(context, R.string.remote_save_ko, Toast.LENGTH_SHORT).show();
 					}
 					
 				}
 				else	{
-		        	Toast.makeText(context, "Remote payload corrupted, not saved to server.", Toast.LENGTH_SHORT).show();
+		        	Toast.makeText(context, R.string.payload_corrupted, Toast.LENGTH_SHORT).show();
 				}
 
 				handler.post(new Runnable() {

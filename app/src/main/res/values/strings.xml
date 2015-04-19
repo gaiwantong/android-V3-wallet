@@ -190,4 +190,8 @@
     <string name="tx_length_error">Blockchain wallet cannot handle transactions over 100KB in size. Please try splitting your transaction.</string>
     <string name="invalid_tx">Invalid transaction attempt</string>
 
+    <string name="remote_save_ok">Remote save OK</string>
+    <string name="remote_save_ko">Remote save failed</string>
+    <string name="payload_corrupted">Remote payload corrupted, not saved to server.</string>
+
 </resources>
