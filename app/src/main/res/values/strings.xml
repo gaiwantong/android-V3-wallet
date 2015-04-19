@@ -13,6 +13,8 @@
 
     <string name="all_accounts">All Accounts</string>
 
+    <string name="please_wait">Please wait</string>
+
     <string name="send_bitcoin">Send Bitcoin</string>
     <string name="receive_bitcoin">Receive Bitcoin</string>
     <string name="blockchain">Blockchain</string>
@@ -79,6 +81,7 @@
     <string name="pin_3_strikes_password_accepted">Password accepted. Please define new PIN code.</string>
 
     <string name="pin_entry">Enter Pin</string>
+    <string name="password_entry">Please enter password</string>
     <string name="options_CLEAR">CLEAR</string>
     <string name="options_FORGOT_PIN">FORGOT PIN</string>
     <string name="zero_pin">0000 is an invalid PIN code. Please try again.</string>
@@ -173,5 +176,12 @@
 	<string name="dialog_send">SEND</string>
 	<string name="dialog_cancel">CANCEL</string>
 	<string name="exit_confirm">Press back button again to exit</string>
+
+    <string name="label_address">Label this address?</string>
+
+    <string name="bip38_error">Null key returned (BIP38)</string>
+    <string name="privkey_error">Unrecognized private key format</string>
+    <string name="hd_error">HD wallet error</string>
+    <string name="scan_not_recognized">Scan cannot be decoded</string>
 
 </resources>

@@ -416,7 +416,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                                 new AlertDialog.Builder(MainActivity.this)
                                         .setTitle(R.string.app_name)
-                                        .setMessage("Label this address?")
+                                        .setMessage(R.string.label_address)
                                         .setView(address_label)
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -453,7 +453,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                             new AlertDialog.Builder(this)
                                     .setTitle(R.string.app_name)
-                                    .setMessage("Please enter password")
+                                    .setMessage(R.string.password_entry)
                                     .setView(password)
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -467,7 +467,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                             }
                                             progress = new ProgressDialog(MainActivity.this);
                                             progress.setTitle(R.string.app_name);
-                                            progress.setMessage("Please wait...");
+                                            progress.setMessage(MainActivity.this.getResources().getString(R.string.please_wait));
                                             progress.show();
 
                                             new Thread(new Runnable() {
@@ -496,7 +496,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                                                             new AlertDialog.Builder(MainActivity.this)
                                                                     .setTitle(R.string.app_name)
-                                                                    .setMessage("Label this address?")
+                                                                    .setMessage(R.string.label_address)
                                                                     .setView(address_label)
                                                                     .setCancelable(false)
                                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -523,11 +523,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                                                         }
                                                         else	{
-                                                            Toast.makeText(MainActivity.this, "Null key returned (BIP38)", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(MainActivity.this, R.string.bip38_error, Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                     catch(Exception e) {
-                                                        Toast.makeText(MainActivity.this, "Exception: Password error", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(MainActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
                                                     }
                                                     finally {
                                                         if(progress != null && progress.isShowing()) {
@@ -550,11 +550,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                         }
                     }
                     else	{
-                        Toast.makeText(MainActivity.this, "Cannot recognize private key format", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
                     }
                 }
                 catch(Exception e)	{
-                    Toast.makeText(MainActivity.this, "Error processing private key format", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -602,7 +602,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         progress = new ProgressDialog(MainActivity.this);
         progress.setTitle(R.string.app_name);
-        progress.setMessage("Please wait...");
+        progress.setMessage(MainActivity.this.getResources().getString(R.string.please_wait));
         progress.show();
 
         new Thread(new Runnable() {
@@ -636,7 +636,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     }
                     else {
-                        Toast.makeText(MainActivity.this, "Password error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
                         if(progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
@@ -843,11 +843,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
             catch(IOException ioe) {
                 ioe.printStackTrace();
-                Toast.makeText(this, "HD wallet error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.hd_error, Toast.LENGTH_SHORT).show();
             }
             catch(MnemonicException.MnemonicLengthException mle) {
                 mle.printStackTrace();
-                Toast.makeText(this, "HD wallet error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.hd_error, Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -896,7 +896,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle(R.string.app_name)
-                    .setMessage("Please enter double encryption password")
+                    .setMessage(R.string.enter_double_encryption_pw)
                     .setView(double_encrypt_password)
                     .setCancelable(false)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -969,7 +969,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             btc_amount = FormatsUtil.getInstance().getBitcoinAmount(address);
         }
         else {
-            Toast.makeText(MainActivity.this, "Not processed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.scan_not_recognized, Toast.LENGTH_SHORT).show();
             return;
         }
 
