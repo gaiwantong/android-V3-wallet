@@ -1004,14 +1004,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
 //		getSupportActionBar().setLogo(R.drawable.masthead);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
-		getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
 
 		navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_items);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		listView = (ListView) findViewById(R.id.left_drawer);
 
-		// set a custom shadow that overlays the main content when the drawer opens
-		drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, navigationDrawerItems));
 		listView.setOnItemClickListener(new DrawerItemClickListener());

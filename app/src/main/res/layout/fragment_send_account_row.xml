@@ -27,7 +27,6 @@
 		android:textSize="16sp"
 		android:gravity="center_vertical"
 		android:textColor="@color/blockchain_grey"
-		android:singleLine="true"
-		android:background="@drawable/spinner_bg"/>
+		android:singleLine="true"/>
 
 </LinearLayout>
