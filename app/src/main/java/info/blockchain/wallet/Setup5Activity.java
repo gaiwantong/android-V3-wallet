@@ -142,13 +142,13 @@ public class Setup5Activity extends Activity	{
                 Looper.prepare();
 
                 if(PairingFactory.getInstance(Setup5Activity.this).handleQRCode(data))	{
-                    Toast.makeText(Setup5Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(Setup5Activity.this, Setup2Activity.class);
                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                     startActivity(intent);
                 }
                 else	{
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
 
@@ -186,7 +186,7 @@ public class Setup5Activity extends Activity	{
                         }
                         catch(Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                             AppUtil.getInstance(Setup5Activity.this).wipeApp();
                         }
 
@@ -198,13 +198,13 @@ public class Setup5Activity extends Activity	{
 
                                 if(HDPayloadBridge.getInstance(Setup5Activity.this).init(password)) {
                                     PayloadFactory.getInstance(Setup5Activity.this).setTempPassword(password);
-                                    Toast.makeText(Setup5Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Setup5Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(Setup5Activity.this, Setup2Activity.class);
                                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                                     startActivity(intent);
                                 }
                                 else {
-                                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                                 }
 
@@ -212,7 +212,7 @@ public class Setup5Activity extends Activity	{
 
                         }
                         else {
-                            Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                             AppUtil.getInstance(Setup5Activity.this).wipeApp();
                         }
 
@@ -221,12 +221,12 @@ public class Setup5Activity extends Activity	{
                 }
                 catch(JSONException je) {
                     je.printStackTrace();
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(Setup5Activity.this, "Pairing KO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Setup5Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
                     AppUtil.getInstance(Setup5Activity.this).wipeApp();
                 }
 
