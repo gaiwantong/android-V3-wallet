@@ -105,7 +105,7 @@ public class ManualPairingFragment extends Fragment {
 									PayloadFactory.getInstance(getActivity()).setTempPassword(password);
 									Toast.makeText(getActivity(), R.string.pairing_success, Toast.LENGTH_SHORT).show();
 									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-									intent.putExtra("pairing", true);
+									intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
 									getActivity().startActivity(intent);
 								}
 								else {

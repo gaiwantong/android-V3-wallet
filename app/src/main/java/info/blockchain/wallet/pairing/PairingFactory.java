@@ -1,14 +1,12 @@
 package info.blockchain.wallet.pairing;
 
-import java.io.UnsupportedEncodingException;
-import java.util.regex.Pattern;
-
 import android.content.Context;
-//import android.util.Log;
-
-import org.spongycastle.util.encoders.Hex;
 
 import org.json.JSONObject;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -16,9 +14,13 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+//import android.util.Log;
+
 public class PairingFactory	{
 	
 	private static Context context = null;
+
+    public static String KEY_EXTRA_IS_PAIRING = "is_pairing";
 
     private static PairingFactory instance = null;
 

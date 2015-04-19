@@ -1,29 +1,31 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-
 import android.app.Activity;
-import android.os.Bundle;
 import android.content.pm.ActivityInfo;
+import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewStub;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
-//import android.util.Log;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
+import java.io.IOException;
+
+import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
+
+//import android.util.Log;
 
 public class Setup2Activity extends Activity	{
 	
@@ -49,14 +51,13 @@ public class Setup2Activity extends Activity	{
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.app_name);
 
-        boolean isPairing = false;
         Bundle extras = getIntent().getExtras();
-        if(extras != null && extras.containsKey("pairing"))	{
-            isPairing = extras.getBoolean("pairing");
+
+        boolean isPairing = false;
+        if(extras != null && extras.containsKey(PairingFactory.KEY_EXTRA_IS_PAIRING))	{
+            isPairing = extras.getBoolean(PairingFactory.KEY_EXTRA_IS_PAIRING);
         }
-        else	{
-            isPairing = false;
-        }
+
         if(extras != null && extras.containsKey("_email"))	{
             strEmail = extras.getString("_email");
         }
@@ -129,7 +130,7 @@ public class Setup2Activity extends Activity	{
 
         spCurrencies = (SelectedSpinner)findViewById(R.id.currency);
 
-        if(!_isPairing) {
+        if(!isPairing) {
             currencyLabels = ExchangeRateFactory.getInstance(this).getCurrencyLabels();
             spCurrenciesAdapter = new ArrayAdapter(this, R.layout.spinner_item, currencyLabels);
             spCurrenciesAdapter.setDropDownViewResource(R.layout.spinner_item2);

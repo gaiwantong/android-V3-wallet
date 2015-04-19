@@ -104,7 +104,7 @@ public class Setup00Activity extends ActionBarActivity {
 				if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
 					Toast.makeText(Setup00Activity.this, "Pairing OK", Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
-					intent.putExtra("pairing", true);
+					intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
 					startActivity(intent);
 				}
 				else	{

@@ -30,6 +30,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -87,22 +88,17 @@ public class PinEntryActivity extends Activity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        boolean isPairing = false;
         Bundle extras = getIntent().getExtras();
 
-        if (extras != null && extras.containsKey("pairing")) {
-            isPairing = extras.getBoolean("pairing");
-        } else {
-            isPairing = false;
-        }
         if (extras != null && extras.containsKey("_email")) {
             strEmail = extras.getString("_email");
         }
+
         if (extras != null && extras.containsKey("_pw")) {
             strPassword = extras.getString("_pw");
         }
 
-        if (isPairing) {
+        if (extras != null && extras.containsKey(PairingFactory.KEY_EXTRA_IS_PAIRING)) {
             AppUtil.getInstance(this).restartApp(); // ?
         } else if (strPassword != null && strEmail != null) {
 
