@@ -311,10 +311,10 @@ public class SettingsActivity extends PreferenceActivity {
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
         } catch (MnemonicException.MnemonicLengthException mle) {
             mle.printStackTrace();
-            Toast.makeText(SettingsActivity.this, "HD wallet error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
         } finally {
             new AlertDialog.Builder(SettingsActivity.this)
                     .setTitle(R.string.app_name)
