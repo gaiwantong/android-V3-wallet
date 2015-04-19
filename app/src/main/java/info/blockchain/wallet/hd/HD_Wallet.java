@@ -47,7 +47,7 @@ public class HD_Wallet {
      * @param NetworkParameters params
      * @param byte[] seed seed for this wallet
      * @param String passphrase optional BIP39 passphrase
-     * @param int nbAccounts nubber of accounts to create
+     * @param int nbAccounts number of accounts to create
      *
      */
     public HD_Wallet(MnemonicCode mc, NetworkParameters params, byte[] seed, String passphrase, int nbAccounts) throws MnemonicException.MnemonicLengthException {
