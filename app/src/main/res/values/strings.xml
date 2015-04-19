@@ -186,6 +186,7 @@
 
     <string name="imported_addresses">Imported addresses</string>
     <string name="account_colon">Account:</string>
+    <string name="created_account_colon">Created account:</string>
 
     <string name="tx_length_error">Blockchain wallet cannot handle transactions over 100KB in size. Please try splitting your transaction.</string>
     <string name="invalid_tx">Invalid transaction attempt</string>
