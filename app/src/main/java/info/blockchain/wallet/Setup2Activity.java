@@ -114,11 +114,11 @@ public class Setup2Activity extends Activity	{
                         AppUtil.getInstance(Setup2Activity.this).restartApp();
                     }
                     catch(IOException ioe) {
-                        Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Setup2Activity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
                         AppUtil.getInstance(Setup2Activity.this).wipeApp();
                     }
                     catch(MnemonicException.MnemonicLengthException mle) {
-                        Toast.makeText(Setup2Activity.this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Setup2Activity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
                         AppUtil.getInstance(Setup2Activity.this).wipeApp();
                     }
 
