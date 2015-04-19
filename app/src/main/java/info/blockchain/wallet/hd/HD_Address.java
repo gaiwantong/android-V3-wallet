@@ -13,6 +13,11 @@ import com.google.bitcoin.crypto.ChildNumber;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ *
+ * HD_Address.java : an address in a Blockchain Android HD chain
+ *
+ */
 public class HD_Address {
 
     private int mChildNum;
@@ -28,6 +33,14 @@ public class HD_Address {
 
     private HD_Address() { ; }
 
+    /**
+     * Constructor an HD address.
+     *
+     * @param NetworkParameters params
+     * @param DeterministicKey mKey deterministic key for this address
+     * @param int child index of this address in its chain
+     *
+     */
     public HD_Address(NetworkParameters params, DeterministicKey cKey, int child) {
 
         mParams = params;
@@ -46,26 +59,32 @@ public class HD_Address {
         strPath = dk.getPath();
     }
 
-    public boolean isSameAs(byte[] pubkey, byte[] pubkeyhash) {
-        if(pubkey != null) {
-            return Arrays.equals(pubkey, mPubKey);
-        }
-        else if(pubkeyhash != null) {
-            return Arrays.equals(pubkeyhash, mPubKeyHash);
-        }
-        else {
-            return false;
-        }
-    }
-
+    /**
+     * Return BIP44 path for this address (m / purpose' / coin_type' / account' / change / address_index).
+     *
+     * @return String
+     *
+     */
     public String getPath() {
         return strPath;
     }
 
+    /**
+     * Return public address for this instance.
+     *
+     * @return String
+     *
+     */
     public String getAddressString() {
         return ecKey.toAddress(mParams).toString();
     }
 
+    /**
+     * Return private key for this address (compressed WIF format).
+     *
+     * @return String
+     *
+     */
     public String getPrivateKeyString() {
 
         if(ecKey.hasPrivKey()) {
@@ -77,36 +96,25 @@ public class HD_Address {
 
     }
 
-    public Address getAddress() {
-        return ecKey.toAddress(mParams);
-    }
-
+    /**
+     * Return index of this address within its chain.
+     *
+     * @return int
+     *
+     */
     public int getIndex() {
         return mChildNum;
     }
 
-    public boolean isSameAs(Address addr) {
-        return ecKey.toAddress(mParams).toString().equals(addr.toString());
-    }
-
-    // used by HD_Wallet.seenAddress(Address addr)
-    public void setAccount(HD_Account account) {
-        hdAccount = account;
-    }
-
-    public HD_Account getAccount() {
-        return hdAccount;
-    }
-
-    // used by HD_Wallet.seenAddress(Address addr)
-    public void setChain(HD_Chain chain) {
-        hdChain = chain;
-    }
-
-    private HD_Chain getChain() {
-        return hdChain;
-    }
-
+    /**
+     * Write address to JSONObject.
+     * Not used in Blockchain HD wallet.
+     * Use payload classes instead.
+     * For debugging only.
+     *
+     * @return JSONObject
+     *
+     */
     public JSONObject toJSON() {
         try {
             JSONObject obj = new JSONObject();
