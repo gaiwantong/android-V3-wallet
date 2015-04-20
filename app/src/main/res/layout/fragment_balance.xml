@@ -13,7 +13,7 @@
 		sothree:umanoDragView="@+id/dragView"
 		sothree:umanoInitialState="hidden"
 		sothree:umanoOverlay="false"
-		sothree:umanoPanelHeight="96dp"
+		sothree:umanoPanelHeight="112dp"
 		sothree:umanoParalaxOffset="100dp"
 		sothree:umanoShadowHeight="4dp">
 
@@ -42,7 +42,7 @@
 				android:gravity="left|center_vertical"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
-				android:textSize="26dp"
+				android:textSize="32dp"
                 android:paddingLeft="64dp"
 				/>
 

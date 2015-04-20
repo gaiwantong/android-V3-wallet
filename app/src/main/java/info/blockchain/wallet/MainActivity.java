@@ -544,24 +544,30 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 	@Override
 	public void onBackPressed()
 	{
-		exitClicked++;
-		if(exitClicked==2)
-			finish();
-		else
-			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+		if(drawerIsOpen){
+			mDrawerLayout.closeDrawers();
+		}else {
 
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				for(int j = 0; j <= exitCooldown; j++)
-				{
-					try{Thread.sleep(1000);} catch (InterruptedException e){e.printStackTrace();}
-					if(j >= exitCooldown)exitClicked = 0;
+			exitClicked++;
+			if (exitClicked == 2)
+				finish();
+			else
+				Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for (int j = 0; j <= exitCooldown; j++) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						if (j >= exitCooldown) exitClicked = 0;
+					}
 				}
-			}
-		}).start();
+			}).start();
+		}
 	}
 
     private void updatePayloadThread(final CharSequenceX pw) {
