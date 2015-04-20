@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
@@ -38,6 +39,7 @@ public class Setup00Activity extends ActionBarActivity {
 		getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.blockchain_blue)));
 		getSupportActionBar().setHomeButtonEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		findViewById(R.id.account_spinner).setVisibility(View.GONE);
 
 		Fragment fragment = new CreateWalletFragment();
 		if(getIntent().getIntExtra("starting_fragment", 1)==1)

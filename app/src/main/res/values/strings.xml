@@ -213,4 +213,6 @@
 	<string name="unpair_wallet">Unpair Wallet</string>
 	<string name="unpair">UNPAIR</string>
 
+	<string name="ok_cap">OK</string>
+
 </resources>
