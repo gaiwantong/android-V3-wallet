@@ -10,4 +10,5 @@
     android:paddingRight="5dip"
 	android:paddingTop="5dip"
 	android:paddingBottom="5dip"
+	android:background="@drawable/ripple_dropdown"
     />

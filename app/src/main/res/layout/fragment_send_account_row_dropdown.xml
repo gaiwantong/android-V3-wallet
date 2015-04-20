@@ -5,7 +5,7 @@
 			  android:paddingLeft="16dp"
 			  android:paddingRight="16dp"
 			  android:gravity="center_vertical"
-			  android:background="@color/blockchain_pearl_white"
+			  android:background="@drawable/ripple_dropdown"
 			  android:layout_height="48dp">
 
 	<TextView
@@ -27,9 +27,7 @@
 		android:layout_weight="5"
 		android:layout_height="48dp"
 		android:textSize="16sp"
-		android:gravity="center_vertical"
+		android:gravity="center_vertical|right"
 		android:textColor="@color/blockchain_grey"/>
-
-	<!--TODO Colored Ripples for touch feedback-->
 
 </LinearLayout>

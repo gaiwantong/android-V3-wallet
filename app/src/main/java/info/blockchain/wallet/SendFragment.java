@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -26,7 +27,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-//import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Utils;
@@ -36,7 +36,6 @@ import org.apache.commons.codec.DecoderException;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -59,6 +58,8 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+//import android.util.Log;
 
 public class SendFragment extends Fragment {
 	
@@ -123,6 +124,11 @@ public class SendFragment extends Fragment {
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				View view = getActivity().getCurrentFocus();
+				if (view != null) {
+					InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				}
 				Fragment fragment = new BalanceFragment();
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
