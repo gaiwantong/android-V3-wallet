@@ -33,6 +33,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
@@ -65,6 +67,7 @@ import java.util.Locale;
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
@@ -1072,12 +1075,48 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 								Toast.makeText(MainActivity.this, "Change pin Coming soon", Toast.LENGTH_SHORT).show();
 								break;
 							case 4:
-								Toast.makeText(MainActivity.this, "Unpair Wallet Coming soon", Toast.LENGTH_SHORT).show();
+								doUnpairWallet();
 								break;
 						}
 
 					}
 				})
 		);
+	}
+
+	private void doUnpairWallet(){
+
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+		LayoutInflater inflater = this.getLayoutInflater();
+		View dialogView = inflater.inflate(R.layout.alert_unpair_wallet, null);
+		dialogBuilder.setView(dialogView);
+
+		final AlertDialog alertDialog = dialogBuilder.create();
+		alertDialog.setCanceledOnTouchOutside(false);
+
+		TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+		confirmCancel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+			}
+		});
+
+		TextView confirmUnpair = (TextView) dialogView.findViewById(R.id.confirm_unpair);
+		confirmUnpair.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PayloadFactory.getInstance().wipe();
+				MultiAddrFactory.getInstance().wipe();
+				PrefsUtil.getInstance(MainActivity.this).clear();
+
+				AppUtil.getInstance(MainActivity.this).restartApp();
+
+				alertDialog.dismiss();
+			}
+		});
+
+		alertDialog.show();
+
 	}
 }

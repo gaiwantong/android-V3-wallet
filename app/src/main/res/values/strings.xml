@@ -210,4 +210,7 @@
 	<string name="drawer_open">Drawer open</string>
 	<string name="drawer_close">Drawer close</string>
 
+	<string name="unpair_wallet">Unpair Wallet</string>
+	<string name="unpair">UNPAIR</string>
+
 </resources>
