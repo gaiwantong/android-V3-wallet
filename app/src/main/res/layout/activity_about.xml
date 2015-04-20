@@ -40,55 +40,43 @@
     	android:orientation="horizontal"
     	>
     
-    	<Button
+    	<TextView
             android:id="@+id/rate_us"
             android:layout_width="140dp"
             android:layout_height="50dp"
             android:layout_marginRight="5dp"
 	        android:layout_marginBottom="20dp"
-            android:background="@drawable/button_generic"
+			android:gravity="center"
         	android:text="@string/rate_us"
 			android:textSize="22sp"
-			android:textColor="#FF000000"
-    	 	android:shadowColor="#191919"
-			android:shadowDx="1"
-			android:shadowDy="1"
-			android:shadowRadius="1"
+			android:textColor="@color/primary_text_default_material_dark"
         />
 
-        <Button
+        <TextView
             android:id="@+id/support"
             android:layout_width="140dp"
             android:layout_height="50dp"
             android:layout_marginLeft="5dp"
 	        android:layout_marginBottom="20dp"
-            android:background="@drawable/button_generic"
+			android:gravity="center"
         	android:text="@string/support"
 			android:textSize="22sp"
-			android:textColor="#FF000000"
-    	 	android:shadowColor="#191919"
-			android:shadowDx="1"
-			android:shadowDy="1"
-			android:shadowRadius="1"
+			android:textColor="@color/primary_text_default_material_dark"
         />
     	
     </LinearLayout>
 
-    <Button
+    <TextView
             android:id="@+id/free_wallet"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
 	        android:layout_marginBottom="20dp"
-            android:background="@drawable/button_generic"
+			android:gravity="center"
         	android:text="@string/merchant_download"
 			android:textSize="22sp"
-			android:textColor="#FF000000"
-    	 	android:shadowColor="#191919"
-			android:shadowDx="1"
-			android:shadowDy="1"
-			android:shadowRadius="1"
+			android:textColor="@color/primary_text_default_material_dark"
         />
     
 </LinearLayout>
