@@ -103,7 +103,7 @@ public class PinEntryActivity extends Activity {
         } else if (strPassword != null && strEmail != null) {
 
             //
-            // save email here
+            // save drawerEmail here
             //
 
             // create wallet

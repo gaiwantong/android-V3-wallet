@@ -2,11 +2,20 @@
 <resources>
 
     <string-array name="navigation_drawer_items">
-        <item>Create New Account</item>
-        <item>Prices and Charts</item>
-        <item>Wallet Settings</item>
-        <item>Import Address</item>
+        <item>My Accounts</item>
+        <item>News, Price &amp; Charts</item>
+        <item>Settings</item>
+        <item>Change PIN Code</item>
+		<item>Unpair Wallet</item>
     </string-array>
+
+	<array name="navigation_drawer_icons">
+		<item>@drawable/icon_accounts</item>
+		<item>@drawable/icon_news</item>
+		<item>@drawable/icon_settings</item>
+		<item>@drawable/icon_pincode</item>
+		<item>@drawable/icon_logout</item>
+	</array>
 
     <string name="app_name">Blockchain HD</string>
     <string name="action_settings">Settings</string>
@@ -194,5 +203,9 @@
     <string name="remote_save_ok">Remote save OK</string>
     <string name="remote_save_ko">Remote save failed</string>
     <string name="payload_corrupted">Remote payload corrupted, not saved to server.</string>
+
+	<string name="my_bitcoin_wallet">My Bitcoin Wallet</string>
+	<string name="drawer_open">Drawer open</string>
+	<string name="drawer_close">Drawer close</string>
 
 </resources>

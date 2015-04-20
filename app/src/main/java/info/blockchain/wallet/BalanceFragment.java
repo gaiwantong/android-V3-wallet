@@ -29,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -259,7 +258,7 @@ public class BalanceFragment extends Fragment {
         displayBalance();
         updateTx();
 
-        // Name account now that wallet has been created
+        // drawerTitle account now that wallet has been created
         if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
     		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
     		PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);

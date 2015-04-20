@@ -355,16 +355,16 @@ public class SettingsActivity extends PreferenceActivity {
 
     	SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
 
-    	if(key.equals("backups") && !sp.getString("email", "").equals("")) {
+    	if(key.equals("backups") && !sp.getString("drawerEmail", "").equals("")) {
     		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
     	}
     	else {
     		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
     	}
-    	if(key.equals("email") && sp.getBoolean("backups", false) == true) {
-    		String email = sp.getString("email", "");
-    		if(emailPattern.matcher(email).matches()) {
-        		sendEmailThread(email);
+    	if(key.equals("drawerEmail") && sp.getBoolean("backups", false) == true) {
+    		String drawerEmail = sp.getString("drawerEmail", "");
+    		if(emailPattern.matcher(drawerEmail).matches()) {
+        		sendEmailThread(drawerEmail);
     		}
     		else {
    				Toast.makeText(SettingsActivity.this, R.string.invalid_email, Toast.LENGTH_LONG).show();
@@ -389,7 +389,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     }
     
-    private void sendEmailThread(final String email) {
+    private void sendEmailThread(final String drawerEmail) {
 
     	final MyRemoteWallet remoteWallet = WalletUtil.getInstance(SettingsActivity.this).getRemoteWallet();
 
@@ -402,7 +402,7 @@ public class SettingsActivity extends PreferenceActivity {
 				
 				String response = null;
 				try {
-					response = remoteWallet.updateEmail(email);
+					response = remoteWallet.updateEmail(drawerEmail);
 				}
 				catch(Exception e) {
 					e.printStackTrace();
@@ -453,7 +453,7 @@ public class SettingsActivity extends PreferenceActivity {
 		}).start();
 	}
 
-    private void sendNotifsThread(final boolean email, final boolean sms) {
+    private void sendNotifsThread(final boolean drawerEmail, final boolean sms) {
 
     	final MyRemoteWallet remoteWallet = WalletUtil.getInstance(SettingsActivity.this).getRemoteWallet();
 
@@ -466,7 +466,7 @@ public class SettingsActivity extends PreferenceActivity {
 				
 				String response = null;
 				try {
-					response = remoteWallet.updateNotificationsType(email, sms);
+					response = remoteWallet.updateNotificationsType(drawerEmail, sms);
 				}
 				catch(Exception e) {
 					e.printStackTrace();

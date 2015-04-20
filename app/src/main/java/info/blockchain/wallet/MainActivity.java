@@ -1,66 +1,66 @@
 package info.blockchain.wallet;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.nio.charset.Charset;
-
 import android.app.Activity;
-import android.content.Intent;
-import android.nfc.NfcAdapter;
-import android.os.Build;
-import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.res.TypedArray;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
+import android.nfc.NfcEvent;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.view.GravityCompat;
+import android.os.Parcelable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.text.InputType;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-//import android.nfc.Tag;
-import android.nfc.NfcEvent;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
+import android.widget.ImageView;
 import android.widget.Toast;
-import android.os.Parcelable;
-import android.text.InputType;
-
-import org.apache.commons.codec.DecoderException;
-
-import org.json.JSONException;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 import com.dm.zbar.android.scanner.ZBarScannerActivity;
-import net.sourceforge.zbar.Symbol;
-
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.crypto.MnemonicException;
 import com.google.bitcoin.params.MainNetParams;
+
+import net.sourceforge.zbar.Symbol;
+
+import org.apache.commons.codec.DecoderException;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.hd.HD_Wallet;
@@ -79,6 +79,8 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+//import android.nfc.Tag;
+
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
@@ -91,14 +93,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private boolean wasPaused = false;
 
-    // hamburger menu
-    private DrawerLayout drawerLayout = null;
-    private ListView listView = null;
-    private ActionBarDrawerToggle actionBarDrawerToggle = null;
-    private String[] navigationDrawerItems = null;
     public static boolean drawerIsOpen = false;
 
-    private ProgressDialog progress = null;
+	RecyclerView recyclerViewDrawer;
+	RecyclerView.Adapter mAdapter;
+	RecyclerView.LayoutManager mLayoutManager;
+	DrawerLayout mDrawerLayout;
+
+	ActionBarDrawerToggle mDrawerToggle;
+
+	private ProgressDialog progress = null;
 
     private NfcAdapter mNfcAdapter = null;
     public static final String MIME_TEXT_PLAIN = "text/plain";
@@ -182,6 +186,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         locale = Locale.getDefault();
 
+		setToolbar();
 		setNavigationDrawer();
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -324,39 +329,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
-	/* The click listener for ListView in the navigation drawer */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
-        }
-    }
-
-    private void selectItem(int position) {
-
-        switch(position) {
-            case 0:
-                addAccount();
-                break;
-            case 1:
-                doExchangeRates();
-                break;
-            case 2:
-                doSettings();
-                break;
-            case 3:
-                scanPrivateKey();
-                break;
-            default:
-                break;
-        }
-
-        // update selected item and title, then close the drawer
-        listView.setItemChecked(position, true);
-        setTitle(navigationDrawerItems[position]);
-        drawerLayout.closeDrawer(listView);
-    }
-
     @Override
     public void setTitle(CharSequence title) { ; }
 
@@ -368,14 +340,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        actionBarDrawerToggle.syncState();
+//        actionBarDrawerToggle.syncState();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggle
-        actionBarDrawerToggle.onConfigurationChanged(newConfig);
+//        actionBarDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -993,41 +965,113 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-	@Override
-	public void setNavigationDrawer() {
+	public void setToolbar() {
 
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
 		setSupportActionBar(toolbar);
+	}
 
-//		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() ^ ActionBar.DISPLAY_SHOW_TITLE);
-		getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_TITLE);
-//		getSupportActionBar().setLogo(R.drawable.masthead);
-		getSupportActionBar().setDisplayShowTitleEnabled(false);
+	public void setNavigationDrawer() {
 
-		navigationDrawerItems = getResources().getStringArray(R.array.navigation_drawer_items);
-		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		listView = (ListView) findViewById(R.id.left_drawer);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-		// set up the drawer's list view with items and click listener
-		listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, navigationDrawerItems));
-		listView.setOnItemClickListener(new DrawerItemClickListener());
+		// Fix right margin to 56dp (portrait)
+		View drawer = findViewById(R.id.scrimInsetsFrameLayout);
+		ViewGroup.LayoutParams layoutParams = drawer.getLayoutParams();
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+			layoutParams.width = displayMetrics.widthPixels - (56 * Math.round(displayMetrics.density));
+		}
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			layoutParams.width = displayMetrics.widthPixels + (20 * Math.round(displayMetrics.density)) - displayMetrics.widthPixels / 2;
+		}
 
-		//actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name) {
+		// Setup Drawer Icon
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
 
-            public void onDrawerClosed(View view) {
-                drawerIsOpen = false;
-            }
+			public void onDrawerClosed(View view) {
+				drawerIsOpen = false;
+			}
 
-            public void onDrawerOpened(View drawerView) {
-                drawerIsOpen = true;
-            }
-        };
-		drawerLayout.setDrawerListener(actionBarDrawerToggle);
-
-		// enable ActionBar app icon to behave as action to toggle nav drawer
+			public void onDrawerOpened(View drawerView) {
+				drawerIsOpen = true;
+			}
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
+		mDrawerToggle.syncState();
+
+		// statusBar color behind navigation drawer
+		TypedValue typedValueStatusBarColor = new TypedValue();
+		MainActivity.this.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValueStatusBarColor, true);
+		final int colorStatusBar = typedValueStatusBarColor.data;
+		mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
+
+		// Setup RecyclerView inside drawer
+		recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
+		recyclerViewDrawer.setHasFixedSize(true);
+		recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+
+		ArrayList<DrawerItem> drawerItems = new ArrayList<>();
+		final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
+		final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+		for (int i = 0; i < drawerTitles.length; i++) {
+			drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+		}
+		drawerIcons.recycle();
+		DrawerAdapter adapterDrawer = new DrawerAdapter(drawerItems);
+		recyclerViewDrawer.setAdapter(adapterDrawer);
+
+		//TODO try to get status bar translucent (lollipop) - Fok weet
+//		mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(android.R.color.transparent));
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+		recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+
+				for (int i = 0; i < drawerTitles.length; i++) {
+					ImageView imageViewDrawerIcon = (ImageView) recyclerViewDrawer.getChildAt(i).findViewById(R.id.drawer_row_icon);
+					if (Build.VERSION.SDK_INT > 15) {
+						imageViewDrawerIcon.setImageAlpha(255);
+					} else {
+						imageViewDrawerIcon.setAlpha(255);
+					}
+				}
+
+				// unregister listener (this is important)
+				recyclerViewDrawer.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+			}
+		});
+
+		recyclerViewDrawer.addOnItemTouchListener(
+				new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+					@Override public void onItemClick(View view, int position) {
+
+						switch (position) {
+							case 0:
+								Toast.makeText(MainActivity.this, "My Accounts Coming soon", Toast.LENGTH_SHORT).show();
+								break;
+							case 1:
+								//Toast.makeText(MainActivity.this, "News", Toast.LENGTH_SHORT).show();
+								doExchangeRates();
+								break;
+							case 2:
+								//Toast.makeText(MainActivity.this, "Settings", Toast.LENGTH_SHORT).show();
+								doSettings();
+								break;
+							case 3:
+								Toast.makeText(MainActivity.this, "Change pin Coming soon", Toast.LENGTH_SHORT).show();
+								break;
+							case 4:
+								Toast.makeText(MainActivity.this, "Unpair Wallet Coming soon", Toast.LENGTH_SHORT).show();
+								break;
+						}
+
+					}
+				})
+		);
 	}
 }

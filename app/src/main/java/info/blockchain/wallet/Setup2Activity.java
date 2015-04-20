@@ -100,7 +100,7 @@ public class Setup2Activity extends Activity	{
                     PrefsUtil.getInstance(Setup2Activity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencyLabels[currency].substring(currencyLabels[currency].length() - 3));
 
                     //
-                    // save email here
+                    // save drawerEmail here
                     //
 
                     // create wallet
