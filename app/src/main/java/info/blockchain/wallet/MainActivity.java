@@ -1060,7 +1060,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 								doSettings();
 								break;
 							case 3:
-								Toast.makeText(MainActivity.this, "Change pin Coming soon", Toast.LENGTH_SHORT).show();
+//								Toast.makeText(MainActivity.this, "Change pin Coming soon", Toast.LENGTH_SHORT).show();
+								doChangePin();
 								break;
 							case 4:
 								doUnpairWallet();
@@ -1072,6 +1073,51 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 					}
 				})
 		);
+	}
+
+	private void doChangePin() {
+
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+		LayoutInflater inflater = this.getLayoutInflater();
+		final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
+		dialogBuilder.setView(dialogView);
+
+		final AlertDialog alertDialog = dialogBuilder.create();
+		alertDialog.setCanceledOnTouchOutside(false);
+
+		TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+		confirmCancel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+			}
+		});
+
+		TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
+		confirmChangePin.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
+
+				if(pass.getText().toString().equals(PayloadFactory.getInstance(MainActivity.this).getTempPassword().toString())) {
+
+					PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+					PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+
+					Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
+					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(intent);
+					finish();
+
+					alertDialog.dismiss();
+				}else{
+					Toast.makeText(MainActivity.this,getResources().getString(R.string.invalid_password),Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+
+		alertDialog.show();
 	}
 
 	private void doUnpairWallet(){

@@ -1,6 +1,7 @@
 package info.blockchain.wallet;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -32,6 +33,8 @@ public class ManualPairingFragment extends Fragment {
 	private EditText edGuid = null;
     private EditText edPassword = null;
     private TextView next = null;
+
+	private ProgressDialog progress = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,6 +75,16 @@ public class ManualPairingFragment extends Fragment {
 	private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
 		final Handler handler = new Handler();
+
+		if(progress != null && progress.isShowing()) {
+			progress.dismiss();
+			progress = null;
+		}
+		progress = new ProgressDialog(getActivity());
+		progress.setCancelable(false);
+		progress.setTitle(R.string.app_name);
+		progress.setMessage("Please wait...");
+		progress.show();
 
 		new Thread(new Runnable() {
 			@Override
@@ -133,6 +146,11 @@ public class ManualPairingFragment extends Fragment {
 					e.printStackTrace();
 					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
 					AppUtil.getInstance(getActivity()).wipeApp();
+				}finally {
+					if(progress != null && progress.isShowing()) {
+						progress.dismiss();
+						progress = null;
+					}
 				}
 
 				handler.post(new Runnable() {

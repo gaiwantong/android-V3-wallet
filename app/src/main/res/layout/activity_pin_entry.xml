@@ -110,7 +110,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="20dip"
                     android:background="@color/blockchain_navigation_bar"
                     android:gravity="center_horizontal"
                     android:shrinkColumns="*"
@@ -128,10 +127,11 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+                            android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
                             android:tag="1"
+							android:onClick="padClicked"
                             android:padding="@dimen/pinentry_padding">
 
                             <TextView
@@ -163,9 +163,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="2"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -197,9 +198,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="3"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -239,10 +241,11 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
                             android:tag="4"
+							android:onClick="padClicked"
                             android:padding="@dimen/pinentry_padding">
 
                             <TextView
@@ -274,9 +277,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="5"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -308,9 +312,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="6"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -349,10 +354,11 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
                             android:tag="7"
+							android:onClick="padClicked"
                             android:padding="@dimen/pinentry_padding">
 
                             <TextView
@@ -384,9 +390,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="8"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -418,9 +425,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:tag="9"
+							android:onClick="padClicked"
                             android:orientation="vertical">
 
                             <TextView
@@ -459,7 +467,7 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
                             android:padding="@dimen/pinentry_padding">
@@ -493,10 +501,11 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
                             android:tag="0"
+							android:onClick="padClicked"
                             android:padding="9dp">
 
                             <TextView
@@ -528,9 +537,10 @@
                             android:layout_width="0dip"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@color/white"
+							android:background="@drawable/ripple_dropdown"
                             android:gravity="center"
                             android:orientation="vertical"
+							android:onClick="cancelClicked"
                             android:padding="9dp">
 
                             <ImageView
