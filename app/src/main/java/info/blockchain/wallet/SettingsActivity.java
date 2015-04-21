@@ -22,11 +22,10 @@ import java.io.IOException;
 
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
-import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -60,8 +59,29 @@ public class SettingsActivity extends PreferenceActivity {
         Preference fiatPref = (Preference) findPreference("fiat");
         fiatPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(SettingsActivity.this, CurrencySelector.class);
-                startActivity(intent);
+
+				final String[] currencies = ExchangeRateFactory.getInstance(SettingsActivity.this).getCurrencyLabels();
+				String strCurrency = PrefsUtil.getInstance(SettingsActivity.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+				int sel = 0;
+				for(int i = 0; i < currencies.length; i++) {
+					if(currencies[i].endsWith(strCurrency)) {
+						sel = i;
+						break;
+					}
+				}
+
+				new AlertDialog.Builder(SettingsActivity.this)
+						.setTitle(R.string.select_currency)
+//                .setCancelable(false)
+						.setSingleChoiceItems(currencies, sel, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+//										PrefsUtil.getInstance(SettingsActivity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, which);
+										PrefsUtil.getInstance(SettingsActivity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
+										dialog.dismiss();
+									}
+								}
+						).show();
+
                 return true;
             }
         });
@@ -212,6 +232,7 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 */
+
         Preference aboutPref = (Preference) findPreference("about");
         aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {

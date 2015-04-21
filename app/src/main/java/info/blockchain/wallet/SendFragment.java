@@ -984,7 +984,10 @@ public class SendFragment extends Fragment {
 				}
 			}
 
-			if(isDropdown)balance.setText("("+getDisplayAmount(amount)+" "+strBTC+")");
+			if(isDropdown)
+				balance.setText("("+getDisplayAmount(amount)+" "+strBTC+")");
+			else
+				balance.setVisibility(View.GONE);
 
 			label.setText(labelText);
 

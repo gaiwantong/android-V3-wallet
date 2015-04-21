@@ -17,9 +17,9 @@ import android.net.Uri;
 public class AboutActivity extends Activity	{
 
 	private TextView tvAbout = null;
-	private Button bRate = null;
-	private Button bSupport = null;
-	private Button bDownload = null;
+	private TextView bRate = null;
+	private TextView bSupport = null;
+	private TextView bDownload = null;
 	private String strMerchantPackage = "info.blockchain.merchant";
 
     @Override
@@ -35,7 +35,7 @@ public class AboutActivity extends Activity	{
         tvAbout = (TextView)findViewById(R.id.about);
         tvAbout.setText(getString(R.string.about, getString(R.string.version_name), "2015"));
 
-        bRate = (Button)findViewById(R.id.rate_us);
+        bRate = (TextView)findViewById(R.id.rate_us);
         bRate.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
             	String appPackageName = getPackageName();
@@ -45,7 +45,7 @@ public class AboutActivity extends Activity	{
             }
         });
     
-        bSupport = (Button)findViewById(R.id.support);
+        bSupport = (TextView)findViewById(R.id.support);
         bSupport.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
             	Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","support@blockchain.zendesk.com", null));
@@ -54,7 +54,7 @@ public class AboutActivity extends Activity	{
             }
         });
 
-        bDownload = (Button)findViewById(R.id.free_wallet);
+        bDownload = (TextView)findViewById(R.id.free_wallet);
         if(hasWallet())	{
         	bDownload.setVisibility(View.GONE);
         }

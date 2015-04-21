@@ -1068,7 +1068,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 								doExchangeRates();
 								break;
 							case 2:
-								//Toast.makeText(MainActivity.this, "Settings", Toast.LENGTH_SHORT).show();
 								doSettings();
 								break;
 							case 3:
@@ -1078,6 +1077,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 								doUnpairWallet();
 								break;
 						}
+
+						mDrawerLayout.closeDrawers();
 
 					}
 				})
