@@ -44,6 +44,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
 			android:password="true"
+			android:singleLine="true"
 			android:textColor="@color/primary_text_default_material_light"/>
 
 	</LinearLayout>
