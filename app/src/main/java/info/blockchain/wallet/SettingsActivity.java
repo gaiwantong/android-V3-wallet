@@ -176,7 +176,7 @@ public class SettingsActivity extends PreferenceActivity {
         		}
         	});
 */
-
+/*
         Preference unpairPref = (Preference) findPreference("unpair");
         unpairPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
@@ -211,7 +211,7 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
-
+*/
         Preference aboutPref = (Preference) findPreference("about");
         aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {

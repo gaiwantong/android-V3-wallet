@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.26a</string>
+    <string name="version_name">5.0.27a</string>
 
     <string-array name="navigation_drawer_items">
         <item>My Accounts</item>
