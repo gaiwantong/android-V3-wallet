@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -88,6 +89,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
     private static final int SCAN_URI = 2007;
+
+    private static int MERCHANT_ACTIVITY = 1;
 
     private Locale locale = null;
 
@@ -922,23 +925,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivityForResult(intent, SCAN_URI);
     }
 
-/*
-    private void doMerchantDirectory()	{
-    	if (!application.isGeoEnabled()) {
-    		EnableGeo.displayGPSPrompt(this);
-    	}
-    	else {
-    		//
-    		// SecurityException fix
-    		//
-    		Security.removeProvider("SC");
-    		TimeOutUtil.getInstance().updatePin();
-        	Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
-    		startActivityForResult(intent, MERCHANT_ACTIVITY);
-    	}
-    }
-*/
-
     private void doScanInput(String address)	{
 
         String btc_address = null;
@@ -1122,4 +1108,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		alertDialog.show();
 
 	}
+
+    private void doMerchantDirectory()	{
+
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!enabled) {
+            EnableGeo.displayGPSPrompt(this);
+        }
+        else {
+            TimeOutUtil.getInstance().updatePin();
+            Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
+            startActivityForResult(intent, MERCHANT_ACTIVITY);
+        }
+    }
+
 }
