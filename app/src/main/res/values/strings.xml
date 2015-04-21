@@ -215,4 +215,40 @@
 
 	<string name="ok_cap">OK</string>
 
+    <string name="suggest_merchant">Suggest a merchant</string>
+    <string name="business_name">Business name</string>
+    <string name="select_category">Category</string>
+    <string name="business_category">Category</string>
+    <string name="street_address">Street address</string>
+    <string name="description">Description</string>
+    <string name="city">City</string>
+    <string name="zip">Zip code</string>
+    <string name="telephone">Telephone</string>
+    <string name="web">Web</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="get_location">I am here. Use my location.</string>
+    <string name="merchant_cat_hint">Choose a category...</string>
+    <string name="merchant_cat1">Café</string>
+    <string name="merchant_cat2">Bars/Drinking</string>
+    <string name="merchant_cat3">Food and Dining</string>
+    <string name="merchant_cat4">Shopping/Spending</string>
+    <string name="merchant_cat5">ATM</string>
+    <string name="missing_merchant_category">Please provide a category for this merchant</string>
+    <string name="missing_merchant_name">Please provide the merchant name</string>
+    <string name="missing_merchant_street_address">Please provide the merchant street address</string>
+    <string name="missing_merchant_city">Please provide a city</string>
+    <string name="missing_merchant_zip">Please provide a zip code</string>
+    <string name="ok_writing_merchant">Thank you for your suggestion.</string>
+    <string name="error_writing_merchant">Error writing to database. Please try again.</string>
+    <string name="no_merchants_in_range">There are no Bitcoin businesses within range for listing.</string>
+    <string name="merchant_info">Merchant Info</string>
+    <string name="directions">Directions</string>
+    <string name="call">Call</string>
+    <string name="enable_geo">Enable either GPS or any other location service to find current location. Click OK to go to location services settings to let you do so.</string>
+
+    <string-array name="menus_merchantDirectory">
+        <item>Suggest a merchant</item>
+    </string-array>
+
 </resources>

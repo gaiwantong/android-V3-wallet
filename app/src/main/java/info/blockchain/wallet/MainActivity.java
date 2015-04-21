@@ -328,6 +328,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         switch (item.getItemId()) {
             case R.id.action_merchant_directory:
                 Toast.makeText(this, "Merchant directory", Toast.LENGTH_SHORT).show();
+                doMerchantDirectory();
                 return true;
             case R.id.action_qr:
                 scanURI();
