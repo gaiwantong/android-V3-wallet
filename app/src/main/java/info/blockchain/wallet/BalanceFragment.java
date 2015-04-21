@@ -344,6 +344,7 @@ public class BalanceFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if(isVisibleToUser) {
+            isBottomSheetOpen = false;
         	displayBalance();
         	accountsAdapter.notifyDataSetChanged();
         	txAdapter.notifyDataSetChanged();
@@ -359,6 +360,8 @@ public class BalanceFragment extends Fragment {
     	super.onResume();
 
 		setNavigationDrawer();
+
+        isBottomSheetOpen = false;
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
