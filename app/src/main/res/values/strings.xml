@@ -214,5 +214,7 @@
 	<string name="unpair">UNPAIR</string>
 
 	<string name="ok_cap">OK</string>
+	<string name="change_pin_code">Change PIN Code</string>
+	<string name="enter_password_to_change_pin">Please enter password to change PIN code.</string>
 
 </resources>
