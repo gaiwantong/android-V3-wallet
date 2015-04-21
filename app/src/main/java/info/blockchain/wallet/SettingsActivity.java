@@ -23,6 +23,7 @@ import java.io.IOException;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -47,6 +48,19 @@ public class SettingsActivity extends PreferenceActivity {
         final String guid = PayloadFactory.getInstance().get().getGuid();
         Preference guidPref = (Preference) findPreference("guid");
         guidPref.setSummary(guid);
+
+        if(AppUtil.getInstance(SettingsActivity.this).isDEBUG()) {
+            guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = null;
+                    clip = android.content.ClipData.newPlainText("guid", guid);
+                    clipboard.setPrimaryClip(clip);
+
+                    return true;
+                }
+            });
+        }
 
         Preference unitsPref = (Preference) findPreference("units");
         unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -330,6 +344,14 @@ public class SettingsActivity extends PreferenceActivity {
             } else {
                 seed = HDPayloadBridge.getInstance(SettingsActivity.this).getHDSeed();
             }
+
+            if(AppUtil.getInstance(SettingsActivity.this).isDEBUG()) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = null;
+                clip = android.content.ClipData.newPlainText(mnemonic ? "Mnemonic" : "Hex seed", seed);
+                clipboard.setPrimaryClip(clip);
+            }
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
             Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
