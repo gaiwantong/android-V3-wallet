@@ -8,7 +8,8 @@ public class AppUtil {
 	
 	private static AppUtil instance = null;
 	private static Context context = null;
-	
+    private static boolean DEBUG = false;
+
 	private AppUtil() { ; }
 
 	public static AppUtil getInstance(Context ctx) {
@@ -42,4 +43,11 @@ public class AppUtil {
 		context.startActivity(intent);
 	}
 
+    public static boolean isDEBUG() {
+        return DEBUG;
+    }
+
+    public static void setDEBUG(boolean debug) {
+        DEBUG = debug;
+    }
 }
