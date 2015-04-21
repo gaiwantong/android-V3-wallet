@@ -115,6 +115,10 @@ public class PinEntryActivity extends Activity {
 
                 PayloadFactory.getInstance(this).remoteSaveThread();
 
+
+
+
+
                 AppUtil.getInstance(this).restartApp();
             } catch (IOException ioe) {
                 Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
@@ -682,7 +686,7 @@ public class PinEntryActivity extends Activity {
 
 					}
 					else {
-			        	Toast.makeText(PinEntryActivity.this, "Password error", Toast.LENGTH_SHORT).show();
+			        	Toast.makeText(PinEntryActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
 						if(progress != null && progress.isShowing()) {
 							progress.dismiss();
 							progress = null;
