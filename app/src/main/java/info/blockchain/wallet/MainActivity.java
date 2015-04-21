@@ -116,6 +116,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         super.onCreate(savedInstanceState);
 
+        AppUtil.getInstance(MainActivity.this).setDEBUG(true);
+
         if(!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
