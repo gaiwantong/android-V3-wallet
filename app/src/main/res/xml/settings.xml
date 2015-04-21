@@ -68,12 +68,12 @@
         android:summary="@string/options_passphrase2"
         android:key="passphrase"
         />
-    -->
     <Preference
         android:title="@string/options_unpair"
         android:summary="@string/options_unpair2"
         android:key="unpair"
         />
+    -->
     <Preference
         android:title="@string/preferences_about_title"
         android:summary="@string/about_us"
