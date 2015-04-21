@@ -124,7 +124,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyA5pTWkt8q0ff21VkTRAR6AcXwGjdWumjg" />
+            android:value="--debug key redacted--" />
 
         <meta-data
             android:name="com.google.android.gms.version"
