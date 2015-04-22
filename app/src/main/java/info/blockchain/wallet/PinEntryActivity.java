@@ -137,7 +137,7 @@ public class PinEntryActivity extends Activity {
                     }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    AppUtil.getInstance(PinEntryActivity.this).wipeApp();
+                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
 
                 }
             }).show();
@@ -169,10 +169,10 @@ public class PinEntryActivity extends Activity {
 
 		} catch (IOException ioe) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).wipeApp();
+			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		} catch (MnemonicException.MnemonicLengthException mle) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).wipeApp();
+			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		}
 
 	}
@@ -405,7 +405,6 @@ public class PinEntryActivity extends Activity {
 
                     // TODO - use static var instead of prefs
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
-//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
 		        	Toast.makeText(PinEntryActivity.this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
 		    		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

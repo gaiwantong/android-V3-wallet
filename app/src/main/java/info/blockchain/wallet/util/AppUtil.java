@@ -24,16 +24,16 @@ public class AppUtil {
 		return instance;
 	}
 
-	public void wipeApp() {
-		PrefsUtil.getInstance(context).clear();
-		restartApp();
-	}
-
 	public void restartApp() {
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
 	}
+
+    public void clearCredentialsAndRestart() {
+        PrefsUtil.getInstance(context).clearCredentials();
+        restartApp();
+    }
 
     public static boolean isDEBUG() {
         return DEBUG;

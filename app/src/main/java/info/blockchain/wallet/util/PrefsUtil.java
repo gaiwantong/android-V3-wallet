@@ -7,16 +7,21 @@ import android.content.SharedPreferences.Editor;
 
 public class PrefsUtil {
 
+    // App defaults
     public static final String DEFAULT_CURRENCY = "USD";
 
+    // Keys for credentials
     public static final String KEY_PIN_IDENTIFIER       = "pin_kookup_key";
     public static final String KEY_ENCRYPTED_PASSWORD   = "encrypted_password";
     public static final String KEY_GUID                 = "guid";
     public static final String KEY_SHARED_KEY           = "sharedKey";
     public static final String KEY_PIN_FAILS            = "pin_fails";
-    // public static final String KEY_LOGGED_IN              = "logged_in";
+
+    // Keys for user settings
     public static final String KEY_BTC_UNITS            = "btcUnits";
     public static final String KEY_SELECTED_FIAT        = "ccurrency";
+
+    // TODO - place use of this key with in-memory variable
     public static final String KEY_INITIAL_ACCOUNT_NAME = "_1ST_ACCOUNT_NAME";
 
     private static Context   context  = null;
@@ -76,17 +81,23 @@ public class PrefsUtil {
 		return editor.commit();
 	}
 
+    public void clearCredentials() {
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+
+        editor.remove(KEY_PIN_IDENTIFIER);
+        editor.remove(KEY_ENCRYPTED_PASSWORD);
+        editor.remove(KEY_GUID);
+        editor.remove(KEY_SHARED_KEY);
+        editor.remove(KEY_PIN_FAILS);
+
+        if (!editor.commit()) {
+            // TODO - handle this case
+        }
+    }
+
 	public boolean clear() {
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		/*
-		editor.remove(KEY_PIN_IDENTIFIER);
-		editor.remove(KEY_ENCRYPTED_PASSWORD);
-		editor.remove(KEY_GUID);
-		editor.remove(KEY_SHARED_KEY);
-		editor.remove(KEY_PIN_FAILS);
-		*/
 		editor.clear();
 		return editor.commit();
 	}
-
 }

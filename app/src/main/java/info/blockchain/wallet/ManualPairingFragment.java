@@ -74,7 +74,7 @@ public class ManualPairingFragment extends Fragment {
 
     private void showPairingFailedAndRestart() {
         Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-        AppUtil.getInstance(getActivity()).wipeApp();
+        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
     }
 
 	private void pairingThreadManual(final String guid, final CharSequenceX password) {

@@ -183,6 +183,7 @@ public class PayloadFactory	{
                 	payload = null;
                 	return false;
                 }
+
                 payload = new Payload(decrypted);
                 if(payload.getJSON() == null) {
                 	payload = null;
