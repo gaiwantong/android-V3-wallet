@@ -7,44 +7,32 @@ import java.util.HashMap;
 
 import net.sourceforge.zbar.Symbol;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.widget.DrawerLayout;
 import android.text.util.Linkify;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -55,11 +43,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
-//import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-//import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 
-import info.blockchain.wallet.util.DeviceUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.OnSwipeTouchListener;
 import info.blockchain.wallet.util.TypefaceUtil;
@@ -133,9 +118,11 @@ public class MapActivity extends Activity implements LocationListener	{
 	//
 	//
 	//
+    /*
 	private DrawerLayout mDrawerLayout = null;
 	private ListView mDrawerList = null;
 	private ActionBarDrawerToggle mDrawerToggle = null;
+	*/
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +130,7 @@ public class MapActivity extends Activity implements LocationListener	{
 		setContentView(R.layout.activity_map);
 
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 /*
         ActionBar actionBar = getActionBar();
         actionBar.hide();
@@ -192,7 +180,6 @@ public class MapActivity extends Activity implements LocationListener	{
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
-*/
         //
         //
         //
@@ -240,6 +227,7 @@ public class MapActivity extends Activity implements LocationListener	{
 
 //        actionBar.setCustomView(layout_icons);
 //        actionBar.show();
+*/
 
     	markerValues = new HashMap<String,BTCBusiness>();
     	btcb = new ArrayList<BTCBusiness>();
@@ -517,21 +505,19 @@ public class MapActivity extends Activity implements LocationListener	{
 
     }
 
-    /*
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.dir_main, menu);
 		return true;
 	}
-	*/
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		else {
+//		if (mDrawerToggle.onOptionsItemSelected(item)) {
+//			return true;
+//		}
+//		else {
 		    switch (item.getItemId()) {
 	    	case R.id.list_view:
 	    		doListView();
@@ -542,14 +528,14 @@ public class MapActivity extends Activity implements LocationListener	{
 		    default:
 		        return super.onOptionsItemSelected(item);
 		    }
-		}
+//		}
 
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		mDrawerToggle.syncState();
+//		mDrawerToggle.syncState();
 	}
 
 	@Override
