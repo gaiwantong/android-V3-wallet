@@ -24,7 +24,7 @@ public class Setup0Activity extends Activity	{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-    		setContentView(R.layout.setup0);
+    		setContentView(R.layout.activity_landing);
     	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             setTitle(R.string.app_name);
             
