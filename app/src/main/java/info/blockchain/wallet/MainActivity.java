@@ -151,12 +151,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exchangeRateThread();
 
-            boolean verified = false;
-            Bundle extras = getIntent().getExtras();
-            if(extras != null && extras.containsKey("verified"))	{
-                verified = extras.getBoolean("verified");
-            }
-
             if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                 Intent intent = new Intent(MainActivity.this, Setup0Activity.class);
@@ -168,7 +162,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(verified) {
+            else if(PayloadFactory.getInstance().getPayloadObject() != null ) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 TimeOutUtil.getInstance().updatePin();
@@ -379,17 +373,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     if(format != null)	{
                         if(!format.equals(PrivateKeyFactory.BIP38))	{
                             final ECKey key = PrivateKeyFactory.getInstance().getKey(format, strResult);
-                            if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+                            if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().getPayloadObject().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
                                 final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
 				        		/*
 				        		 * if double encrypted, save encrypted in payload
 				        		 */
-                                if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+                                if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted())	{
                                     legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                 }
                                 else	{
                                     String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                    String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                                    String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().getPayloadObject().getIterations());
                                     legacyAddress.setEncryptedKey(encrypted2);
                                 }
 
@@ -409,14 +403,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                                 else {
                                                     legacyAddress.setLabel("");
                                                 }
-                                                PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().add(legacyAddress);
                                                 Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
                                                 PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
                                             }
                                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         legacyAddress.setLabel("");
-                                        PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                        PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().add(legacyAddress);
                                         Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
                                         PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
                                     }
@@ -459,17 +453,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                                                     try {
                                                         final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, strResult, new CharSequenceX(pw));
-                                                        if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+                                                        if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().getPayloadObject().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
                                                             final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
 									        		/*
 									        		 * if double encrypted, save encrypted in payload
 									        		 */
-                                                            if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+                                                            if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted())	{
                                                                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                                             }
                                                             else	{
                                                                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().getPayloadObject().getIterations());
                                                                 legacyAddress.setEncryptedKey(encrypted2);
                                                             }
 
@@ -489,14 +483,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                                                             else {
                                                                                 legacyAddress.setLabel("");
                                                                             }
-                                                                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                                            PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().add(legacyAddress);
                                                                             Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
                                                                             PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
                                                                         }
                                                                     }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                                                 public void onClick(DialogInterface dialog, int whichButton) {
                                                                     legacyAddress.setLabel("");
-                                                                    PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                                    PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().add(legacyAddress);
                                                                     Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
                                                                     PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
                                                                 }
@@ -700,18 +694,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void addAccount()	{
 
-        if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if(PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
 
             if(DoubleEncryptionFactory.getInstance().isActivated()) {
 
                 String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                        PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-                        PayloadFactory.getInstance().get().getSharedKey(),
+                        PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex(),
+                        PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
                         PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                        PayloadFactory.getInstance().get().getIterations());
+                        PayloadFactory.getInstance().getPayloadObject().getIterations());
 
                 try {
-                    HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                    HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().size());
                     HD_WalletFactory.getInstance(MainActivity.this).setWatchOnlyWallet(hdw);
                     HDPayloadBridge.getInstance(MainActivity.this).addAccount();
 
@@ -757,22 +751,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 String pw2 = double_encrypt_password.getText().toString();
 
                                 if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(),
+                                        PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
                                         new CharSequenceX(pw2),
-                                        PayloadFactory.getInstance().get().getIterations()
+                                        PayloadFactory.getInstance().getPayloadObject().getIterations()
                                 )) {
 
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                     String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                                            PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-                                            PayloadFactory.getInstance().get().getSharedKey(),
+                                            PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex(),
+                                            PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
                                             pw2,
-                                            PayloadFactory.getInstance().get().getIterations());
+                                            PayloadFactory.getInstance().getPayloadObject().getIterations());
 
                                     try {
-                                        HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                                        HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().size());
                                         HD_WalletFactory.getInstance(MainActivity.this).setWatchOnlyWallet(hdw);
                                         HDPayloadBridge.getInstance(MainActivity.this).addAccount();
 
@@ -872,7 +866,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void scanPrivateKey() {
 
-        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
             Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
             intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
@@ -892,10 +886,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                             String pw2 = double_encrypt_password.getText().toString();
 
                             if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                    PayloadFactory.getInstance().get().getSharedKey(),
+                                    PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(),
+                                    PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
                                     new CharSequenceX(pw2),
-                                    PayloadFactory.getInstance().get().getIterations()
+                                    PayloadFactory.getInstance().getPayloadObject().getIterations()
                             )) {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));

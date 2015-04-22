@@ -11,7 +11,6 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import info.blockchain.wallet.payload.PayloadFactory;
 
@@ -61,7 +60,7 @@ public class WebSocketService extends android.app.Service	{
 
 		int nbAccounts = 0;
 		try {
-			nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+			nbAccounts = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().size();
 		}
 		catch(java.lang.IndexOutOfBoundsException e) {
 			return;
@@ -69,22 +68,22 @@ public class WebSocketService extends android.app.Service	{
 		
 		String[] xpubs = new String[nbAccounts];
 		for(int i = 0; i < nbAccounts; i++) {
-			String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+			String s = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(i).getXpub();
 			if(s != null && s.length() > 0) {
 				xpubs[i] = s;
 			}
 		}
 
-		int nbLegacy = PayloadFactory.getInstance().get().getLegacyAddresses().size();
+		int nbLegacy = PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().size();
 		String[] addrs = new String[nbLegacy];
 		for(int i = 0; i < nbLegacy; i++) {
-			String s = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+			String s = PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().get(i).getAddress();
 			if(s != null && s.length() > 0) {
-				addrs[i] = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+				addrs[i] = PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().get(i).getAddress();
 			}
 		}
 
-		webSocketHandler = new WebSocketHandler(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+		webSocketHandler = new WebSocketHandler(WebSocketService.this, PayloadFactory.getInstance().getPayloadObject().getGuid(), xpubs, addrs);
 
 		connectToWebsocketIfNotConnected();
 

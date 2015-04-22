@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.util.Log;
-
 public class Transaction	{
 
     private String strData = null;
@@ -117,7 +115,7 @@ public class Transaction	{
                 				our_xput = true;
                 			}
                 			else if(prev_out.has("addr"))	{
-                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)prev_out.get("addr")))  {
+                                if(PayloadFactory.getInstance().getPayloadObject().containsLegacyAddress((String)prev_out.get("addr")))  {
                     				our_xput = true;
                                 }
                                 else  {
@@ -170,7 +168,7 @@ public class Transaction	{
                 				our_xput = true;
                 			}
                 			else if(_output.has("addr"))	{
-                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)_output.get("addr")))  {
+                                if(PayloadFactory.getInstance().getPayloadObject().containsLegacyAddress((String)_output.get("addr")))  {
                     				our_xput = true;
                                 }
                                 else  {

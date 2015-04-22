@@ -72,6 +72,11 @@ public class ManualPairingFragment extends Fragment {
 		return rootView;
 	}
 
+    private void showPairingFailedAndRestart() {
+        Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+        AppUtil.getInstance(getActivity()).wipeApp();
+    }
+
 	private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
 		final Handler handler = new Handler();
@@ -104,8 +109,7 @@ public class ManualPairingFragment extends Fragment {
 						}
 						catch(Exception e) {
 							e.printStackTrace();
-							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-							AppUtil.getInstance(getActivity()).wipeApp();
+                            showPairingFailedAndRestart();
 						}
 
 						if(decrypted_payload != null) {
@@ -122,31 +126,23 @@ public class ManualPairingFragment extends Fragment {
 									getActivity().startActivity(intent);
 								}
 								else {
-									Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-									AppUtil.getInstance(getActivity()).wipeApp();
-								}
-
+                                    showPairingFailedAndRestart();
+                                }
 							}
-
 						}
 						else {
-							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-							AppUtil.getInstance(getActivity()).wipeApp();
-						}
-
+                            showPairingFailedAndRestart();
+                        }
 					}
-
 				}
 				catch(JSONException je) {
 					je.printStackTrace();
-					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-					AppUtil.getInstance(getActivity()).wipeApp();
-				}
+                    showPairingFailedAndRestart();
+                }
 				catch(Exception e) {
 					e.printStackTrace();
-					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-					AppUtil.getInstance(getActivity()).wipeApp();
-				}finally {
+                    showPairingFailedAndRestart();
+				} finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;

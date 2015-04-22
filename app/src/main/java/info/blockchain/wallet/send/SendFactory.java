@@ -97,7 +97,7 @@ public class SendFactory	{
     	final String xpub;
 		
 		if(isHD) {
-	    	xpub = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getXpub();
+	    	xpub = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(accountIdx).getXpub();
 			
 			HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
 			List<String> data = unspentOutputs.get(xpub);
@@ -106,7 +106,7 @@ public class SendFactory	{
 				if(f != null) {
 					String[] s = f.split(",");
 //					Log.i("address path", s[1] + " " + s[0]);
-                    // get path info which will be used to calculate private key
+                    // getPayloadObject path info which will be used to calculate private key
 					froms.put(s[1], s[0]);
 				}
 			}
@@ -153,8 +153,8 @@ public class SendFactory	{
 					Pair<Transaction, Long> pair = null;
 					String changeAddr = null;
 					if(isHD) {
-						int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
-						if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+						int changeIdx = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
+						if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
 							changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
 						}
 						else {
@@ -186,7 +186,7 @@ public class SendFactory	{
 								String path = froms.get(address);
 								String[] s = path.split("/");
 								HD_Address hd_address = null;
-								if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+								if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
 									hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
 								}
 								else {
@@ -232,14 +232,14 @@ public class SendFactory	{
 						opc.onSuccess();
 
 						if(note != null && note.length() > 0) {
-							Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+							Map<String,String> notes = PayloadFactory.getInstance().getPayloadObject().getNotes();
 							notes.put(tx.getHashAsString(), note);
-							PayloadFactory.getInstance().get().setNotes(notes);
+							PayloadFactory.getInstance().getPayloadObject().setNotes(notes);
 						}
 
 						if(isHD && sentChange) {
 							// increment change address counter
-							PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+							PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(accountIdx).incChange();
 						}
 
 					}

@@ -158,9 +158,9 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-        accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
-        	ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        accounts = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts();
+        if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().size() > 0)) {
+        	ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         	accounts.add(iAccount);
         }
 
@@ -260,7 +260,7 @@ public class BalanceFragment extends Fragment {
 
         // drawerTitle account now that wallet has been created
         if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+    		PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
     		PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
     		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
         	accountsAdapter.notifyDataSetChanged();

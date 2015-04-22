@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
-import android.net.SSLCertificateSocketFactory;
 import android.util.Log;
 
 import org.apache.commons.codec.DecoderException;
@@ -202,7 +201,7 @@ public class WebSocketHandler {
 		                                	total_value -= value;
 		                                }
 		                                else if(prevOutObj.has("addr"))  {
-			                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)prevOutObj.get("addr")))  {
+			                                if(PayloadFactory.getInstance().getPayloadObject().containsLegacyAddress((String)prevOutObj.get("addr")))  {
 			                                	total_value -= value;
 			                                }
 			                                else if(in_addr == null)  {
@@ -231,7 +230,7 @@ public class WebSocketHandler {
 	                                	total_value += value;
 	                                }
 	                                else if(outObj.has("addr"))  {
-		                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)outObj.get("addr")))  {
+		                                if(PayloadFactory.getInstance().getPayloadObject().containsLegacyAddress((String)outObj.get("addr")))  {
 		                                	total_value += value;
 		                                }
 	                                }

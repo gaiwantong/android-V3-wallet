@@ -298,9 +298,9 @@ public class SendFragment extends Fragment {
 		});
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
-        accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-        	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        accounts = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts();
+        if(PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().size() > 0) {
+        	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
         if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
         	accounts.remove(accounts.size() - 1);
@@ -798,7 +798,7 @@ public class SendFragment extends Fragment {
 		pendingSpend.btc_units = strBTC;
 
 		if(pendingSpend.isHD) {
-			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+			if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
 
 				confirmPayment(true, currentSelectedAccount, null);
 			}
@@ -823,17 +823,17 @@ public class SendFragment extends Fragment {
 
 								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
-								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(), PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().getPayloadObject().getIterations())) {
 
-									String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
+									String encrypted_hex = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex();
 									String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
 											encrypted_hex,
-											PayloadFactory.getInstance().get().getSharedKey(),
+											PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
 											pw,
-											PayloadFactory.getInstance().get().getIterations());
+											PayloadFactory.getInstance().getPayloadObject().getIterations());
 
 									try {
-										HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+										HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().size());
 										HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
 									}
 									catch(IOException ioe) {
@@ -883,7 +883,7 @@ public class SendFragment extends Fragment {
 				}
 			}
 
-			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+			if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
 
 				confirmPayment(false, -1, addr);
 			}
@@ -909,7 +909,7 @@ public class SendFragment extends Fragment {
 
 								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
-								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(), PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().getPayloadObject().getIterations())) {
 
 									confirmPayment(false, -1, legacyAddress);
 								}

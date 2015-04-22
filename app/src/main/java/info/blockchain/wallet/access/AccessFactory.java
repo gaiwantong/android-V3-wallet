@@ -1,18 +1,18 @@
 package info.blockchain.wallet.access;
 
-import java.io.*;
-import java.security.SecureRandom;
-
 import android.content.Context;
-//import android.util.Log;
+
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-
-import org.json.JSONObject;
-
 import info.blockchain.wallet.util.WebUtil;
+
+//import android.util.Log;
 
 public class AccessFactory	{
 
@@ -79,7 +79,7 @@ public class AccessFactory	{
 
     }
     
-    public CharSequenceX validatePIN(String pin) {
+    public CharSequenceX decryptPasswordFromPIN(String pin) {
     	
     	CharSequenceX password = null;
 
@@ -88,7 +88,7 @@ public class AccessFactory	{
         String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
         
         try {
-			final JSONObject json = apiGetValue();
+			final JSONObject json = apiGetPIN();
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
 			String decryptionKey = (String)json.get("success");
 			password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PasswordPBKDF2Iterations));
@@ -135,7 +135,7 @@ public class AccessFactory	{
         return AESUtil.decrypt(pw.toString(), new CharSequenceX(dkey), AESUtil.PasswordPBKDF2Iterations);
     }
 
-    private JSONObject apiGetValue() throws Exception {
+    private JSONObject apiGetPIN() throws Exception {
 
         StringBuilder args = new StringBuilder();
 

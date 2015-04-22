@@ -1,73 +1,74 @@
 package info.blockchain.wallet.payload;
 
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
-//import android.util.Log;
-
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.spongycastle.util.encoders.Hex;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_Account;
+import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+//import android.util.Log;
+
 public class PayloadFactory	{
-	
-	private static Context context = null;
 
-    private static PayloadFactory instance = null;
-    private static Payload payload = null;
-    private static String o_payload = null;
+    private static Context context = null;
 
-    private static CharSequenceX strTempPassword =  null;
-    private static CharSequenceX strTempDoubleEncryptPassword =  null;
-    private static String strCheckSum = null;
-    private static boolean isNew = false;
-    private static boolean syncPubKeys = true;
+    private static PayloadFactory instance          = null;
+    private static Payload        payload           = null;
+    private static String         lastSyncedPayload = null;
 
-    private PayloadFactory()	{ ; }
+    private static CharSequenceX strTempPassword              = null;
+    private static CharSequenceX strTempDoubleEncryptPassword = null;
+    private static String        strCheckSum                  = null;
+    private static boolean       isNew                        = false;
+    private static boolean       syncPubKeys                  = true;
+
+    private PayloadFactory() {
+        ;
+    }
 
     public static PayloadFactory getInstance() {
 
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            o_payload = new Payload();
-            o_payload = "";
+            lastSyncedPayload = "";
         }
 
         return instance;
     }
 
     public static PayloadFactory getInstance(Context ctx) {
-    	
-    	context = ctx;
+
+        context = ctx;
 
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            o_payload = new Payload();
-            o_payload = "";
+            lastSyncedPayload = "";
         }
 
         return instance;
@@ -78,12 +79,10 @@ public class PayloadFactory	{
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload(json);
-//            o_payload = new Payload(json);
             try {
-                o_payload = payload.dumpJSON().toString();
-            }
-            catch(JSONException je) {
-                o_payload = "";
+                lastSyncedPayload = payload.dumpJSON().toString();
+            } catch (JSONException je) {
+                lastSyncedPayload = "";
             }
         }
 
@@ -134,7 +133,7 @@ public class PayloadFactory	{
         this.syncPubKeys = sync;
     }
 
-    public Payload get(String guid, String sharedKey, CharSequenceX password) {
+    public boolean downloadAndDecrypt(String guid, String sharedKey, CharSequenceX password) {
 
         try {
             String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet","method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
@@ -178,16 +177,16 @@ public class PayloadFactory	{
                 catch(Exception e) {
                 	payload = null;
                 	e.printStackTrace();
-                	return null;
+                	return false;
                 }
                 if(decrypted == null) {
                 	payload = null;
-                	return null;
+                	return false;
                 }
                 payload = new Payload(decrypted);
                 if(payload.getJSON() == null) {
                 	payload = null;
-                	return null;
+                	return false;
                 }
 
                 try {
@@ -196,7 +195,7 @@ public class PayloadFactory	{
                 catch(JSONException je) {
                 	payload = null;
                 	je.printStackTrace();
-                    return null;
+                    return false;
                 }
 
                 payload.setIterations(iterations);
@@ -204,24 +203,24 @@ public class PayloadFactory	{
             }
             else {
 //                Log.i("PayloadFactory", "jsonObject has no payload");
-                return null;
+                return false;
             }
         }
         catch(JSONException je) {
         	payload = null;
         	je.printStackTrace();
-        	return null;
+        	return false;
         }
         catch(Exception e) {
         	payload = null;
             e.printStackTrace();
-        	return null;
+        	return false;
         }
 
-        return payload;
+        return true;
     }
 
-    public Payload get() {
+    public Payload getPayloadObject() {
         return payload;
     }
 
@@ -237,19 +236,21 @@ public class PayloadFactory	{
 		StringBuilder args = new StringBuilder();
 		try	{
 
-	    	if(o_payload != null && o_payload.equals(payload.dumpJSON().toString())) {
+            // Don't sync the payload if nothing has changed
+	    	if(lastSyncedPayload != null && lastSyncedPayload.equals(payload.dumpJSON().toString())) {
 	    		return true;
 	    	}
 
 	    	payloadCleartext = payload.dumpJSON().toString();
 	    	String payloadEncrypted = AESUtil.encrypt(payloadCleartext, new CharSequenceX(strTempPassword), AESUtil.PasswordPBKDF2Iterations);
-	    	JSONObject rootObj = new JSONObject();
+
+            // Compose object to be saved to server
+            JSONObject rootObj = new JSONObject();
 			rootObj.put("version", 2.0);
 			rootObj.put("pbkdf2_iterations", AESUtil.PasswordPBKDF2Iterations);
 			rootObj.put("payload", payloadEncrypted);
 //			rootObj.put("guid", payload.getGuid());
 //			rootObj.put("sharedKey", payload.getSharedKey());
-//			rootObj.put("test", "OK");
 
 			strCheckSum  = new String(Hex.encode(MessageDigest.getInstance("SHA-256").digest(rootObj.toString().getBytes("UTF-8"))));
 
@@ -314,7 +315,7 @@ public class PayloadFactory	{
 		try	{
 			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet", args.toString());
 			isNew = false;
-			store();
+			saveAsLastSynced();
 		}
 		catch(Exception e)	{
             e.printStackTrace();
@@ -323,14 +324,9 @@ public class PayloadFactory	{
 		return true;
     }
 
-    public String getAsString(String guid, String sharedKey, CharSequenceX password) throws JSONException {
-        Payload payload = get(guid, sharedKey, password);
-        return (payload != null) ? payload.dumpJSON().toString() : null;
-    }
-
-    public void store() {
+    public void saveAsLastSynced() {
         try {
-        	o_payload = payload.dumpJSON().toString();
+        	lastSyncedPayload = payload.dumpJSON().toString();
         }
         catch(JSONException je) {
         	je.printStackTrace();
@@ -389,7 +385,7 @@ public class PayloadFactory	{
 			public void run() {
 				Looper.prepare();
 				
-				if(PayloadFactory.getInstance(context).get() != null)	{
+				if(PayloadFactory.getInstance(context).getPayloadObject() != null)	{
 					if(PayloadFactory.getInstance(context).put(strTempPassword))	{
 //			        	Toast.makeText(context, "Remote save OK", Toast.LENGTH_SHORT).show();
 					}
