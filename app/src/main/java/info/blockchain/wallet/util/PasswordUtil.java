@@ -1,12 +1,12 @@
 package info.blockchain.wallet.util;
 
+import android.util.Patterns;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import android.util.Patterns;
-//import android.util.Log;
 
 public class PasswordUtil {
 
@@ -65,7 +65,10 @@ public class PasswordUtil {
 		double entropy = log2(Math.pow(quality,pw.length()));
 
 		//3. Average entropy with bad patternsWeight
-		double entropyWeighted = getEntropyWeighted(entropy, pw);
+		double entropyWeighted = getEntropyWeightedByBadPatterns(entropy, pw);
+
+		//4. Weigh unique symbol count
+		entropyWeighted = getEntropyWeightedByUniqueSymbolCount(entropyWeighted, pw);
 
 		return Math.min(entropyWeighted,100.0);
 	}
@@ -87,7 +90,7 @@ public class PasswordUtil {
 		return Math.log(a) / Math.log(2);
 	}
 
-	private static double getEntropyWeighted(double entropy, String pw) {
+	private static double getEntropyWeightedByBadPatterns(double entropy, String pw) {
 
 		Set<Map.Entry<Pattern, Double>> set = patternsWeight.entrySet();
 
@@ -103,6 +106,27 @@ public class PasswordUtil {
 		}
 		if(isBadPattern)
 			return (weight+entropy)/2.0;
+		else
+			return entropy;
+	}
+
+	private static double getEntropyWeightedByUniqueSymbolCount(double entropy, String pw){
+
+		HashSet<Character> hash = new HashSet<>();
+		for (int i = 0; i < pw.length(); i++)
+			hash.add(pw.charAt(i));
+
+		int uniqueSymbols = hash.size();
+		if(uniqueSymbols<=1)
+			return entropy*0.1;
+		else if(uniqueSymbols<=2)
+			return entropy*0.25;
+		else if(uniqueSymbols<=3)
+			return entropy*0.5;
+		else if(uniqueSymbols<=4)
+			return entropy*0.75;
+		else if(uniqueSymbols<=5)
+			return entropy*0.9;
 		else
 			return entropy;
 	}
