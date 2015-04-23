@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.sourceforge.zbar.Symbol;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
