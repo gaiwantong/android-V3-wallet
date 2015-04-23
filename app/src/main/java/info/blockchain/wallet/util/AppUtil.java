@@ -23,7 +23,7 @@ public class AppUtil {
 		return instance;
 	}
 
-	public void wipeApp() {
+	public void clearCredentialsAndRestart() {
 		PrefsUtil.getInstance(context).clear();
 		restartApp();
 	}

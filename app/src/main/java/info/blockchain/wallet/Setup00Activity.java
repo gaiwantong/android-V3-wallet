@@ -79,14 +79,14 @@ public class Setup00Activity extends ActionBarActivity {
 
 		if(resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR)	{
 			if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-				AppUtil.getInstance(this).wipeApp();
+				AppUtil.getInstance(this).clearCredentialsAndRestart();
 				String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
 				Log.i("Pairing result", strResult);
 				pairingThreadQR(strResult);
 			}
 		}
 		else if(resultCode == Activity.RESULT_CANCELED && requestCode == PAIRING_QR)	{
-			AppUtil.getInstance(this).wipeApp();
+			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		}
 		else {
 			;
@@ -111,7 +111,7 @@ public class Setup00Activity extends ActionBarActivity {
 				}
 				else	{
 					Toast.makeText(Setup00Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-					AppUtil.getInstance(Setup00Activity.this).wipeApp();
+					AppUtil.getInstance(Setup00Activity.this).clearCredentialsAndRestart();
 				}
 
 				handler.post(new Runnable() {
