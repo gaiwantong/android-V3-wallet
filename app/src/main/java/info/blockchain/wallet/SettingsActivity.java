@@ -57,19 +57,16 @@ public class SettingsActivity extends PreferenceActivity {
         final String guid = PayloadFactory.getInstance().get().getGuid();
         Preference guidPref = (Preference) findPreference("guid");
         guidPref.setSummary(guid);
+        guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = null;
+                clip = android.content.ClipData.newPlainText("guid", guid);
+                clipboard.setPrimaryClip(clip);
 
-        if(AppUtil.getInstance(SettingsActivity.this).isDEBUG()) {
-            guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                public boolean onPreferenceClick(Preference preference) {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                    android.content.ClipData clip = null;
-                    clip = android.content.ClipData.newPlainText("guid", guid);
-                    clipboard.setPrimaryClip(clip);
-
-                    return true;
-                }
-            });
-        }
+                return true;
+            }
+        });
 
         Preference unitsPref = (Preference) findPreference("units");
         unitsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
