@@ -3,13 +3,11 @@
     <item
         android:id="@+id/list_view"
         android:orderInCategory="100"
-        android:showAsAction="never"
         android:title="List view"/>
 
     <item
         android:id="@+id/suggest"
         android:orderInCategory="100"
-        android:showAsAction="never"
         android:title="@string/suggest_merchant"
         />
     

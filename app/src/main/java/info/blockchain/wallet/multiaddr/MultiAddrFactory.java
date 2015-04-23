@@ -144,6 +144,12 @@ public class MultiAddrFactory	{
                     if(addrObj.has("final_balance") && addrObj.has("address"))  {
                     	xpub_amounts.put((String)addrObj.get("address"), addrObj.getLong("final_balance"));
                     }
+                    if(addrObj.has("account_index"))  {
+                        highestTxReceiveIdx.put((String)addrObj.get("address"), addrObj.getInt("account_index"));
+                    }
+                    if(addrObj.has("change_index"))  {
+                        highestTxChangeIdx.put((String)addrObj.get("address"), addrObj.getInt("change_index"));
+                    }
             	}
             }
             
@@ -197,6 +203,7 @@ public class MultiAddrFactory	{
                                 	JSONObject xpubObj = (JSONObject)prevOutObj.get("xpub");
                                 	addr = (String)xpubObj.get("m");
                                 	mf_addr = addr;
+                                    /*
                                     String path = (String)xpubObj.get("path");
                                     String[] s = path.split("/");
 //                                    Log.i("Path", path + "," + s[2]);
@@ -226,6 +233,7 @@ public class MultiAddrFactory	{
                                             }
                                         }
                                     }
+                                    */
 
                                 }
                                 else  {
@@ -250,6 +258,7 @@ public class MultiAddrFactory	{
                                 	move_amount = outObj.getLong("value");
                                 	mt_addr = addr;
                             	}
+                                /*
                                 String[] s = path.split("/");
 //                                    Log.i("Path", path + "," + s[2]);
                                 if(s.length == 3)  {
@@ -278,6 +287,7 @@ public class MultiAddrFactory	{
                                         }
                                     }
                                 }
+                                */
 
                                 //
                             	// collect unspent outputs for each xpub

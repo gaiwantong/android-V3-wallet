@@ -3,40 +3,27 @@ package info.blockchain.merchant.directory;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 
-import info.blockchain.wallet.util.DeviceUtil;
 import info.blockchain.wallet.R;
 
 public class ListActivity extends Activity {
@@ -59,9 +46,11 @@ public class ListActivity extends Activity {
 	//
 	//
 	//
+    /*
 	private DrawerLayout mDrawerLayout = null;
 	private ListView mDrawerList = null;
 	private ActionBarDrawerToggle mDrawerToggle = null;
+	*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +58,7 @@ public class ListActivity extends Activity {
         setContentView(R.layout.directory);
 
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 /*
         ActionBar actionBar = getActionBar();
         actionBar.hide();
@@ -238,21 +228,21 @@ public class ListActivity extends Activity {
 		adapter.notifyDataSetChanged();
 
 	}
-/*
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.dir_listmenu, menu);
 		return true;
 	}
-*/
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		else {
+//		if (mDrawerToggle.onOptionsItemSelected(item)) {
+//			return true;
+//		}
+//		else {
 		    switch (item.getItemId()) {
 	    	case R.id.map_view:
 	    		finish();
@@ -263,7 +253,7 @@ public class ListActivity extends Activity {
 		    default:
 		        return super.onOptionsItemSelected(item);
 		    }
-		}
+//		}
 
 	}
 
