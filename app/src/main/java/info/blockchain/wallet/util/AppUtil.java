@@ -1,9 +1,8 @@
 package info.blockchain.wallet.util;
  
+import info.blockchain.wallet.MainActivity;
 import android.content.Context;
 import android.content.Intent;
-
-import info.blockchain.wallet.MainActivity;
 
 public class AppUtil {
 	
@@ -24,16 +23,25 @@ public class AppUtil {
 		return instance;
 	}
 
-	public void restartApp() {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+	public void wipeApp() {
+		PrefsUtil.getInstance(context).clear();
+		restartApp();
 	}
 
-    public void clearCredentialsAndRestart() {
-        PrefsUtil.getInstance(context).clearCredentials();
-        restartApp();
-    }
+	public void restartApp() {
+		Intent intent = new Intent(context, MainActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
+	}
+
+	public void restartApp(String name, boolean value) {
+		Intent intent = new Intent(context, MainActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+		if(name != null) {
+    		intent.putExtra(name, value);
+		}
+		context.startActivity(intent);
+	}
 
     public static boolean isDEBUG() {
         return DEBUG;

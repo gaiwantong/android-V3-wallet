@@ -72,11 +72,6 @@ public class ManualPairingFragment extends Fragment {
 		return rootView;
 	}
 
-    private void showPairingFailedAndRestart() {
-        Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-    }
-
 	private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
 		final Handler handler = new Handler();
@@ -109,7 +104,8 @@ public class ManualPairingFragment extends Fragment {
 						}
 						catch(Exception e) {
 							e.printStackTrace();
-                            showPairingFailedAndRestart();
+							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+							AppUtil.getInstance(getActivity()).wipeApp();
 						}
 
 						if(decrypted_payload != null) {
@@ -126,23 +122,31 @@ public class ManualPairingFragment extends Fragment {
 									getActivity().startActivity(intent);
 								}
 								else {
-                                    showPairingFailedAndRestart();
-                                }
+									Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+									AppUtil.getInstance(getActivity()).wipeApp();
+								}
+
 							}
+
 						}
 						else {
-                            showPairingFailedAndRestart();
-                        }
+							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+							AppUtil.getInstance(getActivity()).wipeApp();
+						}
+
 					}
+
 				}
 				catch(JSONException je) {
 					je.printStackTrace();
-                    showPairingFailedAndRestart();
-                }
+					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+					AppUtil.getInstance(getActivity()).wipeApp();
+				}
 				catch(Exception e) {
 					e.printStackTrace();
-                    showPairingFailedAndRestart();
-				} finally {
+					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+					AppUtil.getInstance(getActivity()).wipeApp();
+				}finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;

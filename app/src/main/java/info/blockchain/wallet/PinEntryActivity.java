@@ -137,7 +137,7 @@ public class PinEntryActivity extends Activity {
                     }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                    AppUtil.getInstance(PinEntryActivity.this).wipeApp();
 
                 }
             }).show();
@@ -161,7 +161,7 @@ public class PinEntryActivity extends Activity {
 
 			HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
-			PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts().get(0).setLabel("Account 1");
+			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("Account 1");
 
 			PayloadFactory.getInstance(this).remoteSaveThread();
 
@@ -169,10 +169,10 @@ public class PinEntryActivity extends Activity {
 
 		} catch (IOException ioe) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).clearCredentialsAndRestart();
+			AppUtil.getInstance(this).wipeApp();
 		} catch (MnemonicException.MnemonicLengthException mle) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).clearCredentialsAndRestart();
+			AppUtil.getInstance(this).wipeApp();
 		}
 
 	}
@@ -243,7 +243,7 @@ public class PinEntryActivity extends Activity {
 		progress = new ProgressDialog(PinEntryActivity.this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait..."); // TODO move to strings file
+		progress.setMessage("Please wait...");
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -252,7 +252,7 @@ public class PinEntryActivity extends Activity {
 				try {
 					Looper.prepare();
 
-					if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
+					if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
 						PayloadFactory.getInstance().setTempPassword(pw);
 
@@ -265,7 +265,13 @@ public class PinEntryActivity extends Activity {
 									progress = null;
 								}
 
-                                AppUtil.getInstance(PinEntryActivity.this).restartApp();
+								/*
+								if(!OSUtil.getInstance(PinEntryActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+									startService(new Intent(PinEntryActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+								}
+								*/
+
+					    		AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
 							}
 						});
 
@@ -285,16 +291,28 @@ public class PinEntryActivity extends Activity {
 					Looper.loop();
 
 				}
-	        	catch(JSONException |
-                        IOException |
-                        DecoderException |
-                        AddressFormatException |
-                        MnemonicException.MnemonicLengthException |
-                        MnemonicException.MnemonicChecksumException |
-                        MnemonicException.MnemonicWordException e)
-                {
-	        		e.printStackTrace();
-	        	} finally {
+	        	catch(JSONException je) {
+	        		je.printStackTrace();
+	        	}
+	        	catch(IOException ioe) {
+	        		ioe.printStackTrace();
+	        	}
+	        	catch(DecoderException de) {
+	        		de.printStackTrace();
+	        	}
+	        	catch(AddressFormatException afe) {
+	        		afe.printStackTrace();
+	        	}
+	        	catch(MnemonicException.MnemonicLengthException mle) {
+	        		mle.printStackTrace();
+	        	}
+	        	catch(MnemonicException.MnemonicChecksumException mce) {
+	        		mce.printStackTrace();
+	        	}
+	        	catch(MnemonicException.MnemonicWordException mwe) {
+	        		mwe.printStackTrace();
+	        	}
+				finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
 						progress = null;
@@ -379,8 +397,7 @@ public class PinEntryActivity extends Activity {
 			public void run() {
 				Looper.prepare();
 
-                // Make request to server & return decrypted password from pin
-				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).decryptPasswordFromPIN(pin);
+				CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
 
 				if(password != null) {
 
@@ -389,7 +406,6 @@ public class PinEntryActivity extends Activity {
 		    			progress = null;
 		    		}
 
-                    // TODO - use static var instead of prefs
 		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
 					TimeOutUtil.getInstance().updatePin();
 					updatePayloadThread(password);
@@ -402,9 +418,8 @@ public class PinEntryActivity extends Activity {
 		    		}
 
 		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-
-                    // TODO - use static var instead of prefs
-                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
 		        	Toast.makeText(PinEntryActivity.this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
 		    		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

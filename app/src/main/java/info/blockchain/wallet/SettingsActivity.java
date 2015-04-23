@@ -54,7 +54,7 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.settings);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        final String guid = PayloadFactory.getInstance().getPayloadObject().getGuid();
+        final String guid = PayloadFactory.getInstance().get().getGuid();
         Preference guidPref = (Preference) findPreference("guid");
         guidPref.setSummary(guid);
 
@@ -115,7 +115,7 @@ public class SettingsActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference preference) {
 
                 // Wallet is not double encrypted
-                if (!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
+                if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                     displayHDSeedAsMnemonic(true);
                 }
                 // User has already entered double-encryption password
@@ -152,15 +152,15 @@ public class SettingsActivity extends PreferenceActivity {
         	hexseedPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
         		public boolean onPreferenceClick(Preference preference) {
 
-        	        if(PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
+        	        if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
         	        	if(DoubleEncryptionFactory.getInstance().isActivated()) {
 
         	        		String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-    	    	        			PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex(),
-    	    	        			PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
+    	    	        			PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
+    	    	        			PayloadFactory.getInstance().get().getSharedKey(),
     			    	        	PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-    	    	        			PayloadFactory.getInstance().getPayloadObject().getIterations());
+    	    	        			PayloadFactory.getInstance().get().getIterations());
 
         	            	Toast.makeText(SettingsActivity.this, decrypted_hex, Toast.LENGTH_SHORT).show();
 
@@ -180,19 +180,19 @@ public class SettingsActivity extends PreferenceActivity {
             	    	        	String pw2 = double_encrypt_password.getText().toString();
 
             	    	        	if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(),
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
+            	    	        			PayloadFactory.getInstance().get().getDoublePasswordHash(),
+            	    	        			PayloadFactory.getInstance().get().getSharedKey(),
             	    	        			new CharSequenceX(pw2),
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getIterations()
+            	    	        			PayloadFactory.getInstance().get().getIterations()
             	    	        			)) {
 
         			    	        	PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
             	    	        		String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex(),
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
+            	    	        			PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
+            	    	        			PayloadFactory.getInstance().get().getSharedKey(),
             	    	        			pw2,
-            	    	        			PayloadFactory.getInstance().getPayloadObject().getIterations());
+            	    	        			PayloadFactory.getInstance().get().getIterations());
 
                     	            	Toast.makeText(SettingsActivity.this, decrypted_hex, Toast.LENGTH_SHORT).show();
 
@@ -301,10 +301,10 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Decrypt seedHex (which is double encrypted in this case)
         String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                PayloadFactory.getInstance().getPayloadObject().getHdWallet().getSeedHex(),
-                PayloadFactory.getInstance().getPayloadObject().getSharedKey(),
+                PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
+                PayloadFactory.getInstance().get().getSharedKey(),
                 PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                PayloadFactory.getInstance().getPayloadObject().getIterations());
+                PayloadFactory.getInstance().get().getIterations());
 
         String mnemonic = null;
 

@@ -4,15 +4,17 @@ import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
+import com.google.bitcoin.core.DumpedPrivateKey;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.params.MainNetParams;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.json.simple.JSONObject;
 
-import java.math.BigInteger;
-
+import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.PrivateKeyFactory;
+
+import java.math.BigInteger;
 
 public class LegacyAddress {
 
@@ -112,19 +114,19 @@ public class LegacyAddress {
 
     	byte[] privBytes = null;
 
-    	if(!PayloadFactory.getInstance().getPayloadObject().isDoubleEncrypted()) {
+    	if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
         	privBytes = Base58.decode(this.strEncryptedKey);
     	}
     	else {
     		/*
     		Log.i("LegacyAddress double encrypted", strEncryptedKey);
-    		Log.i("LegacyAddress double encrypted", PayloadFactory.getInstance().getPayloadObject().getSharedKey());
+    		Log.i("LegacyAddress double encrypted", PayloadFactory.getInstance().get().getSharedKey());
     		Log.i("LegacyAddress double encrypted", PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString());
-    		Log.i("LegacyAddress double encrypted", "hash:" + DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash(), PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().getPayloadObject().getIterations()));
-    		Log.i("LegacyAddress double encrypted", PayloadFactory.getInstance().getPayloadObject().getDoublePasswordHash());
-    		Log.i("LegacyAddress double encrypted", "" + PayloadFactory.getInstance().getPayloadObject().getIterations());
+    		Log.i("LegacyAddress double encrypted", "hash:" + DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations()));
+    		Log.i("LegacyAddress double encrypted", PayloadFactory.getInstance().get().getDoublePasswordHash());
+    		Log.i("LegacyAddress double encrypted", "" + PayloadFactory.getInstance().get().getIterations());
     		*/
-    		String encryptedKey = DoubleEncryptionFactory.getInstance().decrypt(strEncryptedKey, PayloadFactory.getInstance().getPayloadObject().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().getPayloadObject().getIterations());
+    		String encryptedKey = DoubleEncryptionFactory.getInstance().decrypt(strEncryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
 //    		Log.i("LegacyAddress double encrypted", encryptedKey);
         	privBytes = Base58.decode(encryptedKey);
     	}

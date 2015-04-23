@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -290,10 +291,10 @@ public class ReceiveFragment extends Fragment {
 		});
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
-        final List<Account> accounts = PayloadFactory.getInstance().getPayloadObject().getHdWallet().getAccounts();
+        final List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
     	ImportedAccount iAccount = null;
-        if(PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses().size() > 0) {
-        	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().getPayloadObject().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+        	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
         if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
         	accounts.remove(accounts.size() - 1);

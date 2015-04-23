@@ -385,6 +385,7 @@ public class Payload {
                             JSONObject accountObj = (JSONObject)accounts.get(i);
                             Account account = new Account();
                             account.setArchived(accountObj.has("archived") ? (Boolean)accountObj.get("archived") : false);
+                            /*
                             if(accountObj.has("change_addresses"))  {
                                 int val = (Integer)accountObj.get("change_addresses");
                                 account.setNbChangeAddresses(val);
@@ -393,6 +394,7 @@ public class Payload {
                                 int val = (Integer)accountObj.get("receive_addresses_count");
                                 account.setNbReceiveAddresses(val);
                             }
+                            */
 
                             account.setLabel(accountObj.has("label") ? (String)accountObj.get("label") : "");
                             if(accountObj.has("xpub") && ((String)accountObj.get("xpub")) != null && ((String)accountObj.get("xpub")).length() > 0)  {
