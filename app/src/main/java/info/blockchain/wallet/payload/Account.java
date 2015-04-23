@@ -195,8 +195,8 @@ public class Account {
         JSONObject obj = new JSONObject();
 
         obj.put("archived", isArchived);
-        obj.put("change_addresses", nbChangeAddresses);
-        obj.put("receive_addresses_count", nbReceiveAddresses);
+//        obj.put("change_addresses", nbChangeAddresses);
+//        obj.put("receive_addresses_count", nbReceiveAddresses);
         obj.put("label", strLabel == null ? "" : strLabel);
         obj.put("xpub", strXpub == null ? "" : strXpub);
         obj.put("xpriv", strXpriv == null ? "" : strXpriv);
