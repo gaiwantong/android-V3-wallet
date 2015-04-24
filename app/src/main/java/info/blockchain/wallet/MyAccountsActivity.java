@@ -281,11 +281,12 @@ public class MyAccountsActivity extends Activity {
 			accountList.add(new MyAccountItem(label,displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
 		}
 
-		//Imported Header Position
-		headerPositions.add(i+1);
-		accountList.add(new MyAccountItem(IMPORTED_HEADER,"", getResources().getDrawable(R.drawable.icon_accounthd)));
-
 		if(iAccount != null) {
+
+			//Imported Header Position
+			headerPositions.add(i+1);
+			accountList.add(new MyAccountItem(IMPORTED_HEADER,"", getResources().getDrawable(R.drawable.icon_accounthd)));
+
 			legacy = iAccount.getLegacyAddresses();
 			for(int j = 0; j < legacy.size(); j++) {
 
