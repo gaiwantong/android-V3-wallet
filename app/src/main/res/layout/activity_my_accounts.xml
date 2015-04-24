@@ -16,6 +16,12 @@
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/extended_bar_height">
 
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/action_bar_height"
+			android:layout_gravity="top"
+			android:background="@drawable/selector_b_blue"/>
+
 		<TextView
 			android:id="@+id/my_accounts_heading"
 			android:layout_width="match_parent"

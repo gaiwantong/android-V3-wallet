@@ -1,28 +1,31 @@
 package info.blockchain.wallet;
 
+import android.content.Context;
+
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
+
+import org.apache.commons.codec.DecoderException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
-import android.widget.Toast;
-//import android.util.Log;
-
-import com.google.bitcoin.crypto.MnemonicException;
-import com.google.bitcoin.core.AddressFormatException;
-
-import org.apache.commons.codec.DecoderException;
-
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import info.blockchain.wallet.hd.*;
+import info.blockchain.wallet.hd.HD_Wallet;
+import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.*;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDWallet;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
+
+//import android.util.Log;
 
 public class HDPayloadBridge	{
 	
@@ -77,7 +80,7 @@ public class HDPayloadBridge	{
     		PayloadFactory.getInstance(context).remoteSaveThread();
         }
 
-        PayloadFactory.getInstance().store();
+//        PayloadFactory.getInstance().store();
 
         getBalances();
 

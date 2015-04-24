@@ -28,6 +28,7 @@ import org.apache.commons.codec.DecoderException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -47,6 +48,7 @@ public class MyAccountsActivity extends Activity {
 	public int toolbarHeight;
 
 	ImageView backNav;
+	HashMap<View,Boolean> rowViewState;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,24 +85,26 @@ public class MyAccountsActivity extends Activity {
 		MyAccountsAdapter accountsAdapter = new MyAccountsAdapter(accountItems);
 		mRecyclerView.setAdapter(accountsAdapter);
 
+		rowViewState = new HashMap<View, Boolean>();
 		mRecyclerView.addOnItemTouchListener(
 				new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
 
-					//works
-//					private int mOriginalHeight = 0;
-//					private boolean mIsViewExpanded = false;
-//					private int qrSize = 260;
-					//works
-
 					private int originalHeight = 0;
+					private int expandDuration = 200;
 					private boolean mIsViewExpanded = false;
 
 					@Override
 					public void onItemClick(final View view, int position) {
 
+						try {
+							mIsViewExpanded = rowViewState.get(view);
+						}catch(Exception e){
+							mIsViewExpanded = false;
+						}
+
 						final ImageView qrTest = (ImageView)view.findViewById(R.id.qrr);
 
-						//QR receiving
+						//Receiving Address
 						String currentSelectedAddress = null;
 						ReceiveAddress currentSelectedReceiveAddress = null;
 						try {
@@ -120,31 +124,43 @@ public class MyAccountsActivity extends Activity {
 							e.printStackTrace();
 						}
 
+						//Receiving QR
 						qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
 
-						// If the originalHeight is 0 then find the height of the View being used
-						// This would be the height of the cardview
 						if (originalHeight == 0) {
 							originalHeight = view.getHeight();
 						}
 
-						// Declare a ValueAnimator object
 						ValueAnimator valueAnimator;
 						if (!mIsViewExpanded) {
+							//Expanding
+
+							//Fade QR in - expansion of row will create slide down effect
 							qrTest.setVisibility(View.VISIBLE);
-							qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
+							qrTest.setAnimation(AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in));
 							qrTest.setEnabled(true);
-							mIsViewExpanded = true;
+
+
+							mIsViewExpanded = !mIsViewExpanded;
+							view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
+							view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
 							valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + qrTest.getHeight()); // These values in this method can be changed to expand however much you like
+
 						} else {
-							mIsViewExpanded = false;
+							//Collapsing
+							view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
+							view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
+							mIsViewExpanded = !mIsViewExpanded;
 							valueAnimator = ValueAnimator.ofInt(originalHeight + qrTest.getHeight(), originalHeight);
 
-							Animation a = new AlphaAnimation(1.00f, 0.00f); // Fade out
+							//Slide QR away
+							qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
 
-							a.setDuration(200);
+							//Fade QR and hide when done
+							Animation anim = new AlphaAnimation(1.00f, 0.00f);
+							anim.setDuration(expandDuration/2);
 							// Set a listener to the animation and configure onAnimationEnd
-							a.setAnimationListener(new Animation.AnimationListener() {
+							anim.setAnimationListener(new Animation.AnimationListener() {
 								@Override
 								public void onAnimationStart(Animation animation) {
 
@@ -162,10 +178,11 @@ public class MyAccountsActivity extends Activity {
 								}
 							});
 
-							// Set the animation on the custom view
-							qrTest.startAnimation(a);
+							qrTest.startAnimation(anim);
 						}
-						valueAnimator.setDuration(200);
+
+						//Set and start row collapse/expand
+						valueAnimator.setDuration(expandDuration);
 						valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 						valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 							public void onAnimationUpdate(ValueAnimator animation) {
@@ -177,7 +194,7 @@ public class MyAccountsActivity extends Activity {
 
 
 						valueAnimator.start();
-
+						rowViewState.put(view,mIsViewExpanded);
 					}
 				})
 		);
@@ -267,29 +284,3 @@ public class MyAccountsActivity extends Activity {
 		return bitmap;
 	}
 }
-
-
-//QR receiving
-//						Account account = accounts.get(position);
-//						String currentSelectedAddress = null;
-//
-//						ReceiveAddress currentSelectedReceiveAddress = null;
-//						try {
-//							currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position);
-//							currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-//						} catch (DecoderException e) {
-//							e.printStackTrace();
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						} catch (MnemonicException.MnemonicWordException e) {
-//							e.printStackTrace();
-//						} catch (MnemonicException.MnemonicChecksumException e) {
-//							e.printStackTrace();
-//						} catch (MnemonicException.MnemonicLengthException e) {
-//							e.printStackTrace();
-//						} catch (AddressFormatException e) {
-//							e.printStackTrace();
-//						}
-//
-//
-//						ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));

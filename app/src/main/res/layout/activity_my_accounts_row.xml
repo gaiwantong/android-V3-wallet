@@ -12,6 +12,14 @@
 		android:background="?selectableItemBackground"
 		android:clickable="true">
 
+		<View
+			android:id="@+id/top_seperator"
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_gravity="top"
+			android:visibility="invisible"
+			android:background="@color/blockchain_light_grey"/>
+
 		<ImageView
 			android:layout_width="32dp"
 			android:layout_height="32dp"
@@ -73,6 +81,14 @@
 			android:scaleType="centerCrop"
 			android:visibility="invisible"
 			android:src="@drawable/qr"/>
+
+		<View
+			android:id="@+id/bottom_seperator"
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_gravity="bottom"
+			android:visibility="invisible"
+			android:background="@color/blockchain_light_grey"/>
 
 	</FrameLayout>
 
