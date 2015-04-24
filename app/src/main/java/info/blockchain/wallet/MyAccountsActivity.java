@@ -114,6 +114,7 @@ public class MyAccountsActivity extends Activity {
 				new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
 
 					private int originalHeight = 0;
+					private int newHeight = 0;
 					private int expandDuration = 200;
 					private boolean mIsViewExpanded = false;
 
@@ -154,6 +155,8 @@ public class MyAccountsActivity extends Activity {
 							originalHeight = view.getHeight();
 						}
 
+						newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(16*2);
+
 						final String finalCurrentSelectedAddress = currentSelectedAddress;
 						qrTest.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
@@ -187,14 +190,14 @@ public class MyAccountsActivity extends Activity {
 							mIsViewExpanded = !mIsViewExpanded;
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
-							valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + qrTest.getHeight() + addressView.getHeight()+26);//padding
+							valueAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
 
 						} else {
 							//Collapsing
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
 							mIsViewExpanded = !mIsViewExpanded;
-							valueAnimator = ValueAnimator.ofInt(originalHeight + qrTest.getHeight() + addressView.getHeight()+26, originalHeight);
+							valueAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
 							//Slide QR away
 							qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));

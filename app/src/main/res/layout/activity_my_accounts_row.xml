@@ -2,7 +2,7 @@
 	style="?android:attr/borderlessButtonStyle"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="48dp"
+	android:layout_height="72dp"
 	android:background="?attr/selectableItemBackground"
 	android:gravity="start">
 
@@ -48,9 +48,10 @@
 			android:layout_marginLeft="72dp"
 			android:layout_marginRight="16dp"
 			android:layout_marginStart="72dp"
-			android:layout_marginTop="5dp"
+			android:layout_marginTop="16dp"
 			android:fontFamily="sans-serif"
 			android:singleLine="true"
+			android:text="Label"
 			android:textColor="@color/primary_text_default_material_light"
 			android:textSize="14sp"/>
 
@@ -63,10 +64,10 @@
 			android:layout_marginLeft="72dp"
 			android:layout_marginRight="16dp"
 			android:layout_marginStart="72dp"
-			android:layout_marginTop="21dp"
+			android:layout_marginTop="37dp"
 			android:fontFamily="sans-serif"
-			android:singleLine="true"
 			android:visibility="invisible"
+			android:text="address"
 			android:textColor="@color/blockchain_grey"
 			android:textSize="12sp"/>
 
@@ -79,8 +80,9 @@
 			android:layout_marginLeft="72dp"
 			android:layout_marginRight="16dp"
 			android:layout_marginStart="72dp"
-			android:layout_marginBottom="8dp"
+			android:layout_marginBottom="20dp"
 			android:fontFamily="sans-serif"
+			android:text="0.0 BTC"
 			android:singleLine="true"
 			android:textColor="@color/blockchain_grey"
 			android:textSize="12sp"/>
