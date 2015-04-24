@@ -35,7 +35,6 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 public class PinEntryActivity extends Activity {
@@ -137,7 +136,7 @@ public class PinEntryActivity extends Activity {
                     }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    AppUtil.getInstance(PinEntryActivity.this).wipeApp();
+                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
 
                 }
             }).show();
@@ -165,14 +164,11 @@ public class PinEntryActivity extends Activity {
 
 			PayloadFactory.getInstance(this).remoteSaveThread();
 
-			AppUtil.getInstance(this).restartApp();// Why?
+			AppUtil.getInstance(this).restartApp();
 
-		} catch (IOException ioe) {
+		} catch (IOException | MnemonicException.MnemonicLengthException e) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).wipeApp();
-		} catch (MnemonicException.MnemonicLengthException mle) {
-			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).wipeApp();
+			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		}
 
 	}
@@ -291,27 +287,11 @@ public class PinEntryActivity extends Activity {
 					Looper.loop();
 
 				}
-	        	catch(JSONException je) {
-	        		je.printStackTrace();
-	        	}
-	        	catch(IOException ioe) {
-	        		ioe.printStackTrace();
-	        	}
-	        	catch(DecoderException de) {
-	        		de.printStackTrace();
-	        	}
-	        	catch(AddressFormatException afe) {
-	        		afe.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicLengthException mle) {
-	        		mle.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicChecksumException mce) {
-	        		mce.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicWordException mwe) {
-	        		mwe.printStackTrace();
-	        	}
+                catch(JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
+                        | MnemonicException.MnemonicChecksumException e) {
+                    e.printStackTrace();
+                }
 				finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
@@ -407,7 +387,7 @@ public class PinEntryActivity extends Activity {
 		    		}
 
 		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-					TimeOutUtil.getInstance().updatePin();
+                    AppUtil.getInstance(PinEntryActivity.this).updatePinEntryTime();
 					updatePayloadThread(password);
 				}
 				else {
@@ -510,26 +490,10 @@ public class PinEntryActivity extends Activity {
 					Looper.loop();
 
 				}
-	        	catch(JSONException je) {
-	        		je.printStackTrace();
-	        	}
-	        	catch(IOException ioe) {
-	        		ioe.printStackTrace();
-	        	}
-	        	catch(DecoderException de) {
-	        		de.printStackTrace();
-	        	}
-	        	catch(AddressFormatException afe) {
-	        		afe.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicLengthException mle) {
-	        		mle.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicChecksumException mce) {
-	        		mce.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicWordException mwe) {
-	        		mwe.printStackTrace();
+	        	catch(JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
+                        | MnemonicException.MnemonicChecksumException e) {
+	        		e.printStackTrace();
 	        	}
 				finally {
 					if(progress != null && progress.isShowing()) {

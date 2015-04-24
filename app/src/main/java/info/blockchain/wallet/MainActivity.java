@@ -80,7 +80,6 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 //import android.nfc.Tag;
@@ -151,10 +150,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exchangeRateThread();
 
-            boolean verified = false;
+            boolean isPinValidated = false;
             Bundle extras = getIntent().getExtras();
             if(extras != null && extras.containsKey("verified"))	{
-                verified = extras.getBoolean("verified");
+                isPinValidated = extras.getBoolean("verified");
             }
 
             if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
@@ -168,16 +167,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(verified) {
+            else if(isPinValidated) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
-                TimeOutUtil.getInstance().updatePin();
+                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
             }
-            else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !TimeOutUtil.getInstance().isTimedOut()) {
-                TimeOutUtil.getInstance().updatePin();
+            else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
+                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -219,7 +218,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
-        if(TimeOutUtil.getInstance().isTimedOut()) {
+        if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 c = Setup0Activity.class;
@@ -233,7 +232,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             startActivity(i);
         }
         else {
-            TimeOutUtil.getInstance().updatePin();
+            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         }
 
         if(Build.VERSION.SDK_INT >= 16){
@@ -362,181 +361,33 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI)	{
-            if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-                String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-                doScanInput(strResult);
-            }
+        if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
+                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+            String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+            doScanInput(strResult);
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
             ;
         }
-        else if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY)	{
-            if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-                try	{
-                    final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-                    String format = PrivateKeyFactory.getInstance().getFormat(strResult);
-                    if(format != null)	{
-                        if(!format.equals(PrivateKeyFactory.BIP38))	{
-                            final ECKey key = PrivateKeyFactory.getInstance().getKey(format, strResult);
-                            if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
-                                final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
-				        		/*
-				        		 * if double encrypted, save encrypted in payload
-				        		 */
-                                if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
-                                    legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-                                }
-                                else	{
-                                    String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                    String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
-                                    legacyAddress.setEncryptedKey(encrypted2);
-                                }
-
-                                final EditText address_label = new EditText(MainActivity.this);
-
-                                new AlertDialog.Builder(MainActivity.this)
-                                        .setTitle(R.string.app_name)
-                                        .setMessage(R.string.label_address)
-                                        .setView(address_label)
-                                        .setCancelable(false)
-                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                String label = address_label.getText().toString();
-                                                if(label != null && label.length() > 0) {
-                                                    legacyAddress.setLabel(label);
-                                                }
-                                                else {
-                                                    legacyAddress.setLabel("");
-                                                }
-                                                PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                                                Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-                                                PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-                                            }
-                                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        legacyAddress.setLabel("");
-                                        PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                                        Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-                                        PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-                                    }
-                                }).show();
-
-                            }
-                            else	{
-                                Toast.makeText(MainActivity.this, getString(R.string.no_private_key), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        else	{
-
-                            final EditText password = new EditText(this);
-                            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                            new AlertDialog.Builder(this)
-                                    .setTitle(R.string.app_name)
-                                    .setMessage(R.string.password_entry)
-                                    .setView(password)
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                                            final String pw = password.getText().toString();
-
-                                            if(progress != null && progress.isShowing()) {
-                                                progress.dismiss();
-                                                progress = null;
-                                            }
-                                            progress = new ProgressDialog(MainActivity.this);
-                                            progress.setTitle(R.string.app_name);
-                                            progress.setMessage(MainActivity.this.getResources().getString(R.string.please_wait));
-                                            progress.show();
-
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-
-                                                    Looper.prepare();
-
-                                                    try {
-                                                        final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, strResult, new CharSequenceX(pw));
-                                                        if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
-                                                            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
-									        		/*
-									        		 * if double encrypted, save encrypted in payload
-									        		 */
-                                                            if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
-                                                                legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-                                                            }
-                                                            else	{
-                                                                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
-                                                                legacyAddress.setEncryptedKey(encrypted2);
-                                                            }
-
-                                                            final EditText address_label = new EditText(MainActivity.this);
-
-                                                            new AlertDialog.Builder(MainActivity.this)
-                                                                    .setTitle(R.string.app_name)
-                                                                    .setMessage(R.string.label_address)
-                                                                    .setView(address_label)
-                                                                    .setCancelable(false)
-                                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                                                            String label = address_label.getText().toString();
-                                                                            if(label != null && label.length() > 0) {
-                                                                                legacyAddress.setLabel(label);
-                                                                            }
-                                                                            else {
-                                                                                legacyAddress.setLabel("");
-                                                                            }
-                                                                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                                                                            Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-                                                                            PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-                                                                        }
-                                                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                                public void onClick(DialogInterface dialog, int whichButton) {
-                                                                    legacyAddress.setLabel("");
-                                                                    PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                                                                    Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
-                                                                    PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
-                                                                }
-                                                            }).show();
-
-                                                        }
-                                                        else	{
-                                                            Toast.makeText(MainActivity.this, R.string.bip38_error, Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                    catch(Exception e) {
-                                                        Toast.makeText(MainActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                    finally {
-                                                        if(progress != null && progress.isShowing()) {
-                                                            progress.dismiss();
-                                                            progress = null;
-                                                        }
-                                                    }
-
-                                                    Looper.loop();
-
-                                                }
-                                            }).start();
-
-                                        }
-                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    AppUtil.getInstance(MainActivity.this).restartApp();
-                                }
-                            }).show();
-                        }
+        else if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
+                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+            try	{
+                final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+                String format = PrivateKeyFactory.getInstance().getFormat(strResult);
+                if(format != null)	{
+                    if(!format.equals(PrivateKeyFactory.BIP38))	{
+                        importNonBIP38Address(format, strResult);
                     }
                     else	{
-                        Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
+                        importBIP38Address(strResult);
                     }
                 }
-                catch(Exception e)	{
+                else	{
                     Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
                 }
+            }
+            catch(Exception e)	{
+                Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
             }
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY)	{
@@ -634,26 +485,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     Looper.loop();
 
                 }
-                catch(JSONException je) {
-                    je.printStackTrace();
-                }
-                catch(IOException ioe) {
-                    ioe.printStackTrace();
-                }
-                catch(DecoderException de) {
-                    de.printStackTrace();
-                }
-                catch(AddressFormatException afe) {
-                    afe.printStackTrace();
-                }
-                catch(MnemonicException.MnemonicLengthException mle) {
-                    mle.printStackTrace();
-                }
-                catch(MnemonicException.MnemonicChecksumException mce) {
-                    mce.printStackTrace();
-                }
-                catch(MnemonicException.MnemonicWordException mwe) {
-                    mwe.printStackTrace();
+                catch(JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
+                        | MnemonicException.MnemonicWordException e) {
+                    e.printStackTrace();
                 }
                 finally {
                     if(progress != null && progress.isShowing()) {
@@ -697,7 +532,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-
+/*
+ * code for adding an account: to be brought back in an upcoming version
+ *
     private void addAccount()	{
 
         if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
@@ -840,15 +677,15 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
 
     }
-
+*/
     private void doSettings()	{
-        TimeOutUtil.getInstance().updatePin();
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
     }
 
     private void doExchangeRates()	{
-        TimeOutUtil.getInstance().updatePin();
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);
@@ -930,6 +767,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         String btc_address = null;
         String btc_amount = null;
+
+        // check for poorly formed BIP21 URIs
+        if(address.startsWith("bitcoin://") && address.length() > 10)	{
+            address = "bitcoin:" + address.substring(10);
+        }
 
         if(FormatsUtil.getInstance().isValidBitcoinAddress(address)) {
             btc_address = address;
@@ -1165,9 +1007,175 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             EnableGeo.displayGPSPrompt(this);
         }
         else {
-            TimeOutUtil.getInstance().updatePin();
+            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
             Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
             startActivityForResult(intent, MERCHANT_ACTIVITY);
+        }
+    }
+
+    private void importBIP38Address(final String data)	{
+
+        final EditText password = new EditText(this);
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.password_entry)
+                .setView(password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        final String pw = password.getText().toString();
+
+                        if(progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
+                        progress = new ProgressDialog(MainActivity.this);
+                        progress.setTitle(R.string.app_name);
+                        progress.setMessage(MainActivity.this.getResources().getString(R.string.please_wait));
+                        progress.show();
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                Looper.prepare();
+
+                                try {
+                                    final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, data, new CharSequenceX(pw));
+                                    if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+                                        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+									        		/*
+									        		 * if double encrypted, save encrypted in payload
+									        		 */
+                                        if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+                                            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                        }
+                                        else	{
+                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                                            legacyAddress.setEncryptedKey(encrypted2);
+                                        }
+
+                                        final EditText address_label = new EditText(MainActivity.this);
+
+                                        new AlertDialog.Builder(MainActivity.this)
+                                                .setTitle(R.string.app_name)
+                                                .setMessage(R.string.label_address)
+                                                .setView(address_label)
+                                                .setCancelable(false)
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                                        String label = address_label.getText().toString();
+                                                        if(label != null && label.length() > 0) {
+                                                            legacyAddress.setLabel(label);
+                                                        }
+                                                        else {
+                                                            legacyAddress.setLabel("");
+                                                        }
+                                                        PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                        Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+                                                        PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+                                                    }
+                                                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                legacyAddress.setLabel("");
+                                                PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                                                Toast.makeText(MainActivity.this, key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+                                                PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+                                            }
+                                        }).show();
+
+                                    }
+                                    else	{
+                                        Toast.makeText(MainActivity.this, R.string.bip38_error, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                catch(Exception e) {
+                                    Toast.makeText(MainActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
+                                }
+                                finally {
+                                    if(progress != null && progress.isShowing()) {
+                                        progress.dismiss();
+                                        progress = null;
+                                    }
+                                }
+
+                                Looper.loop();
+
+                            }
+                        }).start();
+
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                AppUtil.getInstance(MainActivity.this).restartApp();
+            }
+        }).show();
+    }
+
+    private void importNonBIP38Address(final String format, final String data)	{
+
+        ECKey key = null;
+
+        try	{
+            key = PrivateKeyFactory.getInstance().getKey(format, data);
+        }
+        catch(Exception e)	{
+            e.printStackTrace();
+            return;
+        }
+
+        if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+			/*
+			 * if double encrypted, save encrypted in payload
+			 */
+            if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+                legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            }
+            else	{
+                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                legacyAddress.setEncryptedKey(encrypted2);
+            }
+
+            final EditText address_label = new EditText(MainActivity.this);
+
+            final ECKey scannedKey = key;
+
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.label_address)
+                    .setView(address_label)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            String label = address_label.getText().toString();
+                            if(label != null && label.length() > 0) {
+                                legacyAddress.setLabel(label);
+                            }
+                            else {
+                                legacyAddress.setLabel("");
+                            }
+                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                            Toast.makeText(MainActivity.this, scannedKey.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+                            PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+                        }
+                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    legacyAddress.setLabel("");
+                    PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+                    Toast.makeText(MainActivity.this, scannedKey.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+                    PayloadFactory.getInstance(MainActivity.this).remoteSaveThread();
+                }
+            }).show();
+
+        }
+        else	{
+            Toast.makeText(MainActivity.this, getString(R.string.no_private_key), Toast.LENGTH_SHORT).show();
         }
     }
 

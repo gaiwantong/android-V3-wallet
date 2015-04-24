@@ -105,7 +105,7 @@ public class ManualPairingFragment extends Fragment {
 						catch(Exception e) {
 							e.printStackTrace();
 							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-							AppUtil.getInstance(getActivity()).wipeApp();
+							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 						}
 
 						if(decrypted_payload != null) {
@@ -123,7 +123,7 @@ public class ManualPairingFragment extends Fragment {
 								}
 								else {
 									Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-									AppUtil.getInstance(getActivity()).wipeApp();
+									AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 								}
 
 							}
@@ -131,7 +131,7 @@ public class ManualPairingFragment extends Fragment {
 						}
 						else {
 							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-							AppUtil.getInstance(getActivity()).wipeApp();
+							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 						}
 
 					}
@@ -140,12 +140,12 @@ public class ManualPairingFragment extends Fragment {
 				catch(JSONException je) {
 					je.printStackTrace();
 					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-					AppUtil.getInstance(getActivity()).wipeApp();
+					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 				}
 				catch(Exception e) {
 					e.printStackTrace();
 					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
-					AppUtil.getInstance(getActivity()).wipeApp();
+					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 				}finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();

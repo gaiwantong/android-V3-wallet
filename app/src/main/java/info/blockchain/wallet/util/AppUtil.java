@@ -8,7 +8,11 @@ public class AppUtil {
 	
 	private static AppUtil instance = null;
 	private static Context context = null;
+
     private static boolean DEBUG = false;
+
+    private static long TIMEOUT_DELAY = 1000 * 60 * 5;
+    private static long lastPin = 0L;
 
 	private AppUtil() { ; }
 
@@ -23,7 +27,7 @@ public class AppUtil {
 		return instance;
 	}
 
-	public void wipeApp() {
+	public void clearCredentialsAndRestart() {
 		PrefsUtil.getInstance(context).clear();
 		restartApp();
 	}
@@ -50,4 +54,13 @@ public class AppUtil {
     public static void setDEBUG(boolean debug) {
         DEBUG = debug;
     }
+
+    public void updatePinEntryTime() {
+        lastPin = System.currentTimeMillis();
+    }
+
+    public boolean isTimedOut() {
+        return (System.currentTimeMillis() - lastPin) > TIMEOUT_DELAY;
+    }
+
 }
