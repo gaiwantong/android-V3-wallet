@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -440,33 +441,13 @@ public class BalanceFragment extends Fragment {
 
 		    	TextView tvTS = (TextView)view.findViewById(R.id.ts);
 				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-//				tvTS.setTextColor(0xffadc0c9);
 				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
 
 		    	TextView tvDirection = (TextView)view.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-//				tvDirection.setTextColor(0xff828181);
 				tvDirection.setText(tx.getDirection());
 
-				/*
-	    		Spannable msg = Spannable.Factory.getInstance().newSpannable(tx.getDirection());
-	    		msg.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-	    		msg.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), msg.length() - 15, msg.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				tvDirection.setText(msg);
-				*/
-
-//		    	TextView tvNote = (TextView)view.findViewById(R.id.note);
-//				tvNote.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-//				if(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()) != null) {
-//					tvNote.setVisibility(View.VISIBLE);
-//					tvNote.setText(PayloadFactory.getInstance().get().getNotes().get(tx.getHash()));
-//				}
-//				else {
-//					tvNote.setVisibility(View.INVISIBLE);
-//				}
-
 		        if(isBTC) {
-//                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getBTCFormat().format(btc_balance) + " " + strBTC);
                     span1 = Spannable.Factory.getInstance().newSpannable(getDisplayAmount(tx.getAmount()) + " " + getDisplayUnits());
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		        }
@@ -531,62 +512,6 @@ public class BalanceFragment extends Fragment {
 					}
 				});
 
-//                LinearLayout layoutTxInfo = (LinearLayout)view.findViewById(R.id.tx_info);
-//                layoutTxInfo.setOnTouchListener(new OnTouchListener() {
-//                    @Override
-//                    public boolean onTouch(View v, MotionEvent event) {
-//
-//						if (event.getAction() == MotionEvent.ACTION_UP) {
-//							String strTx = tx.getHash();
-//							if (strTx != null) {
-//								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-//								startActivity(browserIntent);
-//							}
-//						}
-//                        return true;
-//                    }
-//                });
-
-				/*
-		    	TextView tvTags = (TextView)view.findViewById(R.id.tags);
-				tvTags.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				int bullet = 0x25cf;	// other bullet == 0x2022
-				SpannableStringBuilder strTags = new SpannableStringBuilder();
-				Spannable span = null;
-				int spanColor = 0;
-				Map<Integer,String> tags = tx.getTags();
-				List<Integer> keys = new ArrayList<Integer>();
-				keys.addAll(tags.keySet());
-				for(int i = 0; i < keys.size(); i++) {
-					SpannableStringBuilder strTag = new SpannableStringBuilder();
-					span = Spannable.Factory.getInstance().newSpannable(Character.toString((char)bullet) + " ");
-					switch(keys.get(i)) {
-					case 0:
-						spanColor = Color.BLUE;
-						break;
-					case 1: 
-						spanColor = Color.CYAN;
-						break;
-					case 2: 
-						spanColor = Color.GREEN;
-						break;
-					case 3:
-						spanColor = Color.RED;
-						break;
-					default:
-						spanColor = Color.GRAY;
-						break;
-					}
-					span.setSpan(new ForegroundColorSpan(spanColor), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					strTag.append(span);
-					strTag.append(tags.get(keys.get(i)));
-					if(i == (keys.size() - 1)) {
-						strTag.append(" ");
-					}
-					strTags.append(strTag);
-				}
-				tvTags.setText(strTags);
-				*/
 	        }
 
 	        return view;
@@ -598,17 +523,6 @@ public class BalanceFragment extends Fragment {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
-        /*
-        if(hda instanceof ImportedAccount) {
-            btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
-        }
-        else if(selectedAccount == 0) {
-            btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubBalance()) / 1e8);
-        }
-        else {
-            btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount - 1))) / 1e8);
-        }
-        */
         Account hda = null;
         if(selectedAccount == 0) {
             btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
@@ -645,14 +559,18 @@ public class BalanceFragment extends Fragment {
     private String getDisplayAmount(long value) {
 
         String strAmount = null;
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMinimumIntegerDigits(1);
+        df.setMinimumFractionDigits(1);
+        df.setMaximumFractionDigits(8);
 
         int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
-                strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
+                strAmount = df.format(((double)(value * 1000000L)) / 1e8);
                 break;
             case MonetaryUtil.MILLI_BTC:
-                strAmount = Double.toString((((double)(value * 1000L)) / 1e8));
+                strAmount = df.format(((double)(value * 1000L)) / 1e8);
                 break;
             default:
                 strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
@@ -665,14 +583,18 @@ public class BalanceFragment extends Fragment {
     private String getDisplayAmount(double value) {
 
         String strAmount = null;
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMinimumIntegerDigits(1);
+        df.setMinimumFractionDigits(1);
+        df.setMaximumFractionDigits(8);
 
         int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
-                strAmount = Double.toString((value * 1000000.0) / 1e8);
+                strAmount = df.format(((double)(value * 1000000.0)) / 1e8);
                 break;
             case MonetaryUtil.MILLI_BTC:
-                strAmount = Double.toString((value * 1000.0) / 1e8);
+                strAmount = df.format(((double)(value * 1000.0)) / 1e8);
                 break;
             default:
                 strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
