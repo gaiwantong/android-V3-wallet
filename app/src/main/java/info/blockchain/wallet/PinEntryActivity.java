@@ -165,12 +165,9 @@ public class PinEntryActivity extends Activity {
 
 			PayloadFactory.getInstance(this).remoteSaveThread();
 
-			AppUtil.getInstance(this).restartApp();// Why?
+			AppUtil.getInstance(this).restartApp();
 
-		} catch (IOException ioe) {
-			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
-			AppUtil.getInstance(this).clearCredentialsAndRestart();
-		} catch (MnemonicException.MnemonicLengthException mle) {
+		} catch (IOException | MnemonicException.MnemonicLengthException e) {
 			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
 			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		}
@@ -291,27 +288,11 @@ public class PinEntryActivity extends Activity {
 					Looper.loop();
 
 				}
-	        	catch(JSONException je) {
-	        		je.printStackTrace();
-	        	}
-	        	catch(IOException ioe) {
-	        		ioe.printStackTrace();
-	        	}
-	        	catch(DecoderException de) {
-	        		de.printStackTrace();
-	        	}
-	        	catch(AddressFormatException afe) {
-	        		afe.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicLengthException mle) {
-	        		mle.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicChecksumException mce) {
-	        		mce.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicWordException mwe) {
-	        		mwe.printStackTrace();
-	        	}
+                catch(JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
+                        | MnemonicException.MnemonicChecksumException e) {
+                    e.printStackTrace();
+                }
 				finally {
 					if(progress != null && progress.isShowing()) {
 						progress.dismiss();
@@ -510,26 +491,10 @@ public class PinEntryActivity extends Activity {
 					Looper.loop();
 
 				}
-	        	catch(JSONException je) {
-	        		je.printStackTrace();
-	        	}
-	        	catch(IOException ioe) {
-	        		ioe.printStackTrace();
-	        	}
-	        	catch(DecoderException de) {
-	        		de.printStackTrace();
-	        	}
-	        	catch(AddressFormatException afe) {
-	        		afe.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicLengthException mle) {
-	        		mle.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicChecksumException mce) {
-	        		mce.printStackTrace();
-	        	}
-	        	catch(MnemonicException.MnemonicWordException mwe) {
-	        		mwe.printStackTrace();
+	        	catch(JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
+                        | MnemonicException.MnemonicChecksumException e) {
+	        		e.printStackTrace();
 	        	}
 				finally {
 					if(progress != null && progress.isShowing()) {
