@@ -404,7 +404,7 @@ public class SettingsActivity extends PreferenceActivity {
 		Toolbar bar;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
-			bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_settings, root, false);
+			bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_general, root, false);
 			root.addView(bar, 0); // insert at top
 		} else {
 			ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
@@ -412,7 +412,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 			root.removeAllViews();
 
-			bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_settings, root, false);
+			bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_general, root, false);
 
 			int height;
 			TypedValue tv = new TypedValue();
@@ -428,6 +428,7 @@ public class SettingsActivity extends PreferenceActivity {
 			root.addView(bar);
 		}
 
+		bar.setTitle(getResources().getString(R.string.action_settings));
 		bar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

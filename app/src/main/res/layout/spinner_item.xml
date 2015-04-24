@@ -12,5 +12,5 @@
 	android:paddingBottom="5dip"
 	android:singleLine="true"
 	android:marqueeRepeatLimit="marquee_forever"
-	android:background="@drawable/ripple_dropdown"
+	android:background="@drawable/selector_pearl_white"
     />

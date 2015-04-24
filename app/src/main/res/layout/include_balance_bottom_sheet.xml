@@ -12,7 +12,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="48dp"
 		android:orientation="horizontal"
-		android:background="@drawable/ripple_list"
+		android:background="@drawable/selector_pearl_white"
 		>
 
 		<LinearLayout
@@ -56,7 +56,7 @@
 		android:layout_gravity="center_horizontal|center_vertical"
 		android:gravity="center_horizontal|center_vertical"
 		android:orientation="horizontal"
-		android:background="@drawable/ripple_list"
+		android:background="@drawable/selector_pearl_white"
 		>
 
 		<LinearLayout

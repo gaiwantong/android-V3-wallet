@@ -892,17 +892,15 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
 						switch (position) {
 							case 0:
-								Toast.makeText(MainActivity.this, "My Accounts Coming soon", Toast.LENGTH_SHORT).show();
+								doMyAccounts();
 								break;
 							case 1:
-								//Toast.makeText(MainActivity.this, "News", Toast.LENGTH_SHORT).show();
 								doExchangeRates();
 								break;
 							case 2:
 								doSettings();
 								break;
 							case 3:
-//								Toast.makeText(MainActivity.this, "Change pin Coming soon", Toast.LENGTH_SHORT).show();
 								doChangePin();
 								break;
 							case 4:
@@ -1179,4 +1177,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
+	private void doMyAccounts(){
+
+		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+		Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
+		startActivity(intent);
+	}
 }

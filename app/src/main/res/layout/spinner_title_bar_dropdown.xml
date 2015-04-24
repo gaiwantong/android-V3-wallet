@@ -9,7 +9,7 @@
 	android:fontFamily="sans-serif"
     android:gravity="left|center_vertical"
     android:textColor="@color/primary_text_default_material_light"
-    android:background="@drawable/ripple_dropdown"
+    android:background="@drawable/selector_pearl_white"
 	android:paddingLeft="16dp"
 	android:paddingRight="16dp"
     />

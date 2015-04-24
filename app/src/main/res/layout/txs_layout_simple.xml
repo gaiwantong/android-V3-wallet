@@ -7,7 +7,7 @@
 	android:layout_gravity="center_horizontal|center_vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-	android:background="@drawable/ripple_list"
+	android:background="@drawable/selector_pearl_white"
     >
 
     <LinearLayout

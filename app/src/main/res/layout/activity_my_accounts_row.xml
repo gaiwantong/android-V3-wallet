@@ -1,0 +1,80 @@
+<RelativeLayout
+	style="?android:attr/borderlessButtonStyle"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="48dp"
+	android:background="?attr/selectableItemBackground"
+	android:gravity="start">
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="?selectableItemBackground"
+		android:clickable="true">
+
+		<ImageView
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_centerVertical="true"
+			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="16dp"
+			android:scaleType="centerCrop"
+			android:src="@drawable/round_view_grey"/>
+
+		<ImageView
+			android:id="@+id/my_account_row_icon"
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:layout_centerVertical="true"
+			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="20dp"
+			android:scaleType="centerCrop"
+			android:src="@drawable/icon_accounthd"/>
+
+		<TextView
+			android:id="@+id/my_account_row_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top"
+			android:layout_marginEnd="16dp"
+			android:layout_marginLeft="72dp"
+			android:layout_marginRight="16dp"
+			android:layout_marginStart="72dp"
+			android:layout_marginTop="5dp"
+			android:fontFamily="sans-serif"
+			android:singleLine="true"
+			android:text="Savings"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textSize="14sp"/>
+
+		<TextView
+			android:id="@+id/my_account_row_amount"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom"
+			android:layout_marginEnd="16dp"
+			android:layout_marginLeft="72dp"
+			android:layout_marginRight="16dp"
+			android:layout_marginStart="72dp"
+			android:layout_marginBottom="8dp"
+			android:fontFamily="sans-serif"
+			android:singleLine="true"
+			android:text="0.000 BTC"
+			android:textColor="@color/blockchain_grey"
+			android:textSize="12sp"/>
+
+		<ImageView
+			android:id="@+id/qrr"
+			android:layout_width="260dp"
+			android:layout_height="260dp"
+			android:layout_centerVertical="true"
+			android:layout_gravity="center"
+			android:layout_marginLeft="16dp"
+			android:scaleType="centerCrop"
+			android:visibility="invisible"
+			android:src="@drawable/qr"/>
+
+	</FrameLayout>
+
+
+</RelativeLayout>

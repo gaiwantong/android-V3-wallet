@@ -15,4 +15,7 @@
 	<dimen name="fab_stroke_width">1dp</dimen>
 
 	<dimen name="navigation_drawer_width">320dp</dimen>
+
+	<dimen name="action_bar_height">56dp</dimen>
+	<dimen name="extended_bar_height">124dp</dimen>
 </resources>
