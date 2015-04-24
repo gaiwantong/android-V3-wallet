@@ -46,6 +46,7 @@
 			android:src="@drawable/ic_arrow_back_white_24dp"/>
 
 		<ImageView
+			android:id="@+id/menu_import"
 			android:layout_width="wrap_content"
 			android:layout_height="@dimen/action_bar_height"
 			android:layout_gravity="end"

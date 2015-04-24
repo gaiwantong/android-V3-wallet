@@ -3,8 +3,9 @@ package info.blockchain.wallet;
 import android.graphics.drawable.Drawable;
 
 public class MyAccountItem {
+
 	String title;
-	Drawable icon;//Future use
+	Drawable icon;
 	String amount;
 
 	public MyAccountItem(String title, Drawable icon, String amount) {
@@ -13,9 +14,10 @@ public class MyAccountItem {
 		this.amount = amount;
 	}
 
-	public MyAccountItem(String title,  String amount) {
+	public MyAccountItem(String title,  String amount, Drawable icon) {
 		this.title = title;
 		this.amount = amount;
+		this.icon = icon;
 	}
 
 	public String getTitle() {

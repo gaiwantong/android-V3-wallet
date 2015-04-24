@@ -14,18 +14,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
 import com.google.bitcoin.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
-import org.apache.commons.codec.DecoderException;
-
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +29,8 @@ import java.util.List;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -40,15 +38,23 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 public class MyAccountsActivity extends Activity {
 
+	public static String ACCOUNT_HEADER = "";
+	public static String IMPORTED_HEADER = "";
+
 	LinearLayoutManager layoutManager = null;
 	RecyclerView mRecyclerView = null;
-	private List<Account> accounts = null;
+	private List<MyAccountItem> accountsAndImportedList = null;
 	TextView myAccountsHeader;
 	int minHeaderTranslation;
 	public int toolbarHeight;
 
 	ImageView backNav;
+	ImageView menuImport;
 	HashMap<View,Boolean> rowViewState;
+
+	private ArrayList<Integer> headerPositions;
+	int hdAccountsIdx;
+	List<LegacyAddress> legacy = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,9 @@ public class MyAccountsActivity extends Activity {
 		setContentView(R.layout.activity_my_accounts);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+		ACCOUNT_HEADER = getResources().getString(R.string.my_accounts);
+		IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
+
 		backNav = (ImageView)findViewById(R.id.back_nav);
 		backNav.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -64,6 +73,15 @@ public class MyAccountsActivity extends Activity {
 				onBackPressed();
 			}
 		});
+
+		menuImport = (ImageView)findViewById(R.id.menu_import);
+		menuImport.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(MyAccountsActivity.this,"Import Coming Soon",Toast.LENGTH_SHORT).show();
+			}
+		});
+
 		myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
 		minHeaderTranslation = myAccountsHeader.getHeight();
 
@@ -71,14 +89,20 @@ public class MyAccountsActivity extends Activity {
 		layoutManager = new LinearLayoutManager(this);
 		mRecyclerView.setLayoutManager(layoutManager);
 
+		headerPositions = new ArrayList<Integer>();
+
 		ArrayList<MyAccountItem> accountItems = new ArrayList<>();
-		accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+		//First Header Position
+		headerPositions.add(0);
+		accountItems.add(new MyAccountItem(ACCOUNT_HEADER,"",getResources().getDrawable(R.drawable.icon_accounthd)));
+
+		accountsAndImportedList = getAccounts();
 
 		toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
 		int index = 0;
-		for(Account item : accounts){
-			accountItems.add(new MyAccountItem(item.getLabel(),displayBalance(index)));
+		for(MyAccountItem item : accountsAndImportedList){
+			accountItems.add(item);
 			index++;
 		}
 
@@ -96,33 +120,32 @@ public class MyAccountsActivity extends Activity {
 					@Override
 					public void onItemClick(final View view, int position) {
 
+						if (headerPositions.contains(position)) return;//headers unclickable
+
 						try {
 							mIsViewExpanded = rowViewState.get(view);
-						}catch(Exception e){
+						} catch (Exception e) {
 							mIsViewExpanded = false;
 						}
 
-						final ImageView qrTest = (ImageView)view.findViewById(R.id.qrr);
+						final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
+						final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
 
 						//Receiving Address
 						String currentSelectedAddress = null;
-						ReceiveAddress currentSelectedReceiveAddress = null;
-						try {
-							currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position);
-							currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-						} catch (DecoderException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						} catch (MnemonicException.MnemonicWordException e) {
-							e.printStackTrace();
-						} catch (MnemonicException.MnemonicChecksumException e) {
-							e.printStackTrace();
-						} catch (MnemonicException.MnemonicLengthException e) {
-							e.printStackTrace();
-						} catch (AddressFormatException e) {
-							e.printStackTrace();
+
+						if (position-2 >= hdAccountsIdx)//2 headers before imported
+							currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
+						else {
+							ReceiveAddress currentSelectedReceiveAddress = null;
+							try {
+								currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
+								currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
+						addressView.setText(currentSelectedAddress);
 
 						//Receiving QR
 						qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
@@ -130,6 +153,21 @@ public class MyAccountsActivity extends Activity {
 						if (originalHeight == 0) {
 							originalHeight = view.getHeight();
 						}
+
+						final String finalCurrentSelectedAddress = currentSelectedAddress;
+						qrTest.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+
+								android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+								android.content.ClipData clip = null;
+								clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
+								Toast.makeText(MyAccountsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
+								clipboard.setPrimaryClip(clip);
+
+								return false;
+							}
+						});
 
 						ValueAnimator valueAnimator;
 						if (!mIsViewExpanded) {
@@ -140,21 +178,29 @@ public class MyAccountsActivity extends Activity {
 							qrTest.setAnimation(AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in));
 							qrTest.setEnabled(true);
 
+							addressView.setVisibility(View.VISIBLE);
+							Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in);
+							aanim.setDuration(expandDuration);
+							addressView.setAnimation(aanim);
+							addressView.setEnabled(true);
 
 							mIsViewExpanded = !mIsViewExpanded;
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
-							valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + qrTest.getHeight()); // These values in this method can be changed to expand however much you like
+							valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + qrTest.getHeight() + addressView.getHeight()+26);//padding
 
 						} else {
 							//Collapsing
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
 							mIsViewExpanded = !mIsViewExpanded;
-							valueAnimator = ValueAnimator.ofInt(originalHeight + qrTest.getHeight(), originalHeight);
+							valueAnimator = ValueAnimator.ofInt(originalHeight + qrTest.getHeight() + addressView.getHeight()+26, originalHeight);
 
 							//Slide QR away
 							qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
+							Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_out);
+							aanim.setDuration(expandDuration/2);
+							addressView.setAnimation(aanim);
 
 							//Fade QR and hide when done
 							Animation anim = new AlphaAnimation(1.00f, 0.00f);
@@ -170,6 +216,9 @@ public class MyAccountsActivity extends Activity {
 								public void onAnimationEnd(Animation animation) {
 									qrTest.setVisibility(View.INVISIBLE);
 									qrTest.setEnabled(false);
+
+									addressView.setVisibility(View.INVISIBLE);
+									addressView.setEnabled(false);
 								}
 
 								@Override
@@ -179,6 +228,7 @@ public class MyAccountsActivity extends Activity {
 							});
 
 							qrTest.startAnimation(anim);
+							addressView.startAnimation(anim);
 						}
 
 						//Set and start row collapse/expand
@@ -207,12 +257,65 @@ public class MyAccountsActivity extends Activity {
 		});
 	}
 
+	private List<MyAccountItem> getAccounts() {
+
+		List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
+		ImportedAccount iAccount = null;
+
+		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+		if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+			iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+		}
+
+		if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
+			accounts.remove(accounts.size() - 1);
+		}
+		hdAccountsIdx = accounts.size();
+
+		int i = 0;
+		for(; i < accounts.size(); i++) {
+
+			String label = accounts.get(i).getLabel();
+			if(label==null || label.length() == 0)label = "Account: " + (i + 1);
+
+			accountList.add(new MyAccountItem(label,displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+		}
+
+		if(iAccount != null) {
+
+			//Imported Header Position
+			headerPositions.add(i+1);
+			accountList.add(new MyAccountItem(IMPORTED_HEADER,"", getResources().getDrawable(R.drawable.icon_accounthd)));
+
+			legacy = iAccount.getLegacyAddresses();
+			for(int j = 0; j < legacy.size(); j++) {
+
+				String label = legacy.get(j).getLabel();
+				if(label==null || label.length() == 0)label = legacy.get(j).getAddress();
+
+				accountList.add(new MyAccountItem(label,displayBalanceImported(j),getResources().getDrawable(R.drawable.icon_imported)));
+			}
+		}
+
+		return accountList;
+	}
+
 	private String displayBalance(int index) {
 
 		String address = HDPayloadBridge.getInstance(this).account2Xpub(index);
 		Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
 		if(amount==null)amount = 0l;
 
+		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+
+		return getDisplayAmount(amount) + " " + unit;
+	}
+
+	private String displayBalanceImported(int index) {
+
+		String address = legacy.get(index).getAddress();
+		Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
+		if(amount==null)amount = 0l;
 		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
 		return getDisplayAmount(amount) + " " + unit;
