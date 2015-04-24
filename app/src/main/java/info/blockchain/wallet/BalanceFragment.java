@@ -591,10 +591,10 @@ public class BalanceFragment extends Fragment {
         int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
-                strAmount = df.format(((double)(value * 1000000.0)) / 1e8);
+                strAmount = df.format((value * 1000000.0) / 1e8);
                 break;
             case MonetaryUtil.MILLI_BTC:
-                strAmount = df.format(((double)(value * 1000.0)) / 1e8);
+                strAmount = df.format((value * 1000.0) / 1e8);
                 break;
             default:
                 strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
