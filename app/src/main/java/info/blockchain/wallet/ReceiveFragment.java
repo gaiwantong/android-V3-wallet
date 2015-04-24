@@ -455,11 +455,7 @@ public class ReceiveFragment extends Fragment {
                 write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
 			}
 		}
-		catch(NumberFormatException nfe) {
-			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
-            write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
-		}
-		catch(ParseException pe) {
+		catch(NumberFormatException | ParseException e) {
 			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
             write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
 		}
@@ -489,75 +485,13 @@ public class ReceiveFragment extends Fragment {
           	currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
           	currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
     	}
-    	catch(IOException ioe) {
-    		;
+    	catch(IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
+                | MnemonicException.MnemonicWordException | AddressFormatException
+                | DecoderException e) {
+    		e.printStackTrace();
     	}
-    	catch(MnemonicException.MnemonicLengthException mle) {
-    		;
-    	}
-    	catch(MnemonicException.MnemonicWordException mwe) {
-    		;
-    	}
-    	catch(MnemonicException.MnemonicChecksumException mce) {
-    		;
-    	}
-    	catch(AddressFormatException afe) {
-    		;
-    	}
-    	catch(DecoderException de) {
-    		;
-    	}
-
-//    	ReceiveAddressPool.getInstance().update();
 
     }
-
-//    private void toggleAmounts() {
-//    	String tmp = edAmount1.getText().toString();
-//    	if(tmp == null || tmp.length() == 0) {
-//    		tmp = MonetaryUtil.getInstance().getFiatFormat(strFiat).format(0.00);
-//    	}
-//    	edAmount1.setText(edAmount2.getText().toString());
-//    	edAmount2.setText(tmp);
-//    	tvCurrency1.setText(isBTC ? strFiat : strBTC);
-//    	tvFiat2.setText(isBTC ? strBTC : strFiat);
-//    	isBTC = (isBTC) ? false : true;
-//    }
-//
-//    private void updateTextFields() {
-//        if(isBTC) {
-//            double btc_amount = 0.0;
-//            try {
-//                btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue());
-//            }
-//            catch(NumberFormatException nfe) {
-//                btc_amount = 0.0;
-//            }
-//            catch(ParseException pe) {
-//                btc_amount = 0.0;
-//            }
-//            double fiat_amount = btc_fx * btc_amount;
-//            edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
-//            tvCurrency1.setText(strBTC);
-//            tvFiat2.setText(strFiat);
-//        }
-//        else {
-//            double fiat_amount = 0.0;
-//            try {
-//                fiat_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
-//            }
-//            catch(NumberFormatException nfe) {
-//                fiat_amount = 0.0;
-//            }
-//            catch(ParseException pe) {
-//                fiat_amount = 0.0;
-//            }
-//            double btc_amount = fiat_amount / btc_fx;
-//            edAmount2.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
-//            tvCurrency1.setText(strFiat);
-//            tvFiat2.setText(strBTC);
-//        }
-//    }
 
 	private void updateFiatTextField(String cBtc) {
 		double btc_amount = 0.0;
