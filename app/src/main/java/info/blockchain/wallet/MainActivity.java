@@ -697,7 +697,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-
+/*
     private void addAccount()	{
 
         if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
@@ -840,7 +840,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
 
     }
-
+*/
     private void doSettings()	{
         TimeOutUtil.getInstance().updatePin();
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
@@ -930,6 +930,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         String btc_address = null;
         String btc_amount = null;
+
+        // check for poorly formed BIP21 URIs
+        if(address.startsWith("bitcoin://"))	{
+            address = "bitcoin:" + address.substring(10);
+        }
 
         if(FormatsUtil.getInstance().isValidBitcoinAddress(address)) {
             btc_address = address;
