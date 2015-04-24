@@ -21,7 +21,7 @@ public class SelectedSpinner extends Spinner {
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 
     	if(this.lastSelected == this.getSelectedItemPosition() && getOnItemSelectedListener() != null) {
             getOnItemSelectedListener().onItemSelected(this, getSelectedView(), this.getSelectedItemPosition(), getSelectedItemId());
@@ -31,6 +31,6 @@ public class SelectedSpinner extends Spinner {
             lastSelected = this.getSelectedItemPosition();
         }
 
-        super.onLayout(changed, l, t, r, b);
+        super.onLayout(changed, left, top, right, bottom);
     } 
 }
