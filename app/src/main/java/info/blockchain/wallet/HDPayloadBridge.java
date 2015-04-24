@@ -106,7 +106,7 @@ public class HDPayloadBridge	{
 		JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
 
     }
-
+/*
     public void addAccount() throws IOException, MnemonicException.MnemonicLengthException {
 
     	String xpub = null;
@@ -162,7 +162,7 @@ public class HDPayloadBridge	{
 		PayloadFactory.getInstance(context).remoteSaveThread();
 
     }
-
+*/
     public String getHDSeed() throws IOException, MnemonicException.MnemonicLengthException {
     	return HD_WalletFactory.getInstance(context).get().getSeedHex();
     }
