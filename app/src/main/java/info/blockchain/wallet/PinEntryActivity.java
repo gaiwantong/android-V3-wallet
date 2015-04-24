@@ -35,7 +35,6 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 public class PinEntryActivity extends Activity {
@@ -388,7 +387,7 @@ public class PinEntryActivity extends Activity {
 		    		}
 
 		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-					TimeOutUtil.getInstance().updatePin();
+                    AppUtil.getInstance(PinEntryActivity.this).updatePinEntryTime();
 					updatePayloadThread(password);
 				}
 				else {

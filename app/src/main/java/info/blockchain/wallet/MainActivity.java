@@ -80,7 +80,6 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.util.TimeOutUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 //import android.nfc.Tag;
@@ -171,13 +170,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             else if(isPinValidated) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
-                TimeOutUtil.getInstance().updatePin();
+                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
             }
-            else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !TimeOutUtil.getInstance().isTimedOut()) {
-                TimeOutUtil.getInstance().updatePin();
+            else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
+                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -219,7 +218,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
-        if(TimeOutUtil.getInstance().isTimedOut()) {
+        if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 c = Setup0Activity.class;
@@ -233,7 +232,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             startActivity(i);
         }
         else {
-            TimeOutUtil.getInstance().updatePin();
+            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         }
 
         if(Build.VERSION.SDK_INT >= 16){
@@ -682,13 +681,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 */
     private void doSettings()	{
-        TimeOutUtil.getInstance().updatePin();
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
     }
 
     private void doExchangeRates()	{
-        TimeOutUtil.getInstance().updatePin();
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);
@@ -1010,7 +1009,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             EnableGeo.displayGPSPrompt(this);
         }
         else {
-            TimeOutUtil.getInstance().updatePin();
+            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
             Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
             startActivityForResult(intent, MERCHANT_ACTIVITY);
         }
