@@ -151,10 +151,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exchangeRateThread();
 
-            boolean verified = false;
+            boolean isPinValidated = false;
             Bundle extras = getIntent().getExtras();
             if(extras != null && extras.containsKey("verified"))	{
-                verified = extras.getBoolean("verified");
+                isPinValidated = extras.getBoolean("verified");
             }
 
             if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(verified) {
+            else if(isPinValidated) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 TimeOutUtil.getInstance().updatePin();
@@ -772,7 +772,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         String btc_amount = null;
 
         // check for poorly formed BIP21 URIs
-        if(address.startsWith("bitcoin://"))	{
+        if(address.startsWith("bitcoin://") && address.length() > 10)	{
             address = "bitcoin:" + address.substring(10);
         }
 
