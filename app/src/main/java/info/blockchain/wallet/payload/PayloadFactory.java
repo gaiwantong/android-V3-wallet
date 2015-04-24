@@ -36,8 +36,10 @@ public class PayloadFactory	{
 	private static Context context = null;
 
     private static PayloadFactory instance = null;
+    // active payload:
     private static Payload payload = null;
-    private static String o_payload = null;
+    // 'old' payload, compare to this payload to determine if changes have been made. Used to avoid needless remote saves to server
+    private static String cached_payload = null;
 
     private static CharSequenceX strTempPassword =  null;
     private static CharSequenceX strTempDoubleEncryptPassword =  null;
@@ -52,8 +54,8 @@ public class PayloadFactory	{
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            o_payload = new Payload();
-            o_payload = "";
+//            cached_payload = new Payload();
+            cached_payload = "";
         }
 
         return instance;
@@ -66,8 +68,8 @@ public class PayloadFactory	{
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            o_payload = new Payload();
-            o_payload = "";
+//            cached_payload = new Payload();
+            cached_payload = "";
         }
 
         return instance;
@@ -78,12 +80,12 @@ public class PayloadFactory	{
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload(json);
-//            o_payload = new Payload(json);
+//            cached_payload = new Payload(json);
             try {
-                o_payload = payload.dumpJSON().toString();
+                cached_payload = payload.dumpJSON().toString();
             }
             catch(JSONException je) {
-                o_payload = "";
+                cached_payload = "";
             }
         }
 
@@ -237,7 +239,7 @@ public class PayloadFactory	{
 		StringBuilder args = new StringBuilder();
 		try	{
 
-	    	if(o_payload != null && o_payload.equals(payload.dumpJSON().toString())) {
+	    	if(cached_payload != null && cached_payload.equals(payload.dumpJSON().toString())) {
 	    		return true;
 	    	}
 
@@ -314,7 +316,7 @@ public class PayloadFactory	{
 		try	{
 			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet", args.toString());
 			isNew = false;
-			store();
+			cache();
 		}
 		catch(Exception e)	{
             e.printStackTrace();
@@ -328,9 +330,9 @@ public class PayloadFactory	{
         return (payload != null) ? payload.dumpJSON().toString() : null;
     }
 
-    public void store() {
+    public void cache() {
         try {
-        	o_payload = payload.dumpJSON().toString();
+        	cached_payload = payload.dumpJSON().toString();
         }
         catch(JSONException je) {
         	je.printStackTrace();
@@ -362,11 +364,8 @@ public class PayloadFactory	{
             	String xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xprvstr();
             	account.setXpriv(xpriv);
         	}
-        	catch(IOException ioe)  {
-        		ioe.printStackTrace();
-        	}
-        	catch(MnemonicException.MnemonicLengthException mle)  {
-        		mle.printStackTrace();
+        	catch(IOException | MnemonicException.MnemonicLengthException e)  {
+        		e.printStackTrace();
         	}
 
     		payloadAccounts.add(account);
