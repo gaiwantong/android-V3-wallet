@@ -293,7 +293,7 @@ public class MyAccountsActivity extends Activity {
 				String label = legacy.get(j).getLabel();
 				if(label==null || label.length() == 0)label = legacy.get(j).getAddress();
 
-				accountList.add(new MyAccountItem(label,displayBalance(j),getResources().getDrawable(R.drawable.icon_imported)));
+				accountList.add(new MyAccountItem(label,displayBalanceImported(j),getResources().getDrawable(R.drawable.icon_imported)));
 			}
 		}
 
@@ -306,6 +306,16 @@ public class MyAccountsActivity extends Activity {
 		Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
 		if(amount==null)amount = 0l;
 
+		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+
+		return getDisplayAmount(amount) + " " + unit;
+	}
+
+	private String displayBalanceImported(int index) {
+
+		String address = legacy.get(index).getAddress();
+		Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
+		if(amount==null)amount = 0l;
 		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
 		return getDisplayAmount(amount) + " " + unit;
