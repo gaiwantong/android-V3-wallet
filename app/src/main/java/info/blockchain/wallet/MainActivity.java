@@ -361,35 +361,33 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI)	{
-            if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-                String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-                doScanInput(strResult);
-            }
+        if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
+                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+            String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+            doScanInput(strResult);
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
             ;
         }
-        else if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY)	{
-            if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-                try	{
-                    final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-                    String format = PrivateKeyFactory.getInstance().getFormat(strResult);
-                    if(format != null)	{
-                        if(!format.equals(PrivateKeyFactory.BIP38))	{
-                            importNonBIP38Address(format, strResult);
-                        }
-                        else	{
-                            importBIP38Address(strResult);
-                        }
+        else if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
+                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+            try	{
+                final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+                String format = PrivateKeyFactory.getInstance().getFormat(strResult);
+                if(format != null)	{
+                    if(!format.equals(PrivateKeyFactory.BIP38))	{
+                        importNonBIP38Address(format, strResult);
                     }
                     else	{
-                        Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
+                        importBIP38Address(strResult);
                     }
                 }
-                catch(Exception e)	{
+                else	{
                     Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
                 }
+            }
+            catch(Exception e)	{
+                Toast.makeText(MainActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
             }
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY)	{
