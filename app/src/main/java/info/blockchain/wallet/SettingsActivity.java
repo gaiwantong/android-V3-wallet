@@ -64,6 +64,8 @@ public class SettingsActivity extends PreferenceActivity {
                 clip = android.content.ClipData.newPlainText("guid", guid);
                 clipboard.setPrimaryClip(clip);
 
+                Toast.makeText(SettingsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+
                 return true;
             }
         });
