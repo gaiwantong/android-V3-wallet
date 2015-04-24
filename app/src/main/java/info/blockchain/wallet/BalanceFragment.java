@@ -194,7 +194,6 @@ public class BalanceFragment extends Fragment {
 						int position = accountSpinner.getSelectedItemPosition();
 
 						selectedAccount = position;
-//		        		Log.i("account2Xpub", "position:" + selectedAccount);
 
 						if(accounts == null || accounts.size() < 1) {
 							return;
@@ -205,26 +204,20 @@ public class BalanceFragment extends Fragment {
                         }
                         else {
                             String xpub = account2Xpub(selectedAccount - 1);
-//		        		Log.i("account2Xpub", xpub);
 
                             if(xpub != null) {
                                 if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                                     txs = txMap.get(xpub);
-//        		        Log.i("account2Xpub", "M:" + txs.size());
                                 }
                             }
                             else {
-//    		       		 Log.i("account2Xpub", "xpub is null");
                                 Account hda = accounts.get(selectedAccount - 1);
                                 if(hda instanceof ImportedAccount) {
                                     txs = MultiAddrFactory.getInstance().getLegacyTxs();
-//        		        Log.i("account2Xpub", "I:" + txs.size());
                                 }
                             }
 
                         }
-
-//						tvSwipe.setText(getAccountLabel() + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_up) + "\n" + Character.toString((char)TypefaceUtil.awesome_angle_double_down));
 
                         displayBalance();
 
@@ -242,19 +235,6 @@ public class BalanceFragment extends Fragment {
         txList = (ListView)rootView.findViewById(R.id.txList);
         txAdapter = new TransactionAdapter();
         txList.setAdapter(txAdapter);
-        /*
-        txList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-            	Tx tx = txs.get(position);
-            	String strTx = tx.getHash();
-            	if(strTx != null) {
-            		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-            		startActivity(browserIntent);            		
-            	}
-            }
-        });
-        */
 
         displayBalance();
         updateTx();
