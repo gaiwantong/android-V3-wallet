@@ -21,7 +21,7 @@ public class WebUtil	{
     public static final String SPEND_URL = PROTOCOL + SERVER_ADDRESS + "pushtx";
     public static final String PAYLOAD_DOMAIN = PROTOCOL + SERVER_ADDRESS;
     public static final String PAIRING_DOMAIN = PROTOCOL + SERVER_ADDRESS;
-    public static final String MULTIADDR_DOMAIN = PROTOCOL + SERVER_ADDRESS;
+    public static final String MULTIADDR_DOMAIN = PROTOCOL + SERVER_ADDRESS + "multiaddr?active=";
     public static final String EXCHANGE_URL = PROTOCOL + SERVER_ADDRESS + "ticker";
     public static final String ACCESS_URL = PROTOCOL + SERVER_ADDRESS + "pin-store";
     public static final String UNSPENT_OUTPUTS_URL = PROTOCOL + SERVER_ADDRESS + "unspent?active=";

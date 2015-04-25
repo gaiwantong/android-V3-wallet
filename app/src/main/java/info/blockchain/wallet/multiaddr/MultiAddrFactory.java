@@ -64,7 +64,6 @@ public class MultiAddrFactory	{
 
         try {
             StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
-            url.append("multiaddr?active=");
             url.append(StringUtils.join(xpubs, "|"));
             String response = WebUtil.getInstance().getURL(url.toString());
             try {
@@ -89,7 +88,6 @@ public class MultiAddrFactory	{
         JSONObject jsonObject  = null;
 
         StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
-        url.append("multiaddr?active=");
         url.append(StringUtils.join(addresses, "|"));
         if(simple) {
             url.append("&simple=true&format=json");
