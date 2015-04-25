@@ -217,7 +217,7 @@ public class PayloadFactory	{
     public Payload get(String guid, String sharedKey, CharSequenceX password) {
 
         try {
-            String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet","method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
+            String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL,"method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
             JSONObject jsonObject = new JSONObject(response);
             int iterations = AESUtil.PasswordPBKDF2Iterations;
             double version = 2.0;
@@ -412,7 +412,7 @@ public class PayloadFactory	{
 		}
 		
 		try	{
-			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_DOMAIN + "wallet", args.toString());
+			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
 			isNew = false;
 			cache();
 		}
