@@ -31,6 +31,11 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+/**
+ *
+ * PayloadFactory.java : singleton class for reading/writing/parsing Blockchain HD JSON payload
+ *
+ */
 public class PayloadFactory	{
 	
 	private static Context context = null;
@@ -38,7 +43,7 @@ public class PayloadFactory	{
     private static PayloadFactory instance = null;
     // active payload:
     private static Payload payload = null;
-    // 'old' payload, compare to this payload to determine if changes have been made. Used to avoid needless remote saves to server
+    // cached payload, compare to this payload to determine if changes have been made. Used to avoid needless remote saves to server
     private static String cached_payload = null;
 
     private static CharSequenceX strTempPassword =  null;
@@ -49,18 +54,31 @@ public class PayloadFactory	{
 
     private PayloadFactory()	{ ; }
 
+    /**
+     * Return instance for a payload factory.
+     *
+     * @return HD_WalletFactory
+     *
+     */
     public static PayloadFactory getInstance() {
 
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            cached_payload = new Payload();
             cached_payload = "";
         }
 
         return instance;
     }
 
+    /**
+     * Return instance for a payload factory. Provide Android context if needed.
+     *
+     * @param  Context ctx app context
+     *
+     * @return HD_WalletFactory
+     *
+     */
     public static PayloadFactory getInstance(Context ctx) {
     	
     	context = ctx;
@@ -68,19 +86,25 @@ public class PayloadFactory	{
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload();
-//            cached_payload = new Payload();
             cached_payload = "";
         }
 
         return instance;
     }
 
+    /**
+     * Return instance for a payload factory. Payload initialized using provided JSON string.
+     *
+     * @param  String json JSON string used to initialize this instance
+     *
+     * @return HD_WalletFactory
+     *
+     */
     public static PayloadFactory getInstance(String json) {
 
         if (instance == null) {
             instance = new PayloadFactory();
             payload = new Payload(json);
-//            cached_payload = new Payload(json);
             try {
                 cached_payload = payload.dumpJSON().toString();
             }
@@ -92,50 +116,104 @@ public class PayloadFactory	{
         return instance;
     }
 
+    /**
+     * Reset PayloadFactory to null instance.
+     *
+     */
     public void wipe() {
         instance = null;
     }
 
+    /**
+     * Get temporary password for user. Read password from here rather than reprompting user.
+     *
+     * @return CharSequenceX
+     *
+     */
     public CharSequenceX getTempPassword() {
         return strTempPassword;
     }
 
+    /**
+     * Set temporary password for user once it has been validated. Read password from here rather than reprompting user.
+     *
+     * @param CharSequenceX password Validated user password
+     *
+     */
     public void setTempPassword(CharSequenceX temp_password) {
         this.strTempPassword = temp_password;
     }
 
+    /**
+     * Get temporary double encrypt password for user. Read double encrypt password from here rather than reprompting user.
+     *
+     * @return CharSequenceX
+     *
+     */
     public CharSequenceX getTempDoubleEncryptPassword() {
         return strTempDoubleEncryptPassword;
     }
 
+    /**
+     * Set temporary double encrypt password for user once it has been validated. Read double encrypt password from here rather than reprompting user.
+     *
+     * @param CharSequenceX password Validated user double encrypt password
+     *
+     */
     public void setTempDoubleEncryptPassword(CharSequenceX temp_password2) {
         this.strTempDoubleEncryptPassword = temp_password2;
     }
 
+    /**
+     * Get checksum for this payload.
+     *
+     * @return String
+     *
+     */
     public String getCheckSum() {
         return strCheckSum;
     }
 
+    /**
+     * Set checksum for this payload.
+     *
+     * @param String checksum Checksum to be set for this payload
+     *
+     */
     public void setCheckSum(String checksum) {
         this.strCheckSum = checksum;
     }
 
+    /**
+     * Check if this payload is for a new Blockchain account.
+     *
+     * @return boolean
+     *
+     */
     public boolean isNew() {
         return isNew;
     }
 
+    /**
+     * Set if this payload is for a new Blockchain account.
+     *
+     * @param boolean isNew
+     *
+     */
     public void setNew(boolean isNew) {
         this.isNew = isNew;
     }
 
-    public boolean isSyncPubKeys() {
-        return syncPubKeys;
-    }
-
-    public void setSyncPubKeys(boolean sync) {
-        this.syncPubKeys = sync;
-    }
-
+    /**
+     * Remote get(). Get refreshed payload from server.
+     *
+     * @param  String guid User's wallet 'guid'
+     * @param  String sharedKey User's sharedKey value
+     * @param  CharSequenceX password User password
+     *
+     * @return Payload
+     *
+     */
     public Payload get(String guid, String sharedKey, CharSequenceX password) {
 
         try {
@@ -223,14 +301,34 @@ public class PayloadFactory	{
         return payload;
     }
 
+    /**
+     * Local get(). Returns current payload from the client.
+     *
+     * @return Payload
+     *
+     */
     public Payload get() {
         return payload;
     }
 
+    /**
+     * Local set(). Sets current payload on the client.
+     *
+     * @param p Payload to be assigned
+     *
+     */
     public void set(Payload p) {
         payload = p;
     }
 
+    /**
+     * Remote save of current client payload to server. Will not save if no change as compared to cached payload.
+     *
+     * @param CharSequenceX password User password
+     *
+     * @return boolean
+     *
+     */
     public boolean put(CharSequenceX password) {
 
 		String strOldCheckSum = strCheckSum;
@@ -325,11 +423,10 @@ public class PayloadFactory	{
 		return true;
     }
 
-    public String getAsString(String guid, String sharedKey, CharSequenceX password) throws JSONException {
-        Payload payload = get(guid, sharedKey, password);
-        return (payload != null) ? payload.dumpJSON().toString() : null;
-    }
-
+    /**
+     * Write to current client payload to cache.
+     *
+     */
     public void cache() {
         try {
         	cached_payload = payload.dumpJSON().toString();
@@ -339,6 +436,14 @@ public class PayloadFactory	{
         }
     }
 
+    /**
+     * Create a Blockchain wallet and include the HD_Wallet passed as an argument and write it to this instance's payload.
+     *
+     * @param HD_Wallet hdw HD wallet to include in the payload
+     *
+     * @return boolean
+     *
+     */
     public boolean createBlockchainWallet(HD_Wallet hdw)	{
     	
     	String guid = UUID.randomUUID().toString();
@@ -379,6 +484,10 @@ public class PayloadFactory	{
     	return true;
     }
 
+    /**
+     * Thread for rempte save of payload to server.
+     *
+     */
     public void remoteSaveThread() {
 
 		final Handler handler = new Handler();
@@ -395,7 +504,6 @@ public class PayloadFactory	{
 					else	{
 			        	Toast.makeText(context, R.string.remote_save_ko, Toast.LENGTH_SHORT).show();
 					}
-					
 				}
 				else	{
 		        	Toast.makeText(context, R.string.payload_corrupted, Toast.LENGTH_SHORT).show();
