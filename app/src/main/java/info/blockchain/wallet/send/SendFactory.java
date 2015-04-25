@@ -299,7 +299,7 @@ public class SendFactory	{
 			args = buffer.toString();
 		}
 
-		String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_DOMAIN + "unspent?active=" + args);
+		String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + args);
 //		Log.i("Unspent outputs", response);
 
 		List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
