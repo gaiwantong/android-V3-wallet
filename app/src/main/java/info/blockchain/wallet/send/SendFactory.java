@@ -225,7 +225,7 @@ public class SendFactory	{
 					}
 
 //					Log.i("SendFactory tx string", hexString);
-					String response = WebUtil.getInstance().postURL(WebUtil.SPEND_DOMAIN + "pushtx", "tx=" + hexString);
+					String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
 					if(response.contains("Transaction Submitted")) {
 
