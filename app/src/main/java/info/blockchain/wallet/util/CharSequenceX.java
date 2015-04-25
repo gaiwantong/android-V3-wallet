@@ -41,16 +41,6 @@ public class CharSequenceX implements CharSequence {
         this.chars = chars;
     }
 
-    public void erase() {
-        if(chars != null) {
-            for(int i = 0; i < rounds; i++) {
-                fill('0');
-                rfill();
-                fill('0');
-            }
-        }
-    }
-
     public void setRounds(int rounds) {
         if(rounds < 100) {
             this.rounds = 100;
@@ -103,6 +93,16 @@ public class CharSequenceX implements CharSequence {
 
     protected void finalize() {
         erase();
+    }
+
+    private void erase() {
+        if(chars != null) {
+            for(int i = 0; i < rounds; i++) {
+                fill('0');
+                rfill();
+                fill('0');
+            }
+        }
     }
 
     private void fill(char c) {
