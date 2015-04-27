@@ -18,6 +18,22 @@ import org.spongycastle.util.encoders.Hex;
 
 //import android.util.Log;
 
+/**
+ *
+ * Payload.java : java class for encapsulating Blockchain HD wallet payload
+ *
+ * <p>The Blockchain HD wallet payload is read from/written to the server in an encrypted JSON file
+ *
+ * <p>The Blockchain HD wallet payload format was previously fully documented on Basecamp but the latest
+ * documentation there is out-of-date. This java class encapsulates the JSON format as most recently
+ * updated by @Sjors and is subject to change.
+ *
+ * <p>Unused portions of the payload (either previously defined and unused, or previously used and now deprecated)
+ * have been deliberately left in this code pending decisions concerning their use in future versions of the
+ * Blockchain HD wallet as well as pending a full documentation of the Blockchain HD wallet payload format.
+ * Such portions might be commented out in the other payload member classes of this package.
+ *
+ */
 public class Payload {
 
     private JSONObject jsonObject = null;
@@ -246,6 +262,15 @@ public class Payload {
 
     }
 
+    /**
+     * Parser for Blockchain HD JSON object.
+     *
+     * <p>Parses the JSONObject passed as an argument and populates the payload instance
+     * with all payload data for legacy and HD parts of the wallet.
+     *
+     * @param JSONObject jsonObject JSON object to be parsed
+     *
+     */
     public void parsePayload(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
@@ -295,9 +320,7 @@ public class Payload {
 
             if(jsonObject.has("tx_notes"))  {
                 JSONObject tx_notes = (JSONObject)jsonObject.get("tx_notes");
-//                Set<String> keys = tx_notes.keySet();
                 Map<String,String> notes = new HashMap<String,String>();
-//                for(String key : keys)  {
                 for(Iterator<String> keys = tx_notes.keys(); keys.hasNext();)  {
                 	String key = keys.next();
                     String note = (String)tx_notes.get(key);
@@ -308,7 +331,6 @@ public class Payload {
 
             if(jsonObject.has("tx_tags"))  {
                 JSONObject tx_tags = (JSONObject)jsonObject.get("tx_tags");
-//                Set<String> keys = tx_tags.keySet();
                 Map<String,List<Integer>> _tags = new HashMap<String,List<Integer>>();
                 for(Iterator<String> keys = tx_tags.keys(); keys.hasNext();)  {
                 	String key = keys.next();
@@ -334,7 +356,6 @@ public class Payload {
 
             if(jsonObject.has("paidTo"))  {
                 JSONObject paid2 = (JSONObject)jsonObject.get("paidTo");
-//                Set<String> keys = paid2.keySet();
                 Map<String,PaidTo> pto = new HashMap<String,PaidTo>();
                 for(Iterator<String> keys = paid2.keys(); keys.hasNext();)  {
                 	String key = keys.next();
@@ -385,17 +406,6 @@ public class Payload {
                             JSONObject accountObj = (JSONObject)accounts.get(i);
                             Account account = new Account();
                             account.setArchived(accountObj.has("archived") ? (Boolean)accountObj.get("archived") : false);
-                            /*
-                            if(accountObj.has("change_addresses"))  {
-                                int val = (Integer)accountObj.get("change_addresses");
-                                account.setNbChangeAddresses(val);
-                            }
-                            if(accountObj.has("receive_addresses_count"))  {
-                                int val = (Integer)accountObj.get("receive_addresses_count");
-                                account.setNbReceiveAddresses(val);
-                            }
-                            */
-
                             account.setLabel(accountObj.has("label") ? (String)accountObj.get("label") : "");
                             if(accountObj.has("xpub") && ((String)accountObj.get("xpub")) != null && ((String)accountObj.get("xpub")).length() > 0)  {
                                 account.setXpub((String)accountObj.get("xpub"));
@@ -411,8 +421,6 @@ public class Payload {
                             else  {
                             	continue;
                             }
-//                            account.setXpub(accountObj.has("xpub") ? (String)accountObj.get("xpub") : "");
-//                            account.setXpriv(accountObj.has("xpriv") ? (String)accountObj.get("xpriv") : "");
 
                             if(accountObj.has("receive_addresses"))  {
                                 JSONArray receives = (JSONArray)accountObj.get("receive_addresses");
@@ -546,6 +554,14 @@ public class Payload {
         return account2Xpub;
     }
 
+    /**
+     * Returns this instance of payload and all dependant payload object instances
+     * in a single JSONObject. The returned JSON object can be serialized and
+     * written to server.
+     *
+     * @return JSONObject
+     *
+     */
     public JSONObject dumpJSON() throws JSONException{
 
         JSONObject obj = new JSONObject();
@@ -610,7 +626,6 @@ public class Payload {
 
         JSONArray tnames = new JSONArray();
         Set<Integer> skeys = tag_names.keySet();
-//        tnames.ensureCapacity(skeys.size());
         for(Integer key : skeys)  {
             tnames.put(key, tag_names.get(key));
         }

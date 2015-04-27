@@ -218,7 +218,7 @@ public class BalanceFragment extends Fragment {
 
                         }
 
-                        displayBalance();
+//                        displayBalance();
 
 						txAdapter.notifyDataSetInvalidated();
 					}

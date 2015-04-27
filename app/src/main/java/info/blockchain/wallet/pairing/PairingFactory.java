@@ -104,7 +104,7 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        return WebUtil.getInstance().postURL(WebUtil.PAIRING_DOMAIN + "wallet", args.toString());
+        return WebUtil.getInstance().postURL(WebUtil.PAIRING_URL, args.toString());
     }
 
     public String getWalletManualPairing(final String guid) throws Exception {
@@ -113,7 +113,7 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_DOMAIN + "wallet/" + guid + "?format=json&resend_code=false");
+        String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false");
 
         JSONObject jsonObject = new JSONObject(response);
 //        Log.i("Pairing", "Returned object:" + jsonObject.toString());

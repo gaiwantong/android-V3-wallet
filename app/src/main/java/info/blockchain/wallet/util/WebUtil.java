@@ -15,13 +15,16 @@ import org.apache.commons.io.IOUtils;
 
 public class WebUtil	{
 
-    public static final String SPEND_DOMAIN = "https://blockchain.info/";
-    public static final String PAYLOAD_DOMAIN = "https://blockchain.info/";
-    public static final String PAIRING_DOMAIN = "https://blockchain.info/";
-    public static final String MULTIADDR_DOMAIN = "https://blockchain.info/";
-    public static final String EXCHANGE_URL = "https://blockchain.info/ticker";
-    public static final String ACCESS_URL = "https://blockchain.info/pin-store";
-    public static final String UNSPENT_OUTPUTS_DOMAIN = "https://blockchain.info/";
+    public static final String PROTOCOL = "https://";
+    public static final String SERVER_ADDRESS = "blockchain.info/";
+
+    public static final String SPEND_URL = PROTOCOL + SERVER_ADDRESS + "pushtx";
+    public static final String PAYLOAD_URL = PROTOCOL + SERVER_ADDRESS + "wallet";
+    public static final String PAIRING_URL = PAYLOAD_URL;
+    public static final String MULTIADDR_URL = PROTOCOL + SERVER_ADDRESS + "multiaddr?active=";
+    public static final String EXCHANGE_URL = PROTOCOL + SERVER_ADDRESS + "ticker";
+    public static final String ACCESS_URL = PROTOCOL + SERVER_ADDRESS + "pin-store";
+    public static final String UNSPENT_OUTPUTS_URL = PROTOCOL + SERVER_ADDRESS + "unspent?active=";
 
     private static final int DefaultRequestRetry = 2;
     private static final int DefaultRequestTimeout = 60000;

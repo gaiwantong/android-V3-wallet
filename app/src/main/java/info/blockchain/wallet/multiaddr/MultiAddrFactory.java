@@ -63,8 +63,7 @@ public class MultiAddrFactory	{
         JSONObject jsonObject  = null;
 
         try {
-            StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
-            url.append("multiaddr?active=");
+            StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_URL);
             url.append(StringUtils.join(xpubs, "|"));
             String response = WebUtil.getInstance().getURL(url.toString());
             try {
@@ -88,8 +87,7 @@ public class MultiAddrFactory	{
 
         JSONObject jsonObject  = null;
 
-        StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_DOMAIN);
-        url.append("multiaddr?active=");
+        StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_URL);
         url.append(StringUtils.join(addresses, "|"));
         if(simple) {
             url.append("&simple=true&format=json");
@@ -518,31 +516,29 @@ public class MultiAddrFactory	{
 
     public List<Tx> getAllXpubTxs()  {
 
+        List<String> seen_moves = new ArrayList<String>();
         List<Tx> ret = new ArrayList<Tx>();
         for(String key : xpub_txs.keySet())  {
-            ret.addAll(xpub_txs.get(key));
-        }
-
-        List<Tx> ret_dedup = new ArrayList<Tx>();
-        List<String> seen_moves = new ArrayList<String>();
-        for(Tx tx : ret)  {
-            if(tx.isMove())  {
-                if(seen_moves.contains(tx.getHash()))  {
-                    continue;
+            List<Tx> txs = xpub_txs.get(key);
+            for(Tx tx : txs)  {
+                if(tx.isMove())  {
+                    if(seen_moves.contains(tx.getHash()))  {
+                        continue;
+                    }
+                    else  {
+                        ret.add(tx);
+                        seen_moves.add(tx.getHash());
+                    }
                 }
                 else  {
-                    ret_dedup.add(tx);
-                    seen_moves.add(tx.getHash());
+                    ret.add(tx);
                 }
-            }
-            else  {
-                ret_dedup.add(tx);
             }
         }
 
-        Collections.sort(ret_dedup, new TxMostRecentDateComparator());
+        Collections.sort(ret, new TxMostRecentDateComparator());
 
-        return ret_dedup;
+        return ret;
     }
 
     public List<Tx> getLegacyTxs()  {

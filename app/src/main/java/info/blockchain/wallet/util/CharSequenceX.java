@@ -3,13 +3,24 @@ package info.blockchain.wallet.util;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+/**
+ *
+ * CharSequenceX.java : implements Java CharSequence as class that
+ * self-erases its memory footprint when it goes out of scope. Covers
+ * its memory space with alternating '0' and random data.
+ *
+ * <p>Used for passwords and other sensitive data to reduce their footprint in memory to a minimum.</p>
+ *
+ * <p>Use as any CharSequence instance.</p>
+ *
+ */
 public class CharSequenceX implements CharSequence {
 
     private char[] chars;
     private int rounds = 100;
 
     private CharSequenceX(CharSequence charSequence, int start, int end) {
-        zap();
+        erase();
         int len = end - start;
         chars = new char[len];
         for(int i = start; i < end; i++) {
@@ -26,18 +37,8 @@ public class CharSequenceX implements CharSequence {
     }
 
     public CharSequenceX(char[] chars) {
-        zap();
+        erase();
         this.chars = chars;
-    }
-
-    public void zap() {
-        if(chars != null) {
-            for(int i = 0; i < rounds; i++) {
-                fill('0');
-                rfill();
-                fill('0');
-            }
-        }
     }
 
     public void setRounds(int rounds) {
@@ -91,7 +92,17 @@ public class CharSequenceX implements CharSequence {
     }
 
     protected void finalize() {
-        zap();
+        erase();
+    }
+
+    private void erase() {
+        if(chars != null) {
+            for(int i = 0; i < rounds; i++) {
+                fill('0');
+                rfill();
+                fill('0');
+            }
+        }
     }
 
     private void fill(char c) {
