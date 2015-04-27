@@ -450,17 +450,16 @@ public class MyAccountsActivity extends Activity {
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			super.onScrolled(recyclerView, dx, dy);
 
-			//Only bring heaing back down after 2nd item visible (0 = heading)
-			if(layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
-				clipToolbarOffset();
-				if (scaleFactor < 0) scaleFactor = 0;
-				if (scaleFactor > 1) scaleFactor = 1;
-				onMoved(mToolbarOffset, scaleFactor);
+			//Only bring heading back down after 2nd item visible (0 = heading)
+			if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
 
 				if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
 					mToolbarOffset += dy;
-					scaleFactor = (float) (toolbarHeight - mToolbarOffset) / (float) toolbarHeight;
+					scaleFactor = (float) ((toolbarHeight*2) - mToolbarOffset) / (float) (toolbarHeight*2);
 				}
+
+				clipToolbarOffset();
+				onMoved(mToolbarOffset, scaleFactor);
 			}
 		}
 
@@ -469,6 +468,7 @@ public class MyAccountsActivity extends Activity {
 				mToolbarOffset = toolbarHeight;
 			} else if(mToolbarOffset < 0) {
 				mToolbarOffset = 0;
+				scaleFactor = 0.7f;
 			}
 		}
 
