@@ -32,7 +32,7 @@
 			android:text="@string/my_accounts"
 			android:textColor="@color/white_50"
 			android:paddingBottom="14dp"
-			android:textSize="20dp"
+			android:textSize="28sp"
 			/>
 
 		<ImageView

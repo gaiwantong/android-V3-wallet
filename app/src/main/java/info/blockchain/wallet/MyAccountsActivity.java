@@ -2,25 +2,47 @@ package info.blockchain.wallet;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListPopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dm.zbar.android.scanner.ZBarConstants;
+import com.dm.zbar.android.scanner.ZBarScannerActivity;
+import com.google.bitcoin.core.Base58;
+import com.google.bitcoin.core.ECKey;
+import com.google.bitcoin.params.MainNetParams;
 import com.google.bitcoin.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
+
+import net.sourceforge.zbar.Symbol;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,28 +55,36 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 
 public class MyAccountsActivity extends Activity {
+
+	private static final int IMPORT_PRIVATE_KEY = 2006;
 
 	public static String ACCOUNT_HEADER = "";
 	public static String IMPORTED_HEADER = "";
 
-	LinearLayoutManager layoutManager = null;
-	RecyclerView mRecyclerView = null;
+	private LinearLayoutManager layoutManager = null;
+	private RecyclerView mRecyclerView = null;
 	private List<MyAccountItem> accountsAndImportedList = null;
-	TextView myAccountsHeader;
-	int minHeaderTranslation;
+	private TextView myAccountsHeader;
+	private float originalHeaderTextSize;
 	public int toolbarHeight;
 
-	ImageView backNav;
-	ImageView menuImport;
-	HashMap<View,Boolean> rowViewState;
+	private ImageView backNav;
+	private ImageView menuImport;
+	private HashMap<View,Boolean> rowViewState;
 
 	private ArrayList<Integer> headerPositions;
-	int hdAccountsIdx;
-	List<LegacyAddress> legacy = null;
+	private int hdAccountsIdx;
+	private List<LegacyAddress> legacy = null;
+
+	private ProgressDialog progress = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,16 +104,74 @@ public class MyAccountsActivity extends Activity {
 			}
 		});
 
+		//TODO Menu popup needs to look more modern - maybe similar to a fab rollout
 		menuImport = (ImageView)findViewById(R.id.menu_import);
 		menuImport.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MyAccountsActivity.this,"Import Coming Soon",Toast.LENGTH_SHORT).show();
+
+				String[] list = new String[] {getResources().getString(R.string.import_address)};
+				ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_item2, list);
+
+				final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
+				menuPopup.setAnchorView(menuImport);
+				menuPopup.setAdapter(popupAdapter);
+				menuPopup.setModal(true);
+				menuPopup.setAnimationStyle(R.anim.slide_down1);
+				menuPopup.setContentWidth(measureContentWidth(popupAdapter));//always size to max width item
+				menuPopup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+						switch (position) {
+							case 0:
+								scanPrivateKey();
+								break;
+						}
+
+						if (menuPopup.isShowing()) menuPopup.dismiss();
+					}
+				});
+				menuPopup.show();
 			}
+
+			private int measureContentWidth(ListAdapter listAdapter) {
+				ViewGroup mMeasureParent = null;
+				int maxWidth = 0;
+				View itemView = null;
+				int itemType = 0;
+
+				final ListAdapter adapter = listAdapter;
+				final int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+				final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+				final int count = adapter.getCount();
+				for (int i = 0; i < count; i++) {
+					final int positionType = adapter.getItemViewType(i);
+					if (positionType != itemType) {
+						itemType = positionType;
+						itemView = null;
+					}
+
+					if (mMeasureParent == null) {
+						mMeasureParent = new FrameLayout(MyAccountsActivity.this);
+					}
+
+					itemView = adapter.getView(i, itemView, mMeasureParent);
+					itemView.measure(widthMeasureSpec, heightMeasureSpec);
+
+					final int itemWidth = itemView.getMeasuredWidth();
+
+					if (itemWidth > maxWidth) {
+						maxWidth = itemWidth;
+					}
+				}
+
+				return maxWidth;
+			}
+
 		});
 
 		myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
-		minHeaderTranslation = myAccountsHeader.getHeight();
+		originalHeaderTextSize = myAccountsHeader.getTextSize();
 
 		mRecyclerView = (RecyclerView)findViewById(R.id.accountsList);
 		layoutManager = new LinearLayoutManager(this);
@@ -100,10 +188,8 @@ public class MyAccountsActivity extends Activity {
 
 		toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
-		int index = 0;
 		for(MyAccountItem item : accountsAndImportedList){
 			accountItems.add(item);
-			index++;
 		}
 
 		MyAccountsAdapter accountsAdapter = new MyAccountsAdapter(accountItems);
@@ -172,7 +258,7 @@ public class MyAccountsActivity extends Activity {
 							}
 						});
 
-						ValueAnimator valueAnimator;
+						ValueAnimator headerResizeAnimator;
 						if (!mIsViewExpanded) {
 							//Expanding
 
@@ -190,14 +276,14 @@ public class MyAccountsActivity extends Activity {
 							mIsViewExpanded = !mIsViewExpanded;
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
-							valueAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+							headerResizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
 
 						} else {
 							//Collapsing
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
 							mIsViewExpanded = !mIsViewExpanded;
-							valueAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
+							headerResizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
 							//Slide QR away
 							qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
@@ -235,9 +321,9 @@ public class MyAccountsActivity extends Activity {
 						}
 
 						//Set and start row collapse/expand
-						valueAnimator.setDuration(expandDuration);
-						valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-						valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+						headerResizeAnimator.setDuration(expandDuration);
+						headerResizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+						headerResizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 							public void onAnimationUpdate(ValueAnimator animation) {
 								Integer value = (Integer) animation.getAnimatedValue();
 								view.getLayoutParams().height = value.intValue();
@@ -246,7 +332,8 @@ public class MyAccountsActivity extends Activity {
 						});
 
 
-						valueAnimator.start();
+						headerResizeAnimator.start();
+
 						rowViewState.put(view,mIsViewExpanded);
 					}
 				})
@@ -254,8 +341,13 @@ public class MyAccountsActivity extends Activity {
 
 		mRecyclerView.setOnScrollListener(new CollapseActionbarScrollListener() {
 			@Override
-			public void onMoved(int distance) {
+			public void onMoved(int distance, float scaleFactor) {
 				myAccountsHeader.setTranslationY(-distance);
+
+				if(scaleFactor >= 0.6 && scaleFactor <= 1) {
+					float mm = (originalHeaderTextSize * scaleFactor);
+					myAccountsHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, mm);
+				}
 			}
 		});
 	}
@@ -347,6 +439,7 @@ public class MyAccountsActivity extends Activity {
 	public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
 
 		private int mToolbarOffset = 0;
+		private float scaleFactor = 1;
 
 		public CollapseActionbarScrollListener() {
 		}
@@ -356,10 +449,13 @@ public class MyAccountsActivity extends Activity {
 			super.onScrolled(recyclerView, dx, dy);
 
 			clipToolbarOffset();
-			onMoved(mToolbarOffset);
+			if(scaleFactor <0) scaleFactor =0;
+			if(scaleFactor >1) scaleFactor =1;
+			onMoved(mToolbarOffset, scaleFactor);
 
-			if((mToolbarOffset <toolbarHeight && dy>0) || (mToolbarOffset >0 && dy<0)) {
+			if((mToolbarOffset < toolbarHeight && dy>0) || (mToolbarOffset >0 && dy<0)) {
 				mToolbarOffset += dy;
+				scaleFactor = (float)(toolbarHeight-mToolbarOffset)/(float)toolbarHeight;
 			}
 		}
 
@@ -371,7 +467,7 @@ public class MyAccountsActivity extends Activity {
 			}
 		}
 
-		public abstract void onMoved(int distance);
+		public abstract void onMoved(int distance, float scaleFactor);
 	}
 
 	private Bitmap generateQRCode(String uri) {
@@ -388,5 +484,259 @@ public class MyAccountsActivity extends Activity {
 		}
 
 		return bitmap;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
+				&& data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+			try	{
+				final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+				String format = PrivateKeyFactory.getInstance().getFormat(strResult);
+				if(format != null)	{
+					if(!format.equals(PrivateKeyFactory.BIP38))	{
+						importNonBIP38Address(format, strResult);
+					}
+					else	{
+						importBIP38Address(strResult);
+					}
+				}
+				else	{
+					Toast.makeText(MyAccountsActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
+				}
+			}
+			catch(Exception e)	{
+				Toast.makeText(MyAccountsActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
+			}
+		}
+		else if(resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY)	{
+			;
+		}
+
+	}
+
+	private void scanPrivateKey() {
+
+		if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+			Intent intent = new Intent(MyAccountsActivity.this, ZBarScannerActivity.class);
+			intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+			startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+		}
+		else {
+			final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+			double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+			new AlertDialog.Builder(MyAccountsActivity.this)
+					.setTitle(R.string.app_name)
+					.setMessage(R.string.enter_double_encryption_pw)
+					.setView(double_encrypt_password)
+					.setCancelable(false)
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {
+
+							String pw2 = double_encrypt_password.getText().toString();
+
+							if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+									PayloadFactory.getInstance().get().getDoublePasswordHash(),
+									PayloadFactory.getInstance().get().getSharedKey(),
+									new CharSequenceX(pw2),
+									PayloadFactory.getInstance().get().getIterations()
+							)) {
+
+								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+
+								Intent intent = new Intent(MyAccountsActivity.this, ZBarScannerActivity.class);
+								intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+								startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+
+							}
+							else {
+								Toast.makeText(MyAccountsActivity.this, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+							}
+
+						}
+					}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					;
+				}
+			}).show();
+		}
+
+	}
+
+	private void importBIP38Address(final String data)	{
+
+		final EditText password = new EditText(this);
+		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.app_name)
+				.setMessage(R.string.password_entry)
+				.setView(password)
+				.setCancelable(false)
+				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+
+						final String pw = password.getText().toString();
+
+						if(progress != null && progress.isShowing()) {
+							progress.dismiss();
+							progress = null;
+						}
+						progress = new ProgressDialog(MyAccountsActivity.this);
+						progress.setTitle(R.string.app_name);
+						progress.setMessage(MyAccountsActivity.this.getResources().getString(R.string.please_wait));
+						progress.show();
+
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+
+								Looper.prepare();
+
+								try {
+									final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, data, new CharSequenceX(pw));
+									if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+										final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+									        		/*
+									        		 * if double encrypted, save encrypted in payload
+									        		 */
+										if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+											legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+										}
+										else	{
+											String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+											String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+											legacyAddress.setEncryptedKey(encrypted2);
+										}
+
+										final EditText address_label = new EditText(MyAccountsActivity.this);
+
+										new AlertDialog.Builder(MyAccountsActivity.this)
+												.setTitle(R.string.app_name)
+												.setMessage(R.string.label_address)
+												.setView(address_label)
+												.setCancelable(false)
+												.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+													public void onClick(DialogInterface dialog, int whichButton) {
+														String label = address_label.getText().toString();
+														if(label != null && label.length() > 0) {
+															legacyAddress.setLabel(label);
+														}
+														else {
+															legacyAddress.setLabel("");
+														}
+														PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+														Toast.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+														PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+														MyAccountsActivity.this.recreate();
+													}
+												}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int whichButton) {
+												legacyAddress.setLabel("");
+												PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+												Toast.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+												PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+												MyAccountsActivity.this.recreate();
+											}
+										}).show();
+
+									}
+									else	{
+										Toast.makeText(MyAccountsActivity.this, R.string.bip38_error, Toast.LENGTH_SHORT).show();
+									}
+								}
+								catch(Exception e) {
+									Toast.makeText(MyAccountsActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
+								}
+								finally {
+									if(progress != null && progress.isShowing()) {
+										progress.dismiss();
+										progress = null;
+									}
+								}
+
+								Looper.loop();
+
+							}
+						}).start();
+
+					}
+				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				AppUtil.getInstance(MyAccountsActivity.this).restartApp();
+			}
+		}).show();
+	}
+
+	private void importNonBIP38Address(final String format, final String data)	{
+
+		ECKey key = null;
+
+		try	{
+			key = PrivateKeyFactory.getInstance().getKey(format, data);
+		}
+		catch(Exception e)	{
+			e.printStackTrace();
+			return;
+		}
+
+		if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+			final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+			/*
+			 * if double encrypted, save encrypted in payload
+			 */
+			if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+				legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+			}
+			else	{
+				String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+				String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+				legacyAddress.setEncryptedKey(encrypted2);
+			}
+
+			final EditText address_label = new EditText(MyAccountsActivity.this);
+
+			final ECKey scannedKey = key;
+
+			new AlertDialog.Builder(MyAccountsActivity.this)
+					.setTitle(R.string.app_name)
+					.setMessage(R.string.label_address)
+					.setView(address_label)
+					.setCancelable(false)
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {
+							String label = address_label.getText().toString();
+							if(label != null && label.length() > 0) {
+								legacyAddress.setLabel(label);
+							}
+							else {
+								legacyAddress.setLabel("");
+							}
+							PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+							Toast.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+							PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+							MyAccountsActivity.this.recreate();
+						}
+					}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					legacyAddress.setLabel("");
+					PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+					Toast.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), Toast.LENGTH_SHORT).show();
+					PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+					MyAccountsActivity.this.recreate();
+				}
+			}).show();
+
+		}
+		else	{
+			Toast.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), Toast.LENGTH_SHORT).show();
+		}
 	}
 }
