@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.spongycastle.util.encoders.Hex;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 //import android.util.Log;
@@ -38,6 +40,8 @@ import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
@@ -349,11 +353,12 @@ public class SendFactory	{
 
 		}
 
-        // no single output >= totalValue, so randomize
+        // select the minimum number of outputs necessary
+        Collections.sort(outputs, new UnspentOutputAmountComparator());
         List<MyTransactionOutPoint> _outputs = new ArrayList<MyTransactionOutPoint>();
-        Collections.shuffle(outputs, new SecureRandom());
         BigInteger totalValue = BigInteger.ZERO;
         for (MyTransactionOutPoint output : outputs) {
+            Log.i("SendFactory", "" + output.getValue());
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
             if(totalValue.compareTo(totalAmount) >= 0) {
@@ -500,5 +505,34 @@ public class SendFactory	{
 		public void onError(String message);
 		public void onProgress(String message);
 	}
+
+    /**
+     * Sort unspent outputs by amount in descending order.
+     *
+     */
+    private class UnspentOutputAmountComparator implements Comparator<MyTransactionOutPoint> {
+
+        public int compare(MyTransactionOutPoint o1, MyTransactionOutPoint o2) {
+
+            final int BEFORE = -1;
+            final int EQUAL = 0;
+            final int AFTER = 1;
+
+            int ret = 0;
+
+            if(o1.getValue().compareTo(o2.getValue()) > 0) {
+                ret = BEFORE;
+            }
+            else if(o1.getValue().compareTo(o2.getValue()) < 0) {
+                ret = AFTER;
+            }
+            else    {
+                ret = EQUAL;
+            }
+
+            return ret;
+        }
+
+    }
 
 }
