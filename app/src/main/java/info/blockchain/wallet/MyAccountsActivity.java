@@ -13,7 +13,6 @@ import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +60,7 @@ import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
+import info.blockchain.wallet.util.TypefaceUtil;
 
 public class MyAccountsActivity extends Activity {
 
@@ -93,7 +93,7 @@ public class MyAccountsActivity extends Activity {
 		setContentView(R.layout.activity_my_accounts);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		ACCOUNT_HEADER = getResources().getString(R.string.my_accounts);
+		ACCOUNT_HEADER = getResources().getString(R.string.accounts);
 		IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
 		backNav = (ImageView)findViewById(R.id.back_nav);
@@ -171,6 +171,7 @@ public class MyAccountsActivity extends Activity {
 		});
 
 		myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
+		myAccountsHeader.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 		originalHeaderTextSize = myAccountsHeader.getTextSize();
 
 		mRecyclerView = (RecyclerView)findViewById(R.id.accountsList);
@@ -342,9 +343,10 @@ public class MyAccountsActivity extends Activity {
 		mRecyclerView.setOnScrollListener(new CollapseActionbarScrollListener() {
 			@Override
 			public void onMoved(int distance, float scaleFactor) {
+
 				myAccountsHeader.setTranslationY(-distance);
 
-				if(scaleFactor >= 0.6 && scaleFactor <= 1) {
+				if (scaleFactor >= 0.7 && scaleFactor <= 1) {
 					float mm = (originalHeaderTextSize * scaleFactor);
 					myAccountsHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, mm);
 				}
@@ -448,14 +450,17 @@ public class MyAccountsActivity extends Activity {
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			super.onScrolled(recyclerView, dx, dy);
 
-			clipToolbarOffset();
-			if(scaleFactor <0) scaleFactor =0;
-			if(scaleFactor >1) scaleFactor =1;
-			onMoved(mToolbarOffset, scaleFactor);
+			//Only bring heaing back down after 2nd item visible (0 = heading)
+			if(layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
+				clipToolbarOffset();
+				if (scaleFactor < 0) scaleFactor = 0;
+				if (scaleFactor > 1) scaleFactor = 1;
+				onMoved(mToolbarOffset, scaleFactor);
 
-			if((mToolbarOffset < toolbarHeight && dy>0) || (mToolbarOffset >0 && dy<0)) {
-				mToolbarOffset += dy;
-				scaleFactor = (float)(toolbarHeight-mToolbarOffset)/(float)toolbarHeight;
+				if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+					mToolbarOffset += dy;
+					scaleFactor = (float) (toolbarHeight - mToolbarOffset) / (float) toolbarHeight;
+				}
 			}
 		}
 
