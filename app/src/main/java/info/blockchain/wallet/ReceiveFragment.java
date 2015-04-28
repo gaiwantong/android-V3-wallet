@@ -451,13 +451,13 @@ public class ReceiveFragment extends Fragment {
                 write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
 			}
 			else {
-				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
-                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
+                ivReceivingQR.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
+                write2NFC("bitcoin:" + currentSelectedAddress);
 			}
 		}
 		catch(NumberFormatException | ParseException e) {
-			ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
-            write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", ""));
+            ivReceivingQR.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
+            write2NFC("bitcoin:" + currentSelectedAddress);
 		}
 
 		setupBottomSheet();
