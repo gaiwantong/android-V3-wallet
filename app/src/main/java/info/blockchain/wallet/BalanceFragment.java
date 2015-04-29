@@ -1,5 +1,6 @@
 package info.blockchain.wallet;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -13,20 +14,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -76,14 +82,16 @@ public class BalanceFragment extends Fragment {
 	private Spinner accountSpinner = null;
 	ArrayAdapter<String> accountsAdapter = null;
 	private static int selectedAccount = 0;
+	public int toolbarHeight;
 
 	//
 	// tx list
 	//
 	private HashMap<String,List<Tx>> txMap = null;
 	private List<Tx> txs = new ArrayList<Tx>();
-	private ListView txList = null;
-	private TransactionAdapter txAdapter = null;
+	private RecyclerView txList = null;
+	private TxAdapter txAdapter = null;
+	LinearLayoutManager layoutManager;
 
 	public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
 
@@ -110,7 +118,7 @@ public class BalanceFragment extends Fragment {
 	private SlidingUpPanelLayout mLayout;
 	private LinearLayout bottomSel1 = null;
 	private LinearLayout bottomSel2 = null;
-	private LinearLayout mainContent;
+	private FrameLayout mainContent;
 	private LinearLayout mainContentShadow;
     private static boolean isBottomSheetOpen = false;
 
@@ -118,6 +126,11 @@ public class BalanceFragment extends Fragment {
 
 	Communicator comm;
 	ImageButton fab;
+
+	ValueAnimator movingFabUp;
+	ValueAnimator movingFabDown;
+	float fabTopY;
+	float fabBottomY;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -131,18 +144,9 @@ public class BalanceFragment extends Fragment {
 		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
 		accountSpinner.setVisibility(View.VISIBLE);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
-		else
-			fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
+		initFab(rootView);
 
-		fab.bringToFront();
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onAddClicked();
-			}
-		});
+		toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
@@ -220,7 +224,8 @@ public class BalanceFragment extends Fragment {
 
 //                        displayBalance();
 
-						txAdapter.notifyDataSetInvalidated();
+//						txAdapter.notifyDataSetInvalidated();
+						txAdapter.notifyDataSetChanged();
 					}
 					@Override
 					public void onNothingSelected(AdapterView<?> arg0) {
@@ -231,9 +236,29 @@ public class BalanceFragment extends Fragment {
 		});
 		accountSpinner.setSelection(selectedAccount);
 
-        txList = (ListView)rootView.findViewById(R.id.txList);
-        txAdapter = new TransactionAdapter();
-        txList.setAdapter(txAdapter);
+		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
+		txAdapter = new TxAdapter();
+		layoutManager = new LinearLayoutManager(getActivity());
+		txList.setLayoutManager(layoutManager);
+		txList.setAdapter(txAdapter);
+
+//		txList.addOnItemTouchListener(
+//				new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
+//
+//					@Override
+//					public void onItemClick(final View view, int position) {
+//					//TODO add tx row onclicks in here
+//					}
+//				})
+//		);
+
+		txList.setOnScrollListener(new CollapseActionbarScrollListener() {
+			@Override
+			public void onMoved(int distance) {
+
+				tvBalance1.setTranslationY(-distance);
+			}
+		});
 
         displayBalance();
         updateTx();
@@ -305,7 +330,7 @@ public class BalanceFragment extends Fragment {
 			}
 		});
 
-		mainContent = (LinearLayout)rootView.findViewById(R.id.balance_main_content);
+		mainContent = (FrameLayout)rootView.findViewById(R.id.balance_main_content);
 		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.balance_main_content_shadow);
 		mainContentShadow.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -367,73 +392,50 @@ public class BalanceFragment extends Fragment {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
     }
 
-    private class TransactionAdapter extends BaseAdapter {
-    	
-		private LayoutInflater inflater = null;
+	private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
 
-		TextView tvResult;
+		public class ViewHolder extends RecyclerView.ViewHolder  {
 
-	    TransactionAdapter() {
-	        inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-
-		@Override
-		public int getCount() {
-			if(txs == null) {
-				txs = new ArrayList<Tx>();
+			public ViewHolder(View view) {
+				super(view);
 			}
-			return txs.size();
 		}
 
 		@Override
-		public String getItem(int position) {
-			if(txs == null) {
-				txs = new ArrayList<Tx>();
-			}
-			return txs.get(position).toString();
+		public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+			View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple2, parent, false);
+			return new ViewHolder(v);
 		}
 
 		@Override
-		public long getItemId(int position) {
-			return position;
-		}
+		public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			View view = null;
-	        
-	        if (convertView == null) {
-	            view = inflater.inflate(R.layout.txs_layout_simple, parent, false);
-	        } else {
-	            view = convertView;
-	        }
+			if(txs != null) {
+				final Tx tx = txs.get(position);
+				double _btc_balance = tx.getAmount() / 1e8;
+				double _fiat_balance = btc_fx * _btc_balance;
 
-	        if(txs != null) {
-		        final Tx tx = txs.get(position);
-		        double _btc_balance = tx.getAmount() / 1e8;
-		    	double _fiat_balance = btc_fx * _btc_balance;
-		    	
-		    	tvResult = (TextView)view.findViewById(R.id.result);
+				TextView tvResult = (TextView)holder.itemView.findViewById(R.id.result);
 				tvResult.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 				tvResult.setTextColor(Color.WHITE);
 
-		    	TextView tvTS = (TextView)view.findViewById(R.id.ts);
+				TextView tvTS = (TextView)holder.itemView.findViewById(R.id.ts);
 				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
 
-		    	TextView tvDirection = (TextView)view.findViewById(R.id.direction);
+				TextView tvDirection = (TextView)holder.itemView.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 				tvDirection.setText(tx.getDirection());
 
-		        if(isBTC) {
-                    span1 = Spannable.Factory.getInstance().newSpannable(getDisplayAmount(tx.getAmount()) + " " + getDisplayUnits());
-                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        }
-		        else	{
+				if(isBTC) {
+					span1 = Spannable.Factory.getInstance().newSpannable(getDisplayAmount(tx.getAmount()) + " " + getDisplayUnits());
+					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+				else	{
 					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(_fiat_balance) + " " + strFiat);
-                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		        }
+					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
 				if(tx.isMove()) {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
 					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
@@ -446,10 +448,12 @@ public class BalanceFragment extends Fragment {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
 					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
 				}
+
 				tvResult.setText(span1);
-                tvResult.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+
+				tvResult.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							isBTC = (isBTC) ? false : true;
@@ -457,9 +461,9 @@ public class BalanceFragment extends Fragment {
 							accountsAdapter.notifyDataSetChanged();
 							txAdapter.notifyDataSetChanged();
 						}
-                        return true;
-                    }
-                });
+						return true;
+					}
+				});
 
 				tvTS.setOnTouchListener(new OnTouchListener() {
 					@Override
@@ -490,13 +494,15 @@ public class BalanceFragment extends Fragment {
 						return true;
 					}
 				});
-
-	        }
-
-	        return view;
+			}
 		}
 
-    }
+		@Override
+		public int getItemCount() {
+			if(txs==null)return 0;
+			return txs.size();
+		}
+	}
 
 	private void displayBalance() {
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -657,18 +663,25 @@ public class BalanceFragment extends Fragment {
 
 	private void onAddClicked(){
 
+		fab.bringToFront();
+
 		if(mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+
+				//Bottom sheet down
+				movingFabDown.start();
+
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
                 isBottomSheetOpen = false;
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(8);
 			} else {
+
+				//Bottom sheet up
+				movingFabUp.start();
+
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContentShadow.bringToFront();
 				mainContentShadow.setVisibility(View.VISIBLE);
                 isBottomSheetOpen = true;
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)fab.setElevation(0);
 			}
 		}
 	}
@@ -687,5 +700,102 @@ public class BalanceFragment extends Fragment {
 
 	private void setNavigationDrawer(){
 		comm.setNavigationDrawer();
+	}
+
+	public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
+
+		private int mToolbarOffset = 0;
+
+		public CollapseActionbarScrollListener() {
+		}
+
+		@Override
+		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			super.onScrolled(recyclerView, dx, dy);
+
+			//Only bring heading back down after 2nd item visible (0 = heading)
+			if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
+
+				if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+					mToolbarOffset += dy;
+				}
+
+				clipToolbarOffset();
+				onMoved(mToolbarOffset);
+			}
+		}
+
+		private void clipToolbarOffset() {
+			if(mToolbarOffset > toolbarHeight) {
+				mToolbarOffset = toolbarHeight;
+			} else if(mToolbarOffset < 0) {
+				mToolbarOffset = 0;
+			}
+		}
+
+		public abstract void onMoved(int distance);
+	}
+
+	private void initFab(final View rootView){
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
+		else
+			fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
+
+		rootView.getViewTreeObserver().addOnGlobalLayoutListener(
+				new ViewTreeObserver.OnGlobalLayoutListener() {
+					public void onGlobalLayout() {
+						//Remove the listener before proceeding
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+							rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						} else {
+							rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						}
+
+						DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+
+						fabBottomY = fab.getY();
+						//56 = fab height
+						//48 = row height
+						//16 = padding
+						int padding = 16;
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)padding = 8;//shadow 4dp top and bottom - so 8dp here
+
+						fabTopY = fabBottomY + (((56/2)+padding)*displayMetrics.density) - ((48+48+16)*displayMetrics.density);
+
+						//Move up
+						movingFabUp = ValueAnimator.ofFloat(fabBottomY, fabTopY);
+						movingFabUp.setInterpolator(new AccelerateDecelerateInterpolator());
+						movingFabUp.setDuration(200);
+						movingFabUp.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+							public void onAnimationUpdate(ValueAnimator animation) {
+								Float value = (Float) animation.getAnimatedValue();
+								fab.setY(value.floatValue());
+								fab.setRotation(45f);
+							}
+						});
+
+						//move down
+						movingFabDown = ValueAnimator.ofFloat(fabTopY, fabBottomY);
+						movingFabDown.setInterpolator(new BounceInterpolator());
+						movingFabDown.setDuration(500);
+						movingFabDown.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+							public void onAnimationUpdate(ValueAnimator animation) {
+								Float value = (Float) animation.getAnimatedValue();
+								fab.setY(value.floatValue());
+								fab.setRotation(0f);
+							}
+						});
+					}
+				});
+
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				onAddClicked();
+			}
+		});
 	}
 }

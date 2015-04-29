@@ -24,6 +24,7 @@
     				android:layout_width="wrap_content"
         			android:layout_height="wrap_content"
     				android:textSize="14dp"
+					android:text="ts"
     				android:textColor="@color/primary_text_default_material_light"
     				android:textAlignment="gravity"
     				/>
@@ -34,6 +35,7 @@
         			android:layout_height="wrap_content"
     				android:textSize="16dp"
     				android:textColor="@color/blockchain_grey"
+					android:text="direction"
     				android:textAlignment="gravity"
     				/>
 
@@ -43,6 +45,7 @@
     				android:layout_width="wrap_content"
         			android:layout_height="wrap_content"
     				android:textSize="12dp"
+					android:text="note"
     				android:textColor="@color/blockchain_grey"
     				android:textAlignment="gravity"
     				/>
@@ -80,4 +83,4 @@
     				-->
 
     </LinearLayout>
-</LinearLayout> 
+</LinearLayout>
