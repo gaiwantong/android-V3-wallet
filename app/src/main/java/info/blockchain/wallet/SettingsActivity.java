@@ -45,7 +45,6 @@ public class SettingsActivity extends PreferenceActivity {
     /**
      * Called when the activity is first created.
      */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,12 +58,27 @@ public class SettingsActivity extends PreferenceActivity {
         guidPref.setSummary(guid);
         guidPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = null;
-                clip = android.content.ClipData.newPlainText("guid", guid);
-                clipboard.setPrimaryClip(clip);
 
-                Toast.makeText(SettingsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.guid_to_clipboard)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                android.content.ClipData clip = null;
+                                clip = android.content.ClipData.newPlainText("guid", guid);
+                                clipboard.setPrimaryClip(clip);
+                            }
+
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+
 
                 return true;
             }
@@ -128,7 +142,7 @@ public class SettingsActivity extends PreferenceActivity {
 
                     new AlertDialog.Builder(SettingsActivity.this)
                             .setTitle(R.string.app_name)
-                            .setMessage("Please enter double encryption password")
+                            .setMessage(R.string.enter_double_encryption_pw)
                             .setView(double_encrypt_password)
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -146,114 +160,6 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
-/*
-            Preference hexseedPref = (Preference) findPreference("hexseed");
-        	hexseedPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        		public boolean onPreferenceClick(Preference preference) {
-
-        	        if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-
-        	        	if(DoubleEncryptionFactory.getInstance().isActivated()) {
-
-        	        		String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-    	    	        			PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-    	    	        			PayloadFactory.getInstance().get().getSharedKey(),
-    			    	        	PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-    	    	        			PayloadFactory.getInstance().get().getIterations());
-
-        	            	Toast.makeText(SettingsActivity.this, decrypted_hex, Toast.LENGTH_SHORT).show();
-
-        	        	}
-        	        	else {
-            	    		final EditText double_encrypt_password = new EditText(SettingsActivity.this);
-            	    		double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            	    		
-            	    		new AlertDialog.Builder(SettingsActivity.this)
-            	    	    .setTitle(R.string.app_name)
-            				.setMessage(R.string.enter_double_encryption_pw)
-            	    	    .setView(double_encrypt_password)
-            	    	    .setCancelable(false)
-            	    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            	    	        public void onClick(DialogInterface dialog, int whichButton) {
-
-            	    	        	String pw2 = double_encrypt_password.getText().toString();
-
-            	    	        	if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-            	    	        			PayloadFactory.getInstance().get().getDoublePasswordHash(),
-            	    	        			PayloadFactory.getInstance().get().getSharedKey(),
-            	    	        			new CharSequenceX(pw2),
-            	    	        			PayloadFactory.getInstance().get().getIterations()
-            	    	        			)) {
-
-        			    	        	PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-            	    	        		String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-            	    	        			PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-            	    	        			PayloadFactory.getInstance().get().getSharedKey(),
-            	    	        			pw2,
-            	    	        			PayloadFactory.getInstance().get().getIterations());
-
-                    	            	Toast.makeText(SettingsActivity.this, decrypted_hex, Toast.LENGTH_SHORT).show();
-
-            	    	        	}
-            	    	        	else {
-    			                        Toast.makeText(SettingsActivity.this, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
-    			    	        		PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-            	    	        	}
-
-            	    	        }
-            	    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            	    	        public void onClick(DialogInterface dialog, int whichButton) {
-            	    	        	;
-            	    	        }
-            	    	    }).show();
-        	        	}
-        	        			
-	    	        }
-        	        else {
-    	        		displayHDSeedAsMnemonic(false);
-        	        }
-
-        			return true;
-        		}
-        	});
-*/
-/*
-        Preference unpairPref = (Preference) findPreference("unpair");
-        unpairPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                builder.setMessage(R.string.ask_you_sure_unpair)
-                        .setCancelable(false);
-
-                AlertDialog alert = builder.create();
-
-                alert.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        PayloadFactory.getInstance().wipe();
-                        MultiAddrFactory.getInstance().wipe();
-                        PrefsUtil.getInstance(SettingsActivity.this).clear();
-
-                        AppUtil.getInstance(SettingsActivity.this).restartApp();
-
-                        dialog.dismiss();
-                    }
-                });
-
-                alert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        dialog.dismiss();
-                    }
-                });
-
-                alert.show();
-
-                return true;
-            }
-        });
-*/
 
         Preference aboutPref = (Preference) findPreference("about");
         aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -437,143 +343,4 @@ public class SettingsActivity extends PreferenceActivity {
 		});
 	}
 
-/*
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    	Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-    	Pattern phonePattern = Pattern.compile("(\\+[1-9]{1}[0-9]{1,2}+|00[1-9]{1}[0-9]{1,2}+)[\\(\\)\\.\\-\\s\\d]{6,16}");
-
-    	SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
-
-    	if(key.equals("backups") && !sp.getString("drawerEmail", "").equals("")) {
-    		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
-    	}
-    	else {
-    		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
-    	}
-    	if(key.equals("drawerEmail") && sp.getBoolean("backups", false) == true) {
-    		String drawerEmail = sp.getString("drawerEmail", "");
-    		if(emailPattern.matcher(drawerEmail).matches()) {
-        		sendEmailThread(drawerEmail);
-    		}
-    		else {
-   				Toast.makeText(SettingsActivity.this, R.string.invalid_email, Toast.LENGTH_LONG).show();
-    		}
-    	}
-
-    	if(key.equals("notifs") && !sp.getString("mobile", "").equals("")) {
-    		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
-    	}
-    	else {
-    		sendNotifsThread(sp.getBoolean("backups", false), sp.getBoolean("notifs", false));
-    	}
-    	if(key.equals("mobile") && sp.getBoolean("notifs", false) == true) {
-    		String mobile = sp.getString("mobile", "");
-    		if(phonePattern.matcher(mobile).matches()) {
-        		sendSMSThread(mobile);
-    		}
-    		else {
-   				Toast.makeText(SettingsActivity.this, R.string.invalid_mobile, Toast.LENGTH_LONG).show();
-    		}
-    	}
-
-    }
-    
-    private void sendEmailThread(final String drawerEmail) {
-
-    	final MyRemoteWallet remoteWallet = WalletUtil.getInstance(SettingsActivity.this).getRemoteWallet();
-
-		final Handler handler = new Handler();
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
-				
-				String response = null;
-				try {
-					response = remoteWallet.updateEmail(drawerEmail);
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						;
-					}
-				});
-				
-				Looper.loop();
-
-			}
-		}).start();
-	}
-
-    private void sendSMSThread(final String smsNumber) {
-
-    	final MyRemoteWallet remoteWallet = WalletUtil.getInstance(SettingsActivity.this).getRemoteWallet();
-
-		final Handler handler = new Handler();
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
-				
-				String response = null;
-				try {
-					response = remoteWallet.updateSMS(smsNumber);
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						;
-					}
-				});
-				
-				Looper.loop();
-
-			}
-		}).start();
-	}
-
-    private void sendNotifsThread(final boolean drawerEmail, final boolean sms) {
-
-    	final MyRemoteWallet remoteWallet = WalletUtil.getInstance(SettingsActivity.this).getRemoteWallet();
-
-		final Handler handler = new Handler();
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
-				
-				String response = null;
-				try {
-					response = remoteWallet.updateNotificationsType(drawerEmail, sms);
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						;
-					}
-				});
-				
-				Looper.loop();
-
-			}
-		}).start();
-	}
-*/
 }
