@@ -268,7 +268,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         String strFileName = MainActivity.this.getExternalCacheDir() + File.separator + "qr.png";
         File file = new File(strFileName);
         if(file.exists()) {
-            Log.i("ReceiveFragment", "qr code deleted");
             file.delete();
         }
 
