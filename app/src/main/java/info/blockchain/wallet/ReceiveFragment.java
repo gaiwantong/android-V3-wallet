@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -442,16 +443,16 @@ public class ReceiveFragment extends Fragment {
 
     @Override
     public void onPause() {
-    	super.onPause();
+        super.onPause();
 
-		if(spAccounts != null) {
-			currentSelectedItem = spAccounts.getSelectedItemPosition();
-		}
+        if(spAccounts != null) {
+            currentSelectedItem = spAccounts.getSelectedItemPosition();
+        }
     }
 
-	@Override
+    @Override
 	public void onDestroy() {
-		super.onDestroy();
+        super.onDestroy();
 	}
 	
     private void displayQRCode() {

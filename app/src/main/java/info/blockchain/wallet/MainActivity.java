@@ -32,6 +32,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,6 +57,7 @@ import net.sourceforge.zbar.Symbol;
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
@@ -261,6 +263,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
             stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+        }
+
+        String strFileName = MainActivity.this.getExternalCacheDir() + File.separator + "qr.png";
+        File file = new File(strFileName);
+        if(file.exists()) {
+            Log.i("ReceiveFragment", "qr code deleted");
+            file.delete();
         }
 
         super.onDestroy();
