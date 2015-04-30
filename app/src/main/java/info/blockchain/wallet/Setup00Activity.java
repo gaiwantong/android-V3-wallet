@@ -81,7 +81,6 @@ public class Setup00Activity extends ActionBarActivity {
 			if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
 				AppUtil.getInstance(this).clearCredentialsAndRestart();
 				String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-				Log.i("Pairing result", strResult);
 				pairingThreadQR(strResult);
 			}
 		}
