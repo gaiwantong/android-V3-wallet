@@ -18,6 +18,7 @@ public class WebUtil	{
     public static final String PROTOCOL = "https://";
     public static final String SERVER_ADDRESS = "blockchain.info/";
 
+    public static final String VALIDATE_SSL_URL = PROTOCOL + SERVER_ADDRESS;
     public static final String SPEND_URL = PROTOCOL + SERVER_ADDRESS + "pushtx";
     public static final String PAYLOAD_URL = PROTOCOL + SERVER_ADDRESS + "wallet";
     public static final String PAIRING_URL = PAYLOAD_URL;

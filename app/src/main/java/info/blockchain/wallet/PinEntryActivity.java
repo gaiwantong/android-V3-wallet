@@ -261,12 +261,6 @@ public class PinEntryActivity extends Activity {
 									progress = null;
 								}
 
-								/*
-								if(!OSUtil.getInstance(PinEntryActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-									startService(new Intent(PinEntryActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-								}
-								*/
-
 					    		AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
 							}
 						});
