@@ -1,8 +1,10 @@
 package info.blockchain.wallet;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -67,6 +69,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -151,14 +154,33 @@ public class ReceiveFragment extends Fragment {
         ivReceivingQR.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-  			android.content.ClipboardManager clipboard = (android.content.ClipboardManager)getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-  		    android.content.ClipData clip = null;
-		    clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
-			Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
-  		    clipboard.setPrimaryClip(clip);
+
+              new AlertDialog.Builder(getActivity())
+                      .setTitle(R.string.app_name)
+                      .setMessage(R.string.receive_address_to_clipboard)
+                      .setCancelable(false)
+                      .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                          public void onClick(DialogInterface dialog, int whichButton) {
+                              android.content.ClipboardManager clipboard = (android.content.ClipboardManager)getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                              android.content.ClipData clip = null;
+                              clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
+                              Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
+                              clipboard.setPrimaryClip(clip);
+
+                              Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                          }
+
+                      }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                  public void onClick(DialogInterface dialog, int whichButton) {
+                      ;
                   }
+              }).show();
+
+            }
     	});
-      
+
         ivReceivingQR.setOnLongClickListener(new View.OnLongClickListener() {
     	  public boolean onLongClick(View view) {
 

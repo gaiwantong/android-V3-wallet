@@ -258,4 +258,7 @@
 	<string name="create_new_account">Create New Account</string>
 	<string name="import_address">Import Address</string>
 
+    <string name="receive_address_to_clipboard">Copy this receive address to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
+    <string name="guid_to_clipboard">Copy your Blockchain ID to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
+
 </resources>
