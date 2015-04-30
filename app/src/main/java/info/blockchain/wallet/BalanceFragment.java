@@ -759,8 +759,8 @@ public class BalanceFragment extends Fragment {
 						//56 = fab height
 						//48 = row height
 						//16 = padding
-						int padding = 16;
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)padding = 8;//shadow 4dp top and bottom - so 8dp here
+						int padding = 26;
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)padding = 18;//shadow 4dp top and bottom - so 8dp here
 
 						fabTopY = fabBottomY + (((56/2)+padding)*displayMetrics.density) - ((48+48+16)*displayMetrics.density);
 
