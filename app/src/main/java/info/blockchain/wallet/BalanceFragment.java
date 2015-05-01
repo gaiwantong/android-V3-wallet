@@ -137,7 +137,9 @@ public class BalanceFragment extends Fragment {
 
 		View rootView = inflater.inflate(R.layout.fragment_balance, container, false);
 
-		locale = Locale.getDefault();
+        rootView.setFilterTouchesWhenObscured(true);
+
+        locale = Locale.getDefault();
 
 		setHasOptionsMenu(true);
 		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
