@@ -7,6 +7,7 @@
         <item>My Accounts</item>
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
+		<item>Support</item>
         <item>Change PIN Code</item>
 		<item>Unpair Wallet</item>
     </string-array>
@@ -15,6 +16,7 @@
 		<item>@drawable/icon_accounts</item>
 		<item>@drawable/icon_news</item>
 		<item>@drawable/icon_settings</item>
+		<item>@drawable/ic_info_outline_grey600_24dp</item>
 		<item>@drawable/icon_pincode</item>
 		<item>@drawable/icon_logout</item>
 	</array>
@@ -263,4 +265,9 @@
 
     <string name="ssl_hostname_invalid">We are unable to validate the hostname of the SSL certificate. This might indicate malicious activity. Please verify your network connection and device before continuing.</string>
 
+	<string name="my_wallet_id">My Wallet ID</string>
+	<string name="EMAIL">EMAIL</string>
+	<string name="new_support_request">New Support Request</string>
+	<string name="contact_support">Contact Support</string>
+	<string name="email_subject">Bitcoin Wallet Android Tech Support</string>
 </resources>

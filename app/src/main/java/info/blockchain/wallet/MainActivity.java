@@ -32,7 +32,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -873,9 +872,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 								doSettings();
 								break;
 							case 3:
-								doChangePin();
+								doSupport();
 								break;
 							case 4:
+								doChangePin();
+								break;
+							case 5:
 								doUnpairWallet();
 								break;
 						}
@@ -987,6 +989,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
 		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
 		Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
+		startActivity(intent);
+	}
+
+	private void doSupport(){
+
+		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+		Intent intent = new Intent(MainActivity.this, SupportActivity.class);
 		startActivity(intent);
 	}
 }
