@@ -416,7 +416,7 @@ public class PinEntryActivity extends Activity {
     private void validationDialog()	{
 
 		final EditText password = new EditText(this);
-		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 		new AlertDialog.Builder(this)
 	    .setTitle(R.string.app_name)
