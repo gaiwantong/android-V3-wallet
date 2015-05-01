@@ -656,11 +656,31 @@ public class ReceiveFragment extends Fragment {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
 			} else {
-				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContentShadow.setVisibility(View.VISIBLE);
-				mainContentShadow.bringToFront();
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.receive_address_to_share)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                mainContentShadow.setVisibility(View.VISIBLE);
+                                mainContentShadow.bringToFront();
+
+                            }
+
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+
 			}
 		}
+
 	}
 
 	private void setupBottomSheet(){
@@ -809,4 +829,12 @@ public class ReceiveFragment extends Fragment {
 			this.logo = logo;
 		}
 	}
+
+    private void doQRShare()    {
+
+
+
+
+    }
+
 }
