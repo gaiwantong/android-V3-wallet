@@ -104,7 +104,6 @@ public class MyAccountsActivity extends Activity {
 			}
 		});
 
-		//TODO Menu popup needs to look more modern - maybe similar to a fab rollout
 		menuImport = (ImageView)findViewById(R.id.menu_import);
 		menuImport.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -364,15 +363,18 @@ public class MyAccountsActivity extends Activity {
 			iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
 		}
 
-		if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
-			accounts.remove(accounts.size() - 1);
+		List<Account> accountClone = new ArrayList<Account>(accounts.size());
+		accountClone.addAll(accounts);
+
+		if(accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
+			accountClone.remove(accountClone.size() - 1);
 		}
-		hdAccountsIdx = accounts.size();
+		hdAccountsIdx = accountClone.size();
 
 		int i = 0;
-		for(; i < accounts.size(); i++) {
+		for(; i < accountClone.size(); i++) {
 
-			String label = accounts.get(i).getLabel();
+			String label = accountClone.get(i).getLabel();
 			if(label==null || label.length() == 0)label = "Account: " + (i + 1);
 
 			accountList.add(new MyAccountItem(label,displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
