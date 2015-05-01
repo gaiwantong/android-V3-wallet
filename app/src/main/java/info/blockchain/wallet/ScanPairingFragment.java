@@ -22,7 +22,9 @@ public class ScanPairingFragment extends Fragment {
 		// Inflate the layout for this fragment
 		View rootView = inflater.inflate(R.layout.include_setup0, container, false);//random view for now until zbar implemented
 
-		getActivity().setTitle(getResources().getString(R.string.scan_pairing_code));
+        rootView.setFilterTouchesWhenObscured(true);
+
+        getActivity().setTitle(getResources().getString(R.string.scan_pairing_code));
 
 		return rootView;
 	}
