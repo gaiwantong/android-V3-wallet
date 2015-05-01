@@ -163,12 +163,12 @@ public class CreateWalletFragment extends Fragment {
     				    	    .setTitle(R.string.app_name)
     							.setMessage(R.string.weak_password)
     				    	    .setCancelable(false)
-    				    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+    				    	    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
     				    	        	edPassword1.setText("");
     				    	        	edPassword2.setText("");
     				    	        }
-    				    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+    				    	    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
     		        		        	Intent intent = new Intent(getActivity(), PinEntryActivity.class);
     		        		        	intent.putExtra("_email", em);
