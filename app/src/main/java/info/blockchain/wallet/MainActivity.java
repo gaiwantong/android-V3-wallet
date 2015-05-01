@@ -216,6 +216,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
+        AppUtil.getInstance(MainActivity.this).deleteQR();
+
         if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
@@ -268,11 +270,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
         }
 
-        String strFileName = MainActivity.this.getExternalCacheDir() + File.separator + "qr.png";
-        File file = new File(strFileName);
-        if(file.exists()) {
-            file.delete();
-        }
+        AppUtil.getInstance(MainActivity.this).deleteQR();
 
         super.onDestroy();
     }
@@ -983,10 +981,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
-	private void doMyAccounts(){
+    private void doMyAccounts(){
 
-		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-		Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
-		startActivity(intent);
-	}
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+        Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
+        startActivity(intent);
+    }
+
 }
