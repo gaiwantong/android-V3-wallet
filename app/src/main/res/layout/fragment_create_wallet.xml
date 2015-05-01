@@ -181,6 +181,7 @@
 				android:gravity="center"
 				android:padding="32dp"
 				android:linksClickable="true"
+				android:textColorLink="@color/blockchain_blue"
 				android:text="@string/agree_terms_of_service"
 				android:textColor="@color/blockchain_grey"/>
 
