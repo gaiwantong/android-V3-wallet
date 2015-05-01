@@ -736,7 +736,7 @@ public class SendFragment extends Fragment {
 			else {
 
 				final EditText password = new EditText(getActivity());
-				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 				new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.app_name)
@@ -822,7 +822,7 @@ public class SendFragment extends Fragment {
 
 				final LegacyAddress legacyAddress = addr;
 				final EditText password = new EditText(getActivity());
-				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 				new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.app_name)
