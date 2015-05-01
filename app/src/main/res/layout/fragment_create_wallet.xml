@@ -77,6 +77,7 @@
 				android:singleLine="true"
 				android:gravity="center_vertical"
 				android:password="true"
+                android:inputType="textNoSuggestions"
 				android:background="@color/white"
 				android:textCursorDrawable="@null"
 				android:textColor="@color/blockchain_grey"/>
@@ -161,6 +162,7 @@
 					android:singleLine="true"
 					android:gravity="center_vertical"
 					android:password="true"
+                    android:inputType="textNoSuggestions"
 					android:background="@color/white"
 					android:textCursorDrawable="@null"
 					android:textColor="@color/blockchain_grey"/>

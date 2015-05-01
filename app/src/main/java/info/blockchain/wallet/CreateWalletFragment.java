@@ -47,7 +47,9 @@ public class CreateWalletFragment extends Fragment {
 		// Inflate the layout for this fragment
 		View rootView = inflater.inflate(R.layout.fragment_create_wallet, container, false);
 
-		getActivity().setTitle(getResources().getString(R.string.create_wallet));
+        rootView.setFilterTouchesWhenObscured(true);
+
+        getActivity().setTitle(getResources().getString(R.string.create_wallet));
 
 		((TextView) rootView.findViewById(R.id.tos)).setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
 
@@ -161,12 +163,12 @@ public class CreateWalletFragment extends Fragment {
     				    	    .setTitle(R.string.app_name)
     							.setMessage(R.string.weak_password)
     				    	    .setCancelable(false)
-    				    	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+    				    	    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
     				    	        	edPassword1.setText("");
     				    	        	edPassword2.setText("");
     				    	        }
-    				    	    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+    				    	    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
     		        		        	Intent intent = new Intent(getActivity(), PinEntryActivity.class);
     		        		        	intent.putExtra("_email", em);

@@ -111,8 +111,10 @@ public class SendFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
 		View rootView = inflater.inflate(R.layout.fragment_send, container, false);
-		
-		locale = Locale.getDefault();
+
+        rootView.setFilterTouchesWhenObscured(true);
+
+        locale = Locale.getDefault();
 
 		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 		((ActionBarActivity)getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
@@ -736,7 +738,7 @@ public class SendFragment extends Fragment {
 			else {
 
 				final EditText password = new EditText(getActivity());
-				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 				new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.app_name)
@@ -822,7 +824,7 @@ public class SendFragment extends Fragment {
 
 				final LegacyAddress legacyAddress = addr;
 				final EditText password = new EditText(getActivity());
-				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 				new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.app_name)

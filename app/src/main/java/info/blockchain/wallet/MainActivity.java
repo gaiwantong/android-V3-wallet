@@ -72,6 +72,7 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.HostnameVerifierUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -142,6 +143,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             builder.create().show();
         }
         else {
+
+            validSSLHostNameThread();
 
             exchangeRateThread();
 
@@ -422,6 +425,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     Looper.prepare();
 
@@ -508,7 +512,49 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-/*
+
+    private void validSSLHostNameThread() {
+
+        final Handler handler = new Handler();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                if(!HostnameVerifierUtil.getInstance().isValid()) {
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    final String message = getString(R.string.ssl_hostname_invalid);
+
+                    builder.setMessage(message)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.dialog_continue,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface d, int id) {
+                                            d.dismiss();
+                                        }
+                                    });
+
+                    builder.create().show();
+
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ;
+                    }
+                });
+
+                Looper.loop();
+
+            }
+        }).start();
+    }
+
+    /*
  * code for adding an account: to be brought back in an upcoming version
  *
     private void addAccount()	{

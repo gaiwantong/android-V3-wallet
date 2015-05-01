@@ -29,7 +29,7 @@ import android.widget.Toast;
 import android.text.util.Linkify;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
+//import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -565,9 +565,7 @@ public class MapActivity extends Activity implements LocationListener	{
 				try {
 					if(fetch) {
 						final String url = "https://merchant-directory.blockchain.info/cgi-bin/btcd.pl?ULAT=" + currLocation.getLatitude() + "&ULON=" + currLocation.getLongitude() + "&D=40000&K=1";
-//	         			Log.d("BlockchainMerchantDirectory", url);
 	         			strJSONData = WebUtil.getInstance().getURL(url);
-	         			Log.d("MerchantDirectory", strJSONData);
 					}
 
 					handler.post(new Runnable() {
@@ -587,8 +585,7 @@ public class MapActivity extends Activity implements LocationListener	{
 //								btcb = ParseData.parse(strJSONData);
 								
 								if(btcb != null && btcb.size() > 0) {
-				         			Log.d("BlockchainMerchantDirectory", "list size=" + btcb.size());
-									
+
 //									markerValues.clear();
 									
 									BTCBusiness b = null;

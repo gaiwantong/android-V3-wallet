@@ -68,6 +68,8 @@ public class PinEntryActivity extends Activity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        getWindow().getDecorView().findViewById(android.R.id.content).setFilterTouchesWhenObscured(true);
+
 		//Coming from CreateWalletFragment
 		getBundleData();
         if (strPassword != null && strEmail != null) {
@@ -261,12 +263,6 @@ public class PinEntryActivity extends Activity {
 									progress = null;
 								}
 
-								/*
-								if(!OSUtil.getInstance(PinEntryActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-									startService(new Intent(PinEntryActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-								}
-								*/
-
 					    		AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
 							}
 						});
@@ -422,7 +418,7 @@ public class PinEntryActivity extends Activity {
     private void validationDialog()	{
 
 		final EditText password = new EditText(this);
-		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
 		new AlertDialog.Builder(this)
 	    .setTitle(R.string.app_name)
