@@ -111,8 +111,10 @@ public class SendFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
 		View rootView = inflater.inflate(R.layout.fragment_send, container, false);
-		
-		locale = Locale.getDefault();
+
+        rootView.setFilterTouchesWhenObscured(true);
+
+        locale = Locale.getDefault();
 
 		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 		((ActionBarActivity)getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
