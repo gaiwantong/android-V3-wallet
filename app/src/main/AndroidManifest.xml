@@ -118,7 +118,7 @@
         <activity
             android:name="com.dm.zbar.android.scanner.ZBarScannerActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="portrait" />
 
         <service android:name="info.blockchain.wallet.service.WebSocketService" />
 
