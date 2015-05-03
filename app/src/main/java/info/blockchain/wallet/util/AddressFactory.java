@@ -136,25 +136,4 @@ public class AddressFactory {
 
     }
 
-    public JSONObject getAddressInfo(String address) {
-
-        JSONObject jsonObject  = null;
-
-        try {
-            StringBuilder url = new StringBuilder(WebUtil.ADDRESS_INFO_URL);
-            url.append(address);
-            url.append("?format=json");
-
-            String response = WebUtil.getInstance().getURL(url.toString());
-            jsonObject = new JSONObject(response);
-        }
-        catch(Exception e) {
-            jsonObject = null;
-            e.printStackTrace();
-        }
-
-        return jsonObject;
-    }
-
-
 }
