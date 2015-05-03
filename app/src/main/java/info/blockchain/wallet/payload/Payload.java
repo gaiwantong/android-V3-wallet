@@ -470,20 +470,17 @@ public class Payload {
                                 JSONObject cacheObj = (JSONObject)accountObj.get("cache");
 
                                 Cache cache = new Cache();
-                                if(cacheObj.has("externalAccountPubKey"))  {
-                                    cache.setExternalAccountPubKey((String)cacheObj.get("externalAccountPubKey"));
+
+                                if(cacheObj.has("receiveAccount"))  {
+                                    cache.setReceiveAccount((String)cacheObj.get("receiveAccount"));
                                 }
-                                if(cacheObj.has("externalAccountChainCode"))  {
-                                    cache.setExternalAccountChainCode((String)cacheObj.get("externalAccountChainCode"));
-                                }
-                                if(cacheObj.has("internalAccountPubKey"))  {
-                                    cache.setInternalAccountPubKey((String)cacheObj.get("internalAccountPubKey"));
-                                }
-                                if(cacheObj.has("internalAccountChainCode"))  {
-                                    cache.setInternalAccountChainCode((String)cacheObj.get("internalAccountChainCode"));
+
+                                if(cacheObj.has("changeAccount"))  {
+                                    cache.setChangeAccount((String)cacheObj.get("changeAccount"));
                                 }
 
                                 account.setCache(cache);
+
                             }
 
                             walletAccounts.add(account);
