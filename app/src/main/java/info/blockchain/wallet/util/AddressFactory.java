@@ -16,6 +16,7 @@ import com.google.bitcoin.crypto.MnemonicException;
 import org.json.JSONException;
 
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.R;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -74,11 +75,9 @@ public class AddressFactory {
         try	{
             if(chain == RECEIVE_CHAIN)	{
                 idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses();
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
             }
             else	{
                 idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
             }
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
                 addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
@@ -87,19 +86,18 @@ public class AddressFactory {
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
             if(chain == RECEIVE_CHAIN && ((idx - PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses()) < (LOOKAHEAD_GAP - 1)))	{
-//                HD_WalletFactory.getInstance(context).get().getAccount(0).getChain(chain).incAddrIdx();
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(chain).incReceive();
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
+                PayloadFactory.getInstance(context).remoteSaveThread();
             }
-            PayloadFactory.getInstance(context).remoteSaveThread();
 
         }
         catch(IOException ioe)	{
             ioe.printStackTrace();
-            Toast.makeText(context, "HD wallet error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.hd_error, Toast.LENGTH_SHORT).show();
         }
         catch(MnemonicException.MnemonicLengthException mle)	{
             mle.printStackTrace();
-            Toast.makeText(context, "HD wallet error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.hd_error, Toast.LENGTH_SHORT).show();
         }
 
         ReceiveAddress ret = new ReceiveAddress(addr.getAddressString(), idx);
