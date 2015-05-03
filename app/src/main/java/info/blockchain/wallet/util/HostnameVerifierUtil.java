@@ -19,6 +19,7 @@ public class HostnameVerifierUtil {
 
     private static HostnameVerifierUtil instance = null;
     private static Context context = null;
+    private static boolean verified = false;
 
     private HostnameVerifierUtil() { ; }
 
@@ -32,6 +33,10 @@ public class HostnameVerifierUtil {
     }
 
     public boolean isValid() {
+
+        if(verified) {
+            return true;
+        }
 
         boolean ret = false;
 
@@ -55,6 +60,8 @@ public class HostnameVerifierUtil {
             e.printStackTrace();
             ret = false;
         }
+
+        verified = ret;
 
         return ret;
     }
