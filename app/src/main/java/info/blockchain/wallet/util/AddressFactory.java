@@ -14,6 +14,7 @@ import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.R;
@@ -134,5 +135,26 @@ public class AddressFactory {
         return addr;
 
     }
+
+    public JSONObject getAddressInfo(String address) {
+
+        JSONObject jsonObject  = null;
+
+        try {
+            StringBuilder url = new StringBuilder(WebUtil.ADDRESS_INFO_URL);
+            url.append(address);
+            url.append("?format=json");
+
+            String response = WebUtil.getInstance().getURL(url.toString());
+            jsonObject = new JSONObject(response);
+        }
+        catch(Exception e) {
+            jsonObject = null;
+            e.printStackTrace();
+        }
+
+        return jsonObject;
+    }
+
 
 }
