@@ -263,6 +263,7 @@
     <string name="guid_to_clipboard">Copy your Blockchain ID to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
 
     <string name="ssl_hostname_invalid">We are unable to validate the hostname of the SSL certificate. This might indicate malicious activity. Please verify your network connection and device before continuing.</string>
+    <string name="ssl_pinning_invalid">SSL certificate pinning has failed. This might indicate malicious activity. Please verify your network connection and device before continuing.</string>
 
     <string name="address_already_used">This receive address has already been used.</string>
 
