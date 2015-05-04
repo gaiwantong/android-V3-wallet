@@ -74,9 +74,9 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.HostnameVerifierUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 //import android.nfc.Tag;
@@ -146,7 +146,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
-            validSSLHostNameThread();
+            validSSLThread();
 
             exchangeRateThread();
 
@@ -513,7 +513,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }).start();
     }
 
-    private void validSSLHostNameThread() {
+    private void validSSLThread() {
 
         final Handler handler = new Handler();
 
@@ -522,7 +522,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void run() {
                 Looper.prepare();
 
-                if(!HostnameVerifierUtil.getInstance().isValid()) {
+                if(!SSLVerifierUtil.getInstance().isValid()) {
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -539,6 +539,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     builder.create().show();
 
+                }
+
+                if(!SSLVerifierUtil.getInstance().isPinned()) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    final String message = getString(R.string.ssl_pinning_invalid);
+
+                    builder.setMessage(message)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.dialog_continue,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface d, int id) {
+                                            d.dismiss();
+                                        }
+                                    });
+
+                    builder.create().show();
                 }
 
                 handler.post(new Runnable() {
