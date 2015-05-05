@@ -1,21 +1,20 @@
 package info.blockchain.wallet.multiaddr;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-
-//import android.util.Log;
-
 import org.apache.commons.lang.StringUtils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.util.WebUtil;
+
+//import android.util.Log;
 
 public class MultiAddrFactory	{
 
@@ -35,6 +34,10 @@ public class MultiAddrFactory	{
 //    private static Logger mLogger = LoggerFactory.getLogger(MultiAddrFactory.class);
 
     private MultiAddrFactory()	{ ; }
+
+	public static final String RECEIVED = "RECEIVED";
+	public static final String SENT = "SENT";
+	public static final String MOVED = "MOVED";
 
     public static MultiAddrFactory getInstance() {
 
@@ -318,11 +321,11 @@ public class MultiAddrFactory	{
                     if(addr != null)  {
                         Tx tx = null;
                         if(isMove)  {
-                            tx = new Tx(hash, "", "MOVED", move_amount, ts, new HashMap<Integer,String>());
+                            tx = new Tx(hash, "", MOVED, move_amount, ts, new HashMap<Integer,String>());
                             tx.setIsMove(true);
                         }
                         else  {
-                            tx = new Tx(hash, "", amount > 0L ? "RECEIVED" : "SENT", amount, ts, new HashMap<Integer,String>());
+                            tx = new Tx(hash, "", amount > 0L ? RECEIVED : SENT, amount, ts, new HashMap<Integer,String>());
                         }
 
                         tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
@@ -458,7 +461,7 @@ public class MultiAddrFactory	{
                     }
 
                     if(addr != null)  {
-                        Tx tx = new Tx(hash, "", amount > 0L ? "RECEIVED" : "SENT", amount, ts, new HashMap<Integer,String>());
+                        Tx tx = new Tx(hash, "", amount > 0L ? RECEIVED : SENT, amount, ts, new HashMap<Integer,String>());
                         tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
                         legacy_txs.add(tx);
                     }

@@ -41,9 +41,9 @@
     <string name="TODAY">Today</string>
     <string name="AGO">ago</string>
 
-    <string name="SENT">SENT</string>
-    <string name="RECEIVED">RECEIVED</string>
-    <string name="MOVED">MOVED</string>
+    <string name="SENT">Sent</string>
+    <string name="RECEIVED">Received</string>
+    <string name="MOVED">Moved</string>
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 

@@ -437,7 +437,10 @@ public class BalanceFragment extends Fragment {
 
 				TextView tvDirection = (TextView)holder.itemView.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-				tvDirection.setText(tx.getDirection());
+				String dirText = tx.getDirection();
+				if(dirText.equals(MultiAddrFactory.MOVED))tvDirection.setText(getResources().getString(R.string.MOVED));
+				if(dirText.equals(MultiAddrFactory.RECEIVED))tvDirection.setText(getResources().getString(R.string.RECEIVED));
+				if(dirText.equals(MultiAddrFactory.SENT))tvDirection.setText(getResources().getString(R.string.SENT));
 
 				if(isBTC) {
 					span1 = Spannable.Factory.getInstance().newSpannable(getDisplayAmount(tx.getAmount()) + " " + getDisplayUnits());
