@@ -304,6 +304,7 @@ public class Payload {
                     options.setTxDisplay(val);
                 }
                 options.setKeepLocalBackup(optionsObj.has("always_keep_local_backup") ? (Boolean)optionsObj.get("always_keep_local_backup") : false);
+                options.setEnablMultipleAccounts(optionsObj.has("enable_multiple_accounts") ? (Boolean)optionsObj.get("enable_multiple_accounts") : true);
                 if(optionsObj.has("transactions_per_page"))  {
                     int val = (Integer)optionsObj.get("transactions_per_page");
                     options.setTxPerPage(val);

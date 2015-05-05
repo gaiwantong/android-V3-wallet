@@ -19,6 +19,7 @@ public class Options {
     private boolean always_keep_local_backup = false;
     private int tx_per_page = 30;
     private List<String> additionalSeeds = null;
+    private boolean enable_multiple_accounts = true;
 
     public Options() { additionalSeeds = new ArrayList<String>(); }
 
@@ -86,6 +87,14 @@ public class Options {
         return additionalSeeds;
     }
 
+    public boolean isEnableMultipleAccounts() {
+        return enable_multiple_accounts;
+    }
+
+    public void setEnablMultipleAccounts(boolean enable) {
+        this.enable_multiple_accounts = enable;
+    }
+
     public JSONObject dumpJSON() throws JSONException	 {
 
         JSONObject obj = new JSONObject();
@@ -97,6 +106,7 @@ public class Options {
         obj.put("tx_display", tx_display);
         obj.put("always_keep_local_backup", always_keep_local_backup);
         obj.put("transactions_per_page", tx_per_page);
+        obj.put("enable_multiple_accounts", enable_multiple_accounts);
 
         JSONArray seeds = new JSONArray();
         for(String seed : additionalSeeds) {
