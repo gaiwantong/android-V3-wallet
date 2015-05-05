@@ -51,6 +51,7 @@
 				android:layout_height="72dp"
 				android:background="@color/blockchain_blue"
 				android:gravity="left|center_vertical"
+				android:paddingBottom="16dp"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
 				android:textSize="32dp"
