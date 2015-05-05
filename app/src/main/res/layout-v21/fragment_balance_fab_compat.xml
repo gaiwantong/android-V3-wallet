@@ -8,8 +8,8 @@
 	android:layout_alignParentRight="true"
 	android:layout_marginBottom="26dp"
 	android:layout_marginRight="26dp"
-	android:background="@drawable/selector_green"
+	android:background="@drawable/selector_fab_blue"
 	android:elevation="8dp"
-	android:src="@drawable/ic_add_black_24dp"
+	android:src="@drawable/ic_add_white_24dp"
 	android:stateListAnimator="@anim/fab_anim"
 	/>

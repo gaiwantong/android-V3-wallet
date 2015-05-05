@@ -9,7 +9,7 @@
 	android:layout_alignParentBottom="true"
 	android:layout_marginBottom="16dp"
 	android:layout_marginRight="16dp"
-	fab:fab_colorNormal="@color/blockchain_fab_green"
-	fab:fab_colorPressed="@color/blockchain_fab_dark_green"
-	fab:fab_icon="@drawable/ic_add_black_24dp"
+	fab:fab_colorNormal="@color/blockchain_blue"
+	fab:fab_colorPressed="@color/blockchain_dark_blue"
+	fab:fab_icon="@drawable/ic_add_white_24dp"
 	fab:fab_size="normal"/>

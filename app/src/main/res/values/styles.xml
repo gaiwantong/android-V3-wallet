@@ -3,7 +3,7 @@
 	<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
 		<item name="colorPrimary">@color/blockchain_blue</item>
 		<item name="colorPrimaryDark">@color/blockchain_dark_blue</item>
-		<item name="colorAccent">@color/blockchain_fab_green</item>
+		<item name="colorAccent">@color/blockchain_blue</item>
 
 		<item name="android:textColorPrimary">@color/textColorPrimary</item>
 		<item name="android:navigationBarColor">@color/blockchain_navigation_bar</item>
