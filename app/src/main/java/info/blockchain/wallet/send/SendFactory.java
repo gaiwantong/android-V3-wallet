@@ -18,7 +18,6 @@ import org.spongycastle.util.encoders.Hex;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 //import android.util.Log;
@@ -109,7 +108,6 @@ public class SendFactory	{
 			for(String f : data) {
 				if(f != null) {
 					String[] s = f.split(",");
-//					Log.i("address path", s[1] + " " + s[0]);
                     // get path info which will be used to calculate private key
 					froms.put(s[1], s[0]);
 				}
@@ -168,7 +166,6 @@ public class SendFactory	{
 					else {
 						changeAddr = legacyAddress.getAddress();
 					}
-//					Log.i("change address", changeAddr);
 					pair = makeTransaction(true, allUnspent, receivers, fee, changeAddr);
 					// Transaction cancelled
 					if(pair == null) {
@@ -182,7 +179,6 @@ public class SendFactory	{
 					for (TransactionInput input : tx.getInputs()) {
 						byte[] scriptBytes = input.getOutpoint().getConnectedPubKeyScript();
 						String address = new BitcoinScript(scriptBytes).getAddress().toString();
-//						Log.i("address from script", address);
 						ECKey walletKey = null;
 						try {
 							String privStr = null;
@@ -196,9 +192,7 @@ public class SendFactory	{
 								else {
 									hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
 								}
-//								Log.i("HD address", hd_address.getAddressString());
 								privStr = hd_address.getPrivateKeyString();
-//								Log.i("priv", privStr);
 								walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
 							}
 							else {
@@ -222,7 +216,6 @@ public class SendFactory	{
 					// Now sign the inputs
 					tx.signInputs(SigHash.ALL, wallet);
 					String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
-					//if(hexString.length() > 16384) {
 					if(hexString.length() > (100 * 1024)) {
 						opc.onFail();
 						throw new Exception(context.getString(R.string.tx_length_error));
@@ -358,7 +351,6 @@ public class SendFactory	{
         List<MyTransactionOutPoint> _outputs = new ArrayList<MyTransactionOutPoint>();
         BigInteger totalValue = BigInteger.ZERO;
         for (MyTransactionOutPoint output : outputs) {
-            Log.i("SendFactory", "" + output.getValue());
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
             if(totalValue.compareTo(totalAmount) >= 0) {
@@ -491,21 +483,6 @@ public class SendFactory	{
 		return new Pair<Transaction, Long>(tx, priority);
 	}
 
-	private interface SendProgress {
-
-		public void onStart();
-
-		// Return false to cancel
-		public boolean onReady(Transaction tx, BigInteger fee, long priority);
-		public void onSend(Transaction tx, String message);
-
-		// Return true to cancel the transaction or false to continue without it
-		public ECKey onPrivateKeyMissing(String address);
-
-		public void onError(String message);
-		public void onProgress(String message);
-	}
-
     /**
      * Sort unspent outputs by amount in descending order.
      *
@@ -533,6 +510,21 @@ public class SendFactory	{
             return ret;
         }
 
+    }
+
+    private interface SendProgress {
+
+        public void onStart();
+
+        // Return false to cancel
+        public boolean onReady(Transaction tx, BigInteger fee, long priority);
+        public void onSend(Transaction tx, String message);
+
+        // Return true to cancel the transaction or false to continue without it
+        public ECKey onPrivateKeyMissing(String address);
+
+        public void onError(String message);
+        public void onProgress(String message);
     }
 
 }

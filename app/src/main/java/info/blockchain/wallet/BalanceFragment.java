@@ -19,6 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -122,6 +123,8 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout mainContentShadow;
     private static boolean isBottomSheetOpen = false;
 
+    private Activity thisActivity = null;
+
 	public BalanceFragment() { ; }
 
 	Communicator comm;
@@ -141,9 +144,11 @@ public class BalanceFragment extends Fragment {
 
         locale = Locale.getDefault();
 
+        thisActivity = getActivity();
+
 		setHasOptionsMenu(true);
-		((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-		accountSpinner = (Spinner)getActivity().findViewById(R.id.account_spinner);
+		((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+		accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
 		accountSpinner.setVisibility(View.VISIBLE);
 
 		initFab(rootView);
@@ -151,7 +156,7 @@ public class BalanceFragment extends Fragment {
 		toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
-		tvBalance1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
 		tvBalance1.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -171,10 +176,10 @@ public class BalanceFragment extends Fragment {
         }
 
 		ArrayList<String> accountList = new ArrayList<String>();
-        accountList.add(getActivity().getResources().getString(R.string.all_accounts));
+        accountList.add(thisActivity.getResources().getString(R.string.all_accounts));
 		for(Account item : accounts)accountList.add(item.getLabel());
 
-		accountsAdapter = new ArrayAdapter<String>(getActivity(),R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+		accountsAdapter = new ArrayAdapter<String>(thisActivity,R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
         accountSpinner.setOnTouchListener(new View.OnTouchListener() {
@@ -240,12 +245,12 @@ public class BalanceFragment extends Fragment {
 
 		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
 		txAdapter = new TxAdapter();
-		layoutManager = new LinearLayoutManager(getActivity());
+		layoutManager = new LinearLayoutManager(thisActivity);
 		txList.setLayoutManager(layoutManager);
 		txList.setAdapter(txAdapter);
 
 //		txList.addOnItemTouchListener(
-//				new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
+//				new RecyclerItemClickListener(thisActivity, new RecyclerItemClickListener.OnItemClickListener() {
 //
 //					@Override
 //					public void onItemClick(final View view, int position) {
@@ -266,19 +271,19 @@ public class BalanceFragment extends Fragment {
         updateTx();
 
         // drawerTitle account now that wallet has been created
-        if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-    		PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-    		PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+        if(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+    		PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+    		PayloadFactory.getInstance(thisActivity).remoteSaveThread();
         	accountsAdapter.notifyDataSetChanged();
         }
         
-		if(!OSUtil.getInstance(getActivity()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 		else {
-			getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
-			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 
 		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
@@ -371,14 +376,14 @@ public class BalanceFragment extends Fragment {
         isBottomSheetOpen = false;
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+        LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
         
-		if(!OSUtil.getInstance(getActivity()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 		else {
-			getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
-			getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 
     	displayBalance();
@@ -391,7 +396,7 @@ public class BalanceFragment extends Fragment {
     public void onPause() {
     	super.onPause();
     	
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
+        LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
     }
 
 	private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
@@ -419,15 +424,15 @@ public class BalanceFragment extends Fragment {
 				double _fiat_balance = btc_fx * _btc_balance;
 
 				TextView tvResult = (TextView)holder.itemView.findViewById(R.id.result);
-				tvResult.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+				tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				tvResult.setTextColor(Color.WHITE);
 
 				TextView tvTS = (TextView)holder.itemView.findViewById(R.id.ts);
-				tvTS.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-				tvTS.setText(DateUtil.getInstance(getActivity()).formatted(tx.getTS()));
+				tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+				tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
 
 				TextView tvDirection = (TextView)holder.itemView.findViewById(R.id.direction);
-				tvDirection.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+				tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				tvDirection.setText(tx.getDirection());
 
 				if(isBTC) {
@@ -440,15 +445,15 @@ public class BalanceFragment extends Fragment {
 				}
 				if(tx.isMove()) {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
-					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
 				}
 				else if(_btc_balance < 0.0) {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
-					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
 				}
 				else {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
-					tvDirection.setTextColor(getActivity().getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
 				}
 
 				tvResult.setText(span1);
@@ -507,8 +512,8 @@ public class BalanceFragment extends Fragment {
 	}
 
 	private void displayBalance() {
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
 
         Account hda = null;
         if(selectedAccount == 0) {
@@ -547,7 +552,7 @@ public class BalanceFragment extends Fragment {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format(((double)(value * 1000000L)) / 1e8);
@@ -571,7 +576,7 @@ public class BalanceFragment extends Fragment {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format((value * 1000000.0) / 1e8);
@@ -589,7 +594,7 @@ public class BalanceFragment extends Fragment {
 
     private String getDisplayUnits() {
 
-        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
     }
 
@@ -631,7 +636,7 @@ public class BalanceFragment extends Fragment {
 	    	xpub = null;
 	    }
 	    else {
-			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(accountIndex);
+			xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
 	    }
 	    
 	    return xpub;
@@ -755,7 +760,7 @@ public class BalanceFragment extends Fragment {
 							rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 						}
 
-						DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+						DisplayMetrics displayMetrics = thisActivity.getResources().getDisplayMetrics();
 
 						fabBottomY = fab.getY();
 						//56 = fab height

@@ -26,6 +26,7 @@ public class WebUtil	{
     public static final String EXCHANGE_URL = PROTOCOL + SERVER_ADDRESS + "ticker";
     public static final String ACCESS_URL = PROTOCOL + SERVER_ADDRESS + "pin-store";
     public static final String UNSPENT_OUTPUTS_URL = PROTOCOL + SERVER_ADDRESS + "unspent?active=";
+    public static final String ADDRESS_INFO_URL = PROTOCOL + SERVER_ADDRESS + "address/";
 
     private static final int DefaultRequestRetry = 2;
     private static final int DefaultRequestTimeout = 60000;

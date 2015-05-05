@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -12,6 +13,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -41,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,9 +75,9 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.HostnameVerifierUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 //import android.nfc.Tag;
@@ -111,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         super.onCreate(savedInstanceState);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
 
@@ -143,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
-            validSSLHostNameThread();
+            validSSLThread();
 
             exchangeRateThread();
 
@@ -215,6 +219,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
+        AppUtil.getInstance(MainActivity.this).deleteQR();
+
         if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
@@ -267,11 +273,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
         }
 
-        String strFileName = MainActivity.this.getExternalCacheDir() + File.separator + "qr.png";
-        File file = new File(strFileName);
-        if(file.exists()) {
-            file.delete();
-        }
+        AppUtil.getInstance(MainActivity.this).deleteQR();
 
         super.onDestroy();
     }
@@ -512,7 +514,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }).start();
     }
 
-    private void validSSLHostNameThread() {
+    private void validSSLThread() {
 
         final Handler handler = new Handler();
 
@@ -521,7 +523,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void run() {
                 Looper.prepare();
 
-                if(!HostnameVerifierUtil.getInstance().isValid()) {
+                if(!SSLVerifierUtil.getInstance().isValid()) {
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -538,6 +540,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     builder.create().show();
 
+                }
+
+                if(!SSLVerifierUtil.getInstance().isPinned()) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    final String message = getString(R.string.ssl_pinning_invalid);
+
+                    builder.setMessage(message)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.dialog_continue,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface d, int id) {
+                                            d.dismiss();
+                                        }
+                                    });
+
+                    builder.create().show();
                 }
 
                 handler.post(new Runnable() {
@@ -806,7 +825,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 			}
 
 			public void onDrawerOpened(View drawerView) {
-				drawerIsOpen = true;
+		        drawerIsOpen = true;
+
+                InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 			}
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -985,12 +1007,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
-	private void doMyAccounts(){
+    private void doMyAccounts(){
 
-		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-		Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
-		startActivity(intent);
-	}
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+        Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
+        startActivity(intent);
+    }
 
 	private void doSupport(){
 

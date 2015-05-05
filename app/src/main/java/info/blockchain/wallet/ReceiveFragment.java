@@ -19,11 +19,11 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +40,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -51,6 +52,7 @@ import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.apache.commons.codec.DecoderException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -70,14 +72,11 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-
-//import android.util.Log;
-
-//import info.blockchain.wallet.util.ReceiveAddressPool;
 
 public class ReceiveFragment extends Fragment {
 	
@@ -346,15 +345,11 @@ public class ReceiveFragment extends Fragment {
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                       int position = spAccounts.getSelectedItemPosition();
                       if(position >= hdAccountsIdx) {
-//                          Toast.makeText(getActivity(), "Legacy:" + _accounts.get(position), Toast.LENGTH_SHORT).show();
                           currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
                           displayQRCode();
                       }
                       else {
-//                          Toast.makeText(getActivity(), "Account " + position + ":" + accounts.get(position).getLabel(), Toast.LENGTH_SHORT).show();
                           currentSelectedAccount = position;
-                          //Log.i("ReceiveFragment", "assignHDReceiveAddress() OnItemSelectedListener, !(position >= hdAccountsIdx)");
-                          //Log.i("ReceiveFragment", "currentSelectedAccount:" + currentSelectedAccount);
                           assignHDReceiveAddress();
                           displayQRCode();
                       }
@@ -656,11 +651,31 @@ public class ReceiveFragment extends Fragment {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
 			} else {
-				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContentShadow.setVisibility(View.VISIBLE);
-				mainContentShadow.bringToFront();
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.receive_address_to_share)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                mainContentShadow.setVisibility(View.VISIBLE);
+                                mainContentShadow.bringToFront();
+
+                            }
+
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+
 			}
 		}
+
 	}
 
 	private void setupBottomSheet(){
@@ -809,4 +824,5 @@ public class ReceiveFragment extends Fragment {
 			this.logo = logo;
 		}
 	}
+
 }

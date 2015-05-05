@@ -5,55 +5,35 @@ import org.json.JSONException;
 
 public class Cache {
 
-    protected String externalAccountPubKey = null;
-    protected String externalAccountChainCode = null;
-    protected String internalAccountPubKey = null;
-    protected String internalAccountChainCode = null;
+    protected String receiveAccount = null;
+    protected String changeAccount = null;
 
     public Cache() {
         ;
     }
 
-    public String getExternalAccountPubKey() {
-        return externalAccountPubKey;
+    public String getReceiveAccount() {
+        return receiveAccount;
     }
 
-    public void setExternalAccountPubKey(String externalAccountPubKey) {
-        this.externalAccountPubKey = externalAccountPubKey;
+    public void setReceiveAccount(String receiveAccount) {
+        this.receiveAccount = receiveAccount;
     }
 
-    public String getExternalAccountChainCode() {
-        return externalAccountChainCode;
+    public String getChangeAccount() {
+        return changeAccount;
     }
 
-    public void setExternalAccountChainCode(String externalAccountChainCode) {
-        this.externalAccountChainCode = externalAccountChainCode;
-    }
-
-    public String getInternalAccountPubKey() {
-        return internalAccountPubKey;
-    }
-
-    public void setInternalAccountPubKey(String internalAccountPubKey) {
-        this.internalAccountPubKey = internalAccountPubKey;
-    }
-
-    public String getInternalAccountChainCode() {
-        return internalAccountChainCode;
-    }
-
-    public void setInternalAccountChainCode(String internalAccountChainCode) {
-        this.internalAccountChainCode = internalAccountChainCode;
+    public void setChangeAccount(String changeAccount) {
+        this.changeAccount = changeAccount;
     }
 
     public JSONObject dumpJSON() throws JSONException {
 
         JSONObject obj = new JSONObject();
 
-        obj.put("externalAccountPubKey", externalAccountPubKey == null ? "" : externalAccountPubKey);
-        obj.put("externalAccountChainCode", externalAccountChainCode == null ? "" : externalAccountChainCode);
-        obj.put("internalAccountPubKey", internalAccountPubKey == null ? "" : internalAccountPubKey);
-        obj.put("internalAccountChainCode", internalAccountChainCode == null ? "" : internalAccountChainCode);
+        obj.put("receiveAccount", receiveAccount == null ? "" : receiveAccount);
+        obj.put("changeAccount", changeAccount == null ? "" : changeAccount);
 
         return obj;
     }

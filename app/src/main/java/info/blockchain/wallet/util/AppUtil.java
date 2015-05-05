@@ -4,6 +4,8 @@ import info.blockchain.wallet.MainActivity;
 import android.content.Context;
 import android.content.Intent;
 
+import java.io.File;
+
 public class AppUtil {
 	
 	private static AppUtil instance = null;
@@ -61,6 +63,14 @@ public class AppUtil {
 
     public boolean isTimedOut() {
         return (System.currentTimeMillis() - lastPin) > TIMEOUT_DELAY;
+    }
+
+    public void deleteQR(){
+        String strFileName = context.getExternalCacheDir() + File.separator + "qr.png";
+        File file = new File(strFileName);
+        if(file.exists()) {
+            file.delete();
+        }
     }
 
 }
