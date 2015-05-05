@@ -83,7 +83,7 @@ public class BalanceFragment extends Fragment {
 	private Spinner accountSpinner = null;
 	ArrayAdapter<String> accountsAdapter = null;
 	private static int selectedAccount = 0;
-	public int toolbarHeight;
+	public int balanceBarHeight;
 
 	//
 	// tx list
@@ -147,13 +147,10 @@ public class BalanceFragment extends Fragment {
         thisActivity = getActivity();
 
 		setHasOptionsMenu(true);
-		((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
-		accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
-		accountSpinner.setVisibility(View.VISIBLE);
 
 		initFab(rootView);
 
-		toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
+		balanceBarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
@@ -169,33 +166,22 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-        accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
-        	ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
-        	accounts.add(iAccount);
-        }
-
-		ArrayList<String> accountList = new ArrayList<String>();
-        accountList.add(thisActivity.getResources().getString(R.string.all_accounts));
-		for(Account item : accounts)accountList.add(item.getLabel());
-
-		accountsAdapter = new ArrayAdapter<String>(thisActivity,R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+		ArrayList<String> accountList = setAccountSpinner();
+		accountsAdapter = new ArrayAdapter<String>(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
-        accountSpinner.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
-                    return true;
-                }
-                else if(isBottomSheetOpen) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-        });
+		accountSpinner.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+					return true;
+				} else if (isBottomSheetOpen) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		});
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -205,35 +191,34 @@ public class BalanceFragment extends Fragment {
 
 						selectedAccount = position;
 
-						if(accounts == null || accounts.size() < 1) {
+						if (accounts == null || accounts.size() < 1) {
 							return;
 						}
 
-                        if(selectedAccount == 0) {
-                            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-                        }
-                        else {
-                            String xpub = account2Xpub(selectedAccount - 1);
+						if (selectedAccount == 0) {
+							txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+						} else {
+							String xpub = account2Xpub(selectedAccount - 1);
 
-                            if(xpub != null) {
-                                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                                    txs = txMap.get(xpub);
-                                }
-                            }
-                            else {
-                                Account hda = accounts.get(selectedAccount - 1);
-                                if(hda instanceof ImportedAccount) {
-                                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                                }
-                            }
+							if (xpub != null) {
+								if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+									txs = txMap.get(xpub);
+								}
+							} else {
+								Account hda = accounts.get(selectedAccount - 1);
+								if (hda instanceof ImportedAccount) {
+									txs = MultiAddrFactory.getInstance().getLegacyTxs();
+								}
+							}
 
-                        }
+						}
 
-                        displayBalance();
+						displayBalance();
 
 //						txAdapter.notifyDataSetInvalidated();
 						txAdapter.notifyDataSetChanged();
 					}
+
 					@Override
 					public void onNothingSelected(AdapterView<?> arg0) {
 						;
@@ -248,16 +233,6 @@ public class BalanceFragment extends Fragment {
 		layoutManager = new LinearLayoutManager(thisActivity);
 		txList.setLayoutManager(layoutManager);
 		txList.setAdapter(txAdapter);
-
-//		txList.addOnItemTouchListener(
-//				new RecyclerItemClickListener(thisActivity, new RecyclerItemClickListener.OnItemClickListener() {
-//
-//					@Override
-//					public void onItemClick(final View view, int position) {
-//					//TODO add tx row onclicks in here
-//					}
-//				})
-//		);
 
 		txList.setOnScrollListener(new CollapseActionbarScrollListener() {
 			@Override
@@ -351,7 +326,35 @@ public class BalanceFragment extends Fragment {
         return rootView;
 	}
 
-    @Override
+	private ArrayList<String> setAccountSpinner() {
+
+		accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+		if(accounts != null && accounts.size() > 0 && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount) && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
+			ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+			accounts.add(iAccount);
+		}
+
+		ArrayList<String> accountList = new ArrayList<String>();
+		accountList.add(thisActivity.getResources().getString(R.string.all_accounts));
+		for (Account item : accounts) accountList.add(item.getLabel());
+
+		Log.v("","account size: "+accounts.size());
+		if(accounts.size()==2){
+			//Only 1 account and no imported addresses - No account spinner needed
+			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
+			accountSpinner.setVisibility(View.VISIBLE);
+		}else{
+			((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
+			((ActionBarActivity)thisActivity).getSupportActionBar().setTitle(accounts.get(0).getLabel());
+			accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
+			accountSpinner.setVisibility(View.GONE);
+		}
+
+		return accountList;
+	}
+
+	@Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 
@@ -390,6 +393,7 @@ public class BalanceFragment extends Fragment {
     	accountsAdapter.notifyDataSetChanged();
     	txAdapter.notifyDataSetChanged();
     	updateTx();
+		setAccountSpinner();
     }
 
     @Override
@@ -723,7 +727,7 @@ public class BalanceFragment extends Fragment {
 			//Only bring heading back down after 2nd item visible (0 = heading)
 			if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
 
-				if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+				if ((mToolbarOffset < balanceBarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
 					mToolbarOffset += dy;
 				}
 
@@ -733,8 +737,8 @@ public class BalanceFragment extends Fragment {
 		}
 
 		private void clipToolbarOffset() {
-			if(mToolbarOffset > toolbarHeight) {
-				mToolbarOffset = toolbarHeight;
+			if(mToolbarOffset > balanceBarHeight) {
+				mToolbarOffset = balanceBarHeight;
 			} else if(mToolbarOffset < 0) {
 				mToolbarOffset = 0;
 			}

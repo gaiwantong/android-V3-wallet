@@ -130,6 +130,7 @@
 	<string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
 	<string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
 	<string name="wallet_id">Wallet ID</string>
+	<string name="default_wallet_name">My Bitcoin Wallet</string>
 
 	<string name="password">Password</string>
 	<string name="email">Email</string>

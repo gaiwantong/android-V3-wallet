@@ -311,6 +311,8 @@ public class SendFragment extends Fragment {
             }
         }
 
+		if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+
 		AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.fragment_send_account_row, _accounts);
 		spAccounts.setAdapter(dataAdapter);
     	spAccounts.setOnItemSelectedListener(

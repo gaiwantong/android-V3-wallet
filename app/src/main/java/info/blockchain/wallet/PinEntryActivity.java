@@ -162,7 +162,7 @@ public class PinEntryActivity extends Activity {
 
 			HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
-			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel("Account 1");
+			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
 
 			PayloadFactory.getInstance(this).remoteSaveThread();
 

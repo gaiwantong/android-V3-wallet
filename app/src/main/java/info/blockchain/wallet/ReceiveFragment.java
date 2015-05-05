@@ -334,6 +334,9 @@ public class ReceiveFragment extends Fragment {
             	_accounts.add((legacy.get(j).getLabel() == null || legacy.get(j).getLabel().length() == 0) ? legacy.get(j).getAddress() : legacy.get(j).getLabel());
             }
         }
+
+		if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+
     	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, _accounts);
     	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
