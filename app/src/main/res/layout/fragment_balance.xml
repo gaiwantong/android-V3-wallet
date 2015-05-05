@@ -39,6 +39,7 @@
 				android:id="@+id/txList2"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
+				android:paddingTop="72dp"
 				android:clipToPadding="false"
 				android:divider="@drawable/list_divider"
 				android:clickable="true"/>
