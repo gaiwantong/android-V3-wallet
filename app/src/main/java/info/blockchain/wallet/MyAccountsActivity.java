@@ -261,6 +261,7 @@ public class MyAccountsActivity extends Activity {
 						ValueAnimator headerResizeAnimator;
 						if (!mIsViewExpanded) {
 							//Expanding
+							view.setBackgroundColor(getResources().getColor(R.color.white));
 
 							//Fade QR in - expansion of row will create slide down effect
 							qrTest.setVisibility(View.VISIBLE);
@@ -280,6 +281,10 @@ public class MyAccountsActivity extends Activity {
 
 						} else {
 							//Collapsing
+							TypedValue outValue = new TypedValue();
+							MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+							view.setBackgroundResource(outValue.resourceId);
+
 							view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
 							view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
 							mIsViewExpanded = !mIsViewExpanded;
