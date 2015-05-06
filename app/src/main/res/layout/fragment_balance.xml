@@ -55,7 +55,7 @@
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
 				android:textSize="32dp"
-				android:paddingLeft="64dp"
+				android:paddingLeft="72dp"
 				/>
 
 		</FrameLayout>
