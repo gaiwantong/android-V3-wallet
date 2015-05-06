@@ -73,8 +73,7 @@ public class AppUtil {
     }
 
     public void deleteQR(){
-        String strFileName = context.getExternalCacheDir() + File.separator + "qr.png";
-        File file = new File(strFileName);
+        File file = new File(strReceiveQRFilename);
         if(file.exists()) {
             file.delete();
         }
