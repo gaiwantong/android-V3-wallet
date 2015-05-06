@@ -1,9 +1,5 @@
 package info.blockchain.merchant.directory;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,6 +8,8 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,11 +20,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.util.Log;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import info.blockchain.wallet.R;
 
-public class ListActivity extends Activity {
+public class ListActivity extends ActionBarActivity {
 
 	private static final int HEADING_CAFE = 1;
 	private static final int HEADING_BAR = 2;
@@ -52,6 +52,12 @@ public class ListActivity extends Activity {
 	private ActionBarDrawerToggle mDrawerToggle = null;
 	*/
 
+	@Override
+	public boolean onSupportNavigateUp() {
+		onBackPressed();
+		return true;
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +65,9 @@ public class ListActivity extends Activity {
 
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
+		toolbar.setTitle(R.string.merchant_directory);
+		setSupportActionBar(toolbar);
 /*
         ActionBar actionBar = getActionBar();
         actionBar.hide();

@@ -1,11 +1,5 @@
 package info.blockchain.merchant.directory;
 
-import java.text.DecimalFormat;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +10,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,32 +22,35 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.text.util.Linkify;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-//import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 
-import info.blockchain.wallet.util.WebUtil;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import info.blockchain.wallet.OnSwipeTouchListener;
-import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.util.WebUtil;
 
-public class MapActivity extends Activity implements LocationListener	{
+//import android.util.Log;
+
+public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 	private GoogleMap map = null;
 	private LocationManager locationManager = null;
@@ -123,12 +125,21 @@ public class MapActivity extends Activity implements LocationListener	{
 	*/
 
 	@Override
+	public boolean onSupportNavigateUp() {
+		onBackPressed();
+		return true;
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
 
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
+		toolbar.setTitle(R.string.merchant_directory);
+		setSupportActionBar(toolbar);
 /*
         ActionBar actionBar = getActionBar();
         actionBar.hide();

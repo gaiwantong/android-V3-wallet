@@ -275,4 +275,6 @@
 	<string name="new_support_request">New Support Request</string>
 	<string name="contact_support">Contact Support</string>
 	<string name="email_subject">Bitcoin Wallet Android Tech Support</string>
+
+	<string name="merchant_directory">Merchant Directory</string>
 </resources>
