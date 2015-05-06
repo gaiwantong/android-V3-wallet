@@ -16,6 +16,8 @@ public class AppUtil {
     private static long TIMEOUT_DELAY = 1000 * 60 * 5;
     private static long lastPin = 0L;
 
+    private static String strReceiveQRFilename = null;
+
 	private AppUtil() { ; }
 
 	public static AppUtil getInstance(Context ctx) {
@@ -23,6 +25,7 @@ public class AppUtil {
 		context = ctx;
 		
 		if(instance == null) {
+            strReceiveQRFilename = context.getExternalCacheDir() + File.separator + "qr.png";
 			instance = new AppUtil();
 		}
 		
@@ -63,6 +66,10 @@ public class AppUtil {
 
     public boolean isTimedOut() {
         return (System.currentTimeMillis() - lastPin) > TIMEOUT_DELAY;
+    }
+
+    public String getReceiveQRFilename(){
+        return strReceiveQRFilename;
     }
 
     public void deleteQR(){
