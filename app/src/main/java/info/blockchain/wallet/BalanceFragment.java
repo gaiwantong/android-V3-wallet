@@ -469,6 +469,10 @@ public class BalanceFragment extends Fragment {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 
+						FrameLayout parent = (FrameLayout) v.getParent();
+						event.setLocation(v.getX()+(v.getWidth()/2), v.getY()+(v.getHeight()/2));
+						parent.onTouchEvent(event);
+
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							isBTC = (isBTC) ? false : true;
 							displayBalance();
@@ -482,6 +486,10 @@ public class BalanceFragment extends Fragment {
 				tvTS.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
+
+						FrameLayout parent = (FrameLayout) v.getParent();
+						event.setLocation(event.getX(), v.getY()+(v.getHeight()/2));
+						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							String strTx = tx.getHash();
@@ -497,6 +505,10 @@ public class BalanceFragment extends Fragment {
 				tvDirection.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
+
+						FrameLayout parent = (FrameLayout) v.getParent();
+						event.setLocation(event.getX(), v.getY()+(v.getHeight()/2));
+						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
 							String strTx = tx.getHash();
