@@ -73,6 +73,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressInfo;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -684,7 +685,7 @@ public class ReceiveFragment extends Fragment {
 	private void setupBottomSheet(){
 
 		//Re-Populate list
-		String strFileName = getActivity().getExternalCacheDir() + File.separator + "qr.png";
+		String strFileName = AppUtil.getInstance(getActivity()).getReceiveQRFilename();
 		File file = new File(strFileName);
 		if (!file.exists()) {
 			try {

@@ -504,7 +504,11 @@ public class PinEntryActivity extends Activity {
 
 	public void padClicked(View view) {
 
-		// Append tapped #
+        if(userEnteredPIN.length() == PIN_LENGTH) {
+            return;
+        }
+
+        // Append tapped #
 		userEnteredPIN = userEnteredPIN + view.getTag().toString().substring(0, 1);
 		pinBoxArray[userEnteredPIN.length() - 1].setBackgroundResource(R.drawable.rounded_view_dark_blue);
 
