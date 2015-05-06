@@ -138,7 +138,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
-		toolbar.setTitle(R.string.merchant_directory);
+		toolbar.setTitle(R.string.merchant_map);
 		setSupportActionBar(toolbar);
 /*
         ActionBar actionBar = getActionBar();
@@ -516,7 +516,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.dir_main, menu);
+		getMenuInflater().inflate(R.menu.merchant_activity_actions, menu);
+		menu.findItem(R.id.action_merchant_map).setVisible(false);
 		return true;
 	}
 
@@ -528,10 +529,10 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 //		}
 //		else {
 		    switch (item.getItemId()) {
-	    	case R.id.list_view:
+	    	case R.id.action_merchant_list:
 	    		doListView();
 	    		return true;
-	    	case R.id.suggest:
+	    	case R.id.action_merchant_suggest:
 	    		doSuggest();
 	    		return true;
 		    default:

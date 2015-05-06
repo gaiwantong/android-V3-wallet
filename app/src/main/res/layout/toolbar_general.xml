@@ -12,4 +12,5 @@
 	app:navigationIcon="?attr/homeAsUpIndicator"
 	app:contentInsetLeft="72dp"
 	app:contentInsetStart="72dp"
+	app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
 	/>

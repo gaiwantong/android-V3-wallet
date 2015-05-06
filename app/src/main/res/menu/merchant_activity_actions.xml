@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:material-navigation-drawer-example="http://schemas.android.com/apk/res-auto">
+	<item
+		android:id="@+id/action_merchant_map"
+		android:icon="@drawable/icon_merchantdirectory"
+		android:title=""
+		material-navigation-drawer-example:showAsAction="always"/>
+	<item
+		android:id="@+id/action_merchant_list"
+		android:icon="@drawable/ic_list_white_24dp"
+		android:title=""
+		material-navigation-drawer-example:showAsAction="always"/>
+	<item
+		android:id="@+id/action_merchant_suggest"
+		android:icon="@drawable/ic_add_white_24dp"
+		android:title=""
+		material-navigation-drawer-example:showAsAction="always"/>
+</menu>

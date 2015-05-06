@@ -276,5 +276,7 @@
 	<string name="contact_support">Contact Support</string>
 	<string name="email_subject">Bitcoin Wallet Android Tech Support</string>
 
-	<string name="merchant_directory">Merchant Directory</string>
+	<string name="merchant_map">Merchant Map</string>
+	<string name="merchant_list">Merchant List</string>
+	<string name="merchant_suggest">Suggest Merchant</string>
 </resources>

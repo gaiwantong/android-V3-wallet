@@ -66,7 +66,7 @@ public class ListActivity extends ActionBarActivity {
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
-		toolbar.setTitle(R.string.merchant_directory);
+		toolbar.setTitle(R.string.merchant_list);
 		setSupportActionBar(toolbar);
 /*
         ActionBar actionBar = getActionBar();
@@ -241,7 +241,8 @@ public class ListActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.dir_listmenu, menu);
+		getMenuInflater().inflate(R.menu.merchant_activity_actions, menu);
+		menu.findItem(R.id.action_merchant_list).setVisible(false);
 		return true;
 	}
 
@@ -253,10 +254,10 @@ public class ListActivity extends ActionBarActivity {
 //		}
 //		else {
 		    switch (item.getItemId()) {
-	    	case R.id.map_view:
+	    	case R.id.action_merchant_map:
 	    		finish();
 	    		return true;
-	    	case R.id.suggest:
+	    	case R.id.action_merchant_suggest:
 	    		doSuggest();
 	    		return true;
 		    default:
