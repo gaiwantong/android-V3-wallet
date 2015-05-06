@@ -13,8 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -43,7 +41,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -60,7 +57,6 @@ import net.sourceforge.zbar.Symbol;
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
@@ -109,6 +105,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private NfcAdapter mNfcAdapter = null;
     public static final String MIME_TEXT_PLAIN = "text/plain";
     private static final int MESSAGE_SENT = 1;
+
+	public static Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -386,7 +384,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 	{
 		if(drawerIsOpen){
 			mDrawerLayout.closeDrawers();
-		}else {
+		}else if(currentFragment instanceof BalanceFragment) {
 
 			exitClicked++;
 			if (exitClicked == 2)
@@ -407,6 +405,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 					}
 				}
 			}).start();
+
+		}else{
+			Fragment fragment = new BalanceFragment();
+			FragmentManager fragmentManager = getFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 		}
 	}
 

@@ -19,7 +19,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -338,13 +337,12 @@ public class BalanceFragment extends Fragment {
 		accountList.add(thisActivity.getResources().getString(R.string.all_accounts));
 		for (Account item : accounts) accountList.add(item.getLabel());
 
-		Log.v("","account size: "+accounts.size());
-		if(accounts.size()==2){
-			//Only 1 account and no imported addresses - No account spinner needed
+		if(accounts.size()>1){
 			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
 			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
 			accountSpinner.setVisibility(View.VISIBLE);
 		}else{
+			//Only 1 account and no imported addresses - No account spinner needed
 			((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
 			((ActionBarActivity)thisActivity).getSupportActionBar().setTitle(accounts.get(0).getLabel());
 			accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
@@ -373,6 +371,8 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+
+		MainActivity.currentFragment = this;
 
 		setNavigationDrawer();
 
