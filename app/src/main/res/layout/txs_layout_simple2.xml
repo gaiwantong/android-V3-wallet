@@ -29,9 +29,9 @@
 			android:layout_marginTop="16dp"
 			android:fontFamily="sans-serif"
 			android:singleLine="true"
-			android:text="ts"
+			android:text="April 2015"
 			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="16sp"/>
+			android:textSize="14sp"/>
 
 		<TextView
 			android:id="@+id/direction"
@@ -42,7 +42,7 @@
 			android:paddingRight="16dp"
 			android:layout_marginTop="37dp"
 			android:fontFamily="sans-serif"
-			android:text="direction"
+			android:text="Sent"
 			android:textColor="@color/blockchain_grey"
 			android:textSize="16sp"/>
 
