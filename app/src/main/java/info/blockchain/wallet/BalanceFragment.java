@@ -296,6 +296,7 @@ public class BalanceFragment extends Fragment {
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+				comm.setNavigationDrawerToggleEnabled(true);
 
 			}
 		});
@@ -309,6 +310,7 @@ public class BalanceFragment extends Fragment {
 				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+				comm.setNavigationDrawerToggleEnabled(true);
 			}
 		});
 
