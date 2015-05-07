@@ -14,8 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-import info.blockchain.wallet.R;
-
 public class WebUtil	{
 
     public static final String PROTOCOL = "https://";
