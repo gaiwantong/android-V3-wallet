@@ -261,6 +261,7 @@ public class BalanceFragment extends Fragment {
 		}
 
 		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+		mLayout.setTouchEnabled(false);
 		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
 			@Override
