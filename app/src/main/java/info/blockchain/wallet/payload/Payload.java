@@ -297,18 +297,6 @@ public class Payload {
                     int val = (Integer)optionsObj.get("fee_policy");
                     options.setFeePolicy(val);
                 }
-                options.setHtmlNotifs(optionsObj.has("html5_notifications") ? (Boolean)optionsObj.get("html5_notifications") : false);
-                options.setLogoutTime(optionsObj.has("logout_time") ? (Integer) optionsObj.get("logout_time") : 0);
-                if(optionsObj.has("tx_display"))  {
-                    int val = (Integer)optionsObj.get("tx_display");
-                    options.setTxDisplay(val);
-                }
-                options.setKeepLocalBackup(optionsObj.has("always_keep_local_backup") ? (Boolean)optionsObj.get("always_keep_local_backup") : false);
-                options.setEnablMultipleAccounts(optionsObj.has("enable_multiple_accounts") ? (Boolean)optionsObj.get("enable_multiple_accounts") : true);
-                if(optionsObj.has("transactions_per_page"))  {
-                    int val = (Integer)optionsObj.get("transactions_per_page");
-                    options.setTxPerPage(val);
-                }
                 if(optionsObj.has("additional_seeds"))  {
                     JSONArray seeds = (JSONArray)optionsObj.get("additional_seeds");
                     List<String> additionalSeeds = new ArrayList<String>();
