@@ -63,7 +63,7 @@ public class PrivateKeyFactory	{
 		else if(key.matches("^[A-Fa-f0-9]{64}$")) {
 			return HEX_UNCOMPRESSED;
 		}
-		else if(key.matches("^[A-Za-z0-9=+]{44}$")) {
+		else if(key.matches("^[A-Za-z0-9/=+]{44}$")) {
 			return BASE64;
 		}
 		else if(key.matches("^6P[1-9A-HJ-NP-Za-km-z]{56}$")) {
