@@ -51,10 +51,11 @@
 				android:layout_height="72dp"
 				android:background="@color/blockchain_blue"
 				android:gravity="left|center_vertical"
-				android:paddingBottom="16dp"
+				android:paddingBottom="24dp"
 				android:textAlignment="gravity"
 				android:textColor="@color/white_50"
 				android:textSize="32dp"
+				android:text="0.000002"
 				android:paddingLeft="72dp"
 				/>
 
