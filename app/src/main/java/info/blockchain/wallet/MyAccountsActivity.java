@@ -631,7 +631,7 @@ public class MyAccountsActivity extends Activity {
 												.setMessage(R.string.label_address)
 												.setView(address_label)
 												.setCancelable(false)
-												.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+												.setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
 													public void onClick(DialogInterface dialog, int whichButton) {
 														String label = address_label.getText().toString();
 														if(label != null && label.length() > 0) {
@@ -646,7 +646,7 @@ public class MyAccountsActivity extends Activity {
 
 														MyAccountsActivity.this.recreate();
 													}
-												}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+												}).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
 											public void onClick(DialogInterface dialog, int whichButton) {
 												legacyAddress.setLabel("");
 												PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
@@ -720,7 +720,7 @@ public class MyAccountsActivity extends Activity {
 					.setMessage(R.string.label_address)
 					.setView(address_label)
 					.setCancelable(false)
-					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+					.setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int whichButton) {
 							String label = address_label.getText().toString();
 							if(label != null && label.length() > 0) {
@@ -735,7 +735,7 @@ public class MyAccountsActivity extends Activity {
 
 							MyAccountsActivity.this.recreate();
 						}
-					}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					}).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					legacyAddress.setLabel("");
 					PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
