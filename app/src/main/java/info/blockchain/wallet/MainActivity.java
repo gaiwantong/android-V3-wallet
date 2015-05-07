@@ -864,10 +864,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		DrawerAdapter adapterDrawer = new DrawerAdapter(drawerItems);
 		recyclerViewDrawer.setAdapter(adapterDrawer);
 
-		//TODO try to get status bar translucent (lollipop) - Fok weet
-//		mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(android.R.color.transparent));
-//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
 		recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 			@Override
 			public void onGlobalLayout() {

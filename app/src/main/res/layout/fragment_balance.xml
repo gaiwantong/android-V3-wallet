@@ -24,6 +24,15 @@
 			android:layout_height="match_parent"
 			android:background="@color/blockchain_pearl_white">
 
+			<android.support.v7.widget.RecyclerView
+				android:id="@+id/txList2"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:paddingTop="72dp"
+				android:clipToPadding="false"
+				android:divider="@drawable/list_divider"
+				android:clickable="true"/>
+
 			<!--Shadow for bottom sheet-->
 			<LinearLayout
 				android:id="@+id/balance_main_content_shadow"
@@ -34,15 +43,6 @@
 				android:elevation="3dp"
 				android:visibility="invisible"
 				android:orientation="horizontal"/>
-
-			<android.support.v7.widget.RecyclerView
-				android:id="@+id/txList2"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:paddingTop="72dp"
-				android:clipToPadding="false"
-				android:divider="@drawable/list_divider"
-				android:clickable="true"/>
 
 			<!-- Balance -->
 			<TextView
