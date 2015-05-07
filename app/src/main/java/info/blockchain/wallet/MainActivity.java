@@ -914,6 +914,19 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		);
 	}
 
+	@Override
+	public void setNavigationDrawerToggleEnabled(boolean enabled) {
+		for(int i = 0; i < toolbar.getChildCount(); i++){
+			toolbar.getChildAt(i).setEnabled(enabled);
+			toolbar.getChildAt(i).setClickable(enabled);
+		}
+
+		if(enabled)
+			mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+		else
+			mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+	}
+
 	private void doChangePin() {
 
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);

@@ -701,6 +701,8 @@ public class BalanceFragment extends Fragment {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
                 isBottomSheetOpen = false;
+
+				comm.setNavigationDrawerToggleEnabled(true);
 			} else {
 
 				//Bottom sheet up
@@ -709,6 +711,8 @@ public class BalanceFragment extends Fragment {
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.setVisibility(View.VISIBLE);
                 isBottomSheetOpen = true;
+
+				comm.setNavigationDrawerToggleEnabled(false);
 			}
 		}
 	}
@@ -723,6 +727,7 @@ public class BalanceFragment extends Fragment {
 	interface Communicator{
 
 		public void setNavigationDrawer();
+		public void setNavigationDrawerToggleEnabled(boolean enabled);
 	}
 
 	private void setNavigationDrawer(){
