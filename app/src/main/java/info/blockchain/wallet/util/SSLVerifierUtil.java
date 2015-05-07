@@ -32,8 +32,6 @@ public class SSLVerifierUtil {
 
     private static SSLVerifierUtil instance = null;
     private static Context context = null;
-    private static boolean verified = false;
-    private static boolean pinned = false;
 
     private SSLVerifierUtil() { ; }
 
@@ -46,12 +44,9 @@ public class SSLVerifierUtil {
         return instance;
     }
 
-    public boolean isValid() {
+    public boolean isValidHostname() {
 
-        if(verified) {
-            return true;
-        }
-
+        int responseCode = -1;
         boolean ret = false;
 
         DefaultHttpClient client = new DefaultHttpClient();
@@ -66,26 +61,27 @@ public class SSLVerifierUtil {
         HttpPost httpPost = new HttpPost(WebUtil.VALIDATE_SSL_URL);
         try {
             HttpResponse response = httpClient.execute(httpPost);
-            Log.i("SSLVerifierUtil", "Hostname validated");
+            responseCode = response.getStatusLine().getStatusCode();
+//            Log.i("SSLVerifierUtil", "Hostname validated");
             ret = true;
         }
         catch(Exception e) {
-            Log.i("SSLVerifierUtil", "Hostname not validated");
+//            Log.i("SSLVerifierUtil", "Hostname not validated");
             e.printStackTrace();
             ret = false;
         }
 
-        verified = ret;
-
-        return ret;
-    }
-
-    public boolean isPinned() {
-
-        if(pinned) {
+        if(responseCode != 200) {
             return true;
         }
+        else {
+            return ret;
+        }
+    }
 
+    public boolean certificateIsPinned() {
+
+        int responseCode = -1;
         TrustManager tm[] = null;
 
         try {
@@ -109,13 +105,18 @@ public class SSLVerifierUtil {
             InputStreamReader instream = new InputStreamReader(connection.getInputStream());
             assert (null != instream);
 
+            responseCode = connection.getResponseCode();
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        pinned = ((PubKeyManager)(tm[0])).isPinned();
-
-        return ((PubKeyManager)(tm[0])).isPinned();
+        if(responseCode != 200) {
+            return true;
+        }
+        else {
+            return ((PubKeyManager)(tm[0])).isPinned();
+        }
 
     }
 
@@ -157,15 +158,11 @@ public class SSLVerifierUtil {
             RSAPublicKey pubkey = (RSAPublicKey)chain[0].getPublicKey();
             String encoded = new BigInteger(1, pubkey.getEncoded()).toString(16);
 
-            Log.i("PubKeyManager", PUB_KEY);
-            Log.i("PubKeyManager", encoded);
-
-            final boolean foundExpected = PUB_KEY.equalsIgnoreCase(encoded);
-            if (!foundExpected) {
-                Log.i("PubKeyManager", PUB_KEY);
-                Log.i("PubKeyManager", encoded);
+            if (!PUB_KEY.equalsIgnoreCase(encoded)) {
+//                Log.i("PubKeyManager", PUB_KEY);
+//                Log.i("PubKeyManager", encoded);
                 pinned = false;
-                throw new CertificateException("checkServerTrusted: unexpected public key");
+//                throw new CertificateException("checkServerTrusted: unexpected public key");
             }
             else {
                 pinned = true;

@@ -59,6 +59,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -144,8 +145,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             builder.create().show();
         }
         else {
-
-            validSSLThread();
 
             exchangeRateThread();
 
@@ -234,6 +233,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
             AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+
+            SecureRandom random = new SecureRandom();
+            if(random.nextInt(5) == 0) {
+                validateSSLThread();
+            }
         }
 
         if(Build.VERSION.SDK_INT >= 16){
@@ -517,7 +521,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }).start();
     }
 
-    private void validSSLThread() {
+    private void validateSSLThread() {
 
         final Handler handler = new Handler();
 
@@ -526,7 +530,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void run() {
                 Looper.prepare();
 
-                if(!SSLVerifierUtil.getInstance().isValid()) {
+                if(!SSLVerifierUtil.getInstance().isValidHostname()) {
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -545,7 +549,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 }
 
-                if(!SSLVerifierUtil.getInstance().isPinned()) {
+                if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
                     final String message = getString(R.string.ssl_pinning_invalid);
