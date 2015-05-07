@@ -166,7 +166,7 @@ public class BalanceFragment extends Fragment {
         });
 
 		ArrayList<String> accountList = setAccountSpinner();
-		accountsAdapter = new ArrayAdapter<String>(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+		accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
 		accountSpinner.setOnTouchListener(new OnTouchListener() {
@@ -823,5 +823,31 @@ public class BalanceFragment extends Fragment {
 				onAddClicked();
 			}
 		});
+	}
+
+	private class AccountAdapter extends ArrayAdapter<String> {
+
+		Context context;
+		int layoutResourceId;
+		String data[] = null;
+
+		public AccountAdapter(Context context, int layoutResourceId, String[] data) {
+			super(context, layoutResourceId, data);
+			this.layoutResourceId = layoutResourceId;
+			this.context = context;
+			this.data = data;
+		}
+
+		@Override
+		public View getView(final int position, final View convertView, final ViewGroup parent) {
+			View view = convertView;
+			if (null == view) {
+				view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
+				((TextView) view).setText(getItem(position));
+			}
+			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+			view.setLayoutParams(params);
+			return view;
+		}
 	}
 }
