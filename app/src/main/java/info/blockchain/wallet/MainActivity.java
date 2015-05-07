@@ -829,6 +829,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
 			public void onDrawerClosed(View view) {
 				drawerIsOpen = false;
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(true);
+					toolbar.getChildAt(i).setClickable(true);
+				}
 			}
 
 			public void onDrawerOpened(View drawerView) {
@@ -836,6 +841,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(false);
+					toolbar.getChildAt(i).setClickable(false);
+				}
 			}
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
