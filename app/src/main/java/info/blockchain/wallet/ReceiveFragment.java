@@ -706,11 +706,6 @@ public class ReceiveFragment extends Fragment {
 			;
 		}
 
-		android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-		android.content.ClipData clip = null;
-		clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
-		clipboard.setPrimaryClip(clip);
-
 		if (file != null && fos != null) {
 			Bitmap bitmap = ((BitmapDrawable) ivReceivingQR.getDrawable()).getBitmap();
 			bitmap.compress(CompressFormat.PNG, 0, fos);
