@@ -280,7 +280,6 @@ public class PayloadFactory	{
                 }
 
                 payload.setIterations(iterations);
-                payload.setVersion(version);
             }
             else {
 //                Log.i("PayloadFactory", "jsonObject has no payload");

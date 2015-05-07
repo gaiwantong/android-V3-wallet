@@ -52,7 +52,6 @@ public class Payload {
     private Map<String,Integer> xpub2Account = null;
     private Map<Integer,String> account2Xpub = null;
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
-    private double version = 2.0;
 
     public Payload() {
         legacyAddresses = new ArrayList<LegacyAddress>();
@@ -211,14 +210,6 @@ public class Payload {
 
     public void setIterations(int iterations) {
         this.iterations = iterations;
-    }
-
-    public double getVersion() {
-        return version;
-    }
-
-    public void setVersion(double version) {
-        this.version = version;
     }
 
     public boolean isDoubleEncrypted() {
@@ -554,7 +545,6 @@ public class Payload {
 
         obj.put("guid", getGuid());
         obj.put("sharedKey", getSharedKey());
-        obj.put("version", version);
         obj.put("pbkdf2_iterations", iterations);
 
         if(doubleEncryption) {
