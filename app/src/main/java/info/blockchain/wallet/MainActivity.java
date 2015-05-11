@@ -94,20 +94,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     public static boolean drawerIsOpen = false;
 
-	RecyclerView recyclerViewDrawer;
-	RecyclerView.Adapter mAdapter;
-	RecyclerView.LayoutManager mLayoutManager;
-	DrawerLayout mDrawerLayout;
+    RecyclerView recyclerViewDrawer;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
+    DrawerLayout mDrawerLayout;
 
-	ActionBarDrawerToggle mDrawerToggle;
+    ActionBarDrawerToggle mDrawerToggle;
 
-	private ProgressDialog progress = null;
+    private ProgressDialog progress = null;
 
     private NfcAdapter mNfcAdapter = null;
     public static final String MIME_TEXT_PLAIN = "text/plain";
     private static final int MESSAGE_SENT = 1;
 
-	public static Fragment currentFragment;
+    public static Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,8 +191,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         locale = Locale.getDefault();
 
-		setToolbar();
-		setNavigationDrawer();
+        setToolbar();
+        setNavigationDrawer();
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter == null)   {
@@ -294,9 +294,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         /*
         final String eventString = "onNdefPushComplete\n" + event.toString();
-
         runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(), eventString, Toast.LENGTH_SHORT).show();
@@ -381,41 +379,41 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-	int exitClicked = 0;
-	int exitCooldown = 2;//seconds
-	@Override
-	public void onBackPressed()
-	{
-		if(drawerIsOpen){
-			mDrawerLayout.closeDrawers();
-		}else if(currentFragment instanceof BalanceFragment) {
+    int exitClicked = 0;
+    int exitCooldown = 2;//seconds
+    @Override
+    public void onBackPressed()
+    {
+        if(drawerIsOpen){
+            mDrawerLayout.closeDrawers();
+        }else if(currentFragment instanceof BalanceFragment) {
 
-			exitClicked++;
-			if (exitClicked == 2)
-				finish();
-			else
-				Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+            exitClicked++;
+            if (exitClicked == 2)
+                finish();
+            else
+                Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
 
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					for (int j = 0; j <= exitCooldown; j++) {
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						if (j >= exitCooldown) exitClicked = 0;
-					}
-				}
-			}).start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = 0; j <= exitCooldown; j++) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (j >= exitCooldown) exitClicked = 0;
+                    }
+                }
+            }).start();
 
-		}else{
-			Fragment fragment = new BalanceFragment();
-			FragmentManager fragmentManager = getFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-		}
-	}
+        }else{
+            Fragment fragment = new BalanceFragment();
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        }
+    }
 
     private void updatePayloadThread(final CharSequenceX pw) {
 
@@ -583,22 +581,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
  * code for adding an account: to be brought back in an upcoming version
  *
     private void addAccount()	{
-
         if(PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-
             if(DoubleEncryptionFactory.getInstance().isActivated()) {
-
                 String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
                         PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
                         PayloadFactory.getInstance().get().getSharedKey(),
                         PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
                         PayloadFactory.getInstance().get().getIterations());
-
                 try {
                     HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
                     HD_WalletFactory.getInstance(MainActivity.this).setWatchOnlyWallet(hdw);
                     HDPayloadBridge.getInstance(MainActivity.this).addAccount();
-
                     Fragment fragment = new BalanceFragment();
                     FragmentManager fragmentManager = getFragmentManager();
                     fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -624,12 +617,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 finally {
                     ;
                 }
-
             }
             else {
                 final EditText double_encrypt_password = new EditText(MainActivity.this);
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.app_name)
                         .setMessage("Please enter double encryption password")
@@ -637,29 +628,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                         .setCancelable(false)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-
                                 String pw2 = double_encrypt_password.getText().toString();
-
                                 if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
                                         PayloadFactory.getInstance().get().getDoublePasswordHash(),
                                         PayloadFactory.getInstance().get().getSharedKey(),
                                         new CharSequenceX(pw2),
                                         PayloadFactory.getInstance().get().getIterations()
                                 )) {
-
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
                                     String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
                                             PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
                                             PayloadFactory.getInstance().get().getSharedKey(),
                                             pw2,
                                             PayloadFactory.getInstance().get().getIterations());
-
                                     try {
                                         HD_Wallet hdw = HD_WalletFactory.getInstance(MainActivity.this).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
                                         HD_WalletFactory.getInstance(MainActivity.this).setWatchOnlyWallet(hdw);
                                         HDPayloadBridge.getInstance(MainActivity.this).addAccount();
-
                                         Fragment fragment = new BalanceFragment();
                                         FragmentManager fragmentManager = getFragmentManager();
                                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -685,13 +670,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                     finally {
                                         ;
                                     }
-
                                 }
                                 else {
                                     Toast.makeText(MainActivity.this, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
-
                             }
                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -699,18 +682,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     }
                 }).show();
             }
-
         }
         else {
-
             try {
-
                 HDPayloadBridge.getInstance(MainActivity.this).addAccount();
-
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
             }
             catch(IOException ioe) {
                 ioe.printStackTrace();
@@ -720,9 +698,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 mle.printStackTrace();
                 Toast.makeText(this, R.string.hd_error, Toast.LENGTH_SHORT).show();
             }
-
         }
-
     }
 */
     private void doSettings()	{
@@ -803,221 +779,221 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-	public void setToolbar() {
+    public void setToolbar() {
 
-		toolbar = (Toolbar)findViewById(R.id.toolbar);
-		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
-		setSupportActionBar(toolbar);
-	}
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+        setSupportActionBar(toolbar);
+    }
 
-	public void setNavigationDrawer() {
+    public void setNavigationDrawer() {
 
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-		// Fix right margin to 56dp (portrait)
-		View drawer = findViewById(R.id.scrimInsetsFrameLayout);
-		ViewGroup.LayoutParams layoutParams = drawer.getLayoutParams();
-		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-			layoutParams.width = displayMetrics.widthPixels - (56 * Math.round(displayMetrics.density));
-		}
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			layoutParams.width = displayMetrics.widthPixels + (20 * Math.round(displayMetrics.density)) - displayMetrics.widthPixels / 2;
-		}
+        // Fix right margin to 56dp (portrait)
+        View drawer = findViewById(R.id.scrimInsetsFrameLayout);
+        ViewGroup.LayoutParams layoutParams = drawer.getLayoutParams();
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layoutParams.width = displayMetrics.widthPixels - (56 * Math.round(displayMetrics.density));
+        }
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            layoutParams.width = displayMetrics.widthPixels + (20 * Math.round(displayMetrics.density)) - displayMetrics.widthPixels / 2;
+        }
 
-		// Setup Drawer Icon
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+        // Setup Drawer Icon
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
 
-			public void onDrawerClosed(View view) {
-				drawerIsOpen = false;
+            public void onDrawerClosed(View view) {
+                drawerIsOpen = false;
 
-				for(int i = 0; i < toolbar.getChildCount(); i++){
-					toolbar.getChildAt(i).setEnabled(true);
-					toolbar.getChildAt(i).setClickable(true);
-				}
-			}
+                for(int i = 0; i < toolbar.getChildCount(); i++){
+                    toolbar.getChildAt(i).setEnabled(true);
+                    toolbar.getChildAt(i).setClickable(true);
+                }
+            }
 
-			public void onDrawerOpened(View drawerView) {
-		        drawerIsOpen = true;
+            public void onDrawerOpened(View drawerView) {
+                drawerIsOpen = true;
 
                 InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-				for(int i = 0; i < toolbar.getChildCount(); i++){
-					toolbar.getChildAt(i).setEnabled(false);
-					toolbar.getChildAt(i).setClickable(false);
-				}
-			}
-		};
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
-		mDrawerToggle.syncState();
+                for(int i = 0; i < toolbar.getChildCount(); i++){
+                    toolbar.getChildAt(i).setEnabled(false);
+                    toolbar.getChildAt(i).setClickable(false);
+                }
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.syncState();
 
-		// statusBar color behind navigation drawer
-		TypedValue typedValueStatusBarColor = new TypedValue();
-		MainActivity.this.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValueStatusBarColor, true);
-		final int colorStatusBar = typedValueStatusBarColor.data;
-		mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
+        // statusBar color behind navigation drawer
+        TypedValue typedValueStatusBarColor = new TypedValue();
+        MainActivity.this.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValueStatusBarColor, true);
+        final int colorStatusBar = typedValueStatusBarColor.data;
+        mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
 
-		// Setup RecyclerView inside drawer
-		recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
-		recyclerViewDrawer.setHasFixedSize(true);
-		recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        // Setup RecyclerView inside drawer
+        recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
+        recyclerViewDrawer.setHasFixedSize(true);
+        recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-		ArrayList<DrawerItem> drawerItems = new ArrayList<>();
-		final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
-		final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
-		for (int i = 0; i < drawerTitles.length; i++) {
-			drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-		}
-		drawerIcons.recycle();
-		DrawerAdapter adapterDrawer = new DrawerAdapter(drawerItems);
-		recyclerViewDrawer.setAdapter(adapterDrawer);
+        ArrayList<DrawerItem> drawerItems = new ArrayList<>();
+        final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
+        final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+        for (int i = 0; i < drawerTitles.length; i++) {
+            drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+        }
+        drawerIcons.recycle();
+        DrawerAdapter adapterDrawer = new DrawerAdapter(drawerItems);
+        recyclerViewDrawer.setAdapter(adapterDrawer);
 
-		recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-			@Override
-			public void onGlobalLayout() {
+        recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
 
-				for (int i = 0; i < drawerTitles.length; i++) {
-					ImageView imageViewDrawerIcon = (ImageView) recyclerViewDrawer.getChildAt(i).findViewById(R.id.drawer_row_icon);
-					if (Build.VERSION.SDK_INT > 15) {
-						imageViewDrawerIcon.setImageAlpha(255);
-					} else {
-						imageViewDrawerIcon.setAlpha(255);
-					}
-				}
+                for (int i = 0; i < drawerTitles.length; i++) {
+                    ImageView imageViewDrawerIcon = (ImageView) recyclerViewDrawer.getChildAt(i).findViewById(R.id.drawer_row_icon);
+                    if (Build.VERSION.SDK_INT > 15) {
+                        imageViewDrawerIcon.setImageAlpha(255);
+                    } else {
+                        imageViewDrawerIcon.setAlpha(255);
+                    }
+                }
 
-				// unregister listener (this is important)
-				recyclerViewDrawer.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-			}
-		});
+                // unregister listener (this is important)
+                recyclerViewDrawer.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            }
+        });
 
-		recyclerViewDrawer.addOnItemTouchListener(
-				new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-					@Override public void onItemClick(View view, int position) {
+        recyclerViewDrawer.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
 
-						switch (position) {
-							case 0:
-								doMyAccounts();
-								break;
-							case 1:
-								doExchangeRates();
-								break;
-							case 2:
-								doSettings();
-								break;
-							case 3:
-								doSupport();
-								break;
-							case 4:
-								doChangePin();
-								break;
-							case 5:
-								doUnpairWallet();
-								break;
-						}
+                        switch (position) {
+                            case 0:
+                                doMyAccounts();
+                                break;
+                            case 1:
+                                doExchangeRates();
+                                break;
+                            case 2:
+                                doSettings();
+                                break;
+                            case 3:
+                                doSupport();
+                                break;
+                            case 4:
+                                doChangePin();
+                                break;
+                            case 5:
+                                doUnpairWallet();
+                                break;
+                        }
 
-						mDrawerLayout.closeDrawers();
+                        mDrawerLayout.closeDrawers();
 
-					}
-				})
-		);
-	}
+                    }
+                })
+        );
+    }
 
-	@Override
-	public void setNavigationDrawerToggleEnabled(boolean enabled) {
-		for(int i = 0; i < toolbar.getChildCount(); i++){
-			toolbar.getChildAt(i).setEnabled(enabled);
-			toolbar.getChildAt(i).setClickable(enabled);
-		}
+    @Override
+    public void setNavigationDrawerToggleEnabled(boolean enabled) {
+        for(int i = 0; i < toolbar.getChildCount(); i++){
+            toolbar.getChildAt(i).setEnabled(enabled);
+            toolbar.getChildAt(i).setClickable(enabled);
+        }
 
-		if(enabled)
-			mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-		else
-			mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-	}
+        if(enabled)
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        else
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
 
-	private void doChangePin() {
+    private void doChangePin() {
 
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-		LayoutInflater inflater = this.getLayoutInflater();
-		final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
-		dialogBuilder.setView(dialogView);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
+        dialogBuilder.setView(dialogView);
 
-		final AlertDialog alertDialog = dialogBuilder.create();
-		alertDialog.setCanceledOnTouchOutside(false);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
 
-		TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-		confirmCancel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-			}
-		});
+        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+            }
+        });
 
-		TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
-		confirmChangePin.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+        TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
+        confirmChangePin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-				EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
+                EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
 
-				if(pass.getText().toString().equals(PayloadFactory.getInstance(MainActivity.this).getTempPassword().toString())) {
+                if(pass.getText().toString().equals(PayloadFactory.getInstance(MainActivity.this).getTempPassword().toString())) {
 
-					PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
-					PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                    PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-					Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-					startActivity(intent);
-					finish();
+                    Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
 
-					alertDialog.dismiss();
-				}else{
-					Toast.makeText(MainActivity.this,getResources().getString(R.string.invalid_password),Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
+                    alertDialog.dismiss();
+                }else{
+                    Toast.makeText(MainActivity.this,getResources().getString(R.string.invalid_password),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
-		alertDialog.show();
-	}
+        alertDialog.show();
+    }
 
-	private void doUnpairWallet(){
+    private void doUnpairWallet(){
 
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-		LayoutInflater inflater = this.getLayoutInflater();
-		View dialogView = inflater.inflate(R.layout.alert_unpair_wallet, null);
-		dialogBuilder.setView(dialogView);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.alert_unpair_wallet, null);
+        dialogBuilder.setView(dialogView);
 
-		final AlertDialog alertDialog = dialogBuilder.create();
-		alertDialog.setCanceledOnTouchOutside(false);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
 
-		TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-		confirmCancel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-			}
-		});
+        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+            }
+        });
 
-		TextView confirmUnpair = (TextView) dialogView.findViewById(R.id.confirm_unpair);
-		confirmUnpair.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				PayloadFactory.getInstance().wipe();
-				MultiAddrFactory.getInstance().wipe();
-				PrefsUtil.getInstance(MainActivity.this).clear();
+        TextView confirmUnpair = (TextView) dialogView.findViewById(R.id.confirm_unpair);
+        confirmUnpair.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PayloadFactory.getInstance().wipe();
+                MultiAddrFactory.getInstance().wipe();
+                PrefsUtil.getInstance(MainActivity.this).clear();
 
-				AppUtil.getInstance(MainActivity.this).restartApp();
+                AppUtil.getInstance(MainActivity.this).restartApp();
 
-				alertDialog.dismiss();
-			}
-		});
+                alertDialog.dismiss();
+            }
+        });
 
-		alertDialog.show();
+        alertDialog.show();
 
-	}
+    }
 
     private void doMerchantDirectory()	{
 
@@ -1041,10 +1017,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivity(intent);
     }
 
-	private void doSupport(){
+    private void doSupport(){
 
-		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-		Intent intent = new Intent(MainActivity.this, SupportActivity.class);
-		startActivity(intent);
-	}
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+        Intent intent = new Intent(MainActivity.this, SupportActivity.class);
+        startActivity(intent);
+    }
 }
