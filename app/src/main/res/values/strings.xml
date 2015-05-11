@@ -221,14 +221,14 @@
 	<string name="change_pin_code">Change PIN Code</string>
 	<string name="enter_password_to_change_pin">Please enter password to change PIN code.</string>
 
-    <string name="suggest_merchant">Suggest a merchant</string>
+    <string name="suggest_merchant">Suggest merchant</string>
     <string name="business_name">Business name</string>
     <string name="select_category">Category</string>
     <string name="business_category">Category</string>
     <string name="street_address">Street address</string>
     <string name="description">Description</string>
     <string name="city">City</string>
-    <string name="zip">Zip code</string>
+    <string name="postal">Postal code</string>
     <string name="telephone">Telephone</string>
     <string name="web">Web</string>
     <string name="latitude">Latitude:</string>
@@ -244,7 +244,7 @@
     <string name="missing_merchant_name">Please provide the merchant name</string>
     <string name="missing_merchant_street_address">Please provide the merchant street address</string>
     <string name="missing_merchant_city">Please provide a city</string>
-    <string name="missing_merchant_zip">Please provide a zip code</string>
+    <string name="missing_merchant_postal">Please provide a postal code</string>
     <string name="ok_writing_merchant">Thank you for your suggestion.</string>
     <string name="error_writing_merchant">Error writing to database. Please try again.</string>
     <string name="no_merchants_in_range">There are no Bitcoin businesses within range for listing.</string>
@@ -281,4 +281,11 @@
 	<string name="merchant_map">Merchant Map</string>
 	<string name="merchant_list">Merchant List</string>
 	<string name="merchant_suggest">Suggest Merchant</string>
+	<string name="name">Name</string>
+	<string name="location">Location</string>
+	<string name="manual_entry">MANUAL ENTRY</string>
+	<string name="use_my_current_location">USE MY CURRENT LOCATION</string>
+	<string name="save">Save</string>
+	<string name="next">Next</string>
+	<string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
 </resources>

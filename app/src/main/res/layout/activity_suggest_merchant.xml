@@ -1,0 +1,156 @@
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		>
+
+		<include layout="@layout/toolbar_general"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			>
+
+			<TextView
+				android:layout_width="60dp"
+				android:layout_height="wrap_content"
+				android:text="@string/name"
+				android:textColor="@color/blockchain_grey"/>
+
+			<EditText
+				android:id="@+id/merchant_name"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:background="@color/blockchain_pearl_white"
+				android:focusable="true"
+				android:focusableInTouchMode="true"
+				android:paddingLeft="16dp"
+				android:singleLine="true"
+				android:text=""
+				android:textColor="@color/primary_text_default_material_light"
+				android:textCursorDrawable="@null"
+				/>
+
+		</LinearLayout>
+
+		<View
+			android:layout_width="fill_parent"
+			android:layout_height="1dp"
+			android:background="@color/blockchain_light_grey"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			>
+
+			<TextView
+				android:layout_width="60dp"
+				android:layout_height="wrap_content"
+				android:text="@string/business_category"
+				android:textColor="@color/blockchain_grey"
+				android:layout_marginRight="16dp"/>
+
+			<Spinner
+				android:id="@+id/merchant_category_spinner"
+				android:layout_width="0dp"
+				android:layout_height="48dp"
+				android:layout_weight="1"
+				/>
+
+		</LinearLayout>
+
+		<View
+			android:layout_width="fill_parent"
+			android:layout_height="1dp"
+			android:background="@color/blockchain_light_grey"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="58dp"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			>
+
+			<TextView
+				android:layout_width="60dp"
+				android:layout_height="wrap_content"
+				android:text="@string/location"
+				android:textColor="@color/blockchain_grey"/>
+
+			<TextView
+				android:id="@+id/manual_entry_action"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="bottom|center_horizontal"
+				android:onClick="manualClicked"
+				android:text="@string/manual_entry"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="12dp"
+				android:background="@drawable/selector_pearl_white"
+				android:clickable="true"
+				android:paddingBottom="10dp"
+				/>
+
+			<TextView
+				android:id="@+id/current_location_action"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="bottom|center_horizontal"
+				android:onClick="autoClicked"
+				android:text="@string/use_my_current_location"
+				android:textColor="@color/blockchain_blue"
+				android:textSize="12dp"
+				android:background="@drawable/selector_pearl_white"
+				android:clickable="true"
+				android:paddingBottom="10dp"
+				/>
+		</LinearLayout>
+
+		<View
+			android:layout_width="fill_parent"
+			android:layout_height="1dp"
+			android:background="@color/blockchain_light_grey"/>
+
+		<include
+			layout="@layout/activity_suggest_merchant_map_include"/>
+
+		<include
+			layout="@layout/activity_suggest_merchant_details_include"/>
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/command_save"
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:layout_alignParentBottom="true"
+		android:layout_gravity="center_horizontal|center_vertical"
+		android:background="@color/blockchain_blue"
+		android:gravity="center_horizontal|center_vertical"
+		android:text="@string/save"
+		android:textAlignment="gravity"
+		android:textColor="@color/white_50"
+		android:textSize="16sp"
+		/>
+
+</RelativeLayout>

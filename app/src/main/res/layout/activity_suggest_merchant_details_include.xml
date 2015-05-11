@@ -1,0 +1,226 @@
+<LinearLayout
+	android:id="@+id/confirm_layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/blockchain_pearl_white"
+	android:orientation="vertical"
+	>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/description"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/description"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/street_address"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/street_address"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/city"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/city"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/postal"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/zip"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/telephone"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/telephone"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/web"
+			android:textColor="@color/blockchain_grey"/>
+
+		<EditText
+			android:id="@+id/web"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:background="@color/blockchain_pearl_white"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:paddingLeft="16dp"
+			android:singleLine="true"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textCursorDrawable="@null"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:background="@color/blockchain_light_grey"/>
+
+</LinearLayout>
