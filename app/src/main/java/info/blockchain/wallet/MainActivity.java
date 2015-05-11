@@ -785,6 +785,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         Fragment fragment = new SendFragment();
         Bundle args = new Bundle();
         args.putString("btc_address", btc_address);
+        args.putBoolean("incoming_from_scan", true);
         if(btc_amount != null) {
             try {
                 NumberFormat btcFormat = NumberFormat.getInstance(locale);
