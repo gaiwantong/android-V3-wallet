@@ -248,11 +248,29 @@ public class MyAccountsActivity extends Activity {
 							@Override
 							public boolean onLongClick(View v) {
 
-								android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-								android.content.ClipData clip = null;
-								clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
-								Toast.makeText(MyAccountsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
-								clipboard.setPrimaryClip(clip);
+                                new AlertDialog.Builder(MyAccountsActivity.this)
+                                        .setTitle(R.string.app_name)
+                                        .setMessage(R.string.receive_address_to_clipboard)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                                android.content.ClipData clip = null;
+                                                clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
+                                                clipboard.setPrimaryClip(clip);
+
+                                                Toast.makeText(MyAccountsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+
+                                            }
+
+                                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        ;
+                                    }
+                                }).show();
 
 								return false;
 							}

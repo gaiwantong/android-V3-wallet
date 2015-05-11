@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -220,18 +221,8 @@ public class SettingsActivity extends PreferenceActivity {
 
             mnemonic = HD_WalletFactory.getInstance(this).get().getMnemonic();
             HD_WalletFactory.getInstance(this).set(hdw);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (DecoderException de) {
-            de.printStackTrace();
-        } catch (AddressFormatException afe) {
-            afe.printStackTrace();
-        } catch (MnemonicException.MnemonicLengthException mle) {
-            mle.printStackTrace();
-        } catch (MnemonicException.MnemonicChecksumException mce) {
-            mce.printStackTrace();
-        } catch (MnemonicException.MnemonicWordException mwe) {
-            mwe.printStackTrace();
+        } catch (IOException | DecoderException | AddressFormatException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException e) {
+            e.printStackTrace();
         } finally {
             if (mnemonic != null && mnemonic.length() > 0) {
                 new AlertDialog.Builder(SettingsActivity.this)
@@ -266,11 +257,8 @@ public class SettingsActivity extends PreferenceActivity {
                 clipboard.setPrimaryClip(clip);
             }
 
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
-        } catch (MnemonicException.MnemonicLengthException mle) {
-            mle.printStackTrace();
+        } catch (IOException | MnemonicException.MnemonicLengthException e) {
+            e.printStackTrace();
             Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
         } finally {
             new AlertDialog.Builder(SettingsActivity.this)

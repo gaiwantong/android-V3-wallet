@@ -165,8 +165,9 @@ public class CreateWalletFragment extends Fragment {
     				    	    .setCancelable(false)
     				    	    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {
-    				    	        	edPassword1.setText("");
-    				    	        	edPassword2.setText("");
+                                        edPassword1.setText("");
+                                        edPassword2.setText("");
+                                        edPassword1.requestFocus();
     				    	        }
     				    	    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
     				    	        public void onClick(DialogInterface dialog, int whichButton) {

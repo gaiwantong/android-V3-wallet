@@ -432,7 +432,13 @@ public class SendFragment extends Fragment {
         tvFiat2.setText(isBTC ? strFiat : strBTC);
         displayMaxAvailable();
 
-		currentSelectedItem = getArguments().getInt("selected_account");
+        if(getArguments().getBoolean("incoming_from_scan", false)) {
+            ;
+        }
+        else {
+            currentSelectedItem = getArguments().getInt("selected_account");
+        }
+
 		if(spAccounts != null) {
 			spAccounts.setSelection(currentSelectedItem);
 		}
