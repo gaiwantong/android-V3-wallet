@@ -45,6 +45,13 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="bitcoin" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:scheme="bitcoin" />
