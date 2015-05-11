@@ -91,7 +91,7 @@ public class BackupWalletUtil {
     }
 
     /**
-     * Return mnemonic in the form of a string array.
+     * Return mnemonic in the form of a string array. Make sure double encryption access is activated before calling.
      *
      * @return String[]
      *
@@ -105,28 +105,10 @@ public class BackupWalletUtil {
         else if (DoubleEncryptionFactory.getInstance().isActivated()) {
             return getMnemonicForDoubleEncryptedWallet();
         }
-        // Solicit & set double-encryption password, then display
+        // access must be established before calling this function
         else {
-            final EditText double_encrypt_password = new EditText(context);
-            double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            new AlertDialog.Builder(context)
-                    .setTitle(R.string.app_name)
-                    .setMessage(R.string.enter_double_encryption_pw)
-                    .setView(double_encrypt_password)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(double_encrypt_password.getText().toString()));
-                        }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    ;
-                }
-            }).show();
+            return null;
         }
-
-        return getMnemonicForDoubleEncryptedWallet();
 
     }
 
