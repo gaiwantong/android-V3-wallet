@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/blockchain_blue"
+	android:paddingLeft="16dp"
+	android:paddingRight="16dp"
+	android:orientation="vertical">
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:fontFamily="sans-serif"
+		android:paddingBottom="16dp"
+		android:paddingTop="72dp"
+		android:gravity="center_horizontal"
+		android:text="@string/backup_verify_heading"
+		android:textColor="@color/white"
+		android:textSize="12dp"/>
+
+
+	<EditText
+		android:id="@+id/etFirstRequest"
+		android:layout_width="match_parent"
+		android:layout_height="42dp"
+		android:gravity="center"
+		android:textCursorDrawable="@null"
+		android:background="@android:color/transparent"
+		android:textColor="@color/white"
+		android:singleLine="true"
+		android:inputType="textFilter"
+		android:textColorHint="@color/white_50">
+
+		<requestFocus/>
+	</EditText>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:layout_marginBottom="10dp"
+		android:background="@color/backup_card_blue"/>
+
+	<EditText
+		android:id="@+id/etSecondRequest"
+		android:layout_width="match_parent"
+		android:layout_height="42dp"
+		android:gravity="center"
+		android:textCursorDrawable="@null"
+		android:background="@android:color/transparent"
+		android:textColor="@color/white"
+		android:singleLine="true"
+		android:inputType="textFilter"
+		android:textColorHint="@color/white_50">
+
+		<requestFocus/>
+	</EditText>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:layout_marginBottom="10dp"
+		android:background="@color/backup_card_blue"/>
+
+	<EditText
+		android:id="@+id/etThirdRequest"
+		android:layout_width="match_parent"
+		android:layout_height="42dp"
+		android:gravity="center"
+		android:textCursorDrawable="@null"
+		android:background="@android:color/transparent"
+		android:textColor="@color/white"
+		android:singleLine="true"
+		android:inputType="textFilter"
+		android:textColorHint="@color/white_50">
+
+		<requestFocus/>
+	</EditText>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:layout_marginBottom="10dp"
+		android:background="@color/backup_card_blue"/>
+
+	<TextView
+		android:id="@+id/verify_action"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:layout_gravity="center_horizontal"
+		android:background="@drawable/selector_white"
+		android:clickable="true"
+		android:fontFamily="sans-serif"
+		android:paddingBottom="10dp"
+		android:paddingLeft="32dp"
+		android:paddingRight="32dp"
+		android:paddingTop="10dp"
+		android:layout_marginTop="32dp"
+		android:text="@string/VERIFY_BACKUP"
+		android:textColor="@color/primary_text_default_material_light"
+		android:textSize="14dp"/>
+
+</LinearLayout>

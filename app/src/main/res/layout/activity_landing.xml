@@ -61,7 +61,7 @@
 				android:textSize="20sp"
 				android:background="@color/blockchain_blue"
 				android:gravity="center"
-				android:textColor="@color/white_50"
+				android:textColor="@color/white"
 				android:layout_marginTop="20dp"
 				/>
 

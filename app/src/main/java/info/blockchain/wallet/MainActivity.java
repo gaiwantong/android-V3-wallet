@@ -82,6 +82,7 @@ import info.blockchain.wallet.util.WebUtil;
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
 
     private static final int SCAN_URI = 2007;
+	private static final int REQUEST_BACKUP = 2225;
 
     private static int MERCHANT_ACTIVITY = 1;
 
@@ -373,6 +374,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
             ;
         }
+		else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
+			Toast.makeText(this,"Coming soon: backup complete",Toast.LENGTH_SHORT).show();
+		}
         else {
             ;
         }
@@ -890,8 +894,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 doChangePin();
                                 break;
                             case 5:
-                                doUnpairWallet();
+                                doBackupWallet();
                                 break;
+							case 6:
+								doUnpairWallet();
+								break;
                         }
 
                         mDrawerLayout.closeDrawers();
@@ -1023,4 +1030,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         Intent intent = new Intent(MainActivity.this, SupportActivity.class);
         startActivity(intent);
     }
+
+	private void doBackupWallet(){
+
+		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+		Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
+		startActivityForResult(intent, REQUEST_BACKUP);
+	}
 }

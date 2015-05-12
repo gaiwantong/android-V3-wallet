@@ -55,7 +55,7 @@
             android:background="@drawable/button_blue"
         	android:text="@string/ok"
 			android:textSize="22sp"
-			android:textColor="@color/white_50"
+			android:textColor="@color/white"
     	 	android:shadowColor="#191919"
 			android:shadowDx="1"
 			android:shadowDy="1"

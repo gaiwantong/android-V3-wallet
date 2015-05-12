@@ -30,7 +30,7 @@
 			android:gravity="left|bottom"
 			android:paddingLeft="72dp"
 			android:text="@string/my_accounts"
-			android:textColor="@color/white_50"
+			android:textColor="@color/white"
 			android:paddingBottom="10dp"
 			android:textSize="28sp"
 			/>

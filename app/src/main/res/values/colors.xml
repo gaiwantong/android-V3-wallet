@@ -4,22 +4,25 @@
 	<!--Spec v1.3-->
 	<color name="blockchain_blue">#FF1B8AC7</color>
 	<color name="blockchain_dark_blue">#1476ab</color>
-	<color name="blockchain_send_red">#FFff8889</color>
-    <color name="blockchain_receive_green">#FF8ab75e</color>
-	<color name="blockchain_transfer_blue">#FFa4cce0</color>
+	<color name="blockchain_send_red">#e27e82</color>
+    <color name="blockchain_receive_green">#85b45b</color>
+	<color name="blockchain_transfer_blue">#5bacd0</color>
 	<color name="blockchain_pearl_white">#fafafa</color>
     <color name="blockchain_grey">#FF808080</color>
     <color name="blockchain_light_grey">#FFf0f0f0</color>
 	<color name="blockchain_navigation_bar">#FF000000</color>
 	<color name="textColorPrimary">@color/primary_text_default_material_light</color>
 
-    <color name="blockchain_red_50">#7Fff8889</color>
-    <color name="blockchain_green_50">#7F8ab75e</color>
-    <color name="blockchain_transfer_blue_50">#7Fa4cce0</color>
+    <color name="blockchain_red_50">#80e27e82</color>
+    <color name="blockchain_green_50">#8085b45b</color>
+    <color name="blockchain_transfer_blue_50">#805bacd0</color>
 
 	<color name="white">#FFffff</color>
-	<color name="white_50">#FFffffff</color>
+	<color name="white_50">#80ffffff</color>
+	<color name="white_80">#CCffffff</color>
 
 	<color name="black">#000000</color>
+	<color name="backup_card_blue">#07537d</color>
+	<color name="backup_card_text">#676767</color>
 
 </resources>

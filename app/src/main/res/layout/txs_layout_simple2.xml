@@ -58,7 +58,7 @@
 			android:fontFamily="sans-serif"
 			android:text="result"
 			android:background="@drawable/rounded_view_green"
-			android:textColor="@color/white_50"
+			android:textColor="@color/white"
 			android:textSize="14sp"/>
 
 		<View

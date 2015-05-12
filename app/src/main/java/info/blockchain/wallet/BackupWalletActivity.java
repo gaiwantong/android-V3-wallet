@@ -1,0 +1,42 @@
+package info.blockchain.wallet;
+
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+
+public class BackupWalletActivity extends ActionBarActivity{
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_backup_wallet);
+
+		Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+		toolbar.setTitle(getResources().getString(R.string.backup_wallet));
+		setSupportActionBar(toolbar);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+
+		getFragmentManager().beginTransaction()
+				.replace(R.id.content_frame, new BackupWalletFragment1())
+				.addToBackStack("backup_start")
+				.commit();
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		if(getFragmentManager().getBackStackEntryCount()<=1)
+			finish();
+		else
+			getFragmentManager().popBackStack();
+	}
+
+	@Override
+	public boolean onSupportNavigateUp() {
+		onBackPressed();
+		return true;
+	}
+}

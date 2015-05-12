@@ -9,6 +9,7 @@
         <item>Settings</item>
 		<item>Support</item>
         <item>Change PIN Code</item>
+		<item>Backup Wallet</item>
 		<item>Unpair Wallet</item>
     </string-array>
 
@@ -18,6 +19,7 @@
 		<item>@drawable/icon_settings</item>
 		<item>@drawable/ic_info_outline_grey600_24dp</item>
 		<item>@drawable/icon_pincode</item>
+		<item>@drawable/ic_info_outline_grey600_24dp</item>
 		<item>@drawable/icon_logout</item>
 	</array>
 
@@ -288,4 +290,38 @@
 	<string name="save">Save</string>
 	<string name="next">Next</string>
 	<string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
+
+	<string name="backup_wallet">Backup Wallet</string>
+	<string name="backup_1_heading">You have not backed up your wallet yet</string>
+	<string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
+	<string name="BACKUP_WALLET">BACKUP WALLET</string>
+	<string name="backup_how_to">How to restore your wallet</string>
+	<string name="backup_step_1">Go to blockchain.com/restorewallet</string>
+	<string name="backup_step_2">Enter your 12 word backup phrase</string>
+	<string name="backup_step_3">Your wallet will be restored and your funds safe</string>
+	<string name="START">START</string>
+	<string name="backup_write_down_words">Write the words down in the exact order they appear on a sheet of paper.</string>
+	<string name="NEXT_WORD">NEXT WORD</string>
+	<string name="press_to_reveal">press and hold to reveal the word</string>
+	<string name="VERIFY">VERIFY</string>
+	<string name="backup_verify_heading">Verify that you wrote down the backup phrase</string>
+	<string name="VERIFY_BACKUP">VERIFY BACKUP</string>
+	<string name="Word">Word</string>
+	<string name="of">of</string>
+
+	<string-array name="mnemonic_word_requests">
+		<item>first word</item>
+		<item>second word</item>
+		<item>third word</item>
+		<item>fourth word</item>
+		<item>fifth word</item>
+		<item>sixth word</item>
+		<item>seventh word</item>
+		<item>eighth word</item>
+		<item>ninth word</item>
+		<item>tenth word</item>
+		<item>eleventh word</item>
+		<item>twelfth word</item>
+	</string-array>
+
 </resources>
