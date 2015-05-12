@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Random;
-
 import info.blockchain.wallet.util.BackupWalletUtil;
 
 public class BackupWalletFragment2 extends Fragment {
@@ -79,21 +77,9 @@ public class BackupWalletFragment2 extends Fragment {
 
 				if (currentWordIndex == mnemonic.length) {
 
-					Random random = new Random();
-
-					Fragment fragment = new BackupWalletFragment3();
-					Bundle args = new Bundle();
-					int randomNum = random.nextInt((3 - 0) + 1) + 0;
-					args.putInt("random1", randomNum);
-					randomNum = random.nextInt((7 - 4) + 1) + 4;
-					args.putInt("random2", randomNum);
-					randomNum = random.nextInt((11 - 8) + 1) + 8;
-					args.putInt("random3", randomNum);
-					fragment.setArguments(args);
-
 					getFragmentManager().beginTransaction()
 							.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-							.replace(R.id.content_frame, fragment)
+							.replace(R.id.content_frame, new BackupWalletFragment3())
 							.addToBackStack(null)
 							.commit();
 				} else {

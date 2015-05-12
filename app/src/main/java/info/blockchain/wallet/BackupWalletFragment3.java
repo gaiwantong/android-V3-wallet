@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import info.blockchain.wallet.util.BackupWalletUtil;
 
@@ -22,37 +25,31 @@ public class BackupWalletFragment3 extends Fragment {
 
 	private String[] mnemonicRequestHint = null;
 
-	private String[] mnemonic = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View rootView = inflater.inflate(R.layout.fragment_backup_wallet_3, container, false);
 
-		mnemonic = BackupWalletUtil.getInstance(getActivity()).getMnemonic();
+		final List<Pair<Integer, String>> confirmSequence = BackupWalletUtil.getInstance(getActivity()).getConfirmSequence();
 		mnemonicRequestHint = getResources().getStringArray(R.array.mnemonic_word_requests);
 
 		etFirstRequest = (EditText)rootView.findViewById(R.id.etFirstRequest);
 		etSecondRequest = (EditText)rootView.findViewById(R.id.etSecondRequest);
 		etThirdRequest = (EditText)rootView.findViewById(R.id.etThirdRequest);
 
-		Bundle args = getArguments();
-		final int mnemonicIndex1 = args.getInt("random1");
-		final int mnemonicIndex2 = args.getInt("random2");
-		final int mnemonicIndex3 = args.getInt("random3");
-
-		etFirstRequest.setHint(mnemonicRequestHint[mnemonicIndex1]);
-		etSecondRequest.setHint(mnemonicRequestHint[mnemonicIndex2]);
-		etThirdRequest.setHint(mnemonicRequestHint[mnemonicIndex3]);
+		etFirstRequest.setHint(mnemonicRequestHint[confirmSequence.get(0).first]);
+		etSecondRequest.setHint(mnemonicRequestHint[confirmSequence.get(1).first]);
+		etThirdRequest.setHint(mnemonicRequestHint[confirmSequence.get(2).first]);
 
 		tvVerify = (TextView)rootView.findViewById(R.id.verify_action);
 		tvVerify.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
-				if(etFirstRequest.getText().toString().equalsIgnoreCase(mnemonic[mnemonicIndex1] )
-						&& etSecondRequest.getText().toString().equalsIgnoreCase(mnemonic[mnemonicIndex2])
-						&& etThirdRequest.getText().toString().equalsIgnoreCase(mnemonic[mnemonicIndex3])) {
+				if(etFirstRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(0).second)
+						&& etSecondRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(1).second)
+						&& etThirdRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
 					getActivity().setResult(Activity.RESULT_OK);
 					getActivity().finish();
