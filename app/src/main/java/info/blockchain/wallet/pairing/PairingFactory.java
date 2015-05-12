@@ -70,6 +70,9 @@ public class PairingFactory	{
         }
 
         String decrypted = AESUtil.decrypt(encrypted, new CharSequenceX(temp_password), AESUtil.QRCodePBKDF2Iterations);
+        if(decrypted == null) {
+            return false;
+        }
         String[] sharedKeyAndPassword = decrypted.split("\\|", Pattern.LITERAL);
 
         if(sharedKeyAndPassword.length < 2) {
