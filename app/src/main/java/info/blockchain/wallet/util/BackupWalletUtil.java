@@ -114,7 +114,7 @@ public class BackupWalletUtil {
 
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
-        if (PayloadFactory.getInstance().getTempDoubleEncryptPassword() == null || PayloadFactory.getInstance().getTempDoubleEncryptPassword().length() == 0) {
+        if (!DoubleEncryptionFactory.getInstance().isActivated()) {
             Toast.makeText(context, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
             return null;
         }
