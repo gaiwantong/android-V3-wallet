@@ -737,6 +737,18 @@ public class SendFragment extends Fragment {
 
 		pendingSpend.btc_units = strBTC;
 
+        double amt = 0.0;
+        try {
+            amt = Double.parseDouble(pendingSpend.btc_amount);
+        }
+        catch(NumberFormatException nfe) {
+            ;
+        }
+        if(amt == 0.0) {
+            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 		if(pendingSpend.isHD) {
 			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
