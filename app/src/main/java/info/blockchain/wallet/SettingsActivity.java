@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -79,7 +78,6 @@ public class SettingsActivity extends PreferenceActivity {
                         ;
                     }
                 }).show();
-
 
                 return true;
             }
@@ -200,7 +198,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void displayMnemonicForDoubleEncryptedWallet() {
 
-        if (PayloadFactory.getInstance().getTempDoubleEncryptPassword() == null || PayloadFactory.getInstance().getTempDoubleEncryptPassword().length() == 0) {
+        if (!DoubleEncryptionFactory.getInstance().isActivated()) {
             Toast.makeText(SettingsActivity.this, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
             return;
         }

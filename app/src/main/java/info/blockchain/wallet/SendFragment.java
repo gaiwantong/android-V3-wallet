@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -775,7 +776,7 @@ public class SendFragment extends Fragment {
 
 								PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
-								if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
 
 									String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
 									String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
@@ -788,23 +789,10 @@ public class SendFragment extends Fragment {
 										HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
 										HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
 									}
-									catch(IOException ioe) {
-										ioe.printStackTrace();
-									}
-									catch(DecoderException de) {
-										de.printStackTrace();
-									}
-									catch(AddressFormatException afe) {
-										afe.printStackTrace();
-									}
-									catch(MnemonicException.MnemonicLengthException mle) {
-										mle.printStackTrace();
-									}
-									catch(MnemonicException.MnemonicChecksumException mce) {
-										mce.printStackTrace();
-									}
-									catch(MnemonicException.MnemonicWordException mwe) {
-										mwe.printStackTrace();
+									catch(IOException | DecoderException | AddressFormatException |
+                                            MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
+                                            MnemonicException.MnemonicWordException e) {
+										e.printStackTrace();
 									}
 									finally {
 										;

@@ -1,5 +1,7 @@
 package info.blockchain.wallet.util;
 
+import android.util.Log;
+
 import java.security.MessageDigest;
 
 import org.spongycastle.util.encoders.Hex;
@@ -40,7 +42,7 @@ public class DoubleEncryptionFactory	{
     		MessageDigest md = MessageDigest.getInstance("SHA-256");
 			{
 				// n rounds of SHA256
-				data = md.digest((sharedKey + password2).getBytes("UTF-8"));
+                data = md.digest((sharedKey + password2).getBytes("UTF-8"));
 				// first hash already done above
 				for(int i = 1; i < iterations; i++) {
 					data = md.digest(data);
