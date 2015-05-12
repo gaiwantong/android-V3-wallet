@@ -472,7 +472,7 @@ public class ReceiveFragment extends Fragment {
 			else {
                 lamount = (long)(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8);
 			}
-            bamount = getUndenominatedAmount(lamount);
+            bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
 			if(!bamount.equals(BigInteger.ZERO)) {
 				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));
                 write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
@@ -523,7 +523,7 @@ public class ReceiveFragment extends Fragment {
 	private void updateFiatTextField(String cBtc) {
 		double btc_amount = 0.0;
 		try {
-			btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
+			btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
 		}
 		catch(NumberFormatException nfe) {
 			btc_amount = 0.0;
@@ -549,68 +549,8 @@ public class ReceiveFragment extends Fragment {
 		}
 		double btc_amount = fiat_amount / btc_fx;
 //		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
-		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)));
+		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
 	}
-
-    private BigInteger getUndenominatedAmount(long value) {
-
-        BigInteger amount = BigInteger.ZERO;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = BigInteger.valueOf(value / 1000000L);
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = BigInteger.valueOf(value / 1000L);
-                break;
-            default:
-                amount = BigInteger.valueOf(value);
-                break;
-        }
-
-        return amount;
-    }
-
-    private double getUndenominatedAmount(double value) {
-
-        double amount = 0.0;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = value / 1000000.0;
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = value / 1000.0;
-                break;
-            default:
-                amount = value;
-                break;
-        }
-
-        return amount;
-    }
-
-    private double getDenominatedAmount(double value) {
-
-        double amount = 0.0;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = value * 1000000.0;
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = value * 1000.0;
-                break;
-            default:
-                amount = value;
-                break;
-        }
-
-        return amount;
-    }
 
     private void write2NFC(final String uri) {
 

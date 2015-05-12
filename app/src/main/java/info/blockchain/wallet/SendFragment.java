@@ -503,7 +503,7 @@ public class SendFragment extends Fragment {
 		double damount = 0.0;
 		try {
             lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
-            pendingSpend.bamount = getUndenominatedAmount(lamount);
+            pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
 			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
@@ -529,7 +529,7 @@ public class SendFragment extends Fragment {
 
 			if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-				if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+				if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 					if(showMessages) {
 			            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 					}
@@ -539,7 +539,7 @@ public class SendFragment extends Fragment {
 		}
 		else {
 			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
-			if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+			if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 				if(showMessages) {
 		            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 				}
@@ -552,7 +552,7 @@ public class SendFragment extends Fragment {
 	private void updateFiatTextField(String cBtc) {
 		double btc_amount = 0.0;
 		try {
-			btc_amount = getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
+			btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
 		}
 		catch(NumberFormatException nfe) {
 			btc_amount = 0.0;
@@ -577,7 +577,7 @@ public class SendFragment extends Fragment {
 			fiat_amount = 0.0;
 		}
 		double btc_amount = fiat_amount / btc_fx;
-		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)));
+		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
 	}
 
     private void displayMaxAvailable() {
@@ -601,7 +601,7 @@ public class SendFragment extends Fragment {
         long amount_available = amount - bFee.longValue();
         if(amount_available > 0L) {
         	double btc_balance = (((double)amount_available) / 1e8);
-        	tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_balance)) + " " + strBTC);
+        	tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
         }
         else {
         	tvMax.setText(R.string.no_funds_available);
@@ -622,86 +622,6 @@ public class SendFragment extends Fragment {
 	    
 	    return xpub;
 	}
-
-    private String getDisplayAmount(long value) {
-
-        String strAmount = null;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                strAmount = Double.toString((((double)(value * 1000000L)) / 1e8));
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                strAmount = Double.toString((((double)(value * 1000L)) / 1e8));
-                break;
-            default:
-                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
-                break;
-        }
-
-        return strAmount;
-    }
-
-    private BigInteger getUndenominatedAmount(long value) {
-
-        BigInteger amount = BigInteger.ZERO;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = BigInteger.valueOf(value / 1000000L);
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = BigInteger.valueOf(value / 1000L);
-                break;
-            default:
-                amount = BigInteger.valueOf(value);
-                break;
-        }
-
-        return amount;
-    }
-
-    private double getUndenominatedAmount(double value) {
-
-        double amount = 0.0;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = value / 1000000.0;
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = value / 1000.0;
-                break;
-            default:
-                amount = value;
-                break;
-        }
-
-        return amount;
-    }
-
-    private double getDenominatedAmount(double value) {
-
-        double amount = 0.0;
-
-        int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-        switch(unit) {
-            case MonetaryUtil.MICRO_BTC:
-                amount = value * 1000000.0;
-                break;
-            case MonetaryUtil.MILLI_BTC:
-                amount = value * 1000.0;
-                break;
-            default:
-                amount = value;
-                break;
-        }
-
-        return amount;
-    }
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
@@ -925,7 +845,7 @@ public class SendFragment extends Fragment {
 			}
 
 			if(isDropdown)
-				balance.setText("("+getDisplayAmount(amount)+" "+strBTC+")");
+				balance.setText("("+MonetaryUtil.getInstance(getActivity()).getDisplayAmount(amount)+" "+strBTC+")");
 			else
 				balance.setVisibility(View.GONE);
 
@@ -951,11 +871,11 @@ public class SendFragment extends Fragment {
 			confirmDestination.setText(pendingSpend.destination);
 
 			TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-			confirmFee.setText(getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
+			confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
 
 			TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
 			BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
-			confirmTotal.setText(getDisplayAmount(cTotal.longValue()) + " " + strBTC);
+			confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
 
 			TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
 			confirmCancel.setOnClickListener(new View.OnClickListener() {
@@ -1092,7 +1012,7 @@ public class SendFragment extends Fragment {
 
 			if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-				if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+				if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 					Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 					return false;
 				}
@@ -1100,7 +1020,7 @@ public class SendFragment extends Fragment {
 		}
 		else {
 			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
-			if((getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+			if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 				Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
 				return false;
 			}
