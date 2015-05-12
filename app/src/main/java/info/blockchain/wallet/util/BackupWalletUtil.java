@@ -9,12 +9,8 @@ import java.util.List;
 import com.google.bitcoin.crypto.MnemonicException;
 import com.google.bitcoin.core.AddressFormatException;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.text.InputType;
 import android.util.Pair;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import org.apache.commons.codec.DecoderException;
@@ -114,7 +110,7 @@ public class BackupWalletUtil {
 
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
-        if (PayloadFactory.getInstance().getTempDoubleEncryptPassword() == null || PayloadFactory.getInstance().getTempDoubleEncryptPassword().length() == 0) {
+        if (!DoubleEncryptionFactory.getInstance().isActivated()) {
             Toast.makeText(context, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
             return null;
         }
