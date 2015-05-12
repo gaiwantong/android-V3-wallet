@@ -365,7 +365,7 @@ public class PinEntryActivity extends Activity {
 		progress = new ProgressDialog(PinEntryActivity.this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(PinEntryActivity.this.getString(R.string.please_wait));
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -422,7 +422,7 @@ public class PinEntryActivity extends Activity {
 
 		new AlertDialog.Builder(this)
 	    .setTitle(R.string.app_name)
-	    .setMessage("Please enter password")
+	    .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
 	    .setView(password)
 	    .setCancelable(false)
 	    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -450,7 +450,7 @@ public class PinEntryActivity extends Activity {
 		progress = new ProgressDialog(PinEntryActivity.this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(PinEntryActivity.this.getString(R.string.please_wait));
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -536,11 +536,10 @@ public class PinEntryActivity extends Activity {
 				timer.schedule(new TimerTask() {
 					@Override
 					public void run() {
-
 						PinEntryActivity.this.runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								titleView.setText(R.string.confirm_pin);
+                                titleView.setText(R.string.confirm_pin);
 								clearPinBoxes();
 								userEnteredPINConfirm = userEnteredPIN;
 								userEnteredPIN = "";
