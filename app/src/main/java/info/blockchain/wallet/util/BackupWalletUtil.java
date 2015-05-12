@@ -9,12 +9,8 @@ import java.util.List;
 import com.google.bitcoin.crypto.MnemonicException;
 import com.google.bitcoin.core.AddressFormatException;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.text.InputType;
 import android.util.Pair;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import org.apache.commons.codec.DecoderException;
