@@ -473,7 +473,7 @@ public class PinEntryActivity extends Activity {
 		        		startActivity(intent);
 					}
 					else {
-			        	Toast.makeText(PinEntryActivity.this, "Password error", Toast.LENGTH_SHORT).show();
+			        	Toast.makeText(PinEntryActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
 						if(progress != null && progress.isShowing()) {
 							progress.dismiss();
 							progress = null;

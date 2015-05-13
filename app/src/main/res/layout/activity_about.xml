@@ -52,18 +52,6 @@
 			android:textColor="@color/primary_text_default_material_dark"
         />
 
-        <TextView
-            android:id="@+id/support"
-            android:layout_width="140dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-	        android:layout_marginBottom="20dp"
-			android:gravity="center"
-        	android:text="@string/support"
-			android:textSize="22sp"
-			android:textColor="@color/primary_text_default_material_dark"
-        />
-    	
     </LinearLayout>
 
     <TextView
