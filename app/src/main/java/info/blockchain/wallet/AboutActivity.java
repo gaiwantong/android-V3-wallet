@@ -18,7 +18,6 @@ public class AboutActivity extends Activity	{
 
 	private TextView tvAbout = null;
 	private TextView bRate = null;
-	private TextView bSupport = null;
 	private TextView bDownload = null;
 	private String strMerchantPackage = "info.blockchain.merchant";
 
@@ -42,15 +41,6 @@ public class AboutActivity extends Activity	{
             	Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
             	marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             	startActivity(marketIntent);
-            }
-        });
-    
-        bSupport = (TextView)findViewById(R.id.support);
-        bSupport.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-            	Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","support@blockchain.zendesk.com", null));
-            	emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Blockchain Wallet Tech Support");
-            	startActivity(Intent.createChooser(emailIntent, AboutActivity.this.getResources().getText(R.string.email_chooser)));
             }
         });
 
