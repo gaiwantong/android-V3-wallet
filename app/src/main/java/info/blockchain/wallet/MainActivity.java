@@ -109,6 +109,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private static final int MESSAGE_SENT = 1;
 
     public static Fragment currentFragment;
+	private ArrayList<DrawerItem> drawerItems;
+	private int backupWalletDrawerIndex;
+	private DrawerAdapter adapterDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -375,7 +378,33 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             ;
         }
 		else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
-			Toast.makeText(this,"Coming soon: backup complete",Toast.LENGTH_SHORT).show();
+			Toast.makeText(this,getString(R.string.backup_confirmed),Toast.LENGTH_SHORT).show();
+			PrefsUtil.getInstance(this).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int)(System.currentTimeMillis()/1000));
+
+			drawerItems = new ArrayList<>();
+			final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
+			final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+			for (int i = 0; i < drawerTitles.length; i++) {
+
+				if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+					backupWalletDrawerIndex = i;
+
+					int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+
+					if(lastBackup==0) {
+						//Not backed up
+						drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+					}else{
+						//Backed up
+						drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.icon_settings)));
+					}
+				}else{
+					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+				}
+			}
+			drawerIcons.recycle();
+			adapterDrawer = new DrawerAdapter(drawerItems);
+			recyclerViewDrawer.setAdapter(adapterDrawer);
 		}
         else {
             ;
@@ -845,14 +874,29 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         recyclerViewDrawer.setHasFixedSize(true);
         recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        ArrayList<DrawerItem> drawerItems = new ArrayList<>();
+        drawerItems = new ArrayList<>();
         final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
         final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
         for (int i = 0; i < drawerTitles.length; i++) {
-            drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+
+			if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+				backupWalletDrawerIndex = i;
+
+				int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+
+				if(lastBackup==0) {
+					//Not backed up
+					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+				}else{
+					//Backed up
+					drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.icon_settings)));
+				}
+			}else{
+				drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+			}
         }
         drawerIcons.recycle();
-        DrawerAdapter adapterDrawer = new DrawerAdapter(drawerItems);
+        adapterDrawer = new DrawerAdapter(drawerItems);
         recyclerViewDrawer.setAdapter(adapterDrawer);
 
         recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

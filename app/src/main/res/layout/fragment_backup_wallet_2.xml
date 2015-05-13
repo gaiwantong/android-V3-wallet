@@ -9,6 +9,7 @@
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
 		android:fontFamily="sans-serif"
 		android:paddingBottom="16dp"
 		android:paddingLeft="72dp"

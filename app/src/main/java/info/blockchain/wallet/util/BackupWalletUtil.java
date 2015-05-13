@@ -1,19 +1,20 @@
 package info.blockchain.wallet.util;
 
+import android.content.Context;
+import android.util.Log;
+import android.util.Pair;
+import android.widget.Toast;
+
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
+
+import org.apache.commons.codec.DecoderException;
+
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.bitcoin.crypto.MnemonicException;
-import com.google.bitcoin.core.AddressFormatException;
-
-import android.content.Context;
-import android.util.Pair;
-import android.widget.Toast;
-
-import org.apache.commons.codec.DecoderException;
 
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.R;
@@ -95,14 +96,17 @@ public class BackupWalletUtil {
     public String[] getMnemonic() {
         // Wallet is not double encrypted
         if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+			Log.v("","1");
             return getHDSeedAsMnemonic(true);
         }
         // User has already entered double-encryption password
         else if (DoubleEncryptionFactory.getInstance().isActivated()) {
+			Log.v("","2");
             return getMnemonicForDoubleEncryptedWallet();
         }
         // access must be established before calling this function
         else {
+			Log.v("","3");
             return null;
         }
 

@@ -18,4 +18,8 @@ public class DrawerItem {
 	public Drawable getIcon() {
 		return icon;
 	}
+
+	public void setIcon(Drawable icon) {
+		this.icon = icon;
+	}
 }

@@ -3,13 +3,14 @@
 
     <string name="version_name">5.0.32a</string>
 
+	<string name="backup_wallet">Backup Wallet</string>
     <string-array name="navigation_drawer_items">
         <item>My Accounts</item>
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
 		<item>Support</item>
         <item>Change PIN Code</item>
-		<item>Backup Wallet</item>
+		<item>@string/backup_wallet</item>
 		<item>Unpair Wallet</item>
     </string-array>
 
@@ -291,7 +292,6 @@
 	<string name="next">Next</string>
 	<string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
 
-	<string name="backup_wallet">Backup Wallet</string>
 	<string name="backup_1_heading">You have not backed up your wallet yet</string>
 	<string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
 	<string name="BACKUP_WALLET">BACKUP WALLET</string>
@@ -308,6 +308,12 @@
 	<string name="VERIFY_BACKUP">VERIFY BACKUP</string>
 	<string name="Word">Word</string>
 	<string name="of">of</string>
+	<string name="backup_confirmed">Backup Confirmed</string>
+	<string name="backup_word_mismatch">Word Mismatch</string>
+	<string name="backup_days_ago">You backed your wallet up [--time--] [--day--] ago</string>
+	<string name="day">day</string>
+	<string name="days">days</string>
+	<string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
 
 	<string-array name="mnemonic_word_requests">
 		<item>first word</item>

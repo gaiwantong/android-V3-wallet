@@ -47,15 +47,15 @@ public class BackupWalletFragment3 extends Fragment {
 			@Override
 			public void onClick(View v) {
 
-				if(etFirstRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(0).second)
-						&& etSecondRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(1).second)
-						&& etThirdRequest.getText().toString().equalsIgnoreCase(confirmSequence.get(2).second)) {
+				if(etFirstRequest.getText().toString().trim().equals(confirmSequence.get(0).second)
+						&& etSecondRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(1).second)
+						&& etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
 					getActivity().setResult(Activity.RESULT_OK);
 					getActivity().finish();
 
 				}else
-					Toast.makeText(getActivity(),"Nope",Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(),getResources().getString(R.string.backup_word_mismatch),Toast.LENGTH_SHORT).show();
 
 			}
 		});
