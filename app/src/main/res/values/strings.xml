@@ -20,7 +20,7 @@
 		<item>@drawable/icon_settings</item>
 		<item>@drawable/ic_info_outline_grey600_24dp</item>
 		<item>@drawable/icon_pincode</item>
-		<item>@drawable/ic_info_outline_grey600_24dp</item>
+		<item>@drawable/ic_close_grey600_24dp</item>
 		<item>@drawable/icon_logout</item>
 	</array>
 

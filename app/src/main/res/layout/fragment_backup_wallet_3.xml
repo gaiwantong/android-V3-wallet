@@ -29,7 +29,7 @@
 		android:background="@android:color/transparent"
 		android:textColor="@color/white"
 		android:singleLine="true"
-		android:inputType="textFilter"
+		android:inputType="textFilter|textNoSuggestions"
 		android:textColorHint="@color/white_50">
 
 		<requestFocus/>
@@ -50,7 +50,7 @@
 		android:background="@android:color/transparent"
 		android:textColor="@color/white"
 		android:singleLine="true"
-		android:inputType="textFilter"
+		android:inputType="textFilter|textNoSuggestions"
 		android:textColorHint="@color/white_50">
 
 		<requestFocus/>
@@ -71,7 +71,7 @@
 		android:background="@android:color/transparent"
 		android:textColor="@color/white"
 		android:singleLine="true"
-		android:inputType="textFilter"
+		android:inputType="textFilter|textNoSuggestions"
 		android:textColorHint="@color/white_50">
 
 		<requestFocus/>

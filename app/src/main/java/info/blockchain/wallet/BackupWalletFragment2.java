@@ -95,6 +95,8 @@ public class BackupWalletFragment2 extends Fragment {
 						@Override
 						public void onClick(View v) {
 
+							tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
+
 							if (currentWordIndex == 0){
 								getActivity().onBackPressed();
 							}else {

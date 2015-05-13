@@ -70,7 +70,6 @@ public class BackupWalletFragment1 extends Fragment {
 									PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(double_encrypt_password.getText().toString()));
 
 									getFragmentManager().beginTransaction()
-											.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
 											.replace(R.id.content_frame, new BackupWalletFragment2())
 											.addToBackStack(null)
 											.commit();
