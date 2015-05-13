@@ -204,38 +204,6 @@ public class MultiAddrFactory	{
                             JSONObject xpubObj = (JSONObject)prevOutObj.get("xpub");
                             addr = (String)xpubObj.get("m");
                             mf_addr = addr;
-                                    /*
-                                    String path = (String)xpubObj.get("path");
-                                    String[] s = path.split("/");
-//                                    Log.i("Path", path + "," + s[2]);
-                                    if(s.length == 3)  {
-                                        if(s[1].equals("0"))  {
-                                            int receiveIdx = Integer.parseInt(s[2]);
-                                            if(highestTxReceiveIdx.get(addr) == null)  {
-                                                highestTxReceiveIdx.put(addr, receiveIdx);
-                                            }
-                                            else if(receiveIdx > highestTxReceiveIdx.get(addr))  {
-                                                highestTxReceiveIdx.put(addr, receiveIdx);
-                                            }
-                                            else  {
-                                                ;
-                                            }
-                                        }
-                                        if(s[1].equals("1"))  {
-                                            int changeIdx = Integer.parseInt(s[2]);
-                                            if(highestTxChangeIdx.get(addr) == null)  {
-                                                highestTxChangeIdx.put(addr, changeIdx);
-                                            }
-                                            else if(changeIdx > highestTxChangeIdx.get(addr))  {
-                                                highestTxChangeIdx.put(addr, changeIdx);
-                                            }
-                                            else  {
-                                                ;
-                                            }
-                                        }
-                                    }
-                                    */
-
                         }
                         else  {
                             o_addr = (String)prevOutObj.get("addr");
@@ -259,36 +227,6 @@ public class MultiAddrFactory	{
                                 move_amount = outObj.getLong("value");
                                 mt_addr = addr;
                             }
-                                /*
-                                String[] s = path.split("/");
-//                                    Log.i("Path", path + "," + s[2]);
-                                if(s.length == 3)  {
-                                    if(s[1].equals("0"))  {
-                                        int receiveIdx = Integer.parseInt(s[2]);
-                                        if(highestTxReceiveIdx.get(addr) == null)  {
-                                            highestTxReceiveIdx.put(addr, receiveIdx);
-                                        }
-                                        else if(receiveIdx > highestTxReceiveIdx.get(addr))  {
-                                            highestTxReceiveIdx.put(addr, receiveIdx);
-                                        }
-                                        else  {
-                                            ;
-                                        }
-                                    }
-                                    if(s[1].equals("1"))  {
-                                        int changeIdx = Integer.parseInt(s[2]);
-                                        if(highestTxChangeIdx.get(addr) == null)  {
-                                            highestTxChangeIdx.put(addr, changeIdx);
-                                        }
-                                        else if(changeIdx > highestTxChangeIdx.get(addr))  {
-                                            highestTxChangeIdx.put(addr, changeIdx);
-                                        }
-                                        else  {
-                                            ;
-                                        }
-                                    }
-                                }
-                                */
 
                             //
                             // collect unspent outputs for each xpub
