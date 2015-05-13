@@ -396,7 +396,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 						drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
 					}else{
 						//Backed up
-						drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.ic_done_grey600_24dp)));
+						drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
 					}
 				}else{
 					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
@@ -889,7 +889,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
 				}else{
 					//Backed up
-					drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.ic_done_grey600_24dp)));
+					drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
 				}
 			}else{
 				drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
