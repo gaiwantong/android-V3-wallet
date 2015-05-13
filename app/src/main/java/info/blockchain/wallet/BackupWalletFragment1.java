@@ -46,7 +46,7 @@ public class BackupWalletFragment1 extends Fragment {
 			String msg = getResources().getString(R.string.backup_days_ago).replace("[--time--]", daysAgo).replace("[--day--]", day);
 			tvHeader.setText(msg);
 			tvSubHeader.setText(getResources().getString(R.string.backup_only_need_to_once_reminder));
-			ivAlert.setImageResource(R.drawable.ic_done_white_24dp);
+			ivAlert.setImageResource(R.drawable.ic_thumb_up_white_48dp);
 		}
 
 		tvBackupWallet = (TextView)rootView.findViewById(R.id.backup_wallet_action);
