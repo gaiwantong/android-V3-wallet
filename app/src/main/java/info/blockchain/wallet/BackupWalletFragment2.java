@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,6 +31,12 @@ public class BackupWalletFragment2 extends Fragment {
 
 	private String word = null;
 	private String of = null;
+
+	private Animation animExitToLeft = null;
+	private Animation animEnterFromRight = null;
+
+	private Animation animExitToRight = null;
+	private Animation animEnterFromLeft = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,6 +74,12 @@ public class BackupWalletFragment2 extends Fragment {
 		word = getResources().getString(R.string.Word);
 		of = getResources().getString(R.string.of);
 
+		animExitToLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_left);
+		animEnterFromRight = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_right);
+
+		animExitToRight = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_right);
+		animEnterFromLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left);
+
 		mnemonic = BackupWalletUtil.getInstance(getActivity()).getMnemonic();
 		showWordAtIndex(currentWordIndex);
 
@@ -73,7 +87,27 @@ public class BackupWalletFragment2 extends Fragment {
 			@Override
 			public void onClick(View v) {
 
-				if (currentWordIndex < mnemonic.length) currentWordIndex++;
+				if (currentWordIndex < mnemonic.length){
+
+					animExitToLeft.setAnimationListener(new Animation.AnimationListener() {
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							cardLayout.startAnimation(animEnterFromRight);
+						}
+					});
+
+					cardLayout.startAnimation(animExitToLeft);
+
+					currentWordIndex++;
+				}
 
 				if (currentWordIndex == mnemonic.length) {
 
@@ -100,6 +134,24 @@ public class BackupWalletFragment2 extends Fragment {
 							if (currentWordIndex == 0){
 								getActivity().onBackPressed();
 							}else {
+
+								animExitToRight.setAnimationListener(new Animation.AnimationListener() {
+									@Override
+									public void onAnimationStart(Animation animation) {
+									}
+
+									@Override
+									public void onAnimationRepeat(Animation animation) {
+									}
+
+									@Override
+									public void onAnimationEnd(Animation animation) {
+										cardLayout.startAnimation(animEnterFromLeft);
+									}
+								});
+
+								cardLayout.startAnimation(animExitToRight);
+
 								currentWordIndex--;
 								showWordAtIndex(currentWordIndex);
 							}
