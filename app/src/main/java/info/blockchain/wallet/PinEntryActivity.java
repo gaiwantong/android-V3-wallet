@@ -241,7 +241,7 @@ public class PinEntryActivity extends Activity {
 		progress = new ProgressDialog(PinEntryActivity.this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(getString(R.string.please_wait));
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -310,7 +310,7 @@ public class PinEntryActivity extends Activity {
 		progress = new ProgressDialog(PinEntryActivity.this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(getString(R.string.please_wait));
 		progress.show();
 
 		new Thread(new Runnable() {
