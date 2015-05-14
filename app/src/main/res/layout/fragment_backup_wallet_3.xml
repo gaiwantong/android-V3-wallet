@@ -17,7 +17,7 @@
 		android:gravity="center_horizontal"
 		android:text="@string/backup_verify_heading"
 		android:textColor="@color/white"
-		android:textSize="12dp"/>
+		android:textSize="12sp"/>
 
 
 	<EditText
@@ -99,6 +99,6 @@
 		android:layout_marginTop="32dp"
 		android:text="@string/VERIFY_BACKUP"
 		android:textColor="@color/primary_text_default_material_light"
-		android:textSize="14dp"/>
+		android:textSize="14sp"/>
 
 </LinearLayout>

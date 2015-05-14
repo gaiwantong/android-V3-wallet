@@ -42,7 +42,7 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="left|center_vertical"
 			android:gravity="left|center_vertical"
-			android:textSize="18dp"
+			android:textSize="18sp"
 			android:textStyle="bold"
 			/>
 

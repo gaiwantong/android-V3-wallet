@@ -43,7 +43,7 @@
 				android:paddingBottom="24dp"
 				android:textAlignment="gravity"
 				android:textColor="@color/white"
-				android:textSize="32dp"
+				android:textSize="32sp"
 				android:text="0.000002"
 				android:paddingLeft="72dp"
 				/>

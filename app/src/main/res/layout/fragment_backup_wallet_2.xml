@@ -17,7 +17,7 @@
 		android:paddingTop="72dp"
 		android:text="@string/backup_write_down_words"
 		android:textColor="@color/white"
-		android:textSize="12dp"/>
+		android:textSize="12sp"/>
 
 	<TextView
 		android:id="@+id/tv_current_word"
@@ -48,7 +48,7 @@
 			android:alpha=".45"
 			android:gravity="center"
 			android:padding="16dp"
-			android:textSize="14dp"
+			android:textSize="14sp"
 			android:text="@string/press_to_reveal"
 			android:textColor="@color/white"/>
 
@@ -73,7 +73,7 @@
 			android:paddingTop="10dp"
 			android:text="@string/START"
 			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14dp"/>
+			android:textSize="14sp"/>
 
 		<TextView
 			android:id="@+id/next_word_action"
@@ -90,7 +90,7 @@
 			android:paddingTop="10dp"
 			android:text="@string/NEXT_WORD"
 			android:textColor="@color/white"
-			android:textSize="14dp"/>
+			android:textSize="14sp"/>
 	</RelativeLayout>
 
 </LinearLayout>
