@@ -112,7 +112,7 @@ public class MultiAddrFactory	{
         return jsonObject;
     }
 
-    public void parseXPUB(JSONObject jsonObject) throws JSONException  {
+    private void parseXPUB(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
             if(jsonObject.has("wallet"))  {
@@ -301,7 +301,7 @@ public class MultiAddrFactory	{
 
     }
 
-    public void parseLegacy(JSONObject jsonObject) throws JSONException  {
+    private void parseLegacy(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
 
