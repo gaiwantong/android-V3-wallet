@@ -12,8 +12,7 @@
 		android:gravity="bottom"
 		sothree:umanoDragView="@+id/dragView"
 		sothree:umanoOverlay="true"
-		sothree:umanoPanelHeight="276dp"
-		sothree:umanoParalaxOffset="100dp"
+		sothree:umanoPanelHeight="384dp"
 		sothree:umanoInitialState="hidden"
 		sothree:umanoShadowHeight="4dp">
 
@@ -152,7 +151,8 @@
 			<ListView
 				android:id="@+id/share_app_list"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="384dp"
+				android:fadeScrollbars="false">
 
 			</ListView>
 
