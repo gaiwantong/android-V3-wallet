@@ -526,10 +526,11 @@ public class PinEntryActivity extends Activity {
 
 			// Validate
 			if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
+				titleView.setVisibility(View.INVISIBLE);
 				validatePIN(userEnteredPIN);
 			}
 
-			if(userEnteredPINConfirm == null)
+			else if(userEnteredPINConfirm == null)
 			{
 				//End of Create -  Change to Confirm
 				Timer timer = new Timer();
