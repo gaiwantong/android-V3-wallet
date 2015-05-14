@@ -43,6 +43,8 @@ import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import net.sourceforge.zbar.Symbol;
 
+import org.json.JSONObject;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.util.WebUtil;
 
 public class MyAccountsActivity extends Activity {
 
@@ -430,7 +433,7 @@ public class MyAccountsActivity extends Activity {
 
 		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-		return getDisplayAmount(amount) + " " + unit;
+		return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
 	}
 
 	private String displayBalanceImported(int index) {
@@ -440,27 +443,7 @@ public class MyAccountsActivity extends Activity {
 		if(amount==null)amount = 0l;
 		String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-		return getDisplayAmount(amount) + " " + unit;
-	}
-
-	private String getDisplayAmount(double value) {
-
-		String strAmount = "";
-
-		int unit = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-		switch(unit) {
-			case MonetaryUtil.MICRO_BTC:
-				strAmount = Double.toString((value * 1000000.0) / 1e8);
-				break;
-			case MonetaryUtil.MILLI_BTC:
-				strAmount = Double.toString((value * 1000.0) / 1e8);
-				break;
-			default:
-				strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / 1e8);
-				break;
-		}
-
-		return strAmount;
+		return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
 	}
 
 	public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
@@ -531,6 +514,7 @@ public class MyAccountsActivity extends Activity {
 					else	{
 						importBIP38Address(strResult);
 					}
+
 				}
 				else	{
 					Toast.makeText(MyAccountsActivity.this, R.string.privkey_error, Toast.LENGTH_SHORT).show();
