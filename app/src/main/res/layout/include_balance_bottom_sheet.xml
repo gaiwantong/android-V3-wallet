@@ -44,7 +44,7 @@
 				android:text="@string/send_bitcoin"
 				android:gravity="center_vertical"
 				android:textColor="#FF000000"
-				android:textSize="16dp"
+				android:textSize="16sp"
 				/>
 		</LinearLayout>
 	</LinearLayout>
@@ -88,7 +88,7 @@
 				android:text="@string/receive_bitcoin"
 				android:gravity="center_vertical"
 				android:textColor="#FF000000"
-				android:textSize="16dp"
+				android:textSize="16sp"
 				/>
 		</LinearLayout>
 	</LinearLayout>
