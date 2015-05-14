@@ -52,7 +52,8 @@ public class BackupWalletFragment3 extends Fragment {
 						&& etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
 					getActivity().setResult(Activity.RESULT_OK);
-					getActivity().finish();
+					getFragmentManager().popBackStack();
+					getFragmentManager().popBackStack();
 
 				}else
 					Toast.makeText(getActivity(),getResources().getString(R.string.backup_word_mismatch),Toast.LENGTH_SHORT).show();

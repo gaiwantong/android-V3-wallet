@@ -9,15 +9,14 @@
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
 		android:fontFamily="sans-serif"
-		android:paddingBottom="16dp"
+		android:paddingBottom="32dp"
 		android:paddingLeft="72dp"
 		android:paddingRight="72dp"
-		android:paddingTop="72dp"
+		android:paddingTop="32dp"
 		android:text="@string/backup_write_down_words"
 		android:textColor="@color/white"
-		android:textSize="12sp"/>
+		android:textSize="14sp"/>
 
 	<TextView
 		android:id="@+id/tv_current_word"
@@ -88,6 +87,8 @@
 			android:paddingLeft="16dp"
 			android:paddingRight="16dp"
 			android:paddingTop="10dp"
+			android:layout_marginEnd="72dp"
+			android:layout_marginRight="72dp"
 			android:text="@string/NEXT_WORD"
 			android:textColor="@color/white"
 			android:textSize="14sp"/>
