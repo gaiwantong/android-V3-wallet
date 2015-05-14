@@ -112,7 +112,7 @@ public class MultiAddrFactory	{
         return jsonObject;
     }
 
-    public void parseXPUB(JSONObject jsonObject) throws JSONException  {
+    private void parseXPUB(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
             if(jsonObject.has("wallet"))  {
@@ -183,22 +183,14 @@ public class MultiAddrFactory	{
                         height = -1L;  // 0 confirmations
                     }
 
-//            		if(txObj.has("hash"))  {
                     hash = (String)txObj.get("hash");
-//                    }
-//            		if(txObj.has("result"))  {
                     amount = txObj.getLong("result");
-//                    }
-//                    if(txObj.has("time"))  {
                     ts = txObj.getLong("time");
-//                    }
 
-//                    if(txObj.has("inputs"))  {
                     JSONArray inputArray = (JSONArray)txObj.get("inputs");
                     JSONObject inputObj = null;
                     for(int j = 0; j < inputArray.length(); j++)  {
                         inputObj = (JSONObject)inputArray.get(j);
-//                            if(inputObj.has("prev_out"))  {
                         JSONObject prevOutObj = (JSONObject)inputObj.get("prev_out");
                         if(prevOutObj.has("xpub"))  {
                             JSONObject xpubObj = (JSONObject)prevOutObj.get("xpub");
@@ -208,12 +200,9 @@ public class MultiAddrFactory	{
                         else  {
                             o_addr = (String)prevOutObj.get("addr");
                         }
-//                            }
                         inputs_amount += prevOutObj.getLong("value");
                     }
-//                    }
 
-//                    if(txObj.has("out"))  {
                     JSONArray outArray = (JSONArray)txObj.get("out");
                     JSONObject outObj = null;
                     String path = null;
@@ -250,7 +239,6 @@ public class MultiAddrFactory	{
                         }
                         outputs_amount += outObj.getLong("value");
                     }
-//                    }
 
                     if(Math.abs(inputs_amount - outputs_amount) == Math.abs(amount))  {
                         isMove = true;
@@ -301,7 +289,7 @@ public class MultiAddrFactory	{
 
     }
 
-    public void parseLegacy(JSONObject jsonObject) throws JSONException  {
+    private void parseLegacy(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
 
