@@ -520,10 +520,7 @@ public class ReceiveFragment extends Fragment {
 		try {
 			btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
 		}
-		catch(NumberFormatException nfe) {
-			btc_amount = 0.0;
-		}
-		catch(ParseException pe) {
+		catch(NumberFormatException | ParseException e) {
 			btc_amount = 0.0;
 		}
 		double fiat_amount = btc_fx * btc_amount;
@@ -536,10 +533,7 @@ public class ReceiveFragment extends Fragment {
 		try {
 			fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
 		}
-		catch(NumberFormatException nfe) {
-			fiat_amount = 0.0;
-		}
-		catch(ParseException pe) {
+		catch(NumberFormatException | ParseException e) {
 			fiat_amount = 0.0;
 		}
 		double btc_amount = fiat_amount / btc_fx;
