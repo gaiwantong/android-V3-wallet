@@ -2,9 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
-			  android:background="@color/blockchain_pearl_white"
-			  android:paddingBottom="8dp"
-			  android:paddingTop="8dp"
+			  android:background="@color/blockchain_receive_green"
 			  android:orientation="vertical">
 
 	<LinearLayout
@@ -12,6 +10,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="48dp"
 		android:orientation="horizontal"
+		android:paddingBottom="8dp"
+		android:paddingTop="8dp"
 		android:background="@drawable/selector_pearl_white"
 		>
 
@@ -56,6 +56,8 @@
 		android:layout_gravity="center_horizontal|center_vertical"
 		android:gravity="center_horizontal|center_vertical"
 		android:orientation="horizontal"
+		android:paddingBottom="8dp"
+		android:paddingTop="8dp"
 		android:background="@drawable/selector_pearl_white"
 		>
 
