@@ -38,7 +38,6 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -377,7 +376,7 @@ public class BalanceFragment extends Fragment {
 
 		MainActivity.currentFragment = this;
 
-		setNavigationDrawer();
+		comm.resetNavigationDrawer();
 
         isBottomSheetOpen = false;
 
@@ -680,12 +679,8 @@ public class BalanceFragment extends Fragment {
 
 	interface Communicator{
 
-		public void setNavigationDrawer();
 		public void setNavigationDrawerToggleEnabled(boolean enabled);
-	}
-
-	private void setNavigationDrawer(){
-		comm.setNavigationDrawer();
+		public void resetNavigationDrawer();
 	}
 
 	public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {

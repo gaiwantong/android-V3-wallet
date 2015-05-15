@@ -819,20 +819,40 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         setSupportActionBar(toolbar);
     }
 
+	public void resetNavigationDrawer(){
+
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+
+			public void onDrawerClosed(View view) {
+				drawerIsOpen = false;
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(true);
+					toolbar.getChildAt(i).setClickable(true);
+				}
+			}
+
+			public void onDrawerOpened(View drawerView) {
+				drawerIsOpen = true;
+
+				InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+				inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(false);
+					toolbar.getChildAt(i).setClickable(false);
+				}
+			}
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+		mDrawerToggle.syncState();
+	}
+
     public void setNavigationDrawer() {
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        // Fix right margin to 56dp (portrait)
-        View drawer = findViewById(R.id.scrimInsetsFrameLayout);
-        ViewGroup.LayoutParams layoutParams = drawer.getLayoutParams();
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            layoutParams.width = displayMetrics.widthPixels - (56 * Math.round(displayMetrics.density));
-        }
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            layoutParams.width = displayMetrics.widthPixels + (20 * Math.round(displayMetrics.density)) - displayMetrics.widthPixels / 2;
-        }
 
         // Setup Drawer Icon
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
