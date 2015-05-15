@@ -44,7 +44,7 @@
 					android:paddingRight="16dp"
 					android:text="@string/backup_1_heading"
 					android:textColor="@color/white"
-					android:textSize="12sp"/>
+					android:textSize="14sp"/>
 
 				<TextView
 					android:id="@+id/backup_subheader"
@@ -56,7 +56,7 @@
 					android:paddingRight="16dp"
 					android:text="@string/backup_1_subheading"
 					android:textColor="@color/white"
-					android:textSize="10sp"/>
+					android:textSize="12sp"/>
 
 			</LinearLayout>
 		</LinearLayout>
