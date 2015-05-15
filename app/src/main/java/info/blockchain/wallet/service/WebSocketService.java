@@ -140,22 +140,4 @@ public class WebSocketService extends android.app.Service	{
 		super.onDestroy();
 	}
 
-	/*
-	public void notifyWidgets()
-	{
-		final Context context = getApplicationContext();
-		// notify widgets
-		final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		for (final AppWidgetProviderInfo providerInfo : appWidgetManager.getInstalledProviders())
-		{
-			// limit to own widgets
-			if (providerInfo.provider.getPackageName().equals(context.getPackageName()))
-			{
-				final Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-				intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetManager.getAppWidgetIds(providerInfo.provider));
-				context.sendBroadcast(intent);
-			}
-		}
-	}
-	*/
 }
