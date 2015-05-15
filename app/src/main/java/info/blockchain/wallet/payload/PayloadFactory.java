@@ -52,6 +52,7 @@ public class PayloadFactory	{
     private static String strCheckSum = null;
     private static boolean isNew = false;
     private static boolean syncPubKeys = true;
+	private static String email = null;
 
     private PayloadFactory()	{ ; }
 
@@ -254,7 +255,7 @@ public class PayloadFactory	{
                 String decrypted = null;
                 try {
                     decrypted = AESUtil.decrypt(encrypted_payload, password, iterations);
-//                    Log.i("PayloadFactory", decrypted);
+                    Log.i("PayloadFactory", decrypted);
                 }
                 catch(Exception e) {
                 	payload = null;
@@ -396,12 +397,14 @@ public class PayloadFactory	{
 			args.append(StringUtils.join(addrs.toArray(new String[addrs.size()]), "|"));
 		}
 
-		/*
 		if (email != null && email.length() > 0) {
 			args.append("&email=");
-			args.append(URLEncoder.encode(email, "utf-8"));
+			try {
+				args.append(URLEncoder.encode(email, "utf-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
-		*/
 
 		args.append("&device=");
 		args.append("android");
@@ -522,4 +525,11 @@ public class PayloadFactory	{
 		}).start();
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		PayloadFactory.email = email;
+	}
 }

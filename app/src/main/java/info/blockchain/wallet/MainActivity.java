@@ -32,14 +32,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -888,6 +886,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         MainActivity.this.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValueStatusBarColor, true);
         final int colorStatusBar = typedValueStatusBarColor.data;
         mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
+
+		TextView tvEmail = (TextView)mDrawerLayout.findViewById(R.id.drawer_email);
+		tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,""));
 
         // Setup RecyclerView inside drawer
         recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);

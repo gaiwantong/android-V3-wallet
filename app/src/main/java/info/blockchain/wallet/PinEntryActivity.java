@@ -148,9 +148,8 @@ public class PinEntryActivity extends Activity {
 	}
 
 	private void saveLoginAndPassword() {
-		//
-		// TODO save drawerEmail here
-		//
+		PayloadFactory.getInstance().setEmail(strEmail);
+		PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_EMAIL,strEmail);
 		PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
 	}
 
