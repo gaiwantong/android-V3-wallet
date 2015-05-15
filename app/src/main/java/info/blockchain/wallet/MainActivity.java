@@ -819,6 +819,37 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         setSupportActionBar(toolbar);
     }
 
+	public void resetNavigationDrawer(){
+
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+
+			public void onDrawerClosed(View view) {
+				drawerIsOpen = false;
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(true);
+					toolbar.getChildAt(i).setClickable(true);
+				}
+			}
+
+			public void onDrawerOpened(View drawerView) {
+				drawerIsOpen = true;
+
+				InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+				inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+				for(int i = 0; i < toolbar.getChildCount(); i++){
+					toolbar.getChildAt(i).setEnabled(false);
+					toolbar.getChildAt(i).setClickable(false);
+				}
+			}
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+		mDrawerToggle.syncState();
+	}
+
     public void setNavigationDrawer() {
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
