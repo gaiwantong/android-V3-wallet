@@ -245,7 +245,7 @@ public class WebSocketHandler {
 		                    
 		                    String title = context.getString(R.string.app_name);
 		                    if(total_value > 0L)  {
-			                    String marquee = "Received Bitcoin " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + "BTC";
+			                    String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + "BTC";
 			                    String text = marquee;
 			                    if(total_value > 0)  {
 			                    	text += " from " + in_addr;
@@ -284,7 +284,7 @@ public class WebSocketHandler {
 		         		        		mwe.printStackTrace();
 		         		        	}
 
-		        		        	Toast.makeText(context, "Broadcast balance refresh", Toast.LENGTH_SHORT).show();
+		        		        	Toast.makeText(context, R.string.refresh_balance, Toast.LENGTH_SHORT).show();
 		        		        	
 				                    Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
 				        		    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

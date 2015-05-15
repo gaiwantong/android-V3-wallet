@@ -315,6 +315,9 @@
 	<string name="days">days</string>
 	<string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
 
+    <string name="received_bitcoin">Received Bitcoin</string>
+    <string name="refresh_balance">Refresh balance</string>
+
 	<string-array name="mnemonic_word_requests">
 		<item>first word</item>
 		<item>second word</item>
