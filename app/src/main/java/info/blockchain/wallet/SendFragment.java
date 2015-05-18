@@ -664,6 +664,12 @@ public class SendFragment extends Fragment {
             return;
         }
 
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+
 		if(pendingSpend.isHD) {
 			if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
