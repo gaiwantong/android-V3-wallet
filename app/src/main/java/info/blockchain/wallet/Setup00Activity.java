@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -20,6 +19,7 @@ import com.dm.zbar.android.scanner.ZBarConstants;
 
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 /**
  * Created by riaanvos on 23/03/15.
@@ -103,6 +103,7 @@ public class Setup00Activity extends ActionBarActivity {
 				Looper.prepare();
 
 				if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
+					PrefsUtil.getInstance(Setup00Activity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 					Toast.makeText(Setup00Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
 					intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);

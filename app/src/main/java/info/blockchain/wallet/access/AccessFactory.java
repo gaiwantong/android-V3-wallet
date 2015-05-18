@@ -1,24 +1,32 @@
 package info.blockchain.wallet.access;
 
-import java.io.*;
-import java.security.SecureRandom;
-
 import android.content.Context;
-//import android.util.Log;
-
-import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.PrefsUtil;
+import android.os.AsyncTask;
 
 import org.json.JSONObject;
+import org.spongycastle.util.encoders.Hex;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+
+import info.blockchain.wallet.crypto.AESUtil;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
+
+//import android.util.Log;
 
 public class AccessFactory	{
 
     private static String _key = null;
     private static String _value = null;
     private static String _pin = null;
+	private static String _email = null;
 
     private static boolean isLoggedIn = false;
 
@@ -167,4 +175,150 @@ public class AccessFactory	{
 
         return new JSONObject(response);
     }
+
+	public boolean resendEmailConfirmation(String email) {
+
+		if (email == null) {
+			return false;
+		}
+
+		_email = email;
+
+		String response = null;
+		try {
+			response = new ApiUpdateEmail().execute(_email).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+
+		if (response != null && response.equals("Email Updated")) {
+			PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_EMAIL, _email);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private class ApiUpdateEmail extends AsyncTask<String, Void, String>{
+
+		@Override
+		protected String doInBackground(String... params) {
+			StringBuilder args = new StringBuilder();
+
+			int serverTimeOffset = 500;
+			String sharedKey = PayloadFactory.getInstance().get().getSharedKey().toLowerCase();
+			long now = new Date().getTime();
+
+			long timestamp = (now - serverTimeOffset) / 10000;
+			String text = sharedKey + Long.toString(timestamp);
+			String SKHashHex = null;
+			try {
+				SKHashHex = new String(Hex.encode(MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))));
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			int i = 0;
+			String tSKUID = SKHashHex.substring(i, i+=8)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=12);
+
+			args.append("length="+params[0].length());
+			args.append("&payload="+params[0]);
+			args.append("&method="+"update-email");
+
+			args.append("&sharedKey=" + tSKUID);
+			args.append("&sKTimestamp=" + Long.toString(timestamp));
+			args.append("&sKDebugHexHash=" + SKHashHex);
+			args.append("&sKDebugTimeOffset=" + Long.toString(serverTimeOffset));
+			args.append("&sKDebugOriginalClientTime=" + Long.toString(now));
+			args.append("&sKDebugOriginalSharedKey=" + sharedKey);
+			args.append("&guid="+PayloadFactory.getInstance().get().getGuid());
+			args.append("&format=plain");
+
+			String response = null;
+			try {
+				response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			if (response == null || response.length() == 0)
+				response = "Invalid Server Response";
+
+			return response;
+		}
+	}
+
+	public String verifyEmail(String code) {
+
+		String response = null;
+		try {
+			response = new ApiVerifyEmail().execute(code).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+
+		if (response != null && response.equals("Email successfully verified")) {
+			PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+			return response;
+		} else {
+			return response;
+		}
+	}
+
+	private class ApiVerifyEmail extends AsyncTask<String, Void, String>{
+
+		@Override
+		protected String doInBackground(String... params) {
+			StringBuilder args = new StringBuilder();
+
+			int serverTimeOffset = 500;
+			String sharedKey = PayloadFactory.getInstance().get().getSharedKey().toLowerCase();
+			long now = new Date().getTime();
+
+			long timestamp = (now - serverTimeOffset) / 10000;
+			String text = sharedKey + Long.toString(timestamp);
+			String SKHashHex = null;
+			try {
+				SKHashHex = new String(Hex.encode(MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))));
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			int i = 0;
+			String tSKUID = SKHashHex.substring(i, i+=8)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=4)+"-"+SKHashHex.substring(i, i+=12);
+
+			args.append("length="+params[0].length());
+			args.append("&payload="+params[0]);
+			args.append("&method="+"verify-email");
+
+			args.append("&sharedKey=" + tSKUID);
+			args.append("&sKTimestamp=" + Long.toString(timestamp));
+			args.append("&sKDebugHexHash=" + SKHashHex);
+			args.append("&sKDebugTimeOffset=" + Long.toString(serverTimeOffset));
+			args.append("&sKDebugOriginalClientTime=" + Long.toString(now));
+			args.append("&sKDebugOriginalSharedKey=" + sharedKey);
+			args.append("&guid="+PayloadFactory.getInstance().get().getGuid());
+			args.append("&format=plain");
+
+			String response = null;
+			try {
+				response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				response = e.getMessage();
+				return response;
+			}
+
+			if (response == null || response.length() == 0)
+				response = "Invalid Server Response";
+
+			return response;
+		}
+	}
 }

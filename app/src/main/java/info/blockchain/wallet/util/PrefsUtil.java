@@ -19,6 +19,7 @@ public class PrefsUtil {
     public static final String KEY_SELECTED_FIAT        = "ccurrency";
     public static final String KEY_INITIAL_ACCOUNT_NAME = "_1ST_ACCOUNT_NAME";
 	public static final String KEY_EMAIL           		= "email";
+	public static final String KEY_EMAIL_VERIFIED = "code_verified";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;

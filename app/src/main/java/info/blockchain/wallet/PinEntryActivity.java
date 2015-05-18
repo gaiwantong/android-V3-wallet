@@ -148,8 +148,8 @@ public class PinEntryActivity extends Activity {
 	}
 
 	private void saveLoginAndPassword() {
+		PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_EMAIL, strEmail);
 		PayloadFactory.getInstance().setEmail(strEmail);
-		PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_EMAIL,strEmail);
 		PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
 	}
 
@@ -262,7 +262,13 @@ public class PinEntryActivity extends Activity {
 									progress = null;
 								}
 
-					    		AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
+								if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false)){
+									AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
+								}else{
+									Intent intent = new Intent(PinEntryActivity.this, ConfirmationCodeActivity.class);
+									intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+									startActivity(intent);
+								}
 							}
 						});
 
