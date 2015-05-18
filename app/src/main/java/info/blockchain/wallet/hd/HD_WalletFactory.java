@@ -131,6 +131,10 @@ public class HD_WalletFactory	{
             nbWords = 12;
         }
 
+        if(nbAccounts < 1) {
+            nbAccounts = 1;
+        }
+
         // len == 16 (12 words), len == 24 (18 words), len == 32 (24 words)
         int len = (nbWords / 3) * 4;
 
@@ -170,6 +174,10 @@ public class HD_WalletFactory	{
     public HD_Wallet restoreWallet(String data, String passphrase, int nbAccounts) throws AddressFormatException, IOException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException  {
 
         HD_Wallet hdw = null;
+
+        if(nbAccounts < 1) {
+            nbAccounts = 1;
+        }
 
         if(passphrase == null) {
             passphrase = "";
