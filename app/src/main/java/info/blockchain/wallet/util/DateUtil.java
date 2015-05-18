@@ -29,8 +29,11 @@ public class DateUtil {
         return instance;
     }
 
-    public String formatted(long date) {
+    public String formatted(long ts) {
         String ret = null;
+
+        Date localTime = new Date(ts);
+        long date = localTime.getTime();
 
         date *= 1000L;
         long hours24 = 60L * 60L * 24L * 1000L;

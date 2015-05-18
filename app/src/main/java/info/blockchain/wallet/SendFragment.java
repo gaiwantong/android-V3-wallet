@@ -367,10 +367,7 @@ public class SendFragment extends Fragment {
                 try {
                     btc_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
                 }
-                catch(NumberFormatException nfe) {
-                    btc_amount = 0.0;
-                }
-                catch(ParseException pe) {
+                catch(NumberFormatException | ParseException e) {
                     btc_amount = 0.0;
                 }
 
@@ -570,10 +567,7 @@ public class SendFragment extends Fragment {
 		try {
 			fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
 		}
-		catch(NumberFormatException nfe) {
-			fiat_amount = 0.0;
-		}
-		catch(ParseException pe) {
+		catch(NumberFormatException | ParseException e) {
 			fiat_amount = 0.0;
 		}
 		double btc_amount = fiat_amount / btc_fx;
@@ -668,6 +662,12 @@ public class SendFragment extends Fragment {
         if(amt == 0.0) {
             Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
 		if(pendingSpend.isHD) {
@@ -998,11 +998,7 @@ public class SendFragment extends Fragment {
 				return false;
 			}
 		}
-		catch(NumberFormatException nfe) {
-			Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
-			return false;
-		}
-		catch(ParseException pe) {
+		catch(NumberFormatException | ParseException e) {
 			Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
 			return false;
 		}

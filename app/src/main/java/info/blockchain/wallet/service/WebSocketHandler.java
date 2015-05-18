@@ -39,7 +39,6 @@ import info.blockchain.wallet.R;
 
 public class WebSocketHandler {
 
-//	private static String WEBSOCKET_URL = "wss://ws.blockchain.info/inv";		// use secure sockets
 	private int nfailures = 0;
 	private boolean isRunning = true;
 	private long lastConnectAttempt = 0;
@@ -100,19 +99,16 @@ public class WebSocketHandler {
 		Log.i("WebSocketHandler", "Websocket subscribe");
 
 		send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
-//		Log.i("WebSocketHandler", "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
 		for(int i = 0; i < xpubs.length; i++) {
 			if(xpubs[i] != null && xpubs[i].length() > 0) {
 				send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
-//				Log.i("WebSocketHandler", "{\"op\":\"xpub_sub\",\"xpub\":\"" + xpubs[i] + "\"}");
 			}
 		}
 
 		for(int i = 0; i < addrs.length; i++) {
 			if(addrs[i] != null && addrs[i].length() > 0) {
 				send("{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
-//				Log.i("WebSocketHandler", "{\"op\":\"addr_sub\",\"addr\":\"" + addrs[i] + "\"}");
 			}
 		}
 
@@ -163,15 +159,12 @@ public class WebSocketHandler {
 				            jsonObject = new JSONObject(message);
 				        }
 				        catch(JSONException je) {
-//				        	je.printStackTrace();
 				            jsonObject = null;
 				        }
 
 						if(jsonObject == null) {
 							return;
 						}
-
-//						Log.i("WebSocketHandler incoming", message);
 
 						String op = (String)jsonObject.get("op");
 						if(op.equals("utx") && jsonObject.has("x")) {
@@ -182,7 +175,6 @@ public class WebSocketHandler {
 		            		long total_value = 0L;
 		            		long ts = 0L;
 		            		String in_addr = null;
-//		            		String out_addr = null;
 
 							if(objX.has("time")) {
 								ts = objX.getLong("time");
@@ -241,11 +233,9 @@ public class WebSocketHandler {
 		                    	}
 	                    	}
 							
-//		                    Log.i("WebSocketHandler", "Result:" + total_value);
-		                    
 		                    String title = context.getString(R.string.app_name);
 		                    if(total_value > 0L)  {
-			                    String marquee = "Received Bitcoin " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + "BTC";
+			                    String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + "BTC";
 			                    String text = marquee;
 			                    if(total_value > 0)  {
 			                    	text += " from " + in_addr;
@@ -284,7 +274,7 @@ public class WebSocketHandler {
 		         		        		mwe.printStackTrace();
 		         		        	}
 
-		        		        	Toast.makeText(context, "Broadcast balance refresh", Toast.LENGTH_SHORT).show();
+		        		        	Toast.makeText(context, R.string.refresh_balance, Toast.LENGTH_SHORT).show();
 		        		        	
 				                    Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
 				        		    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

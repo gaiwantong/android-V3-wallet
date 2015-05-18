@@ -109,65 +109,7 @@ public class HDPayloadBridge	{
 		JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
 
     }
-    /*
-     * code for adding an account: to be brought back in an upcoming version
-     *
-        public void addAccount() throws IOException, MnemonicException.MnemonicLengthException {
 
-            String xpub = null;
-            String xpriv = null;
-
-            if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                int before = HD_WalletFactory.getInstance(context).get().getAccounts().size();
-                HD_WalletFactory.getInstance(context).get().addAccount();
-                int after = HD_WalletFactory.getInstance(context).get().getAccounts().size();
-                Toast.makeText(context, context.getString(R.string.created_account_colon) + HD_WalletFactory.getInstance(context).get().getAccount(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).getLabel() + ".", Toast.LENGTH_SHORT).show();
-
-                xpub = HD_WalletFactory.getInstance(context).get().getAccounts().get(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).xpubstr();
-                xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(HD_WalletFactory.getInstance(context).get().getAccounts().size() - 1).xprvstr();
-            }
-            else {
-                int before = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size();
-                HD_WalletFactory.getInstance(context).getWatchOnlyWallet().addAccount();
-                int after = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size();
-                Toast.makeText(context, context.getString(R.string.created_account_colon) + HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).getLabel() + ".", Toast.LENGTH_SHORT).show();
-
-                xpub = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().get(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).xpubstr();
-                xpriv = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().get(HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccounts().size() - 1).xprvstr();
-            }
-
-            List<Tx> txs = new ArrayList<Tx>();
-            MultiAddrFactory.getInstance().getXpubTxs().put(xpub, txs);
-            MultiAddrFactory.getInstance().getXpubAmounts().put(xpub, 0L);
-
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-            Account account = new Account(context.getString(R.string.account_colon) + (int)(accounts.size() + 1));
-
-            account.setXpub(xpub);
-            if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                account.setXpriv(xpriv);
-            }
-            else {
-                String encrypted_xpriv = DoubleEncryptionFactory.getInstance().encrypt(
-                        xpriv,
-                        PayloadFactory.getInstance().get().getSharedKey(),
-                        PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                        PayloadFactory.getInstance().get().getIterations());
-                account.setXpriv(encrypted_xpriv);
-            }
-
-            if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
-                accounts.add(accounts.size() - 1, account);
-            }
-            else {
-                accounts.add(account);
-            }
-
-            PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
-            PayloadFactory.getInstance(context).remoteSaveThread();
-
-        }
-    */
     public String getHDSeed() throws IOException, MnemonicException.MnemonicLengthException {
     	return HD_WalletFactory.getInstance(context).get().getSeedHex();
     }

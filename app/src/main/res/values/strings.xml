@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.32a</string>
+    <string name="version_name">5.0.33a</string>
 
 	<string name="backup_wallet">Backup Wallet</string>
     <string-array name="navigation_drawer_items">
@@ -314,6 +314,9 @@
 	<string name="day">day</string>
 	<string name="days">days</string>
 	<string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
+
+    <string name="received_bitcoin">Received Bitcoin</string>
+    <string name="refresh_balance">Refresh balance</string>
 
 	<string-array name="mnemonic_word_requests">
 		<item>first word</item>
