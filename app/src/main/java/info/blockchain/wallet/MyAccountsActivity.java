@@ -241,7 +241,7 @@ public class MyAccountsActivity extends Activity {
                             originalHeight = view.getHeight();
                         }
 
-                        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(16*2);
+                        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
 
                         final String finalCurrentSelectedAddress = currentSelectedAddress;
                         qrTest.setOnLongClickListener(new View.OnLongClickListener() {
