@@ -96,17 +96,14 @@ public class BackupWalletUtil {
     public String[] getMnemonic() {
         // Wallet is not double encrypted
         if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-			Log.v("","1");
             return getHDSeedAsMnemonic(true);
         }
         // User has already entered double-encryption password
         else if (DoubleEncryptionFactory.getInstance().isActivated()) {
-			Log.v("","2");
             return getMnemonicForDoubleEncryptedWallet();
         }
         // access must be established before calling this function
         else {
-			Log.v("","3");
             return null;
         }
 
