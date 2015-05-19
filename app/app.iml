@@ -92,12 +92,15 @@
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="logback-classic-1.0.9" level="project" />
     <orderEntry type="library" exported="" name="scprov-jdk15on-1.47.0.2" level="project" />
     <orderEntry type="library" exported="" name="bitcoinj" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="library-3.0.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="logback-core-1.0.9" level="project" />
     <orderEntry type="library" exported="" name="protobuf-java-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="slf4j-api-1.7.2" level="project" />
     <orderEntry type="library" exported="" name="sc-light-jdk15on-1.47.0.2" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="zbar" level="project" />
