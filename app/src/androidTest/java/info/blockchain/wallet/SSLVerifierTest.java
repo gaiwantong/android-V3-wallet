@@ -42,8 +42,8 @@ public class SSLVerifierTest extends BlockchainTest {
     public void test() {
 
         SSLVerifierUtil ssl = SSLVerifierUtil.getInstance();
-        assertTrue(ssl.isValidHostname());
-        assertTrue(ssl.certificateIsPinned());
+        AssertUtil.getInstance().assert_true(this, "Finds valid hostname", ssl.isValidHostname());
+        AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificateIsPinned());
 
     }
 
