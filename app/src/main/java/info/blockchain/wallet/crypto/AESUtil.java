@@ -70,7 +70,7 @@ public class AESUtil	{
             len += cipher.doFinal(buf, len);
         }
         catch(InvalidCipherTextException icte)    {
-            icte.printStackTrace();
+//            icte.printStackTrace();
             return null;
         }
 
@@ -84,7 +84,7 @@ public class AESUtil	{
             ret = new String(out, "UTF-8");
         }
         catch(UnsupportedEncodingException uee)    {
-            uee.printStackTrace();
+//            uee.printStackTrace();
             return null;
         }
 
@@ -109,7 +109,7 @@ public class AESUtil	{
             clearbytes = cleartext.getBytes("UTF-8");
         }
         catch(UnsupportedEncodingException uee)    {
-            uee.printStackTrace();
+//            uee.printStackTrace();
             return null;
         }
 
