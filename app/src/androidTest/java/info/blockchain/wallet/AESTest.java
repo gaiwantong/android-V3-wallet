@@ -47,16 +47,16 @@ public class AESTest extends BlockchainTest {
         int iterations = AESUtil.QRCodePBKDF2Iterations;
 
         String encrypted = AESUtil.encrypt(cleartext, pw, iterations);
-        assertTrue(encrypted != null);
+        AssertUtil.getInstance().assert_true(this, "Encrypted string returned", encrypted != null);
 
         String decrypted = AESUtil.decrypt(encrypted, pw, iterations);
-        assertTrue(cleartext.equals(decrypted));
+        AssertUtil.getInstance().assert_true(this, "Decrypted == cleartext", cleartext.equals(decrypted));
 
         String decrypted2 = AESUtil.decrypt(encrypted, new CharSequenceX("bogus"), iterations);
-        assertTrue(!cleartext.equals(decrypted2));
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad password", !cleartext.equals(decrypted2));
 
         String decrypted3 = AESUtil.decrypt(encrypted, pw, iterations + 1);
-        assertTrue(!cleartext.equals(decrypted3));
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad no. of iterations", !cleartext.equals(decrypted3));
 
     }
 
