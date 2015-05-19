@@ -19,15 +19,7 @@ public class RestoreHDWalletTest extends BlockchainTest {
      * @param Context ctx
      */
     public RestoreHDWalletTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public RestoreHDWalletTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

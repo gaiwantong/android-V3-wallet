@@ -28,7 +28,11 @@ public class LogUtil {
     }
 
     public void log(String tag, String msg) {
-        Log.i(tag, msg);
+
+        if(LOGGING_ON) {
+            Log.i(tag, msg);
+        }
+
     }
 
 }

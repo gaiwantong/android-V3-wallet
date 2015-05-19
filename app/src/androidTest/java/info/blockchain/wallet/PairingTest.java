@@ -2,8 +2,6 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import junit.framework.Assert;
-
 import info.blockchain.wallet.pairing.PairingFactory;
 
 public class PairingTest extends BlockchainTest {
@@ -13,15 +11,7 @@ public class PairingTest extends BlockchainTest {
      * @param Context ctx
      */
     public PairingTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public PairingTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

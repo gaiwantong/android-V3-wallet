@@ -16,15 +16,7 @@ public class CreateHDWalletTest extends BlockchainTest {
      * @param Context ctx
      */
     public CreateHDWalletTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public CreateHDWalletTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

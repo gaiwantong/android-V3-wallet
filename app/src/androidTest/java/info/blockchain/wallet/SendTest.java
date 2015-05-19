@@ -11,15 +11,7 @@ public class SendTest extends BlockchainTest {
      * @param Context ctx
      */
     public SendTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public SendTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

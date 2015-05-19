@@ -11,15 +11,7 @@ public class SSLVerifierTest extends BlockchainTest {
      * @param Context ctx
      */
     public SSLVerifierTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public SSLVerifierTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

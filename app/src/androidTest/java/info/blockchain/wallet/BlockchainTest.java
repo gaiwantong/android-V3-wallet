@@ -20,15 +20,6 @@ public class BlockchainTest extends TestCase {
         LogUtil.getInstance().log(name, "instance created");
     }
 
-    /**
-     * @param String name
-     */
-    protected BlockchainTest(String name) {
-        super(name);
-        this.name = name;
-        LogUtil.getInstance().log(name, "instance created");
-    }
-
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
      */

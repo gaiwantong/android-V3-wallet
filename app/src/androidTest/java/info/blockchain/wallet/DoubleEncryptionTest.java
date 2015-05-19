@@ -13,15 +13,7 @@ public class DoubleEncryptionTest extends BlockchainTest {
      * @param Context ctx
      */
     public DoubleEncryptionTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public DoubleEncryptionTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)

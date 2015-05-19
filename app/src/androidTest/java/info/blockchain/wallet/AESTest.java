@@ -12,15 +12,7 @@ public class AESTest extends BlockchainTest {
      * @param Context ctx
      */
     public AESTest(String name, Context ctx) {
-        super(name);
-        context = ctx;
-    }
-
-    /**
-     * @param String name
-     */
-    public AESTest(String name) {
-        super(name);
+        super(name, ctx);
     }
 
     /* (non-Javadoc)
