@@ -49,22 +49,22 @@ public class DoubleEncryptionTest extends BlockchainTest {
         String sharedKey = "524b5e9f-72ea-4690-b28c-8c1cfce65ca0";
 
         DoubleEncryptionFactory def = DoubleEncryptionFactory.getInstance();
-        assertTrue(def != null);
+        AssertUtil.getInstance().assert_true(this, "DoubleEncryptionFactory instance returned", def != null);
 
         String hash = def.getHash(sharedKey, pw.toString(), iterations);
-        assertTrue(def.validateSecondPassword(hash, sharedKey, pw, iterations));
+        AssertUtil.getInstance().assert_true(this, "Hash returned", def.validateSecondPassword(hash, sharedKey, pw, iterations));
 
         String encrypted = def.encrypt(cleartext, sharedKey, pw.toString(), iterations);
-        assertTrue(encrypted != null);
+        AssertUtil.getInstance().assert_true(this, "Encrypted string returned", encrypted != null);
 
         String decrypted = def.decrypt(encrypted, sharedKey, pw.toString(), iterations);
-        assertTrue(cleartext.equals(decrypted));
+        AssertUtil.getInstance().assert_true(this, "Decrypted == cleartext", cleartext.equals(decrypted));
 
         String decrypted2 = def.decrypt(encrypted, sharedKey, "bogus", iterations);
-        assertTrue(!cleartext.equals(decrypted2));
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad password", !cleartext.equals(decrypted2));
 
         String decrypted3 = def.decrypt(encrypted, sharedKey, pw.toString(), iterations + 1);
-        assertTrue(!cleartext.equals(decrypted3));
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad no. of iterations", !cleartext.equals(decrypted3));
 
     }
 
