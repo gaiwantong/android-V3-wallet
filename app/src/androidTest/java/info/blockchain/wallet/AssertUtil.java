@@ -29,16 +29,26 @@ public class AssertUtil {
 
     public void assert_true(BlockchainTest obj, String msg, boolean test) {
 
+        boolean passed = false;
+
         if(EXIT_ON_FAIL) {
             TestCase.assertTrue(test);
+            passed = true;
         }
         else {
             try {
                 TestCase.assertTrue(test);
+                passed = true;
             } catch (AssertionError ae) {
+                passed = false;
                 LogUtil.getInstance().log(obj.getName(), "assert true failed: " + msg);
             }
         }
+
+        if(passed) {
+            LogUtil.getInstance().log(obj.getName(), "assert true passed: " + msg);
+        }
+
     }
 
 }

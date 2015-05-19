@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 public class BlockchainTest extends TestCase {
 
     protected Context context = null;
+    protected String name = null;
 
     /**
      * @param String name
@@ -15,6 +16,8 @@ public class BlockchainTest extends TestCase {
     protected BlockchainTest(String name, Context ctx) {
         super(name);
         context = ctx;
+        this.name = name;
+        LogUtil.getInstance().log(name, "instance created");
     }
 
     /**
@@ -22,6 +25,8 @@ public class BlockchainTest extends TestCase {
      */
     protected BlockchainTest(String name) {
         super(name);
+        this.name = name;
+        LogUtil.getInstance().log(name, "instance created");
     }
 
     /* (non-Javadoc)
@@ -42,4 +47,9 @@ public class BlockchainTest extends TestCase {
      * Test something
      */
     protected void test() { ; }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }
