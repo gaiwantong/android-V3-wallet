@@ -342,5 +342,6 @@
 	<string name="send_payment">Send Payment</string>
 	<string name="share">Share Receive Address</string>
 	<string name="scan_qr">Scan QR Code</string>
+    <string name="confirm_password">Confirm Password</string>
 
 </resources>
