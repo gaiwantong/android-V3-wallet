@@ -284,4 +284,5 @@
   <string name="send_payment">שליחת תשלום</string>
   <string name="share">השיתוף לקבל כתובת</string>
   <string name="scan_qr">לסרוק קוד QR</string>
+  <string name="confirm_password">אשר את הסיסמה</string>
 </resources>

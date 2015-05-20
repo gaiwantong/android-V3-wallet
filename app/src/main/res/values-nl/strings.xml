@@ -284,4 +284,5 @@
   <string name="send_payment">Stuur de betaling</string>
   <string name="share">Aandeel ontvangen adres</string>
   <string name="scan_qr">QR Code scannen</string>
+  <string name="confirm_password">Bevestig wachtwoord</string>
 </resources>

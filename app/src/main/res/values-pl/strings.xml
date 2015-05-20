@@ -284,4 +284,5 @@
   <string name="send_payment">Wyślij płatności</string>
   <string name="share">Udział otrzymać adres</string>
   <string name="scan_qr">Kod QR dla</string>
+  <string name="confirm_password">Potwierdź hasło</string>
 </resources>

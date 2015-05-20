@@ -284,4 +284,5 @@
   <string name="send_payment">إرسال الدفع</string>
   <string name="share">حصة تلقي عنوان</string>
   <string name="scan_qr">مسح رمز ريال قطري</string>
+  <string name="confirm_password">تأكيد كلمة المرور</string>
 </resources>

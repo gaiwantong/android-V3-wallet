@@ -284,4 +284,5 @@
   <string name="send_payment">결제 보내기</string>
   <string name="share">공유 받을 주소</string>
   <string name="scan_qr">QR 코드를 스캔</string>
+  <string name="confirm_password">암호 확인</string>
 </resources>

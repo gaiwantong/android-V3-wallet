@@ -284,4 +284,5 @@
   <string name="send_payment">Trimiteţi plata</string>
   <string name="share">Cota primi adresa</string>
   <string name="scan_qr">Scanaţi codul QR</string>
+  <string name="confirm_password">Confirmă parola</string>
 </resources>

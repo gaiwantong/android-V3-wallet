@@ -284,4 +284,5 @@
   <string name="send_payment">Invia pagamento</string>
   <string name="share">Condividi ricevere indirizzo</string>
   <string name="scan_qr">Codice QR</string>
+  <string name="confirm_password">Conferma Password</string>
 </resources>

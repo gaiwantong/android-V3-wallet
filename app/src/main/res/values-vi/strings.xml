@@ -284,4 +284,5 @@
   <string name="send_payment">Gửi thanh toán</string>
   <string name="share">Chia sẻ nhận được địa chỉ</string>
   <string name="scan_qr">Quét mã QR</string>
+  <string name="confirm_password">Xác nhận mật khẩu</string>
 </resources>

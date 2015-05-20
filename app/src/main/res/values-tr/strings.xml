@@ -284,4 +284,5 @@
   <string name="send_payment">Ödeme gönderme</string>
   <string name="share">Paylaşım adresi alma</string>
   <string name="scan_qr">QR Code tarama</string>
+  <string name="confirm_password">Parolayı Onayla</string>
 </resources>

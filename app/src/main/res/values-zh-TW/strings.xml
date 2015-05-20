@@ -284,4 +284,5 @@
   <string name="send_payment">發送付款</string>
   <string name="share">共用接收位址</string>
   <string name="scan_qr">掃描 QR 代碼</string>
+  <string name="confirm_password">確認密碼</string>
 </resources>

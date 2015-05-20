@@ -284,4 +284,5 @@
   <string name="send_payment">Send betaling</string>
   <string name="share">Andel modtager adresse</string>
   <string name="scan_qr">Skan QR koden</string>
+  <string name="confirm_password">Bekræft adgangskode</string>
 </resources>

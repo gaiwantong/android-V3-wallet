@@ -284,4 +284,5 @@
   <string name="send_payment">支払いを送金す送る</string>
   <string name="share">共有アドレスを受信します。</string>
   <string name="scan_qr">QR コードをスキャンします。</string>
+  <string name="confirm_password">パスワードの確認入力</string>
 </resources>

@@ -284,4 +284,5 @@
   <string name="send_payment">Отправить платеж</string>
   <string name="share">Доля получить адрес</string>
   <string name="scan_qr">Отсканируйте QR-код</string>
+  <string name="confirm_password">Подтверждение пароля</string>
 </resources>

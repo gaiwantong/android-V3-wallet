@@ -284,4 +284,5 @@
   <string name="send_payment">Pošlete platbu</string>
   <string name="share">Podíl je přiřazena adresa</string>
   <string name="scan_qr">Skenování QR kód</string>
+  <string name="confirm_password">Potvrzení hesla</string>
 </resources>

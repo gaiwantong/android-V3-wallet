@@ -284,4 +284,5 @@
   <string name="send_payment">Αποστολή πληρωμής</string>
   <string name="share">Μερίδιο λαμβάνουν διεύθυνση</string>
   <string name="scan_qr">Σάρωση κωδικού QR</string>
+  <string name="confirm_password">Επιβεβαίωση κωδικού</string>
 </resources>
