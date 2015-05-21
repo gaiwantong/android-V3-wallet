@@ -1,18 +1,15 @@
 package info.blockchain.wallet.util;
 
-import android.content.Context;
+import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.io.IOUtils;
 
 public class WebUtil	{
 
@@ -95,7 +92,17 @@ public class WebUtil	{
         throw new Exception("Invalid Response " + error);
     }
 
+    public String getURL(String URL, String cookie) throws Exception {
+
+        return getURLCall(URL, cookie);
+    }
+
     public String getURL(String URL) throws Exception {
+
+        return getURLCall(URL, null);
+    }
+
+    private String getURLCall(String URL, String cookie) throws Exception {
 
         URL url = new URL(URL);
 
@@ -112,7 +119,7 @@ public class WebUtil	{
 
                 connection.setConnectTimeout(DefaultRequestTimeout);
                 connection.setReadTimeout(DefaultRequestTimeout);
-
+                if(cookie!=null)connection.setRequestProperty("cookie",cookie);
                 connection.setInstanceFollowRedirects(false);
 
                 connection.connect();
@@ -192,7 +199,6 @@ public class WebUtil	{
 
                     String cookieValue = fields[0];
 
-                    /*
                     String expires = null;
                     String path = null;
                     String domain = null;
@@ -216,7 +222,6 @@ public class WebUtil	{
                             }
                         }
                     }
-                    */
 
                     /*
                     System.out.println("cookieValue:" + cookieValue);

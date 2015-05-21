@@ -1,6 +1,7 @@
 package info.blockchain.wallet.pairing;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
@@ -116,10 +117,17 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false");
+        //TODO cookie still needs to be set
+        String sid = WebUtil.getInstance().getCookie(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false","SID");
+        Log.v("","newly generated sid: "+sid);
+
+        String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false", "SID="+sid);
+
+        //Force current web sid works
+//      String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false", "SID=b63166f5-dd41-4456-a724-8f24b81a3ecf");
 
         JSONObject jsonObject = new JSONObject(response);
-//        Log.i("Pairing", "Returned object:" + jsonObject.toString());
+        Log.i("Pairing", "Returned object:" + jsonObject.toString());
 
         String payload = (String)jsonObject.get("payload");
         if (payload == null || payload.length() == 0) {
