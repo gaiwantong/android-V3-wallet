@@ -55,9 +55,9 @@ public class BlockchainWalletTest extends BlockchainTest {
         /*
          * In order to run these tests legit guid, shared key, pin identifiers, and encrypted passwords are needed.
          * The shared key can be obtained by observing the JSON console on your web wallet,
-         * or by placing logcat staqtements in PinEntryActivity.java for this app and observing during an actual login.
+         * or by placing logcat statements in PinEntryActivity.java for this app and observing during an actual login.
          *
-         * The pin identifier and the encrypted password can be observed by observing AccessFactory.java for this app
+         * The pin identifier and the encrypted password can be obtained by observing AccessFactory.java for this app
          * during an actual login.
          */
 
