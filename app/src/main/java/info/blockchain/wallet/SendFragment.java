@@ -12,7 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.text.method.DigitsKeyListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,6 +37,7 @@ import org.apache.commons.codec.DecoderException;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -93,6 +94,7 @@ public class SendFragment extends Fragment {
 	private BigInteger bFee = Utils.toNanoCoins("0.0001");
 
 	private boolean textChangeAllowed = true;
+    private String defaultSeperator;
 
 	private class PendingSpend {
 		boolean isHD;
@@ -125,66 +127,75 @@ public class SendFragment extends Fragment {
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				View view = getActivity().getCurrentFocus();
-				if (view != null) {
-					InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-				}
-				Fragment fragment = new BalanceFragment();
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                View view = getActivity().getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+                Fragment fragment = new BalanceFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+            }
+        });
 
 		edDestination = ((EditText)rootView.findViewById(R.id.destination));
 		edDestination.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
 		edDestination.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if(actionId == EditorInfo.IME_ACTION_DONE) {
-					validateSpend(true);
-				}
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    validateSpend(true);
+                }
 
-				return false;
-			}
-		});
-		edDestination.addTextChangedListener(new TextWatcher()	{
-			public void afterTextChanged(Editable s) {
+                return false;
+            }
+        });
+		edDestination.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
 
-				if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
-					validateSpend(false);
-				}
+                if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+                    validateSpend(false);
+                }
 
-			}
+            }
 
-			public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                ;
+            }
 
-			public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
-		});
-        
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ;
+            }
+        });
+
+        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
+        DecimalFormatSymbols symbols=format.getDecimalFormatSymbols();
+        defaultSeperator=Character.toString(symbols.getDecimalSeparator());
+
         edAmount1 = ((EditText)rootView.findViewById(R.id.amount1));
+        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
 		edAmount1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
         edAmount1.setOnEditorActionListener(new OnEditorActionListener() {
-		    @Override
-		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		        if(actionId == EditorInfo.IME_ACTION_DONE) {
-		        	validateSpend(true);
-		        }
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    validateSpend(true);
+                }
 
-		        return false;
-		    }
-		});
-        edAmount1.addTextChangedListener(new TextWatcher()	{
-        	public void afterTextChanged(Editable s) {
+                return false;
+            }
+        });
+        edAmount1.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
 
                 edAmount1.removeTextChangedListener(this);
 
                 int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-                switch(unit) {
+                switch (unit) {
                     case MonetaryUtil.MICRO_BTC:
                         max_len = 2;
                         break;
@@ -201,22 +212,21 @@ public class SendFragment extends Fragment {
                 DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
                 char sep = decFormatSymbols.getDecimalSeparator();
 
-                try	{
+                try {
                     double d = Double.parseDouble(s.toString());
                     String s1 = btcFormat.format(d);
-                    if(s1.indexOf(sep) != -1)	{
+                    if (s1.indexOf(sep) != -1) {
                         String dec = s1.substring(s1.indexOf(sep));
-                        if(dec.length() > 0)	{
+                        if (dec.length() > 0) {
                             dec = dec.substring(1);
-                            if(dec.length() > max_len)	{
+                            if (dec.length() > max_len) {
                                 edAmount1.setText(s1.substring(0, s1.length() - 1));
                                 edAmount1.setSelection(edAmount1.getText().length());
                                 s = edAmount1.getEditableText();
                             }
                         }
                     }
-                }
-                catch(NumberFormatException nfe)	{
+                } catch (NumberFormatException nfe) {
                     ;
                 }
 
@@ -235,12 +245,13 @@ public class SendFragment extends Fragment {
             }
 
         	public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
-        
+
         	public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
         });
 
         tvCurrency1 = (TextView)rootView.findViewById(R.id.currency1);
         edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
+        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"+defaultSeperator));
         tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
         edAmount2.addTextChangedListener(new TextWatcher()	{
 			public void afterTextChanged(Editable s) {
@@ -642,12 +653,12 @@ public class SendFragment extends Fragment {
 	private void sendClicked(){
 
 		if(isBTC) {
-			pendingSpend.btc_amount = edAmount1.getText().toString();
-			pendingSpend.fiat_amount = edAmount2.getText().toString();
+			pendingSpend.btc_amount = edAmount1.getText().toString().replace(defaultSeperator,".");
+			pendingSpend.fiat_amount = edAmount2.getText().toString().replace(defaultSeperator, ".");
 		}
 		else {
-			pendingSpend.fiat_amount = edAmount1.getText().toString();
-			pendingSpend.btc_amount = edAmount2.getText().toString();
+			pendingSpend.fiat_amount = edAmount1.getText().toString().replace(defaultSeperator, ".");
+			pendingSpend.btc_amount = edAmount2.getText().toString().replace(defaultSeperator,".");
 		}
 
 		pendingSpend.btc_units = strBTC;

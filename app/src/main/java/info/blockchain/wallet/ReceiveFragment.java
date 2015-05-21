@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -104,6 +106,7 @@ public class ReceiveFragment extends Fragment {
 	private LinearLayout mainContentShadow;
 
 	private boolean textChangeAllowed = true;
+    private String defaultSeperator;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -190,16 +193,21 @@ public class ReceiveFragment extends Fragment {
 		tvCurrency1 = (TextView)rootView.findViewById(R.id.currency1);
 		tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
 
+        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
+        DecimalFormatSymbols symbols=format.getDecimalFormatSymbols();
+        defaultSeperator=Character.toString(symbols.getDecimalSeparator());
+
         edAmount1 = (EditText)rootView.findViewById(R.id.amount1);
-        edAmount1.addTextChangedListener(new TextWatcher()	{
-        	public void afterTextChanged(Editable s) {
+        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+        edAmount1.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
 
                 edAmount1.removeTextChangedListener(this);
 
                 int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-                switch(unit) {
+                switch (unit) {
                     case MonetaryUtil.MICRO_BTC:
                         max_len = 2;
                         break;
@@ -216,44 +224,48 @@ public class ReceiveFragment extends Fragment {
                 DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
                 char sep = decFormatSymbols.getDecimalSeparator();
 
-                try	{
+                try {
                     double d = Double.parseDouble(s.toString());
                     String s1 = btcFormat.format(d);
-                    if(s1.indexOf(sep) != -1)	{
+                    if (s1.indexOf(sep) != -1) {
                         String dec = s1.substring(s1.indexOf(sep));
-                        if(dec.length() > 0)	{
+                        if (dec.length() > 0) {
                             dec = dec.substring(1);
-                            if(dec.length() > max_len)	{
+                            if (dec.length() > max_len) {
                                 edAmount1.setText(s1.substring(0, s1.length() - 1));
                                 edAmount1.setSelection(edAmount1.getText().length());
                                 s = edAmount1.getEditableText();
                             }
                         }
                     }
-                }
-                catch(NumberFormatException nfe)	{
+                } catch (NumberFormatException nfe) {
                     ;
                 }
 
                 edAmount1.addTextChangedListener(this);
 
-                if(textChangeAllowed) {
-					textChangeAllowed = false;
-					updateFiatTextField(s.toString());
+                if (textChangeAllowed) {
+                    textChangeAllowed = false;
+                    updateFiatTextField(s.toString());
 
-					if (currentSelectedAddress != null) {
-						displayQRCode();
-					}
-					textChangeAllowed = true;
-				}
-        	}
+                    if (currentSelectedAddress != null) {
+                        displayQRCode();
+                    }
+                    textChangeAllowed = true;
+                }
+            }
 
-        	public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
-        
-        	public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                ;
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ;
+            }
         });
 
         edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
+        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         edAmount2.addTextChangedListener(new TextWatcher() {
 
 			public void afterTextChanged(Editable s) {
