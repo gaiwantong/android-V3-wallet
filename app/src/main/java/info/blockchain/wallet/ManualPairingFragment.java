@@ -91,7 +91,7 @@ public class ManualPairingFragment extends Fragment {
 		progress = new ProgressDialog(getActivity());
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(getResources().getString(R.string.please_wait)+"...");
 		progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {

@@ -85,7 +85,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 		progress = new ProgressDialog(this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(getResources().getString(R.string.please_wait)+"...");
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -135,7 +135,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 		progress = new ProgressDialog(this);
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
-		progress.setMessage("Please wait...");
+		progress.setMessage(getResources().getString(R.string.please_wait)+"...");
 		progress.show();
 
 		new Thread(new Runnable() {
