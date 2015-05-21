@@ -1,10 +1,11 @@
 package info.blockchain.wallet.util;
  
-import info.blockchain.wallet.MainActivity;
 import android.content.Context;
 import android.content.Intent;
 
 import java.io.File;
+
+import info.blockchain.wallet.MainActivity;
 
 public class AppUtil {
 	
@@ -63,6 +64,10 @@ public class AppUtil {
     public void updatePinEntryTime() {
         lastPin = System.currentTimeMillis();
     }
+
+	public void clearPinEntryTime() {
+		lastPin = 0L;
+	}
 
     public boolean isTimedOut() {
         return (System.currentTimeMillis() - lastPin) > TIMEOUT_DELAY;

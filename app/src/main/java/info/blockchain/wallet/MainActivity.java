@@ -420,9 +420,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }else if(currentFragment instanceof BalanceFragment) {
 
             exitClicked++;
-            if (exitClicked == 2)
+            if (exitClicked == 2) {
+                AppUtil.getInstance(this).clearPinEntryTime();
                 finish();
-            else
+            }else
                 Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
 
             new Thread(new Runnable() {
