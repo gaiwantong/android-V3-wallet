@@ -10,7 +10,9 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.crypto.AESUtil;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -44,11 +46,28 @@ public class BlockchainWalletTest extends BlockchainTest {
      */
     public void test() {
 
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "--LEGIT_GUID_HERE--");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "--LEGIT_SHARED_KEY_HERE--");
+
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "LEGIT_PIN_IDENTIFIER_HERE");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "LEGIT_ENCRYPTED_PASSWORD_HERE");
+
+        /*
+         * In order to run these tests legit guid, shared key, pin identifiers, and encrypted passwords are needed.
+         * The shared key can be obtained by observing the JSON console on your web wallet,
+         * or by placing logcat statements in PinEntryActivity.java for this app and observing during an actual login.
+         *
+         * The pin identifier and the encrypted password can be obtained by observing AccessFactory.java for this app
+         * during an actual login.
+         */
 
         CharSequenceX pw = new CharSequenceX("--LEGIT_PASSWORD_HERE--");
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "--LEGIT_GUID_HERE--");
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "--LEGIT_SHARED_KEY_HERE--");
 
+        //
+        // login w/ password tests
+        //
         boolean loggedIn = false;
 
         try {
@@ -89,6 +108,18 @@ public class BlockchainWalletTest extends BlockchainTest {
         finally {
             AssertUtil.getInstance().assert_true(this, "Not logged in with bad credentials", loggedIn);
         }
+
+        //
+        // login w/ PIN tests
+        //
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "LEGIT_PIN_IDENTIFIER_HERE");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "LEGIT_ENCRYPTED_PASSWORD_HERE");
+
+        CharSequenceX password = AccessFactory.getInstance(context).validatePIN("LEGIT_PIN_HERE");
+        AssertUtil.getInstance().assert_true(this, "Logged in with good PIN", password != null);
+
+        password = AccessFactory.getInstance(context).validatePIN("9999");
+        AssertUtil.getInstance().assert_true(this, "Not logged in with bad PIN", password == null);
 
     }
 

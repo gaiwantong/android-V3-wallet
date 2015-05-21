@@ -94,7 +94,7 @@ public class AccessFactory	{
         _pin = pin;
         _key = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
         String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
-        
+
         try {
 			final JSONObject json = apiGetValue();
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
