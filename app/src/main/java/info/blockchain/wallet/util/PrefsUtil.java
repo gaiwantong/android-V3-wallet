@@ -19,7 +19,8 @@ public class PrefsUtil {
     public static final String KEY_SELECTED_FIAT        = "ccurrency";
     public static final String KEY_INITIAL_ACCOUNT_NAME = "_1ST_ACCOUNT_NAME";
 	public static final String KEY_EMAIL           		= "email";
-	public static final String KEY_EMAIL_VERIFIED = "code_verified";
+	public static final String KEY_EMAIL_VERIFIED 		= "code_verified";
+	public static final String KEY_SESSION_ID 			= "session_id";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;
@@ -79,6 +80,7 @@ public class PrefsUtil {
 	}
 
 	public boolean clear() {
+		String cookie = getValue(KEY_SESSION_ID,null);
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		/*
 		editor.remove(KEY_PIN_IDENTIFIER);
@@ -88,6 +90,7 @@ public class PrefsUtil {
 		editor.remove(KEY_PIN_FAILS);
 		*/
 		editor.clear();
+		if(cookie!=null)setValue(KEY_SESSION_ID, cookie);
 		return editor.commit();
 	}
 

@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -35,6 +36,9 @@ public class ManualPairingFragment extends Fragment {
     private TextView next = null;
 
 	private ProgressDialog progress = null;
+
+	private boolean waitinForAuth = true;
+	private int timer = 0;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,6 +80,8 @@ public class ManualPairingFragment extends Fragment {
 
 	private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
+		waitinForAuth = true;
+
 		final Handler handler = new Handler();
 
 		if(progress != null && progress.isShowing()) {
@@ -86,6 +92,12 @@ public class ManualPairingFragment extends Fragment {
 		progress.setCancelable(false);
 		progress.setTitle(R.string.app_name);
 		progress.setMessage("Please wait...");
+		progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				waitinForAuth = false;
+			}
+		});
 		progress.show();
 
 		new Thread(new Runnable() {
@@ -95,6 +107,18 @@ public class ManualPairingFragment extends Fragment {
 
 				try {
 					String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+
+					if(response.equals(PairingFactory.KEY_AUTH_REQUIRED)){
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								progress.setCancelable(true);
+								progress.setMessage(getResources().getString(R.string.check_email_to_auth_login));
+							}
+						});
+						response = waitForAuthThread(guid, password);
+					}
+
 					JSONObject jsonObj = new JSONObject(response);
 
 					if(jsonObj != null && jsonObj.has("payload")) {
@@ -167,5 +191,58 @@ public class ManualPairingFragment extends Fragment {
 
 			}
 		}).start();
+	}
+
+	private String waitForAuthThread(final String guid, final CharSequenceX password){
+
+		final int waitTime = 2;//minutes to wait for auth
+		timer = (waitTime*60);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				while(waitinForAuth) {
+					getActivity().runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							progress.setMessage(getResources().getString(R.string.check_email_to_auth_login) + " " + timer);
+							timer--;
+						}
+					});
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					if(timer<=0){
+						waitinForAuth = false;
+						progress.cancel();
+					}
+				}
+			}
+		}).start();
+
+		int sleep = 5;//second
+		while(waitinForAuth){
+
+			try {Thread.sleep(1000*sleep);} catch (InterruptedException e) {e.printStackTrace();}
+			sleep = 1;//after initial sleep, poll every 1 second
+
+			String response = null;
+			try {
+				response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+				if(!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+					waitinForAuth = false;
+					return response;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		waitinForAuth = false;
+		return PairingFactory.KEY_AUTH_REQUIRED;
 	}
 }

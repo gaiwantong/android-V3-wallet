@@ -22,6 +22,7 @@ public class PairingFactory	{
 	private static Context context = null;
 
     public static String KEY_EXTRA_IS_PAIRING = "is_pairing";
+	public static String KEY_AUTH_REQUIRED = "Authorization Required";
 
     private static PairingFactory instance = null;
 
@@ -117,17 +118,25 @@ public class PairingFactory	{
         args.append("guid=" + guid);
         args.append("&method=pairing-encryption-password");
 
-        //TODO cookie still needs to be set
-        String sid = WebUtil.getInstance().getCookie(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false","SID");
-        Log.v("","newly generated sid: "+sid);
+		String sid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SESSION_ID, null);
+		if(sid.isEmpty())sid=null;
 
+		if(sid==null){
+			//Get new SID
+			sid = WebUtil.getInstance().getCookie(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false","SID");
+			if(sid!=null && !sid.isEmpty())PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SESSION_ID,sid);
+		}
+
+        //Pair wallet with new SID
         String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false", "SID="+sid);
-
-        //Force current web sid works
-//      String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false", "SID=b63166f5-dd41-4456-a724-8f24b81a3ecf");
 
         JSONObject jsonObject = new JSONObject(response);
         Log.i("Pairing", "Returned object:" + jsonObject.toString());
+
+		if(jsonObject.toString().contains("initial_error")) {
+			String authError = (String) jsonObject.get("initial_error");
+			if (authError != null && authError.contains(KEY_AUTH_REQUIRED))return KEY_AUTH_REQUIRED;
+		}
 
         String payload = (String)jsonObject.get("payload");
         if (payload == null || payload.length() == 0) {
