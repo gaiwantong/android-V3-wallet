@@ -45,11 +45,11 @@ public class PairingTest extends BlockchainTest {
 
         goodString(pf, strGood);
 
-        badString1(pf, strBad1);
+        badString(pf, strBad1);
 
-        badString2(pf, strBad2);
+        badString(pf, strBad2);
 
-        badString3(pf, strBad3);
+        badString(pf, strBad3);
 
     }
 
@@ -63,15 +63,7 @@ public class PairingTest extends BlockchainTest {
         AssertUtil.getInstance().assert_true(this, "QRcode: good string", pf.handleQRCode(str));
     }
 
-    public void badString1(PairingFactory pf, String str) {
-        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
-    }
-
-    public void badString2(PairingFactory pf, String str) {
-        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
-    }
-
-    public void badString3(PairingFactory pf, String str) {
+    public void badString(PairingFactory pf, String str) {
         AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
     }
 
