@@ -797,24 +797,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         adapterDrawer = new DrawerAdapter(drawerItems);
         recyclerViewDrawer.setAdapter(adapterDrawer);
 
-        recyclerViewDrawer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-                for (int i = 0; i < drawerTitles.length; i++) {
-                    ImageView imageViewDrawerIcon = (ImageView) recyclerViewDrawer.getChildAt(i).findViewById(R.id.drawer_row_icon);
-                    if (Build.VERSION.SDK_INT > 15) {
-                        imageViewDrawerIcon.setImageAlpha(255);
-                    } else {
-                        imageViewDrawerIcon.setAlpha(255);
-                    }
-                }
-
-                // unregister listener (this is important)
-                recyclerViewDrawer.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            }
-        });
-
         recyclerViewDrawer.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
