@@ -56,9 +56,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         /*
         BlockchainWalletTest bwt = new BlockchainWalletTest("BlockchainWalletTest", getActivity());
         bwt.test();
-        */
 
-        /*
         SendTest sendTest = new SendTest("SendTest", getActivity());
         sendTest.test();
         */
