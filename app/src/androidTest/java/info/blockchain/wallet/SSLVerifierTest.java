@@ -41,6 +41,7 @@ public class SSLVerifierTest extends BlockchainTest {
 
     public SSLVerifierUtil getSSLVerifierInstance() {
         SSLVerifierUtil ssl = SSLVerifierUtil.getInstance();
+        AssertUtil.getInstance().assert_true(this, "SSLVerifierUtil instance returned", ssl != null);
         return ssl;
     }
 
