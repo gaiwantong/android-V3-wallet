@@ -35,6 +35,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
 
     public void testAll() throws Exception {
 
+        AESTest aesTest = new AESTest("AESTest", getActivity());
+        aesTest.test();
+
+        /*
         CreateHDWalletTest createHDTest = new CreateHDWalletTest("CreateHDWalletTest", getActivity());
         createHDTest.test();
 
@@ -44,22 +48,22 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         PairingTest pairingTest = new PairingTest("PairingTest", getActivity());
         pairingTest.test();
 
-        AESTest aesTest = new AESTest("AESTest", getActivity());
-        aesTest.test();
-
         DoubleEncryptionTest deTest = new DoubleEncryptionTest("DoubleEncryptionTest", getActivity());
         deTest.test();
 
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
+        */
 
         /*
         BlockchainWalletTest bwt = new BlockchainWalletTest("BlockchainWalletTest", getActivity());
         bwt.test();
         */
 
+        /*
         SendTest sendTest = new SendTest("SendTest", getActivity());
         sendTest.test();
+        */
 
     }
 
