@@ -41,13 +41,38 @@ public class PairingTest extends BlockchainTest {
         // won't decrypt
         String strBad3 = "1|524b5e9f-72ea-4690-b28c-8c1cfce65ca0|BOGUS_PJHjUkAqlEOrm97qIryrXygiXlPNQGh3jppS6GXJZf5mmD2kti0Mf/Bwqw7+OCWWqUf8r19EB+YmgRcWmGxsstWPE2ZR4oJrKpmpo=";
 
+        PairingFactory pf = getPairingInstance();
+
+        goodString(pf, strGood);
+
+        badString1(pf, strBad1);
+
+        badString2(pf, strBad2);
+
+        badString3(pf, strBad3);
+
+    }
+
+    public PairingFactory getPairingInstance() {
         PairingFactory pf = PairingFactory.getInstance(context);
         AssertUtil.getInstance().assert_true(this, "PairingFactory instance returned", pf != null);
-        AssertUtil.getInstance().assert_true(this, "QRcode: good string", pf.handleQRCode(strGood));
-        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(strBad1));
-        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(strBad2));
-        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(strBad3));
+        return pf;
+    }
 
+    public void goodString(PairingFactory pf, String str) {
+        AssertUtil.getInstance().assert_true(this, "QRcode: good string", pf.handleQRCode(str));
+    }
+
+    public void badString1(PairingFactory pf, String str) {
+        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
+    }
+
+    public void badString2(PairingFactory pf, String str) {
+        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
+    }
+
+    public void badString3(PairingFactory pf, String str) {
+        AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
     }
 
 }
