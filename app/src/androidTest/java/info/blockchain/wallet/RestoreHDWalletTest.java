@@ -40,9 +40,50 @@ public class RestoreHDWalletTest extends BlockchainTest {
      * Test something
      */
     public void test() {
-        HD_WalletFactory hdwf = HD_WalletFactory.getInstance(context);
-        AssertUtil.getInstance().assert_true(this, "HD_WalletFactory instance returned", hdwf != null);
+        HD_WalletFactory hdwf = getFactoryInstance(context);
 
+        HD_Wallet hdw = restoreBadMnemonic(hdwf);
+
+        hdw = restoreGoodMnemonic(hdwf);
+
+        HD_Wallet hdwp = restoreGoodMnemonicWithPassphrase(hdwf);
+
+        differentReceiveChain(hdw, hdwp);
+
+        differentChangeChain(hdw, hdwp);
+
+        hdw = isHoldingWallet(hdwf);
+
+    }
+
+    public HD_WalletFactory getFactoryInstance(Context ctx) {
+        HD_WalletFactory hdwf = HD_WalletFactory.getInstance(ctx);
+        AssertUtil.getInstance().assert_true(this, "HD_WalletFactory instance returned", hdwf != null);
+        return hdwf;
+    }
+
+    public HD_Wallet restoreGoodMnemonic(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
+
+        //
+        // test wallet restore with good mnemonic
+        //
+        try {
+            hdw = hdwf.restoreWallet("all all all all all all all all all all all all", "", 1);
+        }
+        catch(IOException | DecoderException | AddressFormatException
+                | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
+                | MnemonicException.MnemonicWordException e) {
+            ;
+        }
+        finally {
+            AssertUtil.getInstance().assert_true(this, "Good params restore non null wallet", hdw != null);
+        }
+
+        return hdw;
+    }
+
+    public HD_Wallet restoreBadMnemonic(HD_WalletFactory hdwf) {
         HD_Wallet hdw = null;
 
         //
@@ -60,20 +101,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
             AssertUtil.getInstance().assert_true(this, "Bad params restore null wallet", hdw == null);
         }
 
-        //
-        // test wallet restore with good mnemonic
-        //
-        try {
-            hdw = hdwf.restoreWallet("all all all all all all all all all all all all", "", 1);
-        }
-        catch(IOException | DecoderException | AddressFormatException
-                | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
-                | MnemonicException.MnemonicWordException e) {
-            ;
-        }
-        finally {
-            AssertUtil.getInstance().assert_true(this, "Good params restore non null wallet", hdw != null);
-        }
+        return hdw;
+    }
+
+    public HD_Wallet restoreGoodMnemonicWithPassphrase(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
 
         //
         // test wallet restore with good mnemonic and passphrase
@@ -91,22 +123,38 @@ public class RestoreHDWalletTest extends BlockchainTest {
             AssertUtil.getInstance().assert_true(this, "Good params + passphrase restore non null wallet", hdw_pass != null);
         }
 
+        return hdw;
+    }
+
+    public void differentReceiveChain(HD_Wallet hdw, HD_Wallet hdwp) {
         //
         // make sure address spaces are different w/ and wo/ passphrase
         //
-        AssertUtil.getInstance().assert_true(this, "Receive address space different for w/ and wo/ passphrase", !hdw.getAccount(0).getReceive().getAddressAt(0).getAddressString().equals(hdw_pass.getAccount(0).getReceive().getAddressAt(0).getAddressString()));
-        AssertUtil.getInstance().assert_true(this, "Change address space different for w/ and wo/ passphrase", !hdw.getAccount(0).getChange().getAddressAt(0).getAddressString().equals(hdw_pass.getAccount(0).getChange().getAddressAt(0).getAddressString()));
+        AssertUtil.getInstance().assert_true(this, "Receive address space different for w/ and wo/ passphrase", !hdw.getAccount(0).getReceive().getAddressAt(0).getAddressString().equals(hdwp.getAccount(0).getReceive().getAddressAt(0).getAddressString()));
+    }
+
+    public void differentChangeChain(HD_Wallet hdw, HD_Wallet hdwp) {
+        //
+        // make sure address spaces are different w/ and wo/ passphrase
+        //
+        AssertUtil.getInstance().assert_true(this, "Change address space different for w/ and wo/ passphrase", !hdw.getAccount(0).getChange().getAddressAt(0).getAddressString().equals(hdwp.getAccount(0).getChange().getAddressAt(0).getAddressString()));
+    }
+
+    public HD_Wallet isHoldingWallet(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
 
         //
         // test that Factory is holding a wallet
         //
         try {
-            AssertUtil.getInstance().assert_true(this, "HD_WalletFactory is holding a wallet", hdwf.get() != null);
+            hdw = hdwf.get();
+            AssertUtil.getInstance().assert_true(this, "HD_WalletFactory is holding a wallet", hdw != null);
         }
         catch(IOException | MnemonicException.MnemonicLengthException e) {
             ;
         }
 
+        return hdw;
     }
 
 }

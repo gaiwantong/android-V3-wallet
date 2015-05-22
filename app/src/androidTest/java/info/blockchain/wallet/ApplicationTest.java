@@ -41,10 +41,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         CreateHDWalletTest createHDTest = new CreateHDWalletTest("CreateHDWalletTest", getActivity());
         createHDTest.test();
 
-        /*
         RestoreHDWalletTest restoreHDTest = new RestoreHDWalletTest("RestoreHDWalletTest", getActivity());
         restoreHDTest.test();
 
+        /*
         PairingTest pairingTest = new PairingTest("PairingTest", getActivity());
         pairingTest.test();
 
