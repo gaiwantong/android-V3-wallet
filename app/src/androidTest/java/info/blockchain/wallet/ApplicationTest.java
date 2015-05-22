@@ -38,10 +38,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         AESTest aesTest = new AESTest("AESTest", getActivity());
         aesTest.test();
 
-        /*
         CreateHDWalletTest createHDTest = new CreateHDWalletTest("CreateHDWalletTest", getActivity());
         createHDTest.test();
 
+        /*
         RestoreHDWalletTest restoreHDTest = new RestoreHDWalletTest("RestoreHDWalletTest", getActivity());
         restoreHDTest.test();
 
