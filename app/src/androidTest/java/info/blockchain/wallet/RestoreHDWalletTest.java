@@ -105,12 +105,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
     }
 
     public HD_Wallet restoreGoodMnemonicWithPassphrase(HD_WalletFactory hdwf) {
-        HD_Wallet hdw = null;
+        HD_Wallet hdw_pass = null;
 
         //
         // test wallet restore with good mnemonic and passphrase
         //
-        HD_Wallet hdw_pass = null;
         try {
             hdw_pass = hdwf.restoreWallet("all all all all all all all all all all all all", "passphrase", 1);
         }
@@ -123,7 +122,7 @@ public class RestoreHDWalletTest extends BlockchainTest {
             AssertUtil.getInstance().assert_true(this, "Good params + passphrase restore non null wallet", hdw_pass != null);
         }
 
-        return hdw;
+        return hdw_pass;
     }
 
     public void differentReceiveChain(HD_Wallet hdw, HD_Wallet hdwp) {
