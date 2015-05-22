@@ -47,10 +47,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         PairingTest pairingTest = new PairingTest("PairingTest", getActivity());
         pairingTest.test();
 
-        /*
         DoubleEncryptionTest deTest = new DoubleEncryptionTest("DoubleEncryptionTest", getActivity());
         deTest.test();
 
+        /*
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
         */
