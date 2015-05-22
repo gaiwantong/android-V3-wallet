@@ -50,10 +50,8 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         DoubleEncryptionTest deTest = new DoubleEncryptionTest("DoubleEncryptionTest", getActivity());
         deTest.test();
 
-        /*
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
-        */
 
         /*
         BlockchainWalletTest bwt = new BlockchainWalletTest("BlockchainWalletTest", getActivity());
