@@ -185,8 +185,8 @@ public class ListActivity extends ActionBarActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface arg0, int arg1) {
                      			Intent intent = new Intent(Intent.ACTION_VIEW);
-                     			// http://maps.google.com/?saddr=34.052222,-118.243611&daddr=37.322778,-122.031944
-                     			intent.setData(Uri.parse("http://maps.google.com/?saddr=" +
+                     			// https://maps.google.com/?saddr=34.052222,-118.243611&daddr=37.322778,-122.031944
+                     			intent.setData(Uri.parse("https://maps.google.com/?saddr=" +
                      					strULat + "," + strULon +
                      					"&daddr=" + b.lat + "," + b.lon
                      					));
