@@ -1,13 +1,11 @@
 package info.blockchain.wallet.payload;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Transaction	{
 
@@ -40,6 +38,8 @@ public class Transaction	{
     	totalValues = new HashMap<String,Long>();
     	inputValues = new HashMap<String,Long>();
     	outputValues = new HashMap<String,Long>();
+
+		parse();
     }
 
     public String getHash() {

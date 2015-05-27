@@ -24,5 +24,6 @@
 	<color name="black">#000000</color>
 	<color name="backup_card_blue">#07537d</color>
 	<color name="backup_card_text">#676767</color>
+	<color name="dropshadow_grey">#CCCCCC</color>
 
 </resources>

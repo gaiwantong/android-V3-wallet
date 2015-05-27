@@ -38,10 +38,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -189,7 +187,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
 
         setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		//Force portrait mode for now
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		//Landscape mode coming soon
+//		boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+//		if (!isTablet)setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         locale = Locale.getDefault();
 
@@ -542,7 +546,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     @Override
                     public void run() {
                         ;
-                    }
+					}
                 });
 
                 Looper.loop();
@@ -600,7 +604,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     @Override
                     public void run() {
                         ;
-                    }
+					}
                 });
 
                 Looper.loop();
@@ -615,7 +619,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivity(intent);
     }
 
-    private void doExchangeRates()	{
+	private void doExchangeRates()	{
         AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
@@ -639,8 +643,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
-        Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
-        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+		Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
+		intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
         startActivityForResult(intent, SCAN_URI);
     }
 
@@ -666,9 +670,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
-        Fragment fragment = new SendFragment();
-        Bundle args = new Bundle();
-        args.putString("btc_address", btc_address);
+		Fragment fragment = new SendFragment();
+		Bundle args = new Bundle();
+		args.putString("btc_address", btc_address);
         args.putBoolean("incoming_from_scan", true);
         if(btc_amount != null) {
             try {
@@ -677,7 +681,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 btcFormat.setMinimumFractionDigits(1);
                 args.putString("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
             }
-            catch(NumberFormatException nfe) {
+            catch (NumberFormatException nfe) {
                 ;
             }
         }

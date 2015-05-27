@@ -3,13 +3,14 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="72dp"
-	android:background="?attr/selectableItemBackground"
+	android:background="@drawable/selector_pearl_white_tx"
 	android:gravity="start">
 
 	<FrameLayout
+		android:id="@+id/tx_row"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="?selectableItemBackground"
+		android:background="@drawable/selector_pearl_white_tx"
 		android:clickable="true">
 
 		<View
@@ -24,7 +25,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="top"
-			android:paddingLeft="16dp"
+			android:paddingLeft="@dimen/left_tx_padding"
 			android:paddingRight="16dp"
 			android:layout_marginTop="16dp"
 			android:fontFamily="sans-serif"
@@ -38,7 +39,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="top"
-			android:paddingLeft="16dp"
+			android:paddingLeft="@dimen/left_tx_padding"
 			android:paddingRight="16dp"
 			android:layout_marginTop="37dp"
 			android:fontFamily="sans-serif"
@@ -52,14 +53,23 @@
 			android:minWidth="120dp"
 			android:layout_height="32dp"
 			android:gravity="center_horizontal|center_vertical"
-			android:layout_gravity="center_vertical|right"
+			android:layout_gravity="bottom|right"
 			android:layout_marginEnd="16dp"
 			android:layout_marginRight="16dp"
+			android:layout_marginBottom="16dp"
 			android:fontFamily="sans-serif"
 			android:text="result"
 			android:background="@drawable/rounded_view_green"
 			android:textColor="@color/white"
 			android:textSize="14sp"/>
+
+		<include
+			layout="@layout/include_txs_details"
+			android:layout_width="match_parent"
+			android:layout_height="200dp"
+			android:layout_centerVertical="true"
+			android:layout_gravity="top"
+			android:visibility="invisible"/>
 
 		<View
 			android:id="@+id/bottom_seperator"

@@ -8,8 +8,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -19,6 +21,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -27,6 +31,9 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.BounceInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,15 +45,20 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -55,6 +67,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.util.WebUtil;
 
 public class BalanceFragment extends Fragment {
 
@@ -91,6 +104,7 @@ public class BalanceFragment extends Fragment {
 	private RecyclerView txList = null;
 	private TxAdapter txAdapter = null;
 	LinearLayoutManager layoutManager;
+	HashMap<View, Boolean> rowViewState = null;
 
 	public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
 
@@ -133,196 +147,23 @@ public class BalanceFragment extends Fragment {
 	float fabTopY;
 	float fabBottomY;
 
+	private int originalHeight = 0;
+	private int newHeight = 0;
+	private int expandDuration = 200;
+	private boolean mIsViewExpanded = false;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		View rootView = inflater.inflate(R.layout.fragment_balance, container, false);
+		View rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
 
-        rootView.setFilterTouchesWhenObscured(true);
-
-        locale = Locale.getDefault();
-
-        thisActivity = getActivity();
-
+		locale = Locale.getDefault();
+		thisActivity = getActivity();
 		setHasOptionsMenu(true);
-
-		initFab(rootView);
 
 		balanceBarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
-		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
-		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-
-		tvBalance1.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	isBTC = (isBTC) ? false : true;
-            	displayBalance();
-            	accountsAdapter.notifyDataSetChanged();
-            	txAdapter.notifyDataSetChanged();
-            	return false;
-            }
-        });
-
-		ArrayList<String> accountList = setAccountSpinner();
-		accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
-		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
-		accountSpinner.setAdapter(accountsAdapter);
-		accountSpinner.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
-					return true;
-				} else if (isBottomSheetOpen) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		});
-		accountSpinner.post(new Runnable() {
-			public void run() {
-				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-					@Override
-					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-						int position = accountSpinner.getSelectedItemPosition();
-
-						selectedAccount = position;
-
-						if (accounts == null || accounts.size() < 1) {
-							return;
-						}
-
-						if (selectedAccount == 0) {
-							txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-						} else {
-							String xpub = account2Xpub(selectedAccount - 1);
-
-							if (xpub != null) {
-								if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-									txs = txMap.get(xpub);
-								}
-							} else {
-								Account hda = accounts.get(selectedAccount - 1);
-								if (hda instanceof ImportedAccount) {
-									txs = MultiAddrFactory.getInstance().getLegacyTxs();
-								}
-							}
-
-						}
-
-						displayBalance();
-
-//						txAdapter.notifyDataSetInvalidated();
-						txAdapter.notifyDataSetChanged();
-					}
-
-					@Override
-					public void onNothingSelected(AdapterView<?> arg0) {
-						;
-					}
-				});
-			}
-		});
-		accountSpinner.setSelection(selectedAccount);
-
-		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
-		txAdapter = new TxAdapter();
-		layoutManager = new LinearLayoutManager(thisActivity);
-		txList.setLayoutManager(layoutManager);
-		txList.setAdapter(txAdapter);
-
-		txList.setOnScrollListener(new CollapseActionbarScrollListener() {
-			@Override
-			public void onMoved(int distance) {
-
-				tvBalance1.setTranslationY(-distance);
-			}
-		});
-
-        displayBalance();
-        updateTx();
-
-        // drawerTitle account now that wallet has been created
-        if(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-    		PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-    		PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-    		PayloadFactory.getInstance(thisActivity).remoteSaveThread();
-        	accountsAdapter.notifyDataSetChanged();
-        }
-        
-		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
-		else {
-			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
-
-		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
-		mLayout.setTouchEnabled(false);
-		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-			@Override
-			public void onPanelSlide(View panel, float slideOffset) {
-			}
-
-			@Override
-			public void onPanelExpanded(View panel) {
-
-			}
-
-			@Override
-			public void onPanelCollapsed(View panel) {
-
-			}
-
-			@Override
-			public void onPanelAnchored(View panel) {
-			}
-
-			@Override
-			public void onPanelHidden(View panel) {
-			}
-		});
-		bottomSel1 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel1));
-		bottomSel1.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Fragment fragment = new SendFragment();
-				Bundle args = new Bundle();
-				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
-				fragment.setArguments(args);
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-				comm.setNavigationDrawerToggleEnabled(true);
-
-			}
-		});
-		bottomSel2 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel2));
-		bottomSel2.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Fragment fragment = new ReceiveFragment();
-				Bundle args = new Bundle();
-				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
-				fragment.setArguments(args);
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-				comm.setNavigationDrawerToggleEnabled(true);
-			}
-		});
-
-		mainContent = (FrameLayout)rootView.findViewById(R.id.balance_main_content);
-		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.balance_main_content_shadow);
-		mainContentShadow.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
-					onAddClicked();
-				}
-			}
-		});
+		setupViews(rootView);
 
         return rootView;
 	}
@@ -494,11 +335,7 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							String strTx = tx.getHash();
-							if (strTx != null) {
-								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-								startActivity(browserIntent);
-							}
+							onRowClick(holder.itemView, position);
 						}
 						return true;
 					}
@@ -513,11 +350,7 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							String strTx = tx.getHash();
-							if (strTx != null) {
-								Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-								startActivity(browserIntent);
-							}
+							onRowClick(holder.itemView, position);
 						}
 						return true;
 					}
@@ -803,6 +636,398 @@ public class BalanceFragment extends Fragment {
 			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
 			view.setLayoutParams(params);
 			return view;
+		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		LayoutInflater inflater = LayoutInflater.from(getActivity());
+		populateViewForOrientation(inflater, (ViewGroup) getView());
+	}
+
+	private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
+		viewGroup.removeAllViewsInLayout();
+		View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
+		setupViews(subview);
+	}
+
+	private void setupViews(View rootView){
+
+		rootView.setFilterTouchesWhenObscured(true);
+
+		initFab(rootView);
+
+		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
+		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+
+		tvBalance1.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				isBTC = (isBTC) ? false : true;
+				displayBalance();
+				accountsAdapter.notifyDataSetChanged();
+				txAdapter.notifyDataSetChanged();
+				return false;
+			}
+		});
+
+		ArrayList<String> accountList = setAccountSpinner();
+		accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
+		accountSpinner.setAdapter(accountsAdapter);
+		accountSpinner.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+					return true;
+				} else if (isBottomSheetOpen) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		});
+		accountSpinner.post(new Runnable() {
+			public void run() {
+				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+						int position = accountSpinner.getSelectedItemPosition();
+
+						selectedAccount = position;
+
+						if (accounts == null || accounts.size() < 1) {
+							return;
+						}
+
+						if (selectedAccount == 0) {
+							txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+						} else {
+							String xpub = account2Xpub(selectedAccount - 1);
+
+							if (xpub != null) {
+								if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+									txs = txMap.get(xpub);
+								}
+							} else {
+								Account hda = accounts.get(selectedAccount - 1);
+								if (hda instanceof ImportedAccount) {
+									txs = MultiAddrFactory.getInstance().getLegacyTxs();
+								}
+							}
+
+						}
+
+						displayBalance();
+
+//						txAdapter.notifyDataSetInvalidated();
+						txAdapter.notifyDataSetChanged();
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						;
+					}
+				});
+			}
+		});
+		accountSpinner.setSelection(selectedAccount);
+
+		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
+		txAdapter = new TxAdapter();
+		layoutManager = new LinearLayoutManager(thisActivity);
+		txList.setLayoutManager(layoutManager);
+		txList.setAdapter(txAdapter);
+
+		txList.setOnScrollListener(new CollapseActionbarScrollListener() {
+			@Override
+			public void onMoved(int distance) {
+
+				tvBalance1.setTranslationY(-distance);
+			}
+		});
+
+		displayBalance();
+		updateTx();
+
+		// drawerTitle account now that wallet has been created
+		if(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+			PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+			PayloadFactory.getInstance(thisActivity).remoteSaveThread();
+			accountsAdapter.notifyDataSetChanged();
+		}
+
+		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+		}
+		else {
+			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+		}
+
+		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+		mLayout.setTouchEnabled(false);
+		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+			@Override
+			public void onPanelSlide(View panel, float slideOffset) {
+			}
+
+			@Override
+			public void onPanelExpanded(View panel) {
+
+			}
+
+			@Override
+			public void onPanelCollapsed(View panel) {
+
+			}
+
+			@Override
+			public void onPanelAnchored(View panel) {
+			}
+
+			@Override
+			public void onPanelHidden(View panel) {
+			}
+		});
+		bottomSel1 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel1));
+		bottomSel1.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new SendFragment();
+				Bundle args = new Bundle();
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
+				fragment.setArguments(args);
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+				comm.setNavigationDrawerToggleEnabled(true);
+
+			}
+		});
+		bottomSel2 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel2));
+		bottomSel2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Fragment fragment = new ReceiveFragment();
+				Bundle args = new Bundle();
+				args.putInt("selected_account", selectedAccount == 0 ? 0 : selectedAccount - 1);
+				fragment.setArguments(args);
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+				comm.setNavigationDrawerToggleEnabled(true);
+			}
+		});
+
+		mainContent = (FrameLayout)rootView.findViewById(R.id.balance_main_content);
+		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.balance_main_content_shadow);
+		mainContentShadow.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
+					onAddClicked();
+				}
+			}
+		});
+
+		rowViewState = new HashMap<View, Boolean>();
+	}
+
+	private void onRowClick(final View view, int position){
+		if(txs != null) {
+			final Tx tx = txs.get(position);
+			double _btc_balance = tx.getAmount() / 1e8;
+			final String strTx = tx.getHash();
+			String strConfirmations = Long.toString(tx.getConfirmations());
+
+			String stringResult = null;
+			try {
+				stringResult = new AsyncTask<Void, Void, String>(){
+
+					@Override
+					protected String doInBackground(Void... params) {
+
+						String stringResult = null;
+						try {
+							stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION+strTx+"?format=json");
+
+						} catch (JSONException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						try {
+							mIsViewExpanded = rowViewState.get(view);
+						} catch (Exception e) {
+							mIsViewExpanded = false;
+						}
+
+						return stringResult;
+					}
+
+				}.execute().get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+
+
+			Transaction transaction = null;
+			try {
+				transaction = new Transaction(new JSONObject(stringResult));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			Log.v("", "fee: " + transaction.getFee());
+			Log.v("", "fee formatted: " + MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee())+" "+getDisplayUnits());
+			Log.v("", "FROM: " + transaction.getInputs().get(0).addr);
+			Log.v("", "TO:   " + transaction.getOutputs().get(0).addr);
+
+			final LinearLayout txsDetails = (LinearLayout) view.findViewById(R.id.txs_details);
+
+			TextView tvFee = (TextView)view.findViewById(R.id.tx_fee_value);
+			tvFee.setText(MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee())+" "+getDisplayUnits());
+
+			String fromAddress =transaction.getInputs().get(0).addr;
+//				fromAddress = resolveAddress(fromAddress);
+
+			TextView tvOutAddr = (TextView)view.findViewById(R.id.tx_from_addr);
+			tvOutAddr.setText(fromAddress);
+
+			String toAddress =transaction.getOutputs().get(0).addr;
+//				toAddress = resolveAddress(toAddress);
+
+			TextView tvToAddr = (TextView)view.findViewById(R.id.tx_to_addr);
+			tvToAddr.setText(toAddress);
+
+			TextView from = (TextView)view.findViewById(R.id.tx_from);
+			TextView to = (TextView)view.findViewById(R.id.tx_to);
+			View div3 = view.findViewById(R.id.div3);
+			View div4 = view.findViewById(R.id.div4);
+
+			if(tx.isMove()) {
+				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_transfer_blue_50) : getResources().getColor(R.color.blockchain_transfer_blue));
+				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_transfer_blue_50) : getResources().getColor(R.color.blockchain_transfer_blue));
+				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+			}
+			else if(_btc_balance < 0.0) {
+				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_red_50) : getResources().getColor(R.color.blockchain_send_red));
+				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_red_50) : getResources().getColor(R.color.blockchain_send_red));
+				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+			}
+			else {
+				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_green_50) : getResources().getColor(R.color.blockchain_receive_green));
+				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_green_50) : getResources().getColor(R.color.blockchain_receive_green));
+				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+			}
+
+			TextView tvConfirmations = (TextView)view.findViewById(R.id.tx_confirmations);
+			tvConfirmations.setText(strConfirmations);
+
+			TextView tvTxHash = (TextView)view.findViewById(R.id.tx_hash);
+			tvTxHash.setText(strTx);
+			tvTxHash.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+						startActivity(browserIntent);
+					}
+					return true;
+				}
+			});
+
+			TextView tvResult = (TextView)view.findViewById(R.id.result);
+			tvResult.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						isBTC = (isBTC) ? false : true;
+						displayBalance();
+						accountsAdapter.notifyDataSetChanged();
+						txAdapter.notifyDataSetChanged();
+					}
+					return true;
+				}
+			});
+
+			if (originalHeight == 0) {
+				originalHeight = view.getHeight();
+			}
+
+			newHeight = originalHeight + txsDetails.getHeight();
+
+			ValueAnimator resizeAnimator;
+			if (!mIsViewExpanded) {
+				//Expanding
+				view.setBackgroundColor(getResources().getColor(R.color.white));
+
+				//Fade Details in - expansion of row will create slide down effect
+				txsDetails.setVisibility(View.VISIBLE);
+				txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
+				txsDetails.setEnabled(true);
+
+				mIsViewExpanded = !mIsViewExpanded;
+				resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+
+			} else {
+				//Collapsing
+				TypedValue outValue = new TypedValue();
+				getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+				view.setBackgroundResource(outValue.resourceId);
+
+				mIsViewExpanded = !mIsViewExpanded;
+				resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
+
+				txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+
+				Animation anim = new AlphaAnimation(1.00f, 0.00f);
+				anim.setDuration(expandDuration / 2);
+				anim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						txsDetails.setVisibility(View.INVISIBLE);
+						txsDetails.setEnabled(false);
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+
+					}
+				});
+
+				txsDetails.startAnimation(anim);
+			}
+
+			//Set and start row collapse/expand
+			resizeAnimator.setDuration(expandDuration);
+			resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+			resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+				public void onAnimationUpdate(ValueAnimator animation) {
+					Integer value = (Integer) animation.getAnimatedValue();
+					view.getLayoutParams().height = value.intValue();
+					view.requestLayout();
+				}
+			});
+
+
+			resizeAnimator.start();
+
+			rowViewState.put(view, mIsViewExpanded);
 		}
 	}
 }
