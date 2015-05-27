@@ -27,7 +27,7 @@ import org.json.JSONException;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.LinuxSecureRandom;
+import info.blockchain.wallet.util.PRNGFixes;
 
 /**
  *
@@ -144,9 +144,12 @@ public class HD_WalletFactory	{
 
         NetworkParameters params = MainNetParams.get();
 
-        LinuxSecureRandom random = new LinuxSecureRandom();
+        // Apply PRNG fixes for Android 4.1
+        PRNGFixes.apply();
+
+        SecureRandom random = new SecureRandom();
         byte seed[] = new byte[len];
-        random.engineNextBytes(seed);
+        random.nextBytes(seed);
 
         InputStream wis = context.getResources().getAssets().open("wordlist/english.txt");
         if(wis != null) {
