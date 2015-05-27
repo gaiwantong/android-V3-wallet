@@ -527,4 +527,42 @@ public class SendFactory	{
         public void onProgress(String message);
     }
 
+    /*
+     *
+     *
+
+    public methods used for unit tests:
+
+     *
+     *
+     *
+     */
+    public List<MyTransactionOutPoint> _getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
+
+        _mapPaths(from[0]);
+        return getUnspentOutputPoints(isHD, from, totalAmount);
+
+    }
+
+    public Pair<Transaction, Long> _makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
+
+        return makeTransaction(isSimpleSend, unspent, receivingAddresses, fee, changeAddress);
+
+    }
+
+    private void _mapPaths(String xpub)  {
+        HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
+        List<String> data = unspentOutputs.get(xpub);
+        froms = new HashMap<String,String>();
+        for(String f : data) {
+            if(f != null) {
+                String[] s = f.split(",");
+                // get path info which will be used to calculate private key
+                froms.put(s[1], s[0]);
+            }
+        }
+
+        from = froms.keySet().toArray(new String[froms.keySet().size()]);
+    }
+
 }

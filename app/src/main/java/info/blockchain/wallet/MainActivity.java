@@ -72,6 +72,7 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.util.PRNGFixes;
 
 //import android.nfc.Tag;
 
@@ -115,6 +116,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         super.onCreate(savedInstanceState);
 
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        // Apply PRNG fixes for Android 4.1
+        PRNGFixes.apply();
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
 

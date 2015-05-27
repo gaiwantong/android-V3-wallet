@@ -37,9 +37,23 @@ public class CreateHDWalletTest extends BlockchainTest {
      * Test something
      */
     public void test() {
-        HD_WalletFactory hdwf = HD_WalletFactory.getInstance(context);
-        AssertUtil.getInstance().assert_true(this, "HD_WalletFactory instance returned", hdwf != null);
+        HD_WalletFactory hdwf = getFactoryInstance(context);
 
+        HD_Wallet hdw = createDefaultWallet(hdwf);
+
+        hdw = createDefaultWalletWithBadParams(hdwf);
+
+        hdw = isHoldingWallet(hdwf);
+
+    }
+
+    public HD_WalletFactory getFactoryInstance(Context ctx) {
+        HD_WalletFactory hdwf = HD_WalletFactory.getInstance(ctx);
+        AssertUtil.getInstance().assert_true(this, "HD_WalletFactory instance returned", hdwf != null);
+        return hdwf;
+    }
+
+    public HD_Wallet createDefaultWallet(HD_WalletFactory hdwf) {
         HD_Wallet hdw = null;
 
         //
@@ -55,6 +69,12 @@ public class CreateHDWalletTest extends BlockchainTest {
             AssertUtil.getInstance().assert_true(this, "Good params create new wallet", hdw != null);
         }
 
+        return hdw;
+    }
+
+    public HD_Wallet createDefaultWalletWithBadParams(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
+
         //
         // test default wallet create with bad params, should return a good default wallet
         //
@@ -68,16 +88,24 @@ public class CreateHDWalletTest extends BlockchainTest {
             AssertUtil.getInstance().assert_true(this, "Bad params create new wallet", hdw != null);
         }
 
+        return hdw;
+    }
+
+    public HD_Wallet isHoldingWallet(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
+
         //
         // test that Factory is holding a wallet
         //
         try {
-            AssertUtil.getInstance().assert_true(this, "HD_WalletFactory is holding a wallet", hdwf.get() != null);
+            hdw = hdwf.get();
+            AssertUtil.getInstance().assert_true(this, "HD_WalletFactory is holding a wallet", hdw != null);
         }
         catch(IOException | MnemonicException.MnemonicLengthException e) {
             ;
         }
 
+        return hdw;
     }
 
 }

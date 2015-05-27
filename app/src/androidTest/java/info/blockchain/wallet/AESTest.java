@@ -38,18 +38,37 @@ public class AESTest extends BlockchainTest {
         CharSequenceX pw = new CharSequenceX("password");
         int iterations = AESUtil.QRCodePBKDF2Iterations;
 
+        String encrypted = encryptOK(cleartext, pw, iterations);
+
+        String decrypted = decryptOK(encrypted, cleartext, pw, iterations);
+
+        String decrypted2 = decryptFailPW(encrypted, cleartext, new CharSequenceX("bogus"), iterations);
+
+        String decrypted3 = decryptFailIterations(encrypted, cleartext, pw, iterations + 1);
+    }
+
+    public String encryptOK(String cleartext, CharSequenceX pw, int iterations) {
         String encrypted = AESUtil.encrypt(cleartext, pw, iterations);
         AssertUtil.getInstance().assert_true(this, "Encrypted string returned", encrypted != null);
+        return encrypted;
+    }
 
+    public String decryptOK(String encrypted, String cleartext, CharSequenceX pw, int iterations) {
         String decrypted = AESUtil.decrypt(encrypted, pw, iterations);
         AssertUtil.getInstance().assert_true(this, "Decrypted == cleartext", cleartext.equals(decrypted));
+        return decrypted;
+    }
 
-        String decrypted2 = AESUtil.decrypt(encrypted, new CharSequenceX("bogus"), iterations);
-        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad password", !cleartext.equals(decrypted2));
+    public String decryptFailPW(String encrypted, String cleartext, CharSequenceX pw, int iterations) {
+        String decrypted = AESUtil.decrypt(encrypted, new CharSequenceX("bogus"), iterations);
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad password", !cleartext.equals(decrypted));
+        return decrypted;
+    }
 
-        String decrypted3 = AESUtil.decrypt(encrypted, pw, iterations + 1);
-        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad no. of iterations", !cleartext.equals(decrypted3));
-
+    public String decryptFailIterations(String encrypted, String cleartext, CharSequenceX pw, int iterations) {
+        String decrypted = AESUtil.decrypt(encrypted, pw, iterations + 1);
+        AssertUtil.getInstance().assert_true(this, "Decrypt fails w/ bad no. of iterations", !cleartext.equals(decrypted));
+        return decrypted;
     }
 
 }

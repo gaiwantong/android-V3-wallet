@@ -33,10 +33,24 @@ public class SSLVerifierTest extends BlockchainTest {
      */
     public void test() {
 
-        SSLVerifierUtil ssl = SSLVerifierUtil.getInstance();
-        AssertUtil.getInstance().assert_true(this, "Finds valid hostname", ssl.isValidHostname());
-        AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificateIsPinned());
+        SSLVerifierUtil ssl = getSSLVerifierInstance();
+        checkHostname(ssl);
+        checkCertificatePinning(ssl);
 
+    }
+
+    public SSLVerifierUtil getSSLVerifierInstance() {
+        SSLVerifierUtil ssl = SSLVerifierUtil.getInstance();
+        AssertUtil.getInstance().assert_true(this, "SSLVerifierUtil instance returned", ssl != null);
+        return ssl;
+    }
+
+    public void checkHostname(SSLVerifierUtil ssl) {
+        AssertUtil.getInstance().assert_true(this, "Finds valid hostname", ssl.isValidHostname());
+    }
+
+    public void checkCertificatePinning(SSLVerifierUtil ssl) {
+        AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificateIsPinned());
     }
 
 }
