@@ -835,7 +835,7 @@ public class BalanceFragment extends Fragment {
 		rowViewState = new HashMap<View, Boolean>();
 	}
 
-	private void onRowClick(final View view, int position){
+	private void onRowClick(final View view, final int position){
 		if(txs != null) {
 			final Tx tx = txs.get(position);
 			double _btc_balance = tx.getAmount() / 1e8;
@@ -955,6 +955,17 @@ public class BalanceFragment extends Fragment {
 						displayBalance();
 						accountsAdapter.notifyDataSetChanged();
 						txAdapter.notifyDataSetChanged();
+					}
+					return true;
+				}
+			});
+
+			txsDetails.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						onRowClick(view, position);
 					}
 					return true;
 				}
