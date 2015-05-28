@@ -45,11 +45,12 @@
 					android:background="@drawable/container_dropshadow_left"/>
 
 				<LinearLayout
-					android:id="@+id/tx_details_layout"
+					android:id="@+id/txs_details"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
 					android:layout_marginTop="72dp"
 					android:layout_weight="5"
+					android:visibility="invisible"
 					android:orientation="vertical">
 
 					<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -101,7 +102,6 @@
 										android:fontFamily="sans-serif"
 										android:gravity="center_vertical"
 										android:padding="16dp"
-										android:text="0.0001 BTC"
 										android:textColor="@color/primary_text_default_material_light"
 										android:textSize="14sp"
 										/>
@@ -144,7 +144,6 @@
 										android:fontFamily="sans-serif"
 										android:gravity="center_vertical"
 										android:padding="16dp"
-										android:text="1652"
 										android:textColor="@color/primary_text_default_material_light"
 										android:textSize="14sp"
 										/>
@@ -188,7 +187,6 @@
 										android:fontFamily="sans-serif"
 										android:gravity="center_vertical"
 										android:padding="16dp"
-										android:text="cn8r7o8wcn7ro8w3hro8wb98rw983r687v4b87w4tv7niwyt98vy3b8vtbyiow4yt89vw4tyo8w4tyv8owyvto8wyvot8wnotvwt"
 										android:textColor="@color/blockchain_blue"
 										android:textSize="14sp"
 										/>
@@ -243,7 +241,8 @@
 
 
 				<LinearLayout
-					android:id="@+id/p1"
+					android:id="@+id/to_from_view"
+					android:visibility="invisible"
 					android:layout_width="0dp"
 					android:layout_weight="1"
 					android:layout_height="72dp"
@@ -258,7 +257,7 @@
 						>
 
 						<TextView
-							android:id="@+id/from"
+							android:id="@+id/tx_from"
 							android:layout_width="0dp"
 							android:layout_height="match_parent"
 							android:layout_gravity="right|center_vertical"
@@ -272,6 +271,7 @@
 							/>
 
 						<View
+							android:id="@+id/div3"
 							android:layout_width="5dp"
 							android:layout_height="match_parent"
 							android:background="@color/blockchain_transfer_blue"
@@ -279,6 +279,7 @@
 							/>
 
 						<TextView
+							android:id="@+id/tx_from_addr"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_gravity="left|center_vertical"
@@ -286,7 +287,6 @@
 							android:fontFamily="sans-serif"
 							android:gravity="left|center_vertical"
 							android:paddingLeft="8dp"
-							android:text="Savings account 1"
 							android:textColor="#FF000000"
 							android:textSize="14sp"
 							/>
@@ -301,7 +301,7 @@
 						>
 
 						<TextView
-							android:id="@+id/to"
+							android:id="@+id/tx_to"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_gravity="right|center_vertical"
@@ -323,7 +323,7 @@
 							/>
 
 						<TextView
-							android:id="@+id/to_address"
+							android:id="@+id/tx_to_addr"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_gravity="left|center_vertical"
@@ -331,7 +331,6 @@
 							android:fontFamily="sans-serif"
 							android:gravity="left|center_vertical"
 							android:paddingLeft="8dp"
-							android:text="981dh87gfd187fh6918rh691691nfeifsy"
 							android:textColor="#FF000000"
 							android:textSize="14sp"
 							/>

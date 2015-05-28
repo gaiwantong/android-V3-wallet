@@ -1,78 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/txs_details"
-			  xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="@android:color/transparent"
-			  android:orientation="vertical"
-			  android:paddingTop="12dp">
+<LinearLayout
+	android:id="@+id/txs_details"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/white"
+	android:orientation="vertical"
+	android:paddingBottom="8dp"
+	android:paddingTop="8dp">
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingLeft="@dimen/left_tx_padding"
-		android:orientation="horizontal">
+		android:orientation="vertical"
+		android:visibility="visible">
 
-		<View
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="2"
-			android:background="@android:color/transparent"/>
+		<ProgressBar
+			android:id="@+id/progress_view"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"/>
 
 		<LinearLayout
-			android:id="@+id/p1"
-			android:layout_width="0dp"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:minHeight="62dp"
-			android:layout_weight="6"
-			android:orientation="vertical"
-			>
+			android:orientation="vertical">
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal"
+				android:paddingBottom="8dp"
+				android:paddingLeft="16dp"
+				android:paddingRight="16dp"
+				android:paddingTop="8dp"
 				>
 
 				<TextView
 					android:id="@+id/tx_from"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
-					android:layout_gravity="right|center_vertical"
-					android:layout_marginBottom="4dp"
-					android:layout_marginTop="4dp"
-					android:layout_weight="1"
+					android:layout_weight="2"
 					android:fontFamily="sans-serif"
 					android:gravity="center_vertical"
 					android:text="@string/from"
-					android:textColor="@color/blockchain_transfer_blue"
-					android:textSize="12sp"
-					/>
+					android:textColor="@color/primary_text_default_material_light"
+					android:textSize="14sp"
+					android:textStyle="bold"
 
-				<View
-					android:id="@+id/div3"
-					android:layout_width="5dp"
-					android:layout_height="match_parent"
-					android:background="@color/blockchain_transfer_blue"
-					android:orientation="vertical"
-					android:paddingBottom="4dp"
-					android:paddingTop="4dp"
 					/>
 
 				<TextView
 					android:id="@+id/tx_from_addr"
 					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_gravity="left|center_vertical"
-					android:layout_marginBottom="4dp"
-					android:layout_marginTop="4dp"
-					android:layout_weight="4"
+					android:layout_height="match_parent"
+					android:layout_weight="3"
 					android:fontFamily="sans-serif"
-					android:gravity="left|center_vertical"
-					android:paddingLeft="8dp"
-					android:textColor="#FF000000"
-					android:textSize="10sp"
-					android:paddingRight="16dp"
+					android:gravity="center_vertical"
+					android:textColor="@color/primary_text_default_material_light"
+					android:textSize="14sp"
 					/>
 
 			</LinearLayout>
@@ -81,61 +67,50 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal"
+				android:paddingBottom="8dp"
+				android:paddingLeft="16dp"
+				android:paddingRight="16dp"
+				android:paddingTop="8dp"
 				>
 
 				<TextView
 					android:id="@+id/tx_to"
 					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right|center_vertical"
-					android:layout_marginBottom="4dp"
-					android:layout_marginTop="4dp"
-					android:layout_weight="1"
+					android:layout_height="match_parent"
+					android:layout_weight="2"
 					android:fontFamily="sans-serif"
 					android:gravity="center_vertical"
 					android:text="@string/to"
-					android:textColor="@color/blockchain_transfer_blue"
-					android:textSize="12sp"
-					/>
+					android:textColor="@color/primary_text_default_material_light"
+					android:textSize="14sp"
+					android:textStyle="bold"
 
-				<View
-					android:id="@+id/div4"
-					android:layout_width="5dp"
-					android:layout_height="match_parent"
-					android:background="@color/blockchain_transfer_blue"
-					android:orientation="vertical"
-					android:paddingBottom="4dp"
-					android:paddingTop="4dp"
 					/>
 
 				<TextView
 					android:id="@+id/tx_to_addr"
 					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_gravity="left|center_vertical"
-					android:layout_marginBottom="4dp"
-					android:layout_marginTop="4dp"
-					android:layout_weight="4"
+					android:layout_height="match_parent"
+					android:layout_weight="3"
 					android:fontFamily="sans-serif"
-					android:gravity="left|center_vertical"
-					android:paddingLeft="8dp"
-					android:paddingRight="16dp"
-					android:textColor="#FF000000"
-					android:textSize="10sp"
+					android:gravity="center_vertical"
+					android:textColor="@color/primary_text_default_material_light"
+					android:textSize="14sp"
 					/>
-
 
 			</LinearLayout>
 
 		</LinearLayout>
-
-	</LinearLayout>
+	</RelativeLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		android:paddingLeft="@dimen/left_tx_padding"
+		android:paddingBottom="8dp"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		android:paddingTop="8dp"
 		>
 
 		<TextView
@@ -144,11 +119,43 @@
 			android:layout_weight="2"
 			android:fontFamily="sans-serif"
 			android:gravity="center_vertical"
-			android:paddingBottom="8dp"
-			android:paddingTop="8dp"
-			android:text="Transaction fee"
+			android:text="@string/confirmations"
 			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="12sp"
+			android:textSize="14sp"
+			/>
+
+		<TextView
+			android:id="@+id/tx_confirmations"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="3"
+			android:fontFamily="sans-serif"
+			android:gravity="center_vertical"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textSize="14sp"
+			/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="8dp"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		android:paddingTop="8dp"
+		>
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="2"
+			android:fontFamily="sans-serif"
+			android:gravity="center_vertical"
+			android:text="@string/transaction_fee"
+			android:textColor="@color/primary_text_default_material_light"
+			android:textSize="14sp"
 
 			/>
 
@@ -159,29 +166,20 @@
 			android:layout_weight="3"
 			android:fontFamily="sans-serif"
 			android:gravity="center_vertical"
-			android:paddingBottom="8dp"
-			android:paddingTop="8dp"
 			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="12sp"
+			android:textSize="14sp"
 			/>
 
 	</LinearLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginRight="20dp"
-		android:background="@color/blockchain_light_grey"
-		android:orientation="horizontal"
-		>
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		android:paddingLeft="@dimen/left_tx_padding"
+		android:paddingBottom="8dp"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		android:paddingTop="8dp"
 		>
 
 		<TextView
@@ -190,55 +188,9 @@
 			android:layout_weight="2"
 			android:fontFamily="sans-serif"
 			android:gravity="center_vertical"
-			android:paddingBottom="8dp"
-			android:paddingTop="8dp"
-			android:text="Confirmations"
+			android:text="@string/transaction_hash"
 			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="12sp"
-			/>
-
-		<TextView
-			android:id="@+id/tx_confirmations"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="3"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:paddingBottom="8dp"
-			android:paddingTop="8dp"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="12sp"
-			/>
-
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginRight="20dp"
-		android:background="@color/blockchain_light_grey"
-		android:orientation="horizontal"
-		>
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:minHeight="72dp"
-		android:orientation="horizontal"
-		android:paddingLeft="@dimen/left_tx_padding"
-		>
-
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="2"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:text="Transaction hash"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="12sp"
+			android:textSize="14sp"
 			/>
 
 		<TextView
@@ -248,21 +200,12 @@
 			android:layout_weight="3"
 			android:fontFamily="sans-serif"
 			android:gravity="center_vertical"
-			android:paddingRight="16dp"
+			android:marqueeRepeatLimit="marquee_forever"
+			android:singleLine="true"
 			android:textColor="@color/blockchain_blue"
-			android:textSize="10sp"
+			android:textSize="14sp"
 			/>
 
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginRight="20dp"
-		android:background="@color/blockchain_light_grey"
-		android:orientation="horizontal"
-		>
 	</LinearLayout>
 
 </LinearLayout>

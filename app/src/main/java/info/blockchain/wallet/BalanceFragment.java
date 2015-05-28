@@ -21,7 +21,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -151,11 +150,12 @@ public class BalanceFragment extends Fragment {
 	private int newHeight = 0;
 	private int expandDuration = 200;
 	private boolean mIsViewExpanded = false;
+	private View rootView = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		View rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
+		rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
 
 		locale = Locale.getDefault();
 		thisActivity = getActivity();
@@ -258,7 +258,11 @@ public class BalanceFragment extends Fragment {
 		@Override
 		public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-			View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple2, parent, false);
+			View v = null;
+
+			boolean isTwoPane = getResources().getBoolean(R.bool.isTwoPane);
+			if(!isTwoPane)v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
+			else v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
 			return new ViewHolder(v);
 		}
 
@@ -335,7 +339,9 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							onRowClick(holder.itemView, position);
+
+							if(!getResources().getBoolean(R.bool.isTwoPane))onRowClick(holder.itemView, position);
+							else onRowClick(rootView, position);
 						}
 						return true;
 					}
@@ -350,7 +356,8 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							onRowClick(holder.itemView, position);
+							if(!getResources().getBoolean(R.bool.isTwoPane))onRowClick(holder.itemView, position);
+							else onRowClick(rootView, position);
 						}
 						return true;
 					}
@@ -574,9 +581,10 @@ public class BalanceFragment extends Fragment {
 						//48 = row height
 						//16 = padding
 						int padding = 26;
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)padding = 18;//shadow 4dp top and bottom - so 8dp here
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+							padding = 18;//shadow 4dp top and bottom - so 8dp here
 
-						fabTopY = fabBottomY + (((56/2)+padding)*displayMetrics.density) - ((48+48+16)*displayMetrics.density);
+						fabTopY = fabBottomY + (((56 / 2) + padding) * displayMetrics.density) - ((48 + 48 + 16) * displayMetrics.density);
 
 						//Move up
 						movingFabUp = ValueAnimator.ofFloat(fabBottomY, fabTopY);
@@ -838,100 +846,23 @@ public class BalanceFragment extends Fragment {
 	private void onRowClick(final View view, final int position){
 		if(txs != null) {
 			final Tx tx = txs.get(position);
-			double _btc_balance = tx.getAmount() / 1e8;
 			final String strTx = tx.getHash();
-			String strConfirmations = Long.toString(tx.getConfirmations());
+			final String strConfirmations = Long.toString(tx.getConfirmations());
 
-			String stringResult = null;
-			try {
-				stringResult = new AsyncTask<Void, Void, String>(){
-
-					@Override
-					protected String doInBackground(Void... params) {
-
-						String stringResult = null;
-						try {
-							stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION+strTx+"?format=json");
-
-						} catch (JSONException e) {
-							e.printStackTrace();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-						try {
-							mIsViewExpanded = rowViewState.get(view);
-						} catch (Exception e) {
-							mIsViewExpanded = false;
-						}
-
-						return stringResult;
-					}
-
-				}.execute().get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
-
-
-			Transaction transaction = null;
-			try {
-				transaction = new Transaction(new JSONObject(stringResult));
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			Log.v("", "fee: " + transaction.getFee());
-			Log.v("", "fee formatted: " + MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee())+" "+getDisplayUnits());
-			Log.v("", "FROM: " + transaction.getInputs().get(0).addr);
-			Log.v("", "TO:   " + transaction.getOutputs().get(0).addr);
-
+			//Set views
 			final LinearLayout txsDetails = (LinearLayout) view.findViewById(R.id.txs_details);
+			final LinearLayout txsToFromView = (LinearLayout) view.findViewById(R.id.to_from_view);
+			final TextView tvOutAddr = (TextView) view.findViewById(R.id.tx_from_addr);
+			final TextView tvToAddr = (TextView) view.findViewById(R.id.tx_to_addr);
+			final TextView tvConfirmations = (TextView) view.findViewById(R.id.tx_confirmations);
+			final TextView tvFee = (TextView) view.findViewById(R.id.tx_fee_value);
+			final TextView tvTxHash = (TextView) view.findViewById(R.id.tx_hash);
+			final ProgressBar progressView = (ProgressBar)view.findViewById(R.id.progress_view);
 
-			TextView tvFee = (TextView)view.findViewById(R.id.tx_fee_value);
-			tvFee.setText(MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee())+" "+getDisplayUnits());
+			progressView.setVisibility(View.VISIBLE);
+			tvOutAddr.setVisibility(View.INVISIBLE);
+			tvToAddr.setVisibility(View.INVISIBLE);
 
-			String fromAddress =transaction.getInputs().get(0).addr;
-//				fromAddress = resolveAddress(fromAddress);
-
-			TextView tvOutAddr = (TextView)view.findViewById(R.id.tx_from_addr);
-			tvOutAddr.setText(fromAddress);
-
-			String toAddress =transaction.getOutputs().get(0).addr;
-//				toAddress = resolveAddress(toAddress);
-
-			TextView tvToAddr = (TextView)view.findViewById(R.id.tx_to_addr);
-			tvToAddr.setText(toAddress);
-
-			TextView from = (TextView)view.findViewById(R.id.tx_from);
-			TextView to = (TextView)view.findViewById(R.id.tx_to);
-			View div3 = view.findViewById(R.id.div3);
-			View div4 = view.findViewById(R.id.div4);
-
-			if(tx.isMove()) {
-				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_transfer_blue_50) : getResources().getColor(R.color.blockchain_transfer_blue));
-				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_transfer_blue_50) : getResources().getColor(R.color.blockchain_transfer_blue));
-				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
-				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
-			}
-			else if(_btc_balance < 0.0) {
-				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_red_50) : getResources().getColor(R.color.blockchain_send_red));
-				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_red_50) : getResources().getColor(R.color.blockchain_send_red));
-				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
-				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
-			}
-			else {
-				div3.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_green_50) : getResources().getColor(R.color.blockchain_receive_green));
-				div4.setBackgroundColor(tx.getConfirmations() < 3 ? getResources().getColor(R.color.blockchain_green_50) : getResources().getColor(R.color.blockchain_receive_green));
-				from.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
-				to.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
-			}
-
-			TextView tvConfirmations = (TextView)view.findViewById(R.id.tx_confirmations);
-			tvConfirmations.setText(strConfirmations);
-
-			TextView tvTxHash = (TextView)view.findViewById(R.id.tx_hash);
 			tvTxHash.setText(strTx);
 			tvTxHash.setOnTouchListener(new OnTouchListener() {
 				@Override
@@ -945,7 +876,7 @@ public class BalanceFragment extends Fragment {
 				}
 			});
 
-			TextView tvResult = (TextView)view.findViewById(R.id.result);
+			TextView tvResult = (TextView) view.findViewById(R.id.result);
 			tvResult.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
@@ -971,11 +902,65 @@ public class BalanceFragment extends Fragment {
 				}
 			});
 
+			//Get Details
+			new AsyncTask<Void, Void, String>() {
+
+				@Override
+				protected String doInBackground(Void... params) {
+
+					String stringResult = null;
+					try {
+						stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
+
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					return stringResult;
+				}
+
+				@Override
+				protected void onPostExecute(String stringResult) {
+					super.onPostExecute(stringResult);
+
+					if (stringResult != null) {
+						Transaction transaction = null;
+						try {
+							transaction = new Transaction(new JSONObject(stringResult));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						progressView.setVisibility(View.GONE);
+
+						tvFee.setText(MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee()) + " " + getDisplayUnits());
+						String fromAddress = transaction.getInputs().get(0).addr;
+//						fromAddress = resolveAddress(fromAddress);
+						tvOutAddr.setText(fromAddress);
+						String toAddress = transaction.getOutputs().get(0).addr;
+//						toAddress = resolveAddress(toAddress);
+						tvToAddr.setText(toAddress);
+						tvConfirmations.setText(strConfirmations);
+
+						tvOutAddr.setVisibility(View.VISIBLE);
+						tvToAddr.setVisibility(View.VISIBLE);
+					}
+				}
+			}.execute();
+
+			//Single Pane View - Expand and collapse details
 			if (originalHeight == 0) {
 				originalHeight = view.getHeight();
 			}
 
 			newHeight = originalHeight + txsDetails.getHeight();
+
+			try {
+				mIsViewExpanded = rowViewState.get(view);
+			} catch (Exception e) {
+				mIsViewExpanded = false;
+			}
 
 			ValueAnimator resizeAnimator;
 			if (!mIsViewExpanded) {
