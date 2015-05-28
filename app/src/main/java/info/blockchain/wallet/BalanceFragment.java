@@ -934,13 +934,44 @@ public class BalanceFragment extends Fragment {
 						}
 						progressView.setVisibility(View.GONE);
 
-						tvFee.setText(MonetaryUtil.getInstance().getDisplayAmount(transaction.getFee()) + " " + getDisplayUnits());
-						String fromAddress = transaction.getInputs().get(0).addr;
-//						fromAddress = resolveAddress(fromAddress);
+						String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx*(transaction.getFee() / 1e8)) + " " + strFiat);
+						if(isBTC)fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+						tvFee.setText(fee);
+
+						//Receive Address
+						StringBuilder fromAddress = new StringBuilder("");
+						if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1st addr for receive
+							fromAddress.append(transaction.getInputs().get(0).addr);
+						else
+							for(Transaction.xPut ip : transaction.getInputs()){
+								if(!fromAddress.toString().isEmpty())fromAddress.append("\n");
+
+								if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
+									fromAddress.append("Account Label");//TODO resolve addr to label
+								}else
+									fromAddress.append(ip.addr);
+							}
 						tvOutAddr.setText(fromAddress);
-						String toAddress = transaction.getOutputs().get(0).addr;
-//						toAddress = resolveAddress(toAddress);
+
+						//To Address
+						StringBuilder toAddress = new StringBuilder("");
+						for(Transaction.xPut ip : transaction.getOutputs()){
+							if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
+								if(tx.getDirection().equals(MultiAddrFactory.SENT))continue;//change
+								if(tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount()!=(double)ip.value)continue;//change
+
+								if(!toAddress.toString().isEmpty())toAddress.append("\n");
+								toAddress.append("Account Label");//TODO resolve addr to label
+
+							}else {
+								if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))continue;
+
+								if(!toAddress.toString().isEmpty())toAddress.append("\n");
+								toAddress.append(ip.addr);
+							}
+						}
 						tvToAddr.setText(toAddress);
+
 						tvConfirmations.setText(strConfirmations);
 
 						tvOutAddr.setVisibility(View.VISIBLE);
