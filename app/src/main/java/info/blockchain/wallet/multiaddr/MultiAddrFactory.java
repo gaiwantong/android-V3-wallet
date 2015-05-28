@@ -25,6 +25,7 @@ public class MultiAddrFactory	{
     private static HashMap<String,List<Tx>> xpub_txs = null;
     private static List<Tx> legacy_txs = null;
     private static HashMap<String,List<String>> haveUnspentOuts = null;
+    private static List<String> own_hd_addresses = null;
 
     private static HashMap<String,Integer> highestTxReceiveIdx = null;
     private static HashMap<String,Integer> highestTxChangeIdx = null;
@@ -35,9 +36,9 @@ public class MultiAddrFactory	{
 
     private MultiAddrFactory()	{ ; }
 
-	public static final String RECEIVED = "RECEIVED";
-	public static final String SENT = "SENT";
-	public static final String MOVED = "MOVED";
+    public static final String RECEIVED = "RECEIVED";
+    public static final String SENT = "SENT";
+    public static final String MOVED = "MOVED";
 
     public static MultiAddrFactory getInstance() {
 
@@ -51,6 +52,7 @@ public class MultiAddrFactory	{
             highestTxChangeIdx = new HashMap<String,Integer>();
             legacy_balance = 0L;
             xpub_balance = 0L;
+            own_hd_addresses = new ArrayList<String>();
             instance = new MultiAddrFactory();
         }
 
@@ -157,6 +159,7 @@ public class MultiAddrFactory	{
             if(jsonObject.has("txs"))  {
 
                 xpub_txs = new HashMap<String,List<Tx>>();
+                own_hd_addresses = new ArrayList<String>();
 
                 JSONArray txArray = (JSONArray)jsonObject.get("txs");
                 JSONObject txObj = null;
@@ -196,6 +199,9 @@ public class MultiAddrFactory	{
                             JSONObject xpubObj = (JSONObject)prevOutObj.get("xpub");
                             addr = (String)xpubObj.get("m");
                             mf_addr = addr;
+                            if(prevOutObj.has("addr") && !own_hd_addresses.contains(prevOutObj.has("addr")))  {
+                                own_hd_addresses.add((String)prevOutObj.get("addr"));
+                            }
                         }
                         else  {
                             o_addr = (String)prevOutObj.get("addr");
@@ -215,6 +221,9 @@ public class MultiAddrFactory	{
                             if(path.startsWith("M/0/"))  {
                                 move_amount = outObj.getLong("value");
                                 mt_addr = addr;
+                            }
+                            if(outObj.has("addr") && !own_hd_addresses.contains(outObj.has("addr")))  {
+                                own_hd_addresses.add((String)outObj.get("addr"));
                             }
 
                             //
@@ -429,6 +438,10 @@ public class MultiAddrFactory	{
 
     public long getTotalBalance()  {
         return xpub_balance + legacy_balance;
+    }
+
+    public boolean isOwnHDAddress(String addr)  {
+        return own_hd_addresses.contains(addr);
     }
 
     public HashMap<String,Long> getXpubAmounts()  {
