@@ -26,6 +26,7 @@ public class MultiAddrFactory	{
     private static List<Tx> legacy_txs = null;
     private static HashMap<String,List<String>> haveUnspentOuts = null;
     private static List<String> own_hd_addresses = null;
+    private static HashMap<String,String> address_2_xpub = null;
 
     private static HashMap<String,Integer> highestTxReceiveIdx = null;
     private static HashMap<String,Integer> highestTxChangeIdx = null;
@@ -53,6 +54,7 @@ public class MultiAddrFactory	{
             legacy_balance = 0L;
             xpub_balance = 0L;
             own_hd_addresses = new ArrayList<String>();
+            address_2_xpub = new HashMap<String,String>();
             instance = new MultiAddrFactory();
         }
 
@@ -160,6 +162,7 @@ public class MultiAddrFactory	{
 
                 xpub_txs = new HashMap<String,List<Tx>>();
                 own_hd_addresses = new ArrayList<String>();
+                address_2_xpub = new HashMap<String,String>();
 
                 JSONArray txArray = (JSONArray)jsonObject.get("txs");
                 JSONObject txObj = null;
@@ -201,6 +204,7 @@ public class MultiAddrFactory	{
                             mf_addr = addr;
                             if(prevOutObj.has("addr") && !own_hd_addresses.contains(prevOutObj.has("addr")))  {
                                 own_hd_addresses.add((String)prevOutObj.get("addr"));
+                                address_2_xpub.put((String)prevOutObj.get("addr"), addr);
                             }
                         }
                         else  {
@@ -224,6 +228,7 @@ public class MultiAddrFactory	{
                             }
                             if(outObj.has("addr") && !own_hd_addresses.contains(outObj.has("addr")))  {
                                 own_hd_addresses.add((String)outObj.get("addr"));
+                                address_2_xpub.put((String)outObj.get("addr"), addr);
                             }
 
                             //
@@ -440,8 +445,8 @@ public class MultiAddrFactory	{
         return xpub_balance + legacy_balance;
     }
 
-    public boolean isOwnHDAddress(String addr)  {
-        return own_hd_addresses.contains(addr);
+    public HashMap<String,String> getAddress2Xpub()  {
+        return address_2_xpub;
     }
 
     public HashMap<String,Long> getXpubAmounts()  {
