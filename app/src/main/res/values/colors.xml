@@ -10,7 +10,6 @@
 	<color name="blockchain_pearl_white">#fafafa</color>
     <color name="blockchain_grey">#FF808080</color>
     <color name="blockchain_light_grey">#FFf0f0f0</color>
-	<color name="blockchain_lighter_grey">#80f0f0f0</color>
 	<color name="blockchain_navigation_bar">#FF000000</color>
 	<color name="textColorPrimary">@color/primary_text_default_material_light</color>
 
@@ -20,7 +19,6 @@
 
 	<color name="white">#FFffff</color>
 	<color name="white_50">#80ffffff</color>
-	<color name="white_80">#CCffffff</color>
 
 	<color name="black">#000000</color>
 	<color name="backup_card_blue">#07537d</color>
