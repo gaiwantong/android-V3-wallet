@@ -192,12 +192,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         setContentView(R.layout.activity_main);
 
-		//Force portrait mode for now
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-		//Landscape mode coming soon
-//		boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-//		if (!isTablet)setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		if (!getResources().getBoolean(R.bool.isRotatable))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         locale = Locale.getDefault();
 
