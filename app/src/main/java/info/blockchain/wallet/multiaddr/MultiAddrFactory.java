@@ -445,6 +445,10 @@ public class MultiAddrFactory	{
         return xpub_balance + legacy_balance;
     }
 
+    public boolean isOwnHDAddress(String addr)  {
+        return own_hd_addresses.contains(addr);
+    }
+    
     public HashMap<String,String> getAddress2Xpub()  {
         return address_2_xpub;
     }
