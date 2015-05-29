@@ -2,6 +2,6 @@
 <!--Device is >= 7" -->
 <resources>
 	<item name="balance_layout_oriented" type="layout">@layout/fragment_balance_singlepane</item>
-	<bool name="isTwoPane">false</bool>
+	<bool name="isDualPane">false</bool>
 	<bool name="isRotatable">false</bool>
 </resources>

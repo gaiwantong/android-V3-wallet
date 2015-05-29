@@ -151,6 +151,7 @@ public class BalanceFragment extends Fragment {
 	private int expandDuration = 200;
 	private boolean mIsViewExpanded = false;
 	private View rootView = null;
+	private View prevRowClicked = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -260,7 +261,7 @@ public class BalanceFragment extends Fragment {
 
 			View v = null;
 
-			boolean isTwoPane = getResources().getBoolean(R.bool.isTwoPane);
+			boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
 			if(!isTwoPane)v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
 			else v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
 			return new ViewHolder(v);
@@ -339,9 +340,7 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-
-							if(!getResources().getBoolean(R.bool.isTwoPane))onRowClick(holder.itemView, position);
-							else onRowClick(rootView, position);
+							onRowClick(holder.itemView, position);
 						}
 						return true;
 					}
@@ -356,8 +355,7 @@ public class BalanceFragment extends Fragment {
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							if(!getResources().getBoolean(R.bool.isTwoPane))onRowClick(holder.itemView, position);
-							else onRowClick(rootView, position);
+							onRowClick(holder.itemView, position);
 						}
 						return true;
 					}
@@ -748,13 +746,14 @@ public class BalanceFragment extends Fragment {
 		txList.setLayoutManager(layoutManager);
 		txList.setAdapter(txAdapter);
 
-		txList.setOnScrollListener(new CollapseActionbarScrollListener() {
-			@Override
-			public void onMoved(int distance) {
+		if(!getResources().getBoolean(R.bool.isDualPane))
+			txList.setOnScrollListener(new CollapseActionbarScrollListener() {
+				@Override
+				public void onMoved(int distance) {
 
-				tvBalance1.setTranslationY(-distance);
-			}
-		});
+					tvBalance1.setTranslationY(-distance);
+				}
+			});
 
 		displayBalance();
 		updateTx();
@@ -850,15 +849,26 @@ public class BalanceFragment extends Fragment {
 			final String strConfirmations = Long.toString(tx.getConfirmations());
 
 			//Set views
-			final LinearLayout txsDetails = (LinearLayout) view.findViewById(R.id.txs_details);
-			final LinearLayout txsToFromView = (LinearLayout) view.findViewById(R.id.to_from_view);
-			final TextView tvOutAddr = (TextView) view.findViewById(R.id.tx_from_addr);
-			final TextView tvToAddr = (TextView) view.findViewById(R.id.tx_to_addr);
-			final TextView tvConfirmations = (TextView) view.findViewById(R.id.tx_confirmations);
-			final TextView tvFee = (TextView) view.findViewById(R.id.tx_fee_value);
-			final TextView tvTxHash = (TextView) view.findViewById(R.id.tx_hash);
-			final ProgressBar progressView = (ProgressBar)view.findViewById(R.id.progress_view);
+			View detailsView = view;
+			if(getResources().getBoolean(R.bool.isDualPane))
+				detailsView = rootView;
 
+			final LinearLayout txsDetails = (LinearLayout) detailsView.findViewById(R.id.txs_details);
+			final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
+			final TextView tvToAddr = (TextView) detailsView.findViewById(R.id.tx_to_addr);
+			final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
+			final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
+			final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
+			final ProgressBar progressView = (ProgressBar)detailsView.findViewById(R.id.progress_view);
+
+			if(prevRowClicked!=null && prevRowClicked==txList.getLayoutManager().getChildAt(position)){
+				txsDetails.setVisibility(View.INVISIBLE);
+				prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
+				prevRowClicked = null;
+				return;
+			}
+
+			txsDetails.setVisibility(View.VISIBLE);
 			progressView.setVisibility(View.VISIBLE);
 			tvOutAddr.setVisibility(View.INVISIBLE);
 			tvToAddr.setVisibility(View.INVISIBLE);
@@ -891,16 +901,17 @@ public class BalanceFragment extends Fragment {
 				}
 			});
 
-			txsDetails.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+			if(!getResources().getBoolean(R.bool.isDualPane))
+				txsDetails.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
 
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						onRowClick(view, position);
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							onRowClick(view, position);
+						}
+						return true;
 					}
-					return true;
-				}
-			});
+				});
 
 			//Get Details
 			new AsyncTask<Void, Void, String>() {
@@ -981,80 +992,91 @@ public class BalanceFragment extends Fragment {
 			}.execute();
 
 			//Single Pane View - Expand and collapse details
-			if (originalHeight == 0) {
-				originalHeight = view.getHeight();
-			}
+			if(!getResources().getBoolean(R.bool.isDualPane)) {
+				if (originalHeight == 0) {
+					originalHeight = view.getHeight();
+				}
 
-			newHeight = originalHeight + txsDetails.getHeight();
+				newHeight = originalHeight + txsDetails.getHeight();
 
-			try {
-				mIsViewExpanded = rowViewState.get(view);
-			} catch (Exception e) {
-				mIsViewExpanded = false;
-			}
+				try {
+					mIsViewExpanded = rowViewState.get(view);
+				} catch (Exception e) {
+					mIsViewExpanded = false;
+				}
 
-			ValueAnimator resizeAnimator;
-			if (!mIsViewExpanded) {
-				//Expanding
-				view.setBackgroundColor(getResources().getColor(R.color.white));
+				ValueAnimator resizeAnimator;
+				if (!mIsViewExpanded) {
+					//Expanding
+					view.setBackgroundColor(getResources().getColor(R.color.white));
 
-				//Fade Details in - expansion of row will create slide down effect
-				txsDetails.setVisibility(View.VISIBLE);
-				txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
-				txsDetails.setEnabled(true);
+					//Fade Details in - expansion of row will create slide down effect
+					txsDetails.setVisibility(View.VISIBLE);
+					txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
+					txsDetails.setEnabled(true);
 
-				mIsViewExpanded = !mIsViewExpanded;
-				resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+					mIsViewExpanded = !mIsViewExpanded;
+					resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
 
-			} else {
-				//Collapsing
-				TypedValue outValue = new TypedValue();
-				getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-				view.setBackgroundResource(outValue.resourceId);
+				} else {
+					//Collapsing
+					TypedValue outValue = new TypedValue();
+					getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+					view.setBackgroundResource(outValue.resourceId);
 
-				mIsViewExpanded = !mIsViewExpanded;
-				resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
+					mIsViewExpanded = !mIsViewExpanded;
+					resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
-				txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+					txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
 
-				Animation anim = new AlphaAnimation(1.00f, 0.00f);
-				anim.setDuration(expandDuration / 2);
-				anim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation animation) {
+					Animation anim = new AlphaAnimation(1.00f, 0.00f);
+					anim.setDuration(expandDuration / 2);
+					anim.setAnimationListener(new Animation.AnimationListener() {
+						@Override
+						public void onAnimationStart(Animation animation) {
 
-					}
+						}
 
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						txsDetails.setVisibility(View.INVISIBLE);
-						txsDetails.setEnabled(false);
-					}
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							txsDetails.setVisibility(View.INVISIBLE);
+							txsDetails.setEnabled(false);
+						}
 
-					@Override
-					public void onAnimationRepeat(Animation animation) {
+						@Override
+						public void onAnimationRepeat(Animation animation) {
 
+						}
+					});
+
+					txsDetails.startAnimation(anim);
+				}
+
+				//Set and start row collapse/expand
+				resizeAnimator.setDuration(expandDuration);
+				resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+					public void onAnimationUpdate(ValueAnimator animation) {
+						Integer value = (Integer) animation.getAnimatedValue();
+						view.getLayoutParams().height = value.intValue();
+						view.requestLayout();
 					}
 				});
 
-				txsDetails.startAnimation(anim);
+
+				resizeAnimator.start();
+
+				rowViewState.put(view, mIsViewExpanded);
+			}else
+			{
+				//Dual Pane View
+				view.findViewById(R.id.tx_row).setBackgroundResource(R.color.blockchain_light_grey);
+
+				if(prevRowClicked!=null)
+					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
+
+				prevRowClicked = view;
 			}
-
-			//Set and start row collapse/expand
-			resizeAnimator.setDuration(expandDuration);
-			resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-			resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-				public void onAnimationUpdate(ValueAnimator animation) {
-					Integer value = (Integer) animation.getAnimatedValue();
-					view.getLayoutParams().height = value.intValue();
-					view.requestLayout();
-				}
-			});
-
-
-			resizeAnimator.start();
-
-			rowViewState.put(view, mIsViewExpanded);
 		}
 	}
 }
