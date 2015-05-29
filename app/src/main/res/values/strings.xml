@@ -51,33 +51,19 @@
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
-    <!--
-    <string name="main_password_text">Please enter your main password below.</string>
-    <string name="wallet_identifier_title">Wallet Identifier</string>
-    <string name="manual_pairing_prompt">For manual pairing: Enter your 36 character wallet identifier including dashes and your password. Make sure that 2FA is disabled.</string>
-    -->
-
     <string name="options_id">Blockchain Identifier</string>
     <string name="options_id2">Your Blockchain identifier</string>
     <string name="preferences_about_title">About Us</string>
     <string name="about_us">About us</string>
 
-    <string name="ask_you_sure_exit">Are you sure you want to exit Blockchain Wallet?</string>
     <string name="ask_you_sure_unpair">Are you sure you want to unpair your device?</string>
-    <string name="ask_you_sure_forget">Are you sure you want to erase your PIN code and define a new one?</string>
 
     <string name="select_currency">Select Currency</string>
     <string name="options_currency">Currency</string>
     <string name="options_currency2">Your preferred fiat currency</string>
 
-    <string name="options_unpair">Unpair Device</string>
-    <string name="options_unpair2">Unpair this device to import a different wallet</string>
     <string name="options_mnemonic">Show Mnemonic</string>
     <string name="options_mnemonic2">Show mnemonic for this wallet</string>
-    <string name="options_hexseed">Show Hex Seed</string>
-    <string name="options_hexseed2">Show hex seed for this wallet</string>
-    <string name="options_passphrase">Show BIP39 Passphrase</string>
-    <string name="options_passphrase2">Show BIP39 Passphrase for this wallet</string>
     <string name="options_units">BTC Units</string>
     <string name="options_units2">BTC, mBTC or bits</string>
     <string name="options_tos">Terms of Service</string>
@@ -116,12 +102,6 @@
 
     <string name="double_encryption_password_error">Double encrypt password error. Please try again.</string>
 
-    <string name="setup1">We will only use your email address to help you gain access to a lost wallet or for wallet backups. Blockchain has no access to your password, so it cannot be reset or recovered by us. Don\'t lose it!</string>
-    <string name="setup2">Your Blockchain Wallet is a collection of bitcoin addresses that are grouped together into Accounts. You can create unlimited accounts at any time.</string>
-    <string name="setup3">Your PIN code will be used to quickly access your wallet on this device only. If you forget your PIN code you can still login into your wallet with your password.</string>
-    <string name="setup4">Click the green verify button we emailed to you. If you didn\'t receive the email use the button below to resend.</string>
-    <string name="setup5">To quickly login to your wallet without having to type your ID or password open your wallet on the web and scan the \"Pairing Code\" with this device.</string>
-    <string name="command1">RESEND EMAIL</string>
     <string name="command2">Scan Pairing Code</string>
 	<string name="command3">I can\'t access my camera</string>
     <string name="CREATE">CREATE A NEW WALLET</string>
@@ -151,16 +131,7 @@
     <string name="CONFIRM">CONFIRM PAYMENT</string>
     <string name="GO_BACK">GO BACK</string>
 
-    <string name="miners_fee">Bitcoin Network Fee</string>
-    <string name="add_note">Add/Edit Note</string>
-    <string name="add_tags">Add Tag</string>
-
-    <string name="network_fee">Network fee</string>
     <string name="total_to_send">Total To Send</string>
-    <string name="choose_fee">Choose fee</string>
-    <string name="frugal">Frugal</string>
-    <string name="standard">Standard</string>
-    <string name="generous">Generous</string>
 
     <string name="no_funds_available">No funds available for this account</string>
     <string name="max_available">Maximum available:</string>
