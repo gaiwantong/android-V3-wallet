@@ -58,8 +58,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         bwt.test();
         */
 
+        /*
         SendTest sendTest = new SendTest("SendTest", getActivity());
         sendTest.test();
+        */
 
     }
 

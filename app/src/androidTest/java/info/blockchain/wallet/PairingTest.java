@@ -33,7 +33,7 @@ public class PairingTest extends BlockchainTest {
      */
     public void test() {
 
-        String strGood = "1|524b5e9f-72ea-4690-b28c-8c1cfce65ca0|MZfQWMPJHjUkAqlEOrm97qIryrXygiXlPNQGh3jppS6GXJZf5mmD2kti0Mf/Bwqw7+OCWWqUf8r19EB+YmgRcWmGxsstWPE2ZR4oJrKpmpo=";
+        String strGood = "--LEGIT_PAIRING_STRING_HERE--";
         // missing 1 part
         String strBad1 = "1|524b5e9f-72ea-4690-b28c-8c1cfce65ca0MZfQWMPJHjUkAqlEOrm97qIryrXygiXlPNQGh3jppS6GXJZf5mmD2kti0Mf/Bwqw7+OCWWqUf8r19EB+YmgRcWmGxsstWPE2ZR4oJrKpmpo=";
         // missing 2 parts

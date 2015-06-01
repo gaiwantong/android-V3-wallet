@@ -131,7 +131,7 @@ public class PairingFactory	{
         String response = WebUtil.getInstance().getURL(WebUtil.PAIRING_URL + "/" + guid + "?format=json&resend_code=false", "SID="+sid);
 
         JSONObject jsonObject = new JSONObject(response);
-        Log.i("Pairing", "Returned object:" + jsonObject.toString());
+//        Log.i("Pairing", "Returned object:" + jsonObject.toString());
 
 		if(jsonObject.toString().contains("initial_error")) {
 			String authError = (String) jsonObject.get("initial_error");
