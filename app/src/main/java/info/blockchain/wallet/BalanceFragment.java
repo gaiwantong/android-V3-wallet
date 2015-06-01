@@ -849,6 +849,12 @@ public class BalanceFragment extends Fragment {
 			final String strTx = tx.getHash();
 			final String strConfirmations = Long.toString(tx.getConfirmations());
 
+			try {
+				mIsViewExpanded = rowViewState.get(view);
+			} catch (Exception e) {
+				mIsViewExpanded = false;
+			}
+
 			//Set views
 			View detailsView = view;
 			if(getResources().getBoolean(R.bool.isDualPane))
@@ -862,153 +868,159 @@ public class BalanceFragment extends Fragment {
 			final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
 			final ProgressBar progressView = (ProgressBar)detailsView.findViewById(R.id.progress_view);
 
-			if(prevRowClicked!=null && prevRowClicked==txList.getLayoutManager().getChildAt(position)){
-				txsDetails.setVisibility(View.INVISIBLE);
-				prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
-				prevRowClicked = null;
-				return;
-			}
-
-			txsDetails.setVisibility(View.VISIBLE);
-			progressView.setVisibility(View.VISIBLE);
-			tvOutAddr.setVisibility(View.INVISIBLE);
-			tvToAddr.setVisibility(View.INVISIBLE);
-
-			tvTxHash.setText(strTx);
-			tvTxHash.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-						startActivity(browserIntent);
-					}
-					return true;
+			if(getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
+				if(prevRowClicked!=null && prevRowClicked==txList.getLayoutManager().getChildAt(position)){
+					txsDetails.setVisibility(View.INVISIBLE);
+					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
+					prevRowClicked = null;
+					return;
 				}
-			});
 
-			TextView tvResult = (TextView) view.findViewById(R.id.result);
-			tvResult.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+				txsDetails.setVisibility(View.VISIBLE);
+				progressView.setVisibility(View.VISIBLE);
+				tvOutAddr.setVisibility(View.INVISIBLE);
+				tvToAddr.setVisibility(View.INVISIBLE);
 
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						isBTC = (isBTC) ? false : true;
-						displayBalance();
-						accountsAdapter.notifyDataSetChanged();
-						txAdapter.notifyDataSetChanged();
-					}
-					return true;
-				}
-			});
-
-			if(!getResources().getBoolean(R.bool.isDualPane))
-				txsDetails.setOnTouchListener(new OnTouchListener() {
+				tvTxHash.setText(strTx);
+				tvTxHash.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
-							onRowClick(view, position);
+							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+							startActivity(browserIntent);
 						}
 						return true;
 					}
 				});
 
-			//Get Details
-			new AsyncTask<Void, Void, String>() {
+				TextView tvResult = (TextView) view.findViewById(R.id.result);
+				tvResult.setOnTouchListener(new OnTouchListener() {
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
 
-				@Override
-				protected String doInBackground(Void... params) {
-
-					String stringResult = null;
-					try {
-						stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
-
-					} catch (JSONException e) {
-						e.printStackTrace();
-					} catch (Exception e) {
-						e.printStackTrace();
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							isBTC = (isBTC) ? false : true;
+							displayBalance();
+							accountsAdapter.notifyDataSetChanged();
+							txAdapter.notifyDataSetChanged();
+						}
+						return true;
 					}
+				});
 
-					return stringResult;
-				}
+				if(!getResources().getBoolean(R.bool.isDualPane))
+					txsDetails.setOnTouchListener(new OnTouchListener() {
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
 
-				@Override
-				protected void onPostExecute(String stringResult) {
-					super.onPostExecute(stringResult);
+							if (event.getAction() == MotionEvent.ACTION_UP) {
+								onRowClick(view, position);
+							}
+							return true;
+						}
+					});
 
-					if (stringResult != null) {
-						Transaction transaction = null;
+				//Get Details
+				new AsyncTask<Void, Void, String>() {
+
+					@Override
+					protected String doInBackground(Void... params) {
+
+						String stringResult = null;
 						try {
-							transaction = new Transaction(new JSONObject(stringResult));
+							stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
+
 						} catch (JSONException e) {
 							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
-						progressView.setVisibility(View.GONE);
 
-						String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx*(transaction.getFee() / 1e8)) + " " + strFiat);
-						if(isBTC)fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
-						tvFee.setText(fee);
+						return stringResult;
+					}
 
-						//Receive Address
-						StringBuilder fromAddress = new StringBuilder("");
-						if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1 addr for receive
-							fromAddress.append(transaction.getInputs().get(0).addr);
-						else
-							for(Transaction.xPut ip : transaction.getInputs()){
-								if(!fromAddress.toString().isEmpty())fromAddress.append("\n");
+					@Override
+					protected void onPostExecute(String stringResult) {
+						super.onPostExecute(stringResult);
 
-								if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
+						if (stringResult != null) {
+							Transaction transaction = null;
+							try {
+								transaction = new Transaction(new JSONObject(stringResult));
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+							progressView.setVisibility(View.GONE);
+
+							String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
+							if (isBTC)
+								fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+							tvFee.setText(fee);
+
+							//Receive Address
+							StringBuilder fromAddress = new StringBuilder("");
+							if (tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1 addr for receive
+								fromAddress.append(transaction.getInputs().get(0).addr);
+							else
+								for (Transaction.xPut ip : transaction.getInputs()) {
+									if (!fromAddress.toString().isEmpty()) fromAddress.append("\n");
+
+									if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
+
+										HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
+										Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
+										int accIndex = xpubAcc.get(xpub.get(ip.addr));
+
+										List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+										if (acc != null)
+											fromAddress.append(acc.get(accIndex).getLabel());
+										else
+											fromAddress.append(ip.addr);
+									} else
+										fromAddress.append(ip.addr);
+								}
+							tvOutAddr.setText(fromAddress);
+
+							//To Address
+							StringBuilder toAddress = new StringBuilder("");
+							for (Transaction.xPut ip : transaction.getOutputs()) {
+								if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
+									if (tx.getDirection().equals(MultiAddrFactory.SENT))
+										continue;//change addr
+									if (tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount() != (double) ip.value)
+										continue;//change addr
+
+									if (!toAddress.toString().isEmpty()) toAddress.append("\n");
 
 									HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
 									Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
 									int accIndex = xpubAcc.get(xpub.get(ip.addr));
 
 									List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-									if(acc!=null)
-										fromAddress.append(acc.get(accIndex).getLabel());
+									if (acc != null)
+										toAddress.append(acc.get(accIndex).getLabel());
 									else
-										fromAddress.append(ip.addr);
-								}else
-									fromAddress.append(ip.addr);
-							}
-						tvOutAddr.setText(fromAddress);
+										toAddress.append(ip.addr);
 
-						//To Address
-						StringBuilder toAddress = new StringBuilder("");
-						for(Transaction.xPut ip : transaction.getOutputs()){
-							if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
-								if(tx.getDirection().equals(MultiAddrFactory.SENT))continue;//change addr
-								if(tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount()!=(double)ip.value)continue;//change addr
+								} else {
+									if (tx.getDirection().equals(MultiAddrFactory.RECEIVED))
+										continue;
 
-								if(!toAddress.toString().isEmpty())toAddress.append("\n");
-
-								HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
-								Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
-								int accIndex = xpubAcc.get(xpub.get(ip.addr));
-
-								List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-								if(acc!=null)
-									toAddress.append(acc.get(accIndex).getLabel());
-								else
+									if (!toAddress.toString().isEmpty()) toAddress.append("\n");
 									toAddress.append(ip.addr);
-
-							}else {
-								if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))continue;
-
-								if(!toAddress.toString().isEmpty())toAddress.append("\n");
-								toAddress.append(ip.addr);
+								}
 							}
+							tvToAddr.setText(toAddress);
+
+							tvConfirmations.setText(strConfirmations);
+
+							tvOutAddr.setVisibility(View.VISIBLE);
+							tvToAddr.setVisibility(View.VISIBLE);
 						}
-						tvToAddr.setText(toAddress);
-
-						tvConfirmations.setText(strConfirmations);
-
-						tvOutAddr.setVisibility(View.VISIBLE);
-						tvToAddr.setVisibility(View.VISIBLE);
 					}
-				}
-			}.execute();
+				}.execute();
+			}
 
 			//Single Pane View - Expand and collapse details
 			if(!getResources().getBoolean(R.bool.isDualPane)) {
@@ -1017,12 +1029,6 @@ public class BalanceFragment extends Fragment {
 				}
 
 				newHeight = originalHeight + txsDetails.getHeight();
-
-				try {
-					mIsViewExpanded = rowViewState.get(view);
-				} catch (Exception e) {
-					mIsViewExpanded = false;
-				}
 
 				ValueAnimator resizeAnimator;
 				if (!mIsViewExpanded) {
