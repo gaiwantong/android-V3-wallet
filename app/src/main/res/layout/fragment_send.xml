@@ -4,6 +4,9 @@
 				android:layout_height="match_parent"
 				android:paddingBottom="0dp"
 				android:paddingTop="0dp"
+				android:paddingLeft="@dimen/padding_send_receive"
+				android:paddingRight="@dimen/padding_send_receive"
+				android:background="@color/blockchain_light_grey"
 				tools:context="info.blockchain.wallet.ui.MainActivity">
 
 	<LinearLayout

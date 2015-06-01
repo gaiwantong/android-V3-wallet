@@ -2,7 +2,10 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent">
+				android:layout_height="match_parent"
+				android:paddingLeft="@dimen/padding_send_receive"
+				android:paddingRight="@dimen/padding_send_receive"
+				android:background="@color/blockchain_light_grey">
 
 	<com.sothree.slidinguppanel.SlidingUpPanelLayout
 		android:id="@+id/sliding_layout"
