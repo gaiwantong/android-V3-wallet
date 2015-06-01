@@ -218,67 +218,68 @@ public class MyAccountsActivity extends Activity {
                         final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
                         final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
 
-                        //Receiving Address
-                        String currentSelectedAddress = null;
-
-                        if (position-2 >= hdAccountsIdx)//2 headers before imported
-                            currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
-                        else {
-                            ReceiveAddress currentSelectedReceiveAddress = null;
-                            try {
-                                currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
-                                currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        addressView.setText(currentSelectedAddress);
-
-                        //Receiving QR
-                        qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
-
-                        if (originalHeight == 0) {
-                            originalHeight = view.getHeight();
-                        }
-
-                        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
-
-                        final String finalCurrentSelectedAddress = currentSelectedAddress;
-                        qrTest.setOnLongClickListener(new View.OnLongClickListener() {
-                            @Override
-                            public boolean onLongClick(View v) {
-
-                                new AlertDialog.Builder(MyAccountsActivity.this)
-                                        .setTitle(R.string.app_name)
-                                        .setMessage(R.string.receive_address_to_clipboard)
-                                        .setCancelable(false)
-                                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                                                android.content.ClipData clip = null;
-                                                clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
-                                                clipboard.setPrimaryClip(clip);
-
-                                                Toast.makeText(MyAccountsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-
-                                            }
-
-                                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        ;
-                                    }
-                                }).show();
-
-                                return false;
-                            }
-                        });
-
                         ValueAnimator headerResizeAnimator;
                         if (!mIsViewExpanded) {
                             //Expanding
+
+							//Receiving Address
+							String currentSelectedAddress = null;
+
+							if (position-2 >= hdAccountsIdx)//2 headers before imported
+								currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
+							else {
+								ReceiveAddress currentSelectedReceiveAddress = null;
+								try {
+									currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
+									currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+							addressView.setText(currentSelectedAddress);
+
+							//Receiving QR
+							qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+
+							if (originalHeight == 0) {
+								originalHeight = view.getHeight();
+							}
+
+							newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
+
+							final String finalCurrentSelectedAddress = currentSelectedAddress;
+							qrTest.setOnLongClickListener(new View.OnLongClickListener() {
+								@Override
+								public boolean onLongClick(View v) {
+
+									new AlertDialog.Builder(MyAccountsActivity.this)
+											.setTitle(R.string.app_name)
+											.setMessage(R.string.receive_address_to_clipboard)
+											.setCancelable(false)
+											.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+												public void onClick(DialogInterface dialog, int whichButton) {
+
+													android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+													android.content.ClipData clip = null;
+													clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
+													clipboard.setPrimaryClip(clip);
+
+													Toast.makeText(MyAccountsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+
+												}
+
+											}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+										public void onClick(DialogInterface dialog, int whichButton) {
+											;
+										}
+									}).show();
+
+									return false;
+								}
+							});
+
                             view.setBackgroundColor(getResources().getColor(R.color.white));
 
                             //Fade QR in - expansion of row will create slide down effect

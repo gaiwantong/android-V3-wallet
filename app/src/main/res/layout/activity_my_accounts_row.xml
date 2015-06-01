@@ -96,8 +96,7 @@
 			android:layout_gravity="center"
 			android:layout_marginLeft="16dp"
 			android:scaleType="centerCrop"
-			android:visibility="invisible"
-			android:src="@drawable/qr"/>
+			android:visibility="invisible"/>
 
 		<View
 			android:id="@+id/bottom_seperator"
