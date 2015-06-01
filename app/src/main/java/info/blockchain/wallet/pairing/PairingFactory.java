@@ -1,7 +1,6 @@
 package info.blockchain.wallet.pairing;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
@@ -18,7 +17,7 @@ import info.blockchain.wallet.util.WebUtil;
 //import android.util.Log;
 
 public class PairingFactory	{
-	
+
 	private static Context context = null;
 
     public static String KEY_EXTRA_IS_PAIRING = "is_pairing";
@@ -29,7 +28,7 @@ public class PairingFactory	{
     private PairingFactory()	{ ; }
 
     public static PairingFactory getInstance(Context ctx) {
-    	
+
     	context = ctx;
 
         if (instance == null) {
@@ -99,7 +98,7 @@ public class PairingFactory	{
             uee.printStackTrace();
             return false;
         }
-        
+
         return true;
     }
 

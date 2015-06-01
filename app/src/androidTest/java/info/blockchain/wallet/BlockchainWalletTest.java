@@ -55,15 +55,15 @@ public class BlockchainWalletTest extends BlockchainTest {
          * during an actual login.
          */
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "--LEGIT_GUID_HERE--");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "--LEGIT_SHARED_KEY_HERE--");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "70c46c4c-6fb2-4790-a4d9-9160ed942263");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "da34c5df854679ba24201cefa4d87e92");
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "LEGIT_PIN_IDENTIFIER_HERE");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "LEGIT_ENCRYPTED_PASSWORD_HERE");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "eca19737359f4df13fa19e88fb34b36c");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "opgdX074+w2yp1aRnK5XfVauaPFbjP7HWdp7eTFE8U0ErWZp/8kzdcqaBCR2re9y");
 
-        CharSequenceX pw = new CharSequenceX("--LEGIT_PASSWORD_HERE--");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "--LEGIT_GUID_HERE--");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "--LEGIT_SHARED_KEY_HERE--");
+        CharSequenceX pw = new CharSequenceX("blockchain_test_wallet_1");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "70c46c4c-6fb2-4790-a4d9-9160ed942263");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "da34c5df854679ba24201cefa4d87e92");
 
         loginGoodParams(pw);
 
@@ -77,8 +77,11 @@ public class BlockchainWalletTest extends BlockchainTest {
         //
         // login w/ PIN tests
         //
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "LEGIT_PIN_IDENTIFIER_HERE");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "LEGIT_ENCRYPTED_PASSWORD_HERE");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "70c46c4c-6fb2-4790-a4d9-9160ed942263");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "da34c5df854679ba24201cefa4d87e92");
+
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "eca19737359f4df13fa19e88fb34b36c");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "opgdX074+w2yp1aRnK5XfVauaPFbjP7HWdp7eTFE8U0ErWZp/8kzdcqaBCR2re9y");
 
         loginGoodPIN();
 
