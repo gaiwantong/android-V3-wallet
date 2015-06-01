@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -951,14 +952,23 @@ public class BalanceFragment extends Fragment {
 
 						//Receive Address
 						StringBuilder fromAddress = new StringBuilder("");
-						if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1st addr for receive
+						if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1 addr for receive
 							fromAddress.append(transaction.getInputs().get(0).addr);
 						else
 							for(Transaction.xPut ip : transaction.getInputs()){
 								if(!fromAddress.toString().isEmpty())fromAddress.append("\n");
 
 								if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
-									fromAddress.append("Account Label");//TODO resolve addr to label
+
+									HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
+									Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
+									int accIndex = xpubAcc.get(xpub.get(ip.addr));
+
+									List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+									if(acc!=null)
+										fromAddress.append(acc.get(accIndex).getLabel());
+									else
+										fromAddress.append(ip.addr);
 								}else
 									fromAddress.append(ip.addr);
 							}
@@ -968,11 +978,20 @@ public class BalanceFragment extends Fragment {
 						StringBuilder toAddress = new StringBuilder("");
 						for(Transaction.xPut ip : transaction.getOutputs()){
 							if(MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)){
-								if(tx.getDirection().equals(MultiAddrFactory.SENT))continue;//change
-								if(tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount()!=(double)ip.value)continue;//change
+								if(tx.getDirection().equals(MultiAddrFactory.SENT))continue;//change addr
+								if(tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount()!=(double)ip.value)continue;//change addr
 
 								if(!toAddress.toString().isEmpty())toAddress.append("\n");
-								toAddress.append("Account Label");//TODO resolve addr to label
+
+								HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
+								Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
+								int accIndex = xpubAcc.get(xpub.get(ip.addr));
+
+								List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+								if(acc!=null)
+									toAddress.append(acc.get(accIndex).getLabel());
+								else
+									toAddress.append(ip.addr);
 
 							}else {
 								if(tx.getDirection().equals(MultiAddrFactory.RECEIVED))continue;
