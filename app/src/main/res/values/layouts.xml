@@ -4,4 +4,5 @@
 	<item name="balance_layout_oriented" type="layout">@layout/fragment_balance_singlepane</item>
 	<bool name="isDualPane">false</bool>
 	<bool name="isRotatable">false</bool>
+	<dimen name="padding_send_receive">0dp</dimen>
 </resources>
