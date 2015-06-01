@@ -17,6 +17,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -50,6 +51,7 @@ import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.apache.commons.codec.DecoderException;
+import org.spongycastle.crypto.engines.GOST28147Engine;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -481,36 +483,62 @@ public class ReceiveFragment extends Fragment {
 			}
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
 			if(!bamount.equals(BigInteger.ZERO)) {
-				ivReceivingQR.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", "")));
+				generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
                 write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
 			}
 			else {
-                ivReceivingQR.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
+                generateQRCode("bitcoin:" + currentSelectedAddress);
                 write2NFC("bitcoin:" + currentSelectedAddress);
 			}
 		}
 		catch(NumberFormatException | ParseException e) {
-            ivReceivingQR.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
+            generateQRCode("bitcoin:" + currentSelectedAddress);
             write2NFC("bitcoin:" + currentSelectedAddress);
 		}
 
-		setupBottomSheet();
     }
 
-    private Bitmap generateQRCode(String uri) {
+    private void generateQRCode(final String uri) {
 
-        Bitmap bitmap = null;
-        int qrCodeDimension = 260;
+		new AsyncTask<Void, Void, Bitmap>(){
 
-        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
+			@Override
+			protected void onPreExecute() {
+				super.onPreExecute();
 
-    	try {
-            bitmap = qrCodeEncoder.encodeAsBitmap();
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-    	
-    	return bitmap;
+				ivReceivingQR.setVisibility(View.GONE);
+				edReceivingAddress.setVisibility(View.GONE);
+				rootView.findViewById(R.id.progressBar2).setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			protected Bitmap doInBackground(Void... params) {
+
+				Bitmap bitmap = null;
+				int qrCodeDimension = 260;
+
+				QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
+
+				try {
+					bitmap = qrCodeEncoder.encodeAsBitmap();
+				} catch (WriterException e) {
+					e.printStackTrace();
+				}
+
+				return bitmap;
+			}
+
+			@Override
+			protected void onPostExecute(Bitmap bitmap) {
+				super.onPostExecute(bitmap);
+				rootView.findViewById(R.id.progressBar2).setVisibility(View.GONE);
+				ivReceivingQR.setVisibility(View.VISIBLE);
+				edReceivingAddress.setVisibility(View.VISIBLE);
+				ivReceivingQR.setImageBitmap(bitmap);
+
+				setupBottomSheet();
+			}
+		}.execute();
     }
 
     private void assignHDReceiveAddress() {

@@ -94,6 +94,13 @@
 					android:orientation="vertical"
 					>
 
+					<ProgressBar
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical|center_horizontal"
+						android:layout_marginTop="32dp"
+						android:id="@+id/progressBar2"/>
+
 					<ImageView
 						android:id="@+id/qr"
 						android:layout_width="260dp"
