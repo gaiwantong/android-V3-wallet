@@ -964,8 +964,6 @@ public class BalanceFragment extends Fragment {
 								fromAddress.append(transaction.getInputs().get(0).addr);
 							else
 								for (Transaction.xPut ip : transaction.getInputs()) {
-									if (!fromAddress.toString().isEmpty()) fromAddress.append("\n");
-
 									if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
 
 										HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
@@ -973,9 +971,14 @@ public class BalanceFragment extends Fragment {
 										int accIndex = xpubAcc.get(xpub.get(ip.addr));
 
 										List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-										if (acc != null)
+										if (acc != null) {
+											if(fromAddress.toString().contains(acc.get(accIndex).getLabel()))
+												continue;
+
+											if (!fromAddress.toString().isEmpty()) fromAddress.append("\n");
+
 											fromAddress.append(acc.get(accIndex).getLabel());
-										else
+										}else
 											fromAddress.append(ip.addr);
 									} else
 										fromAddress.append(ip.addr);
@@ -991,17 +994,25 @@ public class BalanceFragment extends Fragment {
 									if (tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount() != (double) ip.value)
 										continue;//change addr
 
-									if (!toAddress.toString().isEmpty()) toAddress.append("\n");
+
 
 									HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
 									Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
 									int accIndex = xpubAcc.get(xpub.get(ip.addr));
-
 									List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-									if (acc != null)
+
+									if (acc != null) {
+										if (!toAddress.toString().isEmpty()){
+											if(toAddress.toString().contains(acc.get(accIndex).getLabel()))
+												continue;
+											toAddress.append("\n");
+										}
+
 										toAddress.append(acc.get(accIndex).getLabel());
-									else
+									}else {
+										toAddress.append("\n");
 										toAddress.append(ip.addr);
+									}
 
 								} else {
 									if (tx.getDirection().equals(MultiAddrFactory.RECEIVED))
