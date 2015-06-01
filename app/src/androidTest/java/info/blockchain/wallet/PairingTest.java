@@ -33,8 +33,8 @@ public class PairingTest extends BlockchainTest {
      */
     public void test() {
 
-        String strGood = "--LEGIT_PAIRING_STRING_HERE--";
-        // missing 1 part
+        String strGood = "1|70c46c4c-6fb2-4790-a4d9-9160ed942263|V5H7lH+FixpBPTuU2Uv+LLVn0FPs+Kv9VKsHc/TY3PRYBmuVQAWOStJh/6/35+FlIMuybutRLJcfjdycGg26WhwKNsqlzM/im0nOzc7PmjJS8UXcTuQE7NgGRkIi3Xcb20M2/x5gZ7dnvAHYue1P/A==";
+
         String strBad1 = "1|524b5e9f-72ea-4690-b28c-8c1cfce65ca0MZfQWMPJHjUkAqlEOrm97qIryrXygiXlPNQGh3jppS6GXJZf5mmD2kti0Mf/Bwqw7+OCWWqUf8r19EB+YmgRcWmGxsstWPE2ZR4oJrKpmpo=";
         // missing 2 parts
         String strBad2 = "1524b5e9f-72ea-4690-b28c-8c1cfce65ca0MZfQWMPJHjUkAqlEOrm97qIryrXygiXlPNQGh3jppS6GXJZf5mmD2kti0Mf/Bwqw7+OCWWqUf8r19EB+YmgRcWmGxsstWPE2ZR4oJrKpmpo=";
