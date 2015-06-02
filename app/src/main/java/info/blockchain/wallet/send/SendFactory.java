@@ -39,8 +39,6 @@ import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
@@ -90,179 +88,214 @@ public class SendFactory	{
      * @param  LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
      * @param  BigInteger fee Miner's fee
      * @param  String note Note to be attached to this tx
+     *
+     * @return UnspentOutputsBundle
+     */
+    public UnspentOutputsBundle send1(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
+
+        final boolean isHD = accountIdx == -1 ? false : true;
+
+        final String xpub;
+
+        if(isHD) {
+            xpub = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getXpub();
+
+            HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
+            List<String> data = unspentOutputs.get(xpub);
+            froms = new HashMap<String,String>();
+            for(String f : data) {
+                if(f != null) {
+                    String[] s = f.split(",");
+                    // get path info which will be used to calculate private key
+                    froms.put(s[1], s[0]);
+                }
+            }
+
+            from = froms.keySet().toArray(new String[froms.keySet().size()]);
+        }
+        else {
+            xpub = null;
+
+            froms = new HashMap<String,String>();
+            from = new String[1];
+            from[0] = legacyAddress.getAddress();
+        }
+
+        UnspentOutputsBundle ret;
+        try {
+            if(isHD) {
+                ret = getUnspentOutputPoints(true, new String[]{ xpub }, amount.add(fee));
+            }
+            else {
+                ret = getUnspentOutputPoints(false, from, amount.add(fee));
+            }
+        }
+        catch(Exception e) {
+            return null;
+        }
+
+        if(ret.getOutputs() == null) {
+            return null;
+        }
+
+        BigInteger bTotalUnspent = BigInteger.ZERO;
+        for(MyTransactionOutPoint outp : ret.getOutputs()) {
+            bTotalUnspent = bTotalUnspent.add(outp.getValue());
+        }
+        if(amount.compareTo(bTotalUnspent) == 1) {
+            return null;
+        }
+
+        return ret;
+    }
+
+    /**
+     * Send coins from this wallet.
+     * <p>
+     * Collects sending addresses for HD or legacy spend
+     * Collects unspent outputs from sending addresses
+     * Creates transaction
+     * Signs tx
+     * <p>
+     * And even more explanations to follow in consecutive
+     * paragraphs separated by HTML paragraph breaks.
+     *
+     * @param  int accountIdx HD account index, -1 if legacy spend
+     * @param  List<MyTransactionOutPoint> unspent List of unspent outpoints
+     * @param  String toAddress Receiving public address
+     * @param  BigInteger amount Spending amount (not including fee)
+     * @param  LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
+     * @param  BigInteger fee Miner's fee
+     * @param  String note Note to be attached to this tx
      * @param  OpCallback opc
      *
      */
-    public void send(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc) {
+    public void send2(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc) {
 
-    	final boolean isHD = accountIdx == -1 ? false : true;
+        final boolean isHD = accountIdx == -1 ? false : true;
 
-    	final String xpub;
-		
-		if(isHD) {
-	    	xpub = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getXpub();
-			
-			HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
-			List<String> data = unspentOutputs.get(xpub);
-			froms = new HashMap<String,String>();
-			for(String f : data) {
-				if(f != null) {
-					String[] s = f.split(",");
-                    // get path info which will be used to calculate private key
-					froms.put(s[1], s[0]);
-				}
-			}
+        final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
+        receivers.put(toAddress, amount);
 
-			from = froms.keySet().toArray(new String[froms.keySet().size()]);
-		}
-		else {
-			xpub = null;
-			
-			froms = new HashMap<String,String>();
-			from = new String[1];
-			from[0] = legacyAddress.getAddress();
-		}
+        final Handler handler = new Handler();
 
-		final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-		receivers.put(toAddress, amount);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Looper.prepare();
 
-		final Handler handler = new Handler();
+                    Pair<Transaction, Long> pair = null;
+                    String changeAddr = null;
+                    if(isHD) {
+                        int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
+                        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                            changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                        }
+                        else {
+                            changeAddr = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                        }
+                    }
+                    else {
+                        changeAddr = legacyAddress.getAddress();
+                    }
+                    pair = makeTransaction(true, unspent, receivers, fee, changeAddr);
+                    // Transaction cancelled
+                    if(pair == null) {
+                        opc.onFail();
+                        return;
+                    }
+                    Transaction tx = pair.first;
+                    Long priority = pair.second;
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Looper.prepare();
+                    Wallet wallet = new Wallet(MainNetParams.get());
+                    for (TransactionInput input : tx.getInputs()) {
+                        byte[] scriptBytes = input.getOutpoint().getConnectedPubKeyScript();
+                        String address = new BitcoinScript(scriptBytes).getAddress().toString();
+                        ECKey walletKey = null;
+                        try {
+                            String privStr = null;
+                            if(isHD) {
+                                String path = froms.get(address);
+                                String[] s = path.split("/");
+                                HD_Address hd_address = null;
+                                if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                    hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                }
+                                else {
+                                    hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                }
+                                privStr = hd_address.getPrivateKeyString();
+                                walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
+                            }
+                            else {
+                                walletKey = legacyAddress.getECKey();
+                            }
+                        } catch (AddressFormatException afe) {
+                            // skip add Watch Only Bitcoin Address key because already accounted for later with tempKeys
+                            afe.printStackTrace();
+                            continue;
+                        }
 
-					List<MyTransactionOutPoint> allUnspent = null;
-					if(isHD) {
-						allUnspent = getUnspentOutputPoints(true, new String[]{ xpub }, amount.add(fee));
-					}
-					else {
-						allUnspent = getUnspentOutputPoints(false, from, amount.add(fee));
-					}
-					if(allUnspent == null) {
-//						Log.i("SpendThread", "allUnspent == null");
-					}
-//					Log.i("allUnspent list size", "" + allUnspent.size());
-					BigInteger bTotalUnspent = BigInteger.ZERO;
-					for(MyTransactionOutPoint outp : allUnspent) {
-						bTotalUnspent = bTotalUnspent.add(outp.getValue());
-					}
-					if(amount.compareTo(bTotalUnspent) == 1) {
-						return;
-					}
-					Pair<Transaction, Long> pair = null;
-					String changeAddr = null;
-					if(isHD) {
-						int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
-						if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-							changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-						}
-						else {
-							changeAddr = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-						}
-					}
-					else {
-						changeAddr = legacyAddress.getAddress();
-					}
-					pair = makeTransaction(true, allUnspent, receivers, fee, changeAddr);
-					// Transaction cancelled
-					if(pair == null) {
-						opc.onFail();
-						return;
-					}
-					Transaction tx = pair.first;
-					Long priority = pair.second; 
+                        if(walletKey != null) {
+                            wallet.addKey(walletKey);
+                        }
+                        else {
+                            opc.onFail();
+                        }
 
-					Wallet wallet = new Wallet(MainNetParams.get());
-					for (TransactionInput input : tx.getInputs()) {
-						byte[] scriptBytes = input.getOutpoint().getConnectedPubKeyScript();
-						String address = new BitcoinScript(scriptBytes).getAddress().toString();
-						ECKey walletKey = null;
-						try {
-							String privStr = null;
-							if(isHD) {
-								String path = froms.get(address);
-								String[] s = path.split("/");
-								HD_Address hd_address = null;
-								if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-									hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-								}
-								else {
-									hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-								}
-								privStr = hd_address.getPrivateKeyString();
-								walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
-							}
-							else {
-								walletKey = legacyAddress.getECKey();
-							}
-						} catch (AddressFormatException afe) {
-							// skip add Watch Only Bitcoin Address key because already accounted for later with tempKeys
-							afe.printStackTrace();
-							continue;
-						}
+                    }
 
-						if(walletKey != null) {
-							wallet.addKey(walletKey);
-						}
-						else {
-							opc.onFail();
-						}
-
-					}
-
-					// Now sign the inputs
-					tx.signInputs(SigHash.ALL, wallet);
-					String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
-					if(hexString.length() > (100 * 1024)) {
-						opc.onFail();
-						throw new Exception(context.getString(R.string.tx_length_error));
-					}
+                    // Now sign the inputs
+                    tx.signInputs(SigHash.ALL, wallet);
+                    String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
+                    if(hexString.length() > (100 * 1024)) {
+                        opc.onFail();
+                        throw new Exception(context.getString(R.string.tx_length_error));
+                    }
 
 //					Log.i("SendFactory tx string", hexString);
-					String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                    String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
-					if(response.contains("Transaction Submitted")) {
+                    if(response.contains("Transaction Submitted")) {
 
-						opc.onSuccess();
+                        opc.onSuccess();
 
-						if(note != null && note.length() > 0) {
-							Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
-							notes.put(tx.getHashAsString(), note);
-							PayloadFactory.getInstance().get().setNotes(notes);
-						}
+                        if(note != null && note.length() > 0) {
+                            Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+                            notes.put(tx.getHashAsString(), note);
+                            PayloadFactory.getInstance().get().setNotes(notes);
+                        }
 
-						if(isHD && sentChange) {
-							// increment change address counter
-							PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
-						}
+                        if(isHD && sentChange) {
+                            // increment change address counter
+                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                        }
 
-					}
-					else {
-			        	Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-						opc.onFail();
-					}
+                    }
+                    else {
+                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                        opc.onFail();
+                    }
 
 //					progress.onSend(tx, response);
 
-					handler.post(new Runnable() {
-						@Override
-						public void run() {
-							;
-						}
-					});
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ;
+                        }
+                    });
 
-					Looper.loop();
+                    Looper.loop();
 
-				}
-	        	catch(Exception e) {
-	        		e.printStackTrace();
-	        	}
-			}
-		}).start();
-	}
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     /**
      * Collect unspent outputs for this spend.
@@ -275,76 +308,80 @@ public class SendFactory	{
      * @param  String[] Sending addresses (contains 1 XPUB if HD spend, public address(es) if legacy spend
      * @param  BigInteger totalAmount Amount including fee
      *
-     * @return List<MyTransactionOutPoint>
+     * @return UnspentOutputsBundle
      *
      */
-	private List<MyTransactionOutPoint> getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
-		
-		String args = null;
-		if(isHD) {
-			args = from[0];
-		}
-		else {
-			StringBuffer buffer = new StringBuffer();
-			for(int i = 0; i < from.length; i++) {
-				buffer.append(from[i]);
-				if(i != (from.length - 1)) {
-					buffer.append("|");
-				}
-			}
-			
-			args = buffer.toString();
-		}
+    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 
-		String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + args);
+        UnspentOutputsBundle ret = new UnspentOutputsBundle();
+
+        String args = null;
+        if(isHD) {
+            args = from[0];
+        }
+        else {
+            StringBuffer buffer = new StringBuffer();
+            for(int i = 0; i < from.length; i++) {
+                buffer.append(from[i]);
+                if(i != (from.length - 1)) {
+                    buffer.append("|");
+                }
+            }
+
+            args = buffer.toString();
+        }
+
+        String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + args);
 //		Log.i("Unspent outputs", response);
 
-		List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
+        List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
 
-		Map<String, Object> root = (Map<String, Object>)JSONValue.parse(response);
-		List<Map<String, Object>> outputsRoot = (List<Map<String, Object>>)root.get("unspent_outputs");
-		if(outputsRoot == null) {
-			return null;
-		}
-		for (Map<String, Object> outDict : outputsRoot) {
+        Map<String, Object> root = (Map<String, Object>)JSONValue.parse(response);
+        List<Map<String, Object>> outputsRoot = (List<Map<String, Object>>)root.get("unspent_outputs");
+        if(outputsRoot == null) {
+            return null;
+        }
+        for (Map<String, Object> outDict : outputsRoot) {
 
-			byte[] hashBytes = Hex.decode((String)outDict.get("tx_hash"));
+            byte[] hashBytes = Hex.decode((String)outDict.get("tx_hash"));
 
-			Hash hash = new Hash(hashBytes);
-			hash.reverse();
-			Sha256Hash txHash = new Sha256Hash(hash.getBytes());
+            Hash hash = new Hash(hashBytes);
+            hash.reverse();
+            Sha256Hash txHash = new Sha256Hash(hash.getBytes());
 
-			int txOutputN = ((Number)outDict.get("tx_output_n")).intValue();
-			BigInteger value = BigInteger.valueOf(((Number)outDict.get("value")).longValue());
-			byte[] scriptBytes = Hex.decode((String)outDict.get("script"));
-			int confirmations = ((Number)outDict.get("confirmations")).intValue();
+            int txOutputN = ((Number)outDict.get("tx_output_n")).intValue();
+            BigInteger value = BigInteger.valueOf(((Number)outDict.get("value")).longValue());
+            byte[] scriptBytes = Hex.decode((String)outDict.get("script"));
+            int confirmations = ((Number)outDict.get("confirmations")).intValue();
 
-			if(isHD) {
-				String address = new BitcoinScript(scriptBytes).getAddress().toString();
-				String path = null;
-				if(outDict.containsKey("xpub")) {
-					JSONObject obj = (JSONObject)outDict.get("xpub");
-					if(obj.containsKey("path")) {
-						path = (String)obj.get("path");
-						froms.put(address, path);
-					}
-				}
-			}
+            if(isHD) {
+                String address = new BitcoinScript(scriptBytes).getAddress().toString();
+                String path = null;
+                if(outDict.containsKey("xpub")) {
+                    JSONObject obj = (JSONObject)outDict.get("xpub");
+                    if(obj.containsKey("path")) {
+                        path = (String)obj.get("path");
+                        froms.put(address, path);
+                    }
+                }
+            }
 
-			// Construct the output
-			MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
-			outPoint.setConfirmations(confirmations);
+            // Construct the output
+            MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
+            outPoint.setConfirmations(confirmations);
             // return single output >= totalValue, otherwise save for randomization
             if(outPoint.getValue().compareTo(totalAmount) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
-                return outputs;
+                ret.setTotalAmount(outPoint.getValue());
+                ret.setOutputs(outputs);
+                return ret;
             }
             else {
                 outputs.add(outPoint);
             }
 
-		}
+        }
 
         // select the minimum number of outputs necessary
         Collections.sort(outputs, new UnspentOutputAmountComparator());
@@ -358,8 +395,11 @@ public class SendFactory	{
             }
         }
 
-        return _outputs;
-	}
+        ret.setTotalAmount(totalValue);
+        ret.setOutputs(_outputs);
+
+        return ret;
+    }
 
     /**
      * Creates, populates, and returns transaction instance for this
@@ -376,7 +416,7 @@ public class SendFactory	{
      * @return Pair<Transaction, Long>
      *
      */
-	private Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
+	public Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
 
 		long priority = 0;
 
@@ -525,44 +565,6 @@ public class SendFactory	{
 
         public void onError(String message);
         public void onProgress(String message);
-    }
-
-    /*
-     *
-     *
-
-    public methods used for unit tests:
-
-     *
-     *
-     *
-     */
-    public List<MyTransactionOutPoint> _getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
-
-        _mapPaths(from[0]);
-        return getUnspentOutputPoints(isHD, from, totalAmount);
-
-    }
-
-    public Pair<Transaction, Long> _makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
-
-        return makeTransaction(isSimpleSend, unspent, receivingAddresses, fee, changeAddress);
-
-    }
-
-    private void _mapPaths(String xpub)  {
-        HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
-        List<String> data = unspentOutputs.get(xpub);
-        froms = new HashMap<String,String>();
-        for(String f : data) {
-            if(f != null) {
-                String[] s = f.split(",");
-                // get path info which will be used to calculate private key
-                froms.put(s[1], s[0]);
-            }
-        }
-
-        from = froms.keySet().toArray(new String[froms.keySet().size()]);
     }
 
 }

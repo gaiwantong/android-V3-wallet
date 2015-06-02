@@ -491,7 +491,7 @@ public class BitcoinScript {
 	public BitcoinAddress getAddress() {
 		try {
 
-			System.out.println("Out type " + this.getOutType());
+//			System.out.println("Out type " + this.getOutType());
 
 			switch (this.getOutType()) {
 			case ScriptOutTypeAddress:
