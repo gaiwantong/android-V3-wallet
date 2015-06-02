@@ -64,8 +64,10 @@ public class SendTest extends BlockchainTest {
         SendFactory sf = getFactoryInstance(context);
 
         UnspentOutputsBundle unspents = unspentOutputsHD(sf);
-
         makeTransactionHD(sf, unspents);
+
+        unspents = unspentOutputsLegacy(sf);
+        makeTransactionLegacy(sf, unspents);
 
     }
 
@@ -79,7 +81,7 @@ public class SendTest extends BlockchainTest {
 
         UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(0, "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"), null, Utils.toNanoCoins("0.0001"), "");
 
-        AssertUtil.getInstance().assert_true(this, "Has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
+        AssertUtil.getInstance().assert_true(this, "HD has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
 
         return unspents;
     }
@@ -96,11 +98,36 @@ public class SendTest extends BlockchainTest {
             ;
         }
 
-//        System.out.println(pair.first.toString());
-//        System.out.println("" + pair.second);
+        AssertUtil.getInstance().assert_true(this, "HD produces transaction", pair.first != null);
+        AssertUtil.getInstance().assert_true(this, "HD produces priority", pair.second != null);
+    }
 
-        AssertUtil.getInstance().assert_true(this, "Produces transaction", pair.first != null);
-        AssertUtil.getInstance().assert_true(this, "Produces priority", pair.second != null);
+    public UnspentOutputsBundle unspentOutputsLegacy(SendFactory sf) {
+
+        LegacyAddress legacyAddress = new LegacyAddress();
+        legacyAddress.setAddress("1KCgKnEnWLdgpEdwPDKoxwmcnTdopSYx3c");
+
+        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(-1, "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"), legacyAddress, Utils.toNanoCoins("0.0001"), "");
+
+        AssertUtil.getInstance().assert_true(this, "Legacy has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
+
+        return unspents;
+    }
+
+    public void makeTransactionLegacy(SendFactory sf, UnspentOutputsBundle unspents) {
+
+        HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
+        receivers.put("1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"));
+        Pair<Transaction, Long> pair = null;
+        try {
+            pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd");
+        }
+        catch(Exception e) {
+            ;
+        }
+
+        AssertUtil.getInstance().assert_true(this, "Legacy produces transaction", pair.first != null);
+        AssertUtil.getInstance().assert_true(this, "Legacy produces priority", pair.second != null);
     }
 
 /*
