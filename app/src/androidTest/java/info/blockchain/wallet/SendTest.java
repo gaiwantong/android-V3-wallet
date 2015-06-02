@@ -95,7 +95,7 @@ public class SendTest extends BlockchainTest {
             pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd");
         }
         catch(Exception e) {
-            ;
+            e.printStackTrace();
         }
 
         AssertUtil.getInstance().assert_true(this, "HD produces transaction", pair.first != null);
@@ -123,24 +123,11 @@ public class SendTest extends BlockchainTest {
             pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd");
         }
         catch(Exception e) {
-            ;
+            e.printStackTrace();
         }
 
         AssertUtil.getInstance().assert_true(this, "Legacy produces transaction", pair.first != null);
         AssertUtil.getInstance().assert_true(this, "Legacy produces priority", pair.second != null);
     }
 
-/*
-    public Pair<Transaction, Long> makeTransactionHD(SendFactory sf, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) {
-        Pair<Transaction, Long> ret = null;
-        try {
-            ret = sf._makeTransaction(true, unspent, receivingAddresses, fee, changeAddress);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        AssertUtil.getInstance().assert_true(this, "Makes tx", (ret != null && ret.first.getHash() != null));
-        return ret;
-    }
-*/
 }
