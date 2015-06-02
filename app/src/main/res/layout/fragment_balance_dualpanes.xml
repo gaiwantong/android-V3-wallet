@@ -29,15 +29,24 @@
 				android:layout_height="match_parent"
 				android:orientation="horizontal">
 
-				<android.support.v7.widget.RecyclerView
-					android:id="@+id/txList2"
+				<LinearLayout
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
-					android:layout_weight="5"
-					android:clickable="true"
-					android:clipToPadding="false"
-					android:divider="@drawable/list_divider"
-					android:paddingTop="72dp"/>
+					android:layout_weight="5">
+
+					<include layout="@layout/include_no_transaction_message"/>
+
+					<android.support.v7.widget.RecyclerView
+						android:id="@+id/txList2"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_weight="5"
+						android:clickable="true"
+						android:clipToPadding="false"
+						android:divider="@drawable/list_divider"
+						android:paddingTop="72dp"/>
+
+				</LinearLayout>
 
 				<View
 					android:layout_width="5dp"

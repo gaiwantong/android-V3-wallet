@@ -24,6 +24,8 @@
 			android:layout_height="match_parent"
 			android:background="@color/blockchain_pearl_white">
 
+			<include layout="@layout/include_no_transaction_message"/>
+
 			<android.support.v7.widget.RecyclerView
 				android:id="@+id/txList2"
 				android:layout_width="match_parent"
