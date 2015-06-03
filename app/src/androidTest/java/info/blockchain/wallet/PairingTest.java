@@ -2,7 +2,11 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
+import org.json.JSONObject;
+
+import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.util.CharSequenceX;
 
 public class PairingTest extends BlockchainTest {
 
@@ -43,13 +47,16 @@ public class PairingTest extends BlockchainTest {
 
         PairingFactory pf = getPairingInstance();
 
-        goodString(pf, strGood);
+//        goodString(pf, strGood);
 
         badString(pf, strBad1);
 
         badString(pf, strBad2);
 
         badString(pf, strBad3);
+
+        String payload = manualPairingPayload("524b5e9f-72ea-4690-b28c-8c1cfce65ca0");
+        manualPairingDecrypt(payload, "blockchain_test_wallet_2");
 
     }
 
@@ -65,6 +72,38 @@ public class PairingTest extends BlockchainTest {
 
     public void badString(PairingFactory pf, String str) {
         AssertUtil.getInstance().assert_true(this, "QRcode: bad string", !pf.handleQRCode(str));
+    }
+
+    public String manualPairingPayload(String guid) {
+
+        String payload1 = null;
+        String payload2 = null;
+        try {
+            payload1 = PairingFactory.getInstance(context).getWalletManualPairing(guid);
+            JSONObject jsonObj = new JSONObject(payload1);
+            payload2 = (String)jsonObj.getString("payload");
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        AssertUtil.getInstance().assert_true(this, "Payload returned for manual pair", payload1 != null && payload2 != null);
+
+        return payload2;
+    }
+
+    public void manualPairingDecrypt(String encrypted, String password) {
+
+        String decrypt = null;
+        try {
+            decrypt = AESUtil.decrypt(encrypted, new CharSequenceX(password), AESUtil.PasswordPBKDF2Iterations);
+        }
+        catch(Exception e) {
+            System.out.println("decrypt ko");
+        }
+
+        AssertUtil.getInstance().assert_true(this, "Payload for manual pairing decrypted", decrypt != null);
+
     }
 
 }
