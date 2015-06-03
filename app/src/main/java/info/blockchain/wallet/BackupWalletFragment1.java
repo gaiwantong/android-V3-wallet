@@ -36,19 +36,6 @@ public class BackupWalletFragment1 extends Fragment {
 		tvSubHeader = (TextView)rootView.findViewById(R.id.backup_subheader);
 		ivAlert = (ImageView)rootView.findViewById(R.id.ic_alert);
 
-		int lastBackup  = PrefsUtil.getInstance(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
-		if(lastBackup!=0){
-
-			String daysAgo = (Math.round(((System.currentTimeMillis()/1000) - lastBackup)/86400.0))+"";
-			String day = getResources().getString(R.string.days);
-			if(daysAgo.equals("1"))day = getResources().getString(R.string.day);
-
-			String msg = getResources().getString(R.string.backup_days_ago).replace("[--time--]", daysAgo).replace("[--day--]", day);
-			tvHeader.setText(msg);
-			tvSubHeader.setText(getResources().getString(R.string.backup_only_need_to_once_reminder));
-			ivAlert.setImageResource(R.drawable.ic_thumb_up_white_48dp);
-		}
-
 		tvBackupWallet = (TextView)rootView.findViewById(R.id.backup_wallet_action);
 		tvBackupWallet.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -104,5 +91,18 @@ public class BackupWalletFragment1 extends Fragment {
 				getActivity().onBackPressed();
 			}
 		});
+
+		int lastBackup  = PrefsUtil.getInstance(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+		if(lastBackup!=0){
+
+			String daysAgo = (Math.round(((System.currentTimeMillis()/1000) - lastBackup)/86400.0))+"";
+			String day = getResources().getString(R.string.days);
+			if(daysAgo.equals("1"))day = getResources().getString(R.string.day);
+
+			String msg = getResources().getString(R.string.backup_days_ago).replace("[--time--]", daysAgo).replace("[--day--]", day);
+			tvHeader.setText(msg);
+			tvSubHeader.setText(getResources().getString(R.string.backup_only_need_to_once_reminder));
+			ivAlert.setImageResource(R.drawable.ic_thumb_up_white_48dp);
+		}
 	}
 }

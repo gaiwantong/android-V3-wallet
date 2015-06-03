@@ -379,8 +379,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             ;
         }
 		else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
-			Toast.makeText(this,getString(R.string.backup_confirmed),Toast.LENGTH_SHORT).show();
-			PrefsUtil.getInstance(this).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int)(System.currentTimeMillis()/1000));
 
 			drawerItems = new ArrayList<>();
 			final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);

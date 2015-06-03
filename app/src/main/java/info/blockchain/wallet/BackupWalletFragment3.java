@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import info.blockchain.wallet.util.BackupWalletUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 public class BackupWalletFragment3 extends Fragment {
 
@@ -50,6 +51,9 @@ public class BackupWalletFragment3 extends Fragment {
 				if(etFirstRequest.getText().toString().trim().equals(confirmSequence.get(0).second)
 						&& etSecondRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(1).second)
 						&& etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
+
+					Toast.makeText(getActivity(),getString(R.string.backup_confirmed),Toast.LENGTH_SHORT).show();
+					PrefsUtil.getInstance(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int)(System.currentTimeMillis()/1000));
 
 					getActivity().setResult(Activity.RESULT_OK);
 					getFragmentManager().popBackStack();
