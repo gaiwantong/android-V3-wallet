@@ -105,7 +105,7 @@ public class HDPayloadBridge	{
 			MultiAddrFactory.getInstance().getLegacy(addr, false);
 		}
 
-        _xpubs = getXPUBs();
+        _xpubs = getXPUBs(false);
 		JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
 
     }
@@ -128,7 +128,7 @@ public class HDPayloadBridge	{
             return AddressFactory.getInstance(context, null).get(accountIdx, 0);
         }
         else {
-            return AddressFactory.getInstance(context, getXPUBs()).get(accountIdx, 0);
+            return AddressFactory.getInstance(context, getXPUBs(true)).get(accountIdx, 0);
         }
 
     }
@@ -152,7 +152,7 @@ public class HDPayloadBridge	{
 	//
 	//
 	//
-	private String[] getXPUBs()	throws IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
+	private String[] getXPUBs(boolean includeArchives)	throws IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
 		
 		ArrayList<String> xpubs = new ArrayList<String>();
 
@@ -168,10 +168,16 @@ public class HDPayloadBridge	{
 
 		int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
 		for(int i = 0; i < nb_accounts; i++) {
-			String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
-			if(s != null && s.length() > 0) {
-				xpubs.add(s);
-			}
+            boolean isArchived = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).isArchived();
+            if(isArchived && !includeArchives) {
+                ;
+            }
+            else {
+                String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+                if(s != null && s.length() > 0) {
+                    xpubs.add(s);
+                }
+            }
 		}
 
 		return xpubs.toArray(new String[xpubs.size()]);
