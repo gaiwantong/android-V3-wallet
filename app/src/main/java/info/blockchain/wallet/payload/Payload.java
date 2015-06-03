@@ -381,20 +381,17 @@ public class Payload {
                     JSONArray accounts = (JSONArray)((JSONObject)wallets.get(0)).get("accounts");
                     if(accounts != null && accounts.length() > 0)  {
                         List<Account> walletAccounts = new ArrayList<Account>();
-                        int visibleIdx = 0;
                         for(int i = 0; i < accounts.length(); i++)  {
 
                             JSONObject accountObj = (JSONObject)accounts.get(i);
                             Account account = new Account();
+                            account.setRealIdx(i);
                             account.setArchived(accountObj.has("archived") ? (Boolean)accountObj.get("archived") : false);
                             if(accountObj.has("archived") && (Boolean)accountObj.get("archived"))  {
                                 account.setArchived(true);
-                                account.setVisibleIdx(-1);
                             }
                             else  {
                                 account.setArchived(false);
-                                account.setVisibleIdx(visibleIdx);
-                                visibleIdx++;
                             }
                             account.setLabel(accountObj.has("label") ? (String)accountObj.get("label") : "");
                             if(accountObj.has("xpub") && ((String)accountObj.get("xpub")) != null && ((String)accountObj.get("xpub")).length() > 0)  {

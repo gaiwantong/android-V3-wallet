@@ -21,7 +21,7 @@ public class Account {
     protected String strXpriv = null;
     protected TreeMap<Integer,String> addressLabels = null;
     protected Cache cache = null;
-    protected int visibleIdx = -1;  // -1 == archived account, do not display, do not include in balance
+    protected int realIdx = -1;
 
     public Account() {
         receiveAddresses = new ArrayList<ReceiveAddress>();
@@ -191,12 +191,12 @@ public class Account {
         this.cache = cache;
     }
 
-    public int getVisibleIdx() {
-        return visibleIdx;
+    public int getRealIdx() {
+        return realIdx;
     }
 
-    public void setVisibleIdx(int visibleIdx) {
-        this.visibleIdx = visibleIdx;
+    public void setRealIdx(int visibleIdx) {
+        this.realIdx = realIdx;
     }
 
     public JSONObject dumpJSON() throws JSONException {
