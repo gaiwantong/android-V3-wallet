@@ -70,6 +70,8 @@
 			android:visibility="invisible"
 			android:text="address"
 			android:textColor="@color/blockchain_grey"
+			android:singleLine="true"
+			android:marqueeRepeatLimit="marquee_forever"
 			android:textSize="10sp"/>
 
 		<TextView
