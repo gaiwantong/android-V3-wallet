@@ -102,7 +102,7 @@
 
     <string name="double_encryption_password_error">Double encrypt password error. Please try again.</string>
 
-    <string name="command2">Scan Pairing Code</string>
+    <string name="command2">Scan pairing code</string>
 	<string name="command3">I can\'t access my camera</string>
     <string name="CREATE">CREATE A NEW WALLET</string>
     <string name="LOGIN">Log in to my wallet</string>
