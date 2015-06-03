@@ -55,13 +55,13 @@ public class BlockchainWalletTest extends BlockchainTest {
          * during an actual login.
          */
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "70c46c4c-6fb2-4790-a4d9-9160ed942263");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "da34c5df854679ba24201cefa4d87e92");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "524b5e9f-72ea-4690-b28c-8c1cfce65ca0");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "6088a51a-26f2-47e0-9d16-934dd2a6131a");
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "eca19737359f4df13fa19e88fb34b36c");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "opgdX074+w2yp1aRnK5XfVauaPFbjP7HWdp7eTFE8U0ErWZp/8kzdcqaBCR2re9y");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "c1628eecbfe812478f1b613fd96701d2");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "rRxpxSHhrnAgvc1Fy2LBqTI0qC2pG8vW6H2+4kz/MbUt60qwUpFLB5QOoo0TDSE7");
 
-        CharSequenceX pw = new CharSequenceX("blockchain_test_wallet_1");
+        CharSequenceX pw = new CharSequenceX("blockchain_test_wallet_2");
 
         loginGoodParams(pw);
 
@@ -75,11 +75,11 @@ public class BlockchainWalletTest extends BlockchainTest {
         //
         // login w/ PIN tests
         //
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "70c46c4c-6fb2-4790-a4d9-9160ed942263");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "da34c5df854679ba24201cefa4d87e92");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "524b5e9f-72ea-4690-b28c-8c1cfce65ca0");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "6088a51a-26f2-47e0-9d16-934dd2a6131a");
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "eca19737359f4df13fa19e88fb34b36c");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "opgdX074+w2yp1aRnK5XfVauaPFbjP7HWdp7eTFE8U0ErWZp/8kzdcqaBCR2re9y");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "c1628eecbfe812478f1b613fd96701d2");
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "rRxpxSHhrnAgvc1Fy2LBqTI0qC2pG8vW6H2+4kz/MbUt60qwUpFLB5QOoo0TDSE7");
 
         loginGoodPIN();
 
@@ -141,7 +141,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     }
 
     public void loginGoodPIN() {
-        CharSequenceX password = AccessFactory.getInstance(context).validatePIN("3704");
+        CharSequenceX password = AccessFactory.getInstance(context).validatePIN("1234");
         AssertUtil.getInstance().assert_true(this, "Logged in with good PIN", password != null);
     }
 
