@@ -105,6 +105,7 @@ public class BalanceFragment extends Fragment {
 	private TxAdapter txAdapter = null;
 	LinearLayoutManager layoutManager;
 	HashMap<View, Boolean> rowViewState = null;
+	private LinearLayout noTxMessage = null;
 
 	public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
 
@@ -665,6 +666,9 @@ public class BalanceFragment extends Fragment {
 
 		initFab(rootView);
 
+		noTxMessage = (LinearLayout)rootView.findViewById(R.id.no_tx_message);
+		noTxMessage.setVisibility(View.GONE);
+
 		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
@@ -724,6 +728,14 @@ public class BalanceFragment extends Fragment {
 								}
 							}
 
+						}
+
+						if(txs!=null && txs.size()>0) {
+							txList.setVisibility(View.VISIBLE);
+							noTxMessage.setVisibility(View.GONE);
+						}else{
+							txList.setVisibility(View.GONE);
+							noTxMessage.setVisibility(View.VISIBLE);
 						}
 
 						displayBalance();
@@ -841,6 +853,14 @@ public class BalanceFragment extends Fragment {
 		});
 
 		rowViewState = new HashMap<View, Boolean>();
+
+		noTxMessage.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
+				fab.startAnimation(bounce);
+			}
+		});
 	}
 
 	private void onRowClick(final View view, final int position){
