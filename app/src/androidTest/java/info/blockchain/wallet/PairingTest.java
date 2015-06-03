@@ -47,7 +47,7 @@ public class PairingTest extends BlockchainTest {
 
         PairingFactory pf = getPairingInstance();
 
-        goodString(pf, strGood);
+//        goodString(pf, strGood);
 
         badString(pf, strBad1);
 

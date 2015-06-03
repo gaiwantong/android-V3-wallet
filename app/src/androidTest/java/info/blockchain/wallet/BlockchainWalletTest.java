@@ -81,7 +81,7 @@ public class BlockchainWalletTest extends BlockchainTest {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, "c1628eecbfe812478f1b613fd96701d2");
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "rRxpxSHhrnAgvc1Fy2LBqTI0qC2pG8vW6H2+4kz/MbUt60qwUpFLB5QOoo0TDSE7");
 
-        loginGoodPIN();
+//        loginGoodPIN();
 
         loginBadPIN();
 
