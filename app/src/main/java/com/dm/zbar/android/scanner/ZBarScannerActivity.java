@@ -2,20 +2,32 @@ package com.dm.zbar.android.scanner;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
 import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
-public class ZBarScannerActivity extends Activity implements Camera.PreviewCallback, ZBarConstants {
+import info.blockchain.wallet.R;
+
+public class ZBarScannerActivity extends ActionBarActivity implements Camera.PreviewCallback, ZBarConstants {
 
 	private static final String TAG = "ZBarScannerActivity";
 	private CameraPreview mPreview;
@@ -23,6 +35,8 @@ public class ZBarScannerActivity extends Activity implements Camera.PreviewCallb
 	private ImageScanner mScanner;
 	private Handler mAutoFocusHandler;
 	private boolean mPreviewing = true;
+	private boolean hasFlashLight = false;
+	private boolean flashOn = false;
 
 	static {
 		System.loadLibrary("iconv");
@@ -38,9 +52,7 @@ public class ZBarScannerActivity extends Activity implements Camera.PreviewCallb
 			return;
 		}
 
-		// Hide the window title.
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		hasFlashLight = this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
 
 		mAutoFocusHandler = new Handler();
 
@@ -50,7 +62,30 @@ public class ZBarScannerActivity extends Activity implements Camera.PreviewCallb
 		// Create a RelativeLayout container that will hold a SurfaceView,
 		// and set it as the content of our activity.
 		mPreview = new CameraPreview(this, this, autoFocusCB);
-		setContentView(mPreview);
+
+
+		//Set Portrait
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		//Encapsulate in FrameLayout
+		FrameLayout layout = new FrameLayout(this);
+		layout.setBackgroundColor(getResources().getColor(R.color.blockchain_blue));
+		FrameLayout.LayoutParams layoutparams=new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
+		layout.setLayoutParams(layoutparams);
+		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_general, layout, false);
+		layout.addView(mPreview);
+		layout.addView(bar);
+		layout.addView((LinearLayout) LayoutInflater.from(this).inflate(R.layout.include_scan_header, layout, false));
+		layout.addView((LinearLayout) LayoutInflater.from(this).inflate(R.layout.include_scan_footer, layout, false));
+
+		setContentView(layout);
+
+		Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+		toolbar.setTitle("");
+		setSupportActionBar(toolbar);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
 	}
 
 	public void setupScanner() {
@@ -129,6 +164,14 @@ public class ZBarScannerActivity extends Activity implements Camera.PreviewCallb
 		// Because the Camera object is a shared resource, it's very
 		// important to release it when the activity is paused.
 		if (mCamera != null) {
+
+			if(flashOn) {
+				Camera.Parameters para = mCamera.getParameters();
+				para.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+				mCamera.setParameters(para);
+				flashOn = false;
+			}
+
 			mPreview.setCamera(null);
 			mCamera.cancelAutoFocus();
 			mCamera.setPreviewCallback(null);
@@ -199,4 +242,46 @@ public class ZBarScannerActivity extends Activity implements Camera.PreviewCallb
 			mAutoFocusHandler.postDelayed(doAutoFocus, 1000);
 		}
 	};
+
+	@Override
+	public boolean onSupportNavigateUp() {
+		finish();
+		return true;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		if(hasFlashLight) {
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.scan_actions, menu);
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+			case R.id.action_flash_light:
+				doFlashLight();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void doFlashLight(){
+		if(!flashOn) {
+			Camera.Parameters para = mCamera.getParameters();
+			para.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+			mCamera.setParameters(para);
+			flashOn = true;
+		}else{
+			Camera.Parameters para = mCamera.getParameters();
+			para.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+			mCamera.setParameters(para);
+			flashOn = false;
+		}
+	}
 }

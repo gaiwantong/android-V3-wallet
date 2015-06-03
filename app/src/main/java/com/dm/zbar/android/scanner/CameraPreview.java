@@ -10,6 +10,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -23,6 +24,7 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     Camera mCamera;
     PreviewCallback mPreviewCallback;
     AutoFocusCallback mAutoFocusCallback;
+	int displayOrientation = 90;
 
     CameraPreview(Context context, PreviewCallback previewCallback, AutoFocusCallback autoFocusCb) {
         super(context);
@@ -72,8 +74,13 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             int previewWidth = width;
             int previewHeight = height;
             if (mPreviewSize != null) {
-                previewWidth = mPreviewSize.width;
-                previewHeight = mPreviewSize.height;
+				if(displayOrientation==90 || displayOrientation==270) {
+					previewWidth = mPreviewSize.height;
+					previewHeight = mPreviewSize.width;
+				}else{
+					previewWidth = mPreviewSize.width;
+					previewHeight = mPreviewSize.height;
+				}
             }
 
             // Center the child SurfaceView within the parent.
@@ -163,7 +170,7 @@ class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             requestLayout();
-
+			mCamera.setDisplayOrientation(displayOrientation);
             mCamera.setParameters(parameters);
             mCamera.setPreviewCallback(mPreviewCallback);
             mCamera.startPreview();
