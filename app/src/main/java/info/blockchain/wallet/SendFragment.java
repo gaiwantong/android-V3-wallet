@@ -3,6 +3,7 @@ package info.blockchain.wallet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -914,6 +915,12 @@ public class SendFragment extends Fragment {
 						final BigInteger bfee = pendingSpend.bfee;
 						final String strNote = null;
 
+                        final ProgressDialog progress = new ProgressDialog(getActivity());
+                        progress.setCancelable(false);
+                        progress.setTitle(R.string.app_name);
+                        progress.setMessage(getString(R.string.please_wait));
+                        progress.show();
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -932,6 +939,11 @@ public class SendFragment extends Fragment {
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
+
+                                                        if (progress != null && progress.isShowing()) {
+                                                            progress.dismiss();
+                                                        }
+
                                                         Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
                                                         PayloadFactory.getInstance(getActivity()).remoteSaveThread();
 
@@ -947,6 +959,11 @@ public class SendFragment extends Fragment {
                                             }
 
                                             public void onFail() {
+
+                                                if (progress != null && progress.isShowing()) {
+                                                    progress.dismiss();
+                                                }
+
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
@@ -970,6 +987,11 @@ public class SendFragment extends Fragment {
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
+
+                                                        if (progress != null && progress.isShowing()) {
+                                                            progress.dismiss();
+                                                        }
+
                                                         Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
                                                         if (strNote != null) {
                                                             PayloadFactory.getInstance(getActivity()).remoteSaveThread();
@@ -990,12 +1012,18 @@ public class SendFragment extends Fragment {
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
+
+                                                        if (progress != null && progress.isShowing()) {
+                                                            progress.dismiss();
+                                                        }
+
                                                         Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
                                                         if (alertDialog != null && alertDialog.isShowing())
                                                             alertDialog.cancel();
                                                         Fragment fragment = new BalanceFragment();
                                                         FragmentManager fragmentManager = getFragmentManager();
                                                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
                                                     }
                                                 });
                                             }
