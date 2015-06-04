@@ -58,10 +58,15 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -70,10 +75,10 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.WebUtil;
-import info.blockchain.wallet.util.PRNGFixes;
 
 //import android.nfc.Tag;
 
@@ -110,6 +115,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 	private ArrayList<DrawerItem> drawerItems;
 	private int backupWalletDrawerIndex;
 	private DrawerAdapter adapterDrawer;
+
+	public static LinkedHashMap<Integer, Account> visibleAccountList = null;
+	public static HashMap<Integer, Integer> accountIndexResolver = null;//spinnerIndex, accountIndex
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,12 +187,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				setAccounts();
             }
             else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+				setAccounts();
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
@@ -964,5 +976,48 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
 		Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
 		startActivityForResult(intent, REQUEST_BACKUP);
+	}
+
+	private void setAccounts(){
+
+		MainActivity.visibleAccountList = new LinkedHashMap<Integer, Account>();
+		MainActivity.accountIndexResolver = new HashMap<Integer, Integer>();
+		int accountIndex = 0;
+		int spinnerIndex = 0;
+
+		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+
+		if(accounts != null && accounts.size() > 1) {
+			//All Account - if multiple accounts
+			Account all = new Account();
+			all.setLabel(this.getResources().getString(R.string.all_accounts));
+			MainActivity.visibleAccountList.put(-1, all);
+		}
+
+		if(accounts != null && accounts.size() > 0
+				&& !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
+				&& (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
+			ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+			accounts.add(iAccount);
+
+			if(!iAccount.isArchived()) {
+				MainActivity.visibleAccountList.put(accountIndex, iAccount);
+				accountIndexResolver.put(spinnerIndex, accountIndex);
+				spinnerIndex++;
+			}
+
+			accountIndex++;
+		}
+
+		for (Account item : accounts){
+
+			if(!item.isArchived()) {
+				MainActivity.visibleAccountList.put(accountIndex, item);
+				accountIndexResolver.put(spinnerIndex,accountIndex);
+				spinnerIndex++;
+			}
+
+			accountIndex++;
+		}
 	}
 }
