@@ -75,7 +75,6 @@ public class ZBarScannerActivity extends ActionBarActivity implements Camera.Pre
 		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_general, layout, false);
 		layout.addView(mPreview);
 		layout.addView(bar);
-		layout.addView((LinearLayout) LayoutInflater.from(this).inflate(R.layout.include_scan_header, layout, false));
 		layout.addView((LinearLayout) LayoutInflater.from(this).inflate(R.layout.include_scan_footer, layout, false));
 
 		setContentView(layout);

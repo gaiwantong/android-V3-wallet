@@ -237,7 +237,7 @@ public class WebSocketHandler {
 			                    	text += " from " + in_addr;
 			                    }
 
-								NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_launcher_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
+								NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
 		                    }
 
 		                	new Thread()	{
