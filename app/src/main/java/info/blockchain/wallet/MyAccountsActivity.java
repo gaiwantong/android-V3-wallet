@@ -498,6 +498,19 @@ public class MyAccountsActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(MyAccountsActivity.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(MyAccountsActivity.this).updatePinEntryTime();
+        }
+
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY

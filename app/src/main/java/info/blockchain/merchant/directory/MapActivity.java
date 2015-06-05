@@ -45,6 +45,7 @@ import java.util.List;
 
 import info.blockchain.wallet.OnSwipeTouchListener;
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -509,12 +510,19 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 	public void onProviderDisabled(String provider) { }
 
     @Override
-    public void onResume() {
-    	super.onResume();
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(MapActivity.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(MapActivity.this).updatePinEntryTime();
+        }
 
     }
 
-	@Override
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.merchant_activity_actions, menu);
 		menu.findItem(R.id.action_merchant_map).setVisible(false);

@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 public class SupportActivity extends Activity {
@@ -86,4 +87,19 @@ public class SupportActivity extends Activity {
 			}
 		});
 	}
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(SupportActivity.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(SupportActivity.this).updatePinEntryTime();
+        }
+
+    }
+
 }
