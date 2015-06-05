@@ -32,7 +32,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,8 +62,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -1012,6 +1009,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		for (Account item : accounts){
 
 			if(!item.isArchived()) {
+
+				if(item.getLabel().length() == 0)item.setLabel("Account: "+accountIndex);
+
 				MainActivity.visibleAccountList.put(accountIndex, item);
 				accountIndexResolver.put(spinnerIndex,accountIndex);
 				spinnerIndex++;

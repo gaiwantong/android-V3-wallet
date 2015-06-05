@@ -807,9 +807,9 @@ public class BalanceFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Fragment fragment = new SendFragment();
-				Bundle args = new Bundle();
-				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
-				fragment.setArguments(args);
+//				Bundle args = new Bundle();
+//				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
+//				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 				comm.setNavigationDrawerToggleEnabled(true);
@@ -821,9 +821,9 @@ public class BalanceFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
-				Bundle args = new Bundle();
-				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
-				fragment.setArguments(args);
+//				Bundle args = new Bundle();
+//				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
+//				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 				comm.setNavigationDrawerToggleEnabled(true);
