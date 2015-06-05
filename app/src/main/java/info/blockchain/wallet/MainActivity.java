@@ -32,6 +32,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,11 +63,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -986,27 +990,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		int spinnerIndex = 0;
 
 		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+		List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
 
-		if(accounts != null && accounts.size() > 1) {
-			//All Account - if multiple accounts
+		//All Account - if multiple accounts or contains legacy address
+		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
+
 			Account all = new Account();
 			all.setLabel(this.getResources().getString(R.string.all_accounts));
 			MainActivity.visibleAccountList.put(-1, all);
 		}
 
+		//Add Legacy addresses to accounts
 		if(accounts != null && accounts.size() > 0
 				&& !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
 				&& (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
+
 			ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
 			accounts.add(iAccount);
-
-			if(!iAccount.isArchived()) {
-				MainActivity.visibleAccountList.put(accountIndex, iAccount);
-				accountIndexResolver.put(spinnerIndex, accountIndex);
-				spinnerIndex++;
-			}
-
-			accountIndex++;
 		}
 
 		for (Account item : accounts){

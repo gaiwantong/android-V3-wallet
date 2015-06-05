@@ -386,10 +386,11 @@ public class BalanceFragment extends Fragment {
 
         Account hda = null;
         if(spinnerIndex == 0) {
+			//All accounts
             btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
         }
         else {
-            hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(selectedAccount));
+            hda = MainActivity.visibleAccountList.get(selectedAccount);
             if(hda instanceof ImportedAccount) {
                 btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
             }
@@ -729,7 +730,6 @@ public class BalanceFragment extends Fragment {
 
 						displayBalance();
 
-//						txAdapter.notifyDataSetInvalidated();
 						txAdapter.notifyDataSetChanged();
 					}
 
