@@ -42,6 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -109,25 +110,27 @@ public class BalanceFragment extends Fragment {
 
 	public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
 
-    protected BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+	protected BroadcastReceiver receiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
 
-        	if(ACTION_INTENT.equals(intent.getAction())) {
+			if (ACTION_INTENT.equals(intent.getAction())) {
 
-    	    	getActivity().runOnUiThread(new Runnable() {
-   	    	     @Override
-   	    	     public void run() {
-                    displayBalance();
-           	    	accountsAdapter.notifyDataSetChanged();
-           	    	updateTx();
-                   	txAdapter.notifyDataSetChanged();
-   	    	     }
-    	    	});
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(getActivity(), R.string.refresh_balance, Toast.LENGTH_SHORT).show();
 
-            }
-        }
-    };
+						displayBalance();
+						accountsAdapter.notifyDataSetChanged();
+						updateTx();
+						txAdapter.notifyDataSetChanged();
+					}
+				});
+
+			}
+		}
+	};
 
 	private SlidingUpPanelLayout mLayout;
 	private LinearLayout bottomSel1 = null;

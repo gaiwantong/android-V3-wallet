@@ -1,41 +1,37 @@
 package info.blockchain.wallet.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.widget.Toast;
-import android.net.SSLCertificateSocketFactory;
 import android.util.Log;
+
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import de.tavendo.autobahn.secure.WebSocketConnection;
+import info.blockchain.wallet.EventListeners;
+import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.R;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.NotificationsFactory;
 
 //import org.spongycastle.util.encoders.Hex;
-
 /*
 import com.google.bitcoin.core.Sha256Hash;
 import com.google.bitcoin.core.TransactionInput;
 import com.google.bitcoin.core.TransactionOutput;
 */
-
-import de.tavendo.autobahn.secure.*;
-
-import info.blockchain.wallet.EventListeners;
-import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
-import info.blockchain.wallet.R;
 
 public class WebSocketHandler {
 
@@ -241,7 +237,7 @@ public class WebSocketHandler {
 			                    	text += " from " + in_addr;
 			                    }
 
-			                    NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
+								NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
 		                    }
 
 		                	new Thread()	{
@@ -274,8 +270,6 @@ public class WebSocketHandler {
 		         		        		mwe.printStackTrace();
 		         		        	}
 
-		        		        	Toast.makeText(context, R.string.refresh_balance, Toast.LENGTH_SHORT).show();
-		        		        	
 				                    Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
 				        		    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 

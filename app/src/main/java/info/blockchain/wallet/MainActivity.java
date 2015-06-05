@@ -68,6 +68,7 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
@@ -121,6 +122,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         PRNGFixes.apply();
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
+
+		NotificationsFactory.resetNotificationCounter();
 
         if(!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
