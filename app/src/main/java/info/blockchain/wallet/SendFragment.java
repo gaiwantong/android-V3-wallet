@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +45,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -309,23 +311,36 @@ public class SendFragment extends Fragment {
 		});
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
-        accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
         	iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
-        if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
-        	accounts.remove(accounts.size() - 1);
-        }
-        hdAccountsIdx = accounts.size();
-        _accounts = new ArrayList<String>();
-        for(int i = 0; i < accounts.size(); i++) {
-        	_accounts.add((accounts.get(i).getLabel() == null || accounts.get(i).getLabel().length() == 0) ? "Account: " + (i + 1) : accounts.get(i).getLabel());
-        }
-        if(iAccount != null) {
-    		legacy = iAccount.getLegacyAddresses();
-            for(int j = 0; j < legacy.size(); j++) {
-            	_accounts.add((legacy.get(j).getLabel() == null || legacy.get(j).getLabel().length() == 0) ? legacy.get(j).getAddress() : legacy.get(j).getLabel());
-            }
+
+		final List<String> _accounts = new ArrayList<String>();
+
+		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>)MainActivity.visibleAccountList.clone();
+		accounts.remove(-1);//Remove All Accounts
+
+		if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
+			accounts.remove(accounts.size() - 1);
+		}
+
+		for(Account value : accounts.values()) {
+			if (value instanceof ImportedAccount)continue;//Skip 'Imported Addresses' as collection
+
+			_accounts.add(value.getLabel());
+			Log.v("","acc label: "+value.getLabel());
+		}
+		hdAccountsIdx = _accounts.size();
+
+		if(iAccount != null) {
+			legacy = iAccount.getLegacyAddresses();
+			for(int j = 0; j < legacy.size(); j++) {
+				String label = legacy.get(j).getLabel();
+				if(label == null || label.length() == 0)label = legacy.get(j).getAddress();
+
+				Log.v("","imp label: " +label);
+				_accounts.add(label);
+			}
         }
 
 		if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
@@ -446,12 +461,13 @@ public class SendFragment extends Fragment {
         tvFiat2.setText(isBTC ? strFiat : strBTC);
         displayMaxAvailable();
 
-        if(getArguments().getBoolean("incoming_from_scan", false)) {
-            ;
-        }
-        else {
-            currentSelectedItem = getArguments().getInt("selected_account");
-        }
+		if(getArguments()!=null)
+			if(getArguments().getBoolean("incoming_from_scan", false)) {
+				;
+			}
+			else {
+				currentSelectedItem = getArguments().getInt("selected_account");
+			}
 
 		if(spAccounts != null) {
 			spAccounts.setSelection(currentSelectedItem);
@@ -494,7 +510,8 @@ public class SendFragment extends Fragment {
         }
         else {
             currentSelectedAccount = position;
-            pendingSpend.sending_from = accounts.get(position).getLabel();
+			Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
+            pendingSpend.sending_from = hda.getLabel();
             pendingSpend.isHD = true;
         }
 
@@ -621,13 +638,13 @@ public class SendFragment extends Fragment {
 
 	public String account2Xpub(int sel) {
 
-		Account hda = accounts.get(sel);
+		Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(sel));
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
 	    }
 	    else {
-			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(sel);
+			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(MainActivity.accountIndexResolver.get(sel));
 	    }
 	    
 	    return xpub;
@@ -844,13 +861,15 @@ public class SendFragment extends Fragment {
 				}
 			}
 			else {
-				labelText = accounts.get(position).getLabel();
+				Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
+				labelText = hda.getLabel();
 			}
 
 			if(position >= hdAccountsIdx) {
 				amount = MultiAddrFactory.getInstance().getLegacyBalance(legacy.get(position - hdAccountsIdx).getAddress());
 			}
 			else {
+				Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
 				String xpub = account2Xpub(position);
 				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
@@ -909,7 +928,7 @@ public class SendFragment extends Fragment {
 					if(!spendInProgress) {
 						spendInProgress = true;
 
-						final int account = currentAcc;
+						final int account = MainActivity.accountIndexResolver.get(currentAcc);
 						final String destination = pendingSpend.destination;
 						final BigInteger bamount = pendingSpend.bamount;
 						final BigInteger bfee = pendingSpend.bfee;
