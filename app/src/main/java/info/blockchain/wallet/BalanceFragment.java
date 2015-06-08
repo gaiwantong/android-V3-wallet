@@ -61,6 +61,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
@@ -93,7 +94,6 @@ public class BalanceFragment extends Fragment {
 	//
 	private Spinner accountSpinner = null;
 	ArrayAdapter<String> accountsAdapter = null;
-	private static int spinnerIndex = 0;
 	private static int selectedAccount = 0;
 	public int balanceBarHeight;
 
@@ -177,19 +177,22 @@ public class BalanceFragment extends Fragment {
 
 		//Account names
 		ArrayList<String> accountList = new ArrayList<String>();
-		for (Account item : MainActivity.visibleAccountList.values()){
+		for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()){
 			accountList.add(item.getLabel());
 		}
 
-		if(MainActivity.visibleAccountList.size()>1){
+		if(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size()>1){
 			//Multiple accounts - Show spinner
 			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
 			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
 			accountSpinner.setVisibility(View.VISIBLE);
+			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+			if(currentSelected<0)currentSelected = 0;
+			accountSpinner.setSelection(currentSelected);
 		}else{
 			//Single account - no spinner
 			((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-			((ActionBarActivity)thisActivity).getSupportActionBar().setTitle(MainActivity.visibleAccountList.get(0).getLabel());
+			((ActionBarActivity)thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
 			accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
 			accountSpinner.setVisibility(View.GONE);
 		}
@@ -234,11 +237,12 @@ public class BalanceFragment extends Fragment {
 			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 
-    	displayBalance();
+
     	accountsAdapter.notifyDataSetChanged();
     	txAdapter.notifyDataSetChanged();
-    	updateTx();
 		setAccountSpinner();
+    	updateTx();
+		displayBalance();
     }
 
     @Override
@@ -385,12 +389,12 @@ public class BalanceFragment extends Fragment {
         btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
 
         Account hda = null;
-        if(spinnerIndex == 0) {
+        if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
 			//All accounts
             btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
         }
         else {
-            hda = MainActivity.visibleAccountList.get(selectedAccount);
+            hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
             if(hda instanceof ImportedAccount) {
                 btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
             }
@@ -404,7 +408,7 @@ public class BalanceFragment extends Fragment {
         if(hda != null && hda instanceof ImportedAccount) {
             span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
         }
-        else if(spinnerIndex == 0) {
+        else if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
         }
         else {
@@ -424,11 +428,11 @@ public class BalanceFragment extends Fragment {
 
         txMap = MultiAddrFactory.getInstance().getXpubTxs();
 		
-    	if(MainActivity.visibleAccountList == null || MainActivity.visibleAccountList.size() < 1) {
+    	if(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
     		return;
     	}
 
-        if(spinnerIndex == 0) {
+        if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             txs = MultiAddrFactory.getInstance().getAllXpubTxs();
         }
         else {
@@ -440,7 +444,7 @@ public class BalanceFragment extends Fragment {
                 }
             }
             else {
-                Account hda = MainActivity.visibleAccountList.get(selectedAccount);
+                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                 if(hda instanceof ImportedAccount) {
                     txs = MultiAddrFactory.getInstance().getLegacyTxs();
                 }
@@ -452,7 +456,7 @@ public class BalanceFragment extends Fragment {
 
 	private String account2Xpub(int accountIndex) {
 
-		Account hda = MainActivity.visibleAccountList.get(accountIndex);
+		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(accountIndex);
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
@@ -698,18 +702,19 @@ public class BalanceFragment extends Fragment {
 					@Override
 					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 						int position = accountSpinner.getSelectedItemPosition();
+						AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
 
-						spinnerIndex = position;
-						if(spinnerIndex>0)
-							selectedAccount = MainActivity.accountIndexResolver.get(spinnerIndex-1);
-						else
-							selectedAccount = -1;
+						if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
+							selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
+							if(selectedAccount<0)selectedAccount=0;
+						}else
+							selectedAccount = 0;
 
-						if (MainActivity.visibleAccountList == null || MainActivity.visibleAccountList.size() < 1) {
+						if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
 							return;
 						}
 
-						if (spinnerIndex == 0) {
+						if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
 							//All accounts
 							txs = MultiAddrFactory.getInstance().getAllXpubTxs();
 						} else {
@@ -720,7 +725,7 @@ public class BalanceFragment extends Fragment {
 									txs = txMap.get(xpub);
 								}
 							} else {
-								Account hda = MainActivity.visibleAccountList.get(selectedAccount);
+								Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
 								if (hda instanceof ImportedAccount) {
 									txs = MultiAddrFactory.getInstance().getLegacyTxs();
 								}
@@ -740,7 +745,7 @@ public class BalanceFragment extends Fragment {
 				});
 			}
 		});
-		accountSpinner.setSelection(spinnerIndex);
+		accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
 
 		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
 		txAdapter = new TxAdapter();
@@ -757,7 +762,6 @@ public class BalanceFragment extends Fragment {
 				}
 			});
 
-		displayBalance();
 		updateTx();
 
 		// drawerTitle account now that wallet has been created

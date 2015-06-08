@@ -58,6 +58,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
+import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -83,7 +84,7 @@ public class SendFragment extends Fragment {
 
 	private int currentSelectedAccount = 0;
 	private String currentSelectedAddress = null;
-	private static int currentSelectedItem = 0;
+//	private static int currentSelectedItem = 0;
 
     private int hdAccountsIdx = 0;
     private List<String> _accounts = null;
@@ -317,7 +318,7 @@ public class SendFragment extends Fragment {
 
 		final List<String> _accounts = new ArrayList<String>();
 
-		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>)MainActivity.visibleAccountList.clone();
+		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>) AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().clone();
 		accounts.remove(-1);//Remove All Accounts
 
 		if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
@@ -348,26 +349,27 @@ public class SendFragment extends Fragment {
 		AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.fragment_send_account_row, _accounts);
 		spAccounts.setAdapter(dataAdapter);
     	spAccounts.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                      int position = spAccounts.getSelectedItemPosition();
-                      if(position >= hdAccountsIdx) {
-                          currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
-                      }
-                      else {
-                          currentSelectedAccount = position;
-                      }
-                      
-                      displayMaxAvailable();
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                    	;
-                    }
-                }
-            );
-        spAccounts.setSelection(currentSelectedItem);
+				new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+						int position = spAccounts.getSelectedItemPosition();
+						AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
+
+						if (position >= hdAccountsIdx) {
+							currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
+						} else {
+							currentSelectedAccount = position;
+						}
+
+						displayMaxAvailable();
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						;
+					}
+				}
+		);
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -378,7 +380,6 @@ public class SendFragment extends Fragment {
 
         tvMax = (TextView)rootView.findViewById(R.id.max);
         tvMax.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
-        displayMaxAvailable();
 
         // get bundle
         Bundle bundle = this.getArguments();
@@ -421,11 +422,6 @@ public class SendFragment extends Fragment {
             if(validate) {
                 validateSpend(true);
             }
-
-            if(spAccounts != null) {
-                spAccounts.setSelection(currentSelectedItem);
-            }
-
         }
 
         return rootView;
@@ -459,28 +455,25 @@ public class SendFragment extends Fragment {
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);
-        displayMaxAvailable();
 
 		if(getArguments()!=null)
 			if(getArguments().getBoolean("incoming_from_scan", false)) {
 				;
 			}
-			else {
-				currentSelectedItem = getArguments().getInt("selected_account");
-			}
 
 		if(spAccounts != null) {
-			spAccounts.setSelection(currentSelectedItem);
+			//all account included
+			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+			if(currentSelected!=0)currentSelected--;
+			spAccounts.setSelection(currentSelected);
 		}
+
+		displayMaxAvailable();
     }
 
     @Override
     public void onPause() {
     	super.onPause();
-    	
-    	if(spAccounts != null) {
-    		currentSelectedItem = spAccounts.getSelectedItemPosition();
-    	}
     }
 
 	@Override
@@ -510,7 +503,7 @@ public class SendFragment extends Fragment {
         }
         else {
             currentSelectedAccount = position;
-			Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
+			Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
             pendingSpend.sending_from = hda.getLabel();
             pendingSpend.isHD = true;
         }
@@ -638,13 +631,13 @@ public class SendFragment extends Fragment {
 
 	public String account2Xpub(int sel) {
 
-		Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(sel));
+		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(sel));
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
 	    }
 	    else {
-			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(MainActivity.accountIndexResolver.get(sel));
+			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(sel));
 	    }
 	    
 	    return xpub;
@@ -861,7 +854,7 @@ public class SendFragment extends Fragment {
 				}
 			}
 			else {
-				Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
 				labelText = hda.getLabel();
 			}
 
@@ -869,7 +862,7 @@ public class SendFragment extends Fragment {
 				amount = MultiAddrFactory.getInstance().getLegacyBalance(legacy.get(position - hdAccountsIdx).getAddress());
 			}
 			else {
-				Account hda = MainActivity.visibleAccountList.get(MainActivity.accountIndexResolver.get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
 				String xpub = account2Xpub(position);
 				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
@@ -928,7 +921,7 @@ public class SendFragment extends Fragment {
 					if(!spendInProgress) {
 						spendInProgress = true;
 
-						final int account = MainActivity.accountIndexResolver.get(currentAcc);
+						final int account = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(currentAcc);
 						final String destination = pendingSpend.destination;
 						final BigInteger bamount = pendingSpend.bamount;
 						final BigInteger bfee = pendingSpend.bfee;

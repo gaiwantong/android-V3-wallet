@@ -72,6 +72,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -94,7 +95,7 @@ public class ReceiveFragment extends Fragment {
 	private List<LegacyAddress> legacy = null;
 	
 	private int currentSelectedAccount = 0;
-	private static int currentSelectedItem = 0;
+//	private static int currentSelectedItem = 0;
 
 	private String strBTC = "BTC";
 	private String strFiat = null;
@@ -326,7 +327,7 @@ public class ReceiveFragment extends Fragment {
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
 		final List<String> _accounts = new ArrayList<String>();
 
-		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>)MainActivity.visibleAccountList.clone();
+		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>) AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().clone();
 		accounts.remove(-1);//Remove All Accounts
 
         if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
@@ -360,31 +361,31 @@ public class ReceiveFragment extends Fragment {
     	dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
     	spAccounts.setAdapter(dataAdapter);
         spAccounts.post(new Runnable() {
-            public void run() {
-                spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                      int position = spAccounts.getSelectedItemPosition();
-                      if(position >= hdAccountsIdx) {
-						  //Legacy addresses
-                          currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
-                          displayQRCode();
-                      }
-                      else {
-						  //hd accounts
-                          currentSelectedAccount = MainActivity.accountIndexResolver.get(position);
-                          assignHDReceiveAddress();
-                          displayQRCode();
-                      }
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                    	;
-                    }
-                });
-            }
-        });
-        spAccounts.setSelection(currentSelectedItem);
+			public void run() {
+				spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+						int position = spAccounts.getSelectedItemPosition();
+						AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
+						if (position >= hdAccountsIdx) {
+							//Legacy addresses
+							currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
+							displayQRCode();
+						} else {
+							//hd accounts
+							currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position);
+							assignHDReceiveAddress();
+							displayQRCode();
+						}
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						;
+					}
+				});
+			}
+		});
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -459,19 +460,17 @@ public class ReceiveFragment extends Fragment {
 		tvFiat2.setText(isBTC ? strFiat : strBTC);
 //        updateTextFields();
 
-//		currentSelectedItem = getArguments().getInt("selected_account");
-//		if(spAccounts != null) {
-//			spAccounts.setSelection(currentSelectedItem);
-//		}
+		if(spAccounts != null) {
+			//all account included
+			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+			if(currentSelected!=0)currentSelected--;
+			spAccounts.setSelection(currentSelected);
+		}
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        if(spAccounts != null) {
-            currentSelectedItem = spAccounts.getSelectedItemPosition();
-        }
     }
 
     @Override

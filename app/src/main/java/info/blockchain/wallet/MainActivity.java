@@ -58,17 +58,12 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
@@ -116,9 +111,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 	private ArrayList<DrawerItem> drawerItems;
 	private int backupWalletDrawerIndex;
 	private DrawerAdapter adapterDrawer;
-
-	public static LinkedHashMap<Integer, Account> visibleAccountList = null;
-	public static HashMap<Integer, Integer> accountIndexResolver = null;//spinnerIndex, accountIndex
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				setAccounts();
+				AccountsUtil.getInstance(this).initBalanceAccounts();
             }
             else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
@@ -197,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				setAccounts();
+				AccountsUtil.getInstance(this).initBalanceAccounts();
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
@@ -977,47 +969,5 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
 		Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
 		startActivityForResult(intent, REQUEST_BACKUP);
-	}
-
-	private void setAccounts(){
-
-		MainActivity.visibleAccountList = new LinkedHashMap<Integer, Account>();
-		MainActivity.accountIndexResolver = new HashMap<Integer, Integer>();
-		int accountIndex = 0;
-		int spinnerIndex = 0;
-
-		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-		List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
-
-		//All Account - if multiple accounts or contains legacy address
-		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
-
-			Account all = new Account();
-			all.setLabel(this.getResources().getString(R.string.all_accounts));
-			MainActivity.visibleAccountList.put(-1, all);
-		}
-
-		//Add Legacy addresses to accounts
-		if(accounts != null && accounts.size() > 0
-				&& !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
-				&& (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
-
-			ImportedAccount iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
-			accounts.add(iAccount);
-		}
-
-		for (Account item : accounts){
-
-			if(!item.isArchived()) {
-
-				if(item.getLabel().length() == 0)item.setLabel("Account: "+accountIndex);
-
-				MainActivity.visibleAccountList.put(accountIndex, item);
-				accountIndexResolver.put(spinnerIndex,accountIndex);
-				spinnerIndex++;
-			}
-
-			accountIndex++;
-		}
 	}
 }
