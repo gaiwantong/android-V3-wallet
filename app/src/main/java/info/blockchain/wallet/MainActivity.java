@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				AccountsUtil.getInstance(this).initBalanceAccounts();
+				AccountsUtil.getInstance(this).initAccountMaps();
             }
             else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
@@ -189,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				AccountsUtil.getInstance(this).initBalanceAccounts();
+				AccountsUtil.getInstance(this).initAccountMaps();
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);

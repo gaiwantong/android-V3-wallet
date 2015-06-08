@@ -25,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,15 +63,9 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
@@ -92,10 +87,8 @@ public class ReceiveFragment extends Fragment {
 	private Spinner spAccounts = null;
 	private TextView tvCurrency1 = null;
 	private TextView tvFiat2 = null;
-	private List<LegacyAddress> legacy = null;
 	
 	private int currentSelectedAccount = 0;
-//	private static int currentSelectedItem = 0;
 
 	private String strBTC = "BTC";
 	private String strFiat = null;
@@ -325,34 +318,7 @@ public class ReceiveFragment extends Fragment {
 		});
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
-		final List<String> _accounts = new ArrayList<String>();
-
-		LinkedHashMap<Integer, Account> accounts = (LinkedHashMap<Integer, Account>) AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().clone();
-		accounts.remove(-1);//Remove All Accounts
-
-        if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
-        	accounts.remove(accounts.size() - 1);
-        }
-
-        for(Account value : accounts.values()) {
-			if (value instanceof ImportedAccount)continue;//Skip 'Imported Addresses' as collection
-
-			_accounts.add(value.getLabel());
-		}
-
-		final int hdAccountsIdx = _accounts.size();
-
-		//Add individual legacy addresses
-		ImportedAccount iAccount = null;
-		if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-			iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
-		}
-        if(iAccount != null) {
-    		legacy = iAccount.getLegacyAddresses();
-            for(int j = 0; j < legacy.size(); j++) {
-            	_accounts.add((legacy.get(j).getLabel() == null || legacy.get(j).getLabel().length() == 0) ? legacy.get(j).getAddress() : legacy.get(j).getLabel());
-            }
-        }
+		final List<String> _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
 
 		if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
@@ -367,16 +333,7 @@ public class ReceiveFragment extends Fragment {
 					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 						int position = spAccounts.getSelectedItemPosition();
 						AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
-						if (position >= hdAccountsIdx) {
-							//Legacy addresses
-							currentSelectedAddress = legacy.get(position - hdAccountsIdx).getAddress();
-							displayQRCode();
-						} else {
-							//hd accounts
-							currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position);
-							assignHDReceiveAddress();
-							displayQRCode();
-						}
+						selectAccount(position);
 					}
 
 					@Override
@@ -425,8 +382,6 @@ public class ReceiveFragment extends Fragment {
 			}
 		});
 
-        displayQRCode();
-
     	return rootView;
 	}
 
@@ -461,10 +416,11 @@ public class ReceiveFragment extends Fragment {
 //        updateTextFields();
 
 		if(spAccounts != null) {
-			//all account included
+
 			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-			if(currentSelected!=0)currentSelected--;
+			if(currentSelected!=0)currentSelected--;//exclude 'all account'
 			spAccounts.setSelection(currentSelected);
+			selectAccount(currentSelected);
 		}
     }
 
@@ -477,7 +433,20 @@ public class ReceiveFragment extends Fragment {
 	public void onDestroy() {
         super.onDestroy();
 	}
-	
+
+	private void selectAccount(int position){
+		if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
+			//Legacy addresses
+			currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex()).getAddress();
+			displayQRCode();
+		} else {
+			//hd accounts
+			currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
+			assignHDReceiveAddress();
+			displayQRCode();
+		}
+	}
+
     private void displayQRCode() {
 
 		edReceivingAddress.setText(currentSelectedAddress);

@@ -503,7 +503,7 @@ public class SendFragment extends Fragment {
         }
         else {
             currentSelectedAccount = position;
-			Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
+			Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
             pendingSpend.sending_from = hda.getLabel();
             pendingSpend.isHD = true;
         }
@@ -631,13 +631,13 @@ public class SendFragment extends Fragment {
 
 	public String account2Xpub(int sel) {
 
-		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(sel));
+		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
 	    }
 	    else {
-			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(sel));
+			xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
 	    }
 	    
 	    return xpub;
@@ -854,7 +854,7 @@ public class SendFragment extends Fragment {
 				}
 			}
 			else {
-				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
 				labelText = hda.getLabel();
 			}
 
@@ -862,7 +862,7 @@ public class SendFragment extends Fragment {
 				amount = MultiAddrFactory.getInstance().getLegacyBalance(legacy.get(position - hdAccountsIdx).getAddress());
 			}
 			else {
-				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
 				String xpub = account2Xpub(position);
 				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
@@ -921,7 +921,7 @@ public class SendFragment extends Fragment {
 					if(!spendInProgress) {
 						spendInProgress = true;
 
-						final int account = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(currentAcc);
+						final int account = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(currentAcc);
 						final String destination = pendingSpend.destination;
 						final BigInteger bamount = pendingSpend.bamount;
 						final BigInteger bfee = pendingSpend.bfee;

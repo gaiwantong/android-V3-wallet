@@ -26,6 +26,13 @@ public class AccountsUtil {
 	private static LinkedHashMap<Integer, Account> balanceAccountMap = null;
 	private static LinkedHashMap<Integer, Integer> balanceAccountIndexResolver = null;
 
+	//Send/Receive Screen
+	private static LinkedHashMap<Integer, Account> sendReceiveAccountMap = null;
+	private static LinkedHashMap<Integer, Integer> sendReceiveAccountIndexResolver = null;
+	private static List<String> sendReceiveAccountList = null;//used for spinner
+	private static int lastHDIndex = 0;
+	private static List<LegacyAddress> legacyAddresses;
+
     public static AccountsUtil getInstance(Context ctx) {
 
         context = ctx;
@@ -45,7 +52,12 @@ public class AccountsUtil {
 		return currentSpinnerIndex;
 	}
 
-	public void initBalanceAccounts(){
+	public void initAccountMaps(){
+		initBalanceAccountMap();
+		initSendReceiveAccountMap();
+	}
+
+	public void initBalanceAccountMap(){
 
 		balanceAccountMap = new LinkedHashMap<Integer, Account>();
 		balanceAccountIndexResolver = new LinkedHashMap<Integer, Integer>();
@@ -86,7 +98,7 @@ public class AccountsUtil {
 			accountIndex++;
 		}
 
-		Log.v("", "---------initBalanceAccounts------------");
+		Log.v("", "---------initBalanceAccountMap------------");
 		for (Map.Entry<Integer, Account> item : balanceAccountMap.entrySet()) {
 
 			Log.v("", "balanceAccountMap: " + item.getKey() + " - " + item.getValue().getLabel());
@@ -97,11 +109,87 @@ public class AccountsUtil {
 		}
 	}
 
+	public void initSendReceiveAccountMap() {
+
+		sendReceiveAccountMap = new LinkedHashMap<Integer, Account>();
+		sendReceiveAccountIndexResolver = new LinkedHashMap<Integer, Integer>();
+		int accountIndex = 0;
+		int spinnerIndex = 0;
+
+		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+		for (Account item : accounts){
+
+			if(item instanceof ImportedAccount)continue;
+			if(!item.isArchived()) {
+
+				if(item.getLabel().length() == 0)item.setLabel("Account: "+accountIndex);
+
+				sendReceiveAccountMap.put(accountIndex, item);
+				sendReceiveAccountIndexResolver.put(spinnerIndex,accountIndex);
+				spinnerIndex++;
+			}
+
+			accountIndex++;
+		}
+
+		sendReceiveAccountList = new ArrayList<String>();
+		for (Account account : sendReceiveAccountMap.values()) {
+			sendReceiveAccountList.add(account.getLabel());
+		}
+		lastHDIndex = sendReceiveAccountList.size();
+
+		//Add individual legacy addresses
+		ImportedAccount iAccount = null;
+		if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+			iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+		}
+		if(iAccount != null) {
+			legacyAddresses = iAccount.getLegacyAddresses();
+			for(int j = 0; j < legacyAddresses.size(); j++) {
+				sendReceiveAccountList.add((legacyAddresses.get(j).getLabel() == null || legacyAddresses.get(j).getLabel().length() == 0) ? legacyAddresses.get(j).getAddress() : legacyAddresses.get(j).getLabel());
+			}
+		}
+
+		Log.v("", "---------initSendReceiveAccountMap------------");
+		for (Map.Entry<Integer, Account> item : sendReceiveAccountMap.entrySet()) {
+
+			Log.v("", "sendReceiveAccountMap: " + item.getKey() + " - " + item.getValue().getLabel());
+		}
+		for (Map.Entry<Integer, Integer> item : sendReceiveAccountIndexResolver.entrySet()) {
+
+			Log.v("", "spinnerKey: " + item.getKey() + " - label:" + sendReceiveAccountMap.get(item.getValue()).getLabel());
+		}
+		for (String item : sendReceiveAccountList) {
+
+			Log.v("", "spinnerString: " + item);
+		}
+	}
+
 	public LinkedHashMap<Integer, Account> getBalanceAccountMap(){
 		return balanceAccountMap;
 	}
 
 	public LinkedHashMap<Integer, Integer> getBalanceAccountIndexResolver(){
 		return balanceAccountIndexResolver;
+	}
+
+	public LinkedHashMap<Integer, Integer> getSendReceiveAccountIndexResolver(){
+		return sendReceiveAccountIndexResolver;
+	}
+
+	public static LinkedHashMap<Integer, Account> getSendReceiveAccountMap() {
+		return sendReceiveAccountMap;
+	}
+
+	public static List<String> getSendReceiveAccountList() {
+		return sendReceiveAccountList;
+	}
+
+	public static int getLastHDIndex() {
+		return lastHDIndex;
+	}
+
+	public static LegacyAddress getLegacyAddress(int position){
+		return legacyAddresses.get(position);
 	}
 }
