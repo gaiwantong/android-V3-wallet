@@ -60,6 +60,7 @@ public class NotificationsFactory {
 				.setNumber(notificationCount)
 				.setTicker(marquee)
 				.setAutoCancel(true)
+				.setOnlyAlertOnce(true)
 				.setDefaults(Notification.DEFAULT_ALL)
 				.setContentText(text).build();
 
