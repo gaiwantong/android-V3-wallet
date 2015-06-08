@@ -1,12 +1,10 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -97,16 +95,6 @@ public class AccountsUtil {
 
 			accountIndex++;
 		}
-
-		Log.v("", "---------initBalanceAccountMap------------");
-		for (Map.Entry<Integer, Account> item : balanceAccountMap.entrySet()) {
-
-			Log.v("", "balanceAccountMap: " + item.getKey() + " - " + item.getValue().getLabel());
-		}
-		for (Map.Entry<Integer, Integer> item : balanceAccountIndexResolver.entrySet()) {
-
-			Log.v("", "spinnerKey: " + item.getKey() + " - label:" + balanceAccountMap.get(item.getValue()).getLabel());
-		}
 	}
 
 	public void initSendReceiveAccountMap() {
@@ -149,20 +137,6 @@ public class AccountsUtil {
 				sendReceiveAccountList.add((legacyAddresses.get(j).getLabel() == null || legacyAddresses.get(j).getLabel().length() == 0) ? legacyAddresses.get(j).getAddress() : legacyAddresses.get(j).getLabel());
 			}
 		}
-
-		Log.v("", "---------initSendReceiveAccountMap------------");
-		for (Map.Entry<Integer, Account> item : sendReceiveAccountMap.entrySet()) {
-
-			Log.v("", "sendReceiveAccountMap: " + item.getKey() + " - " + item.getValue().getLabel());
-		}
-		for (Map.Entry<Integer, Integer> item : sendReceiveAccountIndexResolver.entrySet()) {
-
-			Log.v("", "spinnerKey: " + item.getKey() + " - label:" + sendReceiveAccountMap.get(item.getValue()).getLabel());
-		}
-		for (String item : sendReceiveAccountList) {
-
-			Log.v("", "spinnerString: " + item);
-		}
 	}
 
 	public LinkedHashMap<Integer, Account> getBalanceAccountMap(){
@@ -191,5 +165,9 @@ public class AccountsUtil {
 
 	public static LegacyAddress getLegacyAddress(int position){
 		return legacyAddresses.get(position);
+	}
+
+	public static List<LegacyAddress> getLegacyAddresses(){
+		return legacyAddresses;
 	}
 }
