@@ -470,7 +470,7 @@ public class SendFragment extends Fragment {
         else {
 
 			//HD accounts
-			Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
+			Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
             pendingSpend.sending_from = hda.getLabel();
             pendingSpend.isHD = true;
         }
@@ -598,7 +598,7 @@ public class SendFragment extends Fragment {
 
 	public String account2Xpub(int sel) {
 
-		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
+		Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
 		String xpub = null;
 	    if(hda instanceof ImportedAccount) {
 	    	xpub = null;
@@ -823,7 +823,7 @@ public class SendFragment extends Fragment {
 				}
 			}
 			else {
-				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
 				labelText = hda.getLabel();
 			}
 
@@ -832,7 +832,7 @@ public class SendFragment extends Fragment {
 				amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 			}
 			else {
-				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
+				Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
 				String xpub = account2Xpub(position);
 				if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 					amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
