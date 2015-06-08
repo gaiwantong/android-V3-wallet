@@ -748,6 +748,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     toolbar.getChildAt(i).setEnabled(true);
                     toolbar.getChildAt(i).setClickable(true);
                 }
+
+                if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
+                    MainActivity.this.finish();
+                }
+                else {
+                    AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+                }
+
             }
 
             public void onDrawerOpened(View drawerView) {

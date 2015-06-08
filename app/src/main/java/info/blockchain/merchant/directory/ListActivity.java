@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.util.AppUtil;
 
 public class ListActivity extends ActionBarActivity {
 
@@ -221,6 +222,19 @@ public class ListActivity extends ActionBarActivity {
         });
 
 		setAdapterContent();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(ListActivity.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(ListActivity.this).updatePinEntryTime();
+        }
 
     }
 

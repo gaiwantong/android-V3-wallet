@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.util.AppUtil;
 
 public class SuggestMerchant extends ActionBarActivity {
 
@@ -210,6 +211,19 @@ public class SuggestMerchant extends ActionBarActivity {
 		confirmLayout.setVisibility(View.GONE);
 		commandSave.setVisibility(View.GONE);
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(SuggestMerchant.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(SuggestMerchant.this).updatePinEntryTime();
+        }
+
+    }
 
 	@Override
 	protected void onDestroy() {

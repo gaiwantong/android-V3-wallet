@@ -39,6 +39,7 @@ import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
@@ -254,28 +255,33 @@ public class SendFactory	{
                         throw new Exception(context.getString(R.string.tx_length_error));
                     }
 
+                    if(ConnectivityStatus.hasConnectivity(context)) {
 //					Log.i("SendFactory tx string", hexString);
-                    String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                        String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
-                    if(response.contains("Transaction Submitted")) {
+                        if(response.contains("Transaction Submitted")) {
 
-                        opc.onSuccess();
+                            opc.onSuccess();
 
-                        if(note != null && note.length() > 0) {
-                            Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
-                            notes.put(tx.getHashAsString(), note);
-                            PayloadFactory.getInstance().get().setNotes(notes);
+                            if(note != null && note.length() > 0) {
+                                Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+                                notes.put(tx.getHashAsString(), note);
+                                PayloadFactory.getInstance().get().setNotes(notes);
+                            }
+
+                            if(isHD && sentChange) {
+                                // increment change address counter
+                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                            }
+
                         }
-
-                        if(isHD && sentChange) {
-                            // increment change address counter
-                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                        else {
+                            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                            opc.onFail();
                         }
-
                     }
                     else {
-                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                        opc.onFail();
+                        Toast.makeText(context, R.string.check_connectivity_exit, Toast.LENGTH_SHORT).show();
                     }
 
 //					progress.onSend(tx, response);

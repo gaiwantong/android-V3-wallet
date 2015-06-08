@@ -161,7 +161,7 @@ public class HDPayloadBridge	{
 			HD_Wallet hd_wallet = null;
 			
 	        if(PayloadFactory.getInstance().get().getHdWallet() != null) {
-	    		hd_wallet = HD_WalletFactory.getInstance(context).restoreWallet(PayloadFactory.getInstance().get().getHdWallet().getSeedHex(), "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+	    		hd_wallet = HD_WalletFactory.getInstance(context).restoreWallet(PayloadFactory.getInstance().get().getHdWallet().getSeedHex(), PayloadFactory.getInstance().get().getHdWallet().getPassphrase(), PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
 	        }
 
 		}

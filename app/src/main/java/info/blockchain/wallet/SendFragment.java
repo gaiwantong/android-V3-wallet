@@ -57,6 +57,7 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -855,178 +856,185 @@ public class SendFragment extends Fragment {
 
 	private void confirmPayment(final boolean isHd, final int currentAcc, final LegacyAddress legacyAddress){
 
-		if(isValidSpend()) {
+        if(ConnectivityStatus.hasConnectivity(getActivity()))    {
 
-			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
-			LayoutInflater inflater = getActivity().getLayoutInflater();
-			View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
-			dialogBuilder.setView(dialogView);
+            if(isValidSpend()) {
 
-			final AlertDialog alertDialog = dialogBuilder.create();
-			alertDialog.setCanceledOnTouchOutside(false);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
+                dialogBuilder.setView(dialogView);
 
-			TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
-			confirmDestination.setText(pendingSpend.destination);
+                final AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.setCanceledOnTouchOutside(false);
 
-			TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-			confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
+                TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
+                confirmDestination.setText(pendingSpend.destination);
 
-			TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-			BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
-			confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
+                TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
+                confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
 
-			TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-			confirmCancel.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-				}
-			});
+                TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
+                BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
+                confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
 
-			TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
-			confirmSend.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
+                TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+                confirmCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+                    }
+                });
 
-					if(!spendInProgress) {
-						spendInProgress = true;
+                TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+                confirmSend.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-						final int account = currentAcc;
-						final String destination = pendingSpend.destination;
-						final BigInteger bamount = pendingSpend.bamount;
-						final BigInteger bfee = pendingSpend.bfee;
-						final String strNote = null;
+                        if(!spendInProgress) {
+                            spendInProgress = true;
 
-                        final ProgressDialog progress = new ProgressDialog(getActivity());
-                        progress.setCancelable(false);
-                        progress.setTitle(R.string.app_name);
-                        progress.setMessage(getString(R.string.please_wait));
-                        progress.show();
+                            final int account = currentAcc;
+                            final String destination = pendingSpend.destination;
+                            final BigInteger bamount = pendingSpend.bamount;
+                            final BigInteger bfee = pendingSpend.bfee;
+                            final String strNote = null;
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                            final ProgressDialog progress = new ProgressDialog(getActivity());
+                            progress.setCancelable(false);
+                            progress.setTitle(R.string.app_name);
+                            progress.setMessage(getString(R.string.please_wait));
+                            progress.show();
 
-                                Looper.prepare();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).send1(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
+                                    Looper.prepare();
 
-                                if(unspents != null) {
+                                    UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).send1(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
 
-                                    if(isHd) {
+                                    if(unspents != null) {
 
-                                        SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, new OpCallback() {
+                                        if(isHd) {
 
-                                            public void onSuccess() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
+                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, new OpCallback() {
 
-                                                        if (progress != null && progress.isShowing()) {
-                                                            progress.dismiss();
+                                                public void onSuccess() {
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+
+                                                            if (progress != null && progress.isShowing()) {
+                                                                progress.dismiss();
+                                                            }
+
+                                                            Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+                                                            PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+
+                                                            MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+                                                            MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
+                                                            if (alertDialog != null && alertDialog.isShowing())
+                                                                alertDialog.cancel();
+                                                            Fragment fragment = new BalanceFragment();
+                                                            FragmentManager fragmentManager = getFragmentManager();
+                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                                         }
-
-                                                        Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
-                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-
-                                                        MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                        MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
-                                                        if (alertDialog != null && alertDialog.isShowing())
-                                                            alertDialog.cancel();
-                                                        Fragment fragment = new BalanceFragment();
-                                                        FragmentManager fragmentManager = getFragmentManager();
-                                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                                                    }
-                                                });
-                                            }
-
-                                            public void onFail() {
-
-                                                if (progress != null && progress.isShowing()) {
-                                                    progress.dismiss();
+                                                    });
                                                 }
 
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
-                                                        if (alertDialog != null && alertDialog.isShowing())
-                                                            alertDialog.cancel();
-                                                        Fragment fragment = new BalanceFragment();
-                                                        FragmentManager fragmentManager = getFragmentManager();
-                                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                                                    }
-                                                });
-                                            }
+                                                public void onFail() {
 
-                                        });
+                                                    if (progress != null && progress.isShowing()) {
+                                                        progress.dismiss();
+                                                    }
+
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+                                                            if (alertDialog != null && alertDialog.isShowing())
+                                                                alertDialog.cancel();
+                                                            Fragment fragment = new BalanceFragment();
+                                                            FragmentManager fragmentManager = getFragmentManager();
+                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                                                        }
+                                                    });
+                                                }
+
+                                            });
+                                        }
+                                        else if (legacyAddress != null) {
+
+                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
+
+                                                public void onSuccess() {
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+
+                                                            if (progress != null && progress.isShowing()) {
+                                                                progress.dismiss();
+                                                            }
+
+                                                            Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+                                                            if (strNote != null) {
+                                                                PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                            }
+                                                            MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+                                                            MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
+                                                            MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
+                                                            if (alertDialog != null && alertDialog.isShowing())
+                                                                alertDialog.cancel();
+                                                            Fragment fragment = new BalanceFragment();
+                                                            FragmentManager fragmentManager = getFragmentManager();
+                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                                                        }
+                                                    });
+                                                }
+
+                                                public void onFail() {
+                                                    getActivity().runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+
+                                                            if (progress != null && progress.isShowing()) {
+                                                                progress.dismiss();
+                                                            }
+
+                                                            Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+                                                            if (alertDialog != null && alertDialog.isShowing())
+                                                                alertDialog.cancel();
+                                                            Fragment fragment = new BalanceFragment();
+                                                            FragmentManager fragmentManager = getFragmentManager();
+                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+                                                        }
+                                                    });
+                                                }
+
+                                            });
+                                        }
+
                                     }
-                                    else if (legacyAddress != null) {
 
-                                        SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
-
-                                            public void onSuccess() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-
-                                                        if (progress != null && progress.isShowing()) {
-                                                            progress.dismiss();
-                                                        }
-
-                                                        Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
-                                                        if (strNote != null) {
-                                                            PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-                                                        }
-                                                        MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
-                                                        MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
-                                                        if (alertDialog != null && alertDialog.isShowing())
-                                                            alertDialog.cancel();
-                                                        Fragment fragment = new BalanceFragment();
-                                                        FragmentManager fragmentManager = getFragmentManager();
-                                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                                                    }
-                                                });
-                                            }
-
-                                            public void onFail() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-
-                                                        if (progress != null && progress.isShowing()) {
-                                                            progress.dismiss();
-                                                        }
-
-                                                        Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
-                                                        if (alertDialog != null && alertDialog.isShowing())
-                                                            alertDialog.cancel();
-                                                        Fragment fragment = new BalanceFragment();
-                                                        FragmentManager fragmentManager = getFragmentManager();
-                                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-                                                    }
-                                                });
-                                            }
-
-                                        });
-                                    }
+                                    Looper.loop();
 
                                 }
+                            }).start();
 
-                                Looper.loop();
+                            spendInProgress = false;
+                        }
+                    }
+                });
 
-                            }
-                        }).start();
+                alertDialog.show();
+            }
+        }
+        else    {
+            Toast.makeText(getActivity(), R.string.check_connectivity_exit, Toast.LENGTH_SHORT).show();
+        }
 
-						spendInProgress = false;
-					}
-				}
-			});
-
-			alertDialog.show();
-		}
 	}
 
 	private boolean isValidSpend() {

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 
+import info.blockchain.wallet.util.AppUtil;
+
 public class BackupWalletActivity extends ActionBarActivity{
 
 	public static final String BACKUP_DATE_KEY = "BACKUP_DATE_KEY";
@@ -28,6 +30,19 @@ public class BackupWalletActivity extends ActionBarActivity{
 				.addToBackStack("backup_start")
 				.commit();
 	}
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(AppUtil.getInstance(BackupWalletActivity.this).isTimedOut()) {
+            finish();
+        }
+        else {
+            AppUtil.getInstance(BackupWalletActivity.this).updatePinEntryTime();
+        }
+
+    }
 
 	@Override
 	public void onBackPressed() {
