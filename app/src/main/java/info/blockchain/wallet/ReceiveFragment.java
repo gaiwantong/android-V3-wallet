@@ -87,7 +87,7 @@ public class ReceiveFragment extends Fragment {
 	private Spinner spAccounts = null;
 	private TextView tvCurrency1 = null;
 	private TextView tvFiat2 = null;
-	
+
 	private int currentSelectedAccount = 0;
 
 	private String strBTC = "BTC";
@@ -395,7 +395,6 @@ public class ReceiveFragment extends Fragment {
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 			tvCurrency1.setText(isBTC ? strBTC : strFiat);
 			tvFiat2.setText(isBTC ? strFiat : strBTC);
-//            updateTextFields();
         }
         else {
         	;
@@ -413,7 +412,6 @@ public class ReceiveFragment extends Fragment {
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 		tvCurrency1.setText(isBTC ? strBTC : strFiat);
 		tvFiat2.setText(isBTC ? strFiat : strBTC);
-//        updateTextFields();
 
 		if(spAccounts != null) {
 
@@ -556,7 +554,6 @@ public class ReceiveFragment extends Fragment {
 			fiat_amount = 0.0;
 		}
 		double btc_amount = fiat_amount / btc_fx;
-//		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(getDenominatedAmount(btc_amount)) + "\u00A0");
 		edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
 	}
 

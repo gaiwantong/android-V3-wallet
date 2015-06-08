@@ -373,7 +373,6 @@ public class SendFragment extends Fragment {
                 btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
                 double fiat_amount = btc_fx * btc_amount;
-//                edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount) + "\u00A0");
 				edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
@@ -425,9 +424,9 @@ public class SendFragment extends Fragment {
 			}
 
 		if(spAccounts != null) {
-			//all account included
+
 			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-			if(currentSelected!=0)currentSelected--;
+			if(currentSelected!=0)currentSelected--;//exclude 'all account'
 			spAccounts.setSelection(currentSelected);
 		}
 
@@ -491,7 +490,6 @@ public class SendFragment extends Fragment {
 			pendingSpend.amount = edAmount2.getText().toString();
 		}
 		long lamount = 0L;
-		double damount = 0.0;
 		try {
             lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
