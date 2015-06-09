@@ -40,6 +40,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -282,6 +283,8 @@ public class BalanceFragment extends Fragment {
 				double _btc_balance = tx.getAmount() / 1e8;
 				double _fiat_balance = btc_fx * _btc_balance;
 
+				View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
+
 				TextView tvResult = (TextView)holder.itemView.findViewById(R.id.result);
 				tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				tvResult.setTextColor(Color.WHITE);
@@ -338,22 +341,7 @@ public class BalanceFragment extends Fragment {
 					}
 				});
 
-				tvTS.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-
-						FrameLayout parent = (FrameLayout) v.getParent();
-						event.setLocation(event.getX(), v.getY()+(v.getHeight()/2));
-						parent.onTouchEvent(event);
-
-						if (event.getAction() == MotionEvent.ACTION_UP) {
-							onRowClick(holder.itemView, position);
-						}
-						return true;
-					}
-				});
-
-				tvDirection.setOnTouchListener(new OnTouchListener() {
+				txTouchView.setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 
@@ -874,7 +862,7 @@ public class BalanceFragment extends Fragment {
 			if(getResources().getBoolean(R.bool.isDualPane))
 				detailsView = rootView;
 
-			final LinearLayout txsDetails = (LinearLayout) detailsView.findViewById(R.id.txs_details);
+			final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
 			final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
 			final TextView tvToAddr = (TextView) detailsView.findViewById(R.id.tx_to_addr);
 			final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
@@ -932,6 +920,11 @@ public class BalanceFragment extends Fragment {
 								onRowClick(view, position);
 							}
 							return true;
+
+							//To be used with advance send tx display
+							// Disallow the touch request for parent scroll on touch of child view
+							//v.getParent().requestDisallowInterceptTouchEvent(true);
+							//return false;
 						}
 					});
 

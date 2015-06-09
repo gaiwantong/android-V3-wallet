@@ -1,212 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	android:id="@+id/txs_details"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@color/white"
-	android:orientation="vertical"
-	android:paddingBottom="8dp"
-	android:visibility="invisible"
-	android:paddingTop="8dp">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/txs_details"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@color/white"
+			android:paddingBottom="8dp"
+			android:paddingTop="8dp"
+			android:visibility="visible">
 
-	<RelativeLayout
+
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:visibility="visible">
+		>
 
-		<ProgressBar
-			android:id="@+id/progress_view"
-			android:layout_width="wrap_content"
+		<RelativeLayout
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"/>
+			android:orientation="vertical"
+			android:visibility="visible">
+
+			<ProgressBar
+				android:id="@+id/progress_view"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:paddingBottom="8dp"
+					android:paddingLeft="16dp"
+					android:paddingRight="16dp"
+					android:paddingTop="8dp"
+					>
+
+					<TextView
+						android:id="@+id/tx_from"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="2"
+						android:fontFamily="sans-serif"
+						android:gravity="top"
+						android:text="@string/from"
+						android:textColor="@color/primary_text_default_material_light"
+						android:textSize="14sp"
+						android:textStyle="bold"
+
+						/>
+
+					<TextView
+						android:id="@+id/tx_from_addr"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="3"
+						android:fontFamily="sans-serif"
+						android:gravity="center_vertical"
+						android:textColor="@color/primary_text_default_material_light"
+						android:textSize="14sp"
+						/>
+
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:paddingBottom="8dp"
+					android:paddingLeft="16dp"
+					android:paddingRight="16dp"
+					android:paddingTop="8dp"
+					>
+
+					<TextView
+						android:id="@+id/tx_to"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="2"
+						android:fontFamily="sans-serif"
+						android:gravity="top"
+						android:text="@string/to"
+						android:textColor="@color/primary_text_default_material_light"
+						android:textSize="14sp"
+						android:textStyle="bold"
+
+						/>
+
+					<TextView
+						android:id="@+id/tx_to_addr"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="3"
+						android:fontFamily="sans-serif"
+						android:gravity="center_vertical"
+						android:textColor="@color/primary_text_default_material_light"
+						android:textSize="14sp"
+						/>
+
+				</LinearLayout>
+
+			</LinearLayout>
+		</RelativeLayout>
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="horizontal"
+			android:paddingBottom="8dp"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			android:paddingTop="8dp"
+			>
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:paddingBottom="8dp"
-				android:paddingLeft="16dp"
-				android:paddingRight="16dp"
-				android:paddingTop="8dp"
-				>
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="2"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:text="@string/confirmations"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="14sp"
+				/>
 
-				<TextView
-					android:id="@+id/tx_from"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="2"
-					android:fontFamily="sans-serif"
-					android:gravity="top"
-					android:text="@string/from"
-					android:textColor="@color/primary_text_default_material_light"
-					android:textSize="14sp"
-					android:textStyle="bold"
-
-					/>
-
-				<TextView
-					android:id="@+id/tx_from_addr"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="3"
-					android:fontFamily="sans-serif"
-					android:gravity="center_vertical"
-					android:textColor="@color/primary_text_default_material_light"
-					android:textSize="14sp"
-					/>
-
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:paddingBottom="8dp"
-				android:paddingLeft="16dp"
-				android:paddingRight="16dp"
-				android:paddingTop="8dp"
-				>
-
-				<TextView
-					android:id="@+id/tx_to"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="2"
-					android:fontFamily="sans-serif"
-					android:gravity="top"
-					android:text="@string/to"
-					android:textColor="@color/primary_text_default_material_light"
-					android:textSize="14sp"
-					android:textStyle="bold"
-
-					/>
-
-				<TextView
-					android:id="@+id/tx_to_addr"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="3"
-					android:fontFamily="sans-serif"
-					android:gravity="center_vertical"
-					android:textColor="@color/primary_text_default_material_light"
-					android:textSize="14sp"
-					/>
-
-			</LinearLayout>
+			<TextView
+				android:id="@+id/tx_confirmations"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="3"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="14sp"
+				/>
 
 		</LinearLayout>
-	</RelativeLayout>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingBottom="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
-		android:paddingTop="8dp"
-		>
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingBottom="8dp"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			android:paddingTop="8dp"
+			>
 
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="2"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:text="@string/confirmations"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14sp"
-			/>
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="2"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:text="@string/transaction_fee"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="14sp"
 
-		<TextView
-			android:id="@+id/tx_confirmations"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="3"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14sp"
-			/>
+				/>
 
+			<TextView
+				android:id="@+id/tx_fee_value"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="3"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="14sp"
+				/>
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingBottom="8dp"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp"
+			android:paddingTop="8dp"
+			>
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="2"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:text="@string/transaction_hash"
+				android:textColor="@color/primary_text_default_material_light"
+				android:textSize="14sp"
+				/>
+
+			<TextView
+				android:id="@+id/tx_hash"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="3"
+				android:fontFamily="sans-serif"
+				android:gravity="center_vertical"
+				android:marqueeRepeatLimit="marquee_forever"
+				android:singleLine="true"
+				android:textColor="@color/blockchain_blue"
+				android:textSize="14sp"
+				/>
+
+		</LinearLayout>
 	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingBottom="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
-		android:paddingTop="8dp"
-		>
-
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="2"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:text="@string/transaction_fee"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14sp"
-
-			/>
-
-		<TextView
-			android:id="@+id/tx_fee_value"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="3"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14sp"
-			/>
-
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingBottom="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
-		android:paddingTop="8dp"
-		>
-
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="2"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:text="@string/transaction_hash"
-			android:textColor="@color/primary_text_default_material_light"
-			android:textSize="14sp"
-			/>
-
-		<TextView
-			android:id="@+id/tx_hash"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_weight="3"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:marqueeRepeatLimit="marquee_forever"
-			android:singleLine="true"
-			android:textColor="@color/blockchain_blue"
-			android:textSize="14sp"
-			/>
-
-	</LinearLayout>
-
-</LinearLayout>
+</ScrollView>
