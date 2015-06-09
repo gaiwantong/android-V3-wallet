@@ -2,12 +2,6 @@
 
 Next-generation HD (bip32/bip44) bitcoin wallet. 
 
-## Code Branches 
-
-### master
-
-Contains first iteration of UI defined Q4 of 2014. Development on this branch stopped on 20 March 2015. Do not use.
-
 ## Build Process
 
 Install Android Studio: https://developer.android.com/sdk/index.html
