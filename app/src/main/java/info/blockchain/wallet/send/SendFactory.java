@@ -28,6 +28,7 @@ import com.google.bitcoin.core.Sha256Hash;
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.core.TransactionInput;
 import com.google.bitcoin.core.TransactionOutput;
+import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.core.Transaction.SigHash;
 import com.google.bitcoin.params.MainNetParams;
@@ -60,6 +61,8 @@ public class SendFactory	{
 	private HashMap<String,String> froms = null;
 
     private boolean sentChange = false;
+
+    private BigInteger bDust = Utils.toNanoCoins("0.00000546");
 
     public static SendFactory getInstance(Context ctx) {
     	
@@ -440,7 +443,7 @@ public class SendFactory	{
 		Transaction tx = new Transaction(MainNetParams.get());
 		BigInteger outputValueSum = BigInteger.ZERO;
 
-		for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();) {
+		for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();)   {
 			Map.Entry<String, BigInteger> mapEntry = iterator.next();
 			String toAddress = mapEntry.getKey();
 			BigInteger amount = mapEntry.getValue();
@@ -449,7 +452,11 @@ public class SendFactory	{
 				throw new Exception(context.getString(R.string.invalid_amount));
 			}
 
-			outputValueSum = outputValueSum.add(amount);
+            if(amount.compareTo(bDust) < 1)    {
+                throw new Exception(context.getString(R.string.dust_amount));
+            }
+
+            outputValueSum = outputValueSum.add(amount);
 			// Add the output
 			BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
 			TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
@@ -500,6 +507,9 @@ public class SendFactory	{
 		}
 
 		BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
+        if(change.compareTo(bDust) < 1)    {
+            throw new Exception(context.getString(R.string.dust_change));
+        }
 
 		// Now add the change if there is any
 		if (change.compareTo(BigInteger.ZERO) > 0) {
