@@ -67,7 +67,7 @@ public class NotificationsFactory {
 		mNotificationManager.notify(id, mBuilder);
 	}
 
-	public static void resetNotificationCounter(){
+	public void resetNotificationCounter(){
 		notificationCount = 0;
 	}
 }

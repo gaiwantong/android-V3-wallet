@@ -66,6 +66,7 @@ import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
@@ -125,6 +126,7 @@ public class BalanceFragment extends Fragment {
 						accountsAdapter.notifyDataSetChanged();
 						updateTx();
 						txAdapter.notifyDataSetChanged();
+						NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
 					}
 				});
 
