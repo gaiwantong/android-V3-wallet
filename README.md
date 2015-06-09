@@ -8,15 +8,9 @@ Next-generation HD (bip32/bip44) bitcoin wallet.
 
 Contains first iteration of UI defined Q4 of 2014. Development on this branch stopped on 20 March 2015. Do not use.
 
-### UI2
-
-Build contains UI as defined in 'Bitcoin Wallet (Android) Design Spec 1.3'.
-
 ## Build Process
 
 Install Android Studio: https://developer.android.com/sdk/index.html
-
-Checkout UI2 branch
 
 Import as Android Studio project.
 
