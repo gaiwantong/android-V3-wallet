@@ -90,7 +90,7 @@ public class SendFragment extends Fragment {
 	private BigInteger bFee = Utils.toNanoCoins("0.0001");
 
 	private boolean textChangeAllowed = true;
-    private String defaultSeperator;
+    private String defaultSeparator;//Decimal separator based on locale
 
 	private boolean spendInProgress = false;
 
@@ -170,10 +170,10 @@ public class SendFragment extends Fragment {
 
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
         DecimalFormatSymbols symbols=format.getDecimalFormatSymbols();
-        defaultSeperator=Character.toString(symbols.getDecimalSeparator());
+        defaultSeparator =Character.toString(symbols.getDecimalSeparator());
 
         edAmount1 = ((EditText)rootView.findViewById(R.id.amount1));
-        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
 		edAmount1.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface(), Typeface.NORMAL);
         edAmount1.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
@@ -253,7 +253,7 @@ public class SendFragment extends Fragment {
 
         tvCurrency1 = (TextView)rootView.findViewById(R.id.currency1);
         edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
-        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"+defaultSeperator));
+        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"+ defaultSeparator));
         tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
         edAmount2.addTextChangedListener(new TextWatcher()	{
 			public void afterTextChanged(Editable s) {
@@ -634,12 +634,12 @@ public class SendFragment extends Fragment {
 	private void sendClicked(){
 
 		if(isBTC) {
-			pendingSpend.btc_amount = edAmount1.getText().toString().replace(defaultSeperator,".");
-			pendingSpend.fiat_amount = edAmount2.getText().toString().replace(defaultSeperator, ".");
+			pendingSpend.btc_amount = edAmount1.getText().toString().replace(defaultSeparator,".");
+			pendingSpend.fiat_amount = edAmount2.getText().toString().replace(defaultSeparator, ".");
 		}
 		else {
-			pendingSpend.fiat_amount = edAmount1.getText().toString().replace(defaultSeperator, ".");
-			pendingSpend.btc_amount = edAmount2.getText().toString().replace(defaultSeperator,".");
+			pendingSpend.fiat_amount = edAmount1.getText().toString().replace(defaultSeparator, ".");
+			pendingSpend.btc_amount = edAmount2.getText().toString().replace(defaultSeparator,".");
 		}
 
 		pendingSpend.btc_units = strBTC;
@@ -1014,7 +1014,25 @@ public class SendFragment extends Fragment {
                                             });
                                         }
 
-                                    }
+                                    }else{
+										getActivity().runOnUiThread(new Runnable() {
+											@Override
+											public void run() {
+
+												if (progress != null && progress.isShowing()) {
+													progress.dismiss();
+												}
+
+												Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+												if (alertDialog != null && alertDialog.isShowing())
+													alertDialog.cancel();
+												Fragment fragment = new BalanceFragment();
+												FragmentManager fragmentManager = getFragmentManager();
+												fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+											}
+										});
+									}
 
                                     Looper.loop();
 
