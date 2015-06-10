@@ -507,13 +507,12 @@ public class SendFactory	{
 		}
 
 		BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
-        if(change.compareTo(bDust) < 1)    {
-            throw new Exception(context.getString(R.string.dust_change));
-        }
-
 		// Now add the change if there is any
 		if (change.compareTo(BigInteger.ZERO) > 0) {
-			BitcoinScript change_script;
+            if(change.compareTo(bDust) < 1)    {
+                throw new Exception(context.getString(R.string.dust_change));
+            }
+            BitcoinScript change_script;
 			if (changeAddress != null) {
 				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
                 sentChange = true;
