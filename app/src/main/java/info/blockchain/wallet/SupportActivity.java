@@ -93,13 +93,7 @@ public class SupportActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(SupportActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(SupportActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(SupportActivity.this).updatePinEntryTime();
     }
 
 }

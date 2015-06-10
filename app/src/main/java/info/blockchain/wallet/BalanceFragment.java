@@ -63,6 +63,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
@@ -223,6 +224,8 @@ public class BalanceFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
 		MainActivity.currentFragment = this;
 

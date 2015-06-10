@@ -501,13 +501,7 @@ public class MyAccountsActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(MyAccountsActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(MyAccountsActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(MyAccountsActivity.this).updatePinEntryTime();
     }
 
     @Override

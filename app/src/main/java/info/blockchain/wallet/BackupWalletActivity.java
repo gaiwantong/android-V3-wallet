@@ -35,13 +35,7 @@ public class BackupWalletActivity extends ActionBarActivity{
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(BackupWalletActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(BackupWalletActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(BackupWalletActivity.this).updatePinEntryTime();
     }
 
 	@Override

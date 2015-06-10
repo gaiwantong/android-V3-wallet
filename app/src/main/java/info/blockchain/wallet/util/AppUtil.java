@@ -17,7 +17,8 @@ public class AppUtil {
 
     private static boolean DEBUG = false;
 
-    private static long TIMEOUT_DELAY = 1000 * 60 * 5;
+//    private static long TIMEOUT_DELAY = 1000 * 60 * 5;
+    private static long TIMEOUT_DELAY = 1000 * 20;
     private static long lastPin = 0L;
 
     private static String strReceiveQRFilename = null;

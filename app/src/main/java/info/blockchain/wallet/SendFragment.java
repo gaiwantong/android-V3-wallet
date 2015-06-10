@@ -56,6 +56,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -409,6 +410,8 @@ public class SendFragment extends Fragment {
     @Override
     public void onResume() {
     	super.onResume();
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
 		MainActivity.currentFragment = this;
 

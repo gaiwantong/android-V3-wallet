@@ -5,12 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -31,8 +27,6 @@ import com.google.bitcoin.crypto.MnemonicException;
 import org.apache.commons.codec.DecoderException;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
 
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -339,13 +333,7 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(SettingsActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(SettingsActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(SettingsActivity.this).updatePinEntryTime();
     }
 
 }

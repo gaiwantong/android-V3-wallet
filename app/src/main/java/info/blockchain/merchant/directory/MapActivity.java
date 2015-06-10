@@ -513,13 +513,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(MapActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(MapActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(MapActivity.this).updatePinEntryTime();
     }
 
     @Override
