@@ -323,4 +323,7 @@
 	<string name="click">Click</string>
 	<string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
+    <string name="dust_change">Transaction returns dust amount as change.</string>
+    <string name="dust_amount">Transaction spends dust amount.</string>
+
 </resources>
