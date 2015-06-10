@@ -325,5 +325,6 @@
 
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
+	<string name="logging_out_automatically">Logging out automatically</string>
 
 </resources>

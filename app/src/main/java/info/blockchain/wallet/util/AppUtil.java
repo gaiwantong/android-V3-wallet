@@ -1,11 +1,14 @@
 package info.blockchain.wallet.util;
- 
+
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
+import android.widget.Toast;
 
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.R;
 
 public class AppUtil {
 	
@@ -18,6 +21,7 @@ public class AppUtil {
     private static long lastPin = 0L;
 
     private static String strReceiveQRFilename = null;
+    private static Thread lockThread = null;
 
 	private AppUtil() { ; }
 
@@ -63,10 +67,29 @@ public class AppUtil {
 
     public void updatePinEntryTime() {
         lastPin = System.currentTimeMillis();
+
+        if(lockThread!=null)lockThread.interrupt();
+        lockThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                try{
+                    Thread.sleep(TIMEOUT_DELAY);
+                    Toast.makeText(context,context.getResources().getString(R.string.logging_out_automatically),Toast.LENGTH_SHORT).show();
+                    restartApp();
+                    clearPinEntryTime();
+
+                }catch (Exception e){
+                }
+                Looper.loop();
+            }
+        });
+        lockThread.start();
     }
 
 	public void clearPinEntryTime() {
 		lastPin = 0L;
+        if(lockThread!=null)lockThread.interrupt();
 	}
 
     public boolean isTimedOut() {
