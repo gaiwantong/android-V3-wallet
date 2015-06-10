@@ -1,7 +1,6 @@
 package info.blockchain.credentials;
 
 import android.content.Context;
-import android.util.Log;
 
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -11,10 +10,14 @@ public class WalletUtil {
     private static String guid = "-- REDACTED --";
     private static String sharedKey = "-- REDACTED --";
     private static String pin_identifier = "-- REDACTED --";
-    private static String encrypted_password = "-- REDACTED --";
+    private static String encrypted_password = "-- REDACTED --;
     private static String pin = "-- REDACTED --";
 
     private static String payload = "-- REDACTED --";
+
+    private static String hd_spend_address = "-- REDACTED --";
+    private static String hd_receive_address = "-- REDACTED --";
+    private static String legacy_spend_address = "-- REDACTED --";
 
     private static Context context = null;
 
@@ -68,5 +71,17 @@ public class WalletUtil {
 
     public String getPayload() {
         return payload;
+    }
+
+    public String getHdSpendAddress() {
+        return hd_spend_address;
+    }
+
+    public String getHdReceiveAddress() {
+        return hd_receive_address;
+    }
+
+    public String getLegacySpendAddress() {
+        return legacy_spend_address;
     }
 }

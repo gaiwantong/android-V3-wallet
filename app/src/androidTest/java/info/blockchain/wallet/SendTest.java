@@ -80,7 +80,7 @@ public class SendTest extends BlockchainTest {
 
     public UnspentOutputsBundle unspentOutputsHD(SendFactory sf) {
 
-        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(0, "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"), null, Utils.toNanoCoins("0.0001"), "");
+        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(0, WalletUtil.getInstance(context).getHdSpendAddress(), Utils.toNanoCoins("0.0001"), null, Utils.toNanoCoins("0.0001"), "");
 
         AssertUtil.getInstance().assert_true(this, "HD has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
 
@@ -90,10 +90,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionHD(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put("1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"));
+        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), Utils.toNanoCoins("0.0001"));
         Pair<Transaction, Long> pair = null;
         try {
-            pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd");
+            pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), WalletUtil.getInstance(context).getHdSpendAddress());
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -106,9 +106,9 @@ public class SendTest extends BlockchainTest {
     public UnspentOutputsBundle unspentOutputsLegacy(SendFactory sf) {
 
         LegacyAddress legacyAddress = new LegacyAddress();
-        legacyAddress.setAddress("1KCgKnEnWLdgpEdwPDKoxwmcnTdopSYx3c");
+        legacyAddress.setAddress(WalletUtil.getInstance(context).getLegacySpendAddress());
 
-        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(-1, "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"), legacyAddress, Utils.toNanoCoins("0.0001"), "");
+        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(-1, WalletUtil.getInstance(context).getHdReceiveAddress(), Utils.toNanoCoins("0.0001"), legacyAddress, Utils.toNanoCoins("0.0001"), "");
 
         AssertUtil.getInstance().assert_true(this, "Legacy has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
 
@@ -118,10 +118,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionLegacy(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put("1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd", Utils.toNanoCoins("0.0001"));
+        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), Utils.toNanoCoins("0.0001"));
         Pair<Transaction, Long> pair = null;
         try {
-            pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), "1Km7dzNLr6Li4M1vJzKwFYELzC2PRizzWd");
+            pair = SendFactory.getInstance(context).makeTransaction(true, unspents.getOutputs(), receivers, Utils.toNanoCoins("0.0001"), WalletUtil.getInstance(context).getHdSpendAddress());
         }
         catch(Exception e) {
             e.printStackTrace();
