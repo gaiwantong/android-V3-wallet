@@ -42,7 +42,9 @@ public class RestoreHDWalletTest extends BlockchainTest {
     public void test() {
         HD_WalletFactory hdwf = getFactoryInstance(context);
 
-        HD_Wallet hdw = restoreBadMnemonic(hdwf);
+        HD_Wallet hdw = restoreGoodHexSeed(hdwf);
+
+        hdw = restoreBadMnemonic(hdwf);
 
         hdw = restoreGoodMnemonic(hdwf);
 
@@ -77,7 +79,7 @@ public class RestoreHDWalletTest extends BlockchainTest {
             ;
         }
         finally {
-            AssertUtil.getInstance().assert_true(this, "Good params restore non null wallet", hdw != null);
+            AssertUtil.getInstance().assert_true(this, "Good mnemonic restore non null wallet", hdw != null);
         }
 
         return hdw;
@@ -98,7 +100,7 @@ public class RestoreHDWalletTest extends BlockchainTest {
             ;
         }
         finally {
-            AssertUtil.getInstance().assert_true(this, "Bad params restore null wallet", hdw == null);
+            AssertUtil.getInstance().assert_true(this, "Bad mnemonic restore null wallet", hdw == null);
         }
 
         return hdw;
@@ -119,10 +121,31 @@ public class RestoreHDWalletTest extends BlockchainTest {
             ;
         }
         finally {
-            AssertUtil.getInstance().assert_true(this, "Good params + passphrase restore non null wallet", hdw_pass != null);
+            AssertUtil.getInstance().assert_true(this, "Good mnemonic + passphrase restore non null wallet", hdw_pass != null);
         }
 
         return hdw_pass;
+    }
+
+    public HD_Wallet restoreGoodHexSeed(HD_WalletFactory hdwf) {
+        HD_Wallet hdw = null;
+
+        //
+        // test wallet restore with good mnemonic
+        //
+        try {
+            hdw = hdwf.restoreWallet("0660cc198330660cc198330660cc1983", "", 1);
+        }
+        catch(IOException | DecoderException | AddressFormatException
+                | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
+                | MnemonicException.MnemonicWordException e) {
+            ;
+        }
+        finally {
+            AssertUtil.getInstance().assert_true(this, "Good hex seed restore non null wallet", hdw != null);
+        }
+
+        return hdw;
     }
 
     public void differentReceiveChain(HD_Wallet hdw, HD_Wallet hdwp) {
