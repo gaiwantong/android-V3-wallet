@@ -16,6 +16,9 @@ public class WalletUtil {
 
     private static String payload = "-- REDACTED --";
 
+    private static String hd_spend_address = "-- REDACTED --";
+    private static String legacy_spend_address = "-- REDACTED --";
+
     private static Context context = null;
 
     private static WalletUtil instance = null;
@@ -68,5 +71,13 @@ public class WalletUtil {
 
     public String getPayload() {
         return payload;
+    }
+
+    public static String getHdSpendAddress() {
+        return hd_spend_address;
+    }
+
+    public static String getLegacySpendaddress() {
+        return legacy_spend_address;
     }
 }
