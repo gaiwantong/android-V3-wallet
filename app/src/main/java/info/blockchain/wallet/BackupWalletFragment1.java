@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -83,6 +84,8 @@ public class BackupWalletFragment1 extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar_general);
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {

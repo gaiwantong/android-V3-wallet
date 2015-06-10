@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BackupWalletUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -71,6 +72,8 @@ public class BackupWalletFragment3 extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar_general);
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {

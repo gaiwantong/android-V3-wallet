@@ -229,13 +229,7 @@ public class ListActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(ListActivity.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(ListActivity.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(ListActivity.this).updatePinEntryTime();
     }
 
 	public void setAdapterContent() {

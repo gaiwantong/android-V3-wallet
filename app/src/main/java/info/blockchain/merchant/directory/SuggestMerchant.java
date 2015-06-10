@@ -216,13 +216,7 @@ public class SuggestMerchant extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        if(AppUtil.getInstance(SuggestMerchant.this).isTimedOut()) {
-            finish();
-        }
-        else {
-            AppUtil.getInstance(SuggestMerchant.this).updatePinEntryTime();
-        }
-
+        AppUtil.getInstance(SuggestMerchant.this).updatePinEntryTime();
     }
 
 	@Override

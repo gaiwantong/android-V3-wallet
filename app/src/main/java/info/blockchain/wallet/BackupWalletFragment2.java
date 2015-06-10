@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BackupWalletUtil;
 
 public class BackupWalletFragment2 extends Fragment {
@@ -86,6 +87,8 @@ public class BackupWalletFragment2 extends Fragment {
 		tvNextWord.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+
+                AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
 				if (currentWordIndex < mnemonic.length){
 
@@ -228,6 +231,9 @@ public class BackupWalletFragment2 extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
+
 		currentWordIndex = 0;
 
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar_general);
