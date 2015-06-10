@@ -6,11 +6,17 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 
 public class Transaction	{
 
     private String strData = null;
     private JSONObject objX = null;
+    private HashMap<String,Long> fromLabelValuePair = null;
+    private HashMap<String,Long> toLabelValuePair = null;
 
     public class xPut {
     	public long value;
@@ -117,15 +123,11 @@ public class Transaction	{
                 				our_xput = true;
                 			}
                 			else if(prev_out.has("addr"))	{
-                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)prev_out.get("addr")))  {
+                                input.addr = prev_out.getString("addr");
+
+                                if(PayloadFactory.getInstance().get().containsLegacyAddress(input.addr))  {
                     				our_xput = true;
                                 }
-                                else  {
-                        			input.addr = prev_out.getString("addr");
-                                }
-                			}
-                			else	{
-                				;
                 			}
 
                 			if(prev_out.has("addr_tag"))	{
@@ -170,16 +172,13 @@ public class Transaction	{
                 				our_xput = true;
                 			}
                 			else if(_output.has("addr"))	{
-                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)_output.get("addr")))  {
+                                output.addr = _output.getString("addr");
+
+                                if(PayloadFactory.getInstance().get().containsLegacyAddress(output.addr))  {
                     				our_xput = true;
                                 }
-                                else  {
-                        			output.addr = _output.getString("addr");
-                                }
                 			}
-                			else	{
-                				;
-                			}
+
                 			if(_output.has("addr_tag"))	{
                     			output.addr_tag = _output.getString("addr_tag");
                 			}
@@ -220,4 +219,81 @@ public class Transaction	{
 
     }
 
+    public HashMap<String,Long> getFromLabelValuePair(String txDirection) {
+
+        fromLabelValuePair = new HashMap<String,Long>();
+
+        if (txDirection.equals(MultiAddrFactory.RECEIVED)) {//only 1 addr for receive
+            fromLabelValuePair.put(getInputs().get(0).addr, getInputs().get(0).value);
+
+        } else
+            for (Transaction.xPut ip : getInputs()) {
+                if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
+
+                    HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
+                    Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
+                    int accIndex = xpubAcc.get(xpub.get(ip.addr));
+
+                    List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+                    String accountLabel = acc.get(accIndex).getLabel();
+                    if (acc != null) {
+                        if (fromLabelValuePair.containsKey(acc.get(accIndex).getLabel())) {
+                            long prevAmount = fromLabelValuePair.get(accountLabel)+acc.get(accIndex).amount;
+                            fromLabelValuePair.put(accountLabel, prevAmount);
+                        }else{
+                            fromLabelValuePair.put(acc.get(accIndex).getLabel(), acc.get(accIndex).amount);
+                        }
+                    } else
+                        fromLabelValuePair.put(ip.addr, ip.value);
+                } else {
+                    fromLabelValuePair.put(ip.addr, ip.value);
+                }
+            }
+
+        return fromLabelValuePair;
+    }
+
+    public HashMap<String,Long> getToLabelValuePair(String txDirection, double amount) {
+
+        toLabelValuePair = new HashMap<String,Long>();
+
+        for (Transaction.xPut ip : getOutputs()) {
+            if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
+
+                if (txDirection.equals(MultiAddrFactory.SENT))
+                    continue;//change addr
+                if (txDirection.equals(MultiAddrFactory.MOVED) && amount != (double) ip.value)
+                    continue;//change addr
+
+                HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
+                Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
+                int accIndex = xpubAcc.get(xpub.get(ip.addr));
+
+                List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+                String accountLabel = acc.get(accIndex).getLabel();
+                if (acc != null) {
+                    if(fromLabelValuePair.containsKey(acc.get(accIndex).getLabel()))continue;
+
+                    if (toLabelValuePair.containsKey(acc.get(accIndex).getLabel())) {
+                        long prevAmount = toLabelValuePair.get(accountLabel)+acc.get(accIndex).amount;
+                        toLabelValuePair.put(accountLabel, prevAmount);
+                    }else{
+                        toLabelValuePair.put(acc.get(accIndex).getLabel(), acc.get(accIndex).amount);
+                    }
+                } else {
+                    if(!fromLabelValuePair.containsKey(ip.addr))
+                        toLabelValuePair.put(ip.addr, ip.value);
+                }
+
+            } else {
+                if (txDirection.equals(MultiAddrFactory.RECEIVED))
+                    continue;
+
+                if(!fromLabelValuePair.containsKey(ip.addr))
+                    toLabelValuePair.put(ip.addr, ip.value);
+            }
+        }
+
+        return toLabelValuePair;
+    }
 }

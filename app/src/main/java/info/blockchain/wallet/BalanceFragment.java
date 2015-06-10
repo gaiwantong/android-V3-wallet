@@ -102,7 +102,7 @@ public class BalanceFragment extends Fragment {
 	//
 	// tx list
 	//
-	private HashMap<String,List<Tx>> txMap = null;
+	private HashMap<String, List<Tx>> txMap = null;
 	private List<Tx> txs = new ArrayList<Tx>();
 	private RecyclerView txList = null;
 	private TxAdapter txAdapter = null;
@@ -139,11 +139,13 @@ public class BalanceFragment extends Fragment {
 	private LinearLayout bottomSel1 = null;
 	private LinearLayout bottomSel2 = null;
 	private LinearLayout mainContentShadow;
-    private static boolean isBottomSheetOpen = false;
+	private static boolean isBottomSheetOpen = false;
 
-    private Activity thisActivity = null;
+	private Activity thisActivity = null;
 
-	public BalanceFragment() { ; }
+	public BalanceFragment() {
+		;
+	}
 
 	Communicator comm;
 	ImageButton fab;
@@ -169,34 +171,34 @@ public class BalanceFragment extends Fragment {
 		thisActivity = getActivity();
 		setHasOptionsMenu(true);
 
-		balanceBarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
+		balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
 		setupViews(rootView);
 
-        return rootView;
+		return rootView;
 	}
 
 	private ArrayList<String> setAccountSpinner() {
 
 		//Account names
 		ArrayList<String> accountList = new ArrayList<String>();
-		for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()){
+		for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()) {
 			accountList.add(item.getLabel());
 		}
 
-		if(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size()>1){
+		if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
 			//Multiple accounts - Show spinner
 			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
 			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
 			accountSpinner.setVisibility(View.VISIBLE);
 			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-			if(currentSelected<0)currentSelected = 0;
+			if (currentSelected < 0) currentSelected = 0;
 			accountSpinner.setSelection(currentSelected);
-		}else{
+		} else {
 			//Single account - no spinner
-			((ActionBarActivity)thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-			((ActionBarActivity)thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
-			accountSpinner = (Spinner)thisActivity.findViewById(R.id.account_spinner);
+			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
+			((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
+			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
 			accountSpinner.setVisibility(View.GONE);
 		}
 
@@ -204,60 +206,58 @@ public class BalanceFragment extends Fragment {
 	}
 
 	@Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
 
-        if(isVisibleToUser) {
-            isBottomSheetOpen = false;
-        	displayBalance();
-        	accountsAdapter.notifyDataSetChanged();
-        	txAdapter.notifyDataSetChanged();
-        	updateTx();
-        }
-        else {
-        	;
-        }
-    }
+		if (isVisibleToUser) {
+			isBottomSheetOpen = false;
+			displayBalance();
+			accountsAdapter.notifyDataSetChanged();
+			txAdapter.notifyDataSetChanged();
+			updateTx();
+		} else {
+			;
+		}
+	}
 
-    @Override
-    public void onResume() {
-    	super.onResume();
+	@Override
+	public void onResume() {
+		super.onResume();
 
 		MainActivity.currentFragment = this;
 
 		comm.resetNavigationDrawer();
 
-        isBottomSheetOpen = false;
+		isBottomSheetOpen = false;
 
-        IntentFilter filter = new IntentFilter(ACTION_INTENT);
-        LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
-        
-		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+		IntentFilter filter = new IntentFilter(ACTION_INTENT);
+		LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
+
+		if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
 			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
-		else {
+		} else {
 			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
 
 
-    	accountsAdapter.notifyDataSetChanged();
-    	txAdapter.notifyDataSetChanged();
+		accountsAdapter.notifyDataSetChanged();
+		txAdapter.notifyDataSetChanged();
 		setAccountSpinner();
-    	updateTx();
+		updateTx();
 		displayBalance();
-    }
+	}
 
-    @Override
-    public void onPause() {
-    	super.onPause();
-    	
-        LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
-    }
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
+	}
 
 	private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
 
-		public class ViewHolder extends RecyclerView.ViewHolder  {
+		public class ViewHolder extends RecyclerView.ViewHolder {
 
 			public ViewHolder(View view) {
 				super(view);
@@ -270,53 +270,55 @@ public class BalanceFragment extends Fragment {
 			View v = null;
 
 			boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
-			if(!isTwoPane)v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
-			else v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
+			if (!isTwoPane)
+				v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
+			else
+				v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
 			return new ViewHolder(v);
 		}
 
 		@Override
 		public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-			if(txs != null) {
+			if (txs != null) {
 				final Tx tx = txs.get(position);
 				double _btc_balance = tx.getAmount() / 1e8;
 				double _fiat_balance = btc_fx * _btc_balance;
 
 				View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
 
-				TextView tvResult = (TextView)holder.itemView.findViewById(R.id.result);
+				TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
 				tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				tvResult.setTextColor(Color.WHITE);
 
-				TextView tvTS = (TextView)holder.itemView.findViewById(R.id.ts);
+				TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
 				tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
 
-				TextView tvDirection = (TextView)holder.itemView.findViewById(R.id.direction);
+				TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
 				tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 				String dirText = tx.getDirection();
-				if(dirText.equals(MultiAddrFactory.MOVED))tvDirection.setText(getResources().getString(R.string.MOVED));
-				if(dirText.equals(MultiAddrFactory.RECEIVED))tvDirection.setText(getResources().getString(R.string.RECEIVED));
-				if(dirText.equals(MultiAddrFactory.SENT))tvDirection.setText(getResources().getString(R.string.SENT));
+				if (dirText.equals(MultiAddrFactory.MOVED))
+					tvDirection.setText(getResources().getString(R.string.MOVED));
+				if (dirText.equals(MultiAddrFactory.RECEIVED))
+					tvDirection.setText(getResources().getString(R.string.RECEIVED));
+				if (dirText.equals(MultiAddrFactory.SENT))
+					tvDirection.setText(getResources().getString(R.string.SENT));
 
-				if(isBTC) {
+				if (isBTC) {
 					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(tx.getAmount()) + " " + getDisplayUnits());
 					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				else	{
+				} else {
 					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(_fiat_balance) + " " + strFiat);
 					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
-				if(tx.isMove()) {
+				if (tx.isMove()) {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
 					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
-				}
-				else if(_btc_balance < 0.0) {
+				} else if (_btc_balance < 0.0) {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
 					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
-				}
-				else {
+				} else {
 					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
 					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
 				}
@@ -328,7 +330,7 @@ public class BalanceFragment extends Fragment {
 					public boolean onTouch(View v, MotionEvent event) {
 
 						FrameLayout parent = (FrameLayout) v.getParent();
-						event.setLocation(v.getX()+(v.getWidth()/2), v.getY()+(v.getHeight()/2));
+						event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -346,7 +348,7 @@ public class BalanceFragment extends Fragment {
 					public boolean onTouch(View v, MotionEvent event) {
 
 						FrameLayout parent = (FrameLayout) v.getParent();
-						event.setLocation(event.getX(), v.getY()+(v.getHeight()/2));
+						event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
 						parent.onTouchEvent(event);
 
 						if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -360,87 +362,81 @@ public class BalanceFragment extends Fragment {
 
 		@Override
 		public int getItemCount() {
-			if(txs==null)return 0;
+			if (txs == null) return 0;
 			return txs.size();
 		}
 	}
 
 	private void displayBalance() {
 
-		if(txs!=null && txs.size()>0) {
+		if (txs != null && txs.size() > 0) {
 			txList.setVisibility(View.VISIBLE);
 			noTxMessage.setVisibility(View.GONE);
-		}else{
+		} else {
 			txList.setVisibility(View.GONE);
 			noTxMessage.setVisibility(View.VISIBLE);
 		}
 
-        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
+		strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+		btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
 
-        Account hda = null;
-        if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+		Account hda = null;
+		if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
 			//All accounts
-            btc_balance = ((double)MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
-        }
-        else {
-            hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-            if(hda instanceof ImportedAccount) {
-                btc_balance = ((double)MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
-            }
-            else {
-                btc_balance = ((double)(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
-            }
-        }
+			btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
+		} else {
+			hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+			if (hda instanceof ImportedAccount) {
+				btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+			} else {
+				btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
+			}
+		}
 
-        fiat_balance = btc_fx * btc_balance;
+		fiat_balance = btc_fx * btc_balance;
 
-        if(hda != null && hda instanceof ImportedAccount) {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        }
-        else if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        }
-        else {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        }
+		if (hda != null && hda instanceof ImportedAccount) {
+			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+		} else if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+		} else {
+			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+		}
 		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		tvBalance1.setText(span1);
 	}
 
-    private String getDisplayUnits() {
+	private String getDisplayUnits() {
 
-        return (String)MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+		return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-    }
+	}
 
-    private void updateTx() {
+	private void updateTx() {
 
-        txMap = MultiAddrFactory.getInstance().getXpubTxs();
-		
-    	if(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
-    		return;
-    	}
+		txMap = MultiAddrFactory.getInstance().getXpubTxs();
 
-        if(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-        }
-        else {
-            String xpub = account2Xpub(selectedAccount);
+		if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
+			return;
+		}
 
-            if(xpub != null) {
-                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                    txs = txMap.get(xpub);
-                }
-            }
-            else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-                if(hda instanceof ImportedAccount) {
-                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                }
-            }
+		if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+			txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+		} else {
+			String xpub = account2Xpub(selectedAccount);
 
-        }
+			if (xpub != null) {
+				if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+					txs = txMap.get(xpub);
+				}
+			} else {
+				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+				if (hda instanceof ImportedAccount) {
+					txs = MultiAddrFactory.getInstance().getLegacyTxs();
+				}
+			}
+
+		}
 
 	}
 
@@ -448,14 +444,13 @@ public class BalanceFragment extends Fragment {
 
 		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(accountIndex);
 		String xpub = null;
-	    if(hda instanceof ImportedAccount) {
-	    	xpub = null;
-	    }
-	    else {
+		if (hda instanceof ImportedAccount) {
+			xpub = null;
+		} else {
 			xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
-	    }
-	    
-	    return xpub;
+		}
+
+		return xpub;
 	}
 
 	@Override
@@ -468,11 +463,11 @@ public class BalanceFragment extends Fragment {
 		menu.findItem(R.id.action_share_receive).setVisible(false);
 	}
 
-	private void onAddClicked(){
+	private void onAddClicked() {
 
 		fab.bringToFront();
 
-		if(mLayout != null) {
+		if (mLayout != null) {
 			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
 
 				//Bottom sheet down
@@ -480,7 +475,7 @@ public class BalanceFragment extends Fragment {
 
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 				mainContentShadow.setVisibility(View.GONE);
-                isBottomSheetOpen = false;
+				isBottomSheetOpen = false;
 
 				comm.setNavigationDrawerToggleEnabled(true);
 			} else {
@@ -490,7 +485,7 @@ public class BalanceFragment extends Fragment {
 
 				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 				mainContentShadow.setVisibility(View.VISIBLE);
-                isBottomSheetOpen = true;
+				isBottomSheetOpen = true;
 
 				comm.setNavigationDrawerToggleEnabled(false);
 			}
@@ -501,12 +496,13 @@ public class BalanceFragment extends Fragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		comm=(Communicator)activity;
+		comm = (Communicator) activity;
 	}
 
-	interface Communicator{
+	interface Communicator {
 
 		public void setNavigationDrawerToggleEnabled(boolean enabled);
+
 		public void resetNavigationDrawer();
 	}
 
@@ -534,9 +530,9 @@ public class BalanceFragment extends Fragment {
 		}
 
 		private void clipToolbarOffset() {
-			if(mToolbarOffset > balanceBarHeight) {
+			if (mToolbarOffset > balanceBarHeight) {
 				mToolbarOffset = balanceBarHeight;
-			} else if(mToolbarOffset < 0) {
+			} else if (mToolbarOffset < 0) {
 				mToolbarOffset = 0;
 			}
 		}
@@ -544,7 +540,7 @@ public class BalanceFragment extends Fragment {
 		public abstract void onMoved(int distance);
 	}
 
-	private void initFab(final View rootView){
+	private void initFab(final View rootView) {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 			fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
@@ -628,7 +624,7 @@ public class BalanceFragment extends Fragment {
 				view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
 				((TextView) view).setText(getItem(position));
 			}
-			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			view.setLayoutParams(params);
 			return view;
 		}
@@ -647,16 +643,16 @@ public class BalanceFragment extends Fragment {
 		setupViews(subview);
 	}
 
-	private void setupViews(View rootView){
+	private void setupViews(View rootView) {
 
 		rootView.setFilterTouchesWhenObscured(true);
 
 		initFab(rootView);
 
-		noTxMessage = (LinearLayout)rootView.findViewById(R.id.no_tx_message);
+		noTxMessage = (LinearLayout) rootView.findViewById(R.id.no_tx_message);
 		noTxMessage.setVisibility(View.GONE);
 
-		tvBalance1 = (TextView)rootView.findViewById(R.id.balance1);
+		tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
 		tvBalance1.setOnTouchListener(new OnTouchListener() {
@@ -696,8 +692,8 @@ public class BalanceFragment extends Fragment {
 
 						if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
 							selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
-							if(selectedAccount<0)selectedAccount=0;
-						}else
+							if (selectedAccount < 0) selectedAccount = 0;
+						} else
 							selectedAccount = 0;
 
 						if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
@@ -737,13 +733,13 @@ public class BalanceFragment extends Fragment {
 		});
 		accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
 
-		txList = (RecyclerView)rootView.findViewById(R.id.txList2);
+		txList = (RecyclerView) rootView.findViewById(R.id.txList2);
 		txAdapter = new TxAdapter();
 		layoutManager = new LinearLayoutManager(thisActivity);
 		txList.setLayoutManager(layoutManager);
 		txList.setAdapter(txAdapter);
 
-		if(!getResources().getBoolean(R.bool.isDualPane))
+		if (!getResources().getBoolean(R.bool.isDualPane))
 			txList.setOnScrollListener(new CollapseActionbarScrollListener() {
 				@Override
 				public void onMoved(int distance) {
@@ -755,17 +751,16 @@ public class BalanceFragment extends Fragment {
 		updateTx();
 
 		// drawerTitle account now that wallet has been created
-		if(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+		if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
 			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
 			PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
 			PayloadFactory.getInstance(thisActivity).remoteSaveThread();
 			accountsAdapter.notifyDataSetChanged();
 		}
 
-		if(!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+		if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
 			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
-		else {
+		} else {
 			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
 		}
@@ -796,7 +791,7 @@ public class BalanceFragment extends Fragment {
 			public void onPanelHidden(View panel) {
 			}
 		});
-		bottomSel1 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel1));
+		bottomSel1 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel1));
 		bottomSel1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -810,7 +805,7 @@ public class BalanceFragment extends Fragment {
 
 			}
 		});
-		bottomSel2 = ((LinearLayout)rootView.findViewById(R.id.bottom_sel2));
+		bottomSel2 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel2));
 		bottomSel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -824,11 +819,11 @@ public class BalanceFragment extends Fragment {
 			}
 		});
 
-		mainContentShadow = (LinearLayout)rootView.findViewById(R.id.balance_main_content_shadow);
+		mainContentShadow = (LinearLayout) rootView.findViewById(R.id.balance_main_content_shadow);
 		mainContentShadow.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
+				if (mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
 					onAddClicked();
 				}
 			}
@@ -845,8 +840,8 @@ public class BalanceFragment extends Fragment {
 		});
 	}
 
-	private void onRowClick(final View view, final int position){
-		if(txs != null) {
+	private void onRowClick(final View view, final int position) {
+		if (txs != null) {
 			final Tx tx = txs.get(position);
 			final String strTx = tx.getHash();
 			final String strConfirmations = Long.toString(tx.getConfirmations());
@@ -859,7 +854,7 @@ public class BalanceFragment extends Fragment {
 
 			//Set views
 			View detailsView = view;
-			if(getResources().getBoolean(R.bool.isDualPane))
+			if (getResources().getBoolean(R.bool.isDualPane))
 				detailsView = rootView;
 
 			final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
@@ -868,10 +863,10 @@ public class BalanceFragment extends Fragment {
 			final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
 			final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
 			final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
-			final ProgressBar progressView = (ProgressBar)detailsView.findViewById(R.id.progress_view);
+			final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
 
-			if(getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
-				if(prevRowClicked!=null && prevRowClicked==txList.getLayoutManager().getChildAt(position)){
+			if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
+				if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
 					txsDetails.setVisibility(View.INVISIBLE);
 					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
 					prevRowClicked = null;
@@ -911,7 +906,7 @@ public class BalanceFragment extends Fragment {
 					}
 				});
 
-				if(!getResources().getBoolean(R.bool.isDualPane))
+				if (!getResources().getBoolean(R.bool.isDualPane))
 					txsDetails.setOnTouchListener(new OnTouchListener() {
 						@Override
 						public boolean onTouch(View v, MotionEvent event) {
@@ -954,6 +949,7 @@ public class BalanceFragment extends Fragment {
 						if (stringResult != null) {
 							Transaction transaction = null;
 							try {
+//                                Log.v("","stringResult: "+stringResult);
 								transaction = new Transaction(new JSONObject(stringResult));
 							} catch (JSONException e) {
 								e.printStackTrace();
@@ -965,71 +961,33 @@ public class BalanceFragment extends Fragment {
 								fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
 							tvFee.setText(fee);
 
-							//Receive Address
-							StringBuilder fromAddress = new StringBuilder("");
-							if (tx.getDirection().equals(MultiAddrFactory.RECEIVED))//only 1 addr for receive
-								fromAddress.append(transaction.getInputs().get(0).addr);
-							else
-								for (Transaction.xPut ip : transaction.getInputs()) {
-									if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
+							//From Address
+                            HashMap<String,Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
 
-										HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
-										Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
-										int accIndex = xpubAcc.get(xpub.get(ip.addr));
+                            StringBuilder fromBuilder = new StringBuilder("");
+                            for(Map.Entry<String, Long> item : fromAddressValuePair.entrySet()){
+                                String label = item.getKey();
+                                long amount = item.getValue();//future use
+                                fromBuilder.append(label+"\n");
+                            }
 
-										List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-										if (acc != null) {
-											if(fromAddress.toString().contains(acc.get(accIndex).getLabel()))
-												continue;
-
-											if (!fromAddress.toString().isEmpty()) fromAddress.append("\n");
-
-											fromAddress.append(acc.get(accIndex).getLabel());
-										}else
-											fromAddress.append(ip.addr);
-									} else
-										fromAddress.append(ip.addr);
-								}
-							tvOutAddr.setText(fromAddress);
+                            String fromString = fromBuilder.toString();
+                            if(fromString.length()>0)fromString = fromString.substring(0, fromBuilder.toString().length()-1);
+							tvOutAddr.setText(fromString);
 
 							//To Address
-							StringBuilder toAddress = new StringBuilder("");
-							for (Transaction.xPut ip : transaction.getOutputs()) {
-								if (MultiAddrFactory.getInstance().isOwnHDAddress(ip.addr)) {
-									if (tx.getDirection().equals(MultiAddrFactory.SENT))
-										continue;//change addr
-									if (tx.getDirection().equals(MultiAddrFactory.MOVED) && tx.getAmount() != (double) ip.value)
-										continue;//change addr
+                            HashMap<String,Long> toddressValuePair =  transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
 
+                            StringBuilder toBuilder = new StringBuilder("");
+                            for(Map.Entry<String, Long> item : toddressValuePair.entrySet()){
+                                String label = item.getKey();
+                                long amount = item.getValue();//future use
+                                toBuilder.append(label+"\n");
+                            }
 
-
-									HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
-									Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
-									int accIndex = xpubAcc.get(xpub.get(ip.addr));
-									List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-
-									if (acc != null) {
-										if (!toAddress.toString().isEmpty()){
-											if(toAddress.toString().contains(acc.get(accIndex).getLabel()))
-												continue;
-											toAddress.append("\n");
-										}
-
-										toAddress.append(acc.get(accIndex).getLabel());
-									}else {
-										toAddress.append("\n");
-										toAddress.append(ip.addr);
-									}
-
-								} else {
-									if (tx.getDirection().equals(MultiAddrFactory.RECEIVED))
-										continue;
-
-									if (!toAddress.toString().isEmpty()) toAddress.append("\n");
-									toAddress.append(ip.addr);
-								}
-							}
-							tvToAddr.setText(toAddress);
+                            String toString = toBuilder.toString();
+                            if(toString.length()>0)toString = toString.substring(0, toBuilder.toString().length()-1);
+                            tvToAddr.setText(toString);
 
 							tvConfirmations.setText(strConfirmations);
 
@@ -1041,7 +999,7 @@ public class BalanceFragment extends Fragment {
 			}
 
 			//Single Pane View - Expand and collapse details
-			if(!getResources().getBoolean(R.bool.isDualPane)) {
+			if (!getResources().getBoolean(R.bool.isDualPane)) {
 				if (originalHeight == 0) {
 					originalHeight = view.getHeight();
 				}
@@ -1110,12 +1068,11 @@ public class BalanceFragment extends Fragment {
 				resizeAnimator.start();
 
 				rowViewState.put(view, mIsViewExpanded);
-			}else
-			{
+			} else {
 				//Dual Pane View
 				view.findViewById(R.id.tx_row).setBackgroundResource(R.color.blockchain_light_grey);
 
-				if(prevRowClicked!=null)
+				if (prevRowClicked != null)
 					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
 
 				prevRowClicked = view;
