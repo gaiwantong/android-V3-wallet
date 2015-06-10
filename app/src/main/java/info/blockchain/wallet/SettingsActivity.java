@@ -200,6 +200,7 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
+
     }
 
     private void displayMnemonicForDoubleEncryptedWallet() {
