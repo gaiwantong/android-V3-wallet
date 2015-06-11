@@ -25,12 +25,12 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -326,6 +326,19 @@ public class ReceiveFragment extends Fragment {
     	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
     	spAccounts.setAdapter(dataAdapter);
+        spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    spAccounts.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    spAccounts.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                spAccounts.setDropDownWidth(spAccounts.getWidth());
+            }
+        });
         spAccounts.post(new Runnable() {
 			public void run() {
 				spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
