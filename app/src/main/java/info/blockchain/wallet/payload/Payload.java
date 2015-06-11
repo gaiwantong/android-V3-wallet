@@ -1,7 +1,5 @@
 package info.blockchain.wallet.payload;
 
-import android.util.Log;
-
 import info.blockchain.wallet.crypto.AESUtil;
 
 import java.security.MessageDigest;
