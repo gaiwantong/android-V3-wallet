@@ -192,7 +192,7 @@ public class SendFactory	{
                     Pair<Transaction, Long> pair = null;
                     String changeAddr = null;
                     if(isHD) {
-                        int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
+                        int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
                         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                             changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
                         }

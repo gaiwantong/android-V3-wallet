@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.util.WebUtil;
@@ -361,6 +363,8 @@ public class MultiAddrFactory	{
                     long ts = 0L;
                     String hash = null;
                     String addr = null;
+                    boolean isMove = false;
+                    boolean isOwnInput = false;
 
                     if(txObj.has("block_height"))  {
                         height = txObj.getLong("block_height");
@@ -379,6 +383,8 @@ public class MultiAddrFactory	{
                         ts = txObj.getLong("time");
                     }
 
+                    List<String> ownLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+
                     if(txObj.has("inputs"))  {
                         JSONArray inputArray = (JSONArray)txObj.get("inputs");
                         JSONObject inputObj = null;
@@ -387,6 +393,9 @@ public class MultiAddrFactory	{
                             if(inputObj.has("prev_out"))  {
                                 JSONObject prevOutObj = (JSONObject)inputObj.get("prev_out");
                                 addr = (String)prevOutObj.get("addr");
+                                if(ownLegacyAddresses.contains(addr))  {
+                                    isOwnInput = true;
+                                }
                             }
                         }
                     }
@@ -397,11 +406,21 @@ public class MultiAddrFactory	{
                         for(int j = 0; j < outArray.length(); j++)  {
                             outObj = (JSONObject)outArray.get(j);
                             addr = (String)outObj.get("addr");
+                            if(ownLegacyAddresses.contains(addr) && isOwnInput)  {
+                                isMove = true;
+                            }
                         }
                     }
 
                     if(addr != null)  {
-                        Tx tx = new Tx(hash, "", amount > 0L ? RECEIVED : SENT, amount, ts, new HashMap<Integer,String>());
+                        Tx tx = null;
+                        if(isMove)  {
+                            tx = new Tx(hash, "", MOVED, amount, ts, new HashMap<Integer,String>());
+                            tx.setIsMove(true);
+                        }
+                        else  {
+                            tx = new Tx(hash, "", amount > 0L ? RECEIVED : SENT, amount, ts, new HashMap<Integer,String>());
+                        }
                         tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
                         legacy_txs.add(tx);
                     }
