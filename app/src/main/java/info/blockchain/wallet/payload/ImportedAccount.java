@@ -18,7 +18,7 @@ public class ImportedAccount extends Account {
 
     public ImportedAccount(String label, List<LegacyAddress> legacyAddresses, List<String> tags, long amount) {
         this.isArchived = false;
-        this.nbChangeAddresses = 0;
+        this.idxChangeAddresses = 0;
         this.receiveAddresses = new ArrayList<ReceiveAddress>();
 
         this.strLabel = label;
@@ -40,7 +40,7 @@ public class ImportedAccount extends Account {
         JSONObject obj = super.dumpJSON();
 
         obj.put("archived", isArchived);
-        obj.put("change_addresses", nbChangeAddresses);
+        obj.put("change_addresses", idxChangeAddresses);
         obj.put("label", strLabel == null ? "" : strLabel);
 
         JSONArray receives = new JSONArray();

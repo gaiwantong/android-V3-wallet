@@ -11,8 +11,8 @@ import org.json.JSONException;
 public class Account {
 
     protected boolean isArchived = false;
-    protected int nbChangeAddresses = 0;
-    protected int nbReceiveAddresses = 0;
+    protected int idxChangeAddresses = 0;
+    protected int idxReceiveAddresses = 0;
     protected String strLabel = null;
     protected List<ReceiveAddress> receiveAddresses = null;
     protected List<String> tags = null;
@@ -46,8 +46,8 @@ public class Account {
 
     public Account(boolean isArchived, int change, int receive, String label) {
         this.isArchived = isArchived;
-        this.nbChangeAddresses = change;
-        this.nbReceiveAddresses = receive;
+        this.idxChangeAddresses = change;
+        this.idxReceiveAddresses = receive;
         this.strLabel = label;
         receiveAddresses = new ArrayList<ReceiveAddress>();
         tags = new ArrayList<String>();
@@ -59,8 +59,8 @@ public class Account {
 
     public Account(String label) {
         this.isArchived = false;
-        this.nbChangeAddresses = 0;
-        this.nbReceiveAddresses = 0;
+        this.idxChangeAddresses = 0;
+        this.idxReceiveAddresses = 0;
         this.strLabel = label;
         this.receiveAddresses = new ArrayList<ReceiveAddress>();
         tags = new ArrayList<String>();
@@ -71,11 +71,11 @@ public class Account {
     }
 
     public void incChange() {
-        nbChangeAddresses++;
+        idxChangeAddresses++;
     }
 
     public void incReceive() {
-        nbReceiveAddresses++;
+        idxReceiveAddresses++;
     }
 
     public boolean isArchived() {
@@ -86,20 +86,20 @@ public class Account {
         this.isArchived = isArchived;
     }
 
-    public int getNbChangeAddresses() {
-        return nbChangeAddresses;
+    public int getIdxChangeAddresses() {
+        return idxChangeAddresses;
     }
 
-    public void setNbChangeAddresses(int nbChangeAddresses) {
-        this.nbChangeAddresses = nbChangeAddresses;
+    public void setIdxChangeAddresses(int nbChangeAddresses) {
+        this.idxChangeAddresses = nbChangeAddresses;
     }
 
-    public int getNbReceiveAddresses() {
-        return nbReceiveAddresses;
+    public int getIdxReceiveAddresses() {
+        return idxReceiveAddresses;
     }
 
-    public void setNbReceiveAddresses(int nbReceiveAddresses) {
-        this.nbReceiveAddresses = nbReceiveAddresses;
+    public void setIdxReceiveAddresses(int nbReceiveAddresses) {
+        this.idxReceiveAddresses = nbReceiveAddresses;
     }
 
     public String getLabel() {

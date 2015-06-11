@@ -64,10 +64,10 @@ public class AddressFactory {
 
         try	{
             if(chain == RECEIVE_CHAIN)	{
-                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbReceiveAddresses();
+                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxReceiveAddresses();
             }
             else	{
-                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getNbChangeAddresses();
+                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
             }
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
                 addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
