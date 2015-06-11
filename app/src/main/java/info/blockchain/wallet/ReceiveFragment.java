@@ -323,7 +323,6 @@ public class ReceiveFragment extends Fragment {
 		if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
     	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, _accounts);
-    	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	dataAdapter.setDropDownViewResource(R.layout.spinner_item2);
     	spAccounts.setAdapter(dataAdapter);
         spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
