@@ -24,7 +24,6 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,6 +45,7 @@ import java.util.List;
 import info.blockchain.wallet.OnSwipeTouchListener;
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -774,7 +774,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
     		startActivity(intent);
     	}
     	else {
- 			Toast.makeText(MapActivity.this, R.string.no_merchants_in_range, Toast.LENGTH_LONG).show();
+            ToastCustom.makeText(MapActivity.this, getString(R.string.no_merchants_in_range), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
     	}
     }
 

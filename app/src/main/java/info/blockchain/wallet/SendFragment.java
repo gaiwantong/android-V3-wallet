@@ -65,6 +65,7 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 //import android.util.Log;
@@ -497,7 +498,7 @@ public class SendFragment extends Fragment {
 		pendingSpend.destination = edDestination.getText().toString();
 		if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)) {
 			if(showMessages) {
-	            Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			}
 			return;
 		}
@@ -514,20 +515,20 @@ public class SendFragment extends Fragment {
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
 			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
 				if(showMessages) {
-		            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				return;
 			}
 		}
 		catch(NumberFormatException nfe) {
 			if(showMessages) {
-	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			}
 			return;
 		}
 		catch(ParseException pe) {
 			if(showMessages) {
-	            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			}
 			return;
 		}
@@ -539,7 +540,7 @@ public class SendFragment extends Fragment {
 				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
 				if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 					if(showMessages) {
-			            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 					}
 					return;
 				}
@@ -549,7 +550,7 @@ public class SendFragment extends Fragment {
 			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
 			if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
 				if(showMessages) {
-		            Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				return;
 			}
@@ -671,7 +672,7 @@ public class SendFragment extends Fragment {
             ;
         }
         if(amt == 0.0) {
-            Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
@@ -732,7 +733,7 @@ public class SendFragment extends Fragment {
 									confirmPayment(true, AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spAccounts.getSelectedItemPosition()), null);
 								}
 								else {
-									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+                                    ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 									PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 								}
 
@@ -786,7 +787,7 @@ public class SendFragment extends Fragment {
 									confirmPayment(false, -1, legacyAddress);
 								}
 								else {
-									Toast.makeText(getActivity(), R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+                                    ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 									PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 								}
 
@@ -946,7 +947,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+                                                            ToastCustom.makeText(getActivity(), "Transaction submitted", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             PayloadFactory.getInstance(getActivity()).remoteSaveThread();
 
                                                             MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
@@ -969,7 +970,7 @@ public class SendFragment extends Fragment {
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+                                                            ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
                                                             Fragment fragment = new BalanceFragment();
@@ -994,7 +995,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            Toast.makeText(getActivity(), "Transaction submitted", Toast.LENGTH_SHORT).show();
+                                                            ToastCustom.makeText(getActivity(), "Transaction submitted", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             if (strNote != null) {
                                                                 PayloadFactory.getInstance(getActivity()).remoteSaveThread();
                                                             }
@@ -1019,7 +1020,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+                                                            ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
                                                             Fragment fragment = new BalanceFragment();
@@ -1042,7 +1043,7 @@ public class SendFragment extends Fragment {
 													progress.dismiss();
 												}
 
-												Toast.makeText(getActivity(), "Transaction failed", Toast.LENGTH_SHORT).show();
+                                                ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 												if (alertDialog != null && alertDialog.isShowing())
 													alertDialog.cancel();
 												Fragment fragment = new BalanceFragment();
@@ -1067,7 +1068,7 @@ public class SendFragment extends Fragment {
             }
         }
         else    {
-            Toast.makeText(getActivity(), R.string.check_connectivity_exit, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
 	}
@@ -1076,11 +1077,11 @@ public class SendFragment extends Fragment {
 
 		try{
 			if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)) {
-				Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				return false;
 			}
 		}catch(Exception e){
-			Toast.makeText(getActivity(), R.string.invalid_bitcoin_address, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			return false;
 		}
 
@@ -1088,12 +1089,12 @@ public class SendFragment extends Fragment {
 		try {
 			lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
 			if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
-				Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				return false;
 			}
 		}
 		catch(NumberFormatException | ParseException e) {
-			Toast.makeText(getActivity(), R.string.invalid_amount, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			return false;
 		}
 
@@ -1104,7 +1105,7 @@ public class SendFragment extends Fragment {
 			if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
 				long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
 				if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
-					Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 					return false;
 				}
 			}
@@ -1112,7 +1113,7 @@ public class SendFragment extends Fragment {
 		else {
 			long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
 			if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
-				Toast.makeText(getActivity(), R.string.insufficient_funds, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				return false;
 			}
 		}

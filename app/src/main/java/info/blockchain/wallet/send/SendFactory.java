@@ -43,6 +43,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 /**
@@ -279,12 +280,12 @@ public class SendFactory	{
 
                         }
                         else {
-                            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                            ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             opc.onFail();
                         }
                     }
                     else {
-                        Toast.makeText(context, R.string.check_connectivity_exit, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
 
 //					progress.onSend(tx, response);

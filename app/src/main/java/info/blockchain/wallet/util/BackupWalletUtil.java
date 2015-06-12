@@ -1,7 +1,6 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -18,6 +17,7 @@ import java.util.List;
 
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.Setup00Activity;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -112,7 +112,7 @@ public class BackupWalletUtil {
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
         if (!DoubleEncryptionFactory.getInstance().isActivated()) {
-            Toast.makeText(context, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return null;
         }
 
@@ -142,7 +142,7 @@ public class BackupWalletUtil {
                 return mnemonic.split("\\s+");
 
             } else {
-                Toast.makeText(context, R.string.double_encryption_password_error, Toast.LENGTH_LONG).show();
+                ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
         }
 
@@ -159,7 +159,7 @@ public class BackupWalletUtil {
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();
-            Toast.makeText(context, R.string.hd_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         } finally {
 
             return seed.split("\\s+");

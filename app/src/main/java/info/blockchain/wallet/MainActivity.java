@@ -41,7 +41,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 import com.dm.zbar.android.scanner.ZBarScannerActivity;
@@ -74,6 +73,7 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 //import android.nfc.Tag;
@@ -433,7 +433,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 AppUtil.getInstance(this).clearPinEntryTime();
                 finish();
             }else
-                Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(MainActivity.this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
             new Thread(new Runnable() {
                 @Override
@@ -501,7 +501,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     }
                     else {
-                        Toast.makeText(MainActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         if(progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
@@ -671,7 +671,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             btc_amount = FormatsUtil.getInstance().getBitcoinAmount(address);
         }
         else {
-            Toast.makeText(MainActivity.this, R.string.scan_not_recognized, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(MainActivity.this, getString(R.string.scan_not_recognized), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
@@ -894,7 +894,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     alertDialog.dismiss();
                 }else{
-                    Toast.makeText(MainActivity.this,getResources().getString(R.string.invalid_password),Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
             }
         });

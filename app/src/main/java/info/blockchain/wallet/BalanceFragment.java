@@ -43,7 +43,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -71,6 +70,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -122,7 +122,7 @@ public class BalanceFragment extends Fragment {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						Toast.makeText(getActivity(), R.string.refresh_balance, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(getActivity(), getString(R.string.refresh_balance), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
 						displayBalance();
 						accountsAdapter.notifyDataSetChanged();

@@ -3,7 +3,6 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -75,7 +74,7 @@ public class AppUtil {
                 Looper.prepare();
                 try{
                     Thread.sleep(TIMEOUT_DELAY);
-                    Toast.makeText(context,context.getResources().getString(R.string.logging_out_automatically),Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                     restartApp();
                     clearPinEntryTime();
 

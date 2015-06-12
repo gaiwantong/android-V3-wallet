@@ -1,20 +1,17 @@
 package info.blockchain.wallet.util;
 
-import java.io.IOException;
-
 import android.content.Context;
-import android.widget.Toast;
-import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
+
+import java.io.IOException;
 
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 
@@ -83,11 +80,11 @@ public class AddressFactory {
         }
         catch(IOException ioe)	{
             ioe.printStackTrace();
-            Toast.makeText(context, R.string.hd_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
         catch(MnemonicException.MnemonicLengthException mle)	{
             mle.printStackTrace();
-            Toast.makeText(context, R.string.hd_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
         ReceiveAddress ret = new ReceiveAddress(addr.getAddressString(), idx);
@@ -110,11 +107,11 @@ public class AddressFactory {
         }
         catch(IOException ioe)	{
             ioe.printStackTrace();
-            Toast.makeText(context, "HD wallet error", Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
         catch(MnemonicException.MnemonicLengthException mle)	{
             mle.printStackTrace();
-            Toast.makeText(context, "HD wallet error", Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
         return addr;

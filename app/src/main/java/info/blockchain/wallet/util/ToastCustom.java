@@ -14,14 +14,14 @@ import info.blockchain.wallet.R;
 public class ToastCustom{
 
     public static final String TYPE_ERROR = "TYPE_ERROR";
-    public static final String TYPE_WARNING = "TYPE_WARNING";
-    public static final String TYPE_INFO = "TYPE_INFO";
+    public static final String TYPE_GENERAL = "TYPE_GENERAL";
+    public static final String TYPE_OK = "TYPE_OK";
 
     public static final int LENGTH_SHORT = 0;
     public static final int LENGTH_LONG = 1;
 
     private static Toast toast = null;
-    //ToastCustom.makeText(getActivity(), "This is some info", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_INFO);
+    //ToastCustom.makeText(getActivity(), "This is some info", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
 
     public static void makeText(Context context, CharSequence text, int duration, String type) {
 
@@ -36,11 +36,11 @@ public class ToastCustom{
             tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
             tv.setTextColor(context.getResources().getColor(R.color.toast_error_text));
 
-        }else if(type.equals(TYPE_WARNING)){
+        }else if(type.equals(TYPE_GENERAL)){
             tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
             tv.setTextColor(context.getResources().getColor(R.color.toast_warning_text));
 
-        }else if(type.equals(TYPE_INFO)){
+        }else if(type.equals(TYPE_OK)){
             tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
             tv.setTextColor(context.getResources().getColor(R.color.toast_info_text));
         }

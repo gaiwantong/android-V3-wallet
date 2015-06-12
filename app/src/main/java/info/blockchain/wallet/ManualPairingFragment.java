@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +23,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 /**
@@ -60,10 +60,10 @@ public class ManualPairingFragment extends Fragment {
 				final String pw = edPassword.getText().toString();
 
 				if(guid == null || guid.length() == 0) {
-					Toast.makeText(getActivity(), getString(R.string.invalid_guid), Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_guid), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				else if(pw == null || pw.length() == 0) {
-					Toast.makeText(getActivity(), getString(R.string.invalid_password), Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				else {
 					pairingThreadManual(guid, new CharSequenceX(pw));
@@ -130,7 +130,7 @@ public class ManualPairingFragment extends Fragment {
 						}
 						catch(Exception e) {
 							e.printStackTrace();
-							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                            ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 						}
 
@@ -143,13 +143,13 @@ public class ManualPairingFragment extends Fragment {
 								if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
 									PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 									PayloadFactory.getInstance(getActivity()).setTempPassword(password);
-									Toast.makeText(getActivity(), R.string.pairing_success, Toast.LENGTH_SHORT).show();
+                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
 									intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
 									getActivity().startActivity(intent);
 								}
 								else {
-									Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 									AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 								}
 
@@ -157,7 +157,7 @@ public class ManualPairingFragment extends Fragment {
 
 						}
 						else {
-							Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                            ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 						}
 
@@ -166,12 +166,12 @@ public class ManualPairingFragment extends Fragment {
 				}
 				catch(JSONException je) {
 					je.printStackTrace();
-					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 				}
 				catch(Exception e) {
 					e.printStackTrace();
-					Toast.makeText(getActivity(), R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
 				}finally {
 					if(progress != null && progress.isShowing()) {

@@ -72,6 +72,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 public class ReceiveFragment extends Fragment {
 	
@@ -161,10 +162,9 @@ public class ReceiveFragment extends Fragment {
                               android.content.ClipboardManager clipboard = (android.content.ClipboardManager)getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                               android.content.ClipData clip = null;
                               clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
-                              Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_LONG).show();
+                              ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_GENERAL);
                               clipboard.setPrimaryClip(clip);
 
-                              Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
                           }
 
                       }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -653,7 +653,7 @@ public class ReceiveFragment extends Fragment {
 			try {
 				file.createNewFile();
 			} catch (Exception e) {
-				Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
 			}
 		}
 		file.setReadable(true, false);

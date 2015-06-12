@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -37,6 +36,7 @@ import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 //import android.util.Log;
 
@@ -200,7 +200,7 @@ public class SettingsActivity extends PreferenceActivity {
     private void displayMnemonicForDoubleEncryptedWallet() {
 
         if (!DoubleEncryptionFactory.getInstance().isActivated()) {
-            Toast.makeText(SettingsActivity.this, R.string.double_encryption_password_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(SettingsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
@@ -235,7 +235,7 @@ public class SettingsActivity extends PreferenceActivity {
                         }).show();
 
             } else {
-                Toast.makeText(this, R.string.double_encryption_password_error, Toast.LENGTH_LONG).show();
+                ToastCustom.makeText(this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             }
         }
     }
@@ -258,7 +258,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();
-            Toast.makeText(SettingsActivity.this, R.string.hd_error, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(SettingsActivity.this, getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } finally {
             new AlertDialog.Builder(SettingsActivity.this)
                     .setTitle(R.string.app_name)

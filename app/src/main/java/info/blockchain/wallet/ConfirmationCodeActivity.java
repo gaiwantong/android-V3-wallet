@@ -12,11 +12,11 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 /**
  * Created by riaanvos on 18/05/15.
@@ -99,7 +99,6 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 				}
 				catch(Exception e) {
 					e.printStackTrace();
-					Toast.makeText(ConfirmationCodeActivity.this, sent+"", Toast.LENGTH_LONG).show();
 					clearBoxes();
 				}finally {
 					if(progress != null && progress.isShowing()) {
@@ -148,13 +147,13 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 					if (response != null && response.equals("Email successfully verified")) {
 						AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
 					}else {
-						Toast.makeText(ConfirmationCodeActivity.this, response, Toast.LENGTH_LONG).show();
+                        ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
 						clearBoxes();
 					}
 				}
 				catch(Exception e) {
 					e.printStackTrace();
-					Toast.makeText(ConfirmationCodeActivity.this, response, Toast.LENGTH_LONG).show();
+                    ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
 					clearBoxes();
 				}finally {
 					if(progress != null && progress.isShowing()) {

@@ -1,36 +1,38 @@
 package info.blockchain.wallet.payload;
 
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
-//import android.util.Log;
-
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.spongycastle.util.encoders.Hex;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.Setup00Activity;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_Account;
+import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+//import android.util.Log;
 
 /**
  *
@@ -502,14 +504,14 @@ public class PayloadFactory	{
 				
 				if(PayloadFactory.getInstance(context).get() != null)	{
 					if(PayloadFactory.getInstance(context).put(strTempPassword))	{
-//			        	Toast.makeText(context, "Remote save OK", Toast.LENGTH_SHORT).show();
+//                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 					}
 					else	{
-			        	Toast.makeText(context, R.string.remote_save_ko, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 					}
 				}
 				else	{
-		        	Toast.makeText(context, R.string.payload_corrupted, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(context, context.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 
 				handler.post(new Runnable() {

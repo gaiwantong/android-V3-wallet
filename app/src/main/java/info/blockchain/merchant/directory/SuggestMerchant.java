@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,6 +38,7 @@ import java.util.Locale;
 
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 public class SuggestMerchant extends ActionBarActivity {
@@ -176,16 +176,16 @@ public class SuggestMerchant extends ActionBarActivity {
                                 res = WebUtil.getInstance().postURL("https://merchant-directory.blockchain.info/cgi-bin/btcp.pl", args.toString());
 							}
 							catch(Exception e) {
-								Toast.makeText(SuggestMerchant.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                ToastCustom.makeText(SuggestMerchant.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 							}
 
 							if(res!=null && res.contains("\"result\":1")) {
-								Toast.makeText(SuggestMerchant.this, R.string.ok_writing_merchant, Toast.LENGTH_SHORT).show();
+                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.ok_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 								setResult(RESULT_OK);
 								finish();
 							}
 							else {
-								Toast.makeText(SuggestMerchant.this, R.string.error_writing_merchant, Toast.LENGTH_SHORT).show();
+                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.error_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 							}
 
 							Looper.loop();
@@ -327,8 +327,8 @@ public class SuggestMerchant extends ActionBarActivity {
 			reverseGeocodingTask.execute(latLng);
 
 		} catch (Exception e) {
-			Log.e("","",e);
-			Toast.makeText(this,getResources().getString(R.string.address_lookup_fail),Toast.LENGTH_SHORT).show();
+			Log.e("", "", e);
+            ToastCustom.makeText(SuggestMerchant.this, getString(R.string.address_lookup_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 		}
 	}
 
@@ -396,7 +396,7 @@ public class SuggestMerchant extends ActionBarActivity {
 						public void run() {
 							if(address.getMaxAddressLineIndex()>0 && address.getAddressLine(0)!=null){
 								edStreetAddress.setText(address.getAddressLine(0));
-								Toast.makeText(SuggestMerchant.this, address.getAddressLine(0), Toast.LENGTH_SHORT).show();
+                                ToastCustom.makeText(SuggestMerchant.this, address.getAddressLine(0), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 							}
 							if(address.getPostalCode()!=null)edPostal.setText(address.getPostalCode());
 							if(address.getLocality()!=null)edCity.setText(address.getLocality());

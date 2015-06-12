@@ -13,13 +13,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 /**
  * Created by riaanvos on 23/03/15.
@@ -104,13 +104,13 @@ public class Setup00Activity extends ActionBarActivity {
 
 				if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
 					PrefsUtil.getInstance(Setup00Activity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-					Toast.makeText(Setup00Activity.this, R.string.pairing_success, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(Setup00Activity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
 					Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
 					intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
 					startActivity(intent);
 				}
 				else	{
-					Toast.makeText(Setup00Activity.this, R.string.pairing_failed, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(Setup00Activity.this, getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
 					AppUtil.getInstance(Setup00Activity.this).clearCredentialsAndRestart();
 				}
 

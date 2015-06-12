@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -35,6 +34,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 public class PinEntryActivity extends Activity {
@@ -122,7 +122,7 @@ public class PinEntryActivity extends Activity {
 
     	int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
     	if(fails >= 3)	{
-        	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes, Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_3_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 //        	validationDialog();
 
             new AlertDialog.Builder(PinEntryActivity.this)
@@ -168,7 +168,7 @@ public class PinEntryActivity extends Activity {
 			AppUtil.getInstance(this).restartApp();
 
 		} catch (IOException | MnemonicException.MnemonicLengthException e) {
-			Toast.makeText(this, "HD Wallet creation error", Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(getApplicationContext(), "HD Wallet creation error", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 			AppUtil.getInstance(this).clearCredentialsAndRestart();
 		}
 
@@ -199,7 +199,7 @@ public class PinEntryActivity extends Activity {
 		if(exitClicked==2)
 			finish();
 		else
-			Toast.makeText(this, getResources().getString(R.string.exit_confirm), Toast.LENGTH_SHORT).show();
+            ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
 		new Thread(new Runnable()
 		{
@@ -274,7 +274,7 @@ public class PinEntryActivity extends Activity {
 
 					}
 					else {
-			        	Toast.makeText(PinEntryActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 						if(progress != null && progress.isShowing()) {
 							progress.dismiss();
 							progress = null;
@@ -341,7 +341,7 @@ public class PinEntryActivity extends Activity {
 						progress = null;
 					}
 
-		        	Toast.makeText(PinEntryActivity.this, R.string.create_pin_failed, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 	        		PrefsUtil.getInstance(PinEntryActivity.this).clear();
 	        		AppUtil.getInstance(PinEntryActivity.this).restartApp();
 				}
@@ -401,7 +401,7 @@ public class PinEntryActivity extends Activity {
 		    		int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
 		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
 //		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
-		        	Toast.makeText(PinEntryActivity.this, R.string.invalid_pin, Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 		    		Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 		    		startActivity(intent);
@@ -467,7 +467,7 @@ public class PinEntryActivity extends Activity {
 					PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
 					if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
-		            	Toast.makeText(PinEntryActivity.this, R.string.pin_3_strikes_password_accepted, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_3_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
 						PayloadFactory.getInstance().setTempPassword(pw);
 			        	PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
@@ -478,7 +478,7 @@ public class PinEntryActivity extends Activity {
 		        		startActivity(intent);
 					}
 					else {
-			        	Toast.makeText(PinEntryActivity.this, R.string.invalid_password, Toast.LENGTH_SHORT).show();
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 						if(progress != null && progress.isShowing()) {
 							progress.dismiss();
 							progress = null;
@@ -522,7 +522,7 @@ public class PinEntryActivity extends Activity {
 
 			// Throw error on '0000' to avoid server-side type issue
 			if (userEnteredPIN.equals("0000")) {
-				Toast.makeText(PinEntryActivity.this, R.string.zero_pin, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(PinEntryActivity.this, getString(R.string.zero_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				clearPinBoxes();
 				userEnteredPIN = "";
 				userEnteredPINConfirm = null;
@@ -562,7 +562,7 @@ public class PinEntryActivity extends Activity {
 			} else {
 
 				//End of Confirm - Pin Mismatch
-				Toast.makeText(PinEntryActivity.this, R.string.pin_mismatch_error, Toast.LENGTH_SHORT).show();
+                ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				clearPinBoxes();
 				userEnteredPIN = "";
 				userEnteredPINConfirm = null;

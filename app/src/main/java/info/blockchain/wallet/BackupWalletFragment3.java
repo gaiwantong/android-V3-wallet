@@ -10,13 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BackupWalletUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 public class BackupWalletFragment3 extends Fragment {
 
@@ -53,7 +53,7 @@ public class BackupWalletFragment3 extends Fragment {
 						&& etSecondRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(1).second)
 						&& etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
-					Toast.makeText(getActivity(),getString(R.string.backup_confirmed),Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.backup_confirmed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 					PrefsUtil.getInstance(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int)(System.currentTimeMillis()/1000));
 
 					getActivity().setResult(Activity.RESULT_OK);
@@ -61,7 +61,7 @@ public class BackupWalletFragment3 extends Fragment {
 					getFragmentManager().popBackStack();
 
 				}else
-					Toast.makeText(getActivity(),getResources().getString(R.string.backup_word_mismatch),Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.backup_word_mismatch), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
 			}
 		});

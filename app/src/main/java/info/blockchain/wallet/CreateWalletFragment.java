@@ -16,13 +16,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 /**
  * Created by riaanvos on 25/03/15.
@@ -149,13 +149,13 @@ public class CreateWalletFragment extends Fragment {
 				final String pw2 = edPassword2.getText().toString();
 
 				if(em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
-					Toast.makeText(getActivity(), getString(R.string.invalid_email), Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				else if(pw1==null || pw2==null || pw1.length() < 9 || pw1.length() > 255) {
-					Toast.makeText(getActivity(), getString(R.string.invalid_password), Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				else if(!pw1.equals(pw2)) {
-					Toast.makeText(getActivity(), getString(R.string.password_mismatch_error), Toast.LENGTH_SHORT).show();
+                    ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 				}
 				else if(pwStrength < 50){
 
