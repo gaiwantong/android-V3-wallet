@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,6 +39,7 @@ import java.util.Locale;
 
 import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.WebUtil;
 
 public class SuggestMerchant extends ActionBarActivity {
 
@@ -149,52 +151,48 @@ public class SuggestMerchant extends ActionBarActivity {
 
 				if(commandSave.getText().toString().equals(getResources().getString(R.string.save))) {
 					confirmLayout.setVisibility(View.GONE);
-					Toast.makeText(SuggestMerchant.this, "Coming soon", Toast.LENGTH_SHORT).show();
 
-					final HashMap<Object,Object> params = new HashMap<Object,Object>();
-					params.put("NAME", edName.getText().toString());
-					params.put("DESCRIPTION", edDescription.getText().toString());
-					params.put("STREET_ADDRESS", edStreetAddress.getText().toString());
-					params.put("CITY", edCity.getText().toString());
-					params.put("ZIP", edPostal.getText().toString());
-					params.put("TELEPHONE", edTelephone.getText().toString());
-					params.put("WEB", edWeb.getText().toString());
-					params.put("LATITUDE", df.format(selectedY));
-					params.put("LONGITUDE", df.format(selectedX));
-					params.put("CATEGORY", Integer.toString(spCategory.getSelectedItemPosition()));
-					params.put("SOURCE", "Android");
+                    final StringBuilder args = new StringBuilder();
+                    args.append("NAME="+edName.getText().toString());
+                    args.append("&DESCRIPTION="+edDescription.getText().toString());
+                    args.append("&STREET_ADDRESS="+edStreetAddress.getText().toString());
+                    args.append("&CITY="+edCity.getText().toString());
+                    args.append("&ZIP="+edPostal.getText().toString());
+                    args.append("&TELEPHONE="+edTelephone.getText().toString());
+                    args.append("&WEB="+edWeb.getText().toString());
+                    args.append("&LATITUDE="+df.format(selectedY));
+                    args.append("&LONGITUDE="+df.format(selectedX));
+                    args.append("&CATEGORY="+Integer.toString(spCategory.getSelectedItemPosition()));
+                    args.append("&SOURCE=Android");
 
-//					TODO final Handler handler = new Handler();
-//
-//					new Thread(new Runnable() {
-//						@Override
-//						public void run() {
-//
-//							Looper.prepare();
-//
-//							String res = null;
-//							try {
-//								//res = piuk.blockchain.android.util.WalletUtils.postURLWithParams("s://merchant-directory.blockchain.info/cgi-bin/btcp.pl", params);
-////								WebUtil.getInstance().postURL("s://merchant-directory.blockchain.info/cgi-bin/btcp.pl", params);
-//							}
-//							catch(Exception e) {
-//								Toast.makeText(SuggestMerchant.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//							}
-//
-//							if(res.contains("\"result\":1")) {
-//								Toast.makeText(SuggestMerchant.this, R.string.ok_writing_merchant, Toast.LENGTH_SHORT).show();
-//								setResult(RESULT_OK);
-//								finish();
-//							}
-//							else {
-//								Toast.makeText(SuggestMerchant.this, R.string.error_writing_merchant, Toast.LENGTH_SHORT).show();
-//							}
-//
-//							Looper.loop();
-//
-//						}
-//
-//					}).start();
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+
+							Looper.prepare();
+
+							String res = null;
+							try {
+                                res = WebUtil.getInstance().postURL("https://merchant-directory.blockchain.info/cgi-bin/btcp.pl", args.toString());
+							}
+							catch(Exception e) {
+								Toast.makeText(SuggestMerchant.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+							}
+
+							if(res!=null && res.contains("\"result\":1")) {
+								Toast.makeText(SuggestMerchant.this, R.string.ok_writing_merchant, Toast.LENGTH_SHORT).show();
+								setResult(RESULT_OK);
+								finish();
+							}
+							else {
+								Toast.makeText(SuggestMerchant.this, R.string.error_writing_merchant, Toast.LENGTH_SHORT).show();
+							}
+
+							Looper.loop();
+
+						}
+
+					}).start();
 
 					finish();
 				}else{

@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -314,6 +315,21 @@ public class SendFragment extends Fragment {
 
 		AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.fragment_send_account_row, _accounts);
 		spAccounts.setAdapter(dataAdapter);
+        spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    spAccounts.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                else {
+                    spAccounts.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                spAccounts.setDropDownWidth(spAccounts.getWidth());
+            }
+        });
+
     	spAccounts.setOnItemSelectedListener(
 				new AdapterView.OnItemSelectedListener() {
 					@Override

@@ -115,6 +115,7 @@ public class MyAccountsActivity extends Activity {
                 final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
                 menuPopup.setAnchorView(menuImport);
                 menuPopup.setAdapter(popupAdapter);
+                menuPopup.setVerticalOffset((int) -(getResources().getDimension(R.dimen.action_bar_height) / 1.5));
                 menuPopup.setModal(true);
                 menuPopup.setAnimationStyle(R.anim.slide_down1);
                 menuPopup.setContentWidth(measureContentWidth(popupAdapter));//always size to max width item

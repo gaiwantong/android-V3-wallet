@@ -844,6 +844,9 @@ public class BalanceFragment extends Fragment {
 	}
 
 	private void onRowClick(final View view, final int position) {
+
+        AppUtil.getInstance(getActivity()).updatePinEntryTime();
+
 		if (txs != null) {
 			final Tx tx = txs.get(position);
 			final String strTx = tx.getHash();
