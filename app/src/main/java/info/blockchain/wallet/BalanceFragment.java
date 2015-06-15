@@ -14,7 +14,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -70,7 +72,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -122,16 +123,38 @@ public class BalanceFragment extends Fragment {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-                        ToastCustom.makeText(getActivity(), getString(R.string.refresh_balance), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
-						displayBalance();
-						accountsAdapter.notifyDataSetChanged();
-						updateTx();
-						txAdapter.notifyDataSetChanged();
-						NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
+                        if(forceRefresh){
+
+                            AppUtil.getInstance(getActivity()).updatePinEntryTime();
+
+                            //Restart WebSocketService
+                            getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+                            getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
+
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    swipeLayout.setRefreshing(false);
+                                    refreshUI();
+                                }
+                            }, 2500);
+                        }else {
+                            refreshUI();
+                        }
+
+                        forceRefresh = false;
 					}
-				});
 
+                    private void refreshUI(){
+                        displayBalance();
+                        accountsAdapter.notifyDataSetChanged();
+                        updateTx();
+                        txAdapter.notifyDataSetChanged();
+                        NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
+                    }
+				});
 			}
 		}
 	};
@@ -162,6 +185,8 @@ public class BalanceFragment extends Fragment {
 	private boolean mIsViewExpanded = false;
 	private View rootView = null;
 	private View prevRowClicked = null;
+    private SwipeRefreshLayout swipeLayout = null;
+    private boolean forceRefresh = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -520,6 +545,8 @@ public class BalanceFragment extends Fragment {
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			super.onScrolled(recyclerView, dx, dy);
 
+            swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+
 			//Only bring heading back down after 2nd item visible (0 = heading)
 			if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
 
@@ -550,61 +577,61 @@ public class BalanceFragment extends Fragment {
 		else
 			fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
 
-		rootView.getViewTreeObserver().addOnGlobalLayoutListener(
-				new ViewTreeObserver.OnGlobalLayoutListener() {
-					public void onGlobalLayout() {
-						//Remove the listener before proceeding
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-							rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-						} else {
-							rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-						}
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    public void onGlobalLayout() {
+                        //Remove the listener before proceeding
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        } else {
+                            rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        }
 
-						DisplayMetrics displayMetrics = thisActivity.getResources().getDisplayMetrics();
+                        DisplayMetrics displayMetrics = thisActivity.getResources().getDisplayMetrics();
 
-						fabBottomY = fab.getY();
-						//56 = fab height
-						//48 = row height
-						//16 = padding
-						int padding = 26;
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-							padding = 18;//shadow 4dp top and bottom - so 8dp here
+                        fabBottomY = fab.getY();
+                        //56 = fab height
+                        //48 = row height
+                        //16 = padding
+                        int padding = 26;
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+                            padding = 18;//shadow 4dp top and bottom - so 8dp here
 
-						fabTopY = fabBottomY + (((56 / 2) + padding) * displayMetrics.density) - ((48 + 48 + 16) * displayMetrics.density);
+                        fabTopY = fabBottomY + (((56 / 2) + padding) * displayMetrics.density) - ((48 + 48 + 16) * displayMetrics.density);
 
-						//Move up
-						movingFabUp = ValueAnimator.ofFloat(fabBottomY, fabTopY);
-						movingFabUp.setInterpolator(new AccelerateDecelerateInterpolator());
-						movingFabUp.setDuration(200);
-						movingFabUp.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-							public void onAnimationUpdate(ValueAnimator animation) {
-								Float value = (Float) animation.getAnimatedValue();
-								fab.setY(value.floatValue());
-								fab.setRotation(45f);
-							}
-						});
+                        //Move up
+                        movingFabUp = ValueAnimator.ofFloat(fabBottomY, fabTopY);
+                        movingFabUp.setInterpolator(new AccelerateDecelerateInterpolator());
+                        movingFabUp.setDuration(200);
+                        movingFabUp.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                            public void onAnimationUpdate(ValueAnimator animation) {
+                                Float value = (Float) animation.getAnimatedValue();
+                                fab.setY(value.floatValue());
+                                fab.setRotation(45f);
+                            }
+                        });
 
-						//move down
-						movingFabDown = ValueAnimator.ofFloat(fabTopY, fabBottomY);
-						movingFabDown.setInterpolator(new BounceInterpolator());
-						movingFabDown.setDuration(500);
-						movingFabDown.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-							public void onAnimationUpdate(ValueAnimator animation) {
-								Float value = (Float) animation.getAnimatedValue();
-								fab.setY(value.floatValue());
-								fab.setRotation(0f);
-							}
-						});
-					}
-				});
+                        //move down
+                        movingFabDown = ValueAnimator.ofFloat(fabTopY, fabBottomY);
+                        movingFabDown.setInterpolator(new BounceInterpolator());
+                        movingFabDown.setDuration(500);
+                        movingFabDown.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                            public void onAnimationUpdate(ValueAnimator animation) {
+                                Float value = (Float) animation.getAnimatedValue();
+                                fab.setY(value.floatValue());
+                                fab.setRotation(0f);
+                            }
+                        });
+                    }
+                });
 
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-				onAddClicked();
-			}
-		});
+                onAddClicked();
+            }
+        });
 	}
 
 	private class AccountAdapter extends ArrayAdapter<String> {
@@ -635,8 +662,8 @@ public class BalanceFragment extends Fragment {
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		LayoutInflater inflater = LayoutInflater.from(getActivity());
+        super.onConfigurationChanged(newConfig);
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
 		populateViewForOrientation(inflater, (ViewGroup) getView());
 	}
 
@@ -659,32 +686,32 @@ public class BalanceFragment extends Fragment {
 		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
 		tvBalance1.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				isBTC = (isBTC) ? false : true;
-				displayBalance();
-				accountsAdapter.notifyDataSetChanged();
-				txAdapter.notifyDataSetChanged();
-				return false;
-			}
-		});
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                isBTC = (isBTC) ? false : true;
+                displayBalance();
+                accountsAdapter.notifyDataSetChanged();
+                txAdapter.notifyDataSetChanged();
+                return false;
+            }
+        });
 
 		ArrayList<String> accountList = setAccountSpinner();
 		accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
 		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
 		accountSpinner.setAdapter(accountsAdapter);
 		accountSpinner.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
-					return true;
-				} else if (isBottomSheetOpen) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		});
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
+                    return true;
+                } else if (isBottomSheetOpen) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
 		accountSpinner.post(new Runnable() {
 			public void run() {
 				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -743,13 +770,21 @@ public class BalanceFragment extends Fragment {
 		txList.setAdapter(txAdapter);
 
 		if (!getResources().getBoolean(R.bool.isDualPane))
-			txList.setOnScrollListener(new CollapseActionbarScrollListener() {
-				@Override
-				public void onMoved(int distance) {
+            txList.setOnScrollListener(new CollapseActionbarScrollListener() {
+                @Override
+                public void onMoved(int distance) {
 
-					tvBalance1.setTranslationY(-distance);
-				}
-			});
+                    tvBalance1.setTranslationY(-distance);
+                }
+            });
+        else
+            txList.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+                }
+            });
 
 		updateTx();
 
@@ -772,50 +807,44 @@ public class BalanceFragment extends Fragment {
 		mLayout.setTouchEnabled(false);
 		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-			@Override
-			public void onPanelSlide(View panel, float slideOffset) {
-			}
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+            }
 
-			@Override
-			public void onPanelExpanded(View panel) {
+            @Override
+            public void onPanelExpanded(View panel) {
 
-			}
+            }
 
-			@Override
-			public void onPanelCollapsed(View panel) {
+            @Override
+            public void onPanelCollapsed(View panel) {
 
-			}
+            }
 
-			@Override
-			public void onPanelAnchored(View panel) {
-			}
+            @Override
+            public void onPanelAnchored(View panel) {
+            }
 
-			@Override
-			public void onPanelHidden(View panel) {
-			}
-		});
+            @Override
+            public void onPanelHidden(View panel) {
+            }
+        });
 		bottomSel1 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel1));
 		bottomSel1.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Fragment fragment = new SendFragment();
-//				Bundle args = new Bundle();
-//				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
-//				fragment.setArguments(args);
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-				comm.setNavigationDrawerToggleEnabled(true);
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = new SendFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                comm.setNavigationDrawerToggleEnabled(true);
 
-			}
-		});
+            }
+        });
 		bottomSel2 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel2));
 		bottomSel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Fragment fragment = new ReceiveFragment();
-//				Bundle args = new Bundle();
-//				args.putInt("selected_account", spinnerIndex == 0 ? 0 : selectedAccount);
-//				fragment.setArguments(args);
 				FragmentManager fragmentManager = getFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
 				comm.setNavigationDrawerToggleEnabled(true);
@@ -841,6 +870,21 @@ public class BalanceFragment extends Fragment {
 				fab.startAnimation(bounce);
 			}
 		});
+
+        swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
+        swipeLayout.setProgressViewEndTarget(false, (int)(getResources().getDisplayMetrics().density*(72+20)));
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                forceRefresh = true;
+                Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+            }
+        });
+        swipeLayout.setColorScheme(R.color.blockchain_receive_green,
+                R.color.blockchain_blue,
+                R.color.blockchain_send_red);
 	}
 
 	private void onRowClick(final View view, final int position) {

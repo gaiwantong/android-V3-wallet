@@ -18,6 +18,10 @@
 		sothree:umanoShadowHeight="4dp">
 
 		<!-- MAIN CONTENT -->
+		<android.support.v4.widget.SwipeRefreshLayout
+			android:id="@+id/swipe_container"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
 		<FrameLayout
 			android:id="@+id/balance_main_content"
 			android:layout_width="match_parent"
@@ -97,6 +101,7 @@
 				android:visibility="invisible"/>
 
 		</FrameLayout>
+		</android.support.v4.widget.SwipeRefreshLayout>
 
 		<!-- SLIDING LAYOUT -->
 		<LinearLayout

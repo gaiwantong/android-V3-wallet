@@ -20,6 +20,12 @@
 			android:layout_gravity="top"
 			android:background="@color/blockchain_light_grey"/>
 
+		<View
+			android:id="@+id/tx_touch_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@android:color/transparent"/>
+
 		<TextView
 			android:id="@+id/ts"
 			android:layout_width="match_parent"
