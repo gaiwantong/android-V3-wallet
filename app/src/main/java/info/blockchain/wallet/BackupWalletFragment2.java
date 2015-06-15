@@ -117,6 +117,7 @@ public class BackupWalletFragment2 extends Fragment {
 
                 if (currentWordIndex == mnemonic.length) {
 
+                    currentWordIndex = 0;
                     getFragmentManager().beginTransaction()
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .replace(R.id.content_frame, new BackupWalletFragment3())
