@@ -52,6 +52,8 @@
 			android:paddingBottom="4dp"
 			android:fontFamily="sans-serif"
 			android:text="Label"
+			android:singleLine="true"
+			android:marqueeRepeatLimit="marquee_forever"
 			android:textColor="@color/primary_text_default_material_light"
 			android:textSize="14sp"/>
 

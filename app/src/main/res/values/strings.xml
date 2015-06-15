@@ -3,26 +3,26 @@
 
     <string name="version_name">5.0.37a</string>
 
-	<string name="backup_wallet">Backup Wallet</string>
+    <string name="backup_wallet">Backup Wallet</string>
     <string-array name="navigation_drawer_items">
         <item>My Accounts</item>
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
-		<item>Support</item>
+        <item>Support</item>
         <item>Change PIN Code</item>
-		<item>@string/backup_wallet</item>
-		<item>Unpair Wallet</item>
+        <item>@string/backup_wallet</item>
+        <item>Unpair Wallet</item>
     </string-array>
 
-	<array name="navigation_drawer_icons">
-		<item>@drawable/icon_accounts</item>
-		<item>@drawable/icon_news</item>
-		<item>@drawable/icon_settings</item>
-		<item>@drawable/ic_info_outline_grey600_24dp</item>
-		<item>@drawable/icon_pincode</item>
-		<item>@drawable/bad_backup</item>
-		<item>@drawable/icon_logout</item>
-	</array>
+    <array name="navigation_drawer_icons">
+        <item>@drawable/icon_accounts</item>
+        <item>@drawable/icon_news</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/icon_pincode</item>
+        <item>@drawable/bad_backup</item>
+        <item>@drawable/icon_logout</item>
+    </array>
 
     <string name="app_name">Blockchain HD</string>
     <string name="action_settings">Settings</string>
@@ -103,28 +103,28 @@
     <string name="double_encryption_password_error">Double encrypt password error. Please try again.</string>
 
     <string name="command2">Scan pairing code</string>
-	<string name="command3">I can\'t access my camera</string>
+    <string name="command3">I can\'t access my camera</string>
     <string name="CREATE">CREATE A NEW WALLET</string>
     <string name="LOGIN">Log in to my wallet</string>
-	<string name="pair_your_wallet">Pair Your Wallet</string>
-	<string name="scan_pairing_code">Scan pairing code</string>
-	<string name="manual_pairing">Manual Pairing</string>
-	<string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.com/wallet .</string>
-	<string name="pair_wallet_step_2">Click the Account Settings button, then choose the Mobile tab.</string>
-	<string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
-	<string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
-	<string name="wallet_id">Wallet ID</string>
-	<string name="default_wallet_name">My Bitcoin Wallet</string>
+    <string name="pair_your_wallet">Pair Your Wallet</string>
+    <string name="scan_pairing_code">Scan pairing code</string>
+    <string name="manual_pairing">Manual Pairing</string>
+    <string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.com/wallet .</string>
+    <string name="pair_wallet_step_2">Click the Account Settings button, then choose the Mobile tab.</string>
+    <string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
+    <string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
+    <string name="wallet_id">Wallet ID</string>
+    <string name="default_wallet_name">My Bitcoin Wallet</string>
 
-	<string name="password">Password</string>
-	<string name="email">Email</string>
-	<string name="agree_terms_of_service">By creating a new wallet you agree to the <a href="https://blockchain.info/Resources/TermsofServicePolicy.pdf">Blockchain Terms of Service</a></string>
-	<string name="create_wallet">Create Wallet</string>
-	<string name="new_wallet">New Wallet</string>
-	<string name="strength_weak">Weak</string>
-	<string name="strength_medium">Medium</string>
-	<string name="strength_strong">Strong</string>
-	<string name="strength_very_strong">Very Strong</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="agree_terms_of_service">By creating a new wallet you agree to the <a href="https://blockchain.info/Resources/TermsofServicePolicy.pdf">Blockchain Terms of Service</a></string>
+    <string name="create_wallet">Create Wallet</string>
+    <string name="new_wallet">New Wallet</string>
+    <string name="strength_weak">Weak</string>
+    <string name="strength_medium">Medium</string>
+    <string name="strength_strong">Strong</string>
+    <string name="strength_very_strong">Very Strong</string>
 
     <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>
@@ -157,14 +157,14 @@
     <string name="select_units">Select displayable BTC units</string>
     <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
 
-	<string name="from">From</string>
-	<string name="to">To</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
 
-	<string name="confirm_details">Confirm Details</string>
-	<string name="fee">Fee</string>
-	<string name="dialog_send">SEND</string>
-	<string name="dialog_cancel">CANCEL</string>
-	<string name="exit_confirm">Press back button again to exit</string>
+    <string name="confirm_details">Confirm Details</string>
+    <string name="fee">Fee</string>
+    <string name="dialog_send">SEND</string>
+    <string name="dialog_cancel">CANCEL</string>
+    <string name="exit_confirm">Press back button again to exit</string>
 
     <string name="label_address">Your address has been imported successfully. Optionally assign a friendly display name to this address.</string>
 
@@ -184,16 +184,16 @@
     <string name="remote_save_ko">Remote save failed</string>
     <string name="payload_corrupted">Remote payload corrupted, not saved to server.</string>
 
-	<string name="my_bitcoin_wallet">My Bitcoin Wallet</string>
-	<string name="drawer_open">Drawer open</string>
-	<string name="drawer_close">Drawer close</string>
+    <string name="my_bitcoin_wallet">My Bitcoin Wallet</string>
+    <string name="drawer_open">Drawer open</string>
+    <string name="drawer_close">Drawer close</string>
 
-	<string name="unpair_wallet">Unpair Wallet</string>
-	<string name="unpair">UNPAIR</string>
+    <string name="unpair_wallet">Unpair Wallet</string>
+    <string name="unpair">UNPAIR</string>
 
-	<string name="ok_cap">OK</string>
-	<string name="change_pin_code">Change PIN Code</string>
-	<string name="enter_password_to_change_pin">Please enter password to change PIN code.</string>
+    <string name="ok_cap">OK</string>
+    <string name="change_pin_code">Change PIN Code</string>
+    <string name="enter_password_to_change_pin">Please enter password to change PIN code.</string>
 
     <string name="suggest_merchant">Suggest merchant</string>
     <string name="business_name">Business name</string>
@@ -231,9 +231,9 @@
         <item>Suggest a merchant</item>
     </string-array>
 
-	<string name="my_accounts">My Accounts</string>
-	<string name="accounts">Accounts</string>
-	<string name="create_new_account">Create New Account</string>
+    <string name="my_accounts">My Accounts</string>
+    <string name="accounts">Accounts</string>
+    <string name="create_new_account">Create New Account</string>
     <string name="import_address">Import Address</string>
     <string name="save_name">Save name</string>
 
@@ -246,85 +246,85 @@
 
     <string name="address_already_used">This receive address has already been used.</string>
 
-	<string name="my_wallet_id">My Wallet ID</string>
-	<string name="EMAIL">EMAIL</string>
-	<string name="new_support_request">New Support Request</string>
-	<string name="contact_support">Contact Support</string>
-	<string name="email_subject">Bitcoin Wallet Android Tech Support</string>
+    <string name="my_wallet_id">My Wallet ID</string>
+    <string name="EMAIL">EMAIL</string>
+    <string name="new_support_request">New Support Request</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="email_subject">Bitcoin Wallet Android Tech Support</string>
 
-	<string name="merchant_map">Merchant Map</string>
-	<string name="merchant_list">Merchant List</string>
-	<string name="merchant_suggest">Suggest Merchant</string>
-	<string name="name">Name</string>
-	<string name="location">Location</string>
-	<string name="manual_entry">MANUAL ENTRY</string>
-	<string name="use_my_current_location">USE MY CURRENT LOCATION</string>
-	<string name="save">Save</string>
-	<string name="next">Next</string>
-	<string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
+    <string name="merchant_map">Merchant Map</string>
+    <string name="merchant_list">Merchant List</string>
+    <string name="merchant_suggest">Suggest Merchant</string>
+    <string name="name">Name</string>
+    <string name="location">Location</string>
+    <string name="manual_entry">MANUAL ENTRY</string>
+    <string name="use_my_current_location">USE MY CURRENT LOCATION</string>
+    <string name="save">Save</string>
+    <string name="next">Next</string>
+    <string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
 
-	<string name="backup_1_heading">You have not backed up your wallet yet</string>
-	<string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
-	<string name="BACKUP_WALLET">BACKUP WALLET</string>
-	<string name="backup_how_to">How to restore your wallet</string>
-	<string name="backup_step_1">Go to blockchain.com/restorewallet</string>
-	<string name="backup_step_2">Enter your 12 word backup phrase</string>
-	<string name="backup_step_3">Your wallet will be restored and your funds safe</string>
-	<string name="START">START</string>
-	<string name="backup_write_down_words">Write the words down in the exact order they appear on a sheet of paper.</string>
-	<string name="NEXT_WORD">NEXT WORD</string>
-	<string name="press_to_reveal">press and hold to reveal the word</string>
-	<string name="VERIFY">VERIFY</string>
-	<string name="backup_verify_heading">Verify that you wrote down the backup phrase</string>
-	<string name="VERIFY_BACKUP">VERIFY BACKUP</string>
-	<string name="Word">Word</string>
-	<string name="of">of</string>
-	<string name="backup_confirmed">Backup Confirmed</string>
-	<string name="backup_word_mismatch">Word Mismatch</string>
-	<string name="backup_days_ago">You backed your wallet up [--time--] [--day--] ago</string>
-	<string name="day">day</string>
-	<string name="days">days</string>
-	<string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
+    <string name="backup_1_heading">You have not backed up your wallet yet</string>
+    <string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
+    <string name="BACKUP_WALLET">BACKUP WALLET</string>
+    <string name="backup_how_to">How to restore your wallet</string>
+    <string name="backup_step_1">Go to blockchain.com/restorewallet</string>
+    <string name="backup_step_2">Enter your 12 word backup phrase</string>
+    <string name="backup_step_3">Your wallet will be restored and your funds safe</string>
+    <string name="START">START</string>
+    <string name="backup_write_down_words">Write the words down in the exact order they appear on a sheet of paper.</string>
+    <string name="NEXT_WORD">NEXT WORD</string>
+    <string name="press_to_reveal">press and hold to reveal the word</string>
+    <string name="VERIFY">VERIFY</string>
+    <string name="backup_verify_heading">Verify that you wrote down the backup phrase</string>
+    <string name="VERIFY_BACKUP">VERIFY BACKUP</string>
+    <string name="Word">Word</string>
+    <string name="of">of</string>
+    <string name="backup_confirmed">Backup Confirmed</string>
+    <string name="backup_word_mismatch">Word Mismatch</string>
+    <string name="backup_days_ago">You backed your wallet up [--time--] [--day--] ago</string>
+    <string name="day">day</string>
+    <string name="days">days</string>
+    <string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
 
     <string name="received_bitcoin">Received Bitcoin</string>
     <string name="refresh_balance">Refresh balance</string>
 
-	<string-array name="mnemonic_word_requests">
-		<item>first word</item>
-		<item>second word</item>
-		<item>third word</item>
-		<item>fourth word</item>
-		<item>fifth word</item>
-		<item>sixth word</item>
-		<item>seventh word</item>
-		<item>eighth word</item>
-		<item>ninth word</item>
-		<item>tenth word</item>
-		<item>eleventh word</item>
-		<item>twelfth word</item>
-	</string-array>
+    <string-array name="mnemonic_word_requests">
+        <item>first word</item>
+        <item>second word</item>
+        <item>third word</item>
+        <item>fourth word</item>
+        <item>fifth word</item>
+        <item>sixth word</item>
+        <item>seventh word</item>
+        <item>eighth word</item>
+        <item>ninth word</item>
+        <item>tenth word</item>
+        <item>eleventh word</item>
+        <item>twelfth word</item>
+    </string-array>
 
-	<string name="confirmation_code">Confirmation Code</string>
-	<string name="verification_failed">Verification Failed</string>
-	<string name="resend_email_confirmation">Resend Email</string>
-	<string name="please_confirm_email">Please Confirm Your Email Address</string>
-	<string name="confirmation_instructions">We have sent you an email at [--email_address--]. Please open the email and follow the instructions to complete your wallet setup.</string>
+    <string name="confirmation_code">Confirmation Code</string>
+    <string name="verification_failed">Verification Failed</string>
+    <string name="resend_email_confirmation">Resend Email</string>
+    <string name="please_confirm_email">Please Confirm Your Email Address</string>
+    <string name="confirmation_instructions">We have sent you an email at [--email_address--]. Please open the email and follow the instructions to complete your wallet setup.</string>
 
-	<string name="send_payment">Send Payment</string>
-	<string name="share">Share Receive Address</string>
-	<string name="scan_qr">Scan QR Code</string>
+    <string name="send_payment">Send Payment</string>
+    <string name="share">Share Receive Address</string>
+    <string name="scan_qr">Scan QR Code</string>
     <string name="confirm_password">Confirm Password</string>
-	<string name="check_email_to_auth_login">Please check your email to approve this login attempt.</string>
-	<string name="confirmations">Confirmations</string>
-	<string name="transaction_fee">Transaction fee</string>
-	<string name="transaction_hash">Transaction hash</string>
-	<string name="your_transactions">Your Transactions</string>
-	<string name="transaction_occur_when">Transaction occur when you receive and send bitcoin.</string>
-	<string name="click">Click</string>
-	<string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
+    <string name="check_email_to_auth_login">Please check your email to approve this login attempt.</string>
+    <string name="confirmations">Confirmations</string>
+    <string name="transaction_fee">Transaction fee</string>
+    <string name="transaction_hash">Transaction hash</string>
+    <string name="your_transactions">Your Transactions</string>
+    <string name="transaction_occur_when">Transaction occur when you receive and send bitcoin.</string>
+    <string name="click">Click</string>
+    <string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
-	<string name="logging_out_automatically">Logging out automatically</string>
+    <string name="logging_out_automatically">Logging out automatically</string>
 
 </resources>
