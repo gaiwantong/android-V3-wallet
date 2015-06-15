@@ -82,6 +82,9 @@ public class BackupWalletFragment2 extends Fragment {
         animEnterFromLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left);
 
         mnemonic = BackupWalletUtil.getInstance(getActivity()).getMnemonic();
+        if(currentWordIndex == mnemonic.length) {
+            currentWordIndex = 0;
+        }
         showWordAtIndex(currentWordIndex);
 
         tvNextWord.setOnClickListener(new View.OnClickListener() {
