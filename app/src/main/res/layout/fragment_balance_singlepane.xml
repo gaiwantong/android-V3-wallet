@@ -38,6 +38,7 @@
 					android:layout_height="match_parent"
 					android:clickable="true"
 					android:clipToPadding="false"
+					android:paddingTop="72dp"
 					android:divider="@drawable/list_divider"/>
 
 				<!-- Balance -->
