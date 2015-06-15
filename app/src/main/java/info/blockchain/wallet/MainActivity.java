@@ -81,7 +81,7 @@ import info.blockchain.wallet.util.WebUtil;
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
 
     private static final int SCAN_URI = 2007;
-	private static final int REQUEST_BACKUP = 2225;
+    private static final int REQUEST_BACKUP = 2225;
 
     private static int MERCHANT_ACTIVITY = 1;
 
@@ -108,9 +108,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private static final int MESSAGE_SENT = 1;
 
     public static Fragment currentFragment;
-	private ArrayList<DrawerItem> drawerItems;
-	private int backupWalletDrawerIndex;
-	private DrawerAdapter adapterDrawer;
+    private ArrayList<DrawerItem> drawerItems;
+    private int backupWalletDrawerIndex;
+    private DrawerAdapter adapterDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +124,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
 
-		NotificationsFactory.getInstance(this).resetNotificationCounter();
+        NotificationsFactory.getInstance(this).resetNotificationCounter();
 
         if(!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				AccountsUtil.getInstance(this).initAccountMaps();
+                AccountsUtil.getInstance(this).initAccountMaps();
             }
             else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
@@ -189,7 +189,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-				AccountsUtil.getInstance(this).initAccountMaps();
+                AccountsUtil.getInstance(this).initAccountMaps();
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
@@ -200,7 +200,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         setContentView(R.layout.activity_main);
 
-		if (!getResources().getBoolean(R.bool.isRotatable))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (!getResources().getBoolean(R.bool.isRotatable))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         locale = Locale.getDefault();
 
@@ -386,33 +386,33 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
             ;
         }
-		else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
+        else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
 
-			drawerItems = new ArrayList<>();
-			final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
-			final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
-			for (int i = 0; i < drawerTitles.length; i++) {
+            drawerItems = new ArrayList<>();
+            final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
+            final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+            for (int i = 0; i < drawerTitles.length; i++) {
 
-				if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
-					backupWalletDrawerIndex = i;
+                if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+                    backupWalletDrawerIndex = i;
 
-					int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+                    int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
 
-					if(lastBackup==0) {
-						//Not backed up
-						drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-					}else{
-						//Backed up
-						drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
-					}
-				}else{
-					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-				}
-			}
-			drawerIcons.recycle();
-			adapterDrawer = new DrawerAdapter(drawerItems);
-			recyclerViewDrawer.setAdapter(adapterDrawer);
-		}
+                    if(lastBackup==0) {
+                        //Not backed up
+                        drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+                    }else{
+                        //Backed up
+                        drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
+                    }
+                }else{
+                    drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+                }
+            }
+            drawerIcons.recycle();
+            adapterDrawer = new DrawerAdapter(drawerItems);
+            recyclerViewDrawer.setAdapter(adapterDrawer);
+        }
         else {
             ;
         }
@@ -551,7 +551,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     @Override
                     public void run() {
                         ;
-					}
+                    }
                 });
 
                 Looper.loop();
@@ -609,7 +609,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     @Override
                     public void run() {
                         ;
-					}
+                    }
                 });
 
                 Looper.loop();
@@ -624,7 +624,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivity(intent);
     }
 
-	private void doExchangeRates()	{
+    private void doExchangeRates()	{
         AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
@@ -648,8 +648,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
-		Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
-		intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+        Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
+        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
         startActivityForResult(intent, SCAN_URI);
     }
 
@@ -675,9 +675,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
-		Fragment fragment = new SendFragment();
-		Bundle args = new Bundle();
-		args.putString("btc_address", btc_address);
+        Fragment fragment = new SendFragment();
+        Bundle args = new Bundle();
+        args.putString("btc_address", btc_address);
         args.putBoolean("incoming_from_scan", true);
         if(btc_amount != null) {
             try {
@@ -703,36 +703,36 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         setSupportActionBar(toolbar);
     }
 
-	public void resetNavigationDrawer(){
+    public void resetNavigationDrawer(){
 
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
 
-			public void onDrawerClosed(View view) {
-				drawerIsOpen = false;
+            public void onDrawerClosed(View view) {
+                drawerIsOpen = false;
 
-				for(int i = 0; i < toolbar.getChildCount(); i++){
-					toolbar.getChildAt(i).setEnabled(true);
-					toolbar.getChildAt(i).setClickable(true);
-				}
-			}
+                for(int i = 0; i < toolbar.getChildCount(); i++){
+                    toolbar.getChildAt(i).setEnabled(true);
+                    toolbar.getChildAt(i).setClickable(true);
+                }
+            }
 
-			public void onDrawerOpened(View drawerView) {
-				drawerIsOpen = true;
+            public void onDrawerOpened(View drawerView) {
+                drawerIsOpen = true;
 
-				InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-				for(int i = 0; i < toolbar.getChildCount(); i++){
-					toolbar.getChildAt(i).setEnabled(false);
-					toolbar.getChildAt(i).setClickable(false);
-				}
-			}
-		};
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
-		mDrawerToggle.syncState();
-	}
+                for(int i = 0; i < toolbar.getChildCount(); i++){
+                    toolbar.getChildAt(i).setEnabled(false);
+                    toolbar.getChildAt(i).setClickable(false);
+                }
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.syncState();
+    }
 
     public void setNavigationDrawer() {
 
@@ -776,8 +776,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         final int colorStatusBar = typedValueStatusBarColor.data;
         mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
 
-		TextView tvEmail = (TextView)mDrawerLayout.findViewById(R.id.drawer_email);
-		tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,""));
+        TextView tvEmail = (TextView)mDrawerLayout.findViewById(R.id.drawer_email);
+        tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,""));
 
         // Setup RecyclerView inside drawer
         recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
@@ -789,21 +789,21 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
         for (int i = 0; i < drawerTitles.length; i++) {
 
-			if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
-				backupWalletDrawerIndex = i;
+            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+                backupWalletDrawerIndex = i;
 
-				int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+                int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
 
-				if(lastBackup==0) {
-					//Not backed up
-					drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-				}else{
-					//Backed up
-					drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
-				}
-			}else{
-				drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-			}
+                if(lastBackup==0) {
+                    //Not backed up
+                    drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+                }else{
+                    //Backed up
+                    drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
+                }
+            }else{
+                drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+            }
         }
         drawerIcons.recycle();
         adapterDrawer = new DrawerAdapter(drawerItems);
@@ -832,9 +832,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                             case 5:
                                 doBackupWallet();
                                 break;
-							case 6:
-								doUnpairWallet();
-								break;
+                            case 6:
+                                doUnpairWallet();
+                                break;
                         }
 
                         mDrawerLayout.closeDrawers();
@@ -967,10 +967,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivity(intent);
     }
 
-	private void doBackupWallet(){
+    private void doBackupWallet(){
 
-		AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-		Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
-		startActivityForResult(intent, REQUEST_BACKUP);
-	}
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+        Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
+        startActivityForResult(intent, REQUEST_BACKUP);
+    }
 }

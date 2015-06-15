@@ -31,218 +31,218 @@ import info.blockchain.wallet.util.TypefaceUtil;
  */
 public class ManualPairingFragment extends Fragment {
 
-	private EditText edGuid = null;
+    private EditText edGuid = null;
     private EditText edPassword = null;
     private TextView next = null;
 
-	private ProgressDialog progress = null;
+    private ProgressDialog progress = null;
 
-	private boolean waitinForAuth = true;
-	private int timer = 0;
+    private boolean waitinForAuth = true;
+    private int timer = 0;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
 
         rootView.setFilterTouchesWhenObscured(true);
 
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
 
-		edGuid = (EditText)rootView.findViewById(R.id.wallet_id);
-		edPassword = (EditText)rootView.findViewById(R.id.wallet_pass);
-		next = (TextView)rootView.findViewById(R.id.command_next);
+        edGuid = (EditText)rootView.findViewById(R.id.wallet_id);
+        edPassword = (EditText)rootView.findViewById(R.id.wallet_pass);
+        next = (TextView)rootView.findViewById(R.id.command_next);
 
-		next.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				final String guid = edGuid.getText().toString();
-				final String pw = edPassword.getText().toString();
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String guid = edGuid.getText().toString();
+                final String pw = edPassword.getText().toString();
 
-				if(guid == null || guid.length() == 0) {
+                if(guid == null || guid.length() == 0) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_guid), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-				}
-				else if(pw == null || pw.length() == 0) {
+                }
+                else if(pw == null || pw.length() == 0) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-				}
-				else {
-					pairingThreadManual(guid, new CharSequenceX(pw));
-				}
-			}
-		});
+                }
+                else {
+                    pairingThreadManual(guid, new CharSequenceX(pw));
+                }
+            }
+        });
 
-		Typeface typeface = TypefaceUtil.getInstance(getActivity()).getRobotoTypeface();
-		edGuid.setTypeface(typeface);
-		edPassword.setTypeface(typeface);
+        Typeface typeface = TypefaceUtil.getInstance(getActivity()).getRobotoTypeface();
+        edGuid.setTypeface(typeface);
+        edPassword.setTypeface(typeface);
 
-		return rootView;
-	}
+        return rootView;
+    }
 
-	private void pairingThreadManual(final String guid, final CharSequenceX password) {
+    private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
-		waitinForAuth = true;
+        waitinForAuth = true;
 
-		final Handler handler = new Handler();
+        final Handler handler = new Handler();
 
-		if(progress != null && progress.isShowing()) {
-			progress.dismiss();
-			progress = null;
-		}
-		progress = new ProgressDialog(getActivity());
-		progress.setCancelable(false);
-		progress.setTitle(R.string.app_name);
-		progress.setMessage(getResources().getString(R.string.please_wait)+"...");
-		progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				waitinForAuth = false;
-			}
-		});
-		progress.show();
+        if(progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
+        }
+        progress = new ProgressDialog(getActivity());
+        progress.setCancelable(false);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(getResources().getString(R.string.please_wait)+"...");
+        progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                waitinForAuth = false;
+            }
+        });
+        progress.show();
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
 
-				try {
-					String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+                try {
+                    String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
 
-					if(response.equals(PairingFactory.KEY_AUTH_REQUIRED)){
-						getActivity().runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								progress.setCancelable(true);
-								progress.setMessage(getResources().getString(R.string.check_email_to_auth_login));
-							}
-						});
-						response = waitForAuthThread(guid, password);
-					}
+                    if(response.equals(PairingFactory.KEY_AUTH_REQUIRED)){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progress.setCancelable(true);
+                                progress.setMessage(getResources().getString(R.string.check_email_to_auth_login));
+                            }
+                        });
+                        response = waitForAuthThread(guid, password);
+                    }
 
-					JSONObject jsonObj = new JSONObject(response);
+                    JSONObject jsonObj = new JSONObject(response);
 
-					if(jsonObj != null && jsonObj.has("payload")) {
-						String encrypted_payload = (String)jsonObj.getString("payload");
+                    if(jsonObj != null && jsonObj.has("payload")) {
+                        String encrypted_payload = (String)jsonObj.getString("payload");
 
-						String decrypted_payload = null;
-						try {
-							decrypted_payload = AESUtil.decrypt(encrypted_payload, password, AESUtil.PasswordPBKDF2Iterations);
-						}
-						catch(Exception e) {
-							e.printStackTrace();
+                        String decrypted_payload = null;
+                        try {
+                            decrypted_payload = AESUtil.decrypt(encrypted_payload, password, AESUtil.PasswordPBKDF2Iterations);
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-						}
+                            AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        }
 
-						if(decrypted_payload != null) {
-							JSONObject payloadObj = new JSONObject(decrypted_payload);
-							if(payloadObj != null && payloadObj.has("sharedKey")) {
-								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
-								PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
+                        if(decrypted_payload != null) {
+                            JSONObject payloadObj = new JSONObject(decrypted_payload);
+                            if(payloadObj != null && payloadObj.has("sharedKey")) {
+                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
+                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
 
-								if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
-									PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-									PayloadFactory.getInstance(getActivity()).setTempPassword(password);
+                                if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
+                                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                                    PayloadFactory.getInstance(getActivity()).setTempPassword(password);
                                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-									Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-									intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
-									getActivity().startActivity(intent);
-								}
-								else {
+                                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                                    intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
+                                    getActivity().startActivity(intent);
+                                }
+                                else {
                                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-									AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-								}
+                                    AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                                }
 
-							}
+                            }
 
-						}
-						else {
+                        }
+                        else {
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-							AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-						}
+                            AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        }
 
-					}
+                    }
 
-				}
-				catch(JSONException je) {
-					je.printStackTrace();
+                }
+                catch(JSONException je) {
+                    je.printStackTrace();
                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-				}
-				catch(Exception e) {
-					e.printStackTrace();
+                    AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-					AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
-				}finally {
-					if(progress != null && progress.isShowing()) {
-						progress.dismiss();
-						progress = null;
-					}
-				}
+                    AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                }finally {
+                    if(progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+                }
 
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						;
-					}
-				});
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ;
+                    }
+                });
 
-				Looper.loop();
+                Looper.loop();
 
-			}
-		}).start();
-	}
+            }
+        }).start();
+    }
 
-	private String waitForAuthThread(final String guid, final CharSequenceX password){
+    private String waitForAuthThread(final String guid, final CharSequenceX password){
 
-		final int waitTime = 2;//minutes to wait for auth
-		timer = (waitTime*60);
+        final int waitTime = 2;//minutes to wait for auth
+        timer = (waitTime*60);
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-				while(waitinForAuth) {
-					getActivity().runOnUiThread(new Runnable() {
+                while(waitinForAuth) {
+                    getActivity().runOnUiThread(new Runnable() {
 
-						@Override
-						public void run() {
-							progress.setMessage(getResources().getString(R.string.check_email_to_auth_login) + " " + timer);
-							timer--;
-						}
-					});
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+                        @Override
+                        public void run() {
+                            progress.setMessage(getResources().getString(R.string.check_email_to_auth_login) + " " + timer);
+                            timer--;
+                        }
+                    });
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-					if(timer<=0){
-						waitinForAuth = false;
-						progress.cancel();
-					}
-				}
-			}
-		}).start();
+                    if(timer<=0){
+                        waitinForAuth = false;
+                        progress.cancel();
+                    }
+                }
+            }
+        }).start();
 
-		int sleep = 5;//second
-		while(waitinForAuth){
+        int sleep = 5;//second
+        while(waitinForAuth){
 
-			try {Thread.sleep(1000*sleep);} catch (InterruptedException e) {e.printStackTrace();}
-			sleep = 1;//after initial sleep, poll every 1 second
+            try {Thread.sleep(1000*sleep);} catch (InterruptedException e) {e.printStackTrace();}
+            sleep = 1;//after initial sleep, poll every 1 second
 
-			String response = null;
-			try {
-				response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
-				if(!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
-					waitinForAuth = false;
-					return response;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		waitinForAuth = false;
-		return PairingFactory.KEY_AUTH_REQUIRED;
-	}
+            String response = null;
+            try {
+                response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+                if(!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+                    waitinForAuth = false;
+                    return response;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        waitinForAuth = false;
+        return PairingFactory.KEY_AUTH_REQUIRED;
+    }
 }

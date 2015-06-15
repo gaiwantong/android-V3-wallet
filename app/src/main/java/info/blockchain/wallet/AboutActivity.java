@@ -16,20 +16,20 @@ import android.net.Uri;
 
 public class AboutActivity extends Activity	{
 
-	private TextView tvAbout = null;
-	private TextView bRate = null;
-	private TextView bDownload = null;
-	private String strMerchantPackage = "info.blockchain.merchant";
+    private TextView tvAbout = null;
+    private TextView bRate = null;
+    private TextView bDownload = null;
+    private String strMerchantPackage = "info.blockchain.merchant";
 
     @Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	    this.setContentView(R.layout.activity_about);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.setContentView(R.layout.activity_about);
 
-	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         tvAbout = (TextView)findViewById(R.id.about);
         tvAbout.setText(getString(R.string.about, getString(R.string.version_name), "2015"));
@@ -37,22 +37,22 @@ public class AboutActivity extends Activity	{
         bRate = (TextView)findViewById(R.id.rate_us);
         bRate.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-            	String appPackageName = getPackageName();
-            	Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
-            	marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            	startActivity(marketIntent);
+                String appPackageName = getPackageName();
+                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
+                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                startActivity(marketIntent);
             }
         });
 
         bDownload = (TextView)findViewById(R.id.free_wallet);
         if(hasWallet())	{
-        	bDownload.setVisibility(View.GONE);
+            bDownload.setVisibility(View.GONE);
         }
         else	{
             bDownload.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
-                	Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
-                	startActivity(marketIntent);
+                    Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
+                    startActivity(marketIntent);
                 }
             });
         }
@@ -60,14 +60,14 @@ public class AboutActivity extends Activity	{
     }
 
     private boolean hasWallet()	{
-    	PackageManager pm = this.getPackageManager();
-    	try	{
-    		pm.getPackageInfo(strMerchantPackage, 0);
-    		return true;
-    	}
-    	catch(NameNotFoundException nnfe)	{
-    		return false;
-    	}
+        PackageManager pm = this.getPackageManager();
+        try	{
+            pm.getPackageInfo(strMerchantPackage, 0);
+            return true;
+        }
+        catch(NameNotFoundException nnfe)	{
+            return false;
+        }
     }
 
 }

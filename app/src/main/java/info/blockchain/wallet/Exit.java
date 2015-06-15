@@ -5,12 +5,12 @@ import android.os.Bundle;
  
 public class Exit extends Activity {
  
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		finish();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        finish();
 
 //		System.exit(0);
-	}
+    }
  
 }

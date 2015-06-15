@@ -77,52 +77,52 @@ import info.blockchain.wallet.util.WebUtil;
 
 public class BalanceFragment extends Fragment {
 
-	private Locale locale = null;
+    private Locale locale = null;
 
-	//
-	// main balance display
-	//
-	private TextView tvBalance1 = null;
+    //
+    // main balance display
+    //
+    private TextView tvBalance1 = null;
 
-	private double btc_balance = 0.0;
-	private double fiat_balance = 0.0;
-	private double btc_fx = 319.13;
+    private double btc_balance = 0.0;
+    private double fiat_balance = 0.0;
+    private double btc_fx = 319.13;
 
-	private Spannable span1 = null;
-	private final String strBTC = "BTC";
-	private String strFiat = null;
-	private boolean isBTC = true;
+    private Spannable span1 = null;
+    private final String strBTC = "BTC";
+    private String strFiat = null;
+    private boolean isBTC = true;
 
-	//
-	// accounts list
-	//
-	private Spinner accountSpinner = null;
-	ArrayAdapter<String> accountsAdapter = null;
-	private static int selectedAccount = 0;
-	public int balanceBarHeight;
+    //
+    // accounts list
+    //
+    private Spinner accountSpinner = null;
+    ArrayAdapter<String> accountsAdapter = null;
+    private static int selectedAccount = 0;
+    public int balanceBarHeight;
 
-	//
-	// tx list
-	//
-	private HashMap<String, List<Tx>> txMap = null;
-	private List<Tx> txs = new ArrayList<Tx>();
-	private RecyclerView txList = null;
-	private TxAdapter txAdapter = null;
-	LinearLayoutManager layoutManager;
-	HashMap<View, Boolean> rowViewState = null;
-	private LinearLayout noTxMessage = null;
+    //
+    // tx list
+    //
+    private HashMap<String, List<Tx>> txMap = null;
+    private List<Tx> txs = new ArrayList<Tx>();
+    private RecyclerView txList = null;
+    private TxAdapter txAdapter = null;
+    LinearLayoutManager layoutManager;
+    HashMap<View, Boolean> rowViewState = null;
+    private LinearLayout noTxMessage = null;
 
-	public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
+    public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
 
-	protected BroadcastReceiver receiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-			if (ACTION_INTENT.equals(intent.getAction())) {
+            if (ACTION_INTENT.equals(intent.getAction())) {
 
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
                         if(forceRefresh){
 
@@ -145,7 +145,7 @@ public class BalanceFragment extends Fragment {
                         }
 
                         forceRefresh = false;
-					}
+                    }
 
                     private void refreshUI(){
                         displayBalance();
@@ -154,428 +154,428 @@ public class BalanceFragment extends Fragment {
                         txAdapter.notifyDataSetChanged();
                         NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
                     }
-				});
-			}
-		}
-	};
+                });
+            }
+        }
+    };
 
-	private SlidingUpPanelLayout mLayout;
-	private LinearLayout bottomSel1 = null;
-	private LinearLayout bottomSel2 = null;
-	private LinearLayout mainContentShadow;
-	private static boolean isBottomSheetOpen = false;
+    private SlidingUpPanelLayout mLayout;
+    private LinearLayout bottomSel1 = null;
+    private LinearLayout bottomSel2 = null;
+    private LinearLayout mainContentShadow;
+    private static boolean isBottomSheetOpen = false;
 
-	private Activity thisActivity = null;
+    private Activity thisActivity = null;
 
-	public BalanceFragment() {
-		;
-	}
+    public BalanceFragment() {
+        ;
+    }
 
-	Communicator comm;
-	ImageButton fab;
+    Communicator comm;
+    ImageButton fab;
 
-	ValueAnimator movingFabUp;
-	ValueAnimator movingFabDown;
-	float fabTopY;
-	float fabBottomY;
+    ValueAnimator movingFabUp;
+    ValueAnimator movingFabDown;
+    float fabTopY;
+    float fabBottomY;
 
-	private int originalHeight = 0;
-	private int newHeight = 0;
-	private int expandDuration = 200;
-	private boolean mIsViewExpanded = false;
-	private View rootView = null;
-	private View prevRowClicked = null;
+    private int originalHeight = 0;
+    private int newHeight = 0;
+    private int expandDuration = 200;
+    private boolean mIsViewExpanded = false;
+    private View rootView = null;
+    private View prevRowClicked = null;
     private SwipeRefreshLayout swipeLayout = null;
     private boolean forceRefresh = false;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
+        rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
 
-		locale = Locale.getDefault();
-		thisActivity = getActivity();
-		setHasOptionsMenu(true);
+        locale = Locale.getDefault();
+        thisActivity = getActivity();
+        setHasOptionsMenu(true);
 
-		balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
+        balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
-		setupViews(rootView);
+        setupViews(rootView);
 
-		return rootView;
-	}
+        return rootView;
+    }
 
-	private ArrayList<String> setAccountSpinner() {
+    private ArrayList<String> setAccountSpinner() {
 
-		//Account names
-		ArrayList<String> accountList = new ArrayList<String>();
-		for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()) {
-			accountList.add(item.getLabel());
-		}
+        //Account names
+        ArrayList<String> accountList = new ArrayList<String>();
+        for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()) {
+            accountList.add(item.getLabel());
+        }
 
-		if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
-			//Multiple accounts - Show spinner
-			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
-			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
-			accountSpinner.setVisibility(View.VISIBLE);
-			int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-			if (currentSelected < 0) currentSelected = 0;
-			accountSpinner.setSelection(currentSelected);
-		} else {
-			//Single account - no spinner
-			((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-			((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
-			accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
-			accountSpinner.setVisibility(View.GONE);
-		}
+        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
+            //Multiple accounts - Show spinner
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
+            accountSpinner.setVisibility(View.VISIBLE);
+            int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+            if (currentSelected < 0) currentSelected = 0;
+            accountSpinner.setSelection(currentSelected);
+        } else {
+            //Single account - no spinner
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
+            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
+            accountSpinner.setVisibility(View.GONE);
+        }
 
-		return accountList;
-	}
+        return accountList;
+    }
 
-	@Override
-	public void setUserVisibleHint(boolean isVisibleToUser) {
-		super.setUserVisibleHint(isVisibleToUser);
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
 
-		if (isVisibleToUser) {
-			isBottomSheetOpen = false;
-			displayBalance();
-			accountsAdapter.notifyDataSetChanged();
-			txAdapter.notifyDataSetChanged();
-			updateTx();
-		} else {
-			;
-		}
-	}
+        if (isVisibleToUser) {
+            isBottomSheetOpen = false;
+            displayBalance();
+            accountsAdapter.notifyDataSetChanged();
+            txAdapter.notifyDataSetChanged();
+            updateTx();
+        } else {
+            ;
+        }
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
+    @Override
+    public void onResume() {
+        super.onResume();
 
         AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
-		MainActivity.currentFragment = this;
-
-		comm.resetNavigationDrawer();
-
-		isBottomSheetOpen = false;
-
-		IntentFilter filter = new IntentFilter(ACTION_INTENT);
-		LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
-
-		if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		} else {
-			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
-
-
-		accountsAdapter.notifyDataSetChanged();
-		txAdapter.notifyDataSetChanged();
-		setAccountSpinner();
-		updateTx();
-		displayBalance();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-
-		LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
-	}
-
-	private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
-
-		public class ViewHolder extends RecyclerView.ViewHolder {
-
-			public ViewHolder(View view) {
-				super(view);
-			}
-		}
-
-		@Override
-		public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-			View v = null;
-
-			boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
-			if (!isTwoPane)
-				v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
-			else
-				v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
-			return new ViewHolder(v);
-		}
-
-		@Override
-		public void onBindViewHolder(final ViewHolder holder, final int position) {
-
-			if (txs != null) {
-				final Tx tx = txs.get(position);
-				double _btc_balance = tx.getAmount() / 1e8;
-				double _fiat_balance = btc_fx * _btc_balance;
-
-				View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
-
-				TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
-				tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-				tvResult.setTextColor(Color.WHITE);
-
-				TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-				tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-				tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
-
-				TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
-				tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-				String dirText = tx.getDirection();
-				if (dirText.equals(MultiAddrFactory.MOVED))
-					tvDirection.setText(getResources().getString(R.string.MOVED));
-				if (dirText.equals(MultiAddrFactory.RECEIVED))
-					tvDirection.setText(getResources().getString(R.string.RECEIVED));
-				if (dirText.equals(MultiAddrFactory.SENT))
-					tvDirection.setText(getResources().getString(R.string.SENT));
-
-				if (isBTC) {
-					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(tx.getAmount()) + " " + getDisplayUnits());
-					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				} else {
-					span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(_fiat_balance) + " " + strFiat);
-					span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				if (tx.isMove()) {
-					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
-					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
-				} else if (_btc_balance < 0.0) {
-					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
-					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
-				} else {
-					tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
-					tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
-				}
-
-				tvResult.setText(span1);
-
-				tvResult.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-
-						FrameLayout parent = (FrameLayout) v.getParent();
-						event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
-						parent.onTouchEvent(event);
-
-						if (event.getAction() == MotionEvent.ACTION_UP) {
-							isBTC = (isBTC) ? false : true;
-							displayBalance();
-							accountsAdapter.notifyDataSetChanged();
-							txAdapter.notifyDataSetChanged();
-						}
-						return true;
-					}
-				});
-
-				txTouchView.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-
-						FrameLayout parent = (FrameLayout) v.getParent();
-						event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
-						parent.onTouchEvent(event);
-
-						if (event.getAction() == MotionEvent.ACTION_UP) {
-							onRowClick(holder.itemView, position);
-						}
-						return true;
-					}
-				});
-			}
-		}
-
-		@Override
-		public int getItemCount() {
-			if (txs == null) return 0;
-			return txs.size();
-		}
-	}
-
-	private void displayBalance() {
-
-		if (txs != null && txs.size() > 0) {
-			txList.setVisibility(View.VISIBLE);
-			noTxMessage.setVisibility(View.GONE);
-		} else {
-			txList.setVisibility(View.GONE);
-			noTxMessage.setVisibility(View.VISIBLE);
-		}
-
-		strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-		btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
-
-		Account hda = null;
-		if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-			//All accounts
-			btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
-		} else {
-			hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-			if (hda instanceof ImportedAccount) {
-				btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
-			} else {
-				btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
-			}
-		}
-
-		fiat_balance = btc_fx * btc_balance;
-
-		if (hda != null && hda instanceof ImportedAccount) {
-			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-		} else if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-		} else {
-			span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-		}
-		span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		tvBalance1.setText(span1);
-	}
-
-	private String getDisplayUnits() {
-
-		return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
-
-	}
-
-	private void updateTx() {
-
-		txMap = MultiAddrFactory.getInstance().getXpubTxs();
-
-		if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
-			return;
-		}
-
-		if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-			txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-		} else {
-			String xpub = account2Xpub(selectedAccount);
-
-			if (xpub != null) {
-				if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-					txs = txMap.get(xpub);
-				}
-			} else {
-				Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-				if (hda instanceof ImportedAccount) {
-					txs = MultiAddrFactory.getInstance().getLegacyTxs();
-				}
-			}
-
-		}
-
-	}
-
-	private String account2Xpub(int accountIndex) {
-
-		Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(accountIndex);
-		String xpub = null;
-		if (hda instanceof ImportedAccount) {
-			xpub = null;
-		} else {
-			xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
-		}
-
-		return xpub;
-	}
-
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-
-		menu.findItem(R.id.action_merchant_directory).setVisible(true);
-		menu.findItem(R.id.action_qr).setVisible(true);
-		menu.findItem(R.id.action_send).setVisible(false);
-		menu.findItem(R.id.action_share_receive).setVisible(false);
-	}
-
-	private void onAddClicked() {
-
-		fab.bringToFront();
-
-		if (mLayout != null) {
-			if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
-
-				//Bottom sheet down
-				movingFabDown.start();
-
-				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-				mainContentShadow.setVisibility(View.GONE);
-				isBottomSheetOpen = false;
-
-				comm.setNavigationDrawerToggleEnabled(true);
-			} else {
-
-				//Bottom sheet up
-				movingFabUp.start();
-
-				mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-				mainContentShadow.setVisibility(View.VISIBLE);
-				isBottomSheetOpen = true;
-
-				comm.setNavigationDrawerToggleEnabled(false);
-			}
-		}
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		comm = (Communicator) activity;
-	}
-
-	interface Communicator {
-
-		public void setNavigationDrawerToggleEnabled(boolean enabled);
-
-		public void resetNavigationDrawer();
-	}
-
-	public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
-
-		private int mToolbarOffset = 0;
-
-		public CollapseActionbarScrollListener() {
-		}
-
-		@Override
-		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-			super.onScrolled(recyclerView, dx, dy);
+        MainActivity.currentFragment = this;
+
+        comm.resetNavigationDrawer();
+
+        isBottomSheetOpen = false;
+
+        IntentFilter filter = new IntentFilter(ACTION_INTENT);
+        LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
+
+        if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+        } else {
+            thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+        }
+
+
+        accountsAdapter.notifyDataSetChanged();
+        txAdapter.notifyDataSetChanged();
+        setAccountSpinner();
+        updateTx();
+        displayBalance();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
+    }
+
+    private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ViewHolder(View view) {
+                super(view);
+            }
+        }
+
+        @Override
+        public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View v = null;
+
+            boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
+            if (!isTwoPane)
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
+            else
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
+
+            if (txs != null) {
+                final Tx tx = txs.get(position);
+                double _btc_balance = tx.getAmount() / 1e8;
+                double _fiat_balance = btc_fx * _btc_balance;
+
+                View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
+
+                TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
+                tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                tvResult.setTextColor(Color.WHITE);
+
+                TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
+                tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
+
+                TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
+                tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                String dirText = tx.getDirection();
+                if (dirText.equals(MultiAddrFactory.MOVED))
+                    tvDirection.setText(getResources().getString(R.string.MOVED));
+                if (dirText.equals(MultiAddrFactory.RECEIVED))
+                    tvDirection.setText(getResources().getString(R.string.RECEIVED));
+                if (dirText.equals(MultiAddrFactory.SENT))
+                    tvDirection.setText(getResources().getString(R.string.SENT));
+
+                if (isBTC) {
+                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(tx.getAmount()) + " " + getDisplayUnits());
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                } else {
+                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(_fiat_balance) + " " + strFiat);
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                if (tx.isMove()) {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+                } else if (_btc_balance < 0.0) {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+                } else {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < 3 ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < 3 ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+                }
+
+                tvResult.setText(span1);
+
+                tvResult.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        FrameLayout parent = (FrameLayout) v.getParent();
+                        event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
+                        parent.onTouchEvent(event);
+
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            isBTC = (isBTC) ? false : true;
+                            displayBalance();
+                            accountsAdapter.notifyDataSetChanged();
+                            txAdapter.notifyDataSetChanged();
+                        }
+                        return true;
+                    }
+                });
+
+                txTouchView.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        FrameLayout parent = (FrameLayout) v.getParent();
+                        event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
+                        parent.onTouchEvent(event);
+
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            onRowClick(holder.itemView, position);
+                        }
+                        return true;
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            if (txs == null) return 0;
+            return txs.size();
+        }
+    }
+
+    private void displayBalance() {
+
+        if (txs != null && txs.size() > 0) {
+            txList.setVisibility(View.VISIBLE);
+            noTxMessage.setVisibility(View.GONE);
+        } else {
+            txList.setVisibility(View.GONE);
+            noTxMessage.setVisibility(View.VISIBLE);
+        }
+
+        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
+
+        Account hda = null;
+        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+            //All accounts
+            btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
+        } else {
+            hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+            if (hda instanceof ImportedAccount) {
+                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
+            } else {
+                btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
+            }
+        }
+
+        fiat_balance = btc_fx * btc_balance;
+
+        if (hda != null && hda instanceof ImportedAccount) {
+            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+        } else if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+        } else {
+            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
+        }
+        span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvBalance1.setText(span1);
+    }
+
+    private String getDisplayUnits() {
+
+        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+
+    }
+
+    private void updateTx() {
+
+        txMap = MultiAddrFactory.getInstance().getXpubTxs();
+
+        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
+            return;
+        }
+
+        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+        } else {
+            String xpub = account2Xpub(selectedAccount);
+
+            if (xpub != null) {
+                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                    txs = txMap.get(xpub);
+                }
+            } else {
+                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+                if (hda instanceof ImportedAccount) {
+                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                }
+            }
+
+        }
+
+    }
+
+    private String account2Xpub(int accountIndex) {
+
+        Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(accountIndex);
+        String xpub = null;
+        if (hda instanceof ImportedAccount) {
+            xpub = null;
+        } else {
+            xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
+        }
+
+        return xpub;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        menu.findItem(R.id.action_merchant_directory).setVisible(true);
+        menu.findItem(R.id.action_qr).setVisible(true);
+        menu.findItem(R.id.action_send).setVisible(false);
+        menu.findItem(R.id.action_share_receive).setVisible(false);
+    }
+
+    private void onAddClicked() {
+
+        fab.bringToFront();
+
+        if (mLayout != null) {
+            if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+
+                //Bottom sheet down
+                movingFabDown.start();
+
+                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                mainContentShadow.setVisibility(View.GONE);
+                isBottomSheetOpen = false;
+
+                comm.setNavigationDrawerToggleEnabled(true);
+            } else {
+
+                //Bottom sheet up
+                movingFabUp.start();
+
+                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                mainContentShadow.setVisibility(View.VISIBLE);
+                isBottomSheetOpen = true;
+
+                comm.setNavigationDrawerToggleEnabled(false);
+            }
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        comm = (Communicator) activity;
+    }
+
+    interface Communicator {
+
+        public void setNavigationDrawerToggleEnabled(boolean enabled);
+
+        public void resetNavigationDrawer();
+    }
+
+    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
+
+        private int mToolbarOffset = 0;
+
+        public CollapseActionbarScrollListener() {
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
 
             swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
 
-			//Only bring heading back down after 2nd item visible (0 = heading)
-			if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
+            //Only bring heading back down after 2nd item visible (0 = heading)
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
 
-				if ((mToolbarOffset < balanceBarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
-					mToolbarOffset += dy;
-				}
+                if ((mToolbarOffset < balanceBarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+                    mToolbarOffset += dy;
+                }
 
-				clipToolbarOffset();
-				onMoved(mToolbarOffset);
-			}
-		}
+                clipToolbarOffset();
+                onMoved(mToolbarOffset);
+            }
+        }
 
-		private void clipToolbarOffset() {
-			if (mToolbarOffset > balanceBarHeight) {
-				mToolbarOffset = balanceBarHeight;
-			} else if (mToolbarOffset < 0) {
-				mToolbarOffset = 0;
-			}
-		}
+        private void clipToolbarOffset() {
+            if (mToolbarOffset > balanceBarHeight) {
+                mToolbarOffset = balanceBarHeight;
+            } else if (mToolbarOffset < 0) {
+                mToolbarOffset = 0;
+            }
+        }
 
-		public abstract void onMoved(int distance);
-	}
+        public abstract void onMoved(int distance);
+    }
 
-	private void initFab(final View rootView) {
+    private void initFab(final View rootView) {
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
-		else
-			fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
+        else
+            fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
 
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -632,60 +632,60 @@ public class BalanceFragment extends Fragment {
                 onAddClicked();
             }
         });
-	}
+    }
 
-	private class AccountAdapter extends ArrayAdapter<String> {
+    private class AccountAdapter extends ArrayAdapter<String> {
 
-		Context context;
-		int layoutResourceId;
-		String data[] = null;
+        Context context;
+        int layoutResourceId;
+        String data[] = null;
 
-		public AccountAdapter(Context context, int layoutResourceId, String[] data) {
-			super(context, layoutResourceId, data);
-			this.layoutResourceId = layoutResourceId;
-			this.context = context;
-			this.data = data;
-		}
+        public AccountAdapter(Context context, int layoutResourceId, String[] data) {
+            super(context, layoutResourceId, data);
+            this.layoutResourceId = layoutResourceId;
+            this.context = context;
+            this.data = data;
+        }
 
-		@Override
-		public View getView(final int position, final View convertView, final ViewGroup parent) {
-			View view = convertView;
-			if (null == view) {
-				view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
-				((TextView) view).setText(getItem(position));
-			}
-			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-			view.setLayoutParams(params);
-			return view;
-		}
-	}
+        @Override
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            View view = convertView;
+            if (null == view) {
+                view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
+                ((TextView) view).setText(getItem(position));
+            }
+            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            view.setLayoutParams(params);
+            return view;
+        }
+    }
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-		populateViewForOrientation(inflater, (ViewGroup) getView());
-	}
+        populateViewForOrientation(inflater, (ViewGroup) getView());
+    }
 
-	private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
-		viewGroup.removeAllViewsInLayout();
-		View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
-		setupViews(subview);
-	}
+    private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
+        viewGroup.removeAllViewsInLayout();
+        View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
+        setupViews(subview);
+    }
 
-	private void setupViews(View rootView) {
+    private void setupViews(View rootView) {
 
-		rootView.setFilterTouchesWhenObscured(true);
+        rootView.setFilterTouchesWhenObscured(true);
 
-		initFab(rootView);
+        initFab(rootView);
 
-		noTxMessage = (LinearLayout) rootView.findViewById(R.id.no_tx_message);
-		noTxMessage.setVisibility(View.GONE);
+        noTxMessage = (LinearLayout) rootView.findViewById(R.id.no_tx_message);
+        noTxMessage.setVisibility(View.GONE);
 
-		tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
-		tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+        tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
+        tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
-		tvBalance1.setOnTouchListener(new OnTouchListener() {
+        tvBalance1.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 isBTC = (isBTC) ? false : true;
@@ -696,11 +696,11 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-		ArrayList<String> accountList = setAccountSpinner();
-		accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
-		accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
-		accountSpinner.setAdapter(accountsAdapter);
-		accountSpinner.setOnTouchListener(new OnTouchListener() {
+        ArrayList<String> accountList = setAccountSpinner();
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+        accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
+        accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
@@ -712,64 +712,64 @@ public class BalanceFragment extends Fragment {
                 }
             }
         });
-		accountSpinner.post(new Runnable() {
-			public void run() {
-				accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-					@Override
-					public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-						int position = accountSpinner.getSelectedItemPosition();
-						AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
+        accountSpinner.post(new Runnable() {
+            public void run() {
+                accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                        int position = accountSpinner.getSelectedItemPosition();
+                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
 
-						if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
-							selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
-							if (selectedAccount < 0) selectedAccount = 0;
-						} else
-							selectedAccount = 0;
+                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
+                            selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
+                            if (selectedAccount < 0) selectedAccount = 0;
+                        } else
+                            selectedAccount = 0;
 
-						if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
-							return;
-						}
+                        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
+                            return;
+                        }
 
-						if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-							//All accounts
-							txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-						} else {
-							String xpub = account2Xpub(selectedAccount);
+                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+                            //All accounts
+                            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+                        } else {
+                            String xpub = account2Xpub(selectedAccount);
 
-							if (xpub != null) {
-								if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-									txs = txMap.get(xpub);
-								}
-							} else {
-								Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-								if (hda instanceof ImportedAccount) {
-									txs = MultiAddrFactory.getInstance().getLegacyTxs();
-								}
-							}
+                            if (xpub != null) {
+                                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                                    txs = txMap.get(xpub);
+                                }
+                            } else {
+                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+                                if (hda instanceof ImportedAccount) {
+                                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                                }
+                            }
 
-						}
+                        }
 
-						displayBalance();
+                        displayBalance();
 
-						txAdapter.notifyDataSetChanged();
-					}
+                        txAdapter.notifyDataSetChanged();
+                    }
 
-					@Override
-					public void onNothingSelected(AdapterView<?> arg0) {
-						;
-					}
-				});
-			}
-		});
-		accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+                        ;
+                    }
+                });
+            }
+        });
+        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
 
-		txList = (RecyclerView) rootView.findViewById(R.id.txList2);
-		txAdapter = new TxAdapter();
-		layoutManager = new LinearLayoutManager(thisActivity);
-		txList.setLayoutManager(layoutManager);
-		txList.setAdapter(txAdapter);
+        txList = (RecyclerView) rootView.findViewById(R.id.txList2);
+        txAdapter = new TxAdapter();
+        layoutManager = new LinearLayoutManager(thisActivity);
+        txList.setLayoutManager(layoutManager);
+        txList.setAdapter(txAdapter);
 
-		if (!getResources().getBoolean(R.bool.isDualPane))
+        if (!getResources().getBoolean(R.bool.isDualPane))
             txList.setOnScrollListener(new CollapseActionbarScrollListener() {
                 @Override
                 public void onMoved(int distance) {
@@ -786,27 +786,27 @@ public class BalanceFragment extends Fragment {
                 }
             });
 
-		updateTx();
+        updateTx();
 
-		// drawerTitle account now that wallet has been created
-		if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-			PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-			PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-			PayloadFactory.getInstance(thisActivity).remoteSaveThread();
-			accountsAdapter.notifyDataSetChanged();
-		}
+        // drawerTitle account now that wallet has been created
+        if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+            PayloadFactory.getInstance(thisActivity).remoteSaveThread();
+            accountsAdapter.notifyDataSetChanged();
+        }
 
-		if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		} else {
-			thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-			thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
-		}
+        if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+        } else {
+            thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
+        }
 
-		mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
-		mLayout.setTouchEnabled(false);
-		mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-		mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+        mLayout.setTouchEnabled(false);
+        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
             }
@@ -829,8 +829,8 @@ public class BalanceFragment extends Fragment {
             public void onPanelHidden(View panel) {
             }
         });
-		bottomSel1 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel1));
-		bottomSel1.setOnClickListener(new View.OnClickListener() {
+        bottomSel1 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel1));
+        bottomSel1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Fragment fragment = new SendFragment();
@@ -840,36 +840,36 @@ public class BalanceFragment extends Fragment {
 
             }
         });
-		bottomSel2 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel2));
-		bottomSel2.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Fragment fragment = new ReceiveFragment();
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-				comm.setNavigationDrawerToggleEnabled(true);
-			}
-		});
+        bottomSel2 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel2));
+        bottomSel2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = new ReceiveFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                comm.setNavigationDrawerToggleEnabled(true);
+            }
+        });
 
-		mainContentShadow = (LinearLayout) rootView.findViewById(R.id.balance_main_content_shadow);
-		mainContentShadow.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
-					onAddClicked();
-				}
-			}
-		});
+        mainContentShadow = (LinearLayout) rootView.findViewById(R.id.balance_main_content_shadow);
+        mainContentShadow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
+                    onAddClicked();
+                }
+            }
+        });
 
-		rowViewState = new HashMap<View, Boolean>();
+        rowViewState = new HashMap<View, Boolean>();
 
-		noTxMessage.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
-				fab.startAnimation(bounce);
-			}
-		});
+        noTxMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
+                fab.startAnimation(bounce);
+            }
+        });
 
         swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
         swipeLayout.setProgressViewEndTarget(false, (int)(getResources().getDisplayMetrics().density*(72+20)));
@@ -885,133 +885,133 @@ public class BalanceFragment extends Fragment {
         swipeLayout.setColorScheme(R.color.blockchain_receive_green,
                 R.color.blockchain_blue,
                 R.color.blockchain_send_red);
-	}
+    }
 
-	private void onRowClick(final View view, final int position) {
+    private void onRowClick(final View view, final int position) {
 
         AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
-		if (txs != null) {
-			final Tx tx = txs.get(position);
-			final String strTx = tx.getHash();
-			final String strConfirmations = Long.toString(tx.getConfirmations());
+        if (txs != null) {
+            final Tx tx = txs.get(position);
+            final String strTx = tx.getHash();
+            final String strConfirmations = Long.toString(tx.getConfirmations());
 
-			try {
-				mIsViewExpanded = rowViewState.get(view);
-			} catch (Exception e) {
-				mIsViewExpanded = false;
-			}
+            try {
+                mIsViewExpanded = rowViewState.get(view);
+            } catch (Exception e) {
+                mIsViewExpanded = false;
+            }
 
-			//Set views
-			View detailsView = view;
-			if (getResources().getBoolean(R.bool.isDualPane))
-				detailsView = rootView;
+            //Set views
+            View detailsView = view;
+            if (getResources().getBoolean(R.bool.isDualPane))
+                detailsView = rootView;
 
-			final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
-			final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
-			final TextView tvToAddr = (TextView) detailsView.findViewById(R.id.tx_to_addr);
-			final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
-			final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
-			final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
-			final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
+            final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
+            final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
+            final TextView tvToAddr = (TextView) detailsView.findViewById(R.id.tx_to_addr);
+            final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
+            final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
+            final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
+            final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
 
-			if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
-				if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
-					txsDetails.setVisibility(View.INVISIBLE);
-					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
-					prevRowClicked = null;
-					return;
-				}
+            if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
+                if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
+                    txsDetails.setVisibility(View.INVISIBLE);
+                    prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
+                    prevRowClicked = null;
+                    return;
+                }
 
-				txsDetails.setVisibility(View.VISIBLE);
-				progressView.setVisibility(View.VISIBLE);
-				tvOutAddr.setVisibility(View.INVISIBLE);
-				tvToAddr.setVisibility(View.INVISIBLE);
+                txsDetails.setVisibility(View.VISIBLE);
+                progressView.setVisibility(View.VISIBLE);
+                tvOutAddr.setVisibility(View.INVISIBLE);
+                tvToAddr.setVisibility(View.INVISIBLE);
 
-				tvTxHash.setText(strTx);
-				tvTxHash.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
+                tvTxHash.setText(strTx);
+                tvTxHash.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
 
-						if (event.getAction() == MotionEvent.ACTION_UP) {
-							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-							startActivity(browserIntent);
-						}
-						return true;
-					}
-				});
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
+                            startActivity(browserIntent);
+                        }
+                        return true;
+                    }
+                });
 
-				TextView tvResult = (TextView) view.findViewById(R.id.result);
-				tvResult.setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
+                TextView tvResult = (TextView) view.findViewById(R.id.result);
+                tvResult.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
 
-						if (event.getAction() == MotionEvent.ACTION_UP) {
-							isBTC = (isBTC) ? false : true;
-							displayBalance();
-							accountsAdapter.notifyDataSetChanged();
-							txAdapter.notifyDataSetChanged();
-						}
-						return true;
-					}
-				});
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            isBTC = (isBTC) ? false : true;
+                            displayBalance();
+                            accountsAdapter.notifyDataSetChanged();
+                            txAdapter.notifyDataSetChanged();
+                        }
+                        return true;
+                    }
+                });
 
-				if (!getResources().getBoolean(R.bool.isDualPane))
-					txsDetails.setOnTouchListener(new OnTouchListener() {
-						@Override
-						public boolean onTouch(View v, MotionEvent event) {
+                if (!getResources().getBoolean(R.bool.isDualPane))
+                    txsDetails.setOnTouchListener(new OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
 
-							if (event.getAction() == MotionEvent.ACTION_UP) {
-								onRowClick(view, position);
-							}
-							return true;
+                            if (event.getAction() == MotionEvent.ACTION_UP) {
+                                onRowClick(view, position);
+                            }
+                            return true;
 
-							//To be used with advance send tx display
-							// Disallow the touch request for parent scroll on touch of child view
-							//v.getParent().requestDisallowInterceptTouchEvent(true);
-							//return false;
-						}
-					});
+                            //To be used with advance send tx display
+                            // Disallow the touch request for parent scroll on touch of child view
+                            //v.getParent().requestDisallowInterceptTouchEvent(true);
+                            //return false;
+                        }
+                    });
 
-				//Get Details
-				new AsyncTask<Void, Void, String>() {
+                //Get Details
+                new AsyncTask<Void, Void, String>() {
 
-					@Override
-					protected String doInBackground(Void... params) {
+                    @Override
+                    protected String doInBackground(Void... params) {
 
-						String stringResult = null;
-						try {
-							stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
+                        String stringResult = null;
+                        try {
+                            stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
 
-						} catch (JSONException e) {
-							e.printStackTrace();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-						return stringResult;
-					}
+                        return stringResult;
+                    }
 
-					@Override
-					protected void onPostExecute(String stringResult) {
-						super.onPostExecute(stringResult);
+                    @Override
+                    protected void onPostExecute(String stringResult) {
+                        super.onPostExecute(stringResult);
 
-						if (stringResult != null) {
-							Transaction transaction = null;
-							try {
+                        if (stringResult != null) {
+                            Transaction transaction = null;
+                            try {
 //                                Log.v("","stringResult: "+stringResult);
-								transaction = new Transaction(new JSONObject(stringResult));
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-							progressView.setVisibility(View.GONE);
+                                transaction = new Transaction(new JSONObject(stringResult));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            progressView.setVisibility(View.GONE);
 
-							String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
-							if (isBTC)
-								fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
-							tvFee.setText(fee);
+                            String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
+                            if (isBTC)
+                                fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+                            tvFee.setText(fee);
 
-							//From Address
+                            //From Address
                             HashMap<String,Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
 
                             StringBuilder fromBuilder = new StringBuilder("");
@@ -1023,9 +1023,9 @@ public class BalanceFragment extends Fragment {
 
                             String fromString = fromBuilder.toString();
                             if(fromString.length()>0)fromString = fromString.substring(0, fromBuilder.toString().length()-1);
-							tvOutAddr.setText(fromString);
+                            tvOutAddr.setText(fromString);
 
-							//To Address
+                            //To Address
                             HashMap<String,Long> toddressValuePair =  transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
 
                             StringBuilder toBuilder = new StringBuilder("");
@@ -1039,94 +1039,94 @@ public class BalanceFragment extends Fragment {
                             if(toString.length()>0)toString = toString.substring(0, toBuilder.toString().length()-1);
                             tvToAddr.setText(toString);
 
-							tvConfirmations.setText(strConfirmations);
+                            tvConfirmations.setText(strConfirmations);
 
-							tvOutAddr.setVisibility(View.VISIBLE);
-							tvToAddr.setVisibility(View.VISIBLE);
-						}
-					}
-				}.execute();
-			}
+                            tvOutAddr.setVisibility(View.VISIBLE);
+                            tvToAddr.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }.execute();
+            }
 
-			//Single Pane View - Expand and collapse details
-			if (!getResources().getBoolean(R.bool.isDualPane)) {
-				if (originalHeight == 0) {
-					originalHeight = view.getHeight();
-				}
+            //Single Pane View - Expand and collapse details
+            if (!getResources().getBoolean(R.bool.isDualPane)) {
+                if (originalHeight == 0) {
+                    originalHeight = view.getHeight();
+                }
 
-				newHeight = originalHeight + txsDetails.getHeight();
+                newHeight = originalHeight + txsDetails.getHeight();
 
-				ValueAnimator resizeAnimator;
-				if (!mIsViewExpanded) {
-					//Expanding
-					view.setBackgroundColor(getResources().getColor(R.color.white));
+                ValueAnimator resizeAnimator;
+                if (!mIsViewExpanded) {
+                    //Expanding
+                    view.setBackgroundColor(getResources().getColor(R.color.white));
 
-					//Fade Details in - expansion of row will create slide down effect
-					txsDetails.setVisibility(View.VISIBLE);
-					txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
-					txsDetails.setEnabled(true);
+                    //Fade Details in - expansion of row will create slide down effect
+                    txsDetails.setVisibility(View.VISIBLE);
+                    txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
+                    txsDetails.setEnabled(true);
 
-					mIsViewExpanded = !mIsViewExpanded;
-					resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+                    mIsViewExpanded = !mIsViewExpanded;
+                    resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
 
-				} else {
-					//Collapsing
-					TypedValue outValue = new TypedValue();
-					getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-					view.setBackgroundResource(outValue.resourceId);
+                } else {
+                    //Collapsing
+                    TypedValue outValue = new TypedValue();
+                    getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+                    view.setBackgroundResource(outValue.resourceId);
 
-					mIsViewExpanded = !mIsViewExpanded;
-					resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
+                    mIsViewExpanded = !mIsViewExpanded;
+                    resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
-					txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+                    txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
 
-					Animation anim = new AlphaAnimation(1.00f, 0.00f);
-					anim.setDuration(expandDuration / 2);
-					anim.setAnimationListener(new Animation.AnimationListener() {
-						@Override
-						public void onAnimationStart(Animation animation) {
+                    Animation anim = new AlphaAnimation(1.00f, 0.00f);
+                    anim.setDuration(expandDuration / 2);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
 
-						}
+                        }
 
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							txsDetails.setVisibility(View.INVISIBLE);
-							txsDetails.setEnabled(false);
-						}
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            txsDetails.setVisibility(View.INVISIBLE);
+                            txsDetails.setEnabled(false);
+                        }
 
-						@Override
-						public void onAnimationRepeat(Animation animation) {
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
 
-						}
-					});
+                        }
+                    });
 
-					txsDetails.startAnimation(anim);
-				}
+                    txsDetails.startAnimation(anim);
+                }
 
-				//Set and start row collapse/expand
-				resizeAnimator.setDuration(expandDuration);
-				resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-				resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-					public void onAnimationUpdate(ValueAnimator animation) {
-						Integer value = (Integer) animation.getAnimatedValue();
-						view.getLayoutParams().height = value.intValue();
-						view.requestLayout();
-					}
-				});
+                //Set and start row collapse/expand
+                resizeAnimator.setDuration(expandDuration);
+                resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+                resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        Integer value = (Integer) animation.getAnimatedValue();
+                        view.getLayoutParams().height = value.intValue();
+                        view.requestLayout();
+                    }
+                });
 
 
-				resizeAnimator.start();
+                resizeAnimator.start();
 
-				rowViewState.put(view, mIsViewExpanded);
-			} else {
-				//Dual Pane View
-				view.findViewById(R.id.tx_row).setBackgroundResource(R.color.blockchain_light_grey);
+                rowViewState.put(view, mIsViewExpanded);
+            } else {
+                //Dual Pane View
+                view.findViewById(R.id.tx_row).setBackgroundResource(R.color.blockchain_light_grey);
 
-				if (prevRowClicked != null)
-					prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
+                if (prevRowClicked != null)
+                    prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
 
-				prevRowClicked = view;
-			}
-		}
-	}
+                prevRowClicked = view;
+            }
+        }
+    }
 }

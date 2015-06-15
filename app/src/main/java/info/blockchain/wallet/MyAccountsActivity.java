@@ -223,63 +223,63 @@ public class MyAccountsActivity extends Activity {
                         if (!mIsViewExpanded) {
                             //Expanding
 
-							//Receiving Address
-							String currentSelectedAddress = null;
+                            //Receiving Address
+                            String currentSelectedAddress = null;
 
-							if (position-2 >= hdAccountsIdx)//2 headers before imported
-								currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
-							else {
-								ReceiveAddress currentSelectedReceiveAddress = null;
-								try {
-									currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
-									currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							addressView.setText(currentSelectedAddress);
+                            if (position-2 >= hdAccountsIdx)//2 headers before imported
+                                currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
+                            else {
+                                ReceiveAddress currentSelectedReceiveAddress = null;
+                                try {
+                                    currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
+                                    currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            addressView.setText(currentSelectedAddress);
 
-							//Receiving QR
-							qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+                            //Receiving QR
+                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
 
-							if (originalHeight == 0) {
-								originalHeight = view.getHeight();
-							}
+                            if (originalHeight == 0) {
+                                originalHeight = view.getHeight();
+                            }
 
-							newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
+                            newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
 
-							final String finalCurrentSelectedAddress = currentSelectedAddress;
-							qrTest.setOnLongClickListener(new View.OnLongClickListener() {
-								@Override
-								public boolean onLongClick(View v) {
+                            final String finalCurrentSelectedAddress = currentSelectedAddress;
+                            qrTest.setOnLongClickListener(new View.OnLongClickListener() {
+                                @Override
+                                public boolean onLongClick(View v) {
 
-									new AlertDialog.Builder(MyAccountsActivity.this)
-											.setTitle(R.string.app_name)
-											.setMessage(R.string.receive_address_to_clipboard)
-											.setCancelable(false)
-											.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    new AlertDialog.Builder(MyAccountsActivity.this)
+                                            .setTitle(R.string.app_name)
+                                            .setMessage(R.string.receive_address_to_clipboard)
+                                            .setCancelable(false)
+                                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-												public void onClick(DialogInterface dialog, int whichButton) {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
 
-													android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-													android.content.ClipData clip = null;
-													clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
-													clipboard.setPrimaryClip(clip);
+                                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                                    android.content.ClipData clip = null;
+                                                    clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
+                                                    clipboard.setPrimaryClip(clip);
 
                                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
-												}
+                                                }
 
-											}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-										public void onClick(DialogInterface dialog, int whichButton) {
-											;
-										}
-									}).show();
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            ;
+                                        }
+                                    }).show();
 
-									return false;
-								}
-							});
+                                    return false;
+                                }
+                            });
 
                             view.setBackgroundColor(getResources().getColor(R.color.white));
 
@@ -622,9 +622,9 @@ public class MyAccountsActivity extends Activity {
                                     final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, data, new CharSequenceX(pw));
                                     if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
                                         final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
-									        		/*
-									        		 * if double encrypted, save encrypted in payload
-									        		 */
+                                                    /*
+                                                     * if double encrypted, save encrypted in payload
+                                                     */
                                         if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         }
@@ -709,9 +709,9 @@ public class MyAccountsActivity extends Activity {
 
         if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
             final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
-			/*
-			 * if double encrypted, save encrypted in payload
-			 */
+            /*
+             * if double encrypted, save encrypted in payload
+             */
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             }
