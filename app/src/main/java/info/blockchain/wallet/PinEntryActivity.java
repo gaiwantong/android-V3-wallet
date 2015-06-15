@@ -168,7 +168,7 @@ public class PinEntryActivity extends Activity {
             AppUtil.getInstance(this).restartApp();
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
-            ToastCustom.makeText(getApplicationContext(), "HD Wallet creation error", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             AppUtil.getInstance(this).clearCredentialsAndRestart();
         }
 

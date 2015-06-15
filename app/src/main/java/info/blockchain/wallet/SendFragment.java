@@ -30,7 +30,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Utils;
@@ -708,7 +707,7 @@ public class SendFragment extends Fragment {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
-                                if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
 
                                     String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
                                     String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
@@ -720,19 +719,16 @@ public class SendFragment extends Fragment {
                                     try {
                                         HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
                                         HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
-                                    }
-                                    catch(IOException | DecoderException | AddressFormatException |
+                                    } catch (IOException | DecoderException | AddressFormatException |
                                             MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
                                             MnemonicException.MnemonicWordException e) {
                                         e.printStackTrace();
-                                    }
-                                    finally {
+                                    } finally {
                                         ;
                                     }
 
                                     confirmPayment(true, AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spAccounts.getSelectedItemPosition()), null);
-                                }
-                                else {
+                                } else {
                                     ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
@@ -782,11 +778,10 @@ public class SendFragment extends Fragment {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
-                                if(DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
 
                                     confirmPayment(false, -1, legacyAddress);
-                                }
-                                else {
+                                } else {
                                     ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
@@ -947,7 +942,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            ToastCustom.makeText(getActivity(), "Transaction submitted", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                                            ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             PayloadFactory.getInstance(getActivity()).remoteSaveThread();
 
                                                             MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
@@ -970,7 +965,7 @@ public class SendFragment extends Fragment {
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                            ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
                                                             Fragment fragment = new BalanceFragment();
@@ -995,7 +990,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            ToastCustom.makeText(getActivity(), "Transaction submitted", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                                            ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             if (strNote != null) {
                                                                 PayloadFactory.getInstance(getActivity()).remoteSaveThread();
                                                             }
@@ -1020,7 +1015,7 @@ public class SendFragment extends Fragment {
                                                                 progress.dismiss();
                                                             }
 
-                                                            ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                            ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
                                                             Fragment fragment = new BalanceFragment();
@@ -1043,7 +1038,7 @@ public class SendFragment extends Fragment {
                                                     progress.dismiss();
                                                 }
 
-                                                ToastCustom.makeText(getActivity(), "Transaction failed", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                 if (alertDialog != null && alertDialog.isShowing())
                                                     alertDialog.cancel();
                                                 Fragment fragment = new BalanceFragment();
