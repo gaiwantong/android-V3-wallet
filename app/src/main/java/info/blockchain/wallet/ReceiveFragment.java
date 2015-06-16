@@ -40,7 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -195,6 +194,7 @@ public class ReceiveFragment extends Fragment {
 
         edAmount1 = (EditText)rootView.findViewById(R.id.amount1);
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+        edAmount1.setHint("0"+defaultSeperator+"00");
         edAmount1.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
@@ -217,14 +217,11 @@ public class ReceiveFragment extends Fragment {
                 btcFormat.setMaximumFractionDigits(max_len + 1);
                 btcFormat.setMinimumFractionDigits(0);
 
-                DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
-                char sep = decFormatSymbols.getDecimalSeparator();
-
                 try {
                     double d = Double.parseDouble(s.toString());
                     String s1 = btcFormat.format(d);
-                    if (s1.indexOf(sep) != -1) {
-                        String dec = s1.substring(s1.indexOf(sep));
+                    if (s1.indexOf(defaultSeperator) != -1) {
+                        String dec = s1.substring(s1.indexOf(defaultSeperator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
@@ -262,6 +259,7 @@ public class ReceiveFragment extends Fragment {
 
         edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
         edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+        edAmount2.setHint("0"+defaultSeperator+"00");
         edAmount2.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
@@ -273,14 +271,11 @@ public class ReceiveFragment extends Fragment {
                 fiatFormat.setMaximumFractionDigits(max_len + 1);
                 fiatFormat.setMinimumFractionDigits(0);
 
-                DecimalFormatSymbols decFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
-                char sep = decFormatSymbols.getDecimalSeparator();
-
                 try	{
                     double d = Double.parseDouble(s.toString());
                     String s1 = fiatFormat.format(d);
-                    if(s1.indexOf(sep) != -1)	{
-                        String dec = s1.substring(s1.indexOf(sep));
+                    if(s1.indexOf(defaultSeperator) != -1)	{
+                        String dec = s1.substring(s1.indexOf(defaultSeperator));
                         if(dec.length() > 0)	{
                             dec = dec.substring(1);
                             if(dec.length() > max_len)	{
