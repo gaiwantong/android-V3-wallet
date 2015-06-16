@@ -23,7 +23,8 @@
 			>
 
 			<TextView
-				android:layout_width="60dp"
+				android:layout_width="0dp"
+				android:layout_weight="3"
 				android:layout_height="wrap_content"
 				android:text="@string/name"
 				android:textColor="@color/blockchain_grey"/>
@@ -32,7 +33,7 @@
 				android:id="@+id/merchant_name"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="7"
 				android:background="@color/blockchain_pearl_white"
 				android:focusable="true"
 				android:focusableInTouchMode="true"
@@ -60,7 +61,8 @@
 			>
 
 			<TextView
-				android:layout_width="60dp"
+				android:layout_width="0dp"
+				android:layout_weight="3"
 				android:layout_height="wrap_content"
 				android:text="@string/business_category"
 				android:textColor="@color/blockchain_grey"
@@ -70,7 +72,7 @@
 				android:id="@+id/merchant_category_spinner"
 				android:layout_width="0dp"
 				android:layout_height="48dp"
-				android:layout_weight="1"
+				android:layout_weight="7"
 				/>
 
 		</LinearLayout>
@@ -90,7 +92,8 @@
 			>
 
 			<TextView
-				android:layout_width="60dp"
+				android:layout_width="0dp"
+				android:layout_weight="3"
 				android:layout_height="wrap_content"
 				android:text="@string/location"
 				android:textColor="@color/blockchain_grey"/>
@@ -99,7 +102,7 @@
 				android:id="@+id/manual_entry_action"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="3"
 				android:gravity="bottom|center_horizontal"
 				android:onClick="manualClicked"
 				android:text="@string/manual_entry"
@@ -114,7 +117,7 @@
 				android:id="@+id/current_location_action"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="4"
 				android:gravity="bottom|center_horizontal"
 				android:onClick="autoClicked"
 				android:text="@string/use_my_current_location"
