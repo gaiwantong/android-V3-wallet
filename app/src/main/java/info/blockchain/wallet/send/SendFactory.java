@@ -323,6 +323,8 @@ public class SendFactory	{
      */
     private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 
+        BigInteger totalAmountPlusDust = totalAmount.add(bDust);
+
         UnspentOutputsBundle ret = new UnspentOutputsBundle();
 
         String args = null;
@@ -380,7 +382,7 @@ public class SendFactory	{
             MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
             outPoint.setConfirmations(confirmations);
             // return single output >= totalValue, otherwise save for randomization
-            if(outPoint.getValue().compareTo(totalAmount) >= 0) {
+            if(outPoint.getValue().compareTo(totalAmountPlusDust) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
                 ret.setTotalAmount(outPoint.getValue());
@@ -400,7 +402,7 @@ public class SendFactory	{
         for (MyTransactionOutPoint output : outputs) {
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
-            if(totalValue.compareTo(totalAmount) >= 0) {
+            if(totalValue.compareTo(totalAmountPlusDust) >= 0) {
                 break;
             }
         }
