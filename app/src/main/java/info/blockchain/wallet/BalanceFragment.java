@@ -127,19 +127,13 @@ public class BalanceFragment extends Fragment {
                         if(forceRefresh){
 
                             AppUtil.getInstance(getActivity()).updatePinEntryTime();
-
-                            //Restart WebSocketService
-                            getActivity().stopService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
-                            getActivity().startService(new Intent(getActivity(), info.blockchain.wallet.service.WebSocketService.class));
-
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     swipeLayout.setRefreshing(false);
                                     refreshUI();
                                 }
-                            }, 2500);
+                            }, 2000);
                         }else {
                             refreshUI();
                         }
