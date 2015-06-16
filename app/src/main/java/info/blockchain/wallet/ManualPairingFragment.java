@@ -59,13 +59,11 @@ public class ManualPairingFragment extends Fragment {
                 final String guid = edGuid.getText().toString();
                 final String pw = edPassword.getText().toString();
 
-                if(guid == null || guid.length() == 0) {
+                if (guid == null || guid.length() == 0) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_guid), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-                else if(pw == null || pw.length() == 0) {
+                } else if (pw == null || pw.length() == 0) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-                else {
+                } else {
                     pairingThreadManual(guid, new CharSequenceX(pw));
                 }
             }
@@ -166,13 +164,17 @@ public class ManualPairingFragment extends Fragment {
                 }
                 catch(JSONException je) {
                     je.printStackTrace();
-                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                    if(getActivity()!=null) {
+                        ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                    }
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                    if(getActivity()!=null) {
+                        ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                    }
                 }finally {
                     if(progress != null && progress.isShowing()) {
                         progress.dismiss();
@@ -218,8 +220,10 @@ public class ManualPairingFragment extends Fragment {
                     }
 
                     if(timer<=0){
+                        ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         waitinForAuth = false;
                         progress.cancel();
+                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                     }
                 }
             }

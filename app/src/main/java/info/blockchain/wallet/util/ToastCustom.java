@@ -1,6 +1,7 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -21,30 +22,38 @@ public class ToastCustom{
     public static final int LENGTH_LONG = 1;
 
     private static Toast toast = null;
-    //ToastCustom.makeText(getActivity(), "This is some info", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
 
-    public static void makeText(Context context, CharSequence text, int duration, String type) {
+    public static void makeText(final Context context,final  CharSequence text,final  int duration,final  String type) {
 
-        toast = Toast.makeText(context, text, duration);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
 
-        LayoutInflater inflate = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflate.inflate(R.layout.transient_notification, null);
-        TextView tv = (TextView) v.findViewById(R.id.message);
-        tv.setText(text);
+                toast = Toast.makeText(context, text, duration);
 
-        if (type.equals(TYPE_ERROR)){
-            tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
-            tv.setTextColor(context.getResources().getColor(R.color.toast_error_text));
+                LayoutInflater inflate = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflate.inflate(R.layout.transient_notification, null);
+                TextView tv = (TextView) v.findViewById(R.id.message);
+                tv.setText(text);
 
-        }else if(type.equals(TYPE_GENERAL)){
-            tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
-            tv.setTextColor(context.getResources().getColor(R.color.toast_warning_text));
+                if (type.equals(TYPE_ERROR)){
+                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
+                    tv.setTextColor(context.getResources().getColor(R.color.toast_error_text));
 
-        }else if(type.equals(TYPE_OK)){
-            tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
-            tv.setTextColor(context.getResources().getColor(R.color.toast_info_text));
-        }
-        toast.setView(v);
-        toast.show();
+                }else if(type.equals(TYPE_GENERAL)){
+                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
+                    tv.setTextColor(context.getResources().getColor(R.color.toast_warning_text));
+
+                }else if(type.equals(TYPE_OK)){
+                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
+                    tv.setTextColor(context.getResources().getColor(R.color.toast_info_text));
+                }
+                toast.setView(v);
+                toast.show();
+
+                Looper.loop();
+            }
+        }).start();
     }
 }
