@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:layout_width="match_parent"
-			  android:layout_height="48dp"
+			  android:layout_height="wrap_content"
 			  android:background="@color/blockchain_pearl_white"
 			  android:gravity="center_vertical"
 			  android:orientation="horizontal"
@@ -10,7 +10,7 @@
 
 	<LinearLayout
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_weight="6">
 
 		<TextView
@@ -26,13 +26,13 @@
 			android:id="@+id/amount1"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:minHeight="48dp"
 			android:background="@color/blockchain_pearl_white"
 			android:focusable="true"
 			android:focusableInTouchMode="true"
 			android:hint="0.00"
 			android:imeOptions="actionDone"
-			android:inputType="numberDecimal"
-			android:singleLine="true"
+			android:numeric="integer"
 			android:textColor="@color/primary_text_default_material_light"
 			android:textColorHint="@color/blockchain_light_grey"
 			android:textCursorDrawable="@null"
@@ -45,7 +45,7 @@
 
 	<LinearLayout
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_weight="5">
 
 		<TextView
@@ -61,13 +61,13 @@
 			android:id="@+id/amount2"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:minHeight="48dp"
 			android:background="@color/blockchain_pearl_white"
 			android:focusable="true"
 			android:focusableInTouchMode="true"
 			android:hint="0.00"
 			android:imeOptions="actionDone"
-			android:inputType="numberDecimal"
-			android:singleLine="true"
+			android:numeric="integer"
 			android:textColor="@color/primary_text_default_material_light"
 			android:textColorHint="@color/blockchain_light_grey"
 			android:textCursorDrawable="@null"
