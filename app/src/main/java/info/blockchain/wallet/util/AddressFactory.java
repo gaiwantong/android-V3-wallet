@@ -73,7 +73,7 @@ public class AddressFactory {
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
             if(chain == RECEIVE_CHAIN && ((idx - MultiAddrFactory.getInstance().getHighestTxReceiveIdx(PayloadFactory.getInstance().get().getAccount2Xpub().get(accountIdx))) < (LOOKAHEAD_GAP - 1)))	{
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
+//                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
 
