@@ -173,7 +173,7 @@
     <string name="hd_error">HD wallet error</string>
     <string name="scan_not_recognized">Scan cannot be decoded</string>
 
-    <string name="imported_addresses">Imported addresses</string>
+    <string name="imported_addresses">Imported Addresses</string>
     <string name="account_colon">Account:</string>
     <string name="created_account_colon">Created account:</string>
 
