@@ -16,11 +16,13 @@ public class AppUtil {
 
     private static boolean DEBUG = false;
 
-    private static long TIMEOUT_DELAY = 1000 * 60 * 5;
+    private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
     private static long lastPin = 0L;
 
     private static String strReceiveQRFilename = null;
     private static Thread lockThread = null;
+
+    private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
 
 	private AppUtil() { ; }
 
@@ -104,6 +106,11 @@ public class AppUtil {
         if(file.exists()) {
             file.delete();
         }
+    }
+
+    public boolean isTimeForUpgradeReminder() {
+        long lastReminder = Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0L"));
+        return (System.currentTimeMillis() - lastReminder) > UPGRADE_REMINDER_DELAY;
     }
 
 }
