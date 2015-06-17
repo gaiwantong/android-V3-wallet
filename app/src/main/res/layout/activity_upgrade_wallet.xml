@@ -6,17 +6,34 @@
               android:orientation="vertical">
 
     <ImageView
-        android:layout_width="124dp"
-        android:layout_height="113dp"
+        android:layout_width="87dp"
+        android:layout_height="79dp"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_margin="16dp"
         android:src="@drawable/logo3x"
+        android:scaleType="fitCenter"
+        />
+
+    <TextView
+        android:id="@+id/upgrade_page_header"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:text="@string/upgrade_page_1"
+        android:textSize="14sp"
+        android:onClick="askLaterClicked"
+        android:gravity="center"
+        android:textColor="@color/white"
         />
 
     <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -43,7 +60,7 @@
             >
 
             <TextView
-                android:id="@+id/pinBox0"
+                android:id="@+id/pageBox0"
                 android:layout_width="16dip"
                 android:layout_height="16dip"
                 android:layout_margin="10dip"
@@ -51,7 +68,7 @@
                 />
 
             <TextView
-                android:id="@+id/pinBox1"
+                android:id="@+id/pageBox1"
                 android:layout_width="16dip"
                 android:layout_height="16dip"
                 android:layout_margin="10dip"
@@ -59,7 +76,7 @@
                 />
 
             <TextView
-                android:id="@+id/pinBox2"
+                android:id="@+id/pageBox2"
                 android:layout_width="16dip"
                 android:layout_height="16dip"
                 android:layout_margin="10dip"
@@ -67,7 +84,7 @@
                 />
 
             <TextView
-                android:id="@+id/pinBox3"
+                android:id="@+id/pageBox3"
                 android:layout_width="16dip"
                 android:layout_height="16dip"
                 android:layout_margin="10dip"

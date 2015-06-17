@@ -333,5 +333,8 @@
 	<string name="transaction_failed">Transaction failed</string>
     <string name="UPGRADE_YOUR_WALLET">UPGRADE YOUR WALLET</string>
     <string name="ASK_ME_LATER">ASK ME LATER</string>
-
+    <string name="upgrade_page_1">Create personalized accounts to help keep your wallet organized.</string>
+    <string name="upgrade_page_2">Easy one time wallet backup keeps you in control of your funds.</string>
+    <string name="upgrade_page_3">Everything you need to receive, spend, and store your Bitcoin.</string>
+    <string name="upgrade_page_4">Every time you spend there is a chance to summon a herd of murderous cows.</string>
 </resources>
