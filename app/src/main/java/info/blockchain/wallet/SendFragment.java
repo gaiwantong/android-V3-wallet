@@ -33,7 +33,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
@@ -82,7 +81,7 @@ public class SendFragment extends Fragment {
     private EditText edAmount2 = null;
     private TextView tvFiat2 = null;
     private Spinner spAccounts = null;
-    private DestinationSpinner spDestination = null;
+    private ReselectSpinner spDestination = null;
     private MenuItem btSend;
     private TextView tvMax = null;
 
@@ -368,7 +367,7 @@ public class SendFragment extends Fragment {
 
         DestinationAdapter destinationAdapter = new DestinationAdapter(getActivity(), R.layout.spinner_item, _accounts);
         destinationAdapter.setDropDownViewResource(R.layout.spinner_item2);
-        spDestination = (DestinationSpinner)rootView.findViewById(R.id.sp_destination);
+        spDestination = (ReselectSpinner)rootView.findViewById(R.id.sp_destination);
         spDestination.setAdapter(destinationAdapter);
         spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -1212,25 +1211,5 @@ public class SendFragment extends Fragment {
 
             return row;
         }
-    }
-}
-
-class DestinationSpinner extends Spinner {
-    OnItemSelectedListener listener;
-
-    public DestinationSpinner(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @Override
-    public void setSelection(int position) {
-        super.setSelection(position);
-        if (listener != null)
-            listener.onItemSelected(null, null, position, 0);
-    }
-
-    public void setOnItemSelectedEvenIfUnchangedListener(
-        OnItemSelectedListener listener) {
-        this.listener = listener;
     }
 }
