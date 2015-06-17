@@ -94,8 +94,6 @@ public class SendFragment extends Fragment {
     private boolean isBTC = true;
     private double btc_fx = 319.13;
 
-    private BigInteger bFee = Utils.toNanoCoins("0.0001");
-
     private boolean textChangeAllowed = true;
     private String defaultSeparator;//Decimal separator based on locale
 
@@ -532,7 +530,7 @@ public class SendFragment extends Fragment {
         pendingSpend.amount = null;
         pendingSpend.destination = null;
         pendingSpend.bamount = BigInteger.ZERO;
-        pendingSpend.bfee = bFee;
+        pendingSpend.bfee = SendFactory.bFee;
         pendingSpend.isHD = true;
         pendingSpend.btc_units = strBTC;
 
@@ -602,7 +600,7 @@ public class SendFragment extends Fragment {
 
             if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                 long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-                if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+                if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendFactory.bFee.longValue()) > _lamount) {
                     if(showMessages) {
                         ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
@@ -612,7 +610,7 @@ public class SendFragment extends Fragment {
         }
         else {
             long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
-            if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+            if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendFactory.bFee.longValue()) > _lamount) {
                 if(showMessages) {
                     ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
@@ -668,7 +666,7 @@ public class SendFragment extends Fragment {
             }
         }
         
-        long amount_available = amount - bFee.longValue();
+        long amount_available = amount - SendFactory.bFee.longValue();
         if(amount_available > 0L) {
             double btc_balance = (((double)amount_available) / 1e8);
             tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
@@ -1094,7 +1092,8 @@ public class SendFragment extends Fragment {
                                             });
                                         }
 
-                                    }else{
+                                    }
+                                    else{
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -1164,7 +1163,7 @@ public class SendFragment extends Fragment {
 
             if(xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                 long _lamount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-                if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+                if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendFactory.bFee.longValue()) > _lamount) {
                     ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     return false;
                 }
@@ -1172,7 +1171,7 @@ public class SendFragment extends Fragment {
         }
         else {
             long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
-            if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
+            if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendFactory.bFee.longValue()) > _lamount) {
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
             }
