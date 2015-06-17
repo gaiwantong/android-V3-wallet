@@ -64,6 +64,7 @@ public class SendFactory	{
     private boolean sentChange = false;
 
     private BigInteger bDust = Utils.toNanoCoins("0.00000546");
+    public static final BigInteger bFee = Utils.toNanoCoins("0.0001");
 
     public static SendFactory getInstance(Context ctx) {
     	
