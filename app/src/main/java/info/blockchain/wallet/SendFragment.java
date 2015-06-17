@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +44,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,6 +55,7 @@ import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -79,10 +82,12 @@ public class SendFragment extends Fragment {
     private EditText edAmount2 = null;
     private TextView tvFiat2 = null;
     private Spinner spAccounts = null;
+    private DestinationSpinner spDestination = null;
     private MenuItem btSend;
     private TextView tvMax = null;
 
-    private String currentSelectedAddress = null;
+    private String currentSelectedFromAddress = null;
+    private String currentSelectedToAddress = null;
 
     private String strBTC = "BTC";
     private String strFiat = null;
@@ -95,6 +100,7 @@ public class SendFragment extends Fragment {
     private String defaultSeparator;//Decimal separator based on locale
 
     private boolean spendInProgress = false;
+    private List<String> _accounts = null;
 
     private class PendingSpend {
         boolean isHD;
@@ -156,6 +162,7 @@ public class SendFragment extends Fragment {
             public void afterTextChanged(Editable s) {
 
                 if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+                    currentSelectedToAddress = edDestination.getText().toString();
                     validateSpend(false);
                 }
 
@@ -235,6 +242,7 @@ public class SendFragment extends Fragment {
                     updateFiatTextField(s.toString());
 
                     if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
+                        currentSelectedToAddress = edDestination.getText().toString();
                         validateSpend(false);
                     }
                     textChangeAllowed = true;
@@ -292,7 +300,8 @@ public class SendFragment extends Fragment {
                     updateBtcTextField(s.toString());
 
                     if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
-                    validateSpend(false);
+                        currentSelectedToAddress = edDestination.getText().toString();
+                        validateSpend(false);
                     }
                     textChangeAllowed = true;
                 }
@@ -305,7 +314,7 @@ public class SendFragment extends Fragment {
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
 
-        final List<String> _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
+        _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
 
         if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
@@ -315,10 +324,9 @@ public class SendFragment extends Fragment {
 
             @Override
             public void onGlobalLayout() {
-                if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
                     spAccounts.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-                else {
+                } else {
                     spAccounts.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
@@ -330,11 +338,14 @@ public class SendFragment extends Fragment {
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+                        AppUtil.getInstance(getActivity()).updatePinEntryTime();
+
                         int position = spAccounts.getSelectedItemPosition();
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
 
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
-                            currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex()).getAddress();
+                            currentSelectedFromAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex()).getAddress();
                         }
 
                         displayMaxAvailable();
@@ -356,6 +367,64 @@ public class SendFragment extends Fragment {
 
         tvMax = (TextView)rootView.findViewById(R.id.max);
         tvMax.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
+
+        DestinationAdapter destinationAdapter = new DestinationAdapter(getActivity(), R.layout.spinner_item, _accounts);
+        destinationAdapter.setDropDownViewResource(R.layout.spinner_item2);
+        spDestination = (DestinationSpinner)rootView.findViewById(R.id.sp_destination);
+        spDestination.setAdapter(destinationAdapter);
+        spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    spDestination.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    spDestination.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                spDestination.setDropDownWidth(spAccounts.getWidth());
+            }
+        });
+
+        spDestination.setOnItemSelectedEvenIfUnchangedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+                        AppUtil.getInstance(getActivity()).updatePinEntryTime();
+
+                        int position = spDestination.getSelectedItemPosition();
+                        spDestination.getSelectedItem().toString();
+
+                        String address = "";
+                        if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
+                            //Legacy addresses
+                            LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+                            address = account.getAddress();
+                        } else {
+                            //hd accounts
+                            Integer currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
+                            try {
+                                ReceiveAddress currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
+                                address = currentSelectedReceiveAddress.getAddress();
+
+                            } catch (IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
+                                    | MnemonicException.MnemonicWordException | AddressFormatException
+                                    | DecoderException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+//                        edDestination.setText(label);//future use
+                        edDestination.setText(address);
+                        currentSelectedToAddress = address;
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                }
+        );
 
         // get bundle
         Bundle bundle = this.getArguments();
@@ -473,7 +542,7 @@ public class SendFragment extends Fragment {
         //Legacy addresses
         if(position >= hdAccountsIdx) {
             LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx);
-            currentSelectedAddress = legacyAddress.getAddress();
+            currentSelectedFromAddress = legacyAddress.getAddress();
             if(legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
                 pendingSpend.sending_from = legacyAddress.getLabel();
             }
@@ -490,7 +559,7 @@ public class SendFragment extends Fragment {
             pendingSpend.isHD = true;
         }
 
-        pendingSpend.destination = edDestination.getText().toString();
+        pendingSpend.destination = currentSelectedToAddress;
         if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)) {
             if(showMessages) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -542,7 +611,7 @@ public class SendFragment extends Fragment {
             }
         }
         else {
-            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
+            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
             if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
                 if(showMessages) {
                     ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -742,7 +811,7 @@ public class SendFragment extends Fragment {
             LegacyAddress addr = null;
             List<LegacyAddress> legacy = AccountsUtil.getInstance(getActivity()).getLegacyAddresses();
             for(int i = 0; i < legacy.size(); i++) {
-                if(legacy.get(i).getAddress().equals(currentSelectedAddress)) {
+                if(legacy.get(i).getAddress().equals(currentSelectedFromAddress)) {
                     addr = legacy.get(i);
                     break;
                 }
@@ -1102,7 +1171,7 @@ public class SendFragment extends Fragment {
             }
         }
         else {
-            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedAddress);
+            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
             if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + bFee.longValue()) > _lamount) {
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
@@ -1112,4 +1181,57 @@ public class SendFragment extends Fragment {
         return true;
     }
 
+    class DestinationAdapter extends ArrayAdapter<String> {
+
+        private ArrayList<String> items;
+
+        public DestinationAdapter(Context context, int resource, List<String> items) {
+            super(context, resource, items);
+            this.items = new ArrayList<String>(items);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getCustomView(position, convertView, parent);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return getCustomView(position, convertView, parent);
+        }
+
+        public View getCustomView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            int layoutRes = R.layout.fragment_send_account_row_dropdown;
+
+            View row = inflater.inflate(layoutRes, parent, false);
+
+            TextView label = (TextView) row.findViewById(R.id.receive_account_label);
+            label.setText(items.get(position));
+
+            return row;
+        }
+    }
+}
+
+class DestinationSpinner extends Spinner {
+    OnItemSelectedListener listener;
+
+    public DestinationSpinner(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    @Override
+    public void setSelection(int position) {
+        super.setSelection(position);
+        if (listener != null)
+            listener.onItemSelected(null, null, position, 0);
+    }
+
+    public void setOnItemSelectedEvenIfUnchangedListener(
+        OnItemSelectedListener listener) {
+        this.listener = listener;
+    }
 }
