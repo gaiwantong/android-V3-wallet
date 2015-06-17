@@ -4,6 +4,7 @@
     <string name="version_name">5.0.38a</string>
 
     <string name="backup_wallet">Backup Wallet</string>
+    <string name="upgrade_wallet">Upgrade Wallet</string>
     <string-array name="navigation_drawer_items">
         <item>My Accounts</item>
         <item>News, Price &amp; Charts</item>
@@ -12,7 +13,7 @@
         <item>Change PIN Code</item>
         <item>@string/backup_wallet</item>
         <item>Unpair Wallet</item>
-		<item>Upgrade Time</item>
+		<item>@string/upgrade_wallet</item>
     </string-array>
 
     <array name="navigation_drawer_icons">

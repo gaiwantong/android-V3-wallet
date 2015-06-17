@@ -649,7 +649,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void scanURI() {
         Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
-        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.QRCODE});
         startActivityForResult(intent, SCAN_URI);
     }
 
@@ -801,9 +801,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
-            }else{
-                drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+                continue;
+            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && AppUtil.getInstance(this).getUpgraded()){
+                continue;//Wallet has been upgraded
             }
+
+            drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
         }
         drawerIcons.recycle();
         adapterDrawer = new DrawerAdapter(drawerItems);
