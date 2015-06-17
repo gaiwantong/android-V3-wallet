@@ -835,6 +835,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                             case 6:
                                 doUnpairWallet();
                                 break;
+                            case 7:
+                                doUpgrade();
+                                break;
                         }
 
                         mDrawerLayout.closeDrawers();
@@ -972,5 +975,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
         startActivityForResult(intent, REQUEST_BACKUP);
+    }
+
+    private void doUpgrade(){
+        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+        Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+        startActivity(intent);
     }
 }

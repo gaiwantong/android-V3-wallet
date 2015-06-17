@@ -32,4 +32,6 @@
 	<color name="toast_info_background">#D8F296</color>
 	<color name="toast_info_text">#4F772F</color>
 
+	<color name="blockchain_upgrade_wallet_bg">#22AFEC</color>
+
 </resources>

@@ -12,6 +12,7 @@
         <item>Change PIN Code</item>
         <item>@string/backup_wallet</item>
         <item>Unpair Wallet</item>
+		<item>Upgrade Time</item>
     </string-array>
 
     <array name="navigation_drawer_icons">
@@ -22,6 +23,7 @@
         <item>@drawable/icon_pincode</item>
         <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
+		<item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
 
     <string name="app_name">Blockchain HD</string>
