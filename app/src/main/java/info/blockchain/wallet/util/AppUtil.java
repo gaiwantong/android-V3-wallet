@@ -109,8 +109,26 @@ public class AppUtil {
     }
 
     public boolean isTimeForUpgradeReminder() {
-        long lastReminder = Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0L"));
+        long lastReminder = 0L;
+        try {
+            lastReminder = Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0L"));
+        }
+        catch(NumberFormatException nfe) {
+            lastReminder = 0L;
+        }
         return (System.currentTimeMillis() - lastReminder) > UPGRADE_REMINDER_DELAY;
+    }
+
+    public void setUpgradeReminder(long ts) {
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
+    }
+
+    public void setUpgraded(boolean upgraded) {
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED, upgraded);
+    }
+
+    public boolean getUpgraded() {
+        return PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED, false);
     }
 
 }
