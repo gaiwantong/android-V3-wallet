@@ -17,7 +17,7 @@
         android:scaleType="fitCenter"
         />
 
-    <TextView
+    <TextSwitcher
         android:id="@+id/upgrade_page_header"
         android:layout_width="match_parent"
         android:layout_height="60dp"

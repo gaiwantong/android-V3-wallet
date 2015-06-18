@@ -3,15 +3,20 @@ package info.blockchain.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import info.blockchain.wallet.util.AppUtil;
 
@@ -20,7 +25,7 @@ public class UpgradeWalletActivity extends Activity {
     private ViewPager mViewPager = null;
     private CustomPagerAdapter mCustomPagerAdapter = null;
 
-    private TextView pageHeader = null;
+    private TextSwitcher pageHeader = null;
 
     private TextView pageBox0 = null;
     private TextView pageBox1 = null;
@@ -35,7 +40,20 @@ public class UpgradeWalletActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        pageHeader = (TextView) findViewById(R.id.upgrade_page_header);
+        pageHeader = (TextSwitcher) findViewById(R.id.upgrade_page_header);
+        pageHeader.setFactory(new ViewSwitcher.ViewFactory() {
+
+            public View makeView() {
+                TextView myText = new TextView(UpgradeWalletActivity.this);
+                myText.setGravity(Gravity.CENTER);
+                myText.setTextSize(14);
+                myText.setTextColor(Color.WHITE);
+                return myText;
+            }
+        });
+        pageHeader.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in));
+        pageHeader.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_out));
+        pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
 
         mCustomPagerAdapter = new CustomPagerAdapter(this);
         mViewPager.setAdapter(mCustomPagerAdapter);
