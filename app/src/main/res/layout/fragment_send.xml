@@ -88,7 +88,7 @@
                         android:textColor="@color/primary_text_default_material_light"
                         />
 
-                    <info.blockchain.wallet.DestinationSpinner
+                    <info.blockchain.wallet.ReselectSpinner
                         android:id="@+id/sp_destination"
                         android:layout_width="0dp"
                         android:layout_height="48dp"
