@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
@@ -20,9 +21,15 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.crypto.MnemonicException;
 
+import org.apache.commons.codec.DecoderException;
+import org.json.JSONException;
+
+import java.io.IOException;
+
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 
 public class UpgradeWalletActivity extends Activity {
@@ -127,14 +134,36 @@ public class UpgradeWalletActivity extends Activity {
 
                 onUpgradeStart();
 
-                //Test timer until upgrade implemented
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        Looper.prepare();
+                        try {
+
+                            AppUtil.getInstance(UpgradeWalletActivity.this).setUpgraded(true);
+                            HDPayloadBridge.getInstance(UpgradeWalletActivity.this).init(PayloadFactory.getInstance().getTempPassword());
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (DecoderException e) {
+                            e.printStackTrace();
+                        } catch (AddressFormatException e) {
+                            e.printStackTrace();
+                        } catch (MnemonicException.MnemonicLengthException e) {
+                            e.printStackTrace();
+                        } catch (MnemonicException.MnemonicChecksumException e) {
+                            e.printStackTrace();
+                        } catch (MnemonicException.MnemonicWordException e) {
+                            e.printStackTrace();
+                        }
+
                         onUpgradeCompleted();
+                        Looper.loop();
+
                     }
-                }, 7000);
+                }).start();
             }
         });
 
@@ -155,8 +184,6 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     private void onUpgradeCompleted(){
-
-        AppUtil.getInstance(this).setUpgraded(true);
 
         runOnUiThread(new Runnable() {
             @Override

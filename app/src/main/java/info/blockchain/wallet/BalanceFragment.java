@@ -219,7 +219,11 @@ public class BalanceFragment extends Fragment {
         } else {
             //Single account - no spinner
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0).getLabel());
+            Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
+            String label = "needs fixing...";
+            if(acc!=null && acc.getLabel()!=null)
+                label = acc.getLabel();
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(label);
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.GONE);
         }
