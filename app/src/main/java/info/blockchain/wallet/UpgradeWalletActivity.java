@@ -1,6 +1,7 @@
 package info.blockchain.wallet;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -14,14 +15,19 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.blockchain.wallet.util.AppUtil;
 
 public class UpgradeWalletActivity extends Activity {
 
+    private AlertDialog alertDialog = null;
     private ViewPager mViewPager = null;
     private CustomPagerAdapter mCustomPagerAdapter = null;
 
@@ -31,6 +37,12 @@ public class UpgradeWalletActivity extends Activity {
     private TextView pageBox1 = null;
     private TextView pageBox2 = null;
     private TextView pageBox3 = null;
+
+    private TextView heading = null;
+    private TextView info = null;
+    private ProgressBar progressBar = null;
+    private TextView confirmCancel = null;
+    private TextView confirmUpgrade = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,9 +99,88 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     public void upgradeClicked(View view) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.activity_upgrade_wallet_confirm, null);
+        dialogBuilder.setView(dialogView);
+
+        alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
+
+        heading = (TextView)dialogView.findViewById(R.id.heading_tv);
+        info = (TextView)dialogView.findViewById(R.id.upgrade_info_tv);
+        progressBar = (ProgressBar)dialogView.findViewById(R.id.progressBar3);
+
+        confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+            }
+        });
+
+        confirmUpgrade = (TextView) dialogView.findViewById(R.id.confirm_upgrade);
+        confirmUpgrade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                onUpgradeStart();
+
+                //Test timer until upgrade implemented
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        onUpgradeCompleted();
+                    }
+                }, 7000);
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void onUpgradeStart(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                heading.setText(getString(R.string.upgrading));
+                info.setText(getString(R.string.upgrading_started_info));
+                progressBar.setVisibility(View.VISIBLE);
+                confirmCancel.setVisibility(View.INVISIBLE);
+                confirmUpgrade.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    private void onUpgradeCompleted(){
+
+        AppUtil.getInstance(this).setUpgraded(true);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                heading.setText(getString(R.string.upgrade_success_heading));
+                info.setText(getString(R.string.upgrade_success_info));
+                progressBar.setVisibility(View.GONE);
+                confirmUpgrade.setVisibility(View.VISIBLE);
+                confirmUpgrade.setText(getString(R.string.CLOSE));
+                confirmUpgrade.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+
+                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+                    }
+                });
+            }
+        });
     }
 
     public void askLaterClicked(View view) {
+        AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+        finish();
     }
 
     class CustomPagerAdapter extends PagerAdapter {
@@ -134,8 +225,6 @@ public class UpgradeWalletActivity extends Activity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((LinearLayout) object);
         }
-
-
     }
 
     private void setSelectedPage(int position){

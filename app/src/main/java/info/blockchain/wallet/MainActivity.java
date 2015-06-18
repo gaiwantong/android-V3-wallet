@@ -32,6 +32,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -182,6 +183,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
                 AccountsUtil.getInstance(this).initAccountMaps();
+
+                Log.v("", "---------------------------------------");
+                Log.v("","isUpgraded: "+AppUtil.getInstance(this).getUpgraded()+"     isTimeForUpgradeReminder: "+AppUtil.getInstance(this).isTimeForUpgradeReminder());
+                Log.v("","---------------------------------------");
+                if(!AppUtil.getInstance(this).getUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                    Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+                    startActivity(intent);
+                }
             }
             else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
@@ -190,6 +199,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
                 AccountsUtil.getInstance(this).initAccountMaps();
+
+                if(!AppUtil.getInstance(this).getUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                    Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+                    startActivity(intent);
+                }
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);

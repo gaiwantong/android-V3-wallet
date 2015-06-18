@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Molt forta</string>
   <string name="CONTINUE">Continuar</string>
   <string name="SEND">ENVIAR</string>
-  <string name="CONFIRM">CONFIRMAR EL PAGAMENT</string>
+  <string name="CONFIRM_PAYMENT">CONFIRMAR EL PAGAMENT</string>
   <string name="GO_BACK">TORNAR</string>
   <string name="miners_fee">Xarxa Bitcoin taxa</string>
   <string name="add_note">Afegir o editar la nota</string>

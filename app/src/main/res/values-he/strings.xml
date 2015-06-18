@@ -120,7 +120,7 @@
   <string name="strength_very_strong">חזק מאוד</string>
   <string name="CONTINUE">המשך</string>
   <string name="SEND">שלח</string>
-  <string name="CONFIRM">לאשר תשלום</string>
+  <string name="CONFIRM_PAYMENT">לאשר תשלום</string>
   <string name="GO_BACK">תחזור</string>
   <string name="miners_fee">רשת ביטקוין דמי</string>
   <string name="add_note">הוסף/ערוך הערה</string>

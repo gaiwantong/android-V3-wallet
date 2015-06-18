@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Foarte puternic</string>
   <string name="CONTINUE">Continua</string>
   <string name="SEND">TRIMITE</string>
-  <string name="CONFIRM">CONFIRMA PLATA</string>
+  <string name="CONFIRM_PAYMENT">CONFIRMA PLATA</string>
   <string name="GO_BACK">întoarce-te</string>
   <string name="miners_fee">Bitcoin reţea taxa</string>
   <string name="add_note">Adăugare/Editare notă</string>

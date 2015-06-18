@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Очень сильный</string>
   <string name="CONTINUE">Продолжить</string>
   <string name="SEND">Отправить</string>
-  <string name="CONFIRM">ПОДТВЕРДИТЬ ОПЛАТУ</string>
+  <string name="CONFIRM_PAYMENT">ПОДТВЕРДИТЬ ОПЛАТУ</string>
   <string name="GO_BACK">Вернуться</string>
   <string name="miners_fee">Плата за сети Bitcoin</string>
   <string name="add_note">Добавить/изменить Примечание</string>

@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Çok güçlü</string>
   <string name="CONTINUE">Devam etmek</string>
   <string name="SEND">Gönder</string>
-  <string name="CONFIRM">ÖDEME ONAYLA</string>
+  <string name="CONFIRM_PAYMENT">ÖDEME ONAYLA</string>
   <string name="GO_BACK">Geri Git</string>
   <string name="miners_fee">Bitcoin ağ ücreti</string>
   <string name="add_note">Not Ekle/Düzenle</string>

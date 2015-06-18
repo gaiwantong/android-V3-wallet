@@ -120,7 +120,7 @@
   <string name="strength_very_strong">很強</string>
   <string name="CONTINUE">繼續</string>
   <string name="SEND">發送</string>
-  <string name="CONFIRM">確認付款</string>
+  <string name="CONFIRM_PAYMENT">確認付款</string>
   <string name="GO_BACK">回去</string>
   <string name="miners_fee">比特幣網路費</string>
   <string name="add_note">添加並編輯注釋</string>

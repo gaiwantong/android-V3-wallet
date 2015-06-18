@@ -120,7 +120,7 @@
   <string name="strength_very_strong">قوية جداً</string>
   <string name="CONTINUE">مواصلة</string>
   <string name="SEND">إرسال</string>
-  <string name="CONFIRM">تأكيد الدفع</string>
+  <string name="CONFIRM_PAYMENT">تأكيد الدفع</string>
   <string name="GO_BACK">الرجوع للخلف</string>
   <string name="miners_fee">رسوم شبكة بيتكوين</string>
   <string name="add_note">إضافة/تحرير ملاحظة</string>

@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Molto forte</string>
   <string name="CONTINUE">Continuare</string>
   <string name="SEND">Invia</string>
-  <string name="CONFIRM">CONFERMARE IL PAGAMENTO</string>
+  <string name="CONFIRM_PAYMENT">CONFERMARE IL PAGAMENTO</string>
   <string name="GO_BACK">Indietro</string>
   <string name="miners_fee">Tassa di rete Bitcoin</string>
   <string name="add_note">Aggiungi/Modifica nota</string>

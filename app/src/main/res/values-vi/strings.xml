@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Rất mạnh</string>
   <string name="CONTINUE">Tiếp tục</string>
   <string name="SEND">GỬI</string>
-  <string name="CONFIRM">XÁC NHẬN THANH TOÁN</string>
+  <string name="CONFIRM_PAYMENT">XÁC NHẬN THANH TOÁN</string>
   <string name="GO_BACK">Quay lại</string>
   <string name="miners_fee">Bitcoin mạng phí</string>
   <string name="add_note">Thêm/chỉnh sửa ghi chú</string>

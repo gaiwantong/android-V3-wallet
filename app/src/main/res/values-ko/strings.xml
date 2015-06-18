@@ -120,7 +120,7 @@
   <string name="strength_very_strong">매우 강한</string>
   <string name="CONTINUE">계속 진행</string>
   <string name="SEND">보내기</string>
-  <string name="CONFIRM">결제 확인</string>
+  <string name="CONFIRM_PAYMENT">결제 확인</string>
   <string name="GO_BACK">뒤로 이동</string>
   <string name="miners_fee">Bitcoin 네트워크 수수료</string>
   <string name="add_note">메모 추가/편집</string>

@@ -120,7 +120,7 @@
   <string name="strength_very_strong">非常に強い</string>
   <string name="CONTINUE">Continue</string>
   <string name="SEND">送信</string>
-  <string name="CONFIRM">お支払いを確認します。</string>
+  <string name="CONFIRM_PAYMENT">お支払いを確認します。</string>
   <string name="GO_BACK">戻ってください</string>
   <string name="miners_fee">Bitcoin ネットワーク料</string>
   <string name="add_note">メモの追加/編集</string>

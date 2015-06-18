@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Πολύ ισχυρή</string>
   <string name="CONTINUE">Συνεχίσει</string>
   <string name="SEND">ΑΠΟΣΤΟΛΉ</string>
-  <string name="CONFIRM">ΕΠΙΒΕΒΑΙΏΣΕΤΕ ΤΗΝ ΠΛΗΡΩΜΉ</string>
+  <string name="CONFIRM_PAYMENT">ΕΠΙΒΕΒΑΙΏΣΕΤΕ ΤΗΝ ΠΛΗΡΩΜΉ</string>
   <string name="GO_BACK">Πήγαινε πίσω</string>
   <string name="miners_fee">Αμοιβή Bitcoin δικτύου</string>
   <string name="add_note">Προσθήκη/επεξεργασία Σημείωση</string>

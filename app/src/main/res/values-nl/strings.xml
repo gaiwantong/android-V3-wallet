@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Zeer sterke</string>
   <string name="CONTINUE">Verder gaan</string>
   <string name="SEND">Verzenden</string>
-  <string name="CONFIRM">BETALING BEVESTIGEN</string>
+  <string name="CONFIRM_PAYMENT">BETALING BEVESTIGEN</string>
   <string name="GO_BACK">Terug</string>
   <string name="miners_fee">Bitcoin netwerk vergoeding</string>
   <string name="add_note">Notitie toevoegen/bewerken</string>

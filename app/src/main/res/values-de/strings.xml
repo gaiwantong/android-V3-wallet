@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Sehr starke</string>
   <string name="CONTINUE">Weiter</string>
   <string name="SEND">Senden</string>
-  <string name="CONFIRM">ZAHLUNG BESTÄTIGEN</string>
+  <string name="CONFIRM_PAYMENT">ZAHLUNG BESTÄTIGEN</string>
   <string name="GO_BACK">Zurück</string>
   <string name="miners_fee">Bitcoin Netzwerk-Gebühr</string>
   <string name="add_note">Notiz hinzufügen/bearbeiten</string>

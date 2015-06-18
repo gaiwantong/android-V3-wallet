@@ -131,7 +131,7 @@
 
     <string name="CONTINUE">Continue</string>
     <string name="SEND">SEND</string>
-    <string name="CONFIRM">CONFIRM PAYMENT</string>
+    <string name="CONFIRM_PAYMENT">CONFIRM PAYMENT</string>
     <string name="GO_BACK">GO BACK</string>
 
     <string name="total_to_send">Total To Send</string>
@@ -337,4 +337,12 @@
     <string name="upgrade_page_2">Easy one time wallet backup keeps you in control of your funds.</string>
     <string name="upgrade_page_3">Everything you need to receive, spend, and store your Bitcoin.</string>
     <string name="upgrade_page_4">Every time you spend there is a chance to summon a herd of murderous cows.</string>
+    <string name="CONFIRM">CONFIRM</string>
+    <string name="confirm_upgrade">Confirm Upgrade</string>
+    <string name="confirm_upgrade_info">Your wallet will be upgraded to our latest wallet format. This will allow you to take advantage of significant privacy and security improvements. Please note that once you confirm the upgrade processwill begin and cannot be reversed.</string>
+    <string name="upgrading">Upgrading...</string>
+    <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
+    <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
+    <string name="upgrade_success_info">You are now running the most secure and private Blockchain Wallet, you may continue to your wallet now.</string>
+    <string name="CLOSE">CLOSE</string>
 </resources>

@@ -94,6 +94,7 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/upgrade_btn"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:paddingLeft="32dp"
@@ -107,11 +108,13 @@
             />
 
         <TextView
+            android:id="@+id/askLater_tv"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:padding="10dp"
             android:text="@string/ASK_ME_LATER"
             android:textSize="20sp"
+            android:clickable="true"
             android:onClick="askLaterClicked"
             android:gravity="center"
             android:alpha=".6"

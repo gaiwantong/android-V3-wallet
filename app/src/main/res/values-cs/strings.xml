@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Velmi silný</string>
   <string name="CONTINUE">Pokračovat</string>
   <string name="SEND">ODESLAT</string>
-  <string name="CONFIRM">POTVRZENÍ PLATBY</string>
+  <string name="CONFIRM_PAYMENT">POTVRZENÍ PLATBY</string>
   <string name="GO_BACK">Vrať se</string>
   <string name="miners_fee">Poplatky za používání sítě Bitcoin</string>
   <string name="add_note">Přidat či upravit poznámku</string>

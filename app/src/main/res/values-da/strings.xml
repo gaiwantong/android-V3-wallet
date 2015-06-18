@@ -120,7 +120,7 @@
   <string name="strength_very_strong">Meget stærke</string>
   <string name="CONTINUE">Fortsat</string>
   <string name="SEND">SEND</string>
-  <string name="CONFIRM">BEKRÆFTE BETALING</string>
+  <string name="CONFIRM_PAYMENT">BEKRÆFTE BETALING</string>
   <string name="GO_BACK">Gå tilbage</string>
   <string name="miners_fee">Bitcoin netværk gebyr</string>
   <string name="add_note">Tilføj/redigér Bemærk</string>
