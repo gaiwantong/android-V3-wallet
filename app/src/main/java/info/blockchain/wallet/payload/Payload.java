@@ -573,11 +573,11 @@ public class Payload {
             obj.put("dpasswordhash", strDoublePWHash);
         }
 
-        JSONArray wallets = new JSONArray();
-        for(HDWallet wallet : hdWallets) {
-            wallets.put(wallet.dumpJSON());
-        }
         if(isUpgraded) {
+            JSONArray wallets = new JSONArray();
+            for(HDWallet wallet : hdWallets) {
+                wallets.put(wallet.dumpJSON());
+            }
             obj.put("hd_wallets", wallets);
         }
 

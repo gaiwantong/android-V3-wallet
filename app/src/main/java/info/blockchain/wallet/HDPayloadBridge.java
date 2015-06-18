@@ -68,16 +68,22 @@ public class HDPayloadBridge	{
         // create HD wallet if not present and sync w/ payload, replace this w/ user prompt + setup
         //
         if(PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
+
             HD_WalletFactory.getInstance(context).newWallet(12, "", 1);
             HDWallet hdw = new HDWallet();
             hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
             List<Account> accounts = new ArrayList<Account>();
-            accounts.add(new Account());
-            accounts.get(0).setXpub(HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr());
-            accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
+            if(PayloadFactory.getInstance().get().isUpgraded()) {
+                accounts.add(new Account());
+                accounts.get(0).setXpub(HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr());
+                accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
+            }
             hdw.setAccounts(accounts);
             PayloadFactory.getInstance().get().setHdWallets(hdw);
-            PayloadFactory.getInstance(context).remoteSaveThread();
+            if(PayloadFactory.getInstance().get().isUpgraded()) {
+                PayloadFactory.getInstance(context).remoteSaveThread();
+            }
+
         }
 
         PayloadFactory.getInstance().cache();
@@ -106,7 +112,9 @@ public class HDPayloadBridge	{
         }
 
         _xpubs = getXPUBs(false);
-        JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
+        if(_xpubs.length > 0)	{
+            JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
+        }
 
     }
 
