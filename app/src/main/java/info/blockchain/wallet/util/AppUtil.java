@@ -8,6 +8,7 @@ import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.R;
+import info.blockchain.wallet.payload.PayloadFactory;
 
 public class AppUtil {
 	
@@ -124,11 +125,11 @@ public class AppUtil {
     }
 
     public void setUpgraded(boolean upgraded) {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED, upgraded);
+        PayloadFactory.getInstance().get().setUpgraded(upgraded);
     }
 
     public boolean getUpgraded() {
-        return PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED, false);
+        return PayloadFactory.getInstance().get().isUpgraded();
     }
 
 }
