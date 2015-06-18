@@ -569,40 +569,44 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void run() {
                 Looper.prepare();
 
-                if(!SSLVerifierUtil.getInstance().isValidHostname()) {
+                if(ConnectivityStatus.hasConnectivity(MainActivity.this)) {
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    if(!SSLVerifierUtil.getInstance().isValidHostname()) {
 
-                    final String message = getString(R.string.ssl_hostname_invalid);
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                    builder.setMessage(message)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.dialog_continue,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface d, int id) {
-                                            d.dismiss();
-                                        }
-                                    });
+                        final String message = getString(R.string.ssl_hostname_invalid);
 
-                    builder.create().show();
+                        builder.setMessage(message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.dialog_continue,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface d, int id) {
+                                                d.dismiss();
+                                            }
+                                        });
 
-                }
+                        builder.create().show();
 
-                if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    }
 
-                    final String message = getString(R.string.ssl_pinning_invalid);
+                    if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                    builder.setMessage(message)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.dialog_continue,
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface d, int id) {
-                                            d.dismiss();
-                                        }
-                                    });
+                        final String message = getString(R.string.ssl_pinning_invalid);
 
-                    builder.create().show();
+                        builder.setMessage(message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.dialog_continue,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface d, int id) {
+                                                d.dismiss();
+                                            }
+                                        });
+
+                        builder.create().show();
+                    }
+
                 }
 
                 handler.post(new Runnable() {

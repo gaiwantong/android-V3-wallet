@@ -112,7 +112,7 @@
     <string name="pair_your_wallet">Pair Your Wallet</string>
     <string name="scan_pairing_code">Scan pairing code</string>
     <string name="manual_pairing">Manual Pairing</string>
-    <string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.com/wallet .</string>
+    <string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.com/wallet.</string>
     <string name="pair_wallet_step_2">Click the Account Settings button, then choose the Mobile tab.</string>
     <string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
     <string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
