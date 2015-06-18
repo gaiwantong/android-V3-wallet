@@ -184,9 +184,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AccountsUtil.getInstance(this).initAccountMaps();
 
-                Log.v("", "---------------------------------------");
-                Log.v("","isUpgraded: "+AppUtil.getInstance(this).getUpgraded()+"     isTimeForUpgradeReminder: "+AppUtil.getInstance(this).isTimeForUpgradeReminder());
-                Log.v("","---------------------------------------");
                 if(!AppUtil.getInstance(this).getUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);

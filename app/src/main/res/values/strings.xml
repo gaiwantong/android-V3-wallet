@@ -339,7 +339,7 @@
     <string name="upgrade_page_4">Every time you spend there is a chance to summon a herd of murderous cows.</string>
     <string name="CONFIRM">CONFIRM</string>
     <string name="confirm_upgrade">Confirm Upgrade</string>
-    <string name="confirm_upgrade_info">Your wallet will be upgraded to our latest wallet format. This will allow you to take advantage of significant privacy and security improvements. Please note that once you confirm the upgrade processwill begin and cannot be reversed.</string>
+    <string name="confirm_upgrade_info">Your wallet will be upgraded to our latest wallet format. This will allow you to take advantage of significant privacy and security improvements. Please note that once you confirm the upgrade process will begin and cannot be reversed.</string>
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>

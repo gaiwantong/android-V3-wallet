@@ -188,10 +188,10 @@ public class UpgradeWalletActivity extends Activity {
         Context mContext;
         LayoutInflater mLayoutInflater;
         int[] mResources = {
-                R.drawable.icon_accounthd,
-                R.drawable.icon_imported,
-                R.drawable.icon_send,
-                R.drawable.icon_logout
+                R.drawable.test_image,
+                R.drawable.test_image,
+                R.drawable.test_image,
+                R.drawable.test_image
         };
 
         public CustomPagerAdapter(Context context) {
