@@ -52,6 +52,7 @@ public class Payload {
     private Map<String,Integer> xpub2Account = null;
     private Map<Integer,String> account2Xpub = null;
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
+    private boolean isUpgraded = false;
 
     public Payload() {
         legacyAddresses = new ArrayList<LegacyAddress>();
@@ -351,6 +352,8 @@ public class Payload {
             }
 
             if(jsonObject.has("hd_wallets"))  {
+                isUpgraded = true;
+
                 JSONArray wallets = (JSONArray)jsonObject.get("hd_wallets");
                 JSONObject wallet = (JSONObject)wallets.get(0);
                 HDWallet hdw = new HDWallet();
@@ -480,6 +483,9 @@ public class Payload {
 
                 hdWallets.add(hdw);
             }
+            else    {
+                isUpgraded = false;
+            }
 
             if(jsonObject.has("keys"))  {
                 JSONArray keys = (JSONArray)jsonObject.get("keys");
@@ -538,6 +544,14 @@ public class Payload {
         return account2Xpub;
     }
 
+    public boolean isUpgraded() {
+        return isUpgraded;
+    }
+
+    public void setUpgraded(boolean upgraded) {
+        this.isUpgraded = upgraded;
+    }
+
     /**
      * Returns this instance of payload and all dependant payload object instances
      * in a single JSONObject. The returned JSON object can be serialized and
@@ -563,7 +577,9 @@ public class Payload {
         for(HDWallet wallet : hdWallets) {
             wallets.put(wallet.dumpJSON());
         }
-        obj.put("hd_wallets", wallets);
+        if(isUpgraded) {
+            obj.put("hd_wallets", wallets);
+        }
 
         JSONArray keys = new JSONArray();
         for(LegacyAddress addr : legacyAddresses) {
