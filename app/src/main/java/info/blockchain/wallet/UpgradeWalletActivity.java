@@ -45,7 +45,6 @@ public class UpgradeWalletActivity extends Activity {
     private TextView pageBox0 = null;
     private TextView pageBox1 = null;
     private TextView pageBox2 = null;
-    private TextView pageBox3 = null;
 
     private TextView heading = null;
     private TextView info = null;
@@ -98,7 +97,6 @@ public class UpgradeWalletActivity extends Activity {
         pageBox0 = (TextView)findViewById(R.id.pageBox0);
         pageBox1 = (TextView)findViewById(R.id.pageBox1);
         pageBox2 = (TextView)findViewById(R.id.pageBox2);
-        pageBox3 = (TextView)findViewById(R.id.pageBox3);
     }
 
     @Override
@@ -217,10 +215,9 @@ public class UpgradeWalletActivity extends Activity {
         Context mContext;
         LayoutInflater mLayoutInflater;
         int[] mResources = {
-                R.drawable.test_image,
-                R.drawable.test_image,
-                R.drawable.test_image,
-                R.drawable.test_image
+                R.drawable.upgrade_myaccounts_hilite,
+                R.drawable.upgrade_backup_hilite,
+                R.drawable.upgrade_tx_list_hilite
         };
 
         public CustomPagerAdapter(Context context) {
@@ -261,7 +258,6 @@ public class UpgradeWalletActivity extends Activity {
         pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
         pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
         pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
-        pageBox3.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
 
         switch (position){
             case 0:
@@ -273,9 +269,6 @@ public class UpgradeWalletActivity extends Activity {
             case 2:
                 pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
                 pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
-            case 3:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_4));
-                pageBox3.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
         }
     }
 }

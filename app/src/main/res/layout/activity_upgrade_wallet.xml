@@ -83,14 +83,6 @@
                 android:background="@drawable/rounded_view_dark_blue"
                 />
 
-            <TextView
-                android:id="@+id/pageBox3"
-                android:layout_width="16dip"
-                android:layout_height="16dip"
-                android:layout_margin="10dip"
-                android:background="@drawable/rounded_view_dark_blue"
-                />
-
         </LinearLayout>
 
         <Button
