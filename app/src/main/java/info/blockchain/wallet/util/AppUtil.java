@@ -7,7 +7,7 @@ import android.os.Looper;
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 public class AppUtil {
 	
