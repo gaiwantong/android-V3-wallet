@@ -204,7 +204,7 @@ public class HD_WalletFactory	{
                 String[] xpub = data.split(":");
                 hdw = new HD_Wallet(params, xpub);
             }
-            else if(data.length() % 4 == 0 && !data.contains(" ")) {
+            else if(data.matches("^[0-9A-Fa-f]+$") && data.length() % 4 == 0) {
                 seed = Hex.decodeHex(data.toCharArray());
                 hdw = new HD_Wallet(mc, params, seed, passphrase, nbAccounts);
             }
