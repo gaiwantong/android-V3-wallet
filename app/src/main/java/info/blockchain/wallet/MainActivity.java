@@ -41,12 +41,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dm.zbar.android.scanner.ZBarConstants;
 import com.dm.zbar.android.scanner.ZBarScannerActivity;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
+import com.squareup.picasso.Picasso;
 
 import net.sourceforge.zbar.Symbol;
 
@@ -55,6 +57,8 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -66,6 +70,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -124,7 +129,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         PRNGFixes.apply();
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
-
+        AppUtil.getInstance(this).setUpgraded(false);
         NotificationsFactory.getInstance(this).resetNotificationCounter();
 
         if(!ConnectivityStatus.hasConnectivity(this)) {
@@ -792,7 +797,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
 
         TextView tvEmail = (TextView)mDrawerLayout.findViewById(R.id.drawer_email);
-        tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,""));
+        tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, ""));
+
+        ImageView avatarImage = (ImageView)mDrawerLayout.findViewById(R.id.drawer_avatar);
+        setAvatarDrawableFromEmail(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, ""), avatarImage);
 
         // Setup RecyclerView inside drawer
         recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
@@ -999,5 +1007,32 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
         startActivity(intent);
+    }
+
+    public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){
+
+        if(email==null)return;
+        if(email.isEmpty())return;
+
+        String hash = null;
+        String md5 = email;
+        try {
+            MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] arr = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < arr.length; ++i)
+                sb.append(Integer.toHexString((arr[i] & 0xFF) | 0x100).substring(1,3));
+
+            hash = sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("MD5", e.getMessage());
+        }
+
+        String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=204&d=404";
+
+        Picasso.with(MainActivity.this)
+                .load(gravatarUrl)
+                .transform(new CircleTransform())
+                .into(avatarImage);
     }
 }
