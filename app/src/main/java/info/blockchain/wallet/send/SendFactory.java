@@ -33,7 +33,6 @@ import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.core.Transaction.SigHash;
 import com.google.bitcoin.params.MainNetParams;
 
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.OpCallback;
 import info.blockchain.wallet.hd.HD_WalletFactory;
@@ -45,6 +44,8 @@ import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+import piuk.blockchain.android.R;
 
 /**
  *

@@ -32,6 +32,8 @@ import java.io.IOException;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 
+import piuk.blockchain.android.R;
+
 public class UpgradeWalletActivity extends Activity {
 
     private AlertDialog alertDialog = null;

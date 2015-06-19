@@ -62,6 +62,8 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
+import piuk.blockchain.android.R;
+
 public class MyAccountsActivity extends Activity {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;

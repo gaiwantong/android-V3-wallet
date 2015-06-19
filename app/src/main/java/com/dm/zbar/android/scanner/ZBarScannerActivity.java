@@ -25,7 +25,7 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 public class ZBarScannerActivity extends ActionBarActivity implements Camera.PreviewCallback, ZBarConstants {
 

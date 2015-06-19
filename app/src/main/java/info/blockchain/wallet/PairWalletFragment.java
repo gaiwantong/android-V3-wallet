@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import piuk.blockchain.android.R;
+
 /**
  * Created by riaanvos on 23/03/15.
  */

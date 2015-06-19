@@ -69,6 +69,8 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
+import piuk.blockchain.android.R;
+
 //import android.util.Log;
 
 public class SendFragment extends Fragment {

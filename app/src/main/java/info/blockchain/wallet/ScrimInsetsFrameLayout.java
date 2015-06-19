@@ -1,7 +1,5 @@
 package info.blockchain.wallet;
 
-
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -13,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
+import piuk.blockchain.android.R;
 
 /**
  * A layout that draws something in the insets passed to {@link #fitSystemWindows(Rect)}, i.e. the area above UI chrome

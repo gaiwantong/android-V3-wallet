@@ -38,6 +38,8 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
+import piuk.blockchain.android.R;
+
 //import android.util.Log;
 
 public class SettingsActivity extends PreferenceActivity {

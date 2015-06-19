@@ -75,6 +75,8 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+import piuk.blockchain.android.R;
+
 public class BalanceFragment extends Fragment {
 
     private Locale locale = null;

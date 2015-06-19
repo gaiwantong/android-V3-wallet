@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import piuk.blockchain.android.R;
+
 public class MyAccountsAdapter extends RecyclerView.Adapter<MyAccountsAdapter.ViewHolder> {
 
     private ArrayList<MyAccountItem> items;

@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.net.Uri;
 //import android.util.Log;
 
+import piuk.blockchain.android.R;
+
 public class AboutActivity extends Activity	{
 
     private TextView tvAbout = null;

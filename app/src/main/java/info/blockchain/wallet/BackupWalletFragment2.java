@@ -16,6 +16,8 @@ import android.widget.TextView;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BackupWalletUtil;
 
+import piuk.blockchain.android.R;
+
 public class BackupWalletFragment2 extends Fragment {
 
     private TextView tvStart = null;

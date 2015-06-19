@@ -18,6 +18,8 @@ import info.blockchain.wallet.util.BackupWalletUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
+import piuk.blockchain.android.R;
+
 public class BackupWalletFragment3 extends Fragment {
 
     private TextView tvVerify = null;

@@ -73,6 +73,8 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
+import piuk.blockchain.android.R;
+
 public class ReceiveFragment extends Fragment {
 
     private Locale locale = null;

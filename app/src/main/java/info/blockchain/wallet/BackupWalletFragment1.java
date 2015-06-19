@@ -20,6 +20,8 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 
+import piuk.blockchain.android.R;
+
 public class BackupWalletFragment1 extends Fragment {
 
     TextView tvBackupWallet;
