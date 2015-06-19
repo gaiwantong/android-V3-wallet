@@ -370,6 +370,8 @@ public class SendFragment extends Fragment {
         DestinationAdapter destinationAdapter = new DestinationAdapter(getActivity(), R.layout.spinner_item, _accounts);
         destinationAdapter.setDropDownViewResource(R.layout.spinner_item2);
         spDestination = (ReselectSpinner)rootView.findViewById(R.id.sp_destination);
+        if(_accounts.size() <= 1)
+            spDestination.setVisibility(View.GONE);
         spDestination.setAdapter(destinationAdapter);
         spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
