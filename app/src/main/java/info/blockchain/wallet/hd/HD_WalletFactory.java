@@ -200,7 +200,7 @@ public class HD_WalletFactory	{
             mc = new MnemonicCode(wis, MnemonicCode.BIP39_ENGLISH_SHA256);
 
             byte[] seed = null;
-            if(data.startsWith("xpub")) {
+            if(data.matches("^xpub[1-9A-Za-z][^OIl]+$")) {
                 String[] xpub = data.split(":");
                 hdw = new HD_Wallet(params, xpub);
             }
