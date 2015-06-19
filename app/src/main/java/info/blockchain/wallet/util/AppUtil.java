@@ -8,7 +8,6 @@ import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.R;
-import info.blockchain.wallet.payload.PayloadFactory;
 
 public class AppUtil {
 	
@@ -24,6 +23,7 @@ public class AppUtil {
     private static Thread lockThread = null;
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
+    private static boolean upgradeSelected = false;//user's response
 
 	private AppUtil() { ; }
 
@@ -124,12 +124,12 @@ public class AppUtil {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
     }
 
-    public void setUpgraded(boolean upgraded) {
-        PayloadFactory.getInstance().get().setUpgraded(upgraded);
+    public boolean isUpgradeSelected() {
+        return upgradeSelected;
     }
 
-    public boolean getUpgraded() {
-        return PayloadFactory.getInstance().get().isUpgraded();
+    public void setUpgradeSelected(boolean upgradeSelected) {
+        AppUtil.upgradeSelected = upgradeSelected;
     }
 
 }

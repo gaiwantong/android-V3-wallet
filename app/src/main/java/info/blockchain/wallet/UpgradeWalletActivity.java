@@ -140,8 +140,8 @@ public class UpgradeWalletActivity extends Activity {
                         Looper.prepare();
                         try {
 
-                            AppUtil.getInstance(UpgradeWalletActivity.this).setUpgraded(true);
-                            HDPayloadBridge.getInstance(UpgradeWalletActivity.this).init(PayloadFactory.getInstance().getTempPassword());
+                            AppUtil.getInstance(getApplicationContext()).setUpgradeSelected(true);
+                            HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
