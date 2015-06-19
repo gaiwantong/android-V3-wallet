@@ -1,5 +1,6 @@
 package info.blockchain.wallet.util;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
@@ -77,10 +78,17 @@ public class AppUtil {
                 Looper.prepare();
                 try{
                     Thread.sleep(TIMEOUT_DELAY);
-                    ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    restartApp();
-                    clearPinEntryTime();
 
+                    KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                    if( myKM.inKeyguardRestrictedInputMode()) {
+                        //screen is locked, time is up - lock app
+                        ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                        restartApp();
+                        clearPinEntryTime();
+                    } else {
+                        //screen not locked, sleep some more
+                        updatePinEntryTime();
+                    }
                 }catch (Exception e){
                 }
                 Looper.loop();
