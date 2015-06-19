@@ -1013,9 +1013,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){
 
-        if(email==null)return;
-        if(email.isEmpty())return;
-
         String hash = null;
         String md5 = email;
         try {
@@ -1034,6 +1031,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         Picasso.with(MainActivity.this)
                 .load(gravatarUrl)
+                .placeholder(R.drawable.ic_account_circle_white_48dp)
                 .transform(new CircleTransform())
                 .into(avatarImage);
     }
