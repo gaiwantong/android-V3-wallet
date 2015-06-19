@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import info.blockchain.wallet.R;
-import info.blockchain.wallet.Setup00Activity;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.hd.HD_Account;
 import info.blockchain.wallet.hd.HD_Wallet;
@@ -31,6 +29,8 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+import piuk.blockchain.android.R;
 
 //import android.util.Log;
 

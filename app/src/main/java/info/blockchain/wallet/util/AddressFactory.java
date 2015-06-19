@@ -7,13 +7,14 @@ import com.google.bitcoin.crypto.MnemonicException;
 
 import java.io.IOException;
 
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.hd.HD_Address;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+
+import piuk.blockchain.android.R;
 
 public class AddressFactory {
 

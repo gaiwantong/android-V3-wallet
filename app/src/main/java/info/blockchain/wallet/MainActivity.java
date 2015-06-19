@@ -82,6 +82,8 @@ import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
+import piuk.blockchain.android.R;
+
 //import android.nfc.Tag;
 
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {

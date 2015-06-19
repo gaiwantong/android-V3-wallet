@@ -37,6 +37,8 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
+import piuk.blockchain.android.R;
+
 public class PinEntryActivity extends Activity {
 
     String userEnteredPIN = "";

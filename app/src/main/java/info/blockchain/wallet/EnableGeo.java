@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
- 
+
+import piuk.blockchain.android.R;
+
 public class EnableGeo {
 
     public static void displayGPSPrompt(final Activity activity) {

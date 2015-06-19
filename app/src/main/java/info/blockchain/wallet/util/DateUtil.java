@@ -7,7 +7,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.text.format.DateUtils;
 
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 public class DateUtil {
 

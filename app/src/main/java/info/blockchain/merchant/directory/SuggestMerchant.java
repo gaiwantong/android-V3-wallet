@@ -36,10 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+import piuk.blockchain.android.R;
 
 public class SuggestMerchant extends ActionBarActivity {
 

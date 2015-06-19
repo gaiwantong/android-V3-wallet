@@ -21,17 +21,11 @@ import java.net.URISyntaxException;
 import de.tavendo.autobahn.secure.WebSocketConnection;
 import info.blockchain.wallet.EventListeners;
 import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 
-//import org.spongycastle.util.encoders.Hex;
-/*
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
-*/
+import piuk.blockchain.android.R;
 
 public class WebSocketHandler {
 

@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 public class NotificationsFactory {
 

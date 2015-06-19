@@ -7,6 +7,8 @@ import android.support.v7.widget.Toolbar;
 
 import info.blockchain.wallet.util.AppUtil;
 
+import piuk.blockchain.android.R;
+
 public class BackupWalletActivity extends ActionBarActivity{
 
     public static final String BACKUP_DATE_KEY = "BACKUP_DATE_KEY";

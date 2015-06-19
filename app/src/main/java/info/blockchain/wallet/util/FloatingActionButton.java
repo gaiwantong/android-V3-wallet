@@ -32,7 +32,7 @@ import android.widget.TextView;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 public class FloatingActionButton extends ImageButton {
 

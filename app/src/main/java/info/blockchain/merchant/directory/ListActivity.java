@@ -24,8 +24,8 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
+import piuk.blockchain.android.R;
 
 public class ListActivity extends ActionBarActivity {
 

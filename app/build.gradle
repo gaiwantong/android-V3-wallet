@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.0"
 
     defaultConfig {
-        applicationId "info.blockchain.wallet"
+        applicationId "piuk.blockchain.android"
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 1

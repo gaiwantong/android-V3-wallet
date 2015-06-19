@@ -43,11 +43,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import info.blockchain.wallet.OnSwipeTouchListener;
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
+
+import piuk.blockchain.android.R;
 
 //import android.util.Log;
 

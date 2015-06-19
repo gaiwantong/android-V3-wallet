@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import info.blockchain.wallet.R;
+import piuk.blockchain.android.R;
 
 /**
  * Created by riaanvos on 12/06/15.

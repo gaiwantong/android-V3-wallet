@@ -24,6 +24,8 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
+import piuk.blockchain.android.R;
+
 /**
  * Created by riaanvos on 25/03/15.
  */

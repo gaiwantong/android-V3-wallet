@@ -16,6 +16,8 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 
+import piuk.blockchain.android.R;
+
 public class SupportActivity extends Activity {
 
     @Override

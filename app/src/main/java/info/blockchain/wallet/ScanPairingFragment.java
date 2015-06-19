@@ -12,6 +12,8 @@ import com.dm.zbar.android.scanner.ZBarScannerActivity;
 
 import net.sourceforge.zbar.Symbol;
 
+import piuk.blockchain.android.R;
+
 /**
  * Created by riaanvos on 23/03/15.
  */

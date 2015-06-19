@@ -16,12 +16,13 @@ import java.util.Collections;
 import java.util.List;
 
 import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.R;
 import info.blockchain.wallet.Setup00Activity;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 //import android.util.Log;
+
+import piuk.blockchain.android.R;
 
 public class BackupWalletUtil {
 
