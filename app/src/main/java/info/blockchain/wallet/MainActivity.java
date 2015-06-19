@@ -131,7 +131,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         PRNGFixes.apply();
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
-        AppUtil.getInstance(this).setUpgraded(false);
+
         NotificationsFactory.getInstance(this).resetNotificationCounter();
 
         if(!ConnectivityStatus.hasConnectivity(this)) {
@@ -191,7 +191,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AccountsUtil.getInstance(this).initAccountMaps();
 
-                if(!AppUtil.getInstance(this).getUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                if(!PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);
                 }
@@ -204,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AccountsUtil.getInstance(this).initAccountMaps();
 
-                if(!AppUtil.getInstance(this).getUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                if(!PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);
                 }
@@ -827,7 +827,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
                 continue;
-            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && AppUtil.getInstance(this).getUpgraded()){
+            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
                 continue;//Wallet has been upgraded
             }
 

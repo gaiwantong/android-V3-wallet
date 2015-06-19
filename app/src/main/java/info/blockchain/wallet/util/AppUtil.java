@@ -1,5 +1,6 @@
 package info.blockchain.wallet.util;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
@@ -7,8 +8,6 @@ import android.os.Looper;
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.payload.PayloadFactory;
-
 import piuk.blockchain.android.R;
 
 public class AppUtil {
@@ -25,6 +24,7 @@ public class AppUtil {
     private static Thread lockThread = null;
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
+    private static boolean upgradeSelected = false;//user's response
 
 	private AppUtil() { ; }
 
@@ -78,10 +78,17 @@ public class AppUtil {
                 Looper.prepare();
                 try{
                     Thread.sleep(TIMEOUT_DELAY);
-                    ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    restartApp();
-                    clearPinEntryTime();
 
+                    KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                    if( myKM.inKeyguardRestrictedInputMode()) {
+                        //screen is locked, time is up - lock app
+                        ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                        restartApp();
+                        clearPinEntryTime();
+                    } else {
+                        //screen not locked, sleep some more
+                        updatePinEntryTime();
+                    }
                 }catch (Exception e){
                 }
                 Looper.loop();
@@ -125,12 +132,12 @@ public class AppUtil {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
     }
 
-    public void setUpgraded(boolean upgraded) {
-        PayloadFactory.getInstance().get().setUpgraded(upgraded);
+    public boolean isUpgradeSelected() {
+        return upgradeSelected;
     }
 
-    public boolean getUpgraded() {
-        return PayloadFactory.getInstance().get().isUpgraded();
+    public void setUpgradeSelected(boolean upgradeSelected) {
+        AppUtil.upgradeSelected = upgradeSelected;
     }
 
 }
