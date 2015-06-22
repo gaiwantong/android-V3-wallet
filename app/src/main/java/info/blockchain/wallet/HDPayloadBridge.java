@@ -134,10 +134,10 @@ public class HDPayloadBridge	{
     public ReceiveAddress getReceiveAddress(int accountIdx) throws DecoderException, IOException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicLengthException, AddressFormatException {
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-            return AddressFactory.getInstance(context, null).get(accountIdx, 0);
+            return AddressFactory.getInstance(context, null).getReceiveAddress(accountIdx);
         }
         else {
-            return AddressFactory.getInstance(context, getXPUBs(true)).get(accountIdx, 0);
+            return AddressFactory.getInstance(context, getXPUBs(true)).getReceiveAddress(accountIdx);
         }
 
     }

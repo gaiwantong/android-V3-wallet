@@ -55,25 +55,20 @@ public class AddressFactory {
         return instance;
     }
 
-    public ReceiveAddress get(int accountIdx, int chain)	{
+    public ReceiveAddress getReceiveAddress(int accountIdx)	{
 
         int idx = 0;
         HD_Address addr = null;
 
         try	{
-            if(chain == RECEIVE_CHAIN)	{
-                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxReceiveAddresses();
-            }
-            else	{
-                idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
-            }
+            idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxReceiveAddresses();
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
-                addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
+                addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
             }
             else	{
-                addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);
+                addr = double_encryption_wallet.getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
             }
-            if(chain == RECEIVE_CHAIN && ((idx - MultiAddrFactory.getInstance().getHighestTxReceiveIdx(PayloadFactory.getInstance().get().getAccount2Xpub().get(accountIdx))) < (LOOKAHEAD_GAP - 1)))	{
+            if(((idx - MultiAddrFactory.getInstance().getHighestTxReceiveIdx(PayloadFactory.getInstance().get().getAccount2Xpub().get(accountIdx))) < (LOOKAHEAD_GAP - 1)))	{
 //                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
