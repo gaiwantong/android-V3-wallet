@@ -38,6 +38,9 @@ import info.blockchain.wallet.util.PRNGFixes;
  */
 public class HD_WalletFactory	{
 
+    private static String REGEX_XPUB = "^xpub[1-9A-Za-z][^OIl]+$";
+    private static String REGEX_HEX = "^[0-9A-Fa-f]+$";
+
     private static HD_WalletFactory instance = null;
     private static List<HD_Wallet> wallets = null;
     private static HD_Wallet watch_only_wallet = null;
@@ -200,11 +203,11 @@ public class HD_WalletFactory	{
             mc = new MnemonicCode(wis, MnemonicCode.BIP39_ENGLISH_SHA256);
 
             byte[] seed = null;
-            if(data.matches("^xpub[1-9A-Za-z][^OIl]+$")) {
+            if(data.matches(REGEX_XPUB)) {
                 String[] xpub = data.split(":");
                 hdw = new HD_Wallet(params, xpub);
             }
-            else if(data.matches("^[0-9A-Fa-f]+$") && data.length() % 4 == 0) {
+            else if(data.matches(REGEX_HEX) && data.length() % 4 == 0) {
                 seed = Hex.decodeHex(data.toCharArray());
                 hdw = new HD_Wallet(mc, params, seed, passphrase, nbAccounts);
             }
