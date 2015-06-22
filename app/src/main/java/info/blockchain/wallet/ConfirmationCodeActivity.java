@@ -20,9 +20,6 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 18/05/15.
- */
 public class ConfirmationCodeActivity extends ActionBarActivity implements TextWatcher{
 
     private TextView tvInstructions = null;

@@ -28,9 +28,6 @@ import info.blockchain.wallet.util.TypefaceUtil;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 23/03/15.
- */
 public class ManualPairingFragment extends Fragment {
 
     private EditText edGuid = null;
@@ -44,7 +41,6 @@ public class ManualPairingFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
 
         rootView.setFilterTouchesWhenObscured(true);

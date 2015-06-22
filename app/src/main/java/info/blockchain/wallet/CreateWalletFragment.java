@@ -26,9 +26,6 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 25/03/15.
- */
 public class CreateWalletFragment extends Fragment {
 
     private EditText edEmail = null;

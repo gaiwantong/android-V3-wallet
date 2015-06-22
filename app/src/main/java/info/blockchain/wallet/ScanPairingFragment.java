@@ -14,15 +14,11 @@ import net.sourceforge.zbar.Symbol;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 23/03/15.
- */
 public class ScanPairingFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.include_setup0, container, false);//random view for now until zbar implemented
+        View rootView = inflater.inflate(R.layout.include_setup0, container, false);
 
         rootView.setFilterTouchesWhenObscured(true);
 
@@ -40,7 +36,6 @@ public class ScanPairingFragment extends Fragment {
 
     private void launchQRScan() {
 
-        //For now start scanner in new activity... need to wrap this in container still
         Intent intent = new Intent(getActivity(), ZBarScannerActivity.class);
         intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
         getActivity().startActivityForResult(intent, Setup00Activity.PAIRING_QR);

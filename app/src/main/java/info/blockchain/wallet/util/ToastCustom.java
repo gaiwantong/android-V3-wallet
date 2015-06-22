@@ -9,9 +9,6 @@ import android.widget.Toast;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 12/06/15.
- */
 public class ToastCustom{
 
     public static final String TYPE_ERROR = "TYPE_ERROR";

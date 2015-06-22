@@ -23,9 +23,6 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 23/03/15.
- */
 public class Setup00Activity extends ActionBarActivity {
 
     public static final int PAIRING_QR = 2005;

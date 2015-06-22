@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 23/03/15.
- */
 public class PairWalletFragment extends Fragment {
 
     TextView commandScan;
@@ -20,7 +17,6 @@ public class PairWalletFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_pair_wallet, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.pair_your_wallet));
