@@ -19,7 +19,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn.secure;
+package de.tavendo.autobahn;
 
 
 /**

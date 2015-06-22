@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn.secure;
+package de.tavendo.autobahn;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -141,12 +141,13 @@ public class WebSocketWriter extends Thread {
 			path = "/";
 		}
 
-		mApplicationBuffer.put(("GET " + path + " HTTP/1.1" + CRLF).getBytes());
-		String portPart = "";
-		if (message.getURI().getPort() != -1) {
-			portPart = ":" + String.valueOf(message.getURI().getPort());
-		}
-		mApplicationBuffer.put(("Host: " + message.getURI().getHost() + portPart + CRLF).getBytes());
+        String query = message.getURI().getQuery();
+        if (query != null && query.length() > 0) {
+    		path = path + "?" + query;
+    	}
+
+        mApplicationBuffer.put(("GET " + path + " HTTP/1.1" + CRLF).getBytes());
+		mApplicationBuffer.put(("Host: " + message.getURI().getHost() + CRLF).getBytes());
 		mApplicationBuffer.put(("Upgrade: WebSocket" + CRLF).getBytes());
 		mApplicationBuffer.put(("Connection: Upgrade" + CRLF).getBytes());
 		mApplicationBuffer.put(("Sec-WebSocket-Key: " + newHandshakeKey() + CRLF).getBytes());
