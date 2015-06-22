@@ -24,7 +24,6 @@ public class AppUtil {
     private static Thread lockThread = null;
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
-    private static boolean upgradeSelected = false;//user's response
 
 	private AppUtil() { ; }
 
@@ -130,14 +129,6 @@ public class AppUtil {
 
     public void setUpgradeReminder(long ts) {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
-    }
-
-    public boolean isUpgradeSelected() {
-        return upgradeSelected;
-    }
-
-    public void setUpgradeSelected(boolean upgradeSelected) {
-        AppUtil.upgradeSelected = upgradeSelected;
     }
 
 }

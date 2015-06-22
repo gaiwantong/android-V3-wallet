@@ -161,6 +161,8 @@ public class PinEntryActivity extends Activity {
             // create wallet
             // restart
 
+            PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_HD_ISUPGRADED, true);
+
             HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));

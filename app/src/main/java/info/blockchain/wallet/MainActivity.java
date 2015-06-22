@@ -191,7 +191,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AccountsUtil.getInstance(this).initAccountMaps();
 
-                if(!PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                if(!PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) && !PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);
                 }
@@ -204,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AccountsUtil.getInstance(this).initAccountMaps();
 
-                if(!PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
+                if(!PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) && !PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);
                 }
@@ -827,7 +827,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
                 continue;
-            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
+            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded() || PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false))){
                 continue;//Wallet has been upgraded
             }
 
