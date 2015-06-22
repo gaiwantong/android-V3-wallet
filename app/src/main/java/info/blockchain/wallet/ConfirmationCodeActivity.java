@@ -149,7 +149,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     if (response != null && response.equals("Email successfully verified")) {
                         AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                     }else {
-                        ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
+                        ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         clearBoxes();
                     }
                 }

@@ -8,10 +8,10 @@ import java.util.List;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
-
 import piuk.blockchain.android.R;
 
 public class AccountsUtil {
@@ -63,7 +63,10 @@ public class AccountsUtil {
 		int accountIndex = 0;
 		int spinnerIndex = 0;
 
-		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+        HDWallet hdWallet = PayloadFactory.getInstance().get().getHdWallet();
+		List<Account> accounts = new ArrayList<>();
+        if(hdWallet!=null && hdWallet.getAccounts()!=null)accounts = hdWallet.getAccounts();
+
 		List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
 
 		//All Account - if multiple accounts or contains legacy address

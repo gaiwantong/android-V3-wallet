@@ -1014,10 +1014,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){
 
         String hash = null;
-        String md5 = email;
         try {
             MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-            byte[] arr = md.digest(md5.getBytes());
+            byte[] arr = md.digest(email.getBytes());
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arr.length; ++i)
                 sb.append(Integer.toHexString((arr[i] & 0xFF) | 0x100).substring(1,3));
