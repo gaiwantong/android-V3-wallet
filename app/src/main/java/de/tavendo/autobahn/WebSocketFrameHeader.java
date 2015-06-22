@@ -1,4 +1,4 @@
-package de.tavendo.autobahn.secure;
+package de.tavendo.autobahn;
 
 public class WebSocketFrameHeader {
 	private int mOpcode;

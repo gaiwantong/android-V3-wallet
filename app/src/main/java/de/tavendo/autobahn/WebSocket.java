@@ -1,4 +1,4 @@
-package de.tavendo.autobahn.secure;
+package de.tavendo.autobahn;
 
 import java.net.URI;
 
@@ -11,8 +11,8 @@ public interface WebSocket {
 	public interface WebSocketConnectionObserver {
 		public static enum WebSocketCloseNotification {
 			NORMAL,
-			CANNOT_CONNECT,
-			CONNECTION_LOST,
+			CANNOT_CONNECT, 
+			CONNECTION_LOST, 
 			PROTOCOL_ERROR,
 			INTERNAL_ERROR,
 			SERVER_ERROR,
@@ -56,13 +56,6 @@ public interface WebSocket {
 		 * @param payload    Binar message payload or null (empty payload).
 		 */
 		public void onBinaryMessage(byte[] payload);
-
-		/**
-		 * Fired when a close message has been received.
-		 *
-		 * @param payload    Parsed close message
-		 */
-		public void onCloseMessage(WebSocketMessage.Close close);
 	}
 
 	public void connect(URI uri, WebSocketConnectionObserver observer) throws WebSocketException;

@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn.secure;
+package de.tavendo.autobahn;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
