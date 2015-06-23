@@ -86,8 +86,6 @@ public class HDPayloadBridge	{
 
         }
 
-        PayloadFactory.getInstance().cache();
-
         getBalances();
 
         // update highest idxs here, they were just updated above in getBalances();
@@ -97,6 +95,8 @@ public class HDPayloadBridge	{
             a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
         }
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
+
+        PayloadFactory.getInstance().cache();
 
         return true;
      }

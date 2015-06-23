@@ -184,18 +184,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
+                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+                Fragment fragment = new BalanceFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+                AccountsUtil.getInstance(this).initAccountMaps();
+
                 if(!PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) && !PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
                     Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                     startActivity(intent);
                 }
-                else{
-                    AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-                    Fragment fragment = new BalanceFragment();
-                    FragmentManager fragmentManager = getFragmentManager();
-                    fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-                    AccountsUtil.getInstance(this).initAccountMaps();
-                }
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);

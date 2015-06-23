@@ -187,7 +187,7 @@ public class Payload {
         return hdWallets.get(0);
     }
 
-    public void setHdWallets(HDWallet hdWallet) { this.hdWallets.add(hdWallet); }
+    public void setHdWallets(HDWallet hdWallet) { this.hdWallets.clear(); this.hdWallets.add(hdWallet); }
 
     public Map<Integer, String> getTagNames() {
         return tag_names;
