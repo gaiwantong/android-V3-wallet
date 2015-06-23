@@ -72,19 +72,42 @@ public class AccountsUtil {
 		//All Account - if multiple accounts or contains legacy address
 		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
 
-			Account all = new Account();
-			all.setLabel(context.getResources().getString(R.string.all_accounts));
-			balanceAccountMap.put(-1, all);
+            if(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(context).get().isUpgraded()) {
+                Account all = new Account();
+                all.setLabel(context.getResources().getString(R.string.all_accounts));
+                balanceAccountMap.put(-1, all);
+            }else{
+                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+                accounts.add(iAccount);
+            }
 		}
 
-		//Add Legacy addresses to accounts
-		if(accounts != null && accounts.size() > 0
-				&& !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
-				&& (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
+        //Add Legacy addresses to accounts
+        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(context).get().isUpgraded()) {
+            if (accounts != null && accounts.size() > 0
+                    && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
+                    && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {
 
-			ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
-			accounts.add(iAccount);
-		}
+                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+                accounts.add(iAccount);
+            }
+        } else {
+
+            List<LegacyAddress> list = PayloadFactory.getInstance().get().getLegacyAddresses();
+
+            if(list!=null) {
+                for (int j = 0; j < list.size(); j++) {
+                    LegacyAddress leg = list.get(j);
+                    if(leg.getLabel()==null || leg.getLabel().length() == 0)leg.setLabel(leg.getAddress());
+
+                    List<LegacyAddress> legList = new ArrayList<>();
+                    legList.add(leg);
+                    ImportedAccount imp = new ImportedAccount(leg.getLabel(), legList, new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(leg.getAddress()));
+                    imp.setLabel(leg.getLabel());
+                    accounts.add(imp);
+                }
+            }
+        }
 
 		for (Account item : accounts){
 

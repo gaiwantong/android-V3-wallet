@@ -74,7 +74,6 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
 
 public class BalanceFragment extends Fragment {
@@ -222,10 +221,7 @@ public class BalanceFragment extends Fragment {
             //Single account - no spinner
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
             Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
-            String label = "needs fixing...";
-            if(acc!=null && acc.getLabel()!=null)
-                label = acc.getLabel();
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(label);
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.GONE);
         }
