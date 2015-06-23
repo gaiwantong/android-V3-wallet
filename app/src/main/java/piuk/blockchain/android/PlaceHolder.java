@@ -1,5 +1,7 @@
 package piuk.blockchain.android;
 
-public class PlaceHolder {
+import android.app.Activity;
+
+public class PlaceHolder extends Activity {
     ;
 }
