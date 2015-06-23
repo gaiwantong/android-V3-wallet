@@ -61,7 +61,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-
 import piuk.blockchain.android.R;
 
 public class MyAccountsActivity extends Activity {
@@ -183,12 +182,7 @@ public class MyAccountsActivity extends Activity {
         headerPositions = new ArrayList<Integer>();
 
         ArrayList<MyAccountItem> accountItems = new ArrayList<>();
-        //First Header Position
-        headerPositions.add(0);
-        accountItems.add(new MyAccountItem(ACCOUNT_HEADER,"",getResources().getDrawable(R.drawable.icon_accounthd)));
-
         accountsAndImportedList = getAccounts();
-
         toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
 
         for(MyAccountItem item : accountsAndImportedList){
@@ -383,30 +377,36 @@ public class MyAccountsActivity extends Activity {
     private List<MyAccountItem> getAccounts() {
 
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
-        ImportedAccount iAccount = null;
 
-        List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+        //First Header Position
+        headerPositions.add(0);
+        accountList.add(new MyAccountItem(ACCOUNT_HEADER, "", getResources().getDrawable(R.drawable.icon_accounthd)));
+
+        int i = 0;
+        if(PayloadFactory.getInstance(this).get().isUpgraded()) {
+
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accountClone = new ArrayList<Account>(accounts.size());
+            accountClone.addAll(accounts);
+
+            if (accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
+                accountClone.remove(accountClone.size() - 1);
+            }
+            hdAccountsIdx = accountClone.size();
+
+            for (; i < accountClone.size(); i++) {
+
+                String label = accountClone.get(i).getLabel();
+                if (label == null || label.length() == 0) label = "Account: " + (i + 1);
+
+                accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+            }
+        }
+
+        ImportedAccount iAccount = null;
         if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
             iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
-
-        List<Account> accountClone = new ArrayList<Account>(accounts.size());
-        accountClone.addAll(accounts);
-
-        if(accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
-            accountClone.remove(accountClone.size() - 1);
-        }
-        hdAccountsIdx = accountClone.size();
-
-        int i = 0;
-        for(; i < accountClone.size(); i++) {
-
-            String label = accountClone.get(i).getLabel();
-            if(label==null || label.length() == 0)label = "Account: " + (i + 1);
-
-            accountList.add(new MyAccountItem(label,displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
-        }
-
         if(iAccount != null) {
 
             //Imported Header Position
