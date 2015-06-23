@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-            else if(isPinValidated) {
+            else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 if(!PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) && !PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
@@ -195,19 +195,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
                     AccountsUtil.getInstance(this).initAccountMaps();
-                }
-            }
-            else if(AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut()) {
-                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-                Fragment fragment = new BalanceFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-                AccountsUtil.getInstance(this).initAccountMaps();
-
-                if(!PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) && !PayloadFactory.getInstance().get().isUpgraded() && AppUtil.getInstance(this).isTimeForUpgradeReminder()){
-                    Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
-                    startActivity(intent);
                 }
             }
             else {
