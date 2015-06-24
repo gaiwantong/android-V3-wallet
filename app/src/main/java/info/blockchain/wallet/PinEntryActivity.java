@@ -288,16 +288,8 @@ public class PinEntryActivity extends Activity {
                                     }
                                 }
 
-                                /*
-                                if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false)){
-                                    AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                }else{
-                                    Intent intent = new Intent(PinEntryActivity.this, ConfirmationCodeActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                }
-                                */
-                            }
+                           }
+
                         });
 
                     }
