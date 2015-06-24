@@ -455,7 +455,11 @@ public class BalanceFragment extends Fragment {
         }
 
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+            //All accounts / funds
+            if (PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+            else
+                txs = MultiAddrFactory.getInstance().getLegacyTxs();
         } else {
             String xpub = account2Xpub(selectedAccount);
 
@@ -466,12 +470,13 @@ public class BalanceFragment extends Fragment {
             } else {
                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                 if (hda instanceof ImportedAccount) {
-                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                    if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                        txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                    else
+                        txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
                 }
             }
-
         }
-
     }
 
     private String account2Xpub(int accountIndex) {
@@ -737,8 +742,11 @@ public class BalanceFragment extends Fragment {
                         }
 
                         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-                            //All accounts
-                            txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+                            //All accounts / funds
+                            if (PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+                            else
+                                txs = MultiAddrFactory.getInstance().getLegacyTxs();
                         } else {
                             String xpub = account2Xpub(selectedAccount);
 
@@ -749,7 +757,10 @@ public class BalanceFragment extends Fragment {
                             } else {
                                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                                 if (hda instanceof ImportedAccount) {
-                                    txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                                    if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                                        txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                                    else
+                                        txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
                                 }
                             }
 

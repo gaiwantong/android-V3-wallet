@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.payload.TxMostRecentDateComparator;
@@ -26,6 +25,7 @@ public class MultiAddrFactory	{
     private static HashMap<String, Long> legacy_amounts = null;
     private static HashMap<String,List<Tx>> xpub_txs = null;
     private static List<Tx> legacy_txs = null;
+    private static HashMap<String,List<Tx>> address_legacy_txs = null;
     private static HashMap<String,List<String>> haveUnspentOuts = null;
     private static List<String> own_hd_addresses = null;
     private static HashMap<String,String> address_2_xpub = null;
@@ -50,6 +50,7 @@ public class MultiAddrFactory	{
             legacy_amounts = new HashMap<String, Long>();
             xpub_txs = new HashMap<String,List<Tx>>();
             legacy_txs = new ArrayList<Tx>();
+            address_legacy_txs = new HashMap<>();
             haveUnspentOuts = new HashMap<String,List<String>>();
             highestTxReceiveIdx = new HashMap<String,Integer>();
             highestTxChangeIdx = new HashMap<String,Integer>();
@@ -423,6 +424,16 @@ public class MultiAddrFactory	{
                         }
                         tx.setConfirmations((latest_block > 0L && height > 0L) ? (latest_block - height) + 1 : 0);
                         legacy_txs.add(tx);
+
+                        List<Tx> containedLegacyTx = address_legacy_txs.get(addr);
+                        if(containedLegacyTx!=null) {
+                            containedLegacyTx.add(tx);
+                            address_legacy_txs.put(addr, containedLegacyTx);
+                        }else{
+                            containedLegacyTx = new ArrayList<>();
+                            containedLegacyTx.add(tx);
+                            address_legacy_txs.put(addr, containedLegacyTx);
+                        }
                     }
                 }
             }
@@ -513,6 +524,10 @@ public class MultiAddrFactory	{
 
     public List<Tx> getLegacyTxs()  {
         return legacy_txs;
+    }
+
+    public List<Tx> getAddressLegacyTxs(String addr)  {
+        return address_legacy_txs.get(addr);
     }
 
     public HashMap<String,List<String>> getUnspentOuts()  {
