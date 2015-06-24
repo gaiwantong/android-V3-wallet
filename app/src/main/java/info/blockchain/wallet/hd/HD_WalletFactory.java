@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import java.nio.charset.Charset;
 
 import android.content.Context;
 
@@ -22,11 +21,6 @@ import org.apache.commons.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PRNGFixes;
 
 /**
@@ -154,11 +148,11 @@ public class HD_WalletFactory	{
         byte seed[] = new byte[len];
         random.nextBytes(seed);
 
-        InputStream wis = context.getResources().getAssets().open("wordlist/english.txt");
-        if(wis != null) {
-            MnemonicCode mc = new MnemonicCode(wis, MnemonicCode.BIP39_ENGLISH_SHA256);
+        InputStream is = context.getResources().getAssets().open("bip39/en.txt");
+        if(is != null) {
+            MnemonicCode mc = new MnemonicCode(is, MnemonicCode.BIP39_ENGLISH_SHA256);
             hdw = new HD_Wallet(mc, params, seed, passphrase, nbAccounts);
-            wis.close();
+            is.close();
         }
 
         wallets.clear();
@@ -191,7 +185,7 @@ public class HD_WalletFactory	{
 
         NetworkParameters params = MainNetParams.get();
 
-        InputStream wis = context.getResources().getAssets().open("wordlist/english.txt");
+        InputStream wis = context.getResources().getAssets().open("bip39/en.txt");
         if(wis != null) {
             List<String> words = null;
 
@@ -235,12 +229,6 @@ public class HD_WalletFactory	{
     public HD_Wallet get() throws IOException, MnemonicException.MnemonicLengthException {
 
         if(wallets.size() < 1) {
-            /*
-            // if wallets list is empty, create 12-word wallet without passphrase and 2 accounts
-//            wallets.add(0, newWallet(12, "", 2));
-            wallets.clear();
-            wallets.add(newWallet(12, "", 2));
-            */
             return null;
         }
 
