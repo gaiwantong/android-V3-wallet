@@ -79,15 +79,13 @@ public class SendFactory	{
     }
 
     /**
-     * Send coins from this wallet.
+     * Initial preparation for sending coins from this wallet.
      * <p>
      * Collects sending addresses for HD or legacy spend
      * Collects unspent outputs from sending addresses
-     * Creates transaction
-     * Signs tx
      * <p>
-     * And even more explanations to follow in consecutive
-     * paragraphs separated by HTML paragraph breaks.
+     * After calling this method alternate fee amounts may be calculated based
+     * on the number of inputs.
      *
      * @param  int accountIdx HD account index, -1 if legacy spend
      * @param  String toAddress Receiving public address
@@ -159,13 +157,9 @@ public class SendFactory	{
     /**
      * Send coins from this wallet.
      * <p>
-     * Collects sending addresses for HD or legacy spend
-     * Collects unspent outputs from sending addresses
      * Creates transaction
+     * Assigns change address
      * Signs tx
-     * <p>
-     * And even more explanations to follow in consecutive
-     * paragraphs separated by HTML paragraph breaks.
      *
      * @param  int accountIdx HD account index, -1 if legacy spend
      * @param  List<MyTransactionOutPoint> unspent List of unspent outpoints
