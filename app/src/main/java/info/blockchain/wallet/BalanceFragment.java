@@ -408,26 +408,34 @@ public class BalanceFragment extends Fragment {
 
         Account hda = null;
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            //All accounts
-            btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance() / 1e8);
+            //All accounts / funds
+            if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance());
+            else
+                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
         } else {
+            //Individual account / address
             hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
             if (hda instanceof ImportedAccount) {
-                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance() / 1e8);
-            } else {
-                btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) / 1e8);
-            }
+                if(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false) || PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                else
+                    btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
+
+            } else
+                btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))));
         }
 
-        fiat_balance = btc_fx * btc_balance;
+        fiat_balance = btc_fx * (btc_balance / 1e8);
 
-        if (hda != null && hda instanceof ImportedAccount) {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getLegacyBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        } else if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubBalance()) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        } else {
-            span1 = Spannable.Factory.getInstance().newSpannable(isBTC ? (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))) + " " + getDisplayUnits()) : (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat));
-        }
+        String balanceTotal = "";
+        if(isBTC)
+            balanceTotal = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
+        else
+            balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
+
+        span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
+
         span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvBalance1.setText(span1);
     }
