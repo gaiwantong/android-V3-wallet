@@ -23,7 +23,6 @@ public class Setup0Activity extends Activity	{
     private Button btCreate = null;
     private TextView btLogin = null;
 
-    /** Called when the activity is first created. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
