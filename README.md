@@ -12,6 +12,9 @@ Build -> Make Project
 
 If there are build errors, in Android Studio go to Tools -> Android -> SDK Manager and install any available updates.
 
+de.tavendo.autobahn.secure: provided in source form following changes made for accessing wss://ws.blockchain.info/inv
+com.google.common: provided in source form to use only the needed packages and reduce method footprint.
+
 ### Notes
 
 info.blockchain.wallet.hd: HD classes that wrap-around BitcoinJ and provide full BIP39/BIP44 support, including passphrases. Fully tested for compatibility with known BIP44 wallets: Mycelium, Wallet32, Coinomi, Trezor (hardware), Ledger (hardware) Includes support for initializing accounts using XPUB values.
