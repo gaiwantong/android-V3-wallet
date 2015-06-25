@@ -22,7 +22,6 @@ public class PrefsUtil {
 	public static final String KEY_EMAIL_VERIFIED 		= "code_verified";
     public static final String KEY_SESSION_ID 			= "session_id";
     public static final String KEY_HD_UPGRADED_LAST_REMINDER = "hd_upgraded_last_reminder";
-    public static final String KEY_HD_ISUPGRADED 			= "hd_is_upgraded";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;

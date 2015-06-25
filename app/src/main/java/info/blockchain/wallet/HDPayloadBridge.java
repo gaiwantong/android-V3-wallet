@@ -22,6 +22,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -73,14 +74,14 @@ public class HDPayloadBridge	{
             HDWallet hdw = new HDWallet();
             hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
             List<Account> accounts = new ArrayList<Account>();
-            if(PayloadFactory.getInstance().get().isUpgraded() || PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false)) {
+            if(PayloadFactory.getInstance().get().isUpgraded() || AppUtil.getInstance(context).isNewlyCreated()) {
                 accounts.add(new Account());
                 accounts.get(0).setXpub(HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr());
                 accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
             }
             hdw.setAccounts(accounts);
             PayloadFactory.getInstance().get().setHdWallets(hdw);
-            if(PayloadFactory.getInstance().get().isUpgraded()|| PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_ISUPGRADED, false)) {
+            if(PayloadFactory.getInstance().get().isUpgraded() || AppUtil.getInstance(context).isNewlyCreated()) {
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
 

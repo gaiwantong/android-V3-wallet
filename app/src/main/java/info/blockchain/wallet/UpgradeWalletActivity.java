@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class UpgradeWalletActivity extends Activity {
@@ -140,7 +139,6 @@ public class UpgradeWalletActivity extends Activity {
                         Looper.prepare();
                         try {
 
-                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_ISUPGRADED, true);
                             HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
 
                         } catch (JSONException e) {

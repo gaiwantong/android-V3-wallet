@@ -24,6 +24,7 @@ public class AppUtil {
     private static Thread lockThread = null;
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
+    private static boolean newlyCreated = false;
 
 	private AppUtil() { ; }
 
@@ -131,4 +132,11 @@ public class AppUtil {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
     }
 
+    public boolean isNewlyCreated() {
+        return newlyCreated;
+    }
+
+    public void setNewlyCreated(boolean newlyCreated) {
+        this.newlyCreated = newlyCreated;
+    }
 }

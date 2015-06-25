@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="piuk.blockchain.android"
     android:versionCode="165"
-    android:installLocation="preferExternal"
+    android:installLocation="auto"
     android:versionName="@string/version_name"
     >
 

@@ -36,7 +36,6 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-
 import piuk.blockchain.android.R;
 
 public class PinEntryActivity extends Activity {
@@ -161,7 +160,8 @@ public class PinEntryActivity extends Activity {
             // create wallet
             // restart
 
-            PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_HD_ISUPGRADED, true);
+//            PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_HD_ISUPGRADED, true);
+            AppUtil.getInstance(this).setNewlyCreated(true);
 
             HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
