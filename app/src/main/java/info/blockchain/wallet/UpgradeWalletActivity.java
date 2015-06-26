@@ -32,6 +32,7 @@ import java.io.IOException;
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class UpgradeWalletActivity extends Activity {
@@ -123,7 +124,12 @@ public class UpgradeWalletActivity extends Activity {
         confirmCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+
+                AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
+                AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
             }
         });
 
@@ -199,6 +205,7 @@ public class UpgradeWalletActivity extends Activity {
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
+                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
                         AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
                         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);

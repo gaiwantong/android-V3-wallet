@@ -37,6 +37,7 @@ public class AccountsUtil {
         context = ctx;
 
         if (instance == null) {
+            initAccountMaps();
             instance = new AccountsUtil();
         }
 
@@ -51,12 +52,12 @@ public class AccountsUtil {
 		return currentSpinnerIndex;
 	}
 
-	public void initAccountMaps(){
+	public static void initAccountMaps(){
 		initBalanceAccountMap();
 		initSendReceiveAccountMap();
 	}
 
-	public void initBalanceAccountMap(){
+	public static void initBalanceAccountMap(){
 
 		balanceAccountMap = new LinkedHashMap<Integer, Account>();
 		balanceAccountIndexResolver = new LinkedHashMap<Integer, Integer>();
@@ -124,7 +125,7 @@ public class AccountsUtil {
 		}
 	}
 
-	public void initSendReceiveAccountMap() {
+	public static void initSendReceiveAccountMap() {
 
 		sendReceiveAccountMap = new LinkedHashMap<Integer, Account>();
 		sendReceiveAccountIndexResolver = new LinkedHashMap<Integer, Integer>();
