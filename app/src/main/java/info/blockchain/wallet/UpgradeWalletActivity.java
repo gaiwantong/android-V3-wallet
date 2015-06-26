@@ -123,7 +123,12 @@ public class UpgradeWalletActivity extends Activity {
         confirmCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+
+                AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
+                AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
             }
         });
 
