@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="piuk.blockchain.android"
     android:versionCode="165"
-    android:installLocation="auto"
+    android:installLocation="preferExternal"
     android:versionName="@string/version_name"
     >
 
@@ -167,6 +167,11 @@
             android:label="@string/app_name"
             android:configChanges="keyboardHidden|orientation|screenSize"
             >
+        </activity>
+
+        <activity android:name="info.blockchain.wallet.PolicyActivity"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Dialog" >
         </activity>
 
     </application>
