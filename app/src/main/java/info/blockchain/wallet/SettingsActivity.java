@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -37,7 +36,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -174,8 +172,8 @@ public class SettingsActivity extends PreferenceActivity {
         tosPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
 
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://blockchain.info/Resources/TermsofServicePolicy.pdf"));
+                Intent intent = new Intent(SettingsActivity.this, PolicyActivity.class);
+                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");
                 startActivity(intent);
 
                 return true;
@@ -186,8 +184,8 @@ public class SettingsActivity extends PreferenceActivity {
         privacyPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
 
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://blockchain.info/Resources/PrivacyPolicy.pdf"));
+                Intent intent = new Intent(SettingsActivity.this, PolicyActivity.class);
+                intent.putExtra("uri", "https://blockchain.info/Resources/PrivacyPolicy.pdf");
                 startActivity(intent);
 
                 return true;
