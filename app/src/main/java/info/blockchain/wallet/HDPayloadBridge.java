@@ -65,6 +65,10 @@ public class HDPayloadBridge	{
             return false;
         }
 
+        if(!PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L)	{
+            return true;
+        }
+
         //
         // create HD wallet if not present and sync w/ payload, replace this w/ user prompt + setup
         //

@@ -273,7 +273,7 @@ public class PinEntryActivity extends Activity {
                                 }
                                 else    {
 
-                                    if(Long.parseLong(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) > 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
+                                    if(Long.parseLong(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
                                         Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);

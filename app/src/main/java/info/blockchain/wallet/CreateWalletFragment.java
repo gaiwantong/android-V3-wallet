@@ -20,8 +20,10 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
@@ -178,6 +180,8 @@ public class CreateWalletFragment extends Fragment {
                                 }).show();
                 }
                 else {
+                    AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                     intent.putExtra("_email", em);
                     intent.putExtra("_pw", pw1);
