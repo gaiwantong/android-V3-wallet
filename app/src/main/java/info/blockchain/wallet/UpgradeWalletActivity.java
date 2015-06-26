@@ -29,6 +29,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
@@ -139,6 +140,8 @@ public class UpgradeWalletActivity extends Activity {
                         Looper.prepare();
                         try {
 
+                            AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
+
                             HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
 
                         } catch (JSONException e) {
@@ -196,7 +199,9 @@ public class UpgradeWalletActivity extends Activity {
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+                        AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                        AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
+                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
                     }
                 });
             }
