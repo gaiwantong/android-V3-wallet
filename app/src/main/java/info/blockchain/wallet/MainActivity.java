@@ -147,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                     d.dismiss();
                                     Class c = null;
                                     if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
-                                        c = Setup0Activity.class;
+                                        c = LandingActivity.class;
                                     }
                                     else {
                                         c = PinEntryActivity.class;
@@ -172,7 +172,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                Intent intent = new Intent(MainActivity.this, Setup0Activity.class);
+                Intent intent = new Intent(MainActivity.this, LandingActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
@@ -239,7 +239,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
-                c = Setup0Activity.class;
+                c = LandingActivity.class;
             }
             else {
                 c = PinEntryActivity.class;

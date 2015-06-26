@@ -13,12 +13,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.*;
 //import android.util.Log;
 
 import piuk.blockchain.android.R;
 
-public class Setup0Activity extends Activity	{
+public class LandingActivity extends Activity	{
 
     private Button btCreate = null;
     private TextView btLogin = null;
@@ -35,7 +34,7 @@ public class Setup0Activity extends Activity	{
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
-                    Intent intent = new Intent(Setup0Activity.this, info.blockchain.wallet.Setup00Activity.class);
+                    Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("starting_fragment",0);
                     startActivity(intent);
@@ -49,7 +48,7 @@ public class Setup0Activity extends Activity	{
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
-                    Intent intent = new Intent(Setup0Activity.this, info.blockchain.wallet.Setup00Activity.class);
+                    Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("starting_fragment",1);
                     startActivity(intent);
@@ -69,7 +68,7 @@ public class Setup0Activity extends Activity	{
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface d, int id) {
                                 d.dismiss();
-                                Intent intent = new Intent(Setup0Activity.this, info.blockchain.wallet.Setup0Activity.class);
+                                Intent intent = new Intent(LandingActivity.this, LandingActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                             }
