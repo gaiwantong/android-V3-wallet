@@ -74,14 +74,15 @@ public class HDPayloadBridge	{
             HDWallet hdw = new HDWallet();
             hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
             List<Account> accounts = new ArrayList<Account>();
-            if(PayloadFactory.getInstance().get().isUpgraded() || AppUtil.getInstance(context).isNewlyCreated()) {
+            if(AppUtil.getInstance(context).isNewlyCreated()) {
                 accounts.add(new Account());
                 accounts.get(0).setXpub(HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr());
                 accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
             }
             hdw.setAccounts(accounts);
             PayloadFactory.getInstance().get().setHdWallets(hdw);
-            if(PayloadFactory.getInstance().get().isUpgraded() || AppUtil.getInstance(context).isNewlyCreated()) {
+            PayloadFactory.getInstance().get().setUpgraded(true);
+            if(AppUtil.getInstance(context).isNewlyCreated()) {
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
 
