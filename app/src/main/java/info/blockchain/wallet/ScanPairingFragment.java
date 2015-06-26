@@ -38,6 +38,6 @@ public class ScanPairingFragment extends Fragment {
 
         Intent intent = new Intent(getActivity(), ZBarScannerActivity.class);
         intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
-        getActivity().startActivityForResult(intent, Setup00Activity.PAIRING_QR);
+        getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
     }
 }

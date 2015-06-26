@@ -23,7 +23,7 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
 
-public class Setup00Activity extends ActionBarActivity {
+public class PairOrCreateWalletActivity extends ActionBarActivity {
 
     public static final int PAIRING_QR = 2005;
 
@@ -58,8 +58,7 @@ public class Setup00Activity extends ActionBarActivity {
                     fragmentManager.popBackStack();
                 else
                 {
-                    //Start splash screen again
-                    Intent intent = new Intent(Setup00Activity.this, Setup0Activity.class);
+                    Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -67,6 +66,13 @@ public class Setup00Activity extends ActionBarActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     public void setActionBarTitle(String title){
@@ -101,16 +107,16 @@ public class Setup00Activity extends ActionBarActivity {
             public void run() {
                 Looper.prepare();
 
-                if(PairingFactory.getInstance(Setup00Activity.this).handleQRCode(data))	{
-                    PrefsUtil.getInstance(Setup00Activity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                    ToastCustom.makeText(Setup00Activity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
-                    Intent intent = new Intent(Setup00Activity.this, PinEntryActivity.class);
+                if(PairingFactory.getInstance(PairOrCreateWalletActivity.this).handleQRCode(data))	{
+                    PrefsUtil.getInstance(PairOrCreateWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
+                    Intent intent = new Intent(PairOrCreateWalletActivity.this, PinEntryActivity.class);
                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                     startActivity(intent);
                 }
                 else	{
-                    ToastCustom.makeText(Setup00Activity.this, getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(Setup00Activity.this).clearCredentialsAndRestart();
+                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    AppUtil.getInstance(PairOrCreateWalletActivity.this).clearCredentialsAndRestart();
                 }
 
                 handler.post(new Runnable() {

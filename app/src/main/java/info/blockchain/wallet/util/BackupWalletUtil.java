@@ -2,7 +2,6 @@ package info.blockchain.wallet.util;
 
 import android.content.Context;
 import android.util.Pair;
-import android.widget.Toast;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.Setup00Activity;
 import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
