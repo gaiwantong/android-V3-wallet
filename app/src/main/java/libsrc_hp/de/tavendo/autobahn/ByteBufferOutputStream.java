@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package libsrc_hp.de.tavendo.autobahn;
 
 import java.io.IOException;
 import java.io.OutputStream;

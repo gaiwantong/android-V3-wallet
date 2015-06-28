@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package libsrc_hp.de.tavendo.autobahn;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -30,8 +30,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
-import de.tavendo.autobahn.WebSocketMessage.WebSocketCloseCode;
+import libsrc_hp.de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
+import libsrc_hp.de.tavendo.autobahn.WebSocketMessage.WebSocketCloseCode;
 
 public class WebSocketConnection implements WebSocket {
 	private static final String TAG = WebSocketConnection.class.getName();

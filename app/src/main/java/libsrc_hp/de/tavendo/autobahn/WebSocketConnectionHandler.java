@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package libsrc_hp.de.tavendo.autobahn;
 
 /**
  * WebSockets event handler. Users will usually provide an instance of a class

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import de.tavendo.autobahn.WebSocketConnection;
+import libsrc_hp.de.tavendo.autobahn.WebSocketConnection;
 import info.blockchain.wallet.EventListeners;
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -129,7 +129,7 @@ public class WebSocketHandler {
 		}
 
 		try {
-			mConnection.connect(new URI("wss://ws.blockchain.info/inv"), new de.tavendo.autobahn.WebSocketConnectionHandler() {
+			mConnection.connect(new URI("wss://ws.blockchain.info/inv"), new libsrc_hp.de.tavendo.autobahn.WebSocketConnectionHandler() {
 				@Override
 				public void onOpen() {
 					handler.subscribe();

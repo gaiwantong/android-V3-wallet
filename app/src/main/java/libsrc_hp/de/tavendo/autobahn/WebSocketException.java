@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package libsrc_hp.de.tavendo.autobahn;
 
 public class WebSocketException extends Exception {
 
