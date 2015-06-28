@@ -1,6 +1,6 @@
 package info.blockchain.wallet.multiaddr;
 
-import org.apache.commons.lang.StringUtils;
+import libsrc.org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

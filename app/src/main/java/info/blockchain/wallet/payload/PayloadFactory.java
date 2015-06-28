@@ -3,11 +3,10 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
-import org.apache.commons.lang.StringUtils;
+import libsrc.org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;

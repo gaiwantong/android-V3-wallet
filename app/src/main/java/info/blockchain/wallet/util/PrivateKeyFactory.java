@@ -8,7 +8,7 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.lang.ArrayUtils;
+import libsrc.org.apache.commons.lang.ArrayUtils;
 import org.spongycastle.asn1.sec.SECNamedCurves;
 import org.spongycastle.crypto.generators.SCrypt;
 import org.spongycastle.util.encoders.Hex;
@@ -20,8 +20,6 @@ import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.DumpedPrivateKey;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.params.MainNetParams;
-
-import info.blockchain.wallet.util.Hash;
 
 public class PrivateKeyFactory	{
 	

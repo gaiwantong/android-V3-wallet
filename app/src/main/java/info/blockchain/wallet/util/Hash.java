@@ -3,7 +3,7 @@ package info.blockchain.wallet.util;
 import java.io.Serializable;
 import java.util.Arrays;
 
-//import org.apache.commons.lang.ArrayUtils;
+//import libsrc.org.apache.commons.lang.ArrayUtils;
 
 import org.spongycastle.util.encoders.Hex;
 

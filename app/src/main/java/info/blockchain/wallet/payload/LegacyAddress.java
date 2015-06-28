@@ -4,15 +4,12 @@ import android.util.Log;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.DumpedPrivateKey;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.params.MainNetParams;
-import org.apache.commons.lang.ArrayUtils;
+import libsrc.org.apache.commons.lang.ArrayUtils;
 import org.json.simple.JSONObject;
 
-import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.PrivateKeyFactory;
 
 import java.math.BigInteger;
 
