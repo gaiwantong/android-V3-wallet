@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.io;
+package libsrc.org.apache.commons.io;
 
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 
 /**
  * Charsets required of every implementation of the Java platform.
@@ -73,7 +72,7 @@ public class Charsets {
      * @param charset
      *            The name of the requested charset, may be null.
      * @return a Charset for the named charset
-     * @throws UnsupportedCharsetException
+     * @throws java.nio.charset.UnsupportedCharsetException
      *             If the named charset is unavailable
      */
     public static Charset toCharset(String charset) {

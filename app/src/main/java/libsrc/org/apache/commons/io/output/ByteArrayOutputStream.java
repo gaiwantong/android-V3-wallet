@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.io.output;
+package libsrc.org.apache.commons.io.output;
  
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.input.ClosedInputStream;
+import libsrc.org.apache.commons.io.input.ClosedInputStream;
 
 /**
  * This class implements an output stream in which the data is 

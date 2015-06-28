@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.io;
+package libsrc.org.apache.commons.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,7 +50,7 @@ import java.util.NoSuchElementException;
 public class LineIterator implements Iterator<String> {
 
     // N.B. This class deliberately does not implement Iterable, see https://issues.apache.org/jira/browse/IO-181
-    
+
     /** The reader that is being read. */
     private final BufferedReader bufferedReader;
     /** The current line. */
@@ -122,7 +122,7 @@ public class LineIterator implements Iterator<String> {
      * Returns the next line in the wrapped <code>Reader</code>.
      *
      * @return the next line from the input
-     * @throws NoSuchElementException if there is no line to return
+     * @throws java.util.NoSuchElementException if there is no line to return
      */
     public String next() {
         return nextLine();
@@ -132,7 +132,7 @@ public class LineIterator implements Iterator<String> {
      * Returns the next line in the wrapped <code>Reader</code>.
      *
      * @return the next line from the input
-     * @throws NoSuchElementException if there is no line to return
+     * @throws java.util.NoSuchElementException if there is no line to return
      */
     public String nextLine() {
         if (!hasNext()) {
@@ -140,7 +140,7 @@ public class LineIterator implements Iterator<String> {
         }
         String currentLine = cachedLine;
         cachedLine = null;
-        return currentLine;        
+        return currentLine;
     }
 
     /**
