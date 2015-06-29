@@ -100,7 +100,10 @@ public class HDPayloadBridge	{
 
             } while(!no_tx && attempts < 3);
 
-            if(no_tx && AppUtil.getInstance(context).isNewlyCreated()) {
+            if(!no_tx && AppUtil.getInstance(context).isNewlyCreated()) {
+                return false;
+            }
+            else {
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
 
