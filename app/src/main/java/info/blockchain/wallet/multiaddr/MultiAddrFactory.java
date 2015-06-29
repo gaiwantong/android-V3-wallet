@@ -306,18 +306,21 @@ public class MultiAddrFactory	{
 
     }
 
-    public long xpubHasTx(String xpub) throws JSONException  {
+    public long nbTxXPUB(String xpub) throws JSONException  {
 
+        String response = null;
         JSONObject jsonObject = null;
-        long ret = -1;
+        long ret = -1L;
 
         try {
-            jsonObject = new JSONObject(xpub);
-            parseXPUB(jsonObject);
+            StringBuilder url = new StringBuilder(WebUtil.MULTIADDR_URL);
+            url.append(xpub);
+            response = WebUtil.getInstance().getURL(url.toString());
+            jsonObject = new JSONObject(response);
         }
-        catch(JSONException je) {
-            je.printStackTrace();
+        catch(Exception e) {
             jsonObject = null;
+            e.printStackTrace();
         }
 
         if(jsonObject != null && jsonObject.has("wallet"))  {

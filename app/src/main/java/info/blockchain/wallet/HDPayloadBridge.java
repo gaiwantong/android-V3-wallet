@@ -70,23 +70,37 @@ public class HDPayloadBridge	{
         }
 
         //
-        // create HD wallet if not present and sync w/ payload, replace this w/ user prompt + setup
+        // create HD wallet and sync w/ payload
         //
         if(PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
 
-            HD_WalletFactory.getInstance(context).newWallet(12, "", 1);
-            HDWallet hdw = new HDWallet();
-            hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
-            List<Account> accounts = new ArrayList<Account>();
-            if(AppUtil.getInstance(context).isNewlyCreated()) {
-                accounts.add(new Account());
-                accounts.get(0).setXpub(HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr());
-                accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
-            }
-            hdw.setAccounts(accounts);
-            PayloadFactory.getInstance().get().setHdWallets(hdw);
-            PayloadFactory.getInstance().get().setUpgraded(true);
-            if(AppUtil.getInstance(context).isNewlyCreated()) {
+            String xpub = null;
+            int attempts = 0;
+            boolean no_tx = false;
+
+            do {
+
+                attempts++;
+
+                HD_WalletFactory.getInstance(context).newWallet(12, "", 1);
+                HDWallet hdw = new HDWallet();
+                hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
+                List<Account> accounts = new ArrayList<Account>();
+                xpub = HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr();
+                if(AppUtil.getInstance(context).isNewlyCreated()) {
+                    accounts.add(new Account());
+                    accounts.get(0).setXpub(xpub);
+                    accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
+                }
+                hdw.setAccounts(accounts);
+                PayloadFactory.getInstance().get().setHdWallets(hdw);
+                PayloadFactory.getInstance().get().setUpgraded(true);
+
+                no_tx = (MultiAddrFactory.getInstance().nbTxXPUB(xpub) == 0L);
+
+            } while(!no_tx && attempts < 3);
+
+            if(no_tx && AppUtil.getInstance(context).isNewlyCreated()) {
                 PayloadFactory.getInstance(context).remoteSaveThread();
             }
 
