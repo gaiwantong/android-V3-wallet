@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="bitcoinj">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/bitcoinj.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
