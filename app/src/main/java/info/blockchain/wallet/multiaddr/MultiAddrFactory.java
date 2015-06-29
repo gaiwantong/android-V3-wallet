@@ -306,6 +306,31 @@ public class MultiAddrFactory	{
 
     }
 
+    public long xpubHasTx(String xpub) throws JSONException  {
+
+        JSONObject jsonObject = null;
+        long ret = -1;
+
+        try {
+            jsonObject = new JSONObject(xpub);
+            parseXPUB(jsonObject);
+        }
+        catch(JSONException je) {
+            je.printStackTrace();
+            jsonObject = null;
+        }
+
+        if(jsonObject != null && jsonObject.has("wallet"))  {
+            JSONObject walletObj = (JSONObject)jsonObject.get("wallet");
+            if(walletObj.has("n_tx"))  {
+                ret = walletObj.getLong("n_tx");
+            }
+        }
+
+        return ret;
+
+    }
+
     private void parseLegacy(JSONObject jsonObject) throws JSONException  {
 
         if(jsonObject != null)  {
