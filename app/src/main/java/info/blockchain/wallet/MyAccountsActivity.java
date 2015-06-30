@@ -29,8 +29,6 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
 import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.params.MainNetParams;
@@ -39,8 +37,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
-
-import net.sourceforge.zbar.Symbol;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -511,9 +507,9 @@ public class MyAccountsActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
-                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+                && data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
             try	{
-                final String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+                final String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if(format != null)	{
                     if(!format.equals(PrivateKeyFactory.BIP38))	{
@@ -543,8 +539,7 @@ public class MyAccountsActivity extends Activity {
     private void scanPrivateKey() {
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-            Intent intent = new Intent(MyAccountsActivity.this, ZBarScannerActivity.class);
-            intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+            Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
         }
         else {
@@ -570,8 +565,7 @@ public class MyAccountsActivity extends Activity {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
-                                Intent intent = new Intent(MyAccountsActivity.this, ZBarScannerActivity.class);
-                                intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+                                Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
                                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
                             }

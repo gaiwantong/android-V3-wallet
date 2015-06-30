@@ -14,13 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-
 import piuk.blockchain.android.R;
 
 public class PairOrCreateWalletActivity extends ActionBarActivity {
@@ -83,9 +80,9 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR)	{
-            if(data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
+            if(data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
                 AppUtil.getInstance(this).clearCredentialsAndRestart();
-                String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+                String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
                 pairingThreadQR(strResult);
             }
         }
