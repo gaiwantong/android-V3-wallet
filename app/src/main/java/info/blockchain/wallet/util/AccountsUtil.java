@@ -132,27 +132,29 @@ public class AccountsUtil {
 		int accountIndex = 0;
 		int spinnerIndex = 0;
 
-		List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-		for (Account item : accounts){
+        if(PayloadFactory.getInstance().get().isUpgraded()) {
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for (Account item : accounts){
 
-			if(item instanceof ImportedAccount)continue;
-			if(!item.isArchived()) {
+                if(item instanceof ImportedAccount)continue;
+                if(!item.isArchived()) {
 
-				if(item.getLabel().length() == 0)item.setLabel("Account: "+accountIndex);
+                    if(item.getLabel().length() == 0)item.setLabel("Account: "+accountIndex);
 
-				sendReceiveAccountMap.put(accountIndex, item);
-				sendReceiveAccountIndexResolver.put(spinnerIndex,accountIndex);
-				spinnerIndex++;
-			}
+                    sendReceiveAccountMap.put(accountIndex, item);
+                    sendReceiveAccountIndexResolver.put(spinnerIndex,accountIndex);
+                    spinnerIndex++;
+                }
 
-			accountIndex++;
-		}
+                accountIndex++;
+            }
 
-		sendReceiveAccountList = new ArrayList<String>();
-		for (Account account : sendReceiveAccountMap.values()) {
-			sendReceiveAccountList.add(account.getLabel());
-		}
-		lastHDIndex = sendReceiveAccountList.size();
+            sendReceiveAccountList = new ArrayList<String>();
+            for (Account account : sendReceiveAccountMap.values()) {
+                sendReceiveAccountList.add(account.getLabel());
+            }
+            lastHDIndex = sendReceiveAccountList.size();
+        }
 
 		//Add individual legacy addresses
 		ImportedAccount iAccount = null;

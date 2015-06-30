@@ -184,7 +184,7 @@ public class Payload {
     }
 
     public HDWallet getHdWallet() {
-        return hdWallets.get(0);
+        return hdWallets.size() > 0 ? hdWallets.get(0) : null;
     }
 
     public void setHdWallets(HDWallet hdWallet) { this.hdWallets.clear(); this.hdWallets.add(hdWallet); }

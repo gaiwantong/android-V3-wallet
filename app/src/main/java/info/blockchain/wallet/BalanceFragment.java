@@ -221,7 +221,9 @@ public class BalanceFragment extends Fragment {
             //Single account - no spinner
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
             Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
+            if(acc != null && acc.getLabel() != null) {
+                ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
+            }
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.GONE);
         }

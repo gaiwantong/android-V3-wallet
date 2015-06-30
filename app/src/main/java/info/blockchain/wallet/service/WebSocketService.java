@@ -60,13 +60,15 @@ public class WebSocketService extends android.app.Service	{
 		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 
 		int nbAccounts = 0;
-		try {
-			nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
-		}
-		catch(java.lang.IndexOutOfBoundsException e) {
-			return;
-		}
-		
+        if(PayloadFactory.getInstance().get().isUpgraded())    {
+            try {
+                nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+            }
+            catch(java.lang.IndexOutOfBoundsException e) {
+                nbAccounts = 0;
+            }
+        }
+
 		String[] xpubs = new String[nbAccounts];
 		for(int i = 0; i < nbAccounts; i++) {
 			String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
