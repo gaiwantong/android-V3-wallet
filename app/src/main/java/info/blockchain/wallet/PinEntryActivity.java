@@ -398,7 +398,22 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 Looper.prepare();
 
-                CharSequenceX password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
+                CharSequenceX password = null;
+
+                try {
+                    password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
+                }catch (Exception e){
+                    if(progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+
+                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    return;
+                }
 
                 if(password != null) {
 
@@ -487,7 +502,7 @@ public class PinEntryActivity extends Activity {
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_3_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_3_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
                         PayloadFactory.getInstance().setTempPassword(pw);
                         PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);

@@ -87,7 +87,7 @@ public class AccessFactory	{
 
     }
 
-    public CharSequenceX validatePIN(String pin) {
+    public CharSequenceX validatePIN(String pin) throws Exception {
     	
     	CharSequenceX password = null;
 
@@ -103,11 +103,15 @@ public class AccessFactory	{
 			return password;
         }
         catch(UnsupportedEncodingException uee) {
-            return null;
+            throw uee;
         }
         catch(Exception e) {
         	e.printStackTrace();
-            return null;
+
+            if(e.getMessage().contains("Invalid Response"))
+                return null;
+            else
+                throw e;
         }
     }
 
