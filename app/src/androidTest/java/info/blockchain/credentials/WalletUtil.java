@@ -10,7 +10,7 @@ public class WalletUtil {
     private static String guid = "-- REDACTED --";
     private static String sharedKey = "-- REDACTED --";
     private static String pin_identifier = "-- REDACTED --";
-    private static String encrypted_password = "-- REDACTED --;
+    private static String encrypted_password = "-- REDACTED --";
     private static String pin = "-- REDACTED --";
 
     private static String payload = "-- REDACTED --";

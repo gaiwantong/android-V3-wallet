@@ -7,11 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
-
-import net.sourceforge.zbar.Symbol;
-
 import piuk.blockchain.android.R;
 
 public class ScanPairingFragment extends Fragment {
@@ -36,8 +31,7 @@ public class ScanPairingFragment extends Fragment {
 
     private void launchQRScan() {
 
-        Intent intent = new Intent(getActivity(), ZBarScannerActivity.class);
-        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{ Symbol.QRCODE } );
+        Intent intent = new Intent(getActivity(), ScanActivity.class);
         getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
     }
 }

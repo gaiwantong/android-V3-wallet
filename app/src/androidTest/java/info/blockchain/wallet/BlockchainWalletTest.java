@@ -142,13 +142,25 @@ public class BlockchainWalletTest extends BlockchainTest {
     }
 
     public void loginGoodPIN() {
-        CharSequenceX password = AccessFactory.getInstance(context).validatePIN(WalletUtil.getInstance(context).getValidPin());
-        AssertUtil.getInstance().assert_true(this, "Logged in with good PIN", password != null);
+        CharSequenceX password = null;
+        try {
+            password = AccessFactory.getInstance(context).validatePIN(WalletUtil.getInstance(context).getValidPin());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            AssertUtil.getInstance().assert_true(this, "Logged in with good PIN", password != null);
+        }
     }
 
     public void loginBadPIN() {
-        CharSequenceX password = AccessFactory.getInstance(context).validatePIN("9999");
-        AssertUtil.getInstance().assert_true(this, "Not logged in with bad PIN", password == null);
+        CharSequenceX password = null;
+        try {
+            password = AccessFactory.getInstance(context).validatePIN("9999");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            AssertUtil.getInstance().assert_true(this, "Not logged in with bad PIN", password == null);
+        }
     }
 
 }

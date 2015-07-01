@@ -44,13 +44,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.crypto.MnemonicException;
 import com.squareup.picasso.Picasso;
-
-import net.sourceforge.zbar.Symbol;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
@@ -81,7 +77,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
 
 //import android.nfc.Tag;
@@ -376,8 +371,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
-                && data != null && data.getStringExtra(ZBarConstants.SCAN_RESULT) != null)	{
-            String strResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
+                && data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
+            String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
             doScanInput(strResult);
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
@@ -649,8 +644,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
-        Intent intent = new Intent(MainActivity.this, ZBarScannerActivity.class);
-        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.QRCODE});
+        Intent intent = new Intent(MainActivity.this, ScanActivity.class);
         startActivityForResult(intent, SCAN_URI);
     }
 
