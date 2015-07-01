@@ -280,7 +280,7 @@ public class Payload {
             if(jsonObject.has("options"))  {
                 optionsObj = (JSONObject)jsonObject.get("options");
             }
-            if(optionsObj == null)  {
+            if(optionsObj == null && jsonObject.has("wallet_options"))  {
                 optionsObj = (JSONObject)jsonObject.get("wallet_options");
             }
             if(optionsObj != null)  {

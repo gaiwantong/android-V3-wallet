@@ -503,12 +503,15 @@ public class PayloadFactory	{
 				Looper.prepare();
 				
 				if(PayloadFactory.getInstance(context).get() != null)	{
-					if(PayloadFactory.getInstance(context).put(strTempPassword))	{
+
+                    if(PayloadFactory.getInstance(context).put(strTempPassword))	{
 //                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-					}
-					else	{
+                        ;
+                    }
+                    else	{
                         ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-					}
+                    }
+
 				}
 				else	{
                     ToastCustom.makeText(context, context.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
