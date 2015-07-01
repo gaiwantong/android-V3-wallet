@@ -129,6 +129,7 @@ public class AccountsUtil {
 
 		sendReceiveAccountMap = new LinkedHashMap<Integer, Account>();
 		sendReceiveAccountIndexResolver = new LinkedHashMap<Integer, Integer>();
+        sendReceiveAccountList = new ArrayList<String>();
 		int accountIndex = 0;
 		int spinnerIndex = 0;
 

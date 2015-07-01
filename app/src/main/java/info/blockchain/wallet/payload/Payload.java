@@ -275,8 +275,11 @@ public class Payload {
             //
             // "options" or "wallet_options" ?
             //
+            JSONObject optionsObj = null;
             options = new Options();
-            JSONObject optionsObj = (JSONObject)jsonObject.get("options");
+            if(jsonObject.has("options"))  {
+                optionsObj = (JSONObject)jsonObject.get("options");
+            }
             if(optionsObj == null)  {
                 optionsObj = (JSONObject)jsonObject.get("wallet_options");
             }
