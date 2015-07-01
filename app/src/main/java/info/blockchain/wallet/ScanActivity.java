@@ -12,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.regex.Pattern;
+
 import eu.livotov.zxscan.ScannerView;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -60,24 +62,22 @@ public class ScanActivity extends ActionBarActivity{
 
             public boolean onCodeScanned(final String data) {
 
-                //ZXScanLib v2.0.1: Currently scanner tries to recognize all supported barcodes - So we'll check for valid privkey or addresses before accepting scan
+                //ZXScanLib v2.0.1: Currently scanner tries to recognize all supported barcodes - So we'll check for valid QR
                 String privKey;
-                try {
-                    privKey = PrivateKeyFactory.getInstance().getFormat(data);
-                }catch (Exception e){
-                    privKey = null;
-                }
+                try {privKey = PrivateKeyFactory.getInstance().getFormat(data);}catch (Exception e){privKey = null;}
 
-                if(FormatsUtil.getInstance().isBitcoinUri(data) || privKey!=null) {
+                boolean isValidPrivKey = privKey!=null ? true : false;
+                boolean isValidBitcoinUri = FormatsUtil.getInstance().isBitcoinUri(data);
+                boolean isValidPairingQR = (data.split("\\|", Pattern.LITERAL).length == 3);
+
+                if(isValidBitcoinUri || isValidPrivKey || isValidPairingQR) {
 
                     scanner.stopScanner();
 
-                    if (data != null && !data.isEmpty()) {
-                        Intent dataIntent = new Intent();
-                        dataIntent.putExtra(SCAN_RESULT, data);
-                        setResult(Activity.RESULT_OK, dataIntent);
-                        finish();
-                    }
+                    Intent dataIntent = new Intent();
+                    dataIntent.putExtra(SCAN_RESULT, data);
+                    setResult(Activity.RESULT_OK, dataIntent);
+                    finish();
                 }
                 return true;
             }
