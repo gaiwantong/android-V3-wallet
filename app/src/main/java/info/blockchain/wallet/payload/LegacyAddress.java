@@ -164,18 +164,9 @@ public class LegacyAddress {
 
         JSONObject obj = new JSONObject();
 
-        /*
-        try {
-            obj.put("priv", getPrivateKey());
-        }
-        catch(AddressFormatException afe) {
-            ;
-        }
-        */
-
         obj.put("priv", strEncryptedKey);
         obj.put("created_time", created);
-        obj.put("addr", strAddress);
+        obj.put("addr", strAddress == null ? "" : strAddress);
         obj.put("label", strLabel == null ? "" : strLabel);
         obj.put("tag", tag);
         obj.put("created_device_version", strCreatedDeviceVersion);
