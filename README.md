@@ -66,3 +66,8 @@ KEY_PIN_IDENTIFIER and KEY_ENCRYPTED_PASSWORD will change as soon as the wallet 
 
 SendTest.java : uses the same test wallet as BlockchainWalletTest.java and requires funds to be available for retrieving unspent outputs and making a transaction for a spend of 0.0001 BTC. The HD and legacy addresses that must be funded are in info.blockchain.credentials.WalletUtil.java
 
+### Security
+
+Security issues can be reported to us in the following venues:
+* Email: security@blockchain.info
+* Bug Bounty: https://www.crowdcurity.com/blockchain-info
