@@ -172,6 +172,8 @@ public class CreateWalletFragment extends Fragment {
                                     }
                                 }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
+                                        AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+
                                         Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                                         intent.putExtra("_email", em);
                                         intent.putExtra("_pw", pw1);
