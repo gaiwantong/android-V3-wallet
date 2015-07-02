@@ -3,7 +3,6 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
@@ -257,7 +256,7 @@ public class PayloadFactory	{
                 String decrypted = null;
                 try {
                     decrypted = AESUtil.decrypt(encrypted_payload, password, iterations);
-                    Log.i("PayloadFactory", decrypted);
+//                    Log.i("PayloadFactory", decrypted);
                 }
                 catch(Exception e) {
                 	payload = null;
