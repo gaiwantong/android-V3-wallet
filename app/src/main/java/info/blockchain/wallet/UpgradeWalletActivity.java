@@ -218,6 +218,7 @@ public class UpgradeWalletActivity extends Activity {
     public void askLaterClicked(View view) {
         AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
         AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);

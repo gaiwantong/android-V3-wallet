@@ -22,6 +22,7 @@ public class PrefsUtil {
 	public static final String KEY_EMAIL_VERIFIED 		= "code_verified";
     public static final String KEY_SESSION_ID 			= "session_id";
     public static final String KEY_HD_UPGRADED_LAST_REMINDER = "hd_upgraded_last_reminder";
+    public static final String KEY_ASK_LATER = "ask_later";
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;
@@ -74,7 +75,7 @@ public class PrefsUtil {
 		return editor.commit();
 	}
 
-	public boolean removeValue(String name) {
+    public boolean removeValue(String name) {
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.remove(name);
 		return editor.commit();

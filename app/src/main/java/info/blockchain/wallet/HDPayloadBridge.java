@@ -65,6 +65,10 @@ public class HDPayloadBridge	{
             return false;
         }
 
+        if(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false)) {
+            return true;
+        }
+
         if(!PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L)	{
             return true;
         }
