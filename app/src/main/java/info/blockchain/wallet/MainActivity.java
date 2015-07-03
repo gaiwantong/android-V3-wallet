@@ -185,11 +185,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+
+                AccountsUtil.getInstance(this).initAccountMaps();
+
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-                AccountsUtil.getInstance(this).initAccountMaps();
             }
             else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
