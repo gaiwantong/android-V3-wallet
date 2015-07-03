@@ -145,10 +145,12 @@ public class UpgradeWalletActivity extends Activity {
                     public void run() {
                         Looper.prepare();
                         try {
-
                             AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
 
+                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis() + "");
+                            AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
                             HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
+                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -167,6 +169,7 @@ public class UpgradeWalletActivity extends Activity {
                         }
 
                         onUpgradeCompleted();
+                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0);
                         Looper.loop();
 
                     }
