@@ -65,7 +65,7 @@ public class HDPayloadBridge	{
             return false;
         }
 
-        if(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false)) {
+        if(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false) == true) {
             return true;
         }
 

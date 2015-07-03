@@ -209,6 +209,7 @@ public class UpgradeWalletActivity extends Activity {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
                         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
                         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
                         AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
                         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
