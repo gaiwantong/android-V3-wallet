@@ -347,4 +347,6 @@
     <string name="CLOSE">CLOSE</string>
     <string name="total_funds">Total funds</string>
     <string name="unexpected_error">Unexpected error, please try again later.</string>
+    <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
+    <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
 </resources>
