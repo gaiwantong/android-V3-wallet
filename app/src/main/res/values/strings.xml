@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.40a</string>
+    <string name="version_name">5.0.41a</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
