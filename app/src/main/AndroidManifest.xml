@@ -120,19 +120,6 @@
             >
         </activity>
 
-        <service android:name="info.blockchain.wallet.service.WebSocketService" />
-
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAEzazXHtB3ANwk3MpD2PWpFZNlMfNqmIw" />
-        <!--
-        debug: AIzaSyA5pTWkt8q0ff21VkTRAR6AcXwGjdWumjg
-        release: AIzaSyAEzazXHtB3ANwk3MpD2PWpFZNlMfNqmIw
-        -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
 		<activity android:name="info.blockchain.wallet.MyAccountsActivity"
 				  android:label="@string/app_name"
 				  android:configChanges="keyboardHidden|orientation|screenSize"
@@ -176,6 +163,19 @@
                   android:configChanges="keyboardHidden|orientation|screenSize"
             >
         </activity>
+
+        <service android:name="info.blockchain.wallet.service.WebSocketService" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w" />
+        <!--
+        debug: AIzaSyASTnx7wjsCTkMr_RtLQYTzMAf7A9SWIMw
+        release: AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
     </application>
 
