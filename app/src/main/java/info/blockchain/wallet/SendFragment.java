@@ -457,7 +457,6 @@ public class SendFragment extends Fragment {
 
                 double fiat_amount = btc_fx * btc_amount;
                 edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
-                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
                 tvFiat2.setText(strFiat);
