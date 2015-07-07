@@ -129,10 +129,10 @@ public class MonetaryUtil {
         int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch(unit) {
             case MonetaryUtil.MICRO_BTC:
-                amount = value * MICRO_DOUBLE;
+                amount = value / MICRO_DOUBLE;
                 break;
             case MonetaryUtil.MILLI_BTC:
-                amount = value * MILLI_DOUBLE;
+                amount = value / MILLI_DOUBLE;
                 break;
             default:
                 amount = value;
