@@ -101,6 +101,7 @@ public class BalanceFragment extends Fragment {
     ArrayAdapter<String> accountsAdapter = null;
     private static int selectedAccount = 0;
     public int balanceBarHeight;
+    private ArrayList<String> accountList = null;
 
     //
     // tx list
@@ -252,6 +253,8 @@ public class BalanceFragment extends Fragment {
 
         AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
+        AccountsUtil.getInstance(getActivity()).initAccountMaps();
+
         MainActivity.currentFragment = this;
 
         comm.resetNavigationDrawer();
@@ -268,12 +271,15 @@ public class BalanceFragment extends Fragment {
             thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
         }
 
+        accountList = setAccountSpinner();
 
-        accountsAdapter.notifyDataSetChanged();
-        txAdapter.notifyDataSetChanged();
-        setAccountSpinner();
         updateTx();
         displayBalance();
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+        accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
+        accountSpinner.setAdapter(accountsAdapter);
+        accountsAdapter.notifyDataSetChanged();
+        txAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -709,7 +715,7 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-        ArrayList<String> accountList = setAccountSpinner();
+        accountList = setAccountSpinner();
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);

@@ -49,6 +49,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -659,6 +660,7 @@ public class MyAccountsActivity extends Activity {
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
+                                                AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
                                                 MyAccountsActivity.this.recreate();
                                             }
                                         }).show();
@@ -749,6 +751,7 @@ public class MyAccountsActivity extends Activity {
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                     PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
+                    AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
                     MyAccountsActivity.this.recreate();
                 }
             }).show();
@@ -795,5 +798,4 @@ public class MyAccountsActivity extends Activity {
             }
         }).start();
     }
-
 }
