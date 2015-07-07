@@ -69,8 +69,9 @@ public class ScanActivity extends ActionBarActivity{
                 boolean isValidPrivKey = privKey!=null ? true : false;
                 boolean isValidBitcoinUri = FormatsUtil.getInstance().isBitcoinUri(data);
                 boolean isValidPairingQR = (data.split("\\|", Pattern.LITERAL).length == 3);
+                boolean isValidBitcoinAddress = FormatsUtil.getInstance().isValidBitcoinAddress(data);
 
-                if(isValidBitcoinUri || isValidPrivKey || isValidPairingQR) {
+                if(isValidBitcoinUri || isValidPrivKey || isValidPairingQR || isValidBitcoinAddress) {
 
                     scanner.stopScanner();
 
