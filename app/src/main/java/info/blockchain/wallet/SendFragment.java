@@ -15,7 +15,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -86,6 +85,9 @@ public class SendFragment extends Fragment {
     private ReselectSpinner spDestination = null;
     private MenuItem btSend;
     private TextView tvMax = null;
+
+    private TextWatcher btcTextWatcher = null;
+    private TextWatcher fiatTextWatcher = null;
 
     private String currentSelectedFromAddress = null;
     private String currentSelectedToAddress = null;
@@ -194,7 +196,8 @@ public class SendFragment extends Fragment {
                 return false;
             }
         });
-        edAmount1.addTextChangedListener(new TextWatcher() {
+
+        btcTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
                 edAmount1.removeTextChangedListener(this);
@@ -256,14 +259,16 @@ public class SendFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 ;
             }
-        });
+        };
+
+        edAmount1.addTextChangedListener(btcTextWatcher);
 
         tvCurrency1 = (TextView)rootView.findViewById(R.id.currency1);
         edAmount2 = (EditText)rootView.findViewById(R.id.amount2);
         edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"+ defaultSeparator));
         edAmount2.setHint("0" + defaultSeparator + "00");
         tvFiat2 = (TextView)rootView.findViewById(R.id.fiat2);
-        edAmount2.addTextChangedListener(new TextWatcher()	{
+        fiatTextWatcher = new TextWatcher()	{
             public void afterTextChanged(Editable s) {
 
                 edAmount2.removeTextChangedListener(this);
@@ -309,7 +314,8 @@ public class SendFragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
 
             public void onTextChanged(CharSequence s, int start, int before, int count)	{ ; }
-        });
+        };
+        edAmount2.addTextChangedListener(fiatTextWatcher);
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
 
@@ -438,6 +444,9 @@ public class SendFragment extends Fragment {
                 validate = false;
             }
             if(!amount_arg.equals("")) {
+                edAmount1.removeTextChangedListener(btcTextWatcher);
+                edAmount2.removeTextChangedListener(fiatTextWatcher);
+
                 edAmount1.setText(amount_arg);
                 edAmount1.setSelection(edAmount1.getText().toString().length());
 
@@ -457,9 +466,13 @@ public class SendFragment extends Fragment {
 
                 double fiat_amount = btc_fx * btc_amount;
                 edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+//                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
                 tvFiat2.setText(strFiat);
+
+                edAmount1.addTextChangedListener(btcTextWatcher);
+                edAmount2.addTextChangedListener(fiatTextWatcher);
 
                 validate = true;
             }

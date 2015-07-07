@@ -32,7 +32,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -52,6 +51,7 @@ import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +70,7 @@ import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
@@ -998,7 +999,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             hash = sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            Log.e("MD5", e.getMessage());
+//            Log.e("MD5", e.getMessage());
         }
 
         String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=204&d=404";
