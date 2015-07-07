@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,9 +26,8 @@ public class PairWalletFragment extends Fragment {
         commandScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment fragment = new ScanPairingFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                Intent intent = new Intent(getActivity(), ScanActivity.class);
+                getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
             }
         });
 
@@ -35,9 +35,9 @@ public class PairWalletFragment extends Fragment {
         commandManual.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment fragment = new ManualPairingFragment();
+                PairOrCreateWalletActivity.fragment = new ManualPairingFragment();
                 FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                fragmentManager.beginTransaction().replace(R.id.content_frame, PairOrCreateWalletActivity.fragment).addToBackStack(null).commit();
             }
         });
 

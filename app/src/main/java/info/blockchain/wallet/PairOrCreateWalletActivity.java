@@ -23,6 +23,7 @@ import piuk.blockchain.android.R;
 public class PairOrCreateWalletActivity extends ActionBarActivity {
 
     public static final int PAIRING_QR = 2005;
+    public static Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         findViewById(R.id.account_spinner).setVisibility(View.GONE);
 
-        Fragment fragment = new CreateWalletFragment();
+        fragment = new CreateWalletFragment();
         if(getIntent().getIntExtra("starting_fragment", 1)==1)
             fragment = new PairWalletFragment();
 
@@ -67,9 +68,14 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
-        startActivity(intent);
-        finish();
+
+        if(fragment instanceof ManualPairingFragment)
+            getFragmentManager().popBackStack();
+        else {
+            Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     public void setActionBarTitle(String title){
@@ -87,7 +93,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
             }
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == PAIRING_QR)	{
-            AppUtil.getInstance(this).clearCredentialsAndRestart();
+            ;
         }
         else {
             ;
