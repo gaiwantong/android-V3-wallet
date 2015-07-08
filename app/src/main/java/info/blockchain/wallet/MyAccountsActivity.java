@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,9 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +54,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -514,14 +519,13 @@ public class MyAccountsActivity extends Activity {
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if(format != null)	{
                     if(!format.equals(PrivateKeyFactory.BIP38))	{
+                        Log.v("","importNonBIP38Address");
                         importNonBIP38Address(format, strResult);
                     }
                     else	{
+                        Log.v("","importBIP38Address");
                         importBIP38Address(strResult);
                     }
-
-                    updateAmounts();
-
                 }
                 else	{
                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -651,7 +655,7 @@ public class MyAccountsActivity extends Activity {
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                         PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
-                                                        MyAccountsActivity.this.recreate();
+                                                        updateAndRecreate(legacyAddress);
                                                     }
                                                 }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -660,13 +664,11 @@ public class MyAccountsActivity extends Activity {
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
-                                                AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
-                                                MyAccountsActivity.this.recreate();
+                                                updateAndRecreate(legacyAddress);
                                             }
                                         }).show();
 
-                                    }
-                                    else	{
+                                    } else	{
                                         ToastCustom.makeText(getApplicationContext(), getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     }
                                 }
@@ -742,7 +744,7 @@ public class MyAccountsActivity extends Activity {
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
-                            MyAccountsActivity.this.recreate();
+                            updateAndRecreate(legacyAddress);
                         }
                     }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -751,8 +753,7 @@ public class MyAccountsActivity extends Activity {
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                     PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
-                    AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
-                    MyAccountsActivity.this.recreate();
+                    updateAndRecreate(legacyAddress);
                 }
             }).show();
 
@@ -762,39 +763,33 @@ public class MyAccountsActivity extends Activity {
         }
     }
 
-    private void updateAmounts()	{
+    private void updateAndRecreate(final LegacyAddress legacyAddress)	{
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-
                 Looper.prepare();
+                JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
 
-                List<String> legacies = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                String[] s = legacies.toArray(new String[legacies.size()]);
-                MultiAddrFactory.getInstance().getLegacy(s, false);
-
-                headerPositions = new ArrayList<Integer>();
-
-                ArrayList<MyAccountItem> accountItems = new ArrayList<>();
-                //First Header Position
-                headerPositions.add(0);
-                accountItems.add(new MyAccountItem(ACCOUNT_HEADER,"",getResources().getDrawable(R.drawable.icon_accounthd)));
-
-                accountsAndImportedList = getAccounts();
-
-                toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
-
-                for(MyAccountItem item : accountsAndImportedList){
-                    accountItems.add(item);
+                long balance = 0l;
+                try {
+                    balance = info.getLong("final_balance");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-/*
-                MyAccountsAdapter accountsAdapter = new MyAccountsAdapter(accountItems);
-                mRecyclerView.setAdapter(accountsAdapter);
-                accountsAdapter.notifyDataSetChanged();
-*/
-                Looper.loop();
 
+                MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
+                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance()+balance);
+                AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
+
+                MyAccountsActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyAccountsActivity.this.recreate();
+                    }
+                });
+
+                Looper.loop();
             }
         }).start();
     }
