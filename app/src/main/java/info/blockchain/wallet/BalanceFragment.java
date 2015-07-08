@@ -52,6 +52,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -485,6 +487,11 @@ public class BalanceFragment extends Fragment {
                 }
             }
         }
+
+        if(txs != null) {
+            Collections.sort(txs, new TxDateComparator());
+        }
+
     }
 
     private String account2Xpub(int accountIndex) {
@@ -772,6 +779,10 @@ public class BalanceFragment extends Fragment {
                                 }
                             }
 
+                        }
+
+                        if(txs != null) {
+                            Collections.sort(txs, new TxDateComparator());
                         }
 
                         displayBalance();
@@ -1154,4 +1165,27 @@ public class BalanceFragment extends Fragment {
             }
         }
     }
+
+    private class TxDateComparator implements Comparator<Tx> {
+
+        public int compare(Tx t1, Tx t2) {
+
+            final int BEFORE = -1;
+            final int EQUAL = 0;
+            final int AFTER = 1;
+
+            if(t2.getTS() < t1.getTS())    {
+                return BEFORE;
+            }
+            else if(t2.getTS() > t1.getTS())    {
+                return AFTER;
+            }
+            else    {
+                return EQUAL;
+            }
+
+        }
+
+    }
+
 }
