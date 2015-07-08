@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -68,6 +69,8 @@ import piuk.blockchain.android.R;
 public class MyAccountsActivity extends Activity {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
+
+    private static int ADDRESS_LABEL_MAX_LENGTH = 32;
 
     public static String ACCOUNT_HEADER = "";
     public static String IMPORTED_HEADER = "";
@@ -636,6 +639,7 @@ public class MyAccountsActivity extends Activity {
                                         }
 
                                         final EditText address_label = new EditText(MyAccountsActivity.this);
+                                        address_label.setFilters(new InputFilter[] {new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
                                         new AlertDialog.Builder(MyAccountsActivity.this)
                                                 .setTitle(R.string.app_name)
@@ -722,6 +726,7 @@ public class MyAccountsActivity extends Activity {
             }
 
             final EditText address_label = new EditText(MyAccountsActivity.this);
+            address_label.setFilters(new InputFilter[] {new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
             final ECKey scannedKey = key;
 
