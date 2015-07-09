@@ -790,7 +790,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
         for (int i = 0; i < drawerTitles.length; i++) {
 
-            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
                 backupWalletDrawerIndex = i;
 
                 int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
@@ -803,7 +803,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
                 continue;
-            }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+            }
+            else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
+                continue;//No backup for legacy wallets
+            }
+            else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
                 continue;//Wallet has been upgraded
             }
 
