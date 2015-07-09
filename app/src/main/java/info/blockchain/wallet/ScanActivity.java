@@ -92,6 +92,9 @@ public class ScanActivity extends ActionBarActivity{
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(ScanActivity.this).updatePinEntryTime();
+
+        if(!scanner.getCamera().isStreaming())
+            scanner.startScanner();
     }
 
     @Override
