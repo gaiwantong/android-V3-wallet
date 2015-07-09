@@ -942,6 +942,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         confirmUnpair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                    stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+                }
+
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();
