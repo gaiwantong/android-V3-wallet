@@ -322,7 +322,7 @@
     <string name="transaction_fee">Transaction fee</string>
     <string name="transaction_hash">Transaction hash</string>
     <string name="your_transactions">Your Transactions</string>
-    <string name="transaction_occur_when">Transaction occur when you receive and send bitcoin.</string>
+    <string name="transaction_occur_when">Transactions occur when you receive and send bitcoin.</string>
     <string name="click">Click</string>
     <string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
