@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
@@ -360,7 +361,12 @@ public class ReceiveFragment extends Fragment {
         tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
 
-        assignHDReceiveAddress();
+        if(PayloadFactory.getInstance().get().isUpgraded()) {
+            assignHDReceiveAddress();
+        }
+        else {
+            currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(0).getAddress();
+        }
 
         edReceivingAddress = (TextView)rootView.findViewById(R.id.receiving_address);
 
