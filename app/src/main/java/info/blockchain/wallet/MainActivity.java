@@ -838,13 +838,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 doChangePin();
                                 break;
                             case 5:
-                                doBackupWallet();
+                                if(PayloadFactory.getInstance().get().isUpgraded()) {
+                                    doBackupWallet();
+                                }
+                                else {
+                                    doUnpairWallet();
+                                }
                                 break;
                             case 6:
-                                doUnpairWallet();
-                                break;
-                            case 7:
-                                doUpgrade();
+                                if(PayloadFactory.getInstance().get().isUpgraded()) {
+                                    doUnpairWallet();
+                                }
+                                else {
+                                    doUpgrade();
+                                }
                                 break;
                         }
 
