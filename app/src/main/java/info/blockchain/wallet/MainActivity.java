@@ -51,7 +51,6 @@ import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +69,6 @@ import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
@@ -88,8 +86,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private static final int REQUEST_BACKUP = 2225;
 
     private static int MERCHANT_ACTIVITY = 1;
-
-    private Locale locale = null;
 
     // toolbar
     private Toolbar toolbar = null;
@@ -125,6 +121,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         // Apply PRNG fixes for Android 4.1
         PRNGFixes.apply();
+
+        Locale.setDefault(Locale.US);
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
 
@@ -204,8 +202,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         setContentView(R.layout.activity_main);
 
         if (!getResources().getBoolean(R.bool.isRotatable))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        locale = Locale.getDefault();
 
         setToolbar();
         setNavigationDrawer();
@@ -679,7 +675,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         args.putBoolean("incoming_from_scan", true);
         if(btc_amount != null) {
             try {
-                NumberFormat btcFormat = NumberFormat.getInstance(locale);
+                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 btcFormat.setMaximumFractionDigits(8);
                 btcFormat.setMinimumFractionDigits(1);
                 args.putString("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
