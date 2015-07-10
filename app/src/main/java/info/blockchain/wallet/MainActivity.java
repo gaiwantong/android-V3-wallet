@@ -838,13 +838,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 doChangePin();
                                 break;
                             case 5:
-                                doBackupWallet();
+                                if(PayloadFactory.getInstance().get().isUpgraded()) {
+                                    doBackupWallet();
+                                }
+                                else {
+                                    doUnpairWallet();
+                                }
                                 break;
                             case 6:
-                                doUnpairWallet();
-                                break;
-                            case 7:
-                                doUpgrade();
+                                if(PayloadFactory.getInstance().get().isUpgraded()) {
+                                    doUnpairWallet();
+                                }
+                                else {
+                                    doUpgrade();
+                                }
                                 break;
                         }
 
@@ -935,6 +942,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         confirmUnpair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                    stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+                }
+
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();

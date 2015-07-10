@@ -3,6 +3,7 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
@@ -416,12 +417,16 @@ public class PayloadFactory	{
 		}
 		
 		try	{
-			WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
+			String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
 			isNew = false;
-			cache();
+            if(response.contains("Wallet successfully synced")){
+                cache();
+                return true;
+            }
 		}
 		catch(Exception e)	{
             e.printStackTrace();
+            return false;
 		}
 
 		return true;
