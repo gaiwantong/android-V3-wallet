@@ -143,14 +143,6 @@ public class SendFactory	{
             return null;
         }
 
-        BigInteger bTotalUnspent = BigInteger.ZERO;
-        for(MyTransactionOutPoint outp : ret.getOutputs()) {
-            bTotalUnspent = bTotalUnspent.add(outp.getValue());
-        }
-        if(amount.compareTo(bTotalUnspent) == 1) {
-            return null;
-        }
-
         return ret;
     }
 
