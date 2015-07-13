@@ -92,6 +92,9 @@ public class ScanActivity extends ActionBarActivity{
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(ScanActivity.this).updatePinEntryTime();
+
+        if(!scanner.getCamera().isStreaming())
+            scanner.startScanner();
     }
 
     @Override
@@ -121,7 +124,7 @@ public class ScanActivity extends ActionBarActivity{
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_flash_light:
-                doFlashLight();
+                try{doFlashLight();}catch (Exception e){}
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
