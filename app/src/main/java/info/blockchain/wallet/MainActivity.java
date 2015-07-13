@@ -531,12 +531,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 String response = null;
                 try {
                     response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
+
+                    ExchangeRateFactory.getInstance(MainActivity.this).setData(response);
+                    ExchangeRateFactory.getInstance(MainActivity.this).updateFxPricesForEnabledCurrencies();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
                 }
-                ExchangeRateFactory.getInstance(MainActivity.this).setData(response);
-                ExchangeRateFactory.getInstance(MainActivity.this).updateFxPricesForEnabledCurrencies();
 
                 handler.post(new Runnable() {
                     @Override

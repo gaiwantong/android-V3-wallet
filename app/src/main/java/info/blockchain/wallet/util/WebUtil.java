@@ -61,7 +61,7 @@ public class WebUtil	{
                 connection.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
                 connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36");
 
-                connection.setUseCaches (false);
+                connection.setUseCaches(false);
 
                 connection.setConnectTimeout(DefaultRequestTimeout);
                 connection.setReadTimeout(DefaultRequestTimeout);
@@ -85,7 +85,11 @@ public class WebUtil	{
                 }
 
                 Thread.sleep(5000);
-            } finally {
+            }
+            catch(Exception e) {
+                throw new Exception("Network error" + e.getMessage());
+            }
+            finally {
                 connection.disconnect();
             }
         }
@@ -131,7 +135,11 @@ public class WebUtil	{
                     error = IOUtils.toString(connection.getErrorStream(), "UTF-8");
 
                 Thread.sleep(5000);
-            } finally {
+            }
+            catch(Exception e) {
+                throw new Exception("Network error" + e.getMessage());
+            }
+            finally {
                 connection.disconnect();
             }
         }
