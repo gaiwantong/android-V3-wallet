@@ -46,32 +46,24 @@ public class FeeUtil {
         String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
         int size = hexString.length();
 
-        int thousands = size / 1000;
-        int remainder = size % 1000;
-
-        long fee = SendFactory.bFee.longValue() * thousands;
-        if(remainder > 0L)   {
-            fee += SendFactory.bFee.longValue();
-        }
-
-        return BigInteger.valueOf(fee);
+        return feeCalculation(size);
     }
 
     public BigInteger estimatedFee(Transaction tx)   {
 
         int size = estimatedSize(tx.getOutputs().size(), tx.getInputs().size());
 
-        return estimatedFee(size);
+        return feeCalculation(size);
     }
 
     public BigInteger estimatedFee(int inputs, int outputs)   {
 
         int size = estimatedSize(inputs, outputs);
 
-        return estimatedFee(size);
+        return feeCalculation(size);
     }
 
-    private BigInteger estimatedFee(int size)   {
+    private BigInteger feeCalculation(int size)   {
 
         int thousands = size / 1000;
         int remainder = size % 1000;
