@@ -374,14 +374,9 @@ public class PayloadFactory	{
 			args.append(URLEncoder.encode(strCheckSum, "utf-8"));
 
 		}
-		catch(NoSuchAlgorithmException nsae)	{
-			nsae.printStackTrace();
-		}
-		catch(UnsupportedEncodingException uee)	{
-			uee.printStackTrace();
-		}
-		catch(JSONException je)	{
-			je.printStackTrace();
+		catch(NoSuchAlgorithmException | UnsupportedEncodingException | JSONException e)	{
+			e.printStackTrace();
+            return false;
 		}
 
 		if (syncPubKeys) {
