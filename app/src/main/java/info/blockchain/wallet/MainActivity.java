@@ -57,6 +57,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
@@ -214,11 +215,45 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
 
-                AccountsUtil.getInstance(this).initAccountMaps();
+                if(PayloadFactory.getInstance().get().isUpgraded()) {
 
-                Fragment fragment = new BalanceFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    AccountsUtil.getInstance(this).initAccountMaps();
+
+                    Fragment fragment = new BalanceFragment();
+                    FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+                }else{
+
+                    final ProgressDialog progress = new ProgressDialog(this);
+                    progress.setCancelable(false);
+                    progress.setTitle(R.string.app_name);
+                    progress.setMessage(getString(R.string.please_wait));
+                    progress.show();
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Looper.prepare();
+
+                            List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                            MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+
+                            AccountsUtil.getInstance(MainActivity.this).initAccountMaps();
+
+                            if (progress != null && progress.isShowing()) {
+                                progress.dismiss();
+                            }
+
+                            Fragment fragment = new BalanceFragment();
+                            FragmentManager fragmentManager = getFragmentManager();
+                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+                            Looper.loop();
+                        }
+                    }).start();
+                }
 
             }
             else {

@@ -1,11 +1,6 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -83,9 +78,8 @@ public class AccountsUtil {
                 all.setLabel(context.getResources().getString(R.string.all_accounts));
                 balanceAccountMap.put(-1, all);
             }else{
-                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), 0l);
+                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
                 accounts.add(iAccount);
-                getLegacyTotalFunds(iAccount);
             }
 		}
 
@@ -207,30 +201,4 @@ public class AccountsUtil {
 	public static List<LegacyAddress> getLegacyAddresses(){
 		return legacyAddresses;
 	}
-
-    private static void getLegacyTotalFunds(final ImportedAccount iAccount){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long balance = 0l;
-                for(LegacyAddress legacyAddress : iAccount.getLegacyAddresses()){
-
-                    JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
-                    long add = 0l;
-                    try {
-                        add = info.getLong("final_balance");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        add = 0l;
-                    }
-                    balance+=add;
-                }
-                iAccount.setAmount(balance);
-                MultiAddrFactory.getInstance().setLegacyBalance(balance);
-
-                Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-            }
-        }).start();
-    }
 }
