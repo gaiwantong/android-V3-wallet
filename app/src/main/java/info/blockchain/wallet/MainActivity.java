@@ -164,22 +164,34 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 isPinValidated = extras.getBoolean("verified");
             }
 
+            //
+            // No GUID? Treat as new installation
+            //
             if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                 Intent intent = new Intent(MainActivity.this, LandingActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
+            //
+            // No PIN ID? Treat as installed app without confirmed PIN
+            //
             else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
+            //
+            // Legacy app has not been prompted for upgrade
+            //
             else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
                 Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                 startActivity(intent);
             }
+            //
+            // App has been PIN validated
+            //
             else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
