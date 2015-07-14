@@ -11,8 +11,10 @@ import info.blockchain.wallet.MainActivity;
 import piuk.blockchain.android.R;
 
 public class AppUtil {
-	
-	private static AppUtil instance = null;
+
+    private static String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+
+    private static AppUtil instance = null;
 	private static Context context = null;
 
     private static boolean DEBUG = false;
@@ -139,4 +141,24 @@ public class AppUtil {
     public void setNewlyCreated(boolean newlyCreated) {
         this.newlyCreated = newlyCreated;
     }
+
+    public boolean isSane() {
+
+        String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
+        String shareKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+
+        if(!guid.matches(REGEX_UUID) || !shareKey.matches(REGEX_UUID))  {
+            return false;
+        }
+
+        String encryptedPassword = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
+        String pinID = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
+
+        if(encryptedPassword.length() == 0 || pinID.length() == 0)  {
+            return false;
+        }
+
+        return true;
+    }
+
 }
