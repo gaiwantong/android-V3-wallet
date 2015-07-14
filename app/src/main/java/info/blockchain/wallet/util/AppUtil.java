@@ -8,6 +8,9 @@ import android.os.Looper;
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.hd.HD_WalletFactory;
+import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadFactory;
 import piuk.blockchain.android.R;
 
 public class AppUtil {
@@ -43,6 +46,8 @@ public class AppUtil {
 	}
 
 	public void clearCredentialsAndRestart() {
+        HD_WalletFactory.getInstance(context).set(null);
+        PayloadFactory.getInstance().wipe();
 		PrefsUtil.getInstance(context).clear();
 		restartApp();
 	}
