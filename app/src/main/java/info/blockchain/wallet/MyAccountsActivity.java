@@ -91,6 +91,7 @@ public class MyAccountsActivity extends Activity {
     private List<LegacyAddress> legacy = null;
 
     private ProgressDialog progress = null;
+    private HashMap<Integer, Integer> accountIndexResover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,7 +233,7 @@ public class MyAccountsActivity extends Activity {
                             else {
                                 ReceiveAddress currentSelectedReceiveAddress = null;
                                 try {
-                                    currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(position-1);//1 header before accounts
+                                    currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
                                     currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -382,6 +383,7 @@ public class MyAccountsActivity extends Activity {
     private List<MyAccountItem> getAccounts() {
 
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
+        accountIndexResover = new HashMap<>();
 
         //First Header Position
         headerPositions.add(0);
@@ -397,15 +399,22 @@ public class MyAccountsActivity extends Activity {
             if (accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
                 accountClone.remove(accountClone.size() - 1);
             }
-            hdAccountsIdx = accountClone.size();
 
+            int archivedCount = 0;
+            int j = 1;
             for (; i < accountClone.size(); i++) {
 
                 String label = accountClone.get(i).getLabel();
                 if (label == null || label.length() == 0) label = "Account: " + (i + 1);
 
-                accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+                if(!accountClone.get(i).isArchived()) {
+                    accountIndexResover.put(j,i);
+                    j++;
+                    accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+                }else
+                    archivedCount++;
             }
+            hdAccountsIdx = accountClone.size()-archivedCount;
         }
 
         ImportedAccount iAccount = null;
@@ -415,7 +424,7 @@ public class MyAccountsActivity extends Activity {
         if(iAccount != null) {
 
             //Imported Header Position
-            headerPositions.add(i+1);
+            headerPositions.add(accountList.size());
             accountList.add(new MyAccountItem(IMPORTED_HEADER,"", getResources().getDrawable(R.drawable.icon_accounthd)));
 
             legacy = iAccount.getLegacyAddresses();
