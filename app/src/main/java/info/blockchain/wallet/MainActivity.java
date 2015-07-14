@@ -182,6 +182,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 startActivity(intent);
             }
             //
+            // Installed app, check sanity
+            //
+            else if(!AppUtil.getInstance(MainActivity.this).isSane()) {
+
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(MainActivity.this.getString(R.string.not_sane_error))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                AppUtil.getInstance(MainActivity.this).clearCredentialsAndRestart();
+                                AppUtil.getInstance(MainActivity.this).restartApp();
+                            }
+                        }).show();
+
+            }
+            //
             // Legacy app has not been prompted for upgrade
             //
             else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L) {

@@ -349,4 +349,5 @@
     <string name="unexpected_error">Unexpected error, please try again later.</string>
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
+    <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please repair your wallet or create a new one.</string>
 </resources>
