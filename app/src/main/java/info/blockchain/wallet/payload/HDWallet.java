@@ -10,7 +10,7 @@ public class HDWallet {
 
     private String strSeedHex = null;
     private List<Account> accounts = null;
-    private String strPassphrase = null;
+    private String strPassphrase = "";
     private boolean mnemonic_verified = false;
     private int default_account_idx = 0;
 
