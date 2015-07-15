@@ -323,7 +323,7 @@ public class SendFragment extends Fragment {
 
         if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
-        AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.fragment_send_account_row, _accounts);
+        AccountAdapter dataAdapter = new AccountAdapter(getActivity(), R.layout.spinner_item, _accounts);
         spAccounts.setAdapter(dataAdapter);
         spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -374,7 +374,7 @@ public class SendFragment extends Fragment {
         tvMax.setTypeface(TypefaceUtil.getInstance(getActivity()).getRobotoTypeface());
 
         DestinationAdapter destinationAdapter = new DestinationAdapter(getActivity(), R.layout.spinner_item, _accounts);
-        destinationAdapter.setDropDownViewResource(R.layout.spinner_item2);
+        destinationAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         spDestination = (ReselectSpinner)rootView.findViewById(R.id.sp_destination);
         if(_accounts.size() <= 1)
             spDestination.setVisibility(View.GONE);
@@ -894,13 +894,18 @@ public class SendFragment extends Fragment {
 
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
-            int layoutRes = R.layout.fragment_send_account_row;
+            int layoutRes = R.layout.spinner_item;
             if(isDropdown)layoutRes = R.layout.fragment_send_account_row_dropdown;
 
             View row =  inflater.inflate(layoutRes, parent, false);
 
-            TextView label = (TextView) row.findViewById(R.id.receive_account_label);
-            TextView balance = (TextView) row.findViewById(R.id.receive_account_balance);
+            TextView label = null;
+            TextView balance = null;
+            if(isDropdown) {
+                label = (TextView) row.findViewById(R.id.receive_account_label);
+                balance = (TextView) row.findViewById(R.id.receive_account_balance);
+            }else
+                label = (TextView) row.findViewById(R.id.text);
 
             String labelText = "";
             long amount = 0L;
@@ -934,12 +939,11 @@ public class SendFragment extends Fragment {
                 }
             }
 
-            if(isDropdown)
-                balance.setText("("+MonetaryUtil.getInstance(getActivity()).getDisplayAmount(amount)+" "+strBTC+")");
-            else
-                balance.setVisibility(View.GONE);
-
-            label.setText(labelText);
+            if(isDropdown) {
+                balance.setText("(" + MonetaryUtil.getInstance(getActivity()).getDisplayAmount(amount) + " " + strBTC + ")");
+                label.setText(labelText);
+            }else
+                label.setText(labelText);
 
             return row;
         }
@@ -1206,24 +1210,30 @@ public class SendFragment extends Fragment {
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent);
+            return getCustomView(position, convertView, parent, true);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent);
+            return getCustomView(position, convertView, parent, false);
         }
 
-        public View getCustomView(int position, View convertView, ViewGroup parent) {
+        public View getCustomView(int position, View convertView, ViewGroup parent, boolean isDropdown) {
 
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
-            int layoutRes = R.layout.fragment_send_account_row_dropdown;
-
-            View row = inflater.inflate(layoutRes, parent, false);
-
-            TextView label = (TextView) row.findViewById(R.id.receive_account_label);
-            label.setText(items.get(position));
+            View row = null;
+            if(isDropdown){
+                int layoutRes = R.layout.fragment_send_account_row_dropdown;
+                row = inflater.inflate(layoutRes, parent, false);
+                TextView label = (TextView) row.findViewById(R.id.receive_account_label);
+                label.setText(items.get(position));
+            }else{
+                int layoutRes = R.layout.spinner_item;
+                row = inflater.inflate(layoutRes, parent, false);
+                TextView label = (TextView) row.findViewById(R.id.text);
+                label.setText("");
+            }
 
             return row;
         }

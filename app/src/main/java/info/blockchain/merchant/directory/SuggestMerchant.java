@@ -142,7 +142,7 @@ public class SuggestMerchant extends ActionBarActivity {
 
 		final Spinner spCategory = (Spinner)findViewById(R.id.merchant_category_spinner);
 		ArrayAdapter<String> categorySpinnerArrayAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, categories);
-		categorySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item2);
+		categorySpinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
 		spCategory.setAdapter(categorySpinnerArrayAdapter);
 
 		commandSave = (TextView)findViewById(R.id.command_save);

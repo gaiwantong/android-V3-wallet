@@ -117,7 +117,7 @@ public class MyAccountsActivity extends Activity {
             public void onClick(View v) {
 
                 String[] list = new String[] {getResources().getString(R.string.import_address)};
-                ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_item2, list);
+                ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_dropdown, list);
 
                 final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
                 menuPopup.setAnchorView(menuImport);
