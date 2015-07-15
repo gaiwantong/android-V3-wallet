@@ -3,8 +3,6 @@ package info.blockchain.wallet.payload;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-import java.util.ArrayList;
-
 public class XPut {
 
     private int accountId = -1;
