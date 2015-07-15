@@ -1,7 +1,5 @@
 package info.blockchain.wallet.payload;
 
-import android.util.Log;
-
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Base58;
 import com.google.bitcoin.core.ECKey;
@@ -145,16 +143,13 @@ public class LegacyAddress {
 		}
 
 		if(keyCompressed != null && keyCompressed.toAddress(MainNetParams.get()).toString().equals(this.strAddress)) {
-			Log.i("Using ECKey", "compressed");
 			ecKey = keyCompressed;
 		}
 		else if(keyUnCompressed != null && keyUnCompressed.toAddress(MainNetParams.get()).toString().equals(this.strAddress)) {
-			Log.i("Using ECKey", "uncompressed");
 			ecKey = keyUnCompressed;
 		}
 		else {
 			ecKey = null;
-			Log.i("ECKey error", "cannot process legacy private key");
 		}
 
 		return ecKey;
