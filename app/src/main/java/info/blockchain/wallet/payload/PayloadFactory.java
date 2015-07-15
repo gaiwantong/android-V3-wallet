@@ -3,7 +3,7 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+//import android.util.Log;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
@@ -40,8 +40,8 @@ import piuk.blockchain.android.R;
  *
  */
 public class PayloadFactory	{
-	
-	private static Context context = null;
+
+    private static Context context = null;
 
     private static PayloadFactory instance = null;
     // active payload:
@@ -54,7 +54,7 @@ public class PayloadFactory	{
     private static String strCheckSum = null;
     private static boolean isNew = false;
     private static boolean syncPubKeys = true;
-	private static String email = null;
+    private static String email = null;
 
     private PayloadFactory()	{ ; }
 
@@ -84,8 +84,8 @@ public class PayloadFactory	{
      *
      */
     public static PayloadFactory getInstance(Context ctx) {
-    	
-    	context = ctx;
+
+        context = ctx;
 
         if (instance == null) {
             instance = new PayloadFactory();
@@ -223,6 +223,7 @@ public class PayloadFactory	{
         try {
             String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL,"method=wallet.aes.json&guid=" + guid + "&sharedKey=" + sharedKey + "&format=json");
             JSONObject jsonObject = new JSONObject(response);
+//            Log.i("PayloadFactory", jsonObject.toString());
             int iterations = AESUtil.PasswordPBKDF2Iterations;
             double version = 2.0;
             if(jsonObject.has("payload")) {
@@ -260,26 +261,26 @@ public class PayloadFactory	{
 //                    Log.i("PayloadFactory", decrypted);
                 }
                 catch(Exception e) {
-                	payload = null;
-                	e.printStackTrace();
-                	return null;
+                    payload = null;
+                    e.printStackTrace();
+                    return null;
                 }
                 if(decrypted == null) {
-                	payload = null;
-                	return null;
+                    payload = null;
+                    return null;
                 }
                 payload = new Payload(decrypted);
                 if(payload.getJSON() == null) {
-                	payload = null;
-                	return null;
+                    payload = null;
+                    return null;
                 }
 
                 try {
                     payload.parseJSON();
                 }
                 catch(JSONException je) {
-                	payload = null;
-                	je.printStackTrace();
+                    payload = null;
+                    je.printStackTrace();
                     return null;
                 }
 
@@ -291,14 +292,14 @@ public class PayloadFactory	{
             }
         }
         catch(JSONException je) {
-        	payload = null;
-        	je.printStackTrace();
-        	return null;
+            payload = null;
+            je.printStackTrace();
+            return null;
         }
         catch(Exception e) {
-        	payload = null;
+            payload = null;
             e.printStackTrace();
-        	return null;
+            return null;
         }
 
         return payload;
@@ -334,97 +335,94 @@ public class PayloadFactory	{
      */
     public boolean put(CharSequenceX password) {
 
-		String strOldCheckSum = strCheckSum;
-		String payloadCleartext = null;
+        String strOldCheckSum = strCheckSum;
+        String payloadCleartext = null;
 
-		StringBuilder args = new StringBuilder();
-		try	{
+        StringBuilder args = new StringBuilder();
+        try	{
 
-	    	if(cached_payload != null && cached_payload.equals(payload.dumpJSON().toString())) {
-	    		return true;
-	    	}
+            if(cached_payload != null && cached_payload.equals(payload.dumpJSON().toString())) {
+                return true;
+            }
 
-	    	payloadCleartext = payload.dumpJSON().toString();
-	    	String payloadEncrypted = AESUtil.encrypt(payloadCleartext, new CharSequenceX(strTempPassword), AESUtil.PasswordPBKDF2Iterations);
-	    	JSONObject rootObj = new JSONObject();
-			rootObj.put("version", 2.0);
-			rootObj.put("pbkdf2_iterations", AESUtil.PasswordPBKDF2Iterations);
-			rootObj.put("payload", payloadEncrypted);
-//			rootObj.put("guid", payload.getGuid());
-//			rootObj.put("sharedKey", payload.getSharedKey());
-//			rootObj.put("test", "OK");
+            payloadCleartext = payload.dumpJSON().toString();
+            String payloadEncrypted = AESUtil.encrypt(payloadCleartext, new CharSequenceX(strTempPassword), AESUtil.PasswordPBKDF2Iterations);
+            JSONObject rootObj = new JSONObject();
+            rootObj.put("version", 2.0);
+            rootObj.put("pbkdf2_iterations", AESUtil.PasswordPBKDF2Iterations);
+            rootObj.put("payload", payloadEncrypted);
 
-			strCheckSum  = new String(Hex.encode(MessageDigest.getInstance("SHA-256").digest(rootObj.toString().getBytes("UTF-8"))));
+            strCheckSum  = new String(Hex.encode(MessageDigest.getInstance("SHA-256").digest(rootObj.toString().getBytes("UTF-8"))));
 
-			String method = isNew ? "insert" : "update";
+            String method = isNew ? "insert" : "update";
 
-			String urlEncodedPayload = URLEncoder.encode(rootObj.toString());
+            String urlEncodedPayload = URLEncoder.encode(rootObj.toString());
 
-			args.append("guid=");
-			args.append(URLEncoder.encode(payload.getGuid(), "utf-8"));
-			args.append("&sharedKey=");
-			args.append(URLEncoder.encode(payload.getSharedKey(), "utf-8"));
-			args.append("&payload=");
-			args.append(urlEncodedPayload);
-			args.append("&method=");
-			args.append(method);
-			args.append("&length=");
-			args.append(rootObj.toString().length());
-			args.append("&checksum=");
-			args.append(URLEncoder.encode(strCheckSum, "utf-8"));
+            args.append("guid=");
+            args.append(URLEncoder.encode(payload.getGuid(), "utf-8"));
+            args.append("&sharedKey=");
+            args.append(URLEncoder.encode(payload.getSharedKey(), "utf-8"));
+            args.append("&payload=");
+            args.append(urlEncodedPayload);
+            args.append("&method=");
+            args.append(method);
+            args.append("&length=");
+            args.append(rootObj.toString().length());
+            args.append("&checksum=");
+            args.append(URLEncoder.encode(strCheckSum, "utf-8"));
 
-		}
-		catch(NoSuchAlgorithmException | UnsupportedEncodingException | JSONException e)	{
-			e.printStackTrace();
+        }
+        catch(NoSuchAlgorithmException | UnsupportedEncodingException | JSONException e)	{
+            e.printStackTrace();
             return false;
-		}
+        }
 
-		if (syncPubKeys) {
-			args.append("&active=");
-			
-			String[] legacyAddrs = null;
-			List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
-			List<String> addrs = new ArrayList<String>();
-			for(LegacyAddress addr : legacyAddresses) {
-				if(addr.getTag() == 0L) {
-					addrs.add(addr.getAddress());
-				}
-			}
+        if (syncPubKeys) {
+            args.append("&active=");
 
-			args.append(StringUtils.join(addrs.toArray(new String[addrs.size()]), "|"));
-		}
+            String[] legacyAddrs = null;
+            List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
+            List<String> addrs = new ArrayList<String>();
+            for(LegacyAddress addr : legacyAddresses) {
+                if(addr.getTag() == 0L) {
+                    addrs.add(addr.getAddress());
+                }
+            }
 
-		if (email != null && email.length() > 0) {
-			args.append("&email=");
-			try {
-				args.append(URLEncoder.encode(email, "utf-8"));
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-		}
+            args.append(StringUtils.join(addrs.toArray(new String[addrs.size()]), "|"));
+        }
 
-		args.append("&device=");
-		args.append("android");
+        if (email != null && email.length() > 0) {
+            args.append("&email=");
+            try {
+                args.append(URLEncoder.encode(email, "utf-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
 
-		if(strOldCheckSum != null && strOldCheckSum.length() > 0)	{
-			args.append("&old_checksum=");
-			args.append(strOldCheckSum);
-		}
-		
-		try	{
-			String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
-			isNew = false;
+        args.append("&device=");
+        args.append("android");
+
+        if(strOldCheckSum != null && strOldCheckSum.length() > 0)	{
+            args.append("&old_checksum=");
+            args.append(strOldCheckSum);
+        }
+
+        try	{
+            String response = WebUtil.getInstance().postURL(WebUtil.PAYLOAD_URL, args.toString());
+            isNew = false;
             if(response.contains("Wallet successfully synced")){
                 cache();
                 return true;
             }
-		}
-		catch(Exception e)	{
+        }
+        catch(Exception e)	{
             e.printStackTrace();
             return false;
-		}
+        }
 
-		return true;
+        return true;
     }
 
     /**
@@ -433,10 +431,10 @@ public class PayloadFactory	{
      */
     public void cache() {
         try {
-        	cached_payload = payload.dumpJSON().toString();
+            cached_payload = payload.dumpJSON().toString();
         }
         catch(JSONException je) {
-        	je.printStackTrace();
+            je.printStackTrace();
         }
     }
 
@@ -449,59 +447,59 @@ public class PayloadFactory	{
      *
      */
     public boolean createBlockchainWallet(HD_Wallet hdw)	{
-    	
-    	String guid = UUID.randomUUID().toString();
-    	String sharedKey = UUID.randomUUID().toString();
-    	
-    	payload = new Payload();
-    	payload.setGuid(guid);
-    	payload.setSharedKey(sharedKey);
-    	
-    	PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
-    	PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
-    	
-    	HDWallet payloadHDWallet = new HDWallet();
-    	payloadHDWallet.setSeedHex(hdw.getSeedHex());
 
-    	List<HD_Account> hdAccounts = hdw.getAccounts();
-    	List<Account> payloadAccounts = new ArrayList<Account>();
-    	for(int i = 0; i < hdAccounts.size(); i++)	{
-    		Account account = new Account();
-        	try  {
-            	String xpub = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xpubstr();
-            	account.setXpub(xpub);
-            	String xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xprvstr();
-            	account.setXpriv(xpriv);
-        	}
-        	catch(IOException | MnemonicException.MnemonicLengthException e)  {
-        		e.printStackTrace();
-        	}
+        String guid = UUID.randomUUID().toString();
+        String sharedKey = UUID.randomUUID().toString();
 
-    		payloadAccounts.add(account);
-    	}
-    	payloadHDWallet.setAccounts(payloadAccounts);
-    	
-    	payload.setHdWallets(payloadHDWallet);
-    	
-    	isNew = true;
+        payload = new Payload();
+        payload.setGuid(guid);
+        payload.setSharedKey(sharedKey);
 
-    	return true;
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
+
+        HDWallet payloadHDWallet = new HDWallet();
+        payloadHDWallet.setSeedHex(hdw.getSeedHex());
+
+        List<HD_Account> hdAccounts = hdw.getAccounts();
+        List<Account> payloadAccounts = new ArrayList<Account>();
+        for(int i = 0; i < hdAccounts.size(); i++)	{
+            Account account = new Account();
+            try  {
+                String xpub = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xpubstr();
+                account.setXpub(xpub);
+                String xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xprvstr();
+                account.setXpriv(xpriv);
+            }
+            catch(IOException | MnemonicException.MnemonicLengthException e)  {
+                e.printStackTrace();
+            }
+
+            payloadAccounts.add(account);
+        }
+        payloadHDWallet.setAccounts(payloadAccounts);
+
+        payload.setHdWallets(payloadHDWallet);
+
+        isNew = true;
+
+        return true;
     }
 
     /**
-     * Thread for rempte save of payload to server.
+     * Thread for remote save of payload to server.
      *
      */
     public void remoteSaveThread() {
 
-		final Handler handler = new Handler();
+        final Handler handler = new Handler();
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
-				
-				if(PayloadFactory.getInstance(context).get() != null)	{
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                if(PayloadFactory.getInstance(context).get() != null)	{
 
                     if(PayloadFactory.getInstance(context).put(strTempPassword))	{
 //                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
@@ -511,29 +509,29 @@ public class PayloadFactory	{
                         ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
 
-				}
-				else	{
+                }
+                else	{
                     ToastCustom.makeText(context, context.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-				}
+                }
 
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						;
-					}
-				});
-				
-				Looper.loop();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ;
+                    }
+                });
 
-			}
-		}).start();
-	}
+                Looper.loop();
 
-	public String getEmail() {
-		return email;
-	}
+            }
+        }).start();
+    }
 
-	public void setEmail(String email) {
-		PayloadFactory.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        PayloadFactory.email = email;
+    }
 }
