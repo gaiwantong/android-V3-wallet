@@ -500,7 +500,7 @@ public class SendFactory	{
 		BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
 		// Now add the change if there is any
 		if (change.compareTo(BigInteger.ZERO) > 0) {
-            if(change.compareTo(bDust) < 1)    {
+            if(change.compareTo(bDust) <= 0)    {
                 throw new Exception(context.getString(R.string.dust_change));
             }
             BitcoinScript change_script;
