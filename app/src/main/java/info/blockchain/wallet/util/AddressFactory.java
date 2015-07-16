@@ -18,7 +18,7 @@ import piuk.blockchain.android.R;
 
 public class AddressFactory {
 
-    public static final int LOOKAHEAD_GAP = 5;
+    public static final int LOOKAHEAD_GAP = 20;
 
     public static final int RECEIVE_CHAIN = 0;
     public static final int CHANGE_CHAIN = 1;
