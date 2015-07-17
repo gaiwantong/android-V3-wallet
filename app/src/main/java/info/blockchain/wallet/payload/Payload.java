@@ -48,7 +48,6 @@ public class Payload {
     private Map<String,String> notes = null;
     private Map<String,List<Integer>> tags = null;
     private Map<Integer,String> tag_names = null;
-    private Map<String,PaidTo> paidTo = null;
     private Map<String,Integer> xpub2Account = null;
     private Map<Integer,String> account2Xpub = null;
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
@@ -61,7 +60,6 @@ public class Payload {
         notes = new HashMap<String,String>();
         tags = new HashMap<String,List<Integer>>();
         tag_names = new HashMap<Integer,String>();
-        paidTo = new HashMap<String,PaidTo>();
         options = new Options();
         xpub2Account = new HashMap<String,Integer>();
         account2Xpub = new HashMap<Integer,String>();
@@ -74,7 +72,6 @@ public class Payload {
         notes = new HashMap<String,String>();
         tags = new HashMap<String,List<Integer>>();
         tag_names = new HashMap<Integer,String>();
-        paidTo = new HashMap<String,PaidTo>();
         options = new Options();
         xpub2Account = new HashMap<String,Integer>();
         account2Xpub = new HashMap<Integer,String>();
@@ -195,14 +192,6 @@ public class Payload {
 
     public void setTagNames(Map<Integer, String> tag_names) {
         this.tag_names = tag_names;
-    }
-
-    public Map<String, PaidTo> getPaidTo() {
-        return paidTo;
-    }
-
-    public void setPaidTo(Map<String, PaidTo> paidTo) {
-        this.paidTo = paidTo;
     }
 
     public int getIterations() {
@@ -338,22 +327,6 @@ public class Payload {
                 setTagNames(_tnames);
             }
 
-            if(jsonObject.has("paidTo"))  {
-                JSONObject paid2 = (JSONObject)jsonObject.get("paidTo");
-                Map<String,PaidTo> pto = new HashMap<String,PaidTo>();
-                for(Iterator<String> keys = paid2.keys(); keys.hasNext();)  {
-                	String key = keys.next();
-                    PaidTo p = new PaidTo();
-                    JSONObject t = (JSONObject)paid2.get(key);
-                    p.setEmail((String)t.get("email"));
-                    p.setMobile((String)t.get("mobile"));
-                    p.setRedeemedAt((String)t.get("redeemedAt"));
-                    p.setAddress((String)t.get("address"));
-                    pto.put(key, p);
-                }
-                setPaidTo(pto);
-            }
-
             if(jsonObject.has("hd_wallets"))  {
                 isUpgraded = true;
 
@@ -380,6 +353,22 @@ public class Payload {
                     	i = (Integer)wallet.get("default_account_idx");
                 	}
                     hdw.setDefaultIndex(i);
+                }
+
+                if(wallet.has("paidTo"))  {
+                    JSONObject paid2 = (JSONObject)wallet.get("paidTo");
+                    Map<String,PaidTo> pto = new HashMap<String,PaidTo>();
+                    for(Iterator<String> keys = paid2.keys(); keys.hasNext();)  {
+                        String key = keys.next();
+                        PaidTo p = new PaidTo();
+                        JSONObject t = (JSONObject)paid2.get(key);
+                        p.setEmail((String)t.get("email"));
+                        p.setMobile((String)t.get("mobile"));
+                        p.setRedeemedAt((String)t.get("redeemedAt"));
+                        p.setAddress((String)t.get("address"));
+                        pto.put(key, p);
+                    }
+                    hdw.setPaidTo(pto);
                 }
 
                 if(((JSONObject)wallets.get(0)).has("accounts"))  {
@@ -632,19 +621,6 @@ public class Payload {
             tnames.put(key, tag_names.get(key));
         }
         obj.put("tag_names", tnames);
-
-        JSONObject paidToObj = new JSONObject();
-        Set<String> pkeys = paidTo.keySet();
-        for(String key : pkeys)  {
-            PaidTo pto = paidTo.get(key);
-            JSONObject pobj = new JSONObject();
-            pobj.put("email", pto.getEmail());
-            pobj.put("mobile", pto.getMobile());
-            pobj.put("redeemedAt", pto.getRedeemedAt());
-            pobj.put("address", pto.getAddress());
-            paidToObj.put(key, pobj);
-        }
-        obj.put("paidTo", paidToObj);
 
         return obj;
     }
