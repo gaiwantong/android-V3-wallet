@@ -267,7 +267,8 @@ public class Transaction	{
 
                 HashMap<String, String> xpub = MultiAddrFactory.getInstance().getAddress2Xpub();
                 Map<String, Integer> xpubAcc = PayloadFactory.getInstance().get().getXpub2Account();
-                int accIndex = xpubAcc.get(xpub.get(ip.addr));
+                int accIndex = 0;
+                if(!xpubAcc.isEmpty())accIndex = xpubAcc.get(xpub.get(ip.addr));
 
                 List<Account> acc = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
                 String accountLabel = acc.get(accIndex).getLabel();
