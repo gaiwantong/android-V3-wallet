@@ -1,5 +1,26 @@
 package info.blockchain.wallet.send;
 
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.util.Pair;
+
+import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.core.ECKey;
+import com.google.bitcoin.core.Sha256Hash;
+import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.core.Transaction.SigHash;
+import com.google.bitcoin.core.TransactionInput;
+import com.google.bitcoin.core.TransactionOutput;
+import com.google.bitcoin.core.Utils;
+import com.google.bitcoin.core.Wallet;
+import com.google.bitcoin.params.MainNetParams;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.spongycastle.util.encoders.Hex;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -11,41 +32,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.spongycastle.util.encoders.Hex;
-
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Pair;
-import android.widget.Toast;
-//import android.util.Log;
-
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
-import com.google.bitcoin.core.Utils;
-import com.google.bitcoin.core.Wallet;
-import com.google.bitcoin.core.Transaction.SigHash;
-import com.google.bitcoin.params.MainNetParams;
-
-import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.OpCallback;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.hd.HD_Address;
+import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 /**
  *
@@ -253,7 +253,7 @@ public class SendFactory	{
 //					Log.i("Send response", response);
                         if(response.contains("Transaction Submitted")) {
 
-                            opc.onSuccess();
+                            opc.onSuccess(tx.getHashAsString());
 
                             if(note != null && note.length() > 0) {
                                 Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();

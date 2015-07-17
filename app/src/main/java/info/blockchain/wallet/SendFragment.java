@@ -43,6 +43,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -54,6 +55,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -67,7 +69,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -102,6 +103,7 @@ public class SendFragment extends Fragment {
 
     private boolean spendInProgress = false;
     private List<String> _accounts = null;
+    private boolean spDestinationSelected = false;
 
     private class PendingSpend {
         boolean isHD;
@@ -403,17 +405,16 @@ public class SendFragment extends Fragment {
                         int position = spDestination.getSelectedItemPosition();
                         spDestination.getSelectedItem().toString();
 
-                        String address = "";
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
                             //Legacy addresses
                             LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
-                            address = account.getAddress();
+                            currentSelectedToAddress = account.getAddress();
                         } else {
                             //hd accounts
                             Integer currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
                             try {
                                 ReceiveAddress currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
-                                address = currentSelectedReceiveAddress.getAddress();
+                                currentSelectedToAddress = currentSelectedReceiveAddress.getAddress();
 
                             } catch (IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                                     | MnemonicException.MnemonicWordException | AddressFormatException
@@ -423,8 +424,8 @@ public class SendFragment extends Fragment {
                         }
 
 //                        edDestination.setText(label);//future use
-                        edDestination.setText(address);
-                        currentSelectedToAddress = address;
+                        edDestination.setText(currentSelectedToAddress);
+                        spDestinationSelected = true;
                     }
 
                     @Override
@@ -1016,6 +1017,10 @@ public class SendFragment extends Fragment {
                                             SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, new OpCallback() {
 
                                                 public void onSuccess() {
+                                                }
+
+                                                @Override
+                                                public void onSuccess(final String hash) {
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
@@ -1031,6 +1036,9 @@ public class SendFragment extends Fragment {
                                                             MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
+
+                                                            updateTx(isHd, strNote, hash, currentAcc, null);
+
                                                             Fragment fragment = new BalanceFragment();
                                                             FragmentManager fragmentManager = getFragmentManager();
                                                             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -1064,6 +1072,10 @@ public class SendFragment extends Fragment {
                                             SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
 
                                                 public void onSuccess() {
+                                                }
+
+                                                @Override
+                                                public void onSuccess(final String hash) {
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
@@ -1076,11 +1088,15 @@ public class SendFragment extends Fragment {
                                                             if (strNote != null) {
                                                                 PayloadFactory.getInstance(getActivity()).remoteSaveThread();
                                                             }
+
                                                             MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                             MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
                                                             MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
                                                             if (alertDialog != null && alertDialog.isShowing())
                                                                 alertDialog.cancel();
+
+                                                            updateTx(isHd, strNote, hash, 0, legacyAddress);
+
                                                             Fragment fragment = new BalanceFragment();
                                                             FragmentManager fragmentManager = getFragmentManager();
                                                             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -1237,5 +1253,23 @@ public class SendFragment extends Fragment {
 
             return row;
         }
+    }
+
+    private void updateTx(boolean isHd, String strNote, String hash, int currentAcc, LegacyAddress legacyAddress) {
+
+        String direction = MultiAddrFactory.SENT;
+        if(spDestinationSelected)direction = MultiAddrFactory.MOVED;
+
+        if(isHd){
+            Tx tx = new Tx(hash, strNote, direction, -(pendingSpend.bamount.doubleValue()+pendingSpend.bfee.doubleValue()), System.currentTimeMillis()/1000, new HashMap<Integer,String>());
+            if(spDestinationSelected)tx.setIsMove(true);
+            MultiAddrFactory.getInstance().getXpubTxs().get(account2Xpub(currentAcc)).add(tx);
+        }else{
+            Tx tx = new Tx(hash, strNote, direction, -(pendingSpend.bamount.doubleValue()+pendingSpend.bfee.doubleValue()), System.currentTimeMillis()/1000, new HashMap<Integer,String>());
+            if(spDestinationSelected)tx.setIsMove(true);
+            MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress()).add(tx);
+            MultiAddrFactory.getInstance().getLegacyTxs().add(tx);
+        }
+
     }
 }
