@@ -665,7 +665,7 @@ public class ReceiveFragment extends Fragment {
         try {
             fos = new FileOutputStream(file);
         } catch (FileNotFoundException fnfe) {
-            ;
+            fnfe.printStackTrace();
         }
 
         if (file != null && fos != null) {
@@ -675,7 +675,7 @@ public class ReceiveFragment extends Fragment {
             try {
                 fos.close();
             } catch (IOException ioe) {
-                ;
+                ioe.printStackTrace();
             }
 
             ArrayList<SendPaymentCodeData> dataList = new ArrayList<SendPaymentCodeData>();

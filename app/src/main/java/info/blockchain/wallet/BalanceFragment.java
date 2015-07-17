@@ -280,6 +280,7 @@ public class BalanceFragment extends Fragment {
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
         accountsAdapter.notifyDataSetChanged();
         txAdapter.notifyDataSetChanged();
     }
