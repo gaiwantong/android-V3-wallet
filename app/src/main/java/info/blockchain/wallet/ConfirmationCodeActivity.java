@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
@@ -144,7 +145,11 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                 try {
                     response = AccessFactory.getInstance(ConfirmationCodeActivity.this).verifyEmail(done);
                     if (response != null && response.equals("Email successfully verified")) {
-                        AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+
+                        if(HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword()))    {
+                            AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                        }
+
                     }else {
                         ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         clearBoxes();
@@ -154,7 +159,8 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     e.printStackTrace();
                     ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                     clearBoxes();
-                }finally {
+                }
+                finally {
                     if(progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;

@@ -393,8 +393,8 @@ public class PayloadFactory	{
         }
 
         if (email != null && email.length() > 0) {
-            args.append("&email=");
             try {
+                args.append("&email=");
                 args.append(URLEncoder.encode(email, "utf-8"));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
