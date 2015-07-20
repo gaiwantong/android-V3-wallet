@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 165
-        versionName "5.0.42a"
+        versionName "5.0.45a"
     }
     buildTypes {
         release {
