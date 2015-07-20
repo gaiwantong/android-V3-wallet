@@ -23,9 +23,7 @@ import java.util.TimerTask;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-
 import piuk.blockchain.android.R;
 
 public class CreateWalletFragment extends Fragment {
@@ -145,7 +143,7 @@ public class CreateWalletFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                final String em = edEmail.getText().toString();
+                final String em = edEmail.getText().toString().trim();
                 final String pw1 = edPassword1.getText().toString();
                 final String pw2 = edPassword2.getText().toString();
 
