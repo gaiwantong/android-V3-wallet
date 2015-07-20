@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -222,6 +223,7 @@ public class BalanceFragment extends Fragment {
             accountSpinner.setSelection(currentSelected);
         } else {
             //Single account - no spinner
+            AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
             Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
             if(acc != null && acc.getLabel() != null) {
@@ -497,7 +499,9 @@ public class BalanceFragment extends Fragment {
 
     private String account2Xpub(int accountIndex) {
 
-        Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(accountIndex);
+        LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
+        if(accountIndex > (accountMap.size()-1))accountIndex = 0;
+        Account hda = accountMap.get(accountIndex);
         String xpub = null;
         if (hda instanceof ImportedAccount) {
             xpub = null;
