@@ -228,8 +228,23 @@ public class MyAccountsActivity extends Activity {
                             //Receiving Address
                             String currentSelectedAddress = null;
 
-                            if (position-2 >= hdAccountsIdx)//2 headers before imported
-                                currentSelectedAddress = legacy.get(position-2 - hdAccountsIdx).getAddress();
+                            if (position-2 >= hdAccountsIdx) {//2 headers before imported
+
+                                LegacyAddress legacyAddress = legacy.get(position - 2 - hdAccountsIdx);
+
+                                if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    return;
+                                }
+                                else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    return;
+                                }
+                                else    {
+                                    currentSelectedAddress = legacyAddress.getAddress();
+                                }
+
+                            }
                             else {
                                 ReceiveAddress currentSelectedReceiveAddress = null;
                                 try {

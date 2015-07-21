@@ -350,4 +350,8 @@
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
     <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please repair your wallet or create a new one.</string>
+
+    <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
+    <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
+
 </resources>
