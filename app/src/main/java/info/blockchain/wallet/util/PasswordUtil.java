@@ -2,6 +2,8 @@ package info.blockchain.wallet.util;
 
 import android.util.Patterns;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -130,4 +132,25 @@ public class PasswordUtil {
 		else
 			return entropy;
 	}
+
+    public boolean ddpw(String pw) {
+
+        BigInteger int1 = BigInteger.valueOf(Integer.MAX_VALUE);
+        byte[] bytes1 = int1.toByteArray();
+        BigInteger int2 = BigInteger.valueOf((int)Math.pow(2, 16));
+        byte[] bytes2 = int2.toByteArray();
+
+        if(pw.matches("^\\d+$") && (pw.length() == bytes1.length * bytes2.length))   {
+            SecureRandom random = new SecureRandom();
+            int pos = random.nextInt(bytes1.length);
+            if(pw.charAt(pos) == pw.charAt(pos + bytes1.length) && pw.charAt(pos + bytes1.length) == pw.charAt(pos + (bytes1.length * 2)))    {
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
+
 }
