@@ -970,6 +970,7 @@ public class BalanceFragment extends Fragment {
             final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
             final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
             final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
+            final TextView tvStatus = (TextView) detailsView.findViewById(R.id.transaction_status);
 
             if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
                 if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
@@ -983,6 +984,7 @@ public class BalanceFragment extends Fragment {
                 progressView.setVisibility(View.VISIBLE);
                 tvOutAddr.setVisibility(View.INVISIBLE);
                 tvToAddr.setVisibility(View.INVISIBLE);
+                tvStatus.setVisibility(View.INVISIBLE);
 
                 tvTxHash.setText(strTx);
                 tvTxHash.setOnTouchListener(new OnTouchListener() {
@@ -1097,8 +1099,14 @@ public class BalanceFragment extends Fragment {
 
                             tvConfirmations.setText(strConfirmations);
 
+                            if(tx.getConfirmations()>=3)
+                                tvStatus.setText(getString(R.string.COMPLETE));
+                            else
+                                tvStatus.setText(getString(R.string.PENDING));
+
                             tvOutAddr.setVisibility(View.VISIBLE);
                             tvToAddr.setVisibility(View.VISIBLE);
+                            tvStatus.setVisibility(View.VISIBLE);
                         }
                     }
                 }.execute();
