@@ -488,7 +488,7 @@ public class Payload {
                     LegacyAddress addr = null;
                     for(int i = 0; i < keys.length(); i++)  {
                         key = (JSONObject)keys.get(i);
-                        if(!key.has("tag") || (key.has("tag") && key.getLong("tag") == 0L))  {
+                        if(key.has("tag") && (key.getLong("tag") >= PayloadFactory.NORMAL_ADDRESS && key.getLong("tag") <= PayloadFactory.ARCHIVED_ADDRESS))  {
                             a = (String)key.get("addr");
                             if(a != null && !seenAddrs.contains(a))  {
                                 seenAddrs.add(a);
@@ -497,7 +497,7 @@ public class Payload {
                                         key.has("created_time") ? key.getLong("created_time") : 0L,
                                         key.has("addr") ? (String)key.get("addr") : null,
                                         key.has("label") ? (String)key.get("label") : "",
-                                        0L, // key.has("tag") ? key.getLong("tag") : 0L,
+                                        key.getLong("tag"),
                                         key.has("created_device_name") ? (String)key.get("created_device_name") : "",
                                         key.has("created_device_version") ? (String)key.get("created_device_version") : ""
                                 );

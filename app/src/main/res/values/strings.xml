@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.44a</string>
+    <string name="version_name">5.0.45a</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -350,4 +350,8 @@
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
     <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please repair your wallet or create a new one.</string>
+
+    <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
+    <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
+
 </resources>

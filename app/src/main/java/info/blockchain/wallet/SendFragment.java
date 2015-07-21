@@ -352,7 +352,23 @@ public class SendFragment extends Fragment {
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
 
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
-                            currentSelectedFromAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex()).getAddress();
+
+                            LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+
+                            if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                                spAccounts.setSelection(0);
+                                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                return;
+                            }
+                            else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                                spAccounts.setSelection(0);
+                                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                return;
+                            }
+                            else    {
+                                currentSelectedFromAddress = legacyAddress.getAddress();
+                            }
+
                         }
 
                         displayMaxAvailable();
@@ -408,7 +424,21 @@ public class SendFragment extends Fragment {
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
                             //Legacy addresses
                             LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
-                            currentSelectedToAddress = account.getAddress();
+
+                            if(account.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                                edDestination.setText("");
+                                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                return;
+                            }
+                            else if(account.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                                edDestination.setText("");
+                                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                return;
+                            }
+                            else    {
+                                currentSelectedToAddress = account.getAddress();
+                            }
+
                         } else {
                             //hd accounts
                             Integer currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);

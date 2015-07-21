@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -452,8 +453,24 @@ public class ReceiveFragment extends Fragment {
     private void selectAccount(int position){
         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
             //Legacy addresses
-            currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex()).getAddress();
-            displayQRCode();
+
+            LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+
+            if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                spAccounts.setSelection(0);
+                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
+            else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                spAccounts.setSelection(0);
+                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
+            else    {
+                currentSelectedAddress = legacyAddress.getAddress();
+                displayQRCode();
+            }
+
         } else {
             //hd accounts
             currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
