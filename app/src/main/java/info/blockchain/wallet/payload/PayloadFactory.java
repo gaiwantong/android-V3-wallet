@@ -41,6 +41,10 @@ import piuk.blockchain.android.R;
  */
 public class PayloadFactory	{
 
+    public static final long NORMAL_ADDRESS = 0L;
+    public static final long WATCHONLY_ADDRESS = 1L;
+    public static final long ARCHIVED_ADDRESS = 2L;
+
     private static Context context = null;
 
     private static PayloadFactory instance = null;
