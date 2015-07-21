@@ -7,6 +7,12 @@
 
 	<include layout="@layout/toolbar_general"/>
 
+    <View
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/container_dropshadow_gradient" />
+
 	<LinearLayout
 		android:id="@+id/wallet_id_container"
 		android:layout_width="match_parent"

@@ -24,6 +24,7 @@ import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -715,6 +716,20 @@ public class BalanceFragment extends Fragment {
 
         tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
         tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+
+        //Elevation compat
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            //reapply layout attributes after setBackgroundResource
+            int bottom = tvBalance1.getPaddingBottom();
+            int top = tvBalance1.getPaddingTop();
+            int right = tvBalance1.getPaddingRight();
+            int left = tvBalance1.getPaddingLeft();
+            int textAlignment = tvBalance1.getTextAlignment();
+            tvBalance1.setBackgroundResource(R.drawable.container_blue_shadow);
+            tvBalance1.setPadding(left, top, right, bottom);
+            tvBalance1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+            tvBalance1.setTextAlignment(textAlignment);
+        }
 
         tvBalance1.setOnTouchListener(new OnTouchListener() {
             @Override

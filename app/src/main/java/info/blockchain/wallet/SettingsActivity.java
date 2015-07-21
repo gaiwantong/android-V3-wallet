@@ -297,7 +297,10 @@ public class SettingsActivity extends PreferenceActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
             bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_general, root, false);
-            root.addView(bar, 0); // insert at top
+
+            View shadow = LayoutInflater.from(this).inflate(R.layout.include_container_shadow, root, false);
+            root.addView(shadow, 0);
+            root.addView(bar, 0);
         } else {
             ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
             ListView content = (ListView) root.getChildAt(0);
@@ -317,6 +320,10 @@ public class SettingsActivity extends PreferenceActivity {
             content.setPadding(0, height, 0, 0);
 
             root.addView(content);
+
+            View shadow = LayoutInflater.from(this).inflate(R.layout.include_container_shadow, root, false);
+            root.addView(shadow);
+
             root.addView(bar);
         }
 

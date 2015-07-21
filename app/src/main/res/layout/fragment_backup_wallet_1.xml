@@ -79,6 +79,12 @@
 		</LinearLayout>
 	</LinearLayout>
 
+    <View
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/container_dropshadow_gradient" />
+
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
