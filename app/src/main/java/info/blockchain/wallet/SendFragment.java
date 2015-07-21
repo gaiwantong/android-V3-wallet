@@ -252,6 +252,10 @@ public class SendFragment extends Fragment {
                     textChangeAllowed = true;
                 }
 
+                if(s.toString().contains(defaultSeparator))
+                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                else
+                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -311,6 +315,11 @@ public class SendFragment extends Fragment {
                     }
                     textChangeAllowed = true;
                 }
+
+                if(s.toString().contains(defaultSeparator))
+                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                else
+                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after)	{ ; }
