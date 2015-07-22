@@ -30,11 +30,11 @@ public class Spendable    {
         this.tx = tx;
     }
 
-    public OpCallback getOpc() {
+    public OpCallback getOpCallback() {
         return opc;
     }
 
-    public void setOpc(OpCallback opc) {
+    public void setOpCallback(OpCallback opc) {
         this.opc = opc;
     }
 

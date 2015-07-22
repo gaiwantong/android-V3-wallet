@@ -109,7 +109,7 @@ public class TxQueue	{
 
                                         poll();
 
-                                        sp.getOpc().onSuccess(sp.getTx().getHashAsString());
+                                        sp.getOpCallback().onSuccess(sp.getTx().getHashAsString());
 
                                         if(sp.getNote() != null && sp.getNote().length() > 0) {
                                             Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
@@ -132,13 +132,13 @@ public class TxQueue	{
                                     }
                                     else {
                                         ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        sp.getOpc().onFail();
+                                        sp.getOpCallback().onFail();
                                     }
 
                                 }
                                 catch(Exception e) {
                                     e.printStackTrace();
-                                    sp.getOpc().onFail();
+                                    sp.getOpCallback().onFail();
                                 }
                             }
                             else {
