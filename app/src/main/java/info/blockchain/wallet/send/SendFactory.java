@@ -108,6 +108,9 @@ public class SendFactory	{
             HashMap<String,List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
             List<String> data = unspentOutputs.get(xpub);
             froms = new HashMap<String,String>();
+            if(data == null)    {
+                return null;
+            }
             for(String f : data) {
                 if(f != null) {
                     String[] s = f.split(",");
@@ -477,7 +480,11 @@ public class SendFactory	{
 				continue;
 			}
 
-			MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
+            if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000L)) > 0)    {
+                throw new Exception(context.getString(R.string.limit_21m_exceeded));
+            }
+
+            MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
 			tx.addInput(input);
 			valueSelected = valueSelected.add(outPoint.getValue());
 			priority += outPoint.getValue().longValue() * outPoint.getConfirmations();

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.os.Looper;
 
 import java.io.File;
@@ -214,5 +215,24 @@ public class AppUtil {
 
     public void setIsClosed(boolean isClosed) {
         AppUtil.isClosed = isClosed;
+    }
+
+    public boolean isCameraOpen() {
+
+        Camera camera = null;
+
+        try {
+            camera = Camera.open();
+        }
+        catch (RuntimeException e) {
+            return true;
+        }
+        finally {
+            if (camera != null) {
+                camera.release();
+            }
+        }
+
+        return false;
     }
 }

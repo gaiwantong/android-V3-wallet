@@ -15,65 +15,6 @@
         android:summary="@string/options_currency2"
         android:key="fiat"
         />
-    <!--
-    <EditTextPreference
-            android:title="@string/options_email"
-            android:summary="@string/options_email2"
-            android:key="email" />
-    <CheckBoxPreference
-            android:title="@string/options_email_backups"
-            android:defaultValue="true"
-            android:summary="@string/options_email_backups2"
-            android:key="backups" />
-    <EditTextPreference
-            android:title="@string/options_cell"
-            android:summary="@string/options_cell2"
-            android:key="mobile" />
-    <CheckBoxPreference
-            android:title="@string/options_sms"
-            android:defaultValue="true"
-            android:summary="@string/options_sms2"
-            android:key="notifs" />
-    -->
-    <!--
-    <Preference
-        android:title="@string/wallet_options_backup"
-        android:summary="@string/wallet_options_backup2"
-        android:key="backup"
-        />
-    <Preference
-        android:title="@string/options_pin"
-        android:summary="@string/options_pin2"
-        android:key="pin"
-        />
-     <Preference
-        android:title="@string/options_password"
-        android:summary="@string/options_password2"
-        android:key="password"
-        />
-        -->
-    <Preference
-        android:title="@string/options_mnemonic"
-        android:summary="@string/options_mnemonic2"
-        android:key="mnemonic"
-        />
-    <!--
-    <Preference
-        android:title="@string/options_hexseed"
-        android:summary="@string/options_hexseed2"
-        android:key="hexseed"
-        />
-    <Preference
-        android:title="@string/options_passphrase"
-        android:summary="@string/options_passphrase2"
-        android:key="passphrase"
-        />
-    <Preference
-        android:title="@string/options_unpair"
-        android:summary="@string/options_unpair2"
-        android:key="unpair"
-        />
-    -->
     <Preference
         android:title="@string/preferences_about_title"
         android:summary="@string/about_us"

@@ -411,7 +411,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 doMerchantDirectory();
                 return true;
             case R.id.action_qr:
-                scanURI();
+                if(!AppUtil.getInstance(MainActivity.this).isCameraOpen())    {
+                    scanURI();
+                }
+                else    {
+                    ToastCustom.makeText(MainActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -117,7 +117,7 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
-
+/*
         Preference mnemonicPref = (Preference) findPreference("mnemonic");
         mnemonicPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
@@ -158,7 +158,7 @@ public class SettingsActivity extends PreferenceActivity {
         if(!PayloadFactory.getInstance().get().isUpgraded())    {
             getPreferenceScreen().removePreference(mnemonicPref);
         }
-
+*/
         Preference aboutPref = (Preference) findPreference("about");
         aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
