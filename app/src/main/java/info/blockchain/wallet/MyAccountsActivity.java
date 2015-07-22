@@ -131,7 +131,12 @@ public class MyAccountsActivity extends Activity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
                             case 0:
-                                scanPrivateKey();
+                                if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
+                                    scanPrivateKey();
+                                }
+                                else    {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
                                 break;
                         }
 
