@@ -355,5 +355,8 @@
     <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
 
     <string name="camera_unavailable">The camera is currently opened by another application. Please close other application and try again.</string>
+    <string name="transaction_failed_will_retry">Transaction failed, will try again in a few seconds.</string>
+
+    <string name="limit_21m_exceeded">This amount cannot be transmitted on the Bitcoin network.</string>
 
 </resources>

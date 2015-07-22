@@ -479,7 +479,7 @@ public class SendFactory	{
 			if(isSimpleSend && receivingAddresses.get(address) != null) {
 				continue;
 			}
- *
+
             if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000L)) > 0)    {
                 throw new Exception(context.getString(R.string.limit_21m_exceeded));
             }
