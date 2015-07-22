@@ -354,4 +354,6 @@
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
 
+    <string name="camera_unavailable">The camera is currently opened by another application. Please close other application and try again.</string>
+
 </resources>
