@@ -68,7 +68,6 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.AccountsUtil;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
@@ -134,7 +133,6 @@ public class BalanceFragment extends Fragment {
 
                         if(forceRefresh){
 
-                            AppUtil.getInstance(getActivity()).updatePinEntryTime();
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -255,8 +253,6 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
         AccountsUtil.getInstance(getActivity()).initAccountMaps();
 
@@ -945,8 +941,6 @@ public class BalanceFragment extends Fragment {
 
     private void onRowClick(final View view, final int position) {
 
-        AppUtil.getInstance(getActivity()).updatePinEntryTime();
-
         if (txs != null) {
             final Tx tx = txs.get(position);
             final String strTx = tx.getHash();
@@ -970,6 +964,7 @@ public class BalanceFragment extends Fragment {
             final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
             final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
             final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
+            final TextView tvStatus = (TextView) detailsView.findViewById(R.id.transaction_status);
 
             if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
                 if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
@@ -983,6 +978,7 @@ public class BalanceFragment extends Fragment {
                 progressView.setVisibility(View.VISIBLE);
                 tvOutAddr.setVisibility(View.INVISIBLE);
                 tvToAddr.setVisibility(View.INVISIBLE);
+                tvStatus.setVisibility(View.INVISIBLE);
 
                 tvTxHash.setText(strTx);
                 tvTxHash.setOnTouchListener(new OnTouchListener() {
@@ -1097,8 +1093,14 @@ public class BalanceFragment extends Fragment {
 
                             tvConfirmations.setText(strConfirmations);
 
+                            if(tx.getConfirmations()>=3)
+                                tvStatus.setText(getString(R.string.COMPLETE));
+                            else
+                                tvStatus.setText(getString(R.string.PENDING));
+
                             tvOutAddr.setVisibility(View.VISIBLE);
                             tvToAddr.setVisibility(View.VISIBLE);
+                            tvStatus.setVisibility(View.VISIBLE);
                         }
                     }
                 }.execute();

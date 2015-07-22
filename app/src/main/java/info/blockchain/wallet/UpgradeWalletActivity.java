@@ -95,7 +95,7 @@ public class UpgradeWalletActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
     public void upgradeClicked(View view) {
@@ -120,7 +120,6 @@ public class UpgradeWalletActivity extends Activity {
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
                 AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
                 AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
             }
         });
@@ -193,7 +192,6 @@ public class UpgradeWalletActivity extends Activity {
                         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
                         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                        AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
                         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
                     }
                 });
@@ -227,7 +225,6 @@ public class UpgradeWalletActivity extends Activity {
         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-        AppUtil.getInstance(UpgradeWalletActivity.this).updatePinEntryTime();
         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
     }
 
@@ -291,5 +288,11 @@ public class UpgradeWalletActivity extends Activity {
                 pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
                 pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 }

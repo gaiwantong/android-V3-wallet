@@ -339,8 +339,12 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(SettingsActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
 }

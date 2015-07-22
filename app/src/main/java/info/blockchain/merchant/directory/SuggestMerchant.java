@@ -214,8 +214,13 @@ public class SuggestMerchant extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
+    }
 
-        AppUtil.getInstance(SuggestMerchant.this).updatePinEntryTime();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
 	@Override

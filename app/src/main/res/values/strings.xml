@@ -319,8 +319,8 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="check_email_to_auth_login">Please check your email to approve this login attempt.</string>
     <string name="confirmations">Confirmations</string>
-    <string name="transaction_fee">Transaction fee</string>
-    <string name="transaction_hash">Transaction hash</string>
+    <string name="transaction_fee">Bitcoin Miners Fee</string>
+    <string name="transaction_hash">Transaction Hash</string>
     <string name="your_transactions">Your Transactions</string>
     <string name="transaction_occur_when">Transactions occur when you receive and send bitcoin.</string>
     <string name="click">Click</string>
@@ -353,6 +353,8 @@
 
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
+    <string name="PENDING">PENDING</string>
+    <string name="COMPLETE">COMPLETE</string>
 
     <string name="camera_unavailable">The camera is currently opened by another application. Please close other application and try again.</string>
     <string name="transaction_failed_will_retry">Transaction failed, will try again in a few seconds.</string>

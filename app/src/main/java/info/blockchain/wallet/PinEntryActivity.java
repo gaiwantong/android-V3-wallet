@@ -198,9 +198,11 @@ public class PinEntryActivity extends Activity {
     public void onBackPressed()
     {
         exitClicked++;
-        if(exitClicked==2)
+        if(exitClicked==2) {
+            AppUtil.getInstance(this).setIsClosed(true);
+            AppUtil.getInstance(this).clearPinEntryTime();
             finish();
-        else
+        }else
             ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
         new Thread(new Runnable()
@@ -229,6 +231,13 @@ public class PinEntryActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        AppUtil.getInstance(this).setIsLocked(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppUtil.getInstance(this).setIsLocked(false);
     }
 
     private void updatePayloadThread(final CharSequenceX pw) {
@@ -423,7 +432,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                    AppUtil.getInstance(PinEntryActivity.this).updatePinEntryTime();
                     updatePayloadThread(password);
                 }
                 else {

@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
 public class PolicyActivity extends Activity	{
@@ -61,5 +62,17 @@ public class PolicyActivity extends Activity	{
             super.onPageFinished(view, url);
             progressBar.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 }

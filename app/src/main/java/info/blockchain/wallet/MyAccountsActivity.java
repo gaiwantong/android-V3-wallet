@@ -537,8 +537,7 @@ public class MyAccountsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(MyAccountsActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
     @Override
@@ -826,5 +825,11 @@ public class MyAccountsActivity extends Activity {
                 Looper.loop();
             }
         }).start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 }

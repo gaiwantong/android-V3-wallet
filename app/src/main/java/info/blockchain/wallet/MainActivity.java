@@ -38,7 +38,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -214,8 +213,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
-                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
-
                 if(PayloadFactory.getInstance().get().isUpgraded()) {
 
                     AccountsUtil.getInstance(this).initAccountMaps();
@@ -293,6 +290,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
+        AppUtil.getInstance(this).setIsClosed(false);
+
         AppUtil.getInstance(MainActivity.this).deleteQR();
 
         if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
@@ -309,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             startActivity(i);
         }
         else {
-            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
+            AppUtil.getInstance(this).setIsBackgrounded(false);
 
             SecureRandom random = new SecureRandom();
             if(random.nextInt(5) == 0) {
@@ -343,6 +342,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     protected void onPause() {
         super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 
     @Override
@@ -491,6 +491,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exitClicked++;
             if (exitClicked == 2) {
+                AppUtil.getInstance(this).setIsClosed(true);
                 AppUtil.getInstance(this).clearPinEntryTime();
                 finish();
             }else
@@ -685,13 +686,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doSettings()	{
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
     }
 
     private void doExchangeRates()	{
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);
@@ -813,8 +812,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     toolbar.getChildAt(i).setEnabled(true);
                     toolbar.getChildAt(i).setClickable(true);
                 }
-
-                AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
 
             }
 
@@ -1037,7 +1034,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             EnableGeo.displayGPSPrompt(this);
         }
         else {
-            AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
             Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
             startActivityForResult(intent, MERCHANT_ACTIVITY);
         }
@@ -1045,27 +1041,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void doMyAccounts(){
 
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
         startActivity(intent);
     }
 
     private void doSupport(){
 
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, SupportActivity.class);
         startActivity(intent);
     }
 
     private void doBackupWallet(){
 
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
         startActivityForResult(intent, REQUEST_BACKUP);
     }
 
     private void doUpgrade(){
-        AppUtil.getInstance(MainActivity.this).updatePinEntryTime();
         Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
         startActivity(intent);
     }
