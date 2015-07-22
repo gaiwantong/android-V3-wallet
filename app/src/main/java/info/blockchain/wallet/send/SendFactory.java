@@ -480,7 +480,7 @@ public class SendFactory	{
 				continue;
 			}
 
-            if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000L)) > 0)    {
+            if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
                 throw new Exception(context.getString(R.string.limit_21m_exceeded));
             }
 
