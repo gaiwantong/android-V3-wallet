@@ -13,25 +13,21 @@ public class HDWallet {
     private String strPassphrase = "";
     private boolean mnemonic_verified = false;
     private int default_account_idx = 0;
-    private Map<String,PaidTo> paidTo = null;
 
     public HDWallet() {
         accounts = new ArrayList<Account>();
-        paidTo = new HashMap<String,PaidTo>();
     }
 
     public HDWallet(String seed, List<Account> accounts, String passphrase) {
         this.strSeedHex = seed;
         this.accounts = accounts;
         this.strPassphrase = passphrase;
-        paidTo = new HashMap<String,PaidTo>();
     }
 
     public HDWallet(String seed, List<Account> accounts, String passphrase, HashMap<String,PaidTo> paidTo) {
         this.strSeedHex = seed;
         this.accounts = accounts;
         this.strPassphrase = passphrase;
-        this.paidTo = paidTo;
     }
 
     public String getSeedHex() {
@@ -74,14 +70,6 @@ public class HDWallet {
         this.default_account_idx = idx;
     }
 
-    public Map<String, PaidTo> getPaidTo() {
-        return paidTo;
-    }
-
-    public void setPaidTo(Map<String, PaidTo> paidTo) {
-        this.paidTo = paidTo;
-    }
-
     public JSONObject dumpJSON() throws JSONException {
 
         JSONObject obj = new JSONObject();
@@ -90,19 +78,6 @@ public class HDWallet {
         obj.put("passphrase", strPassphrase);
         obj.put("default_account_idx", default_account_idx);
         obj.put("mnemonic_verified", mnemonic_verified);
-
-        JSONObject paidToObj = new JSONObject();
-        Set<String> pkeys = paidTo.keySet();
-        for(String key : pkeys)  {
-            PaidTo pto = paidTo.get(key);
-            JSONObject pobj = new JSONObject();
-            pobj.put("email", pto.getEmail());
-            pobj.put("mobile", pto.getMobile());
-            pobj.put("redeemedAt", pto.getRedeemedAt());
-            pobj.put("address", pto.getAddress());
-            paidToObj.put(key, pobj);
-        }
-        obj.put("paidTo", paidToObj);
 
         JSONArray accs = new JSONArray();
         for(Account account : accounts) {
