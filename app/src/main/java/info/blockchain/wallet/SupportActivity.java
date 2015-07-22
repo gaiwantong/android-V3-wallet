@@ -94,8 +94,12 @@ public class SupportActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(SupportActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
 }

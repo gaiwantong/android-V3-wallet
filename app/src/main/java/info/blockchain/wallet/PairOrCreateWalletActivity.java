@@ -133,4 +133,16 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
             }
         }).start();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
 }

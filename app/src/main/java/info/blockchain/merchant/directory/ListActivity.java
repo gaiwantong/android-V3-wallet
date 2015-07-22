@@ -228,8 +228,13 @@ public class ListActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
+    }
 
-        AppUtil.getInstance(ListActivity.this).updatePinEntryTime();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
 	public void setAdapterContent() {

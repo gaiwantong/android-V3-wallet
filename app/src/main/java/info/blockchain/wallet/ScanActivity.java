@@ -91,7 +91,7 @@ public class ScanActivity extends ActionBarActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(ScanActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
 
         if(!scanner.getCamera().isStreaming())
             scanner.startScanner();
@@ -106,6 +106,7 @@ public class ScanActivity extends ActionBarActivity{
     @Override
     protected void onPause() {
         super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
         scanner.stopScanner();
     }
 

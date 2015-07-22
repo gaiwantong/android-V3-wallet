@@ -36,8 +36,7 @@ public class BackupWalletActivity extends ActionBarActivity{
     @Override
     protected void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(BackupWalletActivity.this).updatePinEntryTime();
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
     @Override
@@ -53,5 +52,11 @@ public class BackupWalletActivity extends ActionBarActivity{
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 }

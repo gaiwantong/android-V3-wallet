@@ -355,8 +355,6 @@ public class SendFragment extends Fragment {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
-                        AppUtil.getInstance(getActivity()).updatePinEntryTime();
-
                         int position = spAccounts.getSelectedItemPosition();
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
 
@@ -424,8 +422,6 @@ public class SendFragment extends Fragment {
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
-                        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
                         int position = spDestination.getSelectedItemPosition();
                         spDestination.getSelectedItem().toString();
@@ -544,8 +540,6 @@ public class SendFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        AppUtil.getInstance(getActivity()).updatePinEntryTime();
 
         MainActivity.currentFragment = this;
 

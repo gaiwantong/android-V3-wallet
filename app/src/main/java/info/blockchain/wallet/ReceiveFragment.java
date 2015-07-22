@@ -431,8 +431,6 @@ public class ReceiveFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(getActivity()).updatePinEntryTime();
-
         MainActivity.currentFragment = this;
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));

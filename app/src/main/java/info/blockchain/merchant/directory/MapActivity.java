@@ -513,8 +513,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
     @Override
     protected void onResume() {
         super.onResume();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
+    }
 
-        AppUtil.getInstance(MapActivity.this).updatePinEntryTime();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
     @Override
