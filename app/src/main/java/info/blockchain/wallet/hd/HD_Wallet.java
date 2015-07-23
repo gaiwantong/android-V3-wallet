@@ -36,6 +36,8 @@ public class HD_Wallet {
 
     private ArrayList<HD_Account> mAccounts = null;
 
+    private String strPath = null;
+
     private NetworkParameters mParams = null;
 
     private HD_Wallet() { ; }
@@ -66,6 +68,8 @@ public class HD_Wallet {
         for(int i = 0; i < nbAccounts; i++) {
             mAccounts.add(new HD_Account(mParams, mRoot, i));
         }
+
+        strPath = t1.getPath();
 
     }
 
@@ -218,6 +222,8 @@ public class HD_Wallet {
             }
             obj.put("accounts", accts);
             obj.put("size", mAccounts.size());
+
+            obj.put("path", strPath);
 
             return obj;
         }

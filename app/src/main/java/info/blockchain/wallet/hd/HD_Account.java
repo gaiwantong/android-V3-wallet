@@ -23,6 +23,8 @@ public class HD_Account {
     private HD_Chain mReceive = null;
     private HD_Chain mChange = null;
 
+    private String strPath = null;
+
     private NetworkParameters mParams = null;
 
     private HD_Account() { ; }
@@ -54,6 +56,8 @@ public class HD_Account {
 
         mReceive = new HD_Chain(mParams, aKey, true, 2);
         mChange = new HD_Chain(mParams, aKey, false, 2);
+
+        strPath = aKey.getPath();
 
     }
 
@@ -145,6 +149,8 @@ public class HD_Account {
             obj.put("receive", mReceive.toJSON());
             obj.put("change", mChange.toJSON());
             obj.put("archived", isArchived);
+
+            obj.put("path", strPath);
 
             return obj;
         }

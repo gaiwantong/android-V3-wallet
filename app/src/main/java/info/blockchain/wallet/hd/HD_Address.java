@@ -119,12 +119,13 @@ public class HD_Address {
         try {
             JSONObject obj = new JSONObject();
 
-            obj.put("path", strPath);
             obj.put("address", getAddressString());
             obj.put("id", mChildNum);
             if(ecKey.hasPrivKey()) {
                 obj.put("key", getPrivateKeyString());
             }
+
+            obj.put("path", strPath);
 
             return obj;
         }

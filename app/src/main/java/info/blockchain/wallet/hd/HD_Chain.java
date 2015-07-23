@@ -26,6 +26,8 @@ public class HD_Chain {
 
     private int addrIdx = 0;
 
+    private String strPath = null;
+
     static private final int DESIRED_MARGIN = 32;
     static private final int ADDRESS_GAP_MAX = 20;
 
@@ -53,6 +55,8 @@ public class HD_Chain {
         for(int i = 0; i < nbAddrs; i++) {
             mAddresses.add(new HD_Address(mParams, cKey, i));
         }
+
+        strPath = cKey.getPath();
 
     }
 
@@ -121,6 +125,8 @@ public class HD_Chain {
             }
             obj.put("addresses", addresses);
             obj.put("size", mAddresses.size());
+
+            obj.put("path", strPath);
 
             return obj;
         }
