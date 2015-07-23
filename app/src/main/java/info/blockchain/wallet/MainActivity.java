@@ -466,6 +466,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                         //Backed up
                         drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                     }
+                }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+                    continue;//Wallet has been upgraded
                 }else{
                     drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
                 }
