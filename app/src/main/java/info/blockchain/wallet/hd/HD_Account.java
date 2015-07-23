@@ -17,7 +17,6 @@ import org.json.JSONObject;
 public class HD_Account {
 
     private DeterministicKey aKey = null;
-    private String strLabel = null;
     private int	mAID;
     private boolean isArchived = false;
 
@@ -37,10 +36,9 @@ public class HD_Account {
      * @param int child id within the wallet for this account
      *
      */
-    public HD_Account(NetworkParameters params, DeterministicKey mKey, String label, int child) {
+    public HD_Account(NetworkParameters params, DeterministicKey mKey, int child) {
 
         mParams = params;
-        strLabel = label;
         mAID = child;
 
         if(mKey.hasPrivate()) {
@@ -84,26 +82,6 @@ public class HD_Account {
             return null;
         }
 
-    }
-
-    /**
-     * Return label for this account.
-     *
-     * @return String
-     *
-     */
-    public String getLabel() {
-        return strLabel;
-    }
-
-    /**
-     * Set label for this account.
-     *
-     * @param String label label to be set to this account.
-     *
-     */
-    public void setLabel(String label) {
-        strLabel = label;
     }
 
     /**
@@ -159,7 +137,6 @@ public class HD_Account {
         try {
             JSONObject obj = new JSONObject();
 
-            obj.put("label", strLabel);
             obj.put("id", mAID);
             if(aKey.hasPrivate()) {
                 obj.put("xpub", xpubstr());

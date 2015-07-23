@@ -64,8 +64,7 @@ public class HD_Wallet {
 
         mAccounts = new ArrayList<HD_Account>();
         for(int i = 0; i < nbAccounts; i++) {
-            String acctName = String.format("account %02d", i);
-            mAccounts.add(new HD_Account(mParams, mRoot, acctName, i));
+            mAccounts.add(new HD_Account(mParams, mRoot, i));
         }
 
     }
@@ -84,8 +83,7 @@ public class HD_Wallet {
         mAccounts = new ArrayList<HD_Account>();
         for(int i = 0; i < xpub.length; i++) {
             aKey = createMasterPubKeyFromXPub(xpub[i]);
-            String acctName = String.format("account %02d", 0);
-            mAccounts.add(new HD_Account(mParams, aKey, acctName, i));
+            mAccounts.add(new HD_Account(mParams, aKey, i));
         }
 
     }
@@ -147,25 +145,7 @@ public class HD_Wallet {
      *
      */
     public void addAccount() {
-        String strName = String.format("Account %d", mAccounts.size());
-        mAccounts.add(new HD_Account(mParams, mRoot, strName, mAccounts.size()));
-    }
-
-    /**
-     * Add new account and name with label.
-     *
-     * @param String label
-     *
-     */
-    public void addAccount(String label) {
-
-    	if(label == null) {
-    		addAccount();
-    	}
-    	else {
-        	mAccounts.add(new HD_Account(mParams, mRoot, label, mAccounts.size()));
-    	}
-
+        mAccounts.add(new HD_Account(mParams, mRoot, mAccounts.size()));
     }
 
     /**
