@@ -206,7 +206,6 @@ public class HD_Wallet {
 
             if(mSeed != null) {
                 obj.put("seed", Utils.bytesToHexString(mSeed));
-                obj.put("seed base58", Base58.encode(mSeed));
                 obj.put("passphrase", strPassphrase);
 
                 JSONArray words = new JSONArray();
