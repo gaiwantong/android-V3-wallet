@@ -18,7 +18,6 @@ public class HD_Account {
 
     private DeterministicKey aKey = null;
     private int	mAID;
-    private boolean isArchived = false;
 
     private HD_Chain mReceive = null;
     private HD_Chain mChange = null;
@@ -148,7 +147,6 @@ public class HD_Account {
             }
             obj.put("receive", mReceive.toJSON());
             obj.put("change", mChange.toJSON());
-            obj.put("archived", isArchived);
 
             obj.put("path", strPath);
 
