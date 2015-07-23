@@ -25,6 +25,7 @@ import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
@@ -99,6 +100,8 @@ public class HDPayloadBridge	{
                 hdw.setAccounts(accounts);
                 PayloadFactory.getInstance().get().setHdWallets(hdw);
                 PayloadFactory.getInstance().get().setUpgraded(true);
+
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(context.getResources().getString(R.string.default_wallet_name));
 
                 no_tx = (MultiAddrFactory.getInstance().nbTxXPUB(xpub) == 0L);
 
