@@ -1,19 +1,17 @@
 package info.blockchain.wallet.send;
 
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import com.google.bitcoin.core.Transaction;
 
 import org.spongycastle.util.encoders.Hex;
 
-import info.blockchain.wallet.OpCallback;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ToastCustom;
@@ -30,6 +28,7 @@ public class TxQueue	{
     private static TxQueue instance = null;
 
     private final static long QUEUE_TIMEOUT = 60 * 15;
+    public final static String TX_QUEUED = "TX_QUEUED";
 
     private TxQueue()	{ ; }
 

@@ -67,6 +67,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -1026,84 +1027,104 @@ public class BalanceFragment extends Fragment {
                     });
 
                 //Get Details
-                new AsyncTask<Void, Void, String>() {
+                if(tx.getHash().equals(TxQueue.TX_QUEUED)) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvStatus.setText(thisActivity.getString(R.string.WAITING));
 
-                    @Override
-                    protected String doInBackground(Void... params) {
-
-                        String stringResult = null;
-                        try {
-                            stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        return stringResult;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String stringResult) {
-                        super.onPostExecute(stringResult);
-
-                        if (stringResult != null) {
-                            Transaction transaction = null;
-                            try {
-//                                Log.v("","stringResult: "+stringResult);
-                                transaction = new Transaction(new JSONObject(stringResult));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            progressView.setVisibility(View.GONE);
-
-                            String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
-                            if (isBTC)
-                                fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
-                            tvFee.setText(fee);
-
-                            //From Address
-                            HashMap<String,Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
-
-                            StringBuilder fromBuilder = new StringBuilder("");
-                            for(Map.Entry<String, Long> item : fromAddressValuePair.entrySet()){
-                                String label = item.getKey();
-                                long amount = item.getValue();//future use
-                                fromBuilder.append(label+"\n");
-                            }
-
-                            String fromString = fromBuilder.toString();
-                            if(fromString.length()>0)fromString = fromString.substring(0, fromBuilder.toString().length()-1);
-                            tvOutAddr.setText(fromString);
-
-                            //To Address
-                            HashMap<String,Long> toddressValuePair =  transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
-
-                            StringBuilder toBuilder = new StringBuilder("");
-                            for(Map.Entry<String, Long> item : toddressValuePair.entrySet()){
-                                String label = item.getKey();
-                                long amount = item.getValue();//future use
-                                toBuilder.append(label+"\n");
-                            }
-
-                            String toString = toBuilder.toString();
-                            if(toString.length()>0)toString = toString.substring(0, toBuilder.toString().length()-1);
-                            tvToAddr.setText(toString);
-
-                            tvConfirmations.setText(strConfirmations);
-
-                            if(tx.getConfirmations()>=3)
-                                tvStatus.setText(getString(R.string.COMPLETE));
-                            else
-                                tvStatus.setText(getString(R.string.PENDING));
+                            tvConfirmations.setText("");
+                            tvOutAddr.setText("");
+                            tvToAddr.setText("");
+                            tvTxHash.setText("");
 
                             tvOutAddr.setVisibility(View.VISIBLE);
                             tvToAddr.setVisibility(View.VISIBLE);
                             tvStatus.setVisibility(View.VISIBLE);
                         }
-                    }
-                }.execute();
+                    });
+                }else {
+                    new AsyncTask<Void, Void, String>() {
+
+                        @Override
+                        protected String doInBackground(Void... params) {
+
+                            String stringResult = null;
+                            try {
+                                stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            return stringResult;
+                        }
+
+                        @Override
+                        protected void onPostExecute(String stringResult) {
+                            super.onPostExecute(stringResult);
+
+                            if (stringResult != null) {
+                                Transaction transaction = null;
+                                try {
+//                                Log.v("","stringResult: "+stringResult);
+                                    transaction = new Transaction(new JSONObject(stringResult));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                progressView.setVisibility(View.GONE);
+
+                                String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
+                                if (isBTC)
+                                    fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+                                tvFee.setText(fee);
+
+                                //From Address
+                                HashMap<String, Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
+
+                                StringBuilder fromBuilder = new StringBuilder("");
+                                for (Map.Entry<String, Long> item : fromAddressValuePair.entrySet()) {
+                                    String label = item.getKey();
+                                    long amount = item.getValue();//future use
+                                    fromBuilder.append(label + "\n");
+                                }
+
+                                String fromString = fromBuilder.toString();
+                                if (fromString.length() > 0)
+                                    fromString = fromString.substring(0, fromBuilder.toString().length() - 1);
+                                tvOutAddr.setText(fromString);
+
+                                //To Address
+                                HashMap<String, Long> toddressValuePair = transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
+
+                                StringBuilder toBuilder = new StringBuilder("");
+                                for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
+                                    String label = item.getKey();
+                                    long amount = item.getValue();//future use
+                                    toBuilder.append(label + "\n");
+                                }
+
+                                String toString = toBuilder.toString();
+                                if (toString.length() > 0)
+                                    toString = toString.substring(0, toBuilder.toString().length() - 1);
+                                tvToAddr.setText(toString);
+
+                                tvConfirmations.setText(strConfirmations);
+
+                                if (tx.getConfirmations() >= 3)
+                                    tvStatus.setText(getString(R.string.COMPLETE));
+                                else
+                                    tvStatus.setText(getString(R.string.PENDING));
+
+                                tvOutAddr.setVisibility(View.VISIBLE);
+                                tvToAddr.setVisibility(View.VISIBLE);
+                                tvStatus.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }.execute();
+                }
             }
 
             //Single Pane View - Expand and collapse details
