@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
@@ -28,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -59,7 +61,6 @@ import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -73,7 +74,7 @@ import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class SendFragment extends Fragment {
+public class SendFragment extends Fragment implements View.OnClickListener, CustomKeypadCallback {
 
     private Locale locale = null;
 
@@ -104,6 +105,8 @@ public class SendFragment extends Fragment {
     private boolean spendInProgress = false;
     private List<String> _accounts = null;
     private boolean spDestinationSelected = false;
+    private TableLayout numpad;
+    public static boolean isKeypadVisible = false;
 
     private class PendingSpend {
         boolean isHD;
@@ -517,7 +520,91 @@ public class SendFragment extends Fragment {
             }
         }
 
+        decimalCompatCheck(rootView);
+
         return rootView;
+    }
+
+    /*
+    Custom keypad implementation
+    Numerous Samsung devices have keypad issues where decimal separators are absent.
+     */
+    private void decimalCompatCheck(View rootView){
+
+        numpad = ((TableLayout) rootView.findViewById(R.id.numericPad));
+
+        if (Build.MANUFACTURER.toLowerCase().contains("samsung")) {
+
+            numpad.setVisibility(View.GONE);
+            isKeypadVisible = false;
+            edAmount1.setTextIsSelectable(true);
+            edAmount1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        View view = getActivity().getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                        numpad.setVisibility(View.VISIBLE);
+                        isKeypadVisible = true;
+                    } else {
+                        numpad.setVisibility(View.GONE);
+                        isKeypadVisible = false;
+                    }
+                }
+            });
+            edAmount1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    numpad.setVisibility(View.VISIBLE);
+                    isKeypadVisible = true;
+                }
+            });
+
+            edAmount2.setTextIsSelectable(true);
+            edAmount2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+
+                    if (hasFocus) {
+                        View view = getActivity().getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                        numpad.setVisibility(View.VISIBLE);
+                        isKeypadVisible = true;
+                    } else {
+                        numpad.setVisibility(View.GONE);
+                        isKeypadVisible = false;
+                    }
+                }
+            });
+            edAmount2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    numpad.setVisibility(View.VISIBLE);
+                    isKeypadVisible = true;
+                }
+            });
+
+            rootView.findViewById(R.id.button1).setOnClickListener(this);
+            rootView.findViewById(R.id.button2).setOnClickListener(this);
+            rootView.findViewById(R.id.button3).setOnClickListener(this);
+            rootView.findViewById(R.id.button4).setOnClickListener(this);
+            rootView.findViewById(R.id.button5).setOnClickListener(this);
+            rootView.findViewById(R.id.button6).setOnClickListener(this);
+            rootView.findViewById(R.id.button7).setOnClickListener(this);
+            rootView.findViewById(R.id.button8).setOnClickListener(this);
+            rootView.findViewById(R.id.button9).setOnClickListener(this);
+            rootView.findViewById(R.id.button10).setOnClickListener(this);
+            rootView.findViewById(R.id.button0).setOnClickListener(this);
+            rootView.findViewById(R.id.buttonDeleteBack).setOnClickListener(this);
+            rootView.findViewById(R.id.buttonDone).setOnClickListener(this);
+
+        }
     }
 
     @Override
@@ -1304,5 +1391,66 @@ public class SendFragment extends Fragment {
             MultiAddrFactory.getInstance().getLegacyTxs().add(tx);
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        String pad = "";
+        switch (v.getId()) {
+            case R.id.button1:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button2:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button3:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button4:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button5:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button6:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button7:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button8:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button9:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button10:pad = ".";break;
+            case R.id.button0:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.buttonDeleteBack:pad = null;break;
+            case R.id.buttonDone:numpad.setVisibility(View.GONE);break;
+        }
+
+        if(pad!=null) {
+            // Append tapped #
+            if (edAmount1.hasFocus()) {
+                edAmount1.append(pad);
+            } else if (edAmount2.hasFocus()) {
+                edAmount2.append(pad);
+            }
+        }else{
+            // Back clicked
+            if (edAmount1.hasFocus()) {
+                String e1 = edAmount1.getText().toString();
+                if(e1.length()>0)edAmount1.setText(e1.substring(0, e1.length() - 1));
+            } else if (edAmount2.hasFocus()) {
+                String e2 = edAmount2.getText().toString();
+                if(e2.length()>0)edAmount2.setText(e2.substring(0, e2.length() - 1));
+            }
+        }
+
+        if (edAmount1.hasFocus() && edAmount1.getText().length()>0) {
+            edAmount1.post(new Runnable() {
+                @Override
+                public void run() {
+                    edAmount1.setSelection(edAmount1.getText().toString().length());
+                }
+            });
+        } else if (edAmount2.hasFocus() && edAmount2.getText().length()>0) {
+            edAmount2.post(new Runnable() {
+                @Override
+                public void run() {
+                    edAmount2.setSelection(edAmount2.getText().toString().length());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onKeypadClose() {
+        numpad.setVisibility(View.GONE);
+        isKeypadVisible = false;
     }
 }

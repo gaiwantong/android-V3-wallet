@@ -85,6 +85,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/blockchain_pearl_white"
+                        android:inputType="textNoSuggestions"
                         android:focusable="true"
                         android:focusableInTouchMode="true"
                         android:textColor="@color/primary_text_default_material_light"
@@ -127,6 +128,13 @@
                     />
 
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <include layout="@layout/include_numeric_keyboard"/>
 
         </LinearLayout>
 

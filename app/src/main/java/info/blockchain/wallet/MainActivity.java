@@ -513,6 +513,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 }
             }).start();
 
+        }else if(currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).isKeypadVisible) {
+            ((ReceiveFragment) currentFragment).onKeypadClose();
+
+        }else if(currentFragment instanceof SendFragment && ((SendFragment) currentFragment).isKeypadVisible){
+            ((SendFragment) currentFragment).onKeypadClose();
+
         }else{
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
