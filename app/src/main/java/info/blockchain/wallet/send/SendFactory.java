@@ -69,7 +69,7 @@ public class SendFactory	{
 
     public static SendFactory getInstance(Context ctx) {
     	
-    	context = ctx;
+    	context = ctx.getApplicationContext();
     	
     	if(instance == null)	{
     		instance = new SendFactory();

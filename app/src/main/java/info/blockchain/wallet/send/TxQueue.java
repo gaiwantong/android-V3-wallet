@@ -2,6 +2,7 @@ package info.blockchain.wallet.send;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.bitcoin.core.Transaction;
 
@@ -99,6 +100,8 @@ public class TxQueue	{
                             if(ConnectivityStatus.hasConnectivity(context)) {
 
                                 Spendable sp = peek();
+
+                                Log.i("TxQueue", sp == null ? "sp is null" : "sp is not null");
 
                                 if(sp != null)    {
                                     try {
