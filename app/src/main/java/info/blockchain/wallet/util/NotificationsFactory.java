@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import info.blockchain.wallet.NotificationBroadcastReceiver;
 import piuk.blockchain.android.R;
 
 public class NotificationsFactory {
@@ -62,6 +63,7 @@ public class NotificationsFactory {
 				.setAutoCancel(true)
 				.setOnlyAlertOnce(true)
 				.setDefaults(Notification.DEFAULT_ALL)
+                .setDeleteIntent(getDeleteIntent())
 				.setContentText(text).build();
 
 		mNotificationManager.notify(id, mBuilder);
@@ -70,4 +72,11 @@ public class NotificationsFactory {
 	public void resetNotificationCounter(){
 		notificationCount = 0;
 	}
+
+    protected PendingIntent getDeleteIntent()
+    {
+        Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
+        intent.setAction("notification_cancelled");
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
 }
