@@ -251,7 +251,7 @@ public class PinEntryActivity extends Activity {
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.decrypting_wallet));
         progress.show();
 
         new Thread(new Runnable() {
@@ -344,7 +344,7 @@ public class PinEntryActivity extends Activity {
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.creating_pin));
         progress.show();
 
         new Thread(new Runnable() {
@@ -399,7 +399,7 @@ public class PinEntryActivity extends Activity {
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(PinEntryActivity.this.getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.validating_pin));
         progress.show();
 
         new Thread(new Runnable() {
@@ -498,7 +498,7 @@ public class PinEntryActivity extends Activity {
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(PinEntryActivity.this.getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.validating_password));
         progress.show();
 
         new Thread(new Runnable() {

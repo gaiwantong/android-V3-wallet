@@ -360,5 +360,11 @@
     <string name="transaction_failed_will_retry">Transaction failed, will try again in a few seconds.</string>
 
     <string name="limit_21m_exceeded">This amount cannot be transmitted on the Bitcoin network.</string>
+    <string name="validating_password">Validating Password...</string>
+    <string name="validating_pin">Validating Pin...</string>
+    <string name="creating_pin">Creating Pin...</string>
+    <string name="decrypting_wallet">Decrypting Wallet...</string>
+    <string name="verifying_email">Verifying Email...</string>
+    <string name="pairing_wallet">Pairing Wallet...</string>
 
 </resources>

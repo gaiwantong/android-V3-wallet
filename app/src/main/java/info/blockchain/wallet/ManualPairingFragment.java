@@ -87,7 +87,7 @@ public class ManualPairingFragment extends Fragment {
         progress = new ProgressDialog(getActivity());
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(getResources().getString(R.string.please_wait)+"...");
+        progress.setMessage(getActivity().getString(R.string.pairing_wallet));
         progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
