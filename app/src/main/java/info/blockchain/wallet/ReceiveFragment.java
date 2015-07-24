@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.google.bitcoin.core.AddressFormatException;
@@ -77,7 +79,7 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
 
-public class ReceiveFragment extends Fragment {
+public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
 
     private Locale locale = null;
 
@@ -107,6 +109,8 @@ public class ReceiveFragment extends Fragment {
 
     private boolean textChangeAllowed = true;
     private String defaultSeperator;
+    private TableLayout numpad;
+    public static boolean isKeypadVisible = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -125,7 +129,7 @@ public class ReceiveFragment extends Fragment {
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        toolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 View view = getActivity().getCurrentFocus();
@@ -141,7 +145,7 @@ public class ReceiveFragment extends Fragment {
 
         mainContent = (LinearLayout)rootView.findViewById(R.id.receive_main_content);
         mainContentShadow = (LinearLayout)rootView.findViewById(R.id.receive_main_content_shadow);
-        mainContentShadow.setOnClickListener(new View.OnClickListener() {
+        mainContentShadow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)){
@@ -151,7 +155,7 @@ public class ReceiveFragment extends Fragment {
         });
 
         ivReceivingQR = (ImageView)rootView.findViewById(R.id.qr);
-        ivReceivingQR.setOnClickListener(new View.OnClickListener() {
+        ivReceivingQR.setOnClickListener(new OnClickListener() {
           @Override
           public void onClick(View v) {
 
@@ -408,7 +412,91 @@ public class ReceiveFragment extends Fragment {
             }
         });
 
+        decimalCompatCheck(rootView);
+
         return rootView;
+    }
+
+
+    /*
+    Custom keypad implementation
+    Numerous Samsung devices have keypad issues where decimal separators are absent.
+     */
+    private void decimalCompatCheck(View rootView){
+
+        if (Build.MANUFACTURER.toLowerCase().contains("samsung")) {
+
+            numpad = ((TableLayout) rootView.findViewById(R.id.numericPad));
+            numpad.setVisibility(View.GONE);
+            isKeypadVisible = false;
+            edAmount1.setTextIsSelectable(true);
+            edAmount1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        View view = getActivity().getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                        numpad.setVisibility(View.VISIBLE);
+                        isKeypadVisible = true;
+                    } else {
+                        numpad.setVisibility(View.GONE);
+                        isKeypadVisible = false;
+                    }
+                }
+            });
+            edAmount1.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    numpad.setVisibility(View.VISIBLE);
+                    isKeypadVisible = true;
+                }
+            });
+
+            edAmount2.setTextIsSelectable(true);
+            edAmount2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+
+                    if (hasFocus) {
+                        View view = getActivity().getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                        numpad.setVisibility(View.VISIBLE);
+                        isKeypadVisible = true;
+                    } else {
+                        numpad.setVisibility(View.GONE);
+                        isKeypadVisible = false;
+                    }
+                }
+            });
+            edAmount2.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    numpad.setVisibility(View.VISIBLE);
+                    isKeypadVisible = true;
+                }
+            });
+
+            rootView.findViewById(R.id.button1).setOnClickListener(this);
+            rootView.findViewById(R.id.button2).setOnClickListener(this);
+            rootView.findViewById(R.id.button3).setOnClickListener(this);
+            rootView.findViewById(R.id.button4).setOnClickListener(this);
+            rootView.findViewById(R.id.button5).setOnClickListener(this);
+            rootView.findViewById(R.id.button6).setOnClickListener(this);
+            rootView.findViewById(R.id.button7).setOnClickListener(this);
+            rootView.findViewById(R.id.button8).setOnClickListener(this);
+            rootView.findViewById(R.id.button9).setOnClickListener(this);
+            rootView.findViewById(R.id.button10).setOnClickListener(this);
+            rootView.findViewById(R.id.button0).setOnClickListener(this);
+            rootView.findViewById(R.id.buttonDeleteBack).setOnClickListener(this);
+            rootView.findViewById(R.id.buttonDone).setOnClickListener(this);
+
+        }
     }
 
     @Override
@@ -768,7 +856,7 @@ public class ReceiveFragment extends Fragment {
             image.setImageDrawable(repoDataArrayList.get(position).getLogo());
             title.setText(repoDataArrayList.get(position).getTitle());
 
-            rowView.setOnClickListener(new View.OnClickListener() {
+            rowView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     startActivity(repoDataArrayList.get(position).getIntent());
@@ -814,4 +902,65 @@ public class ReceiveFragment extends Fragment {
         }
     }
 
+
+    @Override
+    public void onClick(View v) {
+
+        String pad = "";
+        switch (v.getId()) {
+            case R.id.button1:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button2:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button3:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button4:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button5:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button6:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button7:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button8:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button9:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.button10:pad = ".";break;
+            case R.id.button0:pad = v.getTag().toString().substring(0, 1);break;
+            case R.id.buttonDeleteBack:pad = null;break;
+            case R.id.buttonDone:numpad.setVisibility(View.GONE);break;
+        }
+
+        if(pad!=null) {
+            // Append tapped #
+            if (edAmount1.hasFocus()) {
+                edAmount1.append(pad);
+            } else if (edAmount2.hasFocus()) {
+                edAmount2.append(pad);
+            }
+        }else{
+            // Back clicked
+            if (edAmount1.hasFocus()) {
+                String e1 = edAmount1.getText().toString();
+                if(e1.length()>0)edAmount1.setText(e1.substring(0, e1.length() - 1));
+            } else if (edAmount2.hasFocus()) {
+                String e2 = edAmount2.getText().toString();
+                if(e2.length()>0)edAmount2.setText(e2.substring(0, e2.length() - 1));
+            }
+        }
+
+        if (edAmount1.hasFocus() && edAmount1.getText().length()>0) {
+            edAmount1.post(new Runnable() {
+                @Override
+                public void run() {
+                    edAmount1.setSelection(edAmount1.getText().toString().length());
+                }
+            });
+        } else if (edAmount2.hasFocus() && edAmount2.getText().length()>0) {
+            edAmount2.post(new Runnable() {
+                @Override
+                public void run() {
+                    edAmount2.setSelection(edAmount2.getText().toString().length());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onKeypadClose() {
+        numpad.setVisibility(View.GONE);
+        isKeypadVisible = false;
+    }
 }
