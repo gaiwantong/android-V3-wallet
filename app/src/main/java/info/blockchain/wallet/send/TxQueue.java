@@ -100,45 +100,48 @@ public class TxQueue	{
 
                                 Spendable sp = peek();
 
-                                try {
-                                    String hexString = new String(Hex.encode(sp.getTx().bitcoinSerialize()));
-                                    String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                                if(sp != null)    {
+                                    try {
+                                        String hexString = new String(Hex.encode(sp.getTx().bitcoinSerialize()));
+                                        String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
-                                    if(response.contains("Transaction Submitted")) {
+                                        if(response.contains("Transaction Submitted")) {
 
-                                        poll();
+                                            poll();
 
-                                        sp.getOpCallback().onSuccess(sp.getTx().getHashAsString());
+                                            sp.getOpCallback().onSuccess(sp.getTx().getHashAsString());
 
-                                        if(sp.getNote() != null && sp.getNote().length() > 0) {
-                                            Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
-                                            notes.put(sp.getTx().getHashAsString(), sp.getNote());
-                                            PayloadFactory.getInstance().get().setNotes(notes);
-                                        }
-
-                                        if(sp.isHD() && sp.sentChange()) {
-                                            // increment change address counter
-                                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(sp.getAccountIdx()).incChange();
-                                        }
-
-                                        if(queue.size() == 0)   {
-                                            if(timer != null)   {
-                                                timer.cancel();
-                                                timer = null;
+                                            if(sp.getNote() != null && sp.getNote().length() > 0) {
+                                                Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+                                                notes.put(sp.getTx().getHashAsString(), sp.getNote());
+                                                PayloadFactory.getInstance().get().setNotes(notes);
                                             }
+
+                                            if(sp.isHD() && sp.sentChange()) {
+                                                // increment change address counter
+                                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(sp.getAccountIdx()).incChange();
+                                            }
+
+                                            if(queue.size() == 0)   {
+                                                if(timer != null)   {
+                                                    timer.cancel();
+                                                    timer = null;
+                                                }
+                                            }
+
+                                        }
+                                        else {
+                                            ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                            sp.getOpCallback().onFail();
                                         }
 
                                     }
-                                    else {
-                                        ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    catch(Exception e) {
+                                        e.printStackTrace();
                                         sp.getOpCallback().onFail();
                                     }
+                                }
 
-                                }
-                                catch(Exception e) {
-                                    e.printStackTrace();
-                                    sp.getOpCallback().onFail();
-                                }
                             }
                             else {
                                     ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);

@@ -1040,7 +1040,7 @@ public class SendFragment extends Fragment {
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).queueSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1076,7 +1076,7 @@ public class SendFragment extends Fragment {
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).queueSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }

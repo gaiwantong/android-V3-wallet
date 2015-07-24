@@ -166,14 +166,12 @@ public class SendFactory	{
      * @param  OpCallback opc
      *
      */
-    public void send2(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc) {
+    public void send2(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 
         final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
         receivers.put(toAddress, amount);
-
-        final Handler handler = new Handler();
 
         new Thread(new Runnable() {
             @Override
@@ -250,159 +248,46 @@ public class SendFactory	{
                         throw new Exception(context.getString(R.string.tx_length_error));
                     }
 
-                    if(ConnectivityStatus.hasConnectivity(context)) {
+                    if(!isQueueSend)    {
+                        if(ConnectivityStatus.hasConnectivity(context)) {
 //					Log.i("SendFactory tx string", hexString);
-                        String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                            String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
-                        if(response.contains("Transaction Submitted")) {
+                            if(response.contains("Transaction Submitted")) {
 
-                            opc.onSuccess(tx.getHashAsString());
+                                opc.onSuccess(tx.getHashAsString());
 
-                            if(note != null && note.length() > 0) {
-                                Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
-                                notes.put(tx.getHashAsString(), note);
-                                PayloadFactory.getInstance().get().setNotes(notes);
+                                if(note != null && note.length() > 0) {
+                                    Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+                                    notes.put(tx.getHashAsString(), note);
+                                    PayloadFactory.getInstance().get().setNotes(notes);
+                                }
+
+                                if(isHD && sentChange) {
+                                    // increment change address counter
+                                    PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                                }
+
                             }
-
-                            if(isHD && sentChange) {
-                                // increment change address counter
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                            else {
+                                ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                opc.onFail();
                             }
-
                         }
                         else {
-                            ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            opc.onFail();
+                            ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
                     }
-                    else {
-                        ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    else    {
+                        // Queue tx
+                        Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
+                        TxQueue.getInstance(context).add(spendable);
                     }
 
 //					progress.onSend(tx, response);
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ;
-                        }
-                    });
-
                     Looper.loop();
 
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    /**
-     * Queue spendable transaction.
-     * <p>
-     * Creates transaction
-     * Assigns change address
-     * Signs tx
-     *
-     * @param  int accountIdx HD account index, -1 if legacy spend
-     * @param  List<MyTransactionOutPoint> unspent List of unspent outpoints
-     * @param  String toAddress Receiving public address
-     * @param  BigInteger amount Spending amount (not including fee)
-     * @param  LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
-     * @param  BigInteger fee Miner's fee
-     * @param  String note Note to be attached to this tx
-     * @param  OpCallback opc
-     *
-     */
-    public void queueSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc){
-
-        final boolean isHD = accountIdx == -1 ? false : true;
-
-        final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put(toAddress, amount);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Looper.prepare();
-
-                    Pair<Transaction, Long> pair = null;
-                    String changeAddr = null;
-                    if(isHD) {
-                        int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
-                        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                            changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-                        }
-                        else {
-                            changeAddr = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-                        }
-                    }
-                    else {
-                        changeAddr = legacyAddress.getAddress();
-                    }
-                    pair = makeTransaction(true, unspent, receivers, fee, changeAddr);
-                    // Transaction cancelled
-                    if(pair == null) {
-                        opc.onFail();
-                        return;
-                    }
-                    Transaction tx = pair.first;
-                    Long priority = pair.second;
-
-                    Wallet wallet = new Wallet(MainNetParams.get());
-                    for (TransactionInput input : tx.getInputs()) {
-                        byte[] scriptBytes = input.getOutpoint().getConnectedPubKeyScript();
-                        String address = new BitcoinScript(scriptBytes).getAddress().toString();
-                        ECKey walletKey = null;
-                        try {
-                            String privStr = null;
-                            if(isHD) {
-                                String path = froms.get(address);
-                                String[] s = path.split("/");
-                                HD_Address hd_address = null;
-                                if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                    hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-                                }
-                                else {
-                                    hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-                                }
-                                privStr = hd_address.getPrivateKeyString();
-                                walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
-                            }
-                            else {
-                                walletKey = legacyAddress.getECKey();
-                            }
-                        } catch (AddressFormatException afe) {
-                            // skip add Watch Only Bitcoin Address key because already accounted for later with tempKeys
-                            afe.printStackTrace();
-                            continue;
-                        }
-
-                        if(walletKey != null) {
-                            wallet.addKey(walletKey);
-                        }
-                        else {
-                            opc.onFail();
-                        }
-
-                    }
-
-                    // Now sign the inputs
-                    tx.signInputs(SigHash.ALL, wallet);
-                    String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
-                    if(hexString.length() > (100 * 1024)) {
-                        opc.onFail();
-                        throw new Exception(context.getString(R.string.tx_length_error));
-                    }
-//                    Log.i("SendFactory tx string", hexString);
-
-                    // Queue tx
-                    Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
-                    TxQueue.getInstance(context).add(spendable);
-
-                    Looper.loop();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
