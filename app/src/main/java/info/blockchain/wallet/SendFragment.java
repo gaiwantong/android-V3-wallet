@@ -1040,7 +1040,7 @@ public class SendFragment extends Fragment {
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1076,7 +1076,7 @@ public class SendFragment extends Fragment {
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1117,7 +1117,7 @@ public class SendFragment extends Fragment {
                                             alertDialog.cancel();
 
                                         updateTx(isHd, strNote, TxQueue.TX_QUEUED, 0, legacyAddress);
-                                        ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+//                                        ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                                         Fragment fragment = new BalanceFragment();
                                         FragmentManager fragmentManager = getFragmentManager();
