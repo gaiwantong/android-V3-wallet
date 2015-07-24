@@ -99,7 +99,7 @@ public class TxQueue	{
 
                             if(ConnectivityStatus.hasConnectivity(context)) {
 
-                                Spendable sp = peek();
+                                Spendable sp = poll();
 
                                 Log.i("TxQueue", sp == null ? "sp is null" : "sp is not null");
 
@@ -109,8 +109,6 @@ public class TxQueue	{
                                         String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
                                         if(response.contains("Transaction Submitted")) {
-
-                                            poll();
 
                                             sp.getOpCallback().onSuccess(sp.getTx().getHashAsString());
 
@@ -134,14 +132,18 @@ public class TxQueue	{
 
                                         }
                                         else {
+                                            add(sp);
+
                                             ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                            sp.getOpCallback().onFail();
+//                                            sp.getOpCallback().onFail();
                                         }
 
                                     }
                                     catch(Exception e) {
+                                        add(sp);
+
                                         e.printStackTrace();
-                                        sp.getOpCallback().onFail();
+//                                        sp.getOpCallback().onFail();
                                     }
                                 }
 
