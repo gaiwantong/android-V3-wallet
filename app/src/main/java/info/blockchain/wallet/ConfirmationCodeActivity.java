@@ -208,10 +208,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     @Override
     public void afterTextChanged(Editable s) {
 
-        if (etConfirmBox0.hasFocus())etConfirmBox1.requestFocus();
-        else if (etConfirmBox1.hasFocus())etConfirmBox2.requestFocus();
-        else if (etConfirmBox2.hasFocus())etConfirmBox3.requestFocus();
-        else if (etConfirmBox3.hasFocus())etConfirmBox4.requestFocus();
+        if (etConfirmBox0.hasFocus() && etConfirmBox0.getText().length()>0)etConfirmBox1.requestFocus();
+        else if (etConfirmBox1.hasFocus() && etConfirmBox1.getText().length()>0)etConfirmBox2.requestFocus();
+        else if (etConfirmBox2.hasFocus() && etConfirmBox2.getText().length()>0)etConfirmBox3.requestFocus();
+        else if (etConfirmBox3.hasFocus() && etConfirmBox3.getText().length()>0)etConfirmBox4.requestFocus();
 
         String a = etConfirmBox0.getText().toString();
         String b = etConfirmBox1.getText().toString();
