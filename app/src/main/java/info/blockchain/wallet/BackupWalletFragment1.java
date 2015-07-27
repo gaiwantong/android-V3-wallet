@@ -18,6 +18,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 public class BackupWalletFragment1 extends Fragment {
@@ -55,12 +56,20 @@ public class BackupWalletFragment1 extends Fragment {
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(double_encrypt_password.getText().toString()));
+                                    final String pw = double_encrypt_password.getText().toString();
 
-                                    getFragmentManager().beginTransaction()
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+
+                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+
+                                        getFragmentManager().beginTransaction()
                                             .replace(R.id.content_frame, new BackupWalletFragment2())
                                             .addToBackStack(null)
                                             .commit();
+                                    } else {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                    }
                                 }
                             }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
