@@ -10,12 +10,10 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
@@ -30,7 +28,6 @@ import info.blockchain.wallet.hd.HD_Wallet;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -175,7 +172,8 @@ public class SettingsActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference preference) {
 
                 Intent intent = new Intent(SettingsActivity.this, PolicyActivity.class);
-                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");
+//                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");//pdf
+                intent.putExtra("uri","https://blockchain.com/terms");//plain text/html
                 startActivity(intent);
 
                 return true;
@@ -187,7 +185,8 @@ public class SettingsActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference preference) {
 
                 Intent intent = new Intent(SettingsActivity.this, PolicyActivity.class);
-                intent.putExtra("uri", "https://blockchain.info/Resources/PrivacyPolicy.pdf");
+//                intent.putExtra("uri", "https://blockchain.info/Resources/PrivacyPolicy.pdf");//pdf
+                intent.putExtra("uri", "https://blockchain.com/privacy");//plain text/html
                 startActivity(intent);
 
                 return true;
