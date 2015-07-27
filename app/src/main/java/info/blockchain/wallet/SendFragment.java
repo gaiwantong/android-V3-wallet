@@ -709,7 +709,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         long lamount = 0L;
         try {
-            lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 if(showMessages) {
@@ -1260,7 +1260,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         long lamount = 0L;
         try {
-            lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;

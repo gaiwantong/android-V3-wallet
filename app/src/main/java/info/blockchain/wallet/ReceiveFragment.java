@@ -583,10 +583,10 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         try {
             long lamount = 0L;
             if(isBTC) {
-                lamount = (long)(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8);
+                lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
             }
             else {
-                lamount = (long)(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8);
+                lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8));
             }
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
             if(!bamount.equals(BigInteger.ZERO)) {
