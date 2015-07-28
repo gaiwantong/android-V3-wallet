@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -1019,9 +1020,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
+                HD_WalletFactory.getInstance(MainActivity.this).set(null);
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();
+
+                startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+                stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
 
                 AppUtil.getInstance(MainActivity.this).restartApp();
 
