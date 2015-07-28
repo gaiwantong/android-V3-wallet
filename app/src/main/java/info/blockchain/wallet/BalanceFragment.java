@@ -23,6 +23,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -41,6 +42,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -959,12 +961,16 @@ public class BalanceFragment extends Fragment {
 
             final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
             final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
-            final TextView tvToAddr = (TextView) detailsView.findViewById(R.id.tx_to_addr);
-            final TextView tvConfirmations = (TextView) detailsView.findViewById(R.id.tx_confirmations);
+
             final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
             final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
             final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
             final TextView tvStatus = (TextView) detailsView.findViewById(R.id.transaction_status);
+            final ImageView ivStatus = (ImageView) detailsView.findViewById(R.id.transaction_status_icon);
+            final LinearLayout toAddressContainer = (LinearLayout) detailsView.findViewById(R.id.tx_details_to_include_container);
+
+            final LinearLayout feeContainer = (LinearLayout) detailsView.findViewById(R.id.tx_fee_container);
+            final View feeSeparator = detailsView.findViewById(R.id.tx_fee_separator);
 
             if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
                 if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
@@ -977,8 +983,17 @@ public class BalanceFragment extends Fragment {
                 txsDetails.setVisibility(View.VISIBLE);
                 progressView.setVisibility(View.VISIBLE);
                 tvOutAddr.setVisibility(View.INVISIBLE);
-                tvToAddr.setVisibility(View.INVISIBLE);
+                toAddressContainer.setVisibility(View.INVISIBLE);
                 tvStatus.setVisibility(View.INVISIBLE);
+                ivStatus.setVisibility(View.INVISIBLE);
+
+                if(tx.getDirection().equals(MultiAddrFactory.RECEIVED) || tx.getDirection().equals(MultiAddrFactory.MOVED)) {
+                    feeContainer.setVisibility(View.GONE);
+                    feeSeparator.setVisibility(View.GONE);
+                }else{
+                    feeContainer.setVisibility(View.VISIBLE);
+                    feeSeparator.setVisibility(View.VISIBLE);
+                }
 
                 tvTxHash.setText(strTx);
                 tvTxHash.setOnTouchListener(new OnTouchListener() {
@@ -988,6 +1003,19 @@ public class BalanceFragment extends Fragment {
                         if (event.getAction() == MotionEvent.ACTION_UP) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
                             startActivity(browserIntent);
+                        }
+                        return true;
+                    }
+                });
+                tvStatus.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            String tag = tvStatus.getTag().toString();
+                            String text = tvStatus.getText().toString();
+                            tvStatus.setText(tag);
+                            tvStatus.setTag(text);
                         }
                         return true;
                     }
@@ -1051,7 +1079,7 @@ public class BalanceFragment extends Fragment {
                         if (stringResult != null) {
                             Transaction transaction = null;
                             try {
-//                                Log.v("","stringResult: "+stringResult);
+                                Log.v("", "stringResult: " + stringResult);
                                 transaction = new Transaction(new JSONObject(stringResult));
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -1069,7 +1097,6 @@ public class BalanceFragment extends Fragment {
                             StringBuilder fromBuilder = new StringBuilder("");
                             for(Map.Entry<String, Long> item : fromAddressValuePair.entrySet()){
                                 String label = item.getKey();
-                                long amount = item.getValue();//future use
                                 fromBuilder.append(label+"\n");
                             }
 
@@ -1080,27 +1107,47 @@ public class BalanceFragment extends Fragment {
                             //To Address
                             HashMap<String,Long> toddressValuePair =  transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
 
-                            StringBuilder toBuilder = new StringBuilder("");
+                            toAddressContainer.removeAllViews();
                             for(Map.Entry<String, Long> item : toddressValuePair.entrySet()){
-                                String label = item.getKey();
-                                long amount = item.getValue();//future use
-                                toBuilder.append(label+"\n");
+
+                                View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
+                                TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
+                                TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
+                                toAddressContainer.addView(v);
+
+                                tvToAddr.setText(item.getKey());
+                                long amount = item.getValue();
+                                String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
+                                if (isBTC)
+                                    amountS = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(amount) + " " + getDisplayUnits());
+
+                                tvFee.setText(fee);
+                                tvToAddrTotal.setText(amountS);
                             }
 
-                            String toString = toBuilder.toString();
-                            if(toString.length()>0)toString = toString.substring(0, toBuilder.toString().length()-1);
-                            tvToAddr.setText(toString);
+                            tvStatus.setTag(strConfirmations);
 
-                            tvConfirmations.setText(strConfirmations);
-
-                            if(tx.getConfirmations()>=3)
+                            if(tx.getConfirmations()>=3) {
+                                ivStatus.setImageResource(R.drawable.ic_check_circle_grey600_36dp);
                                 tvStatus.setText(getString(R.string.COMPLETE));
-                            else
+                            }else {
+                                ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
                                 tvStatus.setText(getString(R.string.PENDING));
-
+                            }
                             tvOutAddr.setVisibility(View.VISIBLE);
-                            tvToAddr.setVisibility(View.VISIBLE);
+                            toAddressContainer.setVisibility(View.VISIBLE);
                             tvStatus.setVisibility(View.VISIBLE);
+                            ivStatus.setVisibility(View.VISIBLE);
+
+                            if(toddressValuePair.size()>=2)//details view needs to be scrollable now
+                                if (!getResources().getBoolean(R.bool.isDualPane))
+                                    txsDetails.setOnTouchListener(new OnTouchListener() {
+                                        @Override
+                                        public boolean onTouch(View v, MotionEvent event) {
+                                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                                            return false;
+                                        }
+                                    });
                         }
                     }
                 }.execute();

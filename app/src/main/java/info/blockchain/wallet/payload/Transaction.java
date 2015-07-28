@@ -241,7 +241,7 @@ public class Transaction	{
                             long prevAmount = fromLabelValuePair.get(accountLabel)+acc.get(accIndex).amount;
                             fromLabelValuePair.put(accountLabel, prevAmount);
                         }else{
-                            fromLabelValuePair.put(acc.get(accIndex).getLabel(), acc.get(accIndex).amount);
+                            fromLabelValuePair.put(acc.get(accIndex).getLabel(), ip.value);
                         }
                     } else
                         fromLabelValuePair.put(ip.addr, ip.value);
@@ -279,7 +279,7 @@ public class Transaction	{
                         long prevAmount = toLabelValuePair.get(accountLabel)+acc.get(accIndex).amount;
                         toLabelValuePair.put(accountLabel, prevAmount);
                     }else{
-                        toLabelValuePair.put(acc.get(accIndex).getLabel(), acc.get(accIndex).amount);
+                        toLabelValuePair.put(acc.get(accIndex).getLabel(), ip.value);
                     }
                 } else {
                     if(!fromLabelValuePair.containsKey(ip.addr))
