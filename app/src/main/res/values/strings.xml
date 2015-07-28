@@ -125,7 +125,7 @@
     <string name="create_wallet">Create Wallet</string>
     <string name="new_wallet">New Wallet</string>
     <string name="strength_weak">Weak</string>
-    <string name="strength_medium">Medium</string>
+    <string name="strength_medium">Regular</string>
     <string name="strength_strong">Strong</string>
     <string name="strength_very_strong">Very Strong</string>
 

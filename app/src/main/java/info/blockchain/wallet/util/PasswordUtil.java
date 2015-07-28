@@ -5,7 +5,6 @@ import android.util.Patterns;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -15,13 +14,13 @@ public class PasswordUtil {
 	private static PasswordUtil instance = null;
 
 	private static HashMap<Pattern,Double> patternsWeight = null;
-	private static final double WEIGHT_BAD_PATTERN = 20.0;
-	private static final double WEIGHT_COMMON_PATTERN = 40.0;
+	private static final double WEIGHT_BAD_PATTERN = .25;
+	private static final double WEIGHT_COMMON_PATTERN = .50;
 
 	private static HashMap<Pattern,Double> patternsQuality = null;
-	private static final double QUALITY_POOR = 10.0;
-	private static final double QUALITY_MEDIUM = 26.0;
-	private static final double QUALITY_STRONG = 31.0;
+	private static final double QUALITY_POOR = 10;
+	private static final double QUALITY_MEDIUM = 26;
+	private static final double QUALITY_STRONG = 31;
 
 	private PasswordUtil() { ; }
 
@@ -61,21 +60,21 @@ public class PasswordUtil {
 	public double getStrength(String pw) {
 
 		//1. Get Quality
-		double quality = getQuality(pw);
+		double base = getBase(pw);
 
 		//2. Get entropy
-		double entropy = log2(Math.pow(quality,pw.length()));
+		double entropy = log2(Math.pow(base,pw.length()));
 
 		//3. Average entropy with bad patternsWeight
-		double entropyWeighted = getEntropyWeightedByBadPatterns(entropy, pw);
+		double quality = getQuality(pw);
 
 		//4. Weigh unique symbol count
-		entropyWeighted = getEntropyWeightedByUniqueSymbolCount(entropyWeighted, pw);
+		double entropyWeighted = quality*entropy;//getEntropyWeightedByUniqueSymbolCount(quality, pw);
 
 		return Math.min(entropyWeighted,100.0);
 	}
 
-	private static double getQuality(String pw){
+	private static double getBase(String pw){
 
 		double base = 1.0;
 
@@ -92,45 +91,18 @@ public class PasswordUtil {
 		return Math.log(a) / Math.log(2);
 	}
 
-	private static double getEntropyWeightedByBadPatterns(double entropy, String pw) {
+	private static double getQuality(String pw) {
 
 		Set<Map.Entry<Pattern, Double>> set = patternsWeight.entrySet();
 
-		double weight = entropy;
-		boolean isBadPattern = false;
-
+		double weight = 1;
 		for (Map.Entry<Pattern, Double> item : set) {
 
 			if (item.getKey().matcher(pw).matches()) {
-				isBadPattern = true;
 				weight = Math.min(weight,item.getValue());
 			}
 		}
-		if(isBadPattern)
-			return (weight+entropy)/2.0;
-		else
-			return entropy;
-	}
-
-	private static double getEntropyWeightedByUniqueSymbolCount(double entropy, String pw){
-
-		HashSet<Character> hash = new HashSet<>();
-		for (int i = 0; i < pw.length(); i++)
-			hash.add(pw.charAt(i));
-
-		int uniqueSymbols = hash.size();
-		if(uniqueSymbols<=1)
-			return entropy*0.1;
-		else if(uniqueSymbols<=2)
-			return entropy*0.25;
-		else if(uniqueSymbols<=3)
-			return entropy*0.5;
-		else if(uniqueSymbols<=4)
-			return entropy*0.75;
-		else if(uniqueSymbols<=5)
-			return entropy*0.9;
-		else
-			return entropy;
+        return weight;
 	}
 
     public boolean ddpw(String pw) {
