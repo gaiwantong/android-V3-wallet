@@ -96,7 +96,7 @@ public class SendFactory	{
      *
      * @return UnspentOutputsBundle
      */
-    public UnspentOutputsBundle send1(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
+    public UnspentOutputsBundle prepareSend(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 
@@ -166,7 +166,7 @@ public class SendFactory	{
      * @param  OpCallback opc
      *
      */
-    public void send2(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
+    public void execSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 

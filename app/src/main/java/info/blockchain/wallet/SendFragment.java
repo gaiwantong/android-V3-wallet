@@ -1122,13 +1122,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                     Looper.prepare();
 
-                                    UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).send1(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
+                                    UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).prepareSend(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
 
                                     if(unspents != null) {
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1164,7 +1164,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
