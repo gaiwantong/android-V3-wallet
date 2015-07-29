@@ -69,6 +69,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -1054,103 +1055,119 @@ public class BalanceFragment extends Fragment {
                     });
 
                 //Get Details
-                new AsyncTask<Void, Void, String>() {
+                if(tx.getHash().equals(TxQueue.TX_QUEUED)) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvStatus.setText(thisActivity.getString(R.string.WAITING));
 
-                    @Override
-                    protected String doInBackground(Void... params) {
+                            tvOutAddr.setText("");
+                            tvTxHash.setText("");
 
-                        String stringResult = null;
-                        try {
-                            stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            tvOutAddr.setVisibility(View.VISIBLE);
+                            tvStatus.setVisibility(View.VISIBLE);
                         }
+                    });
+                }else {
+                    new AsyncTask<Void, Void, String>() {
 
-                        return stringResult;
-                    }
+                        @Override
+                        protected String doInBackground(Void... params) {
 
-                    @Override
-                    protected void onPostExecute(String stringResult) {
-                        super.onPostExecute(stringResult);
-
-                        if (stringResult != null) {
-                            Transaction transaction = null;
+                            String stringResult = null;
                             try {
-                                Log.v("", "stringResult: " + stringResult);
-                                transaction = new Transaction(new JSONObject(stringResult));
+                                stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                            }
-                            progressView.setVisibility(View.GONE);
-
-                            String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
-                            if (isBTC)
-                                fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
-                            tvFee.setText(fee);
-
-                            //From Address
-                            HashMap<String,Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
-
-                            StringBuilder fromBuilder = new StringBuilder("");
-                            for(Map.Entry<String, Long> item : fromAddressValuePair.entrySet()){
-                                String label = item.getKey();
-                                fromBuilder.append(label+"\n");
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
 
-                            String fromString = fromBuilder.toString();
-                            if(fromString.length()>0)fromString = fromString.substring(0, fromBuilder.toString().length()-1);
-                            tvOutAddr.setText(fromString);
-
-                            //To Address
-                            HashMap<String,Long> toddressValuePair =  transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
-
-                            toAddressContainer.removeAllViews();
-                            for(Map.Entry<String, Long> item : toddressValuePair.entrySet()){
-
-                                View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
-                                TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
-                                TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
-                                toAddressContainer.addView(v);
-
-                                tvToAddr.setText(item.getKey());
-                                long amount = item.getValue();
-                                String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
-                                if (isBTC)
-                                    amountS = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(amount) + " " + getDisplayUnits());
-
-                                tvFee.setText(fee);
-                                tvToAddrTotal.setText(amountS);
-                            }
-
-                            tvStatus.setTag(strConfirmations);
-
-                            if(tx.getConfirmations()>=nbConfirmations) {
-                                ivStatus.setImageResource(R.drawable.ic_check_circle_grey600_36dp);
-                                tvStatus.setText(getString(R.string.COMPLETE));
-                            }else {
-                                ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
-                                tvStatus.setText(getString(R.string.PENDING));
-                            }
-                            tvOutAddr.setVisibility(View.VISIBLE);
-                            toAddressContainer.setVisibility(View.VISIBLE);
-                            tvStatus.setVisibility(View.VISIBLE);
-                            ivStatus.setVisibility(View.VISIBLE);
-
-                            if(toddressValuePair.size()>=2)//details view needs to be scrollable now
-                                if (!getResources().getBoolean(R.bool.isDualPane))
-                                    txsDetails.setOnTouchListener(new OnTouchListener() {
-                                        @Override
-                                        public boolean onTouch(View v, MotionEvent event) {
-                                            v.getParent().requestDisallowInterceptTouchEvent(true);
-                                            return false;
-                                        }
-                                    });
+                            return stringResult;
                         }
-                    }
-                }.execute();
+
+                        @Override
+                        protected void onPostExecute(String stringResult) {
+                            super.onPostExecute(stringResult);
+
+                            if (stringResult != null) {
+                                Transaction transaction = null;
+                                try {
+                                    Log.v("", "stringResult: " + stringResult);
+                                    transaction = new Transaction(new JSONObject(stringResult));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                progressView.setVisibility(View.GONE);
+
+                                String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
+                                if (isBTC)
+                                    fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+                                tvFee.setText(fee);
+
+                                //From Address
+                                HashMap<String, Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
+
+                                StringBuilder fromBuilder = new StringBuilder("");
+                                for (Map.Entry<String, Long> item : fromAddressValuePair.entrySet()) {
+                                    String label = item.getKey();
+                                    fromBuilder.append(label + "\n");
+                                }
+
+                                String fromString = fromBuilder.toString();
+                                if (fromString.length() > 0)
+                                    fromString = fromString.substring(0, fromBuilder.toString().length() - 1);
+                                tvOutAddr.setText(fromString);
+
+                                //To Address
+                                HashMap<String, Long> toddressValuePair = transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
+
+                                toAddressContainer.removeAllViews();
+                                for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
+
+                                    View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
+                                    TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
+                                    TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
+                                    toAddressContainer.addView(v);
+
+                                    tvToAddr.setText(item.getKey());
+                                    long amount = item.getValue();
+                                    String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
+                                    if (isBTC)
+                                        amountS = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(amount) + " " + getDisplayUnits());
+
+                                    tvFee.setText(fee);
+                                    tvToAddrTotal.setText(amountS);
+                                }
+
+                                tvStatus.setTag(strConfirmations);
+
+                                if (tx.getConfirmations() >= nbConfirmations) {
+                                    ivStatus.setImageResource(R.drawable.ic_check_circle_grey600_36dp);
+                                    tvStatus.setText(getString(R.string.COMPLETE));
+                                } else {
+                                    ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
+                                    tvStatus.setText(getString(R.string.PENDING));
+                                }
+                                tvOutAddr.setVisibility(View.VISIBLE);
+                                toAddressContainer.setVisibility(View.VISIBLE);
+                                tvStatus.setVisibility(View.VISIBLE);
+                                ivStatus.setVisibility(View.VISIBLE);
+
+                                if (toddressValuePair.size() >= 2)//details view needs to be scrollable now
+                                    if (!getResources().getBoolean(R.bool.isDualPane))
+                                        txsDetails.setOnTouchListener(new OnTouchListener() {
+                                            @Override
+                                            public boolean onTouch(View v, MotionEvent event) {
+                                                v.getParent().requestDisallowInterceptTouchEvent(true);
+                                                return false;
+                                            }
+                                        });
+                            }
+                        }
+                    }.execute();
+                }
             }
 
             //Single Pane View - Expand and collapse details

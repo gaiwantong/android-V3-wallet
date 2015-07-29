@@ -162,7 +162,6 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:gravity="center_vertical"
-                    android:text="miner_fee BTC"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textSize="12sp"
                     />
