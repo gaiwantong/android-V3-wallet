@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -25,7 +24,12 @@ import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,7 +42,7 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-import info.blockchain.wallet.util.WebUtil;
+import libsrc.org.apache.commons.io.IOUtils;
 import piuk.blockchain.android.R;
 
 public class PinEntryActivity extends Activity {
@@ -189,7 +193,7 @@ public class PinEntryActivity extends Activity {
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage("Registering for BETA...");
+        progress.setMessage("Registering for ALPHA...");
         progress.show();
 
         new Thread(new Runnable() {
@@ -197,38 +201,63 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 Looper.prepare();
 
-                String response = "";
+                InputStream is = null;
+                OutputStream os = null;
+
+                URL url = null;
                 try {
-                    StringBuilder args = new StringBuilder();
-                    args.append("secret=HvWJeR1WdybHvq0316i");
-                    args.append("&guid=" + PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_GUID, ""));
-                    args.append("&email=" + PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL, ""));
 
-                    Log.v("", "vos postURL: " + "https://dev.blockchain.info/whitelist_guid/" + args.toString());
-                    response = WebUtil.getInstance().postURL("https://dev.blockchain.info/whitelist_guid/", args.toString());
-                    Log.v("", "vos response: " + response);
+                    String domain = "alpha";
+                    if(AppUtil.getInstance(PinEntryActivity.this).isDEBUG())
+                        domain = "dev";
 
-                    JSONObject jsonObject = new JSONObject(response);
+                    url = new URL("https://"+domain+".blockchain.info/whitelist_guid/");
+                    JSONObject json = new JSONObject();
+                    json.put("secret", "HvWJeR1WdybHvq0316i");
+                    json.put("guid", PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_GUID, ""));
+                    json.put("email", PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL, ""));
+                    String message = json.toString();
 
-                    if(progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+                    try {
+                        conn.setReadTimeout(60000);
+                        conn.setConnectTimeout(60000);
+                        conn.setRequestMethod("POST");
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+                        conn.setFixedLengthStreamingMode(message.getBytes().length);
+                        conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                        conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+                        conn.connect();
+
+                        os = new BufferedOutputStream(conn.getOutputStream());
+                        os.write(message.getBytes());
+                        os.flush();
+
+                        if(progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
+
+                        if (conn.getResponseCode() == 200) {
+                            ToastCustom.makeText(getApplicationContext(), "Successfully registered", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
+                            AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                        } else {
+                            ToastCustom.makeText(getApplicationContext(), "Error: " + IOUtils.toString(conn.getErrorStream(), "UTF-8"), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+                    } finally {
+                        if (os != null) os.close();
+                        if (is != null) is.close();
+                        conn.disconnect();
+
+                        if(progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
                     }
-
-                    if(jsonObject.toString().contains("error")) {
-                        String error = (String) jsonObject.get("error");
-                        ToastCustom.makeText(getApplicationContext(), "Error: "+error, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    }else{
-                        ToastCustom.makeText(getApplicationContext(), "Success", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(PinEntryActivity.this).restartApp();
-                    }
-
                 } catch (Exception e) {
                     e.printStackTrace();
-                    if(progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
                 }
                 Looper.loop();
             }

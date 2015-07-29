@@ -1094,7 +1094,7 @@ public class BalanceFragment extends Fragment {
                             if (stringResult != null) {
                                 Transaction transaction = null;
                                 try {
-                                    Log.v("", "stringResult: " + stringResult);
+//                                    Log.v("", "stringResult: " + stringResult);
                                     transaction = new Transaction(new JSONObject(stringResult));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
