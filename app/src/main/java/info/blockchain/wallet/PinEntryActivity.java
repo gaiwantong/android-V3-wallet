@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -22,6 +23,7 @@ import com.google.bitcoin.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -36,6 +38,7 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
 
 public class PinEntryActivity extends Activity {
@@ -167,13 +170,70 @@ public class PinEntryActivity extends Activity {
 
             PayloadFactory.getInstance(this).remoteSaveThread();
 
-            AppUtil.getInstance(this).restartApp();
+            whitelistGuid();// <-- remove after beta invite system
+//            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             AppUtil.getInstance(this).clearCredentialsAndRestart();
         }
 
+    }
+
+    private void whitelistGuid() {
+
+        if(progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
+        }
+        progress = new ProgressDialog(PinEntryActivity.this);
+        progress.setCancelable(false);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage("Registering for BETA...");
+        progress.show();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                String response = "";
+                try {
+                    StringBuilder args = new StringBuilder();
+                    args.append("secret=HvWJeR1WdybHvq0316i");
+                    args.append("&guid=" + PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_GUID, ""));
+                    args.append("&email=" + PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL, ""));
+
+                    Log.v("", "vos postURL: " + "https://dev.blockchain.info/whitelist_guid/" + args.toString());
+                    response = WebUtil.getInstance().postURL("https://dev.blockchain.info/whitelist_guid/", args.toString());
+                    Log.v("", "vos response: " + response);
+
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    if(progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+
+                    if(jsonObject.toString().contains("error")) {
+                        String error = (String) jsonObject.get("error");
+                        ToastCustom.makeText(getApplicationContext(), "Error: "+error, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    }else{
+                        ToastCustom.makeText(getApplicationContext(), "Success", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if(progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+                }
+                Looper.loop();
+            }
+        }
+        ).start();
     }
 
     private void getBundleData() {
