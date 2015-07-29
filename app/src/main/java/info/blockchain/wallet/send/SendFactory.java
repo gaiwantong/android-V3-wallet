@@ -478,10 +478,6 @@ public class SendFactory	{
 				continue;
 			}
 
-            if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
-                throw new Exception(context.getString(R.string.limit_21m_exceeded));
-            }
-
             MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
 			tx.addInput(input);
 			valueSelected = valueSelected.add(outPoint.getValue());
@@ -496,7 +492,11 @@ public class SendFactory	{
 			}
 		}
 
-		// Check the amount we have selected is greater than the amount we need
+        if(valueSelected.compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
+            throw new Exception(context.getString(R.string.limit_21m_exceeded));
+        }
+
+        // Check the amount we have selected is greater than the amount we need
 		if(valueSelected.compareTo(valueNeeded) < 0) {
 //			throw new InsufficientFundsException("Insufficient Funds");
 			return null;
