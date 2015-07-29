@@ -189,10 +189,6 @@ public class HD_WalletFactory	{
         if(wis != null) {
             List<String> words = null;
 
-            if(data.contains(" ")) {
-                words = Arrays.asList(data.trim().split("\\s+"));
-            }
-
             MnemonicCode mc = null;
             mc = new MnemonicCode(wis, MnemonicCode.BIP39_ENGLISH_SHA256);
 
@@ -206,6 +202,8 @@ public class HD_WalletFactory	{
                 hdw = new HD_Wallet(mc, params, seed, passphrase, nbAccounts);
             }
             else {
+                data = data.replaceAll("[^a-z]+", " ");             // only use for BIP39 English
+                words = Arrays.asList(data.trim().split("\\s+"));
                 seed = mc.toEntropy(words);
                 hdw = new HD_Wallet(mc, params, seed, passphrase, nbAccounts);
             }

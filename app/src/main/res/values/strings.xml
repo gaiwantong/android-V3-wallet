@@ -329,7 +329,7 @@
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
     <string name="logging_out_automatically">Logging out automatically</string>
-	<string name="transaction_submitted">Transaction submitted</string>
+	<string name="transaction_submitted">Transaction complete</string>
 	<string name="transaction_failed">Transaction failed</string>
     <string name="UPGRADE_YOUR_WALLET">UPGRADE YOUR WALLET</string>
     <string name="ASK_ME_LATER">ASK ME LATER</string>
@@ -360,11 +360,16 @@
     <string name="transaction_failed_will_retry">Transaction failed, will try again in a few seconds.</string>
 
     <string name="limit_21m_exceeded">This amount cannot be transmitted on the Bitcoin network.</string>
+<<<<<<< HEAD
     <string name="validating_password">Validating Password...</string>
     <string name="validating_pin">Validating Pin...</string>
     <string name="creating_pin">Creating Pin...</string>
     <string name="decrypting_wallet">Decrypting Wallet...</string>
     <string name="verifying_email">Verifying Email...</string>
     <string name="pairing_wallet">Pairing Wallet...</string>
+=======
+    <string name="transaction_queued">Transaction queued</string>
+    <string name="WAITING">WAITING</string>
+>>>>>>> 6b0a8b76beacb7fdad0f352182edde0be2969825
 
 </resources>

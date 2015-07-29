@@ -69,7 +69,7 @@ public class SendFactory	{
 
     public static SendFactory getInstance(Context ctx) {
     	
-    	context = ctx;
+    	context = ctx.getApplicationContext();
     	
     	if(instance == null)	{
     		instance = new SendFactory();
@@ -96,7 +96,7 @@ public class SendFactory	{
      *
      * @return UnspentOutputsBundle
      */
-    public UnspentOutputsBundle send1(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
+    public UnspentOutputsBundle prepareSend(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 
@@ -166,14 +166,12 @@ public class SendFactory	{
      * @param  OpCallback opc
      *
      */
-    public void send2(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final OpCallback opc) {
+    public void execSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 
         final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
         receivers.put(toAddress, amount);
-
-        final Handler handler = new Handler();
 
         new Thread(new Runnable() {
             @Override
@@ -250,43 +248,43 @@ public class SendFactory	{
                         throw new Exception(context.getString(R.string.tx_length_error));
                     }
 
-                    if(ConnectivityStatus.hasConnectivity(context)) {
+                    if(!isQueueSend)    {
+                        if(ConnectivityStatus.hasConnectivity(context)) {
 //					Log.i("SendFactory tx string", hexString);
-                        String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                            String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
 //					Log.i("Send response", response);
-                        if(response.contains("Transaction Submitted")) {
+                            if(response.contains("Transaction Submitted")) {
 
-                            opc.onSuccess(tx.getHashAsString());
+                                opc.onSuccess(tx.getHashAsString());
 
-                            if(note != null && note.length() > 0) {
-                                Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
-                                notes.put(tx.getHashAsString(), note);
-                                PayloadFactory.getInstance().get().setNotes(notes);
+                                if(note != null && note.length() > 0) {
+                                    Map<String,String> notes = PayloadFactory.getInstance().get().getNotes();
+                                    notes.put(tx.getHashAsString(), note);
+                                    PayloadFactory.getInstance().get().setNotes(notes);
+                                }
+
+                                if(isHD && sentChange) {
+                                    // increment change address counter
+                                    PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                                }
+
                             }
-
-                            if(isHD && sentChange) {
-                                // increment change address counter
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                            else {
+                                ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                opc.onFail();
                             }
-
                         }
                         else {
-                            ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            opc.onFail();
+                            ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
                     }
-                    else {
-                        ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    else    {
+                        // Queue tx
+                        Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
+                        TxQueue.getInstance(context).add(spendable);
                     }
 
 //					progress.onSend(tx, response);
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ;
-                        }
-                    });
 
                     Looper.loop();
 
@@ -480,10 +478,6 @@ public class SendFactory	{
 				continue;
 			}
 
-            if(valueSelected.add(outPoint.getValue()).compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
-                throw new Exception(context.getString(R.string.limit_21m_exceeded));
-            }
-
             MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
 			tx.addInput(input);
 			valueSelected = valueSelected.add(outPoint.getValue());
@@ -498,7 +492,11 @@ public class SendFactory	{
 			}
 		}
 
-		// Check the amount we have selected is greater than the amount we need
+        if(valueSelected.compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
+            throw new Exception(context.getString(R.string.limit_21m_exceeded));
+        }
+
+        // Check the amount we have selected is greater than the amount we need
 		if(valueSelected.compareTo(valueNeeded) < 0) {
 //			throw new InsufficientFundsException("Insufficient Funds");
 			return null;

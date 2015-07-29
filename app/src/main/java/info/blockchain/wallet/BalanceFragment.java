@@ -1127,7 +1127,7 @@ public class BalanceFragment extends Fragment {
 
                             tvStatus.setTag(strConfirmations);
 
-                            if(tx.getConfirmations()>=3) {
+                            if(tx.getConfirmations()>=nbConfirmations) {
                                 ivStatus.setImageResource(R.drawable.ic_check_circle_grey600_36dp);
                                 tvStatus.setText(getString(R.string.COMPLETE));
                             }else {

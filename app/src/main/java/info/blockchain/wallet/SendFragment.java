@@ -3,7 +3,6 @@ package info.blockchain.wallet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -59,6 +58,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.SendFactory;
+import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -709,7 +709,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         long lamount = 0L;
         try {
-            lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 if(showMessages) {
@@ -1116,25 +1116,19 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             final BigInteger bfee = pendingSpend.bfee;
                             final String strNote = null;
 
-                            final ProgressDialog progress = new ProgressDialog(getActivity());
-                            progress.setCancelable(false);
-                            progress.setTitle(R.string.app_name);
-                            progress.setMessage(getString(R.string.please_wait));
-                            progress.show();
-
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
 
                                     Looper.prepare();
 
-                                    UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).send1(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
+                                    UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).prepareSend(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
 
                                     if(unspents != null) {
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).send2(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1145,42 +1139,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                         @Override
                                                         public void run() {
 
-                                                            if (progress != null && progress.isShowing()) {
-                                                                progress.dismiss();
-                                                            }
-
                                                             ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             PayloadFactory.getInstance(getActivity()).remoteSaveThread();
 
                                                             MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                             MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
-                                                            if (alertDialog != null && alertDialog.isShowing())
-                                                                alertDialog.cancel();
 
                                                             updateTx(isHd, strNote, hash, currentAcc, null);
-
-                                                            Fragment fragment = new BalanceFragment();
-                                                            FragmentManager fragmentManager = getFragmentManager();
-                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                                         }
                                                     });
                                                 }
 
                                                 public void onFail() {
 
-                                                    if (progress != null && progress.isShowing()) {
-                                                        progress.dismiss();
-                                                    }
-
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
                                                             ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                            if (alertDialog != null && alertDialog.isShowing())
-                                                                alertDialog.cancel();
-                                                            Fragment fragment = new BalanceFragment();
-                                                            FragmentManager fragmentManager = getFragmentManager();
-                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                                         }
                                                     });
                                                 }
@@ -1189,7 +1164,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).send2(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1199,10 +1174,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-
-                                                            if (progress != null && progress.isShowing()) {
-                                                                progress.dismiss();
-                                                            }
 
                                                             ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                             if (strNote != null) {
@@ -1212,14 +1183,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                             MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                             MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
                                                             MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
-                                                            if (alertDialog != null && alertDialog.isShowing())
-                                                                alertDialog.cancel();
 
                                                             updateTx(isHd, strNote, hash, 0, legacyAddress);
-
-                                                            Fragment fragment = new BalanceFragment();
-                                                            FragmentManager fragmentManager = getFragmentManager();
-                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                                         }
                                                     });
                                                 }
@@ -1228,18 +1193,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     getActivity().runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-
-                                                            if (progress != null && progress.isShowing()) {
-                                                                progress.dismiss();
-                                                            }
-
                                                             ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                            if (alertDialog != null && alertDialog.isShowing())
-                                                                alertDialog.cancel();
-                                                            Fragment fragment = new BalanceFragment();
-                                                            FragmentManager fragmentManager = getFragmentManager();
-                                                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
                                                         }
                                                     });
                                                 }
@@ -1247,15 +1201,20 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             });
                                         }
 
+                                        if (alertDialog != null && alertDialog.isShowing())
+                                            alertDialog.cancel();
+
+                                        updateTx(isHd, strNote, TxQueue.TX_QUEUED, 0, legacyAddress);
+//                                        ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                                        Fragment fragment = new BalanceFragment();
+                                        FragmentManager fragmentManager = getFragmentManager();
+                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
                                     else{
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-
-                                                if (progress != null && progress.isShowing()) {
-                                                    progress.dismiss();
-                                                }
 
                                                 ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                 if (alertDialog != null && alertDialog.isShowing())
@@ -1301,7 +1260,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         long lamount = 0L;
         try {
-            lamount = (long)(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8);
+            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
