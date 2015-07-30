@@ -287,9 +287,6 @@ public class Transaction	{
                 }
 
             } else {
-                if (txDirection.equals(MultiAddrFactory.RECEIVED))
-                    continue;
-
                 if(!fromLabelValuePair.containsKey(ip.addr))
                     toLabelValuePair.put(ip.addr, ip.value);
             }
