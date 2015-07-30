@@ -367,6 +367,6 @@
     <string name="verifying_email">Verifying Email...</string>
     <string name="pairing_wallet">Pairing Wallet...</string>
     <string name="transaction_queued">Transaction queued</string>
-    <string name="WAITING">WAITING</string>
+    <string name="WAITING">QUEUED</string>
 
 </resources>

@@ -5,16 +5,19 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1128,140 +1131,60 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
 
                                                 @Override
                                                 public void onSuccess(final String hash) {
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
+                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                                    PayloadFactory.getInstance(getActivity()).remoteSaveThread();
 
-                                                            ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                            PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                    MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+                                                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
 
-                                                            MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                            MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
-
-                                                            updateTx(isHd, strNote, hash, currentAcc, null);
-                                                        }
-                                                    });
+                                                    updateTx(isHd, strNote, hash, currentAcc, null);
                                                 }
 
                                                 public void onFail() {
-
                                                     //Initial send failed - Put send in queue for reattempt
                                                     updateTx(isHd, strNote, TxQueue.TX_QUEUED, account, null);
 
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        }
-                                                    });
-
-                                                    SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
-                                                        @Override
-                                                        public void onSuccess() {
-
-                                                        }
-
-                                                        @Override
-                                                        public void onSuccess(final String hash) {
-                                                            getActivity().runOnUiThread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-
-                                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                                    PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-
-                                                                    MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
-
-                                                                    updateTx(isHd, strNote, hash, currentAcc, null);
-                                                                }
-                                                            });
-                                                        }
-
-                                                        @Override
-                                                        public void onFail() {
-                                                        }
-                                                    });
+                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                                    SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, this);
                                                 }
 
                                             });
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, new OpCallback() {
+                                            SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
 
                                                 @Override
                                                 public void onSuccess(final String hash) {
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
+                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                                    if (strNote != null) {
+                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                    }
 
-                                                            ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                            if (strNote != null) {
-                                                                PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-                                                            }
+                                                    MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
+                                                    MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
+                                                    MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
 
-                                                            MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                            MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
-                                                            MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
-
-                                                            updateTx(isHd, strNote, hash, 0, legacyAddress);
-                                                        }
-                                                    });
+                                                    updateTx(isHd, strNote, hash, 0, legacyAddress);
                                                 }
 
                                                 public void onFail() {
 
                                                     //Initial send failed - Put send in queue for reattempt
-                                                    updateTx(isHd, strNote, TxQueue.TX_QUEUED, account, null);
+                                                    updateTx(isHd, strNote, TxQueue.TX_QUEUED, -1, legacyAddress);
 
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        }
-                                                    });
-
-                                                    SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
-                                                        @Override
-                                                        public void onSuccess() {
-
-                                                        }
-
-                                                        @Override
-                                                        public void onSuccess(final String hash) {
-                                                            getActivity().runOnUiThread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-
-                                                                    if (strNote != null) {
-                                                                        ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
-                                                                    }
-
-                                                                    MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                                    MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
-                                                                    MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
-
-                                                                    updateTx(isHd, strNote, hash, 0, legacyAddress);
-                                                                }
-                                                            });
-                                                        }
-
-                                                        @Override
-                                                        public void onFail() {
-                                                        }
-                                                    });
+                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                                    SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, this);
                                                 }
 
                                             });
@@ -1275,19 +1198,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
                                     else{
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-
-                                                ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                if (alertDialog != null && alertDialog.isShowing())
-                                                    alertDialog.cancel();
-                                                Fragment fragment = new BalanceFragment();
-                                                FragmentManager fragmentManager = getFragmentManager();
-                                                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-                                            }
-                                        });
+                                        ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        if (alertDialog != null && alertDialog.isShowing())
+                                            alertDialog.cancel();
+                                        Fragment fragment = new BalanceFragment();
+                                        FragmentManager fragmentManager = getFragmentManager();
+                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
 
                                     Looper.loop();
@@ -1413,6 +1329,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             MultiAddrFactory.getInstance().getLegacyTxs().add(tx);
         }
 
+        Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).sendBroadcast(intent);
     }
 
     @Override
