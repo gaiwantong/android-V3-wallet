@@ -368,5 +368,7 @@
     <string name="pairing_wallet">Pairing Wallet...</string>
     <string name="transaction_queued">Transaction queued</string>
     <string name="WAITING">QUEUED</string>
+    <string name="password_unchanged">Password unchanged</string>
+    <string name="password_changed">Password changed</string>
 
 </resources>
