@@ -121,7 +121,8 @@
 
     <string name="password">Password</string>
     <string name="email">Email</string>
-    <string name="agree_terms_of_service">By creating a new wallet you agree to the <a href="https://blockchain.info/Resources/TermsofServicePolicy.pdf">Blockchain Terms of Service</a></string>
+    <string name="agree_terms_of_service">By creating a new wallet you agree to the</string>
+    <string name="blockchain_tos">Blockchain Terms of Service</string>
     <string name="create_wallet">Create Wallet</string>
     <string name="new_wallet">New Wallet</string>
     <string name="strength_weak">Weak</string>

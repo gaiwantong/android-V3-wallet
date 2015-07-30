@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +39,7 @@ public class CreateWalletFragment extends Fragment {
     ProgressBar passStrengthBar;
     TextView passStrengthVerdict;
     TextView next;
+    TextView tos;
 
     int pwStrength;
     int[] strengthVerdicts = {R.string.strength_weak,R.string.strength_medium,R.string.strength_strong,R.string.strength_very_strong};
@@ -147,39 +151,35 @@ public class CreateWalletFragment extends Fragment {
                 final String pw1 = edPassword1.getText().toString();
                 final String pw2 = edPassword2.getText().toString();
 
-                if(em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
+                if (em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-                else if(pw1==null || pw2==null || pw1.length() < 9 || pw1.length() > 255) {
+                } else if (pw1 == null || pw2 == null || pw1.length() < 9 || pw1.length() > 255) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-                else if(!pw1.equals(pw2)) {
+                } else if (!pw1.equals(pw2)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-                else if(pwStrength < 50){
+                } else if (pwStrength < 50) {
 
                     new AlertDialog.Builder(getActivity())
-                                .setTitle(R.string.app_name)
-                                .setMessage(R.string.weak_password)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        edPassword1.setText("");
-                                        edPassword2.setText("");
-                                        edPassword1.requestFocus();
-                                    }
-                                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+                            .setTitle(R.string.app_name)
+                            .setMessage(R.string.weak_password)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    edPassword1.setText("");
+                                    edPassword2.setText("");
+                                    edPassword1.requestFocus();
+                                }
+                            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
-                                        Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                        intent.putExtra("_email", em);
-                                        intent.putExtra("_pw", pw1);
-                                        getActivity().startActivity(intent);
-                                    }
-                                }).show();
-                }
-                else {
+                            Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                            intent.putExtra("_email", em);
+                            intent.putExtra("_pw", pw1);
+                            getActivity().startActivity(intent);
+                        }
+                    }).show();
+                } else {
                     AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
@@ -187,6 +187,25 @@ public class CreateWalletFragment extends Fragment {
                     intent.putExtra("_pw", pw1);
                     getActivity().startActivity(intent);
                 }
+            }
+        });
+
+        tos = (TextView) rootView.findViewById(R.id.tos);
+
+        String text = getString(R.string.agree_terms_of_service)+" ";
+        String text2 = getString(R.string.blockchain_tos);
+
+        Spannable spannable = new SpannableString(text+text2);
+        spannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.blockchain_blue)), text.length(), text.length()+text2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tos.setText(spannable, TextView.BufferType.SPANNABLE);
+
+        tos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PolicyActivity.class);
+//                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");//pdf
+                intent.putExtra("uri","https://blockchain.com/terms");//plain text/html
+                startActivity(intent);
             }
         });
 
