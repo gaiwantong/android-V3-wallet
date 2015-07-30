@@ -149,7 +149,7 @@ public class PayloadFactory	{
      *
      */
     public void setTempPassword(CharSequenceX temp_password) {
-        this.strTempPassword = temp_password;
+        strTempPassword = temp_password;
     }
 
     /**
@@ -169,7 +169,7 @@ public class PayloadFactory	{
      *
      */
     public void setTempDoubleEncryptPassword(CharSequenceX temp_password2) {
-        this.strTempDoubleEncryptPassword = temp_password2;
+        strTempDoubleEncryptPassword = temp_password2;
     }
 
     /**
@@ -337,7 +337,7 @@ public class PayloadFactory	{
      * @return boolean
      *
      */
-    public boolean put(CharSequenceX password) {
+    private boolean put() {
 
         String strOldCheckSum = strCheckSum;
         String payloadCleartext = null;
@@ -505,7 +505,7 @@ public class PayloadFactory	{
 
                 if(PayloadFactory.getInstance(context).get() != null)	{
 
-                    if(PayloadFactory.getInstance(context).put(strTempPassword))	{
+                    if(PayloadFactory.getInstance(context).put())	{
 //                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         ;
                     }
