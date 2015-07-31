@@ -9,10 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import info.blockchain.wallet.util.AppUtil;
@@ -49,17 +47,14 @@ public class PolicyActivity extends Activity	{
             intent.setData(Uri.parse(uri));
             startActivity(intent);
             finish();
+        }else {
+
+            webview.getSettings().setTextZoom(60);
+            webview.setWebViewClient(new Browser());
+            webview.loadUrl(uri);
+
+            progressBar.setVisibility(View.VISIBLE);
         }
-
-        webview.getSettings().setLoadWithOverviewMode(true);
-        webview.getSettings().setUseWideViewPort(true);
-        webview.getSettings().setJavaScriptEnabled(true);
-        webview.getSettings().setTextZoom(80);
-        webview.setWebViewClient(new Browser());
-        webview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        webview.loadUrl(uri);
-
-        progressBar.setVisibility(View.VISIBLE);
     }
 
     private class Browser extends WebViewClient {
@@ -72,19 +67,9 @@ public class PolicyActivity extends Activity	{
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-//            webview.loadUrl("javascript:MyApp.resize(document.body.getBoundingClientRect().height)");
             progressBar.setVisibility(View.GONE);
             webview.setMinimumHeight(DeviceUtil.getInstance(PolicyActivity.this).getHeight());
-        }
-
-        @JavascriptInterface
-        public void resize(final float height) {
-            PolicyActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    webview.setLayoutParams(new LinearLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, (int) (height * getResources().getDisplayMetrics().density)));
-                }
-            });
+            webview.invalidate();
         }
     }
 
