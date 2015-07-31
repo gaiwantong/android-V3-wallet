@@ -43,6 +43,9 @@ public class FeeUtil {
         return instance;
     }
 
+    //
+    // use unsigned tx here
+    //
     public long getPriority(Transaction tx, List<MyTransactionOutPoint> outputs)   {
 
         long priority = 0L;
@@ -59,6 +62,9 @@ public class FeeUtil {
         return priority;
     }
 
+    //
+    // use signed tx here
+    //
     public BigInteger calculatedFee(Transaction tx)   {
 
         String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
@@ -67,6 +73,9 @@ public class FeeUtil {
         return feeCalculation(size);
     }
 
+    //
+    // use unsigned tx here
+    //
     public BigInteger estimatedFee(Transaction tx)   {
 
         int size = estimatedSize(tx.getOutputs().size(), tx.getInputs().size());
@@ -223,10 +232,6 @@ public class FeeUtil {
 
     }
 
-    private static BigInteger calcPriority()   {
-        return BigInteger.valueOf((long)Math.round(bAvgFee.doubleValue() * dPriorityMultiplier));
-    }
-
     private BigInteger feeCalculation(int size)   {
 
         int thousands = size / 1000;
@@ -242,6 +247,18 @@ public class FeeUtil {
 
     private int estimatedSize(int inputs, int outputs)   {
         return (outputs * ESTIMATED_OUTPUT_LEN) + (inputs * ESTIMATED_INPUT_LEN) + inputs;
+    }
+
+    private static BigInteger calcPriority()   {
+        return BigInteger.valueOf((long)Math.round(bAvgFee.doubleValue() * dPriorityMultiplier));
+    }
+
+    private boolean isStressed()   {
+        return (totalBytes > 15000000 && bAvgFee.compareTo(BigInteger.valueOf(30000L)) >= 0);
+    }
+
+    private BigInteger stressFee()   {
+        return bAvgFee;
     }
 
 }
