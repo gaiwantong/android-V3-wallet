@@ -102,6 +102,17 @@ public class FeeUtil {
         return bPriorityFee;
     }
 
+    public BigInteger getRecommendedFee(int inputs, int outputs)    {
+
+        if(isStressed())    {
+            return stressFee();
+        }
+        else    {
+            return estimatedFee(inputs, outputs);
+        }
+
+    }
+
     public void update()    {
 
         try {
@@ -253,12 +264,12 @@ public class FeeUtil {
         return BigInteger.valueOf((long)Math.round(bAvgFee.doubleValue() * dPriorityMultiplier));
     }
 
-    private boolean isStressed()   {
-        return (totalBytes > 15000000 && bAvgFee.compareTo(BigInteger.valueOf(30000L)) >= 0);
-    }
-
     private BigInteger stressFee()   {
         return bAvgFee;
+    }
+
+    public boolean isStressed()   {
+        return (totalBytes > 15000000 && bAvgFee.compareTo(BigInteger.valueOf(30000L)) >= 0);
     }
 
 }

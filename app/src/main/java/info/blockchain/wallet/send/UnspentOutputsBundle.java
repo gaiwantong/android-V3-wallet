@@ -7,6 +7,7 @@ public class UnspentOutputsBundle	{
 
     private List<MyTransactionOutPoint> outputs = null;
     private BigInteger totalAmount = BigInteger.ZERO;
+    private BigInteger recommendedFee = BigInteger.valueOf(-1L);
 
     public UnspentOutputsBundle() {
         outputs = null;
@@ -27,5 +28,13 @@ public class UnspentOutputsBundle	{
 
     public void setTotalAmount(BigInteger totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public BigInteger getRecommendedFee() {
+        return recommendedFee;
+    }
+
+    public void setRecommendedFee(BigInteger recommendedFee) {
+        this.recommendedFee = recommendedFee;
     }
 }
