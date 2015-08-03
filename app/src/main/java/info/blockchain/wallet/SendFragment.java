@@ -3,6 +3,7 @@ package info.blockchain.wallet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +18,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -110,6 +110,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private boolean spDestinationSelected = false;
     private TableLayout numpad;
     public static boolean isKeypadVisible = false;
+
+    private ProgressDialog progress = null;
 
     private class PendingSpend {
         boolean isHD;
@@ -1119,6 +1121,16 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             final BigInteger bfee = pendingSpend.bfee;
                             final String strNote = null;
 
+                            if(progress != null && progress.isShowing()) {
+                                progress.dismiss();
+                                progress = null;
+                            }
+                            progress = new ProgressDialog(getActivity());
+                            progress.setCancelable(false);
+                            progress.setTitle(R.string.app_name);
+                            progress.setMessage(getString(R.string.sending));
+                            progress.show();
+
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1190,6 +1202,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             });
                                         }
 
+                                        try{Thread.sleep(1000);}catch (Exception e){}
+
+                                        if(progress != null && progress.isShowing()) {
+                                            progress.dismiss();
+                                            progress = null;
+                                        }
+
                                         if (alertDialog != null && alertDialog.isShowing())
                                             alertDialog.cancel();
 
@@ -1198,6 +1217,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
                                     else{
+
+                                        if(progress != null && progress.isShowing()) {
+                                            progress.dismiss();
+                                            progress = null;
+                                        }
+
                                         ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                         if (alertDialog != null && alertDialog.isShowing())
                                             alertDialog.cancel();

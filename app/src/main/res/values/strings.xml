@@ -371,5 +371,6 @@
     <string name="WAITING">QUEUED</string>
     <string name="password_unchanged">Password unchanged</string>
     <string name="password_changed">Password changed</string>
+    <string name="sending">Sending...</string>
 
 </resources>
