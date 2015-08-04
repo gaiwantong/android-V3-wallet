@@ -54,13 +54,13 @@ import piuk.blockchain.android.R;
  */
 public class SendFactory	{
 
-	private static SendFactory instance = null;
-	private static Context context = null;
+    private static SendFactory instance = null;
+    private static Context context = null;
 
-	private SendFactory () { ; }
+    private SendFactory () { ; }
 
-	private String[] from = null;
-	private HashMap<String,String> froms = null;
+    private String[] from = null;
+    private HashMap<String,String> froms = null;
 
     private boolean sentChange = false;
 
@@ -68,14 +68,14 @@ public class SendFactory	{
     public static final BigInteger bFee = Utils.toNanoCoins("0.0001");
 
     public static SendFactory getInstance(Context ctx) {
-    	
-    	context = ctx.getApplicationContext();
-    	
-    	if(instance == null)	{
-    		instance = new SendFactory();
-    	}
-    	
-    	return instance;
+
+        context = ctx.getApplicationContext();
+
+        if(instance == null)	{
+            instance = new SendFactory();
+        }
+
+        return instance;
     }
 
     /**
@@ -312,8 +312,6 @@ public class SendFactory	{
      */
     private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount) throws Exception {
 
-        BigInteger totalAmountPlusDust = totalAmount.add(bDust);
-
         UnspentOutputsBundle ret = new UnspentOutputsBundle();
 
         String args = null;
@@ -371,11 +369,13 @@ public class SendFactory	{
             MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
             outPoint.setConfirmations(confirmations);
             // return single output >= totalValue, otherwise save for randomization
-            if(outPoint.getValue().compareTo(totalAmountPlusDust) >= 0) {
+            BigInteger totalAmountPlusDust = totalAmount.add(bDust);
+            if(outPoint.getValue().compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(1, 2))) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
                 ret.setTotalAmount(outPoint.getValue());
                 ret.setOutputs(outputs);
+                ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(outputs.size(), 2));
                 return ret;
             }
             else {
@@ -391,13 +391,14 @@ public class SendFactory	{
         for (MyTransactionOutPoint output : outputs) {
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
-            if(totalValue.compareTo(totalAmountPlusDust) >= 0) {
+            if(totalValue.compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2))) >= 0) {
                 break;
             }
         }
 
         ret.setTotalAmount(totalValue);
         ret.setOutputs(_outputs);
+        ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2));
 
         return ret;
     }
@@ -417,108 +418,108 @@ public class SendFactory	{
      * @return Pair<Transaction, Long>
      *
      */
-	public Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
+    public Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
 
-		long priority = 0;
+        long priority = 0;
 
-		if(unspent == null || unspent.size() == 0) {
+        if(unspent == null || unspent.size() == 0) {
 //			throw new InsufficientFundsException("No free outputs to spend.");
-			return null;
-		}
+            return null;
+        }
 
-		if(fee == null) {
-			fee = BigInteger.ZERO;
-		}
+        if(fee == null) {
+            fee = BigInteger.ZERO;
+        }
 
         List<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
-		// Construct a new transaction
-		Transaction tx = new Transaction(MainNetParams.get());
-		BigInteger outputValueSum = BigInteger.ZERO;
+        // Construct a new transaction
+        Transaction tx = new Transaction(MainNetParams.get());
+        BigInteger outputValueSum = BigInteger.ZERO;
 
-		for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();)   {
-			Map.Entry<String, BigInteger> mapEntry = iterator.next();
-			String toAddress = mapEntry.getKey();
-			BigInteger amount = mapEntry.getValue();
+        for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();)   {
+            Map.Entry<String, BigInteger> mapEntry = iterator.next();
+            String toAddress = mapEntry.getKey();
+            BigInteger amount = mapEntry.getValue();
 
-			if(amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-				throw new Exception(context.getString(R.string.invalid_amount));
-			}
+            if(amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+                throw new Exception(context.getString(R.string.invalid_amount));
+            }
 
             if(amount.compareTo(bDust) < 1)    {
                 throw new Exception(context.getString(R.string.dust_amount));
             }
 
             outputValueSum = outputValueSum.add(amount);
-			// Add the output
-			BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
-			TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
+            // Add the output
+            BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
+            TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
             outputs.add(output);
-		}
+        }
 
-		// Now select the appropriate inputs
-		BigInteger valueSelected = BigInteger.ZERO;
-		BigInteger valueNeeded =  outputValueSum.add(fee);
-		BigInteger minFreeOutputSize = BigInteger.valueOf(1000000);
+        // Now select the appropriate inputs
+        BigInteger valueSelected = BigInteger.ZERO;
+        BigInteger valueNeeded =  outputValueSum.add(fee);
+        BigInteger minFreeOutputSize = BigInteger.valueOf(1000000);
 
-		MyTransactionOutPoint changeOutPoint = null;
+        MyTransactionOutPoint changeOutPoint = null;
 
-		for(MyTransactionOutPoint outPoint : unspent) {
+        for(MyTransactionOutPoint outPoint : unspent) {
 
-			BitcoinScript script = new BitcoinScript(outPoint.getScriptBytes());
+            BitcoinScript script = new BitcoinScript(outPoint.getScriptBytes());
 
-			if(script.getOutType() == BitcoinScript.ScriptOutTypeStrange) {
-				continue;
-			}
+            if(script.getOutType() == BitcoinScript.ScriptOutTypeStrange) {
+                continue;
+            }
 
-			BitcoinScript inputScript = new BitcoinScript(outPoint.getConnectedPubKeyScript());
-			String address = inputScript.getAddress().toString();
+            BitcoinScript inputScript = new BitcoinScript(outPoint.getConnectedPubKeyScript());
+            String address = inputScript.getAddress().toString();
 
-			// if isSimpleSend don't use address as input if is output
-			if(isSimpleSend && receivingAddresses.get(address) != null) {
-				continue;
-			}
+            // if isSimpleSend don't use address as input if is output
+            if(isSimpleSend && receivingAddresses.get(address) != null) {
+                continue;
+            }
 
             MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
-			tx.addInput(input);
-			valueSelected = valueSelected.add(outPoint.getValue());
-			priority += outPoint.getValue().longValue() * outPoint.getConfirmations();
+            tx.addInput(input);
+            valueSelected = valueSelected.add(outPoint.getValue());
+            priority += outPoint.getValue().longValue() * outPoint.getConfirmations();
 
-			if(changeAddress == null) {
-				changeOutPoint = outPoint;
-			}
+            if(changeAddress == null) {
+                changeOutPoint = outPoint;
+            }
 
-			if(valueSelected.compareTo(valueNeeded) == 0 || valueSelected.compareTo(valueNeeded.add(minFreeOutputSize)) >= 0) {
-				break;
-			}
-		}
+            if(valueSelected.compareTo(valueNeeded) == 0 || valueSelected.compareTo(valueNeeded.add(minFreeOutputSize)) >= 0) {
+                break;
+            }
+        }
 
         if(valueSelected.compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
             throw new Exception(context.getString(R.string.limit_21m_exceeded));
         }
 
         // Check the amount we have selected is greater than the amount we need
-		if(valueSelected.compareTo(valueNeeded) < 0) {
+        if(valueSelected.compareTo(valueNeeded) < 0) {
 //			throw new InsufficientFundsException("Insufficient Funds");
-			return null;
-		}
+            return null;
+        }
 
-		BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
-		// Now add the change if there is any
-		if (change.compareTo(BigInteger.ZERO) > 0) {
+        BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
+        // Now add the change if there is any
+        if (change.compareTo(BigInteger.ZERO) > 0) {
             if(change.compareTo(bDust) <= 0)    {
                 throw new Exception(context.getString(R.string.dust_change));
             }
             BitcoinScript change_script;
-			if (changeAddress != null) {
-				change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
+            if (changeAddress != null) {
+                change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
                 sentChange = true;
-			}
+            }
             else {
-				throw new Exception(context.getString(R.string.invalid_tx));
-			}
-			TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
+                throw new Exception(context.getString(R.string.invalid_tx));
+            }
+            TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
             outputs.add(change_output);
-		}
+        }
         else {
             sentChange = false;
         }
@@ -529,10 +530,10 @@ public class SendFactory	{
         }
 
         long estimatedSize = tx.bitcoinSerialize().length + (114 * tx.getInputs().size());
-		priority /= estimatedSize;
+        priority /= estimatedSize;
 
-		return new Pair<Transaction, Long>(tx, priority);
-	}
+        return new Pair<Transaction, Long>(tx, priority);
+    }
 
     /**
      * Sort unspent outputs by amount in descending order.
