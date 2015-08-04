@@ -13,7 +13,7 @@
         <item>Change PIN Code</item>
         <item>@string/backup_wallet</item>
         <item>Unpair Wallet</item>
-		<item>@string/upgrade_wallet</item>
+        <item>@string/upgrade_wallet</item>
     </string-array>
 
     <array name="navigation_drawer_icons">
@@ -24,7 +24,7 @@
         <item>@drawable/icon_pincode</item>
         <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
-		<item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
 
     <string name="app_name">Blockchain HD</string>
@@ -168,6 +168,7 @@
     <string name="fee">Fee</string>
     <string name="dialog_send">SEND</string>
     <string name="dialog_cancel">CANCEL</string>
+    <string name="dialog_priority_fee">SEND W/ PRIORITY FEE</string>
     <string name="exit_confirm">Press back button again to exit</string>
 
     <string name="label_address">Your address has been imported successfully. Optionally assign a friendly display name to this address.</string>
@@ -330,8 +331,8 @@
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
     <string name="logging_out_automatically">Logging out automatically</string>
-	<string name="transaction_submitted">Transaction complete</string>
-	<string name="transaction_failed">Transaction failed</string>
+    <string name="transaction_submitted">Transaction complete</string>
+    <string name="transaction_failed">Transaction failed</string>
     <string name="UPGRADE_YOUR_WALLET">UPGRADE YOUR WALLET</string>
     <string name="ASK_ME_LATER">ASK ME LATER</string>
     <string name="upgrade_page_1">Create personalized accounts to help keep your wallet organized.</string>

@@ -32,11 +32,12 @@ public class FeeUtil {
 
     public static FeeUtil getInstance()  {
 
-        bAvgFee = BigInteger.valueOf(10000L);
-        bHighestFee = BigInteger.valueOf(50000L);
-        bPriorityFee = calcPriority();
-
         if(instance == null)    {
+
+            bAvgFee = BigInteger.valueOf(10000L);
+            bHighestFee = BigInteger.valueOf(50000L);
+            bPriorityFee = calcPriority();
+
             instance = new FeeUtil();
         }
 
@@ -124,9 +125,13 @@ public class FeeUtil {
             minFee1MB(response);
         }
         catch(Exception e) {
-            ;
+            e.printStackTrace();
         }
 
+    }
+
+    private boolean isStressed()   {
+        return (totalBytes > 15000000 && bAvgFee.compareTo(BigInteger.valueOf(30000L)) >= 0);
     }
 
     private void averageFee(String s) {
@@ -149,7 +154,7 @@ public class FeeUtil {
 
         }
         catch(Exception e) {
-            ;
+            e.printStackTrace();
         }
 
     }
@@ -266,10 +271,6 @@ public class FeeUtil {
 
     private BigInteger stressFee()   {
         return bAvgFee;
-    }
-
-    public boolean isStressed()   {
-        return (totalBytes > 15000000 && bAvgFee.compareTo(BigInteger.valueOf(30000L)) >= 0);
     }
 
 }

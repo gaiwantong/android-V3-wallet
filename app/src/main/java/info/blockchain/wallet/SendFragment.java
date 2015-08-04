@@ -18,6 +18,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -60,6 +61,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.send.FeeUtil;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
@@ -527,6 +529,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         decimalCompatCheck(rootView);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                FeeUtil.getInstance().update();
+
+            }
+        }).start();
+
         return rootView;
     }
 
@@ -806,7 +817,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 amount = 0L;
             }
         }
-        
+
         long amount_available = amount - SendFactory.bFee.longValue();
         if(amount_available > 0L) {
             double btc_balance = (((double)amount_available) / 1e8);
@@ -886,6 +897,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if(pendingSpend.isHD) {
+
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
                 confirmPayment(true, AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spAccounts.getSelectedItemPosition()), null);
@@ -997,7 +1009,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
                 }).show();
             }
+
         }
+
     }
 
     class AccountAdapter extends ArrayAdapter<String>{
@@ -1081,63 +1095,67 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             if(isValidSpend()) {
 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
-                dialogBuilder.setView(dialogView);
-
-                final AlertDialog alertDialog = dialogBuilder.create();
-                alertDialog.setCanceledOnTouchOutside(false);
-
-                TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
-                confirmDestination.setText(pendingSpend.destination);
-
-                TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-                confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
-
-                TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-                BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
-                confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
-
-                TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-                confirmCancel.setOnClickListener(new View.OnClickListener() {
+                new Thread(new Runnable() {
                     @Override
-                    public void onClick(View v) {
-                        if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-                    }
-                });
+                    public void run() {
 
-                TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
-                confirmSend.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                        Looper.prepare();
 
-                        if(!spendInProgress) {
-                            spendInProgress = true;
+                        final UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).prepareSend(isHd ? currentAcc : -1, pendingSpend.destination, pendingSpend.bamount, legacyAddress == null ? null : legacyAddress, BigInteger.ZERO, null);
 
-                            final int account = currentAcc;
-                            final String destination = pendingSpend.destination;
-                            final BigInteger bamount = pendingSpend.bamount;
-                            final BigInteger bfee = pendingSpend.bfee;
-                            final String strNote = null;
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
+                        dialogBuilder.setView(dialogView);
 
-                            if(progress != null && progress.isShowing()) {
-                                progress.dismiss();
-                                progress = null;
+                        final AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.setCanceledOnTouchOutside(false);
+
+                        TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
+                        confirmDestination.setText(pendingSpend.destination);
+
+                        TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
+//                        pendingSpend.bfee = unspents.getRecommendedFee();
+                        pendingSpend.bfee = BigInteger.valueOf(10000L);
+                        confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
+
+                        TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
+                        BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
+                        confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
+
+                        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+                        confirmCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (alertDialog != null && alertDialog.isShowing()) {
+                                    alertDialog.cancel();
+                                }
                             }
-                            progress = new ProgressDialog(getActivity());
-                            progress.setCancelable(false);
-                            progress.setTitle(R.string.app_name);
-                            progress.setMessage(getString(R.string.sending));
-                            progress.show();
+                        });
 
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
+                        TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+                        confirmSend.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
 
-                                    Looper.prepare();
+                                if(!spendInProgress) {
+                                    spendInProgress = true;
 
-                                    final UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).prepareSend(isHd ? account : -1, destination, bamount, legacyAddress == null ? null : legacyAddress, bfee, strNote);
+                                    final int account = currentAcc;
+                                    final String destination = pendingSpend.destination;
+                                    final BigInteger bamount = pendingSpend.bamount;
+                                    final BigInteger bfee = pendingSpend.bfee;
+                                    final String strNote = null;
+
+                                    if(progress != null && progress.isShowing()) {
+                                        progress.dismiss();
+                                        progress = null;
+                                    }
+                                    progress = new ProgressDialog(getActivity());
+                                    progress.setCancelable(false);
+                                    progress.setTitle(R.string.app_name);
+                                    progress.setMessage(getString(R.string.sending));
+                                    progress.show();
 
                                     if(unspents != null) {
 
@@ -1209,8 +1227,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             progress = null;
                                         }
 
-                                        if (alertDialog != null && alertDialog.isShowing())
+                                        if (alertDialog != null && alertDialog.isShowing()) {
                                             alertDialog.cancel();
+                                        }
 
                                         Fragment fragment = new BalanceFragment();
                                         FragmentManager fragmentManager = getFragmentManager();
@@ -1224,24 +1243,26 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         }
 
                                         ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        if (alertDialog != null && alertDialog.isShowing())
+                                        if (alertDialog != null && alertDialog.isShowing()) {
                                             alertDialog.cancel();
+                                        }
                                         Fragment fragment = new BalanceFragment();
                                         FragmentManager fragmentManager = getFragmentManager();
                                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
 
-                                    Looper.loop();
-
+                                    spendInProgress = false;
                                 }
-                            }).start();
+                            }
+                        });
 
-                            spendInProgress = false;
-                        }
+                        alertDialog.show();
+
+                        Looper.loop();
+
                     }
-                });
+                }).start();
 
-                alertDialog.show();
             }
         }
         else    {
