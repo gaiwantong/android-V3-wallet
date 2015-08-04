@@ -80,7 +80,7 @@ public class SendTest extends BlockchainTest {
 
     public UnspentOutputsBundle unspentOutputsHD(SendFactory sf) {
 
-        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(0, WalletUtil.getInstance(context).getHdSpendAddress(), Utils.toNanoCoins("0.0001"), null, Utils.toNanoCoins("0.0001"), "");
+        UnspentOutputsBundle unspents = SendFactory.getInstance(context).prepareSend(0, WalletUtil.getInstance(context).getHdSpendAddress(), Utils.toNanoCoins("0.0001"), null, Utils.toNanoCoins("0.0001"), "");
 
         AssertUtil.getInstance().assert_true(this, "HD has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
 
@@ -108,7 +108,7 @@ public class SendTest extends BlockchainTest {
         LegacyAddress legacyAddress = new LegacyAddress();
         legacyAddress.setAddress(WalletUtil.getInstance(context).getLegacySpendAddress());
 
-        UnspentOutputsBundle unspents = SendFactory.getInstance(context).send1(-1, WalletUtil.getInstance(context).getHdReceiveAddress(), Utils.toNanoCoins("0.0001"), legacyAddress, Utils.toNanoCoins("0.0001"), "");
+        UnspentOutputsBundle unspents = SendFactory.getInstance(context).prepareSend(-1, WalletUtil.getInstance(context).getHdReceiveAddress(), Utils.toNanoCoins("0.0001"), legacyAddress, Utils.toNanoCoins("0.0001"), "");
 
         AssertUtil.getInstance().assert_true(this, "Legacy has unspent outputs", (unspents != null && unspents.getOutputs().size() > 0));
 
