@@ -988,12 +988,9 @@ public class BalanceFragment extends Fragment {
                 tvStatus.setVisibility(View.INVISIBLE);
                 ivStatus.setVisibility(View.INVISIBLE);
 
-                if(tx.getDirection().equals(MultiAddrFactory.RECEIVED) || tx.getDirection().equals(MultiAddrFactory.MOVED)) {
+                if(tx.getDirection().equals(MultiAddrFactory.RECEIVED)) {
                     feeContainer.setVisibility(View.GONE);
                     feeSeparator.setVisibility(View.GONE);
-                }else{
-                    feeContainer.setVisibility(View.VISIBLE);
-                    feeSeparator.setVisibility(View.VISIBLE);
                 }
 
                 tvTxHash.setText(strTx);
