@@ -31,3 +31,5 @@ proguard/
 # Mac OS X clutter
 *.DS_Store
 
+# QA
+*/credentials_qa.xml
