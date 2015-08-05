@@ -119,7 +119,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         }
     }
 
-    public void testBlockchainTermsOfServiceLink()  throws AssertionError{
+    public void testTermsOfServiceLink()  throws AssertionError{
 
         //First hide keyboard
         solo.pressSoftKeyboardNextButton();//skip email
@@ -150,9 +150,9 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         //Complete
         solo.clickOnView(solo.getView(R.id.command_next));
 
-        solo.waitForDialogToOpen();
+        TestCase.assertEquals(true, solo.waitForDialogToOpen());
         solo.clickOnView(solo.getView(android.R.id.button1));//Yes
-        solo.waitForDialogToClose();
+        TestCase.assertEquals(true, solo.waitForDialogToClose());
 
         //Test result
         TestCase.assertEquals(true, walletPasswordView.getText().toString().isEmpty());
@@ -172,7 +172,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
     }
 
-    public void testCreateWallet()  throws AssertionError{
+    public void testCreateValidWallet()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
