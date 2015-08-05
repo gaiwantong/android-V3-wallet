@@ -370,7 +370,15 @@ public class SendFactory	{
             outPoint.setConfirmations(confirmations);
             // return single output >= totalValue, otherwise save for randomization
             BigInteger totalAmountPlusDust = totalAmount.add(bDust);
-            if(outPoint.getValue().compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(1, 2))) >= 0) {
+            if(outPoint.getValue().compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(1, 1))) == 0) {
+                outputs.clear();
+                outputs.add(outPoint);
+                ret.setTotalAmount(outPoint.getValue());
+                ret.setOutputs(outputs);
+                ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(outputs.size(), 1));
+                return ret;
+            }
+            else if(outPoint.getValue().compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(1, 2))) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
                 ret.setTotalAmount(outPoint.getValue());
@@ -391,14 +399,25 @@ public class SendFactory	{
         for (MyTransactionOutPoint output : outputs) {
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
-            if(totalValue.compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2))) >= 0) {
+            if(totalValue.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 1))) == 0) {
                 break;
+            }
+            else if(totalValue.compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2))) >= 0) {
+                break;
+            }
+            else    {
+                ;
             }
         }
 
         ret.setTotalAmount(totalValue);
         ret.setOutputs(_outputs);
-        ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2));
+        if(totalValue.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 1))) == 0) {
+            ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 1));
+        }
+        else if(totalValue.compareTo(totalAmount.add(bDust).add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2))) >= 0) {
+            ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2));
+        }
 
         return ret;
     }
