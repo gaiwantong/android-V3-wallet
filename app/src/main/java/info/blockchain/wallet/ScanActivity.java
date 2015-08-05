@@ -45,6 +45,7 @@ public class ScanActivity extends ActionBarActivity{
 
         scanner = (ScannerView) findViewById(R.id.scanner);
         scanner.setHudVisible(false);
+        scanner.setPlaySound(false);
         scanner.setScannerViewEventListener(new ScannerView.ScannerViewEventListener() {
             @Override
             public void onScannerReady() {
