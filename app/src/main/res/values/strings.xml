@@ -373,5 +373,6 @@
     <string name="password_unchanged">Password unchanged</string>
     <string name="password_changed">Password changed</string>
     <string name="sending">Sending...</string>
+    <string name="ask_me_later">Ask me later</string>
 
 </resources>

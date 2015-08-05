@@ -18,7 +18,6 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-
 import piuk.blockchain.android.R;
 
 public class ConfirmationCodeActivity extends ActionBarActivity implements TextWatcher{
@@ -238,5 +237,26 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     protected void onPause() {
         super.onPause();
         AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
+
+    public void askMeLaterClicked(View view) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, true);
+
+                try {
+                    if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
+                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                        AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Looper.loop();
+
+            }
+        }).start();
     }
 }
