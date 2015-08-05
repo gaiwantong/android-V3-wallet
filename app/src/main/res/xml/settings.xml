@@ -30,4 +30,9 @@
         android:summary="@string/options_privacy2"
         android:key="privacy"
         />
+    <Preference
+        android:title="@string/verify_email"
+        android:summary="@string/verify_email2"
+        android:key="verify_email"
+        />
 </PreferenceScreen>

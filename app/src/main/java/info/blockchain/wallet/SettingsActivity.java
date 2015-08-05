@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -60,7 +61,7 @@ public class SettingsActivity extends PreferenceActivity {
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) SettingsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                                 android.content.ClipData clip = null;
                                 clip = android.content.ClipData.newPlainText("guid", guid);
                                 clipboard.setPrimaryClip(clip);
@@ -92,8 +93,8 @@ public class SettingsActivity extends PreferenceActivity {
                 final String[] currencies = ExchangeRateFactory.getInstance(SettingsActivity.this).getCurrencyLabels();
                 String strCurrency = PrefsUtil.getInstance(SettingsActivity.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
                 int sel = 0;
-                for(int i = 0; i < currencies.length; i++) {
-                    if(currencies[i].endsWith(strCurrency)) {
+                for (int i = 0; i < currencies.length; i++) {
+                    if (currencies[i].endsWith(strCurrency)) {
                         sel = i;
                         break;
                     }
@@ -173,7 +174,7 @@ public class SettingsActivity extends PreferenceActivity {
 
                 Intent intent = new Intent(SettingsActivity.this, PolicyActivity.class);
 //                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");//pdf
-                intent.putExtra("uri","https://blockchain.com/terms");//plain text/html
+                intent.putExtra("uri", "https://blockchain.com/terms");//plain text/html
                 startActivity(intent);
 
                 return true;
@@ -193,6 +194,16 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
+        Preference verifyEmail = (Preference) findPreference("verify_email");
+        verifyEmail.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+
+                Intent intent = new Intent(SettingsActivity.this, ConfirmationCodeActivity.class);
+                startActivity(intent);
+
+                return true;
+            }
+        });
     }
 
     private void displayMnemonicForDoubleEncryptedWallet() {
@@ -339,6 +350,11 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        PreferenceScreen scr = getPreferenceScreen();
+        Preference verifyEmail = (Preference) findPreference("verify_email");
+        if (scr!=null && verifyEmail!=null && !PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+            scr.removePreference(verifyEmail);
     }
 
     @Override

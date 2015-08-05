@@ -69,9 +69,17 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         etConfirmBox4.addTextChangedListener(this);
 
         etConfirmBox0.requestFocus();
+
+        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
+
+            sendClicked();
+
+            TextView forgetWalletTv = (TextView) findViewById(R.id.forget_wallet);
+            forgetWalletTv.setVisibility(View.INVISIBLE);
+        }
     }
 
-    public void resendClicked(View view) {
+    public void sendClicked() {
 
         final String email = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,"");
 
@@ -119,6 +127,11 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         }).start();
     }
 
+    public void resendClicked(View view) {
+
+        sendClicked();
+    }
+
     public void verifyClicked(final String done) {
 
         if(code==null)return;
@@ -145,9 +158,17 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     response = AccessFactory.getInstance(ConfirmationCodeActivity.this).verifyEmail(done);
                     if (response != null && response.equals("Email successfully verified")) {
 
-                        if(HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword()))    {
-                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                            AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                        if(!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER,false)) {
+                            if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
+                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                            }
+                        }else{
+                            PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false);
+                            PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+
+                            ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.email_verified), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
+                            ConfirmationCodeActivity.this.finish();
                         }
 
                     }else {
