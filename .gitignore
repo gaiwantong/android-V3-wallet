@@ -32,4 +32,4 @@ proguard/
 *.DS_Store
 
 # QA
-*/credentials_qa.xml
+*credentials_qa.xml
