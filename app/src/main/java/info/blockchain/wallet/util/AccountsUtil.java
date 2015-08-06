@@ -65,11 +65,23 @@ public class AccountsUtil {
 		int spinnerIndex = 0;
 
         HDWallet hdWallet = PayloadFactory.getInstance().get().getHdWallet();
-		List<Account> accounts = new ArrayList<>();
-        if(hdWallet!=null && hdWallet.getAccounts()!=null)accounts = hdWallet.getAccounts();
+		List<Account> accountsTemp = new ArrayList<>();
+        if(hdWallet!=null && hdWallet.getAccounts()!=null)accountsTemp = hdWallet.getAccounts();
 
-		List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<Account> accounts = new ArrayList<>();
+        for (Account item : accountsTemp)
+            if(!item.isArchived())accounts.add(item);
 
+		List<LegacyAddress> legacyAddressesTemp = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        if(legacyAddressesTemp!=null) {
+            for (int j = 0; j < legacyAddressesTemp.size(); j++) {
+                LegacyAddress leg = legacyAddressesTemp.get(j);
+                if(leg.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+                    legacyAddresses.remove(j);
+            }
+        }
+//
 		//All Account - if multiple accounts or contains legacy address
 		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
 
