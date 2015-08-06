@@ -103,17 +103,26 @@ public class UpgradeWalletActivity extends Activity {
 
         if(PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50)    {
 
-            final TextView prompt = new TextView(UpgradeWalletActivity.this);
-            prompt.setText(getString(R.string.password) + ":");
+            final TextView prompt1 = new TextView(UpgradeWalletActivity.this);
+            prompt1.setText(getString(R.string.password) + ":");
 
-            final EditText password = new EditText(UpgradeWalletActivity.this);
-            password.setSingleLine(true);
-            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            final EditText password1 = new EditText(UpgradeWalletActivity.this);
+            password1.setSingleLine(true);
+            password1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+            final TextView prompt2 = new TextView(UpgradeWalletActivity.this);
+            prompt2.setText(getString(R.string.confirm_password) + ":");
+
+            final EditText password2 = new EditText(UpgradeWalletActivity.this);
+            password2.setSingleLine(true);
+            password2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
             LinearLayout pwLayout = new LinearLayout(UpgradeWalletActivity.this);
             pwLayout.setOrientation(LinearLayout.VERTICAL);
-            pwLayout.addView(prompt);
-            pwLayout.addView(password);
+            pwLayout.addView(prompt1);
+            pwLayout.addView(password1);
+            pwLayout.addView(prompt2);
+            pwLayout.addView(password2);
 
             new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
@@ -123,75 +132,42 @@ public class UpgradeWalletActivity extends Activity {
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
-                            if (password.getText().toString() == null || password.getText().toString().length() < 9 || password.getText().toString().length() > 255) {
+                            if (password1.getText().toString() == null || password1.getText().toString().length() < 9 || password1.getText().toString().length() > 255 ||
+                                    password2.getText().toString() == null  || password2.getText().toString().length() < 9 || password2.getText().toString().length() > 255 ) {
                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
                             else {
 
-                                final TextView prompt = new TextView(UpgradeWalletActivity.this);
-                                prompt.setText(getString(R.string.confirm_password) + ":");
+                                if (!password2.getText().toString().equals(password1.getText().toString())) {
+                                    ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+                                else    {
 
-                                final EditText password2 = new EditText(UpgradeWalletActivity.this);
-                                password2.setSingleLine(true);
-                                password2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                                    final CharSequenceX currentPassword = PayloadFactory.getInstance().getTempPassword();
+                                    PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2.getText().toString()));
 
-                                LinearLayout pwLayout = new LinearLayout(UpgradeWalletActivity.this);
-                                pwLayout.setOrientation(LinearLayout.VERTICAL);
-                                /*
-                                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)pwLayout.getLayoutParams();
-                                params.setMargins(40, 10, 40, 10);
-                                pwLayout.setLayoutParams(params);
-                                */
-                                pwLayout.addView(prompt);
-                                pwLayout.addView(password2);
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
 
-                                new AlertDialog.Builder(UpgradeWalletActivity.this)
-                                        .setTitle(R.string.app_name)
-                                        .setMessage(R.string.weak_password)
-                                        .setCancelable(false)
-                                        .setView(pwLayout)
-                                        .setPositiveButton(R.string.confirm_password, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                            Looper.prepare();
 
-                                                if (password2.getText().toString() == null || !password2.getText().toString().equals(password.getText().toString())) {
-                                                    ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                }
-                                                else    {
-
-                                                    final CharSequenceX currentPassword = PayloadFactory.getInstance().getTempPassword();
-                                                    PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2.getText().toString()));
-
-                                                    new Thread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-
-                                                            Looper.prepare();
-
-                                                            if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
-                                                                PayloadFactory.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
-                                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                            }
-                                                            else    {
-                                                                PayloadFactory.getInstance().setTempPassword(currentPassword);
-                                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                            }
-
-                                                            Looper.loop();
-
-                                                        }
-                                                    }).start();
-
-                                                }
-
+                                            if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
+                                                PayloadFactory.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
+                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
-                                        })
-                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-//                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                ToastCustom.makeText(UpgradeWalletActivity.this, "Password unchanged 2", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                            else    {
+                                                PayloadFactory.getInstance().setTempPassword(currentPassword);
+                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
-                                        }).show();
+
+                                            Looper.loop();
+
+                                        }
+                                    }).start();
+
+                                }
 
                             }
                         }
