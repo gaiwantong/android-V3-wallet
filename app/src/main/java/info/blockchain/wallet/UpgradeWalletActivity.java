@@ -103,6 +103,7 @@ public class UpgradeWalletActivity extends Activity {
 
         if(PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50)    {
 
+            /*
             final TextView prompt1 = new TextView(UpgradeWalletActivity.this);
             prompt1.setText(getString(R.string.password) + ":");
 
@@ -123,6 +124,10 @@ public class UpgradeWalletActivity extends Activity {
             pwLayout.addView(password1);
             pwLayout.addView(prompt2);
             pwLayout.addView(password2);
+            */
+
+            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+            final LinearLayout pwLayout = (LinearLayout)inflater.inflate(R.layout.modal_change_password, null);
 
             new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
@@ -132,19 +137,22 @@ public class UpgradeWalletActivity extends Activity {
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
-                            if (password1.getText().toString() == null || password1.getText().toString().length() < 9 || password1.getText().toString().length() > 255 ||
-                                    password2.getText().toString() == null  || password2.getText().toString().length() < 9 || password2.getText().toString().length() > 255 ) {
+                            String password1 = ((EditText)pwLayout.findViewById(R.id.pw1)).getText().toString();
+                            String password2 = ((EditText)pwLayout.findViewById(R.id.pw2)).getText().toString();
+
+                            if (password1 == null || password1.length() < 9 || password1.length() > 255 ||
+                                    password2 == null  || password2.length() < 9 || password2.length() > 255 ) {
                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
                             else {
 
-                                if (!password2.getText().toString().equals(password1.getText().toString())) {
+                                if (!password2.equals(password1)) {
                                     ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 else    {
 
                                     final CharSequenceX currentPassword = PayloadFactory.getInstance().getTempPassword();
-                                    PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2.getText().toString()));
+                                    PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2));
 
                                     new Thread(new Runnable() {
                                         @Override
