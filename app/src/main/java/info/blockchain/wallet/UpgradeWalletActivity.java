@@ -12,6 +12,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -136,6 +137,11 @@ public class UpgradeWalletActivity extends Activity {
 
                                 LinearLayout pwLayout = new LinearLayout(UpgradeWalletActivity.this);
                                 pwLayout.setOrientation(LinearLayout.VERTICAL);
+                                /*
+                                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)pwLayout.getLayoutParams();
+                                params.setMargins(40, 10, 40, 10);
+                                pwLayout.setLayoutParams(params);
+                                */
                                 pwLayout.addView(prompt);
                                 pwLayout.addView(password2);
 
@@ -380,6 +386,7 @@ public class UpgradeWalletActivity extends Activity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((LinearLayout) object);
         }
+
     }
 
     private void setSelectedPage(int position){
@@ -406,4 +413,21 @@ public class UpgradeWalletActivity extends Activity {
         super.onPause();
         AppUtil.getInstance(this).setIsBackgrounded(true);
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+
+            AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+
+            return true;
+        }
+        else	{
+            ;
+        }
+
+        return false;
+    }
+
 }
