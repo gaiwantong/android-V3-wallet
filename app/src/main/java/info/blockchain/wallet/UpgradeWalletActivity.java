@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -25,20 +24,13 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.security.SecureRandom;
-
 import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
 
 public class UpgradeWalletActivity extends Activity {
@@ -102,29 +94,6 @@ public class UpgradeWalletActivity extends Activity {
         });
 
         if(PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50)    {
-
-            /*
-            final TextView prompt1 = new TextView(UpgradeWalletActivity.this);
-            prompt1.setText(getString(R.string.password) + ":");
-
-            final EditText password1 = new EditText(UpgradeWalletActivity.this);
-            password1.setSingleLine(true);
-            password1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            final TextView prompt2 = new TextView(UpgradeWalletActivity.this);
-            prompt2.setText(getString(R.string.confirm_password) + ":");
-
-            final EditText password2 = new EditText(UpgradeWalletActivity.this);
-            password2.setSingleLine(true);
-            password2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            LinearLayout pwLayout = new LinearLayout(UpgradeWalletActivity.this);
-            pwLayout.setOrientation(LinearLayout.VERTICAL);
-            pwLayout.addView(prompt1);
-            pwLayout.addView(password1);
-            pwLayout.addView(prompt2);
-            pwLayout.addView(password2);
-            */
 
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             final LinearLayout pwLayout = (LinearLayout)inflater.inflate(R.layout.modal_change_password, null);
