@@ -29,7 +29,6 @@ public class TxQueue	{
     private static TxQueue instance = null;
 
     private final static long QUEUE_TIMEOUT = 60 * 15;
-    public final static String TX_QUEUED = "TX_QUEUED";
 
     private TxQueue()	{ ; }
 

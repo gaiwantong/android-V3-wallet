@@ -23,7 +23,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -69,7 +68,6 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -126,7 +124,7 @@ public class BalanceFragment extends Fragment {
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, final Intent intent) {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
 
@@ -140,20 +138,20 @@ public class BalanceFragment extends Fragment {
                                 @Override
                                 public void run() {
                                     swipeLayout.setRefreshing(false);
-                                    refreshUI();
+                                    refreshUI(intent);
                                 }
                             }, 2000);
                         }else {
-                            refreshUI();
+                            refreshUI(intent);
                         }
 
                         forceRefresh = false;
                     }
 
-                    private void refreshUI(){
+                    private void refreshUI(Intent intent){
                         displayBalance();
                         accountsAdapter.notifyDataSetChanged();
-                        updateTx();
+                        updateTx(intent);
                         txAdapter.notifyDataSetChanged();
                         NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
                     }
@@ -247,7 +245,7 @@ public class BalanceFragment extends Fragment {
             displayBalance();
             accountsAdapter.notifyDataSetChanged();
             txAdapter.notifyDataSetChanged();
-            updateTx();
+            updateTx(null);
         } else {
             ;
         }
@@ -277,7 +275,7 @@ public class BalanceFragment extends Fragment {
 
         accountList = setAccountSpinner();
 
-        updateTx();
+        updateTx(null);
         displayBalance();
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
@@ -459,7 +457,7 @@ public class BalanceFragment extends Fragment {
 
     }
 
-    private void updateTx() {
+    private void updateTx(Intent intent) {
 
         txMap = MultiAddrFactory.getInstance().getXpubTxs();
 
@@ -489,6 +487,18 @@ public class BalanceFragment extends Fragment {
                         txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
                 }
             }
+        }
+
+        if(intent!=null && intent.getExtras()!=null){
+            long amount = intent.getLongExtra("queued_bamount", 0);
+            String strNote = intent.getStringExtra("queued_strNote");
+            String direction = intent.getStringExtra("queued_direction");
+            long time = intent.getLongExtra("queued_time", System.currentTimeMillis() / 1000);
+
+            Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer,String>());
+            txs.add(0,tx);
+        }else{
+            if(txs.get(0).getHash().isEmpty())txs.remove(0);
         }
 
         if(txs != null) {
@@ -841,7 +851,7 @@ public class BalanceFragment extends Fragment {
                 }
             });
 
-        updateTx();
+        updateTx(null);
 
         // drawerTitle account now that wallet has been created
         if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
@@ -998,7 +1008,7 @@ public class BalanceFragment extends Fragment {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
 
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (event.getAction() == MotionEvent.ACTION_UP && !strTx.isEmpty()) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
                             startActivity(browserIntent);
                         }
@@ -1010,10 +1020,12 @@ public class BalanceFragment extends Fragment {
                     public boolean onTouch(View v, MotionEvent event) {
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            String tag = tvStatus.getTag().toString();
-                            String text = tvStatus.getText().toString();
-                            tvStatus.setText(tag);
-                            tvStatus.setTag(text);
+                            if(tvStatus.getTag()!=null) {
+                                String tag = tvStatus.getTag().toString();
+                                String text = tvStatus.getText().toString();
+                                tvStatus.setText(tag);
+                                tvStatus.setTag(text);
+                            }
                         }
                         return true;
                     }
@@ -1052,7 +1064,7 @@ public class BalanceFragment extends Fragment {
                     });
 
                 //Get Details
-                if(tx.getHash().equals(TxQueue.TX_QUEUED)) {
+                if(tx.getHash().isEmpty()) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

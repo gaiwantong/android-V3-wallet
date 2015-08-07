@@ -18,7 +18,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,7 +62,6 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.FeeUtil;
 import info.blockchain.wallet.send.SendFactory;
-import info.blockchain.wallet.send.TxQueue;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -114,6 +112,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     public static boolean isKeypadVisible = false;
 
     private ProgressDialog progress = null;
+
+    private static Context context = null;
 
     private class PendingSpend {
         boolean isHD;
@@ -1157,39 +1157,65 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     progress.setMessage(getString(R.string.sending));
                                     progress.show();
 
+                                    context = getActivity();
+
                                     if(unspents != null) {
 
                                         if(isHd) {
 
-                                            SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
+                                            SendFactory.getInstance(context).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
 
                                                 @Override
                                                 public void onSuccess(final String hash) {
-                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                    PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                                    PayloadFactory.getInstance(context).remoteSaveThread();
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
-                                                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(getActivity()).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
+                                                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
 
                                                     updateTx(isHd, strNote, hash, currentAcc, null);
+
+                                                    closeDialog(alertDialog);
                                                 }
 
                                                 public void onFail() {
                                                     //Initial send failed - Put send in queue for reattempt
-                                                    updateTx(isHd, strNote, TxQueue.TX_QUEUED, account, null);
+                                                    String direction = MultiAddrFactory.SENT;
+                                                    if(spDestinationSelected)direction = MultiAddrFactory.MOVED;
 
-                                                    ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                    SendFactory.getInstance(getActivity()).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, this);
+                                                    final Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putLong("queued_bamount", (bamount.longValue() + bfee.longValue()));
+                                                    bundle.putString("queued_strNote", strNote);
+                                                    bundle.putString("queued_direction", direction);
+                                                    bundle.putLong("queued_time", System.currentTimeMillis() / 1000);
+                                                    intent.putExtras(bundle);
+
+                                                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                                    SendFactory.getInstance(context).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, this);
+
+                                                    closeDialog(alertDialog);
+
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Looper.prepare();
+                                                            try{Thread.sleep(1000);}catch (Exception e){}//wait for broadcast receiver to register
+                                                            LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                                                            Looper.loop();
+                                                        }
+                                                    }).start();
+
                                                 }
 
                                             });
                                         }
                                         else if (legacyAddress != null) {
 
-                                            SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
+                                            SendFactory.getInstance(context).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, false, new OpCallback() {
 
                                                 public void onSuccess() {
                                                 }
@@ -1206,49 +1232,46 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
 
                                                     updateTx(isHd, strNote, hash, 0, legacyAddress);
+                                                    closeDialog(alertDialog);
                                                 }
 
                                                 public void onFail() {
 
                                                     //Initial send failed - Put send in queue for reattempt
-                                                    updateTx(isHd, strNote, TxQueue.TX_QUEUED, -1, legacyAddress);
+                                                    String direction = MultiAddrFactory.SENT;
+                                                    if(spDestinationSelected)direction = MultiAddrFactory.MOVED;
+
+                                                    final Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putLong("queued_bamount", (bamount.longValue() + bfee.longValue()));
+                                                    bundle.putString("queued_strNote", strNote);
+                                                    bundle.putString("queued_direction", direction);
+                                                    bundle.putLong("queued_time", System.currentTimeMillis() / 1000);
+                                                    intent.putExtras(bundle);
 
                                                     ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                     SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, this);
+
+                                                    closeDialog(alertDialog);
+
+                                                    new Thread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Looper.prepare();
+                                                            try{Thread.sleep(1000);}catch (Exception e){}//wait for broadcast receiver to register
+                                                            LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                                                            Looper.loop();
+                                                        }
+                                                    }).start();
                                                 }
 
                                             });
                                         }
-
-                                        try{Thread.sleep(1000);}catch (Exception e){}
-
-                                        if(progress != null && progress.isShowing()) {
-                                            progress.dismiss();
-                                            progress = null;
-                                        }
-
-                                        if (alertDialog != null && alertDialog.isShowing()) {
-                                            alertDialog.cancel();
-                                        }
-
-                                        Fragment fragment = new BalanceFragment();
-                                        FragmentManager fragmentManager = getFragmentManager();
-                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                                     }
                                     else{
 
-                                        if(progress != null && progress.isShowing()) {
-                                            progress.dismiss();
-                                            progress = null;
-                                        }
-
                                         ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        if (alertDialog != null && alertDialog.isShowing()) {
-                                            alertDialog.cancel();
-                                        }
-                                        Fragment fragment = new BalanceFragment();
-                                        FragmentManager fragmentManager = getFragmentManager();
-                                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                                        closeDialog(alertDialog);
                                     }
 
                                     spendInProgress = false;
@@ -1269,6 +1292,22 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
+    }
+
+    private void closeDialog(AlertDialog alertDialog){
+
+        if(progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
+        }
+
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.cancel();
+        }
+
+        Fragment fragment = new BalanceFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
     private boolean isValidSpend() {
@@ -1376,7 +1415,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     @Override
