@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -1172,18 +1173,21 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 @Override
                                                 public void onSuccess(final String hash) {
 
-                                                    MediaPlayer mp;
-                                                    mp = MediaPlayer.create(context, R.raw.alert);
-                                                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                                    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                                                    if (audioManager!=null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+                                                        MediaPlayer mp;
+                                                        mp = MediaPlayer.create(context, R.raw.alert);
+                                                        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-                                                        @Override
-                                                        public void onCompletion(MediaPlayer mp) {
-                                                            mp.reset();
-                                                            mp.release();
-                                                        }
+                                                            @Override
+                                                            public void onCompletion(MediaPlayer mp) {
+                                                                mp.reset();
+                                                                mp.release();
+                                                            }
 
-                                                    });
-                                                    mp.start();
+                                                        });
+                                                        mp.start();
+                                                    }
 
                                                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                     PayloadFactory.getInstance(context).remoteSaveThread();
