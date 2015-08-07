@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
-import info.blockchain.wallet.NotificationBroadcastReceiver;
 import piuk.blockchain.android.R;
 
 public class NotificationsFactory {
@@ -17,7 +16,6 @@ public class NotificationsFactory {
     public static NotificationManager mNotificationManager;
     private static Context context = null;
     private static NotificationsFactory instance = null;
-	private static int notificationCount = 0;
 
     private NotificationsFactory()	{
     	;
@@ -34,15 +32,8 @@ public class NotificationsFactory {
     	return instance;
     }
 
-    public void clearNotification(int id) {
-		resetNotificationCounter();
-        mNotificationManager.cancel(id);
-    }
-
     public void setNotification(String title, String marquee, String text, int drawablePostLollipop, int drawablePreLollipop, Class cls, int id) {
         mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		notificationCount ++;
 
 		int drawableCompat = drawablePreLollipop;
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -51,32 +42,19 @@ public class NotificationsFactory {
         Intent notifyIntent = new Intent(context, cls);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Notification mBuilder = new NotificationCompat.Builder(context)
-				.setSmallIcon(drawableCompat)
-				.setColor(context.getResources().getColor(R.color.blockchain_blue))
-				.setContentTitle(title)
-				.setContentIntent(intent)
-				.setWhen(System.currentTimeMillis())
-				.setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.alert))
-				.setNumber(notificationCount)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(drawableCompat)
+                .setColor(context.getResources().getColor(R.color.blockchain_blue))
+                .setContentTitle(title)
+                .setContentIntent(intent)
+                .setWhen(System.currentTimeMillis())
+                .setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.alert))
 				.setTicker(marquee)
 				.setAutoCancel(true)
-				.setOnlyAlertOnce(true)
-				.setDefaults(Notification.DEFAULT_ALL)
-                .setDeleteIntent(getDeleteIntent())
-				.setContentText(text).build();
+                .setOnlyAlertOnce(true)
+                .setDefaults(Notification.DEFAULT_LIGHTS)
+				.setContentText(text);
 
-		mNotificationManager.notify(id, mBuilder);
+		mNotificationManager.notify(id, mBuilder.build());
 	}
-
-	public void resetNotificationCounter(){
-		notificationCount = 0;
-	}
-
-    protected PendingIntent getDeleteIntent()
-    {
-        Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
-        intent.setAction("notification_cancelled");
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-    }
 }

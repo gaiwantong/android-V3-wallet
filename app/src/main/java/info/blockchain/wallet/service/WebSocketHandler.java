@@ -225,7 +225,7 @@ public class WebSocketHandler {
 							
 		                    String title = context.getString(R.string.app_name);
 		                    if(total_value > 0L)  {
-			                    String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + "BTC";
+			                    String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + " BTC";
 			                    String text = marquee;
 			                    if(total_value > 0)  {
 			                    	text += " from " + in_addr;

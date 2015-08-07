@@ -128,8 +128,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         AppUtil.getInstance(MainActivity.this).setDEBUG(true);
 
-        NotificationsFactory.getInstance(this).resetNotificationCounter();
-
         if(!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 

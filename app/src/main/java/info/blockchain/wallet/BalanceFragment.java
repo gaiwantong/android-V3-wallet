@@ -153,7 +153,6 @@ public class BalanceFragment extends Fragment {
                         accountsAdapter.notifyDataSetChanged();
                         updateTx(intent);
                         txAdapter.notifyDataSetChanged();
-                        NotificationsFactory.getInstance(getActivity()).resetNotificationCounter();
                     }
                 });
             }
