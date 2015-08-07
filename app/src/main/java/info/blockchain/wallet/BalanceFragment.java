@@ -1164,7 +1164,7 @@ public class BalanceFragment extends Fragment {
                                 tvStatus.setVisibility(View.VISIBLE);
                                 ivStatus.setVisibility(View.VISIBLE);
 
-                                if (toddressValuePair.size() >= 2)//details view needs to be scrollable now
+                                if (fromAddressValuePair.size() >= 2 || toddressValuePair.size() >= 2)//details view needs to be scrollable now
                                     if (!getResources().getBoolean(R.bool.isDualPane))
                                         txsDetails.setOnTouchListener(new OnTouchListener() {
                                             @Override
