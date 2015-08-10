@@ -369,7 +369,6 @@ public class SendFactory	{
             MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
             outPoint.setConfirmations(confirmations);
             // return single output >= totalValue, otherwise save for randomization
-            BigInteger totalAmountPlusDust = totalAmount.add(bDust);
             if(outPoint.getValue().compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(1, 1))) == 0) {
                 outputs.clear();
                 outputs.add(outPoint);
