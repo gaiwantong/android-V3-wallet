@@ -23,8 +23,8 @@ public class Options {
         this.iterations = iterations;
     }
 
-    public void setFeePerKB(int policy) {
-        this.fee_per_kb = policy;
+    public void setFeePerKB(int fee_per_kb) {
+        this.fee_per_kb = fee_per_kb;
     }
 
     public void setLogoutTime(long logout_time) {
