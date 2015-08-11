@@ -288,9 +288,9 @@ public class Payload {
                     int val = (Integer)optionsObj.get("pbkdf2_iterations");
                     options.setIterations(val);
                 }
-                if(optionsObj.has("fee_policy"))  {
-                    int val = (Integer)optionsObj.get("fee_policy");
-                    options.setFeePolicy(val);
+                if(optionsObj.has("fee_per_kb"))  {
+                    int val = (Integer)optionsObj.get("fee_per_kb");
+                    options.setFeePerKB(val);
                 }
                 if(optionsObj.has("additional_seeds"))  {
                     JSONArray seeds = (JSONArray)optionsObj.get("additional_seeds");
