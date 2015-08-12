@@ -12,7 +12,7 @@ import org.json.JSONException;
 public class Options {
 
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
-    private int fee_policy = 0;
+    private long fee_per_kb = 10000L;
     private long logout_time = 600000L;
     private List<String> additionalSeeds = null;
     private boolean enable_multiple_accounts = true;
@@ -23,8 +23,8 @@ public class Options {
         this.iterations = iterations;
     }
 
-    public void setFeePolicy(int policy) {
-        this.fee_policy = policy;
+    public void setFeePerKB(long fee_per_kb) {
+        this.fee_per_kb = fee_per_kb;
     }
 
     public void setLogoutTime(long logout_time) {
@@ -39,8 +39,8 @@ public class Options {
         return iterations;
     }
 
-    public int getFee_policy() {
-        return fee_policy;
+    public long getFeePerKB() {
+        return fee_per_kb;
     }
 
     public long getLogoutTime() {
@@ -64,7 +64,7 @@ public class Options {
         JSONObject obj = new JSONObject();
 
         obj.put("pbkdf2_iterations", iterations);
-        obj.put("fee_policy", fee_policy);
+        obj.put("fee_per_kb", fee_per_kb);
         obj.put("logout_time", logout_time);
         obj.put("enable_multiple_accounts", enable_multiple_accounts);
 

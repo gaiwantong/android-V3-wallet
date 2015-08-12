@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import com.google.bitcoin.core.Transaction;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
 import info.blockchain.wallet.util.WebUtil;
@@ -271,6 +273,38 @@ public class FeeUtil {
 
     private BigInteger stressFee()   {
         return bAvgFee;
+    }
+
+    //
+    // total mempool size as reported by TradeBlock.com
+    //
+    private long tbTotalSize(String data)   {
+
+        long ret = -1L;
+
+        JSONObject jsonObject  = null;
+
+        try {
+            jsonObject = new JSONObject(data);
+
+            if(jsonObject.has("mempool"))    {
+                JSONObject mpObj = jsonObject.getJSONObject("mempool");
+                if(mpObj.has("size_tx"))    {
+                    JSONObject szObj = mpObj.getJSONObject("size_tx");
+                    if(szObj.has("before_last_block") && szObj.has("since_last_block"))    {
+                        ret = szObj.getLong("before_last_block") + szObj.getLong("since_last_block");
+                    }
+
+                }
+
+            }
+
+        }
+        catch(JSONException je) {
+            je.printStackTrace();
+        }
+
+        return ret;
     }
 
 }
