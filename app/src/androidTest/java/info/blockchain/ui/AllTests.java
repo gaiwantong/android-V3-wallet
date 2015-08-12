@@ -21,9 +21,7 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
         //Pair valid funded wallet for testing - Tester must manually confirm email when received
         t.addTestSuite(ClearWalletData.class);
         t.addTestSuite(PairValidWallet.class);
-
-        //Test separately
-//        t.addTestSuite(BalanceScreenTest.class);
+        t.addTestSuite(BalanceScreenTest.class);
 
         return t;
     }

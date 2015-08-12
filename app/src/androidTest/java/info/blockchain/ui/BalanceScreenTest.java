@@ -33,15 +33,18 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
     public void setUp() throws Exception {
 
         solo = new Solo(getInstrumentation(), getActivity());
+        enterPin();
     }
 
     @Override
     public void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+        //Press back button twice to exit app
+        solo.goBack();
+        solo.goBack();
     }
 
     //Enter pin might only be needed if running BalanceScreenTest individually
-    public void testAAA_enterPin() throws AssertionError {
+    public void enterPin() throws AssertionError {
 
         String pin = solo.getString(R.string.qa_test_pin1);
 

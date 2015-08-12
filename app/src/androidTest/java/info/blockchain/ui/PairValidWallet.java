@@ -29,7 +29,9 @@ public class PairValidWallet extends ActivityInstrumentationTestCase2<MainActivi
 
     @Override
     public void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+        //Press back button twice to exit app
+        solo.goBack();
+        solo.goBack();
     }
 
     public void testPairValidWallet()  throws AssertionError{
