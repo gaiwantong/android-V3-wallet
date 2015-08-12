@@ -12,7 +12,7 @@ import org.json.JSONException;
 public class Options {
 
     private int iterations = AESUtil.PasswordPBKDF2Iterations;
-    private int fee_per_kb = 0;
+    private long fee_per_kb = 10000L;
     private long logout_time = 600000L;
     private List<String> additionalSeeds = null;
     private boolean enable_multiple_accounts = true;
@@ -23,7 +23,7 @@ public class Options {
         this.iterations = iterations;
     }
 
-    public void setFeePerKB(int fee_per_kb) {
+    public void setFeePerKB(long fee_per_kb) {
         this.fee_per_kb = fee_per_kb;
     }
 
@@ -39,7 +39,7 @@ public class Options {
         return iterations;
     }
 
-    public int getFee_policy() {
+    public long getFeePerKB() {
         return fee_per_kb;
     }
 

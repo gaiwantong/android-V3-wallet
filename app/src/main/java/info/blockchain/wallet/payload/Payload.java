@@ -289,7 +289,7 @@ public class Payload {
                     options.setIterations(val);
                 }
                 if(optionsObj.has("fee_per_kb"))  {
-                    int val = (Integer)optionsObj.get("fee_per_kb");
+                    long val = optionsObj.getLong("fee_per_kb");
                     options.setFeePerKB(val);
                 }
                 if(optionsObj.has("additional_seeds"))  {

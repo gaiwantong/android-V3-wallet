@@ -684,7 +684,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         pendingSpend.amount = null;
         pendingSpend.destination = null;
         pendingSpend.bamount = BigInteger.ZERO;
-        pendingSpend.bfee = SendFactory.bFee;
+        pendingSpend.bfee = BigInteger.valueOf(PayloadFactory.getInstance().get().getOptions().getFeePerKB());
         pendingSpend.isHD = true;
         pendingSpend.btc_units = strBTC;
 
