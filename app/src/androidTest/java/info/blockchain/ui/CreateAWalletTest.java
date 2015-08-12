@@ -32,11 +32,12 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
 
         //Navigate to create wallet
         solo.clickOnView(solo.getView(R.id.create));
+        try{solo.sleep(1000);}catch (Exception e){}
 
         //Set up views
-        emailAddressView = (EditText)solo.getView(R.id.email_address);
-        walletPasswordView = (EditText)solo.getView(R.id.wallet_pass);
-        walletPasswordConfirmView = (EditText)solo.getView(R.id.wallet_pass_confrirm);
+        emailAddressView = (EditText)solo.getCurrentActivity().findViewById(R.id.email_address);
+        walletPasswordView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass);
+        walletPasswordConfirmView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         solo.finishOpenedActivities();
     }
 
-    public void testInvalidEmail()  throws AssertionError{
+    public void testA_InvalidEmail()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -65,7 +66,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_email)));
     }
 
-    public void testMismatchedPassword()  throws AssertionError{
+    public void testB_MismatchedPassword()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -87,7 +88,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.password_mismatch_error)));
     }
 
-    public void testPasswordStrengthIndicator()  throws AssertionError{
+    public void testC_PasswordStrengthIndicator()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -110,7 +111,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
                 case 0: pw = "weakweak";break;
                 case 1: pw = "RegularR";break;
                 case 2: pw = "Str0ngPass80";break;
-                case 3: pw = "!Very>Str0ng?Pass80*%";break;
+                case 3: pw = "!vErY##stR0ng?PassW32*%";break;
             }
             solo.enterText(walletPasswordView, pw);
 
@@ -119,21 +120,15 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         }
     }
 
-    public void testTermsOfServiceLink()  throws AssertionError{
-
-        //First hide keyboard
-        solo.pressSoftKeyboardNextButton();//skip email
-        solo.pressSoftKeyboardNextButton();//skip pw1
-        solo.pressSoftKeyboardNextButton();//skip pw2
+    public void testD_TermsOfServiceLink()  throws AssertionError{
 
         solo.clickOnView(solo.getView(R.id.tos));
 
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PolicyActivity.class));
-
     }
 
-    public void testDefineNewPasswordModal()  throws AssertionError{
+    public void testE_DefineNewPasswordModal()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -172,7 +167,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
     }
 
-    public void testCreateValidWallet()  throws AssertionError{
+    public void testF_CreateValidWallet()  throws AssertionError{
 
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -181,7 +176,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
 
         //Enter details
         String email = "qatest@qatest.com";
-        String pw = "!Very>Str0ng?Pass80*%";
+        String pw = "!vErY##stR0ng?PassW32*%";
         solo.enterText(emailAddressView, email);
         solo.enterText(walletPasswordView, pw);
         solo.enterText(walletPasswordConfirmView, pw);
