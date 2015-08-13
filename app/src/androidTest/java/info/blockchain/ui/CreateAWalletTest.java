@@ -3,18 +3,23 @@ package info.blockchain.ui;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 
+import com.google.bitcoin.crypto.MnemonicException;
 import com.robotium.solo.Solo;
 
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-import info.blockchain.wallet.LandingActivity;
+import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.PolicyActivity;
+import info.blockchain.wallet.hd.HD_WalletFactory;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
-public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingActivity> {
+public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo = null;
 
@@ -23,12 +28,22 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
     private EditText walletPasswordConfirmView;
 
     public CreateAWalletTest() {
-        super(LandingActivity.class);
+        super(MainActivity.class);
     }
 
     @Override
     public void setUp() throws Exception {
         solo = new Solo(getInstrumentation(), getActivity());
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        //Press back button twice to exit app
+        solo.goBack();
+        solo.goBack();
+    }
+
+    private void navigateToCreate(){
 
         //Navigate to create wallet
         solo.clickOnView(solo.getView(R.id.create));
@@ -40,13 +55,8 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
         walletPasswordConfirmView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        solo.finishOpenedActivities();
-    }
-
     public void testA_InvalidEmail()  throws AssertionError{
-
+        navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
         solo.clearEditText(walletPasswordView);
@@ -67,7 +77,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
     }
 
     public void testB_MismatchedPassword()  throws AssertionError{
-
+        navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
         solo.clearEditText(walletPasswordView);
@@ -89,7 +99,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
     }
 
     public void testC_PasswordStrengthIndicator()  throws AssertionError{
-
+        navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
         solo.clearEditText(walletPasswordView);
@@ -121,15 +131,19 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
     }
 
     public void testD_TermsOfServiceLink()  throws AssertionError{
-
+        navigateToCreate();
         solo.clickOnView(solo.getView(R.id.tos));
 
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PolicyActivity.class));
+
+        solo.goBack();
+        solo.goBack();
+        solo.goBack();
     }
 
     public void testE_DefineNewPasswordModal()  throws AssertionError{
-
+        navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
         solo.clearEditText(walletPasswordView);
@@ -165,10 +179,16 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
 
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
+
+        try{solo.sleep(2000);}catch (Exception e){}
+        HD_WalletFactory.getInstance(getActivity()).set(null);
+        PayloadFactory.getInstance().wipe();
+        PrefsUtil.getInstance(getActivity()).clear();
     }
 
     public void testF_CreateValidWallet()  throws AssertionError{
 
+        navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
         solo.clearEditText(walletPasswordView);
@@ -186,5 +206,52 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<LandingA
 
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
+
+        try{solo.sleep(3000);}catch (Exception e){}
+        enterPin();//create
+        try{solo.sleep(1000);}catch (Exception e){}
+        enterPin();//confirm
+        try{solo.sleep(4000);}catch (Exception e){}
+    }
+
+    public void enterPin() throws AssertionError{
+
+        String pin = solo.getString(R.string.qa_test_pin1);
+
+        ArrayList<Integer> pinSequence = new ArrayList<>();
+        pinSequence.add(Integer.parseInt(pin.substring(0, 1)));
+        pinSequence.add(Integer.parseInt(pin.substring(1, 2)));
+        pinSequence.add(Integer.parseInt(pin.substring(2, 3)));
+        pinSequence.add(Integer.parseInt(pin.substring(3, 4)));
+
+        for(int i : pinSequence){
+
+            switch (i){
+                case 0:solo.clickOnView(solo.getView(R.id.button0));break;
+                case 1:solo.clickOnView(solo.getView(R.id.button1));break;
+                case 2:solo.clickOnView(solo.getView(R.id.button2));break;
+                case 3:solo.clickOnView(solo.getView(R.id.button3));break;
+                case 4:solo.clickOnView(solo.getView(R.id.button4));break;
+                case 5:solo.clickOnView(solo.getView(R.id.button5));break;
+                case 6:solo.clickOnView(solo.getView(R.id.button6));break;
+                case 7:solo.clickOnView(solo.getView(R.id.button7));break;
+                case 8:solo.clickOnView(solo.getView(R.id.button8));break;
+                case 9:solo.clickOnView(solo.getView(R.id.button9));break;
+            }
+            try{solo.sleep(500);}catch (Exception e){}
+        }
+    }
+
+    public void testG_ConfirmationCodeForgetWallet() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
+
+        try{solo.sleep(1000);}catch (Exception e){}
+        enterPin();
+
+        solo.clickOnText(getActivity().getString(R.string.wipe_wallet));
+        try{solo.sleep(1000);}catch (Exception e){}
+
+        //Test wiped
+        TestCase.assertTrue(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_GUID, "").isEmpty());
+        TestCase.assertTrue(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").isEmpty());
     }
 }

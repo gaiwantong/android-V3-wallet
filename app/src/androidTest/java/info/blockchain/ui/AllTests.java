@@ -15,8 +15,16 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
     public static TestSuite suite() {
 
         TestSuite t = new TestSuite();
+
+        //Test creating a wallet
         t.addTestSuite(ClearWalletData.class);
         t.addTestSuite(CreateAWalletTest.class);
+
+        //Test email confirmation
+        t.addTestSuite(ClearWalletData.class);
+        t.addTestSuite(ConfirmationCodeTest.class);
+
+        //After ConfirmationCodeTest we now have empty wallet to test with
 
         //Pair valid funded wallet for testing - Tester must manually confirm email when received
         t.addTestSuite(ClearWalletData.class);

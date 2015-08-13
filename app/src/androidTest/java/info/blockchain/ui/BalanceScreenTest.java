@@ -70,7 +70,7 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
             }
             try{solo.sleep(500);}catch (Exception e){}
         }
-        solo.waitForView(solo.getView(R.id.balance1));
+        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     public void testA_ChangeCurrencyTapBalance() throws AssertionError{
