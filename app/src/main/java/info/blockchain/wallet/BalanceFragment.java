@@ -496,7 +496,7 @@ public class BalanceFragment extends Fragment {
 
             Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer,String>());
             txs.add(0,tx);
-        }else{
+        }else if(txs!=null && txs.size()>0){
             if(txs.get(0).getHash().isEmpty())txs.remove(0);
         }
 
