@@ -458,7 +458,7 @@ public class MultiAddrFactory	{
                             containedLegacyTx.add(tx);
                             address_legacy_txs.put(addr, containedLegacyTx);
                         }else{
-                            containedLegacyTx = new ArrayList<>();
+                            containedLegacyTx = new ArrayList<Tx>();
                             containedLegacyTx.add(tx);
                             address_legacy_txs.put(addr, containedLegacyTx);
                         }
