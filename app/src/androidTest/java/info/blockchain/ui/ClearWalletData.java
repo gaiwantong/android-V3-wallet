@@ -4,10 +4,8 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.robotium.solo.Solo;
 
+import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.hd.HD_WalletFactory;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.PrefsUtil;
 
 public class ClearWalletData extends ActivityInstrumentationTestCase2<MainActivity> {
 
@@ -28,8 +26,6 @@ public class ClearWalletData extends ActivityInstrumentationTestCase2<MainActivi
     }
 
     public void testClear() throws AssertionError{
-        HD_WalletFactory.getInstance(solo.getCurrentActivity()).set(null);
-        PayloadFactory.getInstance().wipe();
-        PrefsUtil.getInstance(solo.getCurrentActivity()).clear();
+        UiUtil.getInstance(solo.getCurrentActivity()).wipeWallet();
     }
 }

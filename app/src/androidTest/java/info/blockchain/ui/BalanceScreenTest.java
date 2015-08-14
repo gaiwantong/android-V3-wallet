@@ -11,8 +11,8 @@ import com.robotium.solo.Solo;
 import junit.framework.TestCase;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
+import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -33,7 +33,8 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
     public void setUp() throws Exception {
 
         solo = new Solo(getInstrumentation(), getActivity());
-        enterPin();
+        UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin1));
+        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     @Override
@@ -41,36 +42,6 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         //Press back button twice to exit app
         solo.goBack();
         solo.goBack();
-    }
-
-    //Enter pin might only be needed if running BalanceScreenTest individually
-    public void enterPin() throws AssertionError {
-
-        String pin = solo.getString(R.string.qa_test_pin1);
-
-        ArrayList<Integer> pinSequence = new ArrayList<>();
-        pinSequence.add(Integer.parseInt(pin.substring(0, 1)));
-        pinSequence.add(Integer.parseInt(pin.substring(1, 2)));
-        pinSequence.add(Integer.parseInt(pin.substring(2, 3)));
-        pinSequence.add(Integer.parseInt(pin.substring(3, 4)));
-
-        for(int i : pinSequence){
-
-            switch (i){
-                case 0:solo.clickOnView(solo.getView(R.id.button0));break;
-                case 1:solo.clickOnView(solo.getView(R.id.button1));break;
-                case 2:solo.clickOnView(solo.getView(R.id.button2));break;
-                case 3:solo.clickOnView(solo.getView(R.id.button3));break;
-                case 4:solo.clickOnView(solo.getView(R.id.button4));break;
-                case 5:solo.clickOnView(solo.getView(R.id.button5));break;
-                case 6:solo.clickOnView(solo.getView(R.id.button6));break;
-                case 7:solo.clickOnView(solo.getView(R.id.button7));break;
-                case 8:solo.clickOnView(solo.getView(R.id.button8));break;
-                case 9:solo.clickOnView(solo.getView(R.id.button9));break;
-            }
-            try{solo.sleep(500);}catch (Exception e){}
-        }
-        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     public void testA_ChangeCurrencyTapBalance() throws AssertionError{
