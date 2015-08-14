@@ -89,7 +89,7 @@ public class AccountsUtil {
                 Account all = new Account();
                 all.setLabel(context.getResources().getString(R.string.all_accounts));
                 balanceAccountMap.put(-1, all);
-            }else{
+            }else if(legacyAddresses.size() > 1){
                 ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
                 accounts.add(iAccount);
             }
@@ -179,7 +179,12 @@ public class AccountsUtil {
 			for(int j = 0; j < legacyAddresses.size(); j++) {
 				sendReceiveAccountList.add((legacyAddresses.get(j).getLabel() == null || legacyAddresses.get(j).getLabel().length() == 0) ? legacyAddresses.get(j).getAddress() : legacyAddresses.get(j).getLabel());
 			}
-		}
+		}else if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0){
+            sendReceiveAccountList.add((PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel() == null)
+                    || (PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel().length() == 0)
+                    ? PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getAddress()
+                    : PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel());
+        }
 	}
 
 	public LinkedHashMap<Integer, Account> getBalanceAccountMap(){
