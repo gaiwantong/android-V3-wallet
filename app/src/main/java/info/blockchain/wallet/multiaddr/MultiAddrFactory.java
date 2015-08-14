@@ -50,7 +50,7 @@ public class MultiAddrFactory	{
             legacy_amounts = new HashMap<String, Long>();
             xpub_txs = new HashMap<String,List<Tx>>();
             legacy_txs = new ArrayList<Tx>();
-            address_legacy_txs = new HashMap<>();
+            address_legacy_txs = new HashMap<String,List<Tx>>();
             haveUnspentOuts = new HashMap<String,List<String>>();
             highestTxReceiveIdx = new HashMap<String,Integer>();
             highestTxChangeIdx = new HashMap<String,Integer>();
@@ -458,7 +458,7 @@ public class MultiAddrFactory	{
                             containedLegacyTx.add(tx);
                             address_legacy_txs.put(addr, containedLegacyTx);
                         }else{
-                            containedLegacyTx = new ArrayList<>();
+                            containedLegacyTx = new ArrayList<Tx>();
                             containedLegacyTx.add(tx);
                             address_legacy_txs.put(addr, containedLegacyTx);
                         }
