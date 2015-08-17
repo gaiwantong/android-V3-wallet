@@ -627,69 +627,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-/*
-    private void validateSSLThread() {
 
-        final Handler handler = new Handler();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                if(ConnectivityStatus.hasConnectivity(MainActivity.this)) {
-
-                    if(!SSLVerifierUtil.getInstance().isValidHostname()) {
-
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-
-                        final String message = getString(R.string.ssl_hostname_invalid);
-
-                        builder.setMessage(message)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.dialog_continue,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface d, int id) {
-                                                d.dismiss();
-                                            }
-                                        });
-
-                        builder.create().show();
-
-                    }
-
-                    if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-
-                        final String message = getString(R.string.ssl_pinning_invalid);
-
-                        builder.setMessage(message)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.dialog_continue,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface d, int id) {
-                                                d.dismiss();
-                                            }
-                                        });
-
-                        builder.create().show();
-                    }
-
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ;
-                    }
-                });
-
-                Looper.loop();
-
-            }
-        }).start();
-    }
-*/
     private void doSettings()	{
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
