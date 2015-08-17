@@ -103,21 +103,31 @@ public class SSLVerifierUtil {
             byte[] secret = null;
 
             tm = new TrustManager[]{ new PubKeyManager() };
-            assert (null != tm);
+            if(tm == null)    {
+                return false;
+            }
 
             SSLContext context = SSLContext.getInstance("TLS");
-            assert (null != context);
+            if(context == null)    {
+                return false;
+            }
             context.init(null, tm, null);
 
             URL url = new URL(WebUtil.VALIDATE_SSL_URL);
-            assert (null != url);
+            if(url == null)    {
+                return false;
+            }
 
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            assert (null != connection);
+            if(connection == null)    {
+                return false;
+            }
 
             connection.setSSLSocketFactory(context.getSocketFactory());
             InputStreamReader instream = new InputStreamReader(connection.getInputStream());
-            assert (null != instream);
+            if(instream == null)    {
+                return false;
+            }
 
             responseCode = connection.getResponseCode();
 
@@ -125,8 +135,14 @@ public class SSLVerifierUtil {
             ex.printStackTrace();
         }
 
-        if(responseCode != 200) {
-            return true;
+        if(responseCode >= 300 && responseCode < 400) {
+            return false;
+        }
+        else if(responseCode >= 400 && responseCode < 500) {
+            return false;
+        }
+        else if(responseCode >= 500) {
+            return false;
         }
         else {
             return ((PubKeyManager)(tm[0])).isPinned();
