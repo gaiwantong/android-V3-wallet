@@ -1,6 +1,10 @@
 package info.blockchain.wallet.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -28,6 +32,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import piuk.blockchain.android.R;
+
 // openssl s_client -showcerts -connect blockchain.info:443
 
 public class SSLVerifierUtil {
@@ -41,6 +47,17 @@ public class SSLVerifierUtil {
     private SSLVerifierUtil() { ; }
 
     public static SSLVerifierUtil getInstance() {
+
+        if(instance == null) {
+            instance = new SSLVerifierUtil();
+        }
+
+        return instance;
+    }
+
+    public static SSLVerifierUtil getInstance(Context ctx) {
+
+        context = ctx;
 
         if(instance == null) {
             instance = new SSLVerifierUtil();
@@ -177,6 +194,68 @@ public class SSLVerifierUtil {
             return pinned;
         }
 
+    }
+
+    public void validateSSLThread() {
+
+        final Handler handler = new Handler();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                if(ConnectivityStatus.hasConnectivity(context)) {
+
+                    if(!SSLVerifierUtil.getInstance().isValidHostname()) {
+
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                        final String message = context.getString(R.string.ssl_hostname_invalid);
+
+                        builder.setMessage(message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.dialog_continue,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface d, int id) {
+                                                d.dismiss();
+                                            }
+                                        });
+
+                        builder.create().show();
+
+                    }
+
+                    if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                        final String message = context.getString(R.string.ssl_pinning_invalid);
+
+                        builder.setMessage(message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.dialog_continue,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface d, int id) {
+                                                d.dismiss();
+                                            }
+                                        });
+
+                        builder.create().show();
+                    }
+
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ;
+                    }
+                });
+
+                Looper.loop();
+
+            }
+        }).start();
     }
 
 }

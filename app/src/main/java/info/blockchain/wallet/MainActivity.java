@@ -156,7 +156,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
-            validateSSLThread();
+            SSLVerifierUtil.getInstance(MainActivity.this).validateSSLThread();
 
             exchangeRateThread();
 
@@ -626,7 +626,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-
+/*
     private void validateSSLThread() {
 
         final Handler handler = new Handler();
@@ -688,7 +688,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             }
         }).start();
     }
-
+*/
     private void doSettings()	{
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
