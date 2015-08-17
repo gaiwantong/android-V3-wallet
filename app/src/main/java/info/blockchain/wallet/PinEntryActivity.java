@@ -207,9 +207,7 @@ public class PinEntryActivity extends Activity {
                 URL url = null;
                 try {
 
-                    String domain = "alpha";
-                    if(AppUtil.getInstance(PinEntryActivity.this).isDEBUG())
-                        domain = "dev";
+                    String domain = AppUtil.getInstance(PinEntryActivity.this).getSubDomain();
 
                     url = new URL("https://"+domain+".blockchain.info/whitelist_guid/");
                     JSONObject json = new JSONObject();
