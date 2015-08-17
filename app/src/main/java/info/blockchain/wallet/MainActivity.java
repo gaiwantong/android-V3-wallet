@@ -156,6 +156,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
+            validateSSLThread();
+
             exchangeRateThread();
 
             boolean isPinValidated = false;
@@ -308,11 +310,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
             AppUtil.getInstance(this).setIsBackgrounded(false);
-
-            SecureRandom random = new SecureRandom();
-            if(random.nextInt(5) == 0) {
-                validateSSLThread();
-            }
         }
 
         if(Build.VERSION.SDK_INT >= 16){
