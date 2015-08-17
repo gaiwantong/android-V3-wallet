@@ -202,6 +202,8 @@ public class BalanceFragment extends Fragment {
 
         setupViews(rootView);
 
+        SSLVerifierUtil.getInstance(getActivity()).validateSSLThread();
+
         return rootView;
     }
 
