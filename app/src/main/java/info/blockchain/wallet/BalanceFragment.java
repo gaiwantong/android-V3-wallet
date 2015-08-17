@@ -76,6 +76,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
@@ -897,6 +898,9 @@ public class BalanceFragment extends Fragment {
         bottomSel1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                SSLVerifierUtil.getInstance(getActivity()).validateSSLThread();
+
                 Fragment fragment = new SendFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
