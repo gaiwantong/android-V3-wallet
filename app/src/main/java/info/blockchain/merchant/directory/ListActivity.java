@@ -24,6 +24,7 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
@@ -229,6 +230,16 @@ public class ListActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
+
+        if(AppUtil.getInstance(ListActivity.this).isTimedOut()) {
+            Intent i = new Intent(ListActivity.this, info.blockchain.wallet.PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+        else {
+            AppUtil.getInstance(this).setIsBackgrounded(false);
+        }
+
     }
 
     @Override

@@ -118,48 +118,7 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
-/*
-        Preference mnemonicPref = (Preference) findPreference("mnemonic");
-        mnemonicPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
 
-                // Wallet is not double encrypted
-                if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                    displayHDSeedAsMnemonic(true);
-                }
-                // User has already entered double-encryption password
-                else if (DoubleEncryptionFactory.getInstance().isActivated()) {
-                    displayMnemonicForDoubleEncryptedWallet();
-                }
-                // Solicit & set double-encryption password, then display
-                else {
-                    final EditText double_encrypt_password = new EditText(SettingsActivity.this);
-                    double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                    new AlertDialog.Builder(SettingsActivity.this)
-                            .setTitle(R.string.app_name)
-                            .setMessage(R.string.enter_double_encryption_pw)
-                            .setView(double_encrypt_password)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(double_encrypt_password.getText().toString()));
-                                    displayMnemonicForDoubleEncryptedWallet();
-                                }
-                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            ;
-                        }
-                    }).show();
-                }
-
-                return true;
-            }
-        });
-        if(!PayloadFactory.getInstance().get().isUpgraded())    {
-            getPreferenceScreen().removePreference(mnemonicPref);
-        }
-*/
         Preference aboutPref = (Preference) findPreference("about");
         aboutPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
@@ -353,6 +312,15 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        if(AppUtil.getInstance(SettingsActivity.this).isTimedOut()) {
+            Intent i = new Intent(SettingsActivity.this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+        else {
+            AppUtil.getInstance(this).setIsBackgrounded(false);
+        }
 
         PreferenceScreen scr = getPreferenceScreen();
         Preference verifyEmail = (Preference) findPreference("verify_email");
