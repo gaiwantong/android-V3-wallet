@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,8 +37,6 @@ import java.util.Locale;
 
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
 
 public class SuggestMerchant extends ActionBarActivity {
@@ -56,7 +53,7 @@ public class SuggestMerchant extends ActionBarActivity {
 	private GoogleMap map = null;
 
 	TextView commandSave;
-	DecimalFormat df = new DecimalFormat("#0.000000");
+	DecimalFormat df = new DecimalFormat("#0.00");
 
 	private EditText edName = null;
 	private EditText edDescription = null;
@@ -166,36 +163,37 @@ public class SuggestMerchant extends ActionBarActivity {
                     args.append("&CATEGORY="+Integer.toString(spCategory.getSelectedItemPosition()));
                     args.append("&SOURCE=Android");
 
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-
-							Looper.prepare();
-
-							String res = null;
-							try {
-                                res = WebUtil.getInstance().postURL("https://merchant-directory.blockchain.info/cgi-bin/btcp.pl", args.toString());
-							}
-							catch(Exception e) {
-                                ToastCustom.makeText(SuggestMerchant.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-							}
-
-							if(res!=null && res.contains("\"result\":1")) {
-                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.ok_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-								setResult(RESULT_OK);
-								finish();
-							}
-							else {
-                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.error_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-							}
-
-							Looper.loop();
-
-						}
-
-					}).start();
-
-					finish();
+                    Log.v("","vos "+args.toString());
+//					new Thread(new Runnable() {
+//						@Override
+//						public void run() {
+//
+//							Looper.prepare();
+//
+//							String res = null;
+//							try {
+//                                res = WebUtil.getInstance().postURL("https://merchant-directory.blockchain.info/cgi-bin/btcp.pl", args.toString());
+//							}
+//							catch(Exception e) {
+//                                ToastCustom.makeText(SuggestMerchant.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+//							}
+//
+//							if(res!=null && res.contains("\"result\":1")) {
+//                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.ok_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+//								setResult(RESULT_OK);
+//								finish();
+//							}
+//							else {
+//                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.error_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+//							}
+//
+//							Looper.loop();
+//
+//						}
+//
+//					}).start();
+//
+//					finish();
 				}else{
 					confirmLayout.setVisibility(View.VISIBLE);
 					commandSave.setVisibility(View.VISIBLE);
