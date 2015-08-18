@@ -34,7 +34,6 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
 
         solo = new Solo(getInstrumentation(), getActivity());
         UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     @Override
@@ -80,13 +79,17 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         double fiat_balance = btc_fx * Double.parseDouble(btc.split(" ")[0]);
 
         txList = (RecyclerView)solo.getView(R.id.txList2);
-        solo.clickOnView(txList.getChildAt(0).findViewById(R.id.result));
 
-        DecimalFormat df = new DecimalFormat("#.##");
-        String fiat = balance.getText().toString();
+        if(txList.getChildCount()>0) {
 
-        //Test if btc converts to correct fiat
-        TestCase.assertTrue(fiat.split(" ")[0].equals(df.format(fiat_balance)));
+            solo.clickOnView(txList.getChildAt(0).findViewById(R.id.result));
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            String fiat = balance.getText().toString();
+
+            //Test if btc converts to correct fiat
+            TestCase.assertTrue(fiat.split(" ")[0].equals(df.format(fiat_balance)));
+        }
     }
 
     public void testC_BasicUI() throws AssertionError{

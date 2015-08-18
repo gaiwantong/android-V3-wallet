@@ -1,15 +1,23 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.widget.EditText;
 
 import com.robotium.solo.Solo;
 
+import junit.framework.TestCase;
+
+import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.LandingActivity;
+import info.blockchain.wallet.PinEntryActivity;
 import piuk.blockchain.android.R;
 
 public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivity> {
 
     private Solo solo = null;
+
+    private EditText walletIDView;
+    private EditText walletPasswordView;
 
     public PairingTest() {
         super(LandingActivity.class);
@@ -19,8 +27,13 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
     public void setUp() throws Exception {
         solo = new Solo(getInstrumentation(), getActivity());
 
-        //Navigate to create wallet
+        //Navigate to manual pairing
         solo.clickOnView(solo.getView(R.id.login));
+        solo.clickOnView(solo.getView(R.id.command_manual));
+
+        //Set up views
+        walletIDView = (EditText) solo.getView(R.id.wallet_id);
+        walletPasswordView = (EditText) solo.getView(R.id.wallet_pass);
     }
 
     @Override
@@ -28,79 +41,98 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         solo.finishOpenedActivities();
     }
 
-//    public void testFlashLight()  throws AssertionError{
-//
-//        //Observe manually - no assertion test
-//
-//        solo.clickOnView(solo.getView(R.id.command_scan));
-//        try{solo.wait(1000);}catch (Exception e){}
-//
-//        //On
-//        solo.clickOnView(solo.getView(R.id.action_flash_light));
-//        try{solo.wait(1000);}catch (Exception e){}
-//
-//        //Off
-//        solo.clickOnView(solo.getView(R.id.action_flash_light));
-//        try{solo.wait(1000);}catch (Exception e){}
-//
-//        //On
-//        solo.clickOnView(solo.getView(R.id.action_flash_light));
-//        try{solo.wait(1000);}catch (Exception e){}
-//
-//        //Off
-//        solo.clickOnView(solo.getView(R.id.action_flash_light));
-//        try{solo.wait(1000);}catch (Exception e){}
-//    }
-//
-//    public void testBackButton()  throws AssertionError{
-//
-//        solo.goBack();
-//        TestCase.assertEquals(true, solo.waitForActivity(LandingActivity.class));
-//    }
-//
-//    public void testManuallyV2()  throws AssertionError{
-//
-//        solo.clickOnView(solo.getView(R.id.command_manual));
-//
-//        solo.enterText(solo.getEditText(R.id.wallet_id), "694af790-7af2-46cb-b748-f1078b440c59");
-//        solo.enterText(solo.getEditText(R.id.wallet_pass),"!Very>Str0ng?Pass80*%");
-//
-//        solo.clickOnView(solo.getView(R.id.command_next));
-//    }
-//
-//    public void testManuallyV3()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV2()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV2_2nd_password()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV2_2fa()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV2_2nd_password_and_2fa()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV3()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV3_2nd_password()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV3_2fa()  throws AssertionError{
-//
-//    }
-//
-//    public void testAutomaticallyV3_2nd_password_and_2fa()  throws AssertionError{
-//
-//    }
+    public void testPairingPasswordEmpty()  throws AssertionError{
+
+        //Clear text fields
+        solo.clearEditText(walletIDView);
+        solo.clearEditText(walletPasswordView);
+
+        //Enter details
+        String validUID = solo.getString(R.string.qa_test_guid_v3);
+        solo.enterText(walletIDView, validUID);
+
+        //Complete
+        solo.clickOnView(solo.getView(R.id.command_next));
+
+        //Test result
+        TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_password)));
+    }
+
+    public void testPairingUIDEmpty()  throws AssertionError{
+
+        //Clear text fields
+        solo.clearEditText(walletIDView);
+        solo.clearEditText(walletPasswordView);
+
+        //Enter details
+        String invalidpw = "asdf";
+        solo.enterText(walletPasswordView, invalidpw);
+
+        //Complete
+        solo.clickOnView(solo.getView(R.id.command_next));
+
+        //Test result
+        TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_guid)));
+    }
+
+    public void testPairingPasswordInvalid()  throws AssertionError{
+
+        //Clear text fields
+        solo.clearEditText(walletIDView);
+        solo.clearEditText(walletPasswordView);
+
+        //Enter details
+        String validUID = solo.getString(R.string.qa_test_guid_v3);
+        String invalidpw = "asdf";
+        solo.enterText(walletIDView, validUID);
+        solo.enterText(walletPasswordView, invalidpw);
+
+        //Complete
+        solo.clickOnView(solo.getView(R.id.command_next));
+
+        //Test result
+        TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.pairing_failed)));
+    }
+
+    public void testPairingV3Success()  throws AssertionError{
+
+        //Clear text fields
+        solo.clearEditText(walletIDView);
+        solo.clearEditText(walletPasswordView);
+
+        //Enter details
+        String validUID = solo.getString(R.string.qa_test_guid_v3);
+        String validpw = solo.getString(R.string.qa_test_pw_v3);
+        solo.enterText(walletIDView, validUID);
+        solo.enterText(walletPasswordView, validpw);
+
+        //Complete
+        solo.clickOnView(solo.getView(R.id.command_next));
+
+        //Test result
+        TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
+
+        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+    }
+
+    public void testPairingV2Success()  throws AssertionError{
+
+        //Clear text fields
+        solo.clearEditText(walletIDView);
+        solo.clearEditText(walletPasswordView);
+
+        //Enter details
+        String validUID = solo.getString(R.string.qa_test_guid_v2);
+        String validpw = solo.getString(R.string.qa_test_pw_v2);
+        solo.enterText(walletIDView, validUID);
+        solo.enterText(walletPasswordView, validpw);
+
+        //Complete
+        solo.clickOnView(solo.getView(R.id.command_next));
+
+        //Test result
+        TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
+    }
+
 }
