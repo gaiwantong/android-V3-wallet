@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+//import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -118,11 +118,9 @@ public class SSLVerifierUtil {
         }
 
         if(responseCode != 200) {
-            Log.i("SSLVerifierUtil:", "Not 200:" + responseCode);
             return responseCode;
         }
         else {
-            Log.i("SSLVerifierUtil:", "200:" + (((PubKeyManager)(tm[0])).isPinned() ? 200 : -1));
             return ((PubKeyManager)(tm[0])).isPinned() ? 200 : -1;
         }
 
