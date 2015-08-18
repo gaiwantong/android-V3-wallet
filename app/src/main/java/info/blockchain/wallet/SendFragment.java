@@ -531,15 +531,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         decimalCompatCheck(rootView);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                FeeUtil.getInstance().update();
-
-            }
-        }).start();
-
         return rootView;
     }
 
