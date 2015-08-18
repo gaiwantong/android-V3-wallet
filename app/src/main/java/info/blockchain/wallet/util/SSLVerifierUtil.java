@@ -46,15 +46,6 @@ public class SSLVerifierUtil {
 
     private SSLVerifierUtil() { ; }
 
-    public static SSLVerifierUtil getInstance() {
-
-        if(instance == null) {
-            instance = new SSLVerifierUtil();
-        }
-
-        return instance;
-    }
-
     public static SSLVerifierUtil getInstance(Context ctx) {
 
         context = ctx;
@@ -93,9 +84,9 @@ public class SSLVerifierUtil {
 
     }
 
-    public boolean certificateIsPinned() {
+    public int certificatePinningStatus() {
 
-        int responseCode = -1;
+        int responseCode = 0;
         TrustManager tm[] = null;
 
         try {
@@ -103,49 +94,36 @@ public class SSLVerifierUtil {
             byte[] secret = null;
 
             tm = new TrustManager[]{ new PubKeyManager() };
-            if(tm == null)    {
-                return false;
-            }
+            assert (null != tm);
 
             SSLContext context = SSLContext.getInstance("TLS");
-            if(context == null)    {
-                return false;
-            }
+            assert (null != context);
             context.init(null, tm, null);
 
             URL url = new URL(WebUtil.VALIDATE_SSL_URL);
-            if(url == null)    {
-                return false;
-            }
+            assert (null != url);
 
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            if(connection == null)    {
-                return false;
-            }
+            assert (null != connection);
 
             connection.setSSLSocketFactory(context.getSocketFactory());
             InputStreamReader instream = new InputStreamReader(connection.getInputStream());
-            if(instream == null)    {
-                return false;
-            }
+            assert (null != instream);
 
             responseCode = connection.getResponseCode();
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            responseCode = 0;
         }
 
-        if(responseCode >= 300 && responseCode < 400) {
-            return false;
-        }
-        else if(responseCode >= 400 && responseCode < 500) {
-            return false;
-        }
-        else if(responseCode >= 500) {
-            return false;
+        if(responseCode != 200) {
+            Log.i("SSLVerifierUtil:", "Not 200:" + responseCode);
+            return responseCode;
         }
         else {
-            return ((PubKeyManager)(tm[0])).isPinned();
+            Log.i("SSLVerifierUtil:", "200:" + (((PubKeyManager)(tm[0])).isPinned() ? 200 : -1));
+            return ((PubKeyManager)(tm[0])).isPinned() ? 200 : -1;
         }
 
     }
@@ -223,7 +201,7 @@ public class SSLVerifierUtil {
 
                 if(ConnectivityStatus.hasConnectivity(context)) {
 
-                    if(!SSLVerifierUtil.getInstance().isValidHostname()) {
+                    if(!SSLVerifierUtil.getInstance(context).isValidHostname()) {
 
                         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -242,7 +220,7 @@ public class SSLVerifierUtil {
 
                     }
 
-                    if(!SSLVerifierUtil.getInstance().certificateIsPinned()) {
+                    if(SSLVerifierUtil.getInstance(context).certificatePinningStatus() == -1) {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                         final String message = context.getString(R.string.ssl_pinning_invalid);
