@@ -99,6 +99,7 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
 
         //Create new PIN - mismatching
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin2));
         solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_mismatch_error));
 
