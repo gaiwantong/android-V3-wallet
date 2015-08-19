@@ -73,7 +73,6 @@ import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
@@ -435,8 +434,12 @@ public class BalanceFragment extends Fragment {
                 else
                     btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
 
-            } else
-                btc_balance = ((double) (MultiAddrFactory.getInstance().getXpubAmounts().get(account2Xpub(selectedAccount))));
+            } else {
+                HashMap<String, Long> meh = MultiAddrFactory.getInstance().getXpubAmounts();
+                String xpub = account2Xpub(selectedAccount);
+                Long bal = (meh.get(xpub) == null ? 0l : meh.get(xpub));
+                btc_balance = ((double) (bal));
+            }
         }
 
         fiat_balance = btc_fx * (btc_balance / 1e8);
@@ -799,7 +802,8 @@ public class BalanceFragment extends Fragment {
                             if (xpub != null) {
                                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                                     txs = txMap.get(xpub);
-                                }
+                                }else
+                                    txs = new ArrayList<Tx>();
                             } else {
                                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                                 if (hda instanceof ImportedAccount) {
@@ -807,7 +811,8 @@ public class BalanceFragment extends Fragment {
                                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                                     else
                                         txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
-                                }
+                                }else
+                                    txs = new ArrayList<Tx>();
                             }
 
                         }
