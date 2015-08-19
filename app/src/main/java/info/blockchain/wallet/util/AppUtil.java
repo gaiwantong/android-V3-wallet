@@ -36,8 +36,6 @@ public class AppUtil {
 
     private static boolean isClosed = false;
 
-    private static String SUB_DOMAIN = "";
-
 	private AppUtil() { ; }
 
 	public static AppUtil getInstance(Context ctx) {
@@ -86,19 +84,7 @@ public class AppUtil {
     }
 
     public void setDEBUG(boolean debug) {
-
         DEBUG = debug;
-
-        SUB_DOMAIN = DEBUG ? "alpha" : "";
-
-    }
-
-    public String getSubDomain() {
-        return SUB_DOMAIN;
-    }
-
-    public void setSubDomain(String SUB_DOMAIN) {
-        AppUtil.SUB_DOMAIN = SUB_DOMAIN;
     }
 
     public void updatePinEntryTime() {

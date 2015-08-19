@@ -174,7 +174,8 @@ public class PinEntryActivity extends Activity {
 
             PayloadFactory.getInstance(this).remoteSaveThread();
 
-            whitelistGuid();// <-- remove after beta invite system
+            whitelistGuid("alpha");// <-- remove after beta invite system
+            whitelistGuid("dev");// <-- remove after beta invite system
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
@@ -184,7 +185,7 @@ public class PinEntryActivity extends Activity {
 
     }
 
-    private void whitelistGuid() {
+    private void whitelistGuid(final String domain) {
 
         if(progress != null && progress.isShowing()) {
             progress.dismiss();
@@ -206,8 +207,6 @@ public class PinEntryActivity extends Activity {
 
                 URL url = null;
                 try {
-
-                    String domain = AppUtil.getInstance(PinEntryActivity.this).getSubDomain();
 
                     url = new URL("https://"+domain+".blockchain.info/whitelist_guid/");
                     JSONObject json = new JSONObject();
