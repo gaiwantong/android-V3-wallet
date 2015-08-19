@@ -50,7 +50,7 @@
 
     <string name="SENT">Sent</string>
     <string name="RECEIVED">Received</string>
-    <string name="MOVED">Moved</string>
+    <string name="MOVED">Transferred</string>
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
