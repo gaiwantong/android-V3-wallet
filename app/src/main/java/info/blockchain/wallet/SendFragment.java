@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,7 +63,6 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.send.FeeUtil;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -167,7 +167,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    validateSpend(true);
+                    validateSpend(true, spAccounts.getSelectedItemPosition());
                 }
 
                 return false;
@@ -178,7 +178,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                     currentSelectedToAddress = edDestination.getText().toString();
-                    validateSpend(false);
+                    validateSpend(false, spAccounts.getSelectedItemPosition());
                 }
 
             }
@@ -204,7 +204,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    validateSpend(true);
+                    validateSpend(true, spAccounts.getSelectedItemPosition());
                 }
 
                 return false;
@@ -259,7 +259,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                     if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                         currentSelectedToAddress = edDestination.getText().toString();
-                        validateSpend(false);
+                        validateSpend(false, spAccounts.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
                 }
@@ -323,7 +323,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                     if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                         currentSelectedToAddress = edDestination.getText().toString();
-                        validateSpend(false);
+                        validateSpend(false, spAccounts.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
                 }
@@ -525,7 +525,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 validate = true;
             }
             if(validate) {
-                validateSpend(true);
+                int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+                if(currentSelected!=0)currentSelected--;//exclude 'all account'
+                validateSpend(true, currentSelected);
             }
         }
 
@@ -670,7 +672,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         super.onDestroy();
     }
 
-    private void validateSpend(boolean showMessages) {
+    private void validateSpend(boolean showMessages, int position) {
 
         pendingSpend.amount = null;
         pendingSpend.destination = null;
@@ -679,7 +681,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         pendingSpend.isHD = true;
         pendingSpend.btc_units = strBTC;
 
-        int position = spAccounts.getSelectedItemPosition();
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
 
         //Legacy addresses
