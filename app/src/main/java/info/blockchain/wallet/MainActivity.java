@@ -204,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // Legacy app has not been prompted for upgrade
             //
-            else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L) {
+            else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
                 Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                 startActivity(intent);

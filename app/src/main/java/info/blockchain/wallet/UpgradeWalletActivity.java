@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -208,7 +209,7 @@ public class UpgradeWalletActivity extends Activity {
                         try {
                             AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
 
-                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis() + "");
+                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
                             AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
                             HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
@@ -216,12 +217,12 @@ public class UpgradeWalletActivity extends Activity {
                         } catch (Exception e) {
                             e.printStackTrace();
                             onUpgradeFail();
-                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0);
+                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                             Looper.loop();
                         }
 
                         onUpgradeCompleted();
-                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0);
+                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                         Looper.loop();
                     }
                 }).start();

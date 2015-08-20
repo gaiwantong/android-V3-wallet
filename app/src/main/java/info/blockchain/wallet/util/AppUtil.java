@@ -156,7 +156,7 @@ public class AppUtil {
     public boolean isTimeForUpgradeReminder() {
         long lastReminder = 0L;
         try {
-            lastReminder = Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0L"));
+            lastReminder = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
         }
         catch(NumberFormatException nfe) {
             lastReminder = 0L;
@@ -165,7 +165,7 @@ public class AppUtil {
     }
 
     public void setUpgradeReminder(long ts) {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, ts);
     }
 
     public boolean isNewlyCreated() {

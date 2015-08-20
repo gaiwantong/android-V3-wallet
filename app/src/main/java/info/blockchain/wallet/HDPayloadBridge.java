@@ -70,7 +70,7 @@ public class HDPayloadBridge	{
             return true;
         }
 
-        if(!PayloadFactory.getInstance().get().isUpgraded() && Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L)	{
+        if(!PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L)	{
             return true;
         }
 

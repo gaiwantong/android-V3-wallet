@@ -65,6 +65,17 @@ public class PrefsUtil {
 		return editor.commit();
 	}
 
+    public boolean setValue(String name, long value) {
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor.putLong(name, (value < 0L) ? 0L : value);
+        return editor.commit();
+    }
+
+    public long getValue(String name, long value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getLong(name, 0L);
+    }
+
 	public boolean getValue(String name, boolean value) {
 	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	    return prefs.getBoolean(name, value);
