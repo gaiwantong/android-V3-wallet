@@ -8,6 +8,7 @@ import android.util.Pair;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.ECKey;
+import com.google.bitcoin.core.ScriptException;
 import com.google.bitcoin.core.Sha256Hash;
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.core.Transaction.SigHash;
@@ -15,7 +16,10 @@ import com.google.bitcoin.core.TransactionInput;
 import com.google.bitcoin.core.TransactionOutput;
 import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.core.Wallet;
+import com.google.bitcoin.crypto.TransactionSignature;
 import com.google.bitcoin.params.MainNetParams;
+import com.google.bitcoin.script.Script;
+import com.google.bitcoin.script.ScriptBuilder;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -240,8 +244,7 @@ public class SendFactory	{
 
                     }
 
-                    // Now sign the inputs
-                    tx.signInputs(SigHash.ALL, wallet);
+                    signTx(tx, wallet);
                     String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
                     if(hexString.length() > (100 * 1024)) {
                         opc.onFail();
@@ -551,6 +554,68 @@ public class SendFactory	{
         priority /= estimatedSize;
 
         return new Pair<Transaction, Long>(tx, priority);
+    }
+
+    /**
+     * <p>Calculate signatures for inputs of a transaction.
+     *
+     * @param Transaction transaction  Transaction for which the inputs must be signed
+     * @param Wallet wallet Wallet used as key bag, not for actual spending
+     */
+    private synchronized void signTx(Transaction transaction, Wallet wallet) throws ScriptException {
+
+        List<TransactionInput> inputs = transaction.getInputs();
+
+        TransactionSignature[] sigs = new TransactionSignature[inputs.size()];
+        ECKey[] keys = new ECKey[inputs.size()];
+
+        for (int i = 0; i < inputs.size(); i++) {
+            TransactionInput input = inputs.get(i);
+            // No connected output ?, assume signed
+            if(input.getOutpoint().getConnectedOutput() == null) {
+                Log.i("SendFactory", "Missing connected output, assuming input {} is already signed.");
+                continue;
+            }
+            try {
+                input.getScriptSig().correctlySpends(transaction, i, input.getOutpoint().getConnectedOutput().getScriptPubKey(), true);
+                continue;
+            } catch (ScriptException e) {
+                // Expected.
+            }
+            if(input.getScriptBytes().length != 0) {
+                Log.i("SendFactory", "Re-signing an already signed transaction.");
+            }
+            // Find the signing key
+            ECKey key = input.getOutpoint().getConnectedKey(wallet);
+            // Keep key for script creation step below
+            keys[i] = key;
+            byte[] connectedPubKeyScript = input.getOutpoint().getConnectedPubKeyScript();
+            if(key.hasPrivKey() || key.isEncrypted()) {
+                sigs[i] = transaction.calculateSignature(i, key, null, connectedPubKeyScript, SigHash.ALL, false);
+            }
+            else {
+                sigs[i] = TransactionSignature.dummy();   // watch only ?
+            }
+        }
+
+        for(int i = 0; i < inputs.size(); i++) {
+            if(sigs[i] == null)   {
+                continue;
+            }
+            TransactionInput input = inputs.get(i);
+            final TransactionOutput connectedOutput = input.getOutpoint().getConnectedOutput();
+            Script scriptPubKey = connectedOutput.getScriptPubKey();
+            if(scriptPubKey.isSentToAddress()) {
+                input.setScriptSig(ScriptBuilder.createInputScript(sigs[i], keys[i]));
+            }
+            else if(scriptPubKey.isSentToRawPubKey()) {
+                input.setScriptSig(ScriptBuilder.createInputScript(sigs[i]));
+            }
+            else {
+                throw new RuntimeException("Unknown script type: " + scriptPubKey);
+            }
+        }
+
     }
 
     /**
