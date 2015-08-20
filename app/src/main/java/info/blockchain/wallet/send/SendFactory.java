@@ -570,21 +570,9 @@ public class SendFactory	{
         ECKey[] keys = new ECKey[inputs.size()];
 
         for (int i = 0; i < inputs.size(); i++) {
+
             TransactionInput input = inputs.get(i);
-            // No connected output ?, assume signed
-            if(input.getOutpoint().getConnectedOutput() == null) {
-                Log.i("SendFactory", "Missing connected output, assuming input {} is already signed.");
-                continue;
-            }
-            try {
-                input.getScriptSig().correctlySpends(transaction, i, input.getOutpoint().getConnectedOutput().getScriptPubKey(), true);
-                continue;
-            } catch (ScriptException e) {
-                // Expected.
-            }
-            if(input.getScriptBytes().length != 0) {
-                Log.i("SendFactory", "Re-signing an already signed transaction.");
-            }
+
             // Find the signing key
             ECKey key = input.getOutpoint().getConnectedKey(wallet);
             // Keep key for script creation step below
