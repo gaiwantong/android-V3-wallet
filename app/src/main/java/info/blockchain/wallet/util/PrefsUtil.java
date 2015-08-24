@@ -13,6 +13,7 @@ public class PrefsUtil {
     public static final String KEY_ENCRYPTED_PASSWORD   = "encrypted_password";
     public static final String KEY_GUID                 = "guid";
     public static final String KEY_SHARED_KEY           = "sharedKey";
+    public static final String KEY_SHARED_KEY_X           = "sharedKeyX";   // encrypted sharedKey
     public static final String KEY_PIN_FAILS            = "pin_fails";
     // public static final String KEY_LOGGED_IN              = "logged_in";
     public static final String KEY_BTC_UNITS            = "btcUnits";
@@ -87,6 +88,11 @@ public class PrefsUtil {
 		return editor.commit();
 	}
 
+    public boolean has(String name) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.contains(name);
+    }
+
     public boolean removeValue(String name) {
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.remove(name);
@@ -96,13 +102,6 @@ public class PrefsUtil {
 	public boolean clear() {
 		String cookie = getValue(KEY_SESSION_ID,null);
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		/*
-		editor.remove(KEY_PIN_IDENTIFIER);
-		editor.remove(KEY_ENCRYPTED_PASSWORD);
-		editor.remove(KEY_GUID);
-		editor.remove(KEY_SHARED_KEY);
-		editor.remove(KEY_PIN_FAILS);
-		*/
 		editor.clear();
 		if(cookie!=null)setValue(KEY_SESSION_ID, cookie);
 		return editor.commit();

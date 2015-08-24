@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -24,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+import android.util.Log;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.PayloadFactory;

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -86,8 +87,6 @@ public class PairingFactory	{
 //            Log.i("Pairing", "sharedKey != 36 length");
             return false;
         }
-//        Log.i("Pairing", "SharedKey:" + sharedKey);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
 
         CharSequenceX password = null;
         try {
@@ -98,6 +97,8 @@ public class PairingFactory	{
             uee.printStackTrace();
             return false;
         }
+
+        AppUtil.getInstance(context).setSharedKey(sharedKey);
 
         return true;
     }

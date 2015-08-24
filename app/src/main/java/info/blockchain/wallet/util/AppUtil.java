@@ -10,6 +10,7 @@ import android.os.Looper;
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import piuk.blockchain.android.R;
@@ -179,9 +180,11 @@ public class AppUtil {
     public boolean isSane() {
 
         String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
-        String shareKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+//        String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+//        String sharedKey = AppUtil.getInstance(context).getSharedKey();
 
-        if(!guid.matches(REGEX_UUID) || !shareKey.matches(REGEX_UUID))  {
+//        if(!guid.matches(REGEX_UUID) || !sharedKey.matches(REGEX_UUID))  {
+        if(!guid.matches(REGEX_UUID))  {
             return false;
         }
 
@@ -235,4 +238,36 @@ public class AppUtil {
 
         return false;
     }
+
+    public String getSharedKey()   {
+        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
+            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+            setSharedKey(sharedKey);
+            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
+            return sharedKey;
+        }
+        else    {
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+        }
+
+    }
+
+    public String getSharedKey(CharSequenceX password)   {
+        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
+            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+            setSharedKey(sharedKey);
+            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
+            return sharedKey;
+        }
+        else    {
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), password, AESUtil.PasswordPBKDF2Iterations);
+        }
+
+    }
+
+    public void setSharedKey(String sharedKey)   {
+        String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
+    }
+
 }

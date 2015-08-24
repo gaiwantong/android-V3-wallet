@@ -347,10 +347,12 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
+                        PayloadFactory.getInstance().setTempPassword(pw);
+                        AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
+
                         if(AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet()!=null && (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel()==null || PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
 
-                        PayloadFactory.getInstance().setTempPassword(pw);
 
                         handler.post(new Runnable() {
                             @Override

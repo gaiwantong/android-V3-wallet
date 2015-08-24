@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import com.google.bitcoin.crypto.MnemonicException;
 
+import info.blockchain.wallet.util.AppUtil;
 import libsrc.org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -460,7 +461,7 @@ public class PayloadFactory	{
         payload.setSharedKey(sharedKey);
 
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
+        AppUtil.getInstance(context).setSharedKey(sharedKey);
 
         HDWallet payloadHDWallet = new HDWallet();
         payloadHDWallet.setSeedHex(hdw.getSeedHex());
