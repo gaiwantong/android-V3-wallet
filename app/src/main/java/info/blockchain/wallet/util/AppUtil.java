@@ -180,10 +180,7 @@ public class AppUtil {
     public boolean isSane() {
 
         String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
-//        String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
-//        String sharedKey = AppUtil.getInstance(context).getSharedKey();
 
-//        if(!guid.matches(REGEX_UUID) || !sharedKey.matches(REGEX_UUID))  {
         if(!guid.matches(REGEX_UUID))  {
             return false;
         }
