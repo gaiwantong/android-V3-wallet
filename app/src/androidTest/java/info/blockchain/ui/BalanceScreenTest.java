@@ -1,5 +1,6 @@
 package info.blockchain.ui;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
@@ -128,6 +129,15 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         if(txList.getAdapter().getItemCount()>0) {
             solo.clickOnView(txList.getChildAt(0));
             solo.clickOnView(solo.getView(R.id.tx_hash));
+            try{solo.sleep(1000);}catch (Exception e){}
+            Intent i = new Intent(getActivity(), MainActivity.class);
+            i.setAction(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            getActivity().startActivity(i);
+            try{solo.sleep(1000);}catch (Exception e){}
+            solo.goBack();
+            solo.goBack();
+            solo.goBack();
         }
     }
 }

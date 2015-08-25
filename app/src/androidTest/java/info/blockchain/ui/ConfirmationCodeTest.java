@@ -136,11 +136,14 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
 
     public void testF_EnterCorrectCode() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+        if(AllTests.enableUserInteraction) {
 
-        //Confirm email received needs to be done manually by tester - so we'll make a sound to alert tester
-        UiUtil.getInstance(getActivity()).soundAlert();
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
 
-        TestCase.assertTrue(solo.waitForText(getActivity().getString(R.string.my_bitcoin_wallet), 1, 240000));
+            //Confirm email received needs to be done manually by tester - so we'll make a sound to alert tester
+            UiUtil.getInstance(getActivity()).soundAlert();
+
+            TestCase.assertTrue(solo.waitForText(getActivity().getString(R.string.my_bitcoin_wallet), 1, 240000));
+        }
     }
 }

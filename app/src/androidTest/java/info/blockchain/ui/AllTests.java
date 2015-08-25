@@ -8,6 +8,8 @@ import junit.framework.TestSuite;
 
 public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
 
+    public static boolean enableUserInteraction = false;//false will skip any tests that require user interaction (confirmation code input, manual pair confirm)
+
     public AllTests(Class<Activity> activityClass) {
         super(Activity.class);
     }
@@ -30,6 +32,9 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
 
         //Test balance screen
         t.addTestSuite(BalanceScreenTest.class);
+
+        //Test send screen
+        t.addTestSuite(SendScreenTest.class);
 
         return t;
     }
