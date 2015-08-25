@@ -2,14 +2,15 @@ package info.blockchain.wallet.util;
 
 import android.content.Context;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
+
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.Address;
 
 import java.io.IOException;
 
-import info.blockchain.wallet.hd.HD_Address;
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -23,7 +24,7 @@ public class AddressFactory {
     public static final int RECEIVE_CHAIN = 0;
     public static final int CHANGE_CHAIN = 1;
 
-    private static HD_Wallet double_encryption_wallet = null;
+    private static Wallet double_encryption_wallet = null;
 
     private static Context context = null;
     private static AddressFactory instance = null;
@@ -37,7 +38,7 @@ public class AddressFactory {
         if(instance == null) {
 
             if(xpub != null) {
-                double_encryption_wallet = HD_WalletFactory.getInstance(context, xpub).getWatchOnlyWallet();
+                double_encryption_wallet = WalletFactory.getInstance(xpub).getWatchOnlyWallet();
             }
 
             instance = new AddressFactory();
@@ -58,12 +59,12 @@ public class AddressFactory {
     public ReceiveAddress getReceiveAddress(int accountIdx)	{
 
         int idx = 0;
-        HD_Address addr = null;
+        Address addr = null;
 
         try	{
             idx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxReceiveAddresses();
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
-                addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
+                addr = WalletFactory.getInstance().get().getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
             }
             else	{
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
@@ -89,13 +90,13 @@ public class AddressFactory {
 
     }
 
-    public HD_Address get(int accountIdx, int chain, int idx)	{
+    public Address get(int accountIdx, int chain, int idx)	{
 
-        HD_Address addr = null;
+        Address addr = null;
 
         try	{
             if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
-                addr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
+                addr = WalletFactory.getInstance().get().getAccount(accountIdx).getChain(chain).getAddressAt(idx);
             }
             else	{
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(chain).getAddressAt(idx);

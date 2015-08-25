@@ -2,12 +2,13 @@ package info.blockchain.wallet.send;
 
 import java.math.BigInteger;
 
-import com.google.bitcoin.core.NetworkParameters;
-import com.google.bitcoin.core.ProtocolException;
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.TransactionOutPoint;
-import com.google.bitcoin.core.TransactionOutput;
-import com.google.bitcoin.params.MainNetParams;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.ProtocolException;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.TransactionOutPoint;
+import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.params.MainNetParams;
 
 public class MyTransactionOutPoint extends TransactionOutPoint {
 
@@ -52,7 +53,7 @@ public class MyTransactionOutPoint extends TransactionOutPoint {
 
 	@Override
 	public TransactionOutput getConnectedOutput() {		       
-		return new TransactionOutput(params, null, value, scriptBytes);
+		return new TransactionOutput(params, null, Coin.valueOf(value.longValue()), scriptBytes);
 	}
 
 	//@Override

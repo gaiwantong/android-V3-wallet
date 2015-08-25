@@ -1,10 +1,11 @@
 package info.blockchain.wallet.payload;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.params.MainNetParams;
-import libsrc.org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.params.MainNetParams;
+//import libsrc.org.apache.commons.lang.ArrayUtils;
 import org.json.simple.JSONObject;
 
 import info.blockchain.wallet.util.DoubleEncryptionFactory;

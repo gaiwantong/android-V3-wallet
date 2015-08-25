@@ -6,20 +6,21 @@ import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.core.ScriptException;
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.Transaction.SigHash;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
-import com.google.bitcoin.core.Utils;
-import com.google.bitcoin.core.Wallet;
-import com.google.bitcoin.crypto.TransactionSignature;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.script.Script;
-import com.google.bitcoin.script.ScriptBuilder;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.ScriptException;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.Transaction.SigHash;
+import org.bitcoinj.core.TransactionInput;
+import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.Wallet;
+import org.bitcoinj.crypto.TransactionSignature;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptBuilder;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -36,9 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bitcoinj.core.bip44.Address;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.OpCallback;
-import info.blockchain.wallet.hd.HD_Address;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -68,8 +70,8 @@ public class SendFactory	{
 
     private boolean sentChange = false;
 
-    private static final BigInteger bDust = Utils.toNanoCoins("0.00000546");
-    public static final BigInteger bFee = Utils.toNanoCoins("0.0001");
+    private static final BigInteger bDust = BigInteger.valueOf(Coin.parseCoin("0.00000546").longValue());
+    public static final BigInteger bFee = BigInteger.valueOf(Coin.parseCoin("0.0001").longValue());
 
     public static SendFactory getInstance(Context ctx) {
 
@@ -188,10 +190,10 @@ public class SendFactory	{
                     if(isHD) {
                         int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
                         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                            changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                            changeAddr = WalletFactory.getInstance().get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
                         }
                         else {
-                            changeAddr = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                            changeAddr = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
                         }
                     }
                     else {
@@ -216,12 +218,12 @@ public class SendFactory	{
                             if(isHD) {
                                 String path = froms.get(address);
                                 String[] s = path.split("/");
-                                HD_Address hd_address = null;
+                                Address hd_address = null;
                                 if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                    hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                    hd_address = WalletFactory.getInstance().get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
                                 }
                                 else {
-                                    hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                    hd_address = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
                                 }
                                 privStr = hd_address.getPrivateKeyString();
                                 walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
@@ -473,7 +475,7 @@ public class SendFactory	{
             outputValueSum = outputValueSum.add(amount);
             // Add the output
             BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
-            TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
+            TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, Coin.valueOf(amount.longValue()), toOutputScript.getProgram());
             outputs.add(output);
         }
 
@@ -538,7 +540,7 @@ public class SendFactory	{
             else {
                 throw new Exception(context.getString(R.string.invalid_tx));
             }
-            TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
+            TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, Coin.valueOf(change.longValue()), change_script.getProgram());
             outputs.add(change_output);
         }
         else {
@@ -579,7 +581,7 @@ public class SendFactory	{
             keys[i] = key;
             byte[] connectedPubKeyScript = input.getOutpoint().getConnectedPubKeyScript();
             if(key.hasPrivKey() || key.isEncrypted()) {
-                sigs[i] = transaction.calculateSignature(i, key, null, connectedPubKeyScript, SigHash.ALL, false);
+                sigs[i] = transaction.calculateSignature(i, key, connectedPubKeyScript, SigHash.ALL, false);
             }
             else {
                 sigs[i] = TransactionSignature.dummy();   // watch only ?

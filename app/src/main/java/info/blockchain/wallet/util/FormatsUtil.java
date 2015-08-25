@@ -2,13 +2,13 @@ package info.blockchain.wallet.util;
 
 import java.util.regex.Pattern;
 
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.uri.BitcoinURI;
-import com.google.bitcoin.uri.BitcoinURIParseException;
-import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.AddressFormatException;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.uri.BitcoinURI;
+import org.bitcoinj.uri.BitcoinURIParseException;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.AddressFormatException;
 //import com.google.bitcoin.core.NetworkParameters;
-import com.google.bitcoin.core.WrongNetworkException;
+import org.bitcoinj.core.WrongNetworkException;
 
 import android.util.Patterns;
 //import android.util.Log;

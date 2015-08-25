@@ -5,10 +5,11 @@ import android.os.Handler;
 import android.os.Looper;
 //import android.util.Log;
 
-import com.google.bitcoin.crypto.MnemonicException;
+import org.apache.commons.lang3.StringUtils;
+import org.bitcoinj.crypto.MnemonicException;
 
 import info.blockchain.wallet.util.AppUtil;
-import libsrc.org.apache.commons.lang.StringUtils;
+//import libsrc.org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
@@ -22,10 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.bitcoinj.core.bip44.Account;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.hd.HD_Account;
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
@@ -451,7 +453,7 @@ public class PayloadFactory	{
      * @return boolean
      *
      */
-    public boolean createBlockchainWallet(HD_Wallet hdw)	{
+    public boolean createBlockchainWallet(org.bitcoinj.core.bip44.Wallet hdw)	{
 
         String guid = UUID.randomUUID().toString();
         String sharedKey = UUID.randomUUID().toString();
@@ -466,14 +468,14 @@ public class PayloadFactory	{
         HDWallet payloadHDWallet = new HDWallet();
         payloadHDWallet.setSeedHex(hdw.getSeedHex());
 
-        List<HD_Account> hdAccounts = hdw.getAccounts();
-        List<Account> payloadAccounts = new ArrayList<Account>();
+        List<org.bitcoinj.core.bip44.Account> hdAccounts = hdw.getAccounts();
+        List<info.blockchain.wallet.payload.Account> payloadAccounts = new ArrayList<info.blockchain.wallet.payload.Account>();
         for(int i = 0; i < hdAccounts.size(); i++)	{
-            Account account = new Account();
+            info.blockchain.wallet.payload.Account account = new info.blockchain.wallet.payload.Account();
             try  {
-                String xpub = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xpubstr();
+                String xpub = WalletFactory.getInstance().get().getAccounts().get(i).xpubstr();
                 account.setXpub(xpub);
-                String xpriv = HD_WalletFactory.getInstance(context).get().getAccounts().get(i).xprvstr();
+                String xpriv = WalletFactory.getInstance().get().getAccounts().get(i).xprvstr();
                 account.setXpriv(xpriv);
             }
             catch(IOException | MnemonicException.MnemonicLengthException e)  {

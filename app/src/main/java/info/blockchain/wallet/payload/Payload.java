@@ -83,7 +83,7 @@ public class Payload {
             jsonObject = new JSONObject(json);
         }
         catch(JSONException je) {
-        	je.printStackTrace();
+            je.printStackTrace();
             jsonObject = null;
         }
     }
@@ -93,7 +93,7 @@ public class Payload {
             jsonObject = new JSONObject(json);
         }
         catch(JSONException je) {
-        	je.printStackTrace();
+            je.printStackTrace();
             jsonObject = null;
         }
     }
@@ -146,13 +146,13 @@ public class Payload {
 
     public boolean containsLegacyAddress(String addr) {
 
-    	for(LegacyAddress legacyAddress : legacyAddresses) {
-    		if(legacyAddress.getAddress().equals(addr)) {
-    			return true;
-    		}
-    	}
+        for(LegacyAddress legacyAddress : legacyAddresses) {
+            if(legacyAddress.getAddress().equals(addr)) {
+                return true;
+            }
+        }
 
-    	return false;
+        return false;
     }
 
     public List<AddressBookEntry> getAddressBookEntries() { return addressBookEntries; }
@@ -199,11 +199,11 @@ public class Payload {
 
     public Map<String, PaidTo> getPaidTo() {
         return paidTo;
-        }
+    }
 
     public void setPaidTo(Map<String, PaidTo> paidTo) {
         this.paidTo = paidTo;
-        }
+    }
 
     public int getIterations() {
         return iterations;
@@ -235,18 +235,18 @@ public class Payload {
             //
             // test for version 2 (see https://blockchain.info/en/wallet/wallet-format)
             //
-        	try  {
+            try  {
                 if(jsonObject.has("payload"))  {
                     parsePayload((JSONObject)jsonObject.get("payload"));
-                 }
-                 else  {
+                }
+                else  {
                     parsePayload(jsonObject);
-                 }
-        	}
-        	catch(JSONException je)  {
+                }
+            }
+            catch(JSONException je)  {
 //            	Log.i("Payload", "JSONEXCEPTION");
-        		je.printStackTrace();
-        	}
+                je.printStackTrace();
+            }
         }
         else  {
 //        	Log.i("Payload", "jsonObject is null !!!!");
@@ -306,7 +306,7 @@ public class Payload {
                 JSONObject tx_notes = (JSONObject)jsonObject.get("tx_notes");
                 Map<String,String> notes = new HashMap<String,String>();
                 for(Iterator<String> keys = tx_notes.keys(); keys.hasNext();)  {
-                	String key = keys.next();
+                    String key = keys.next();
                     String note = (String)tx_notes.get(key);
                     notes.put(key, note);
                 }
@@ -317,7 +317,7 @@ public class Payload {
                 JSONObject tx_tags = (JSONObject)jsonObject.get("tx_tags");
                 Map<String,List<Integer>> _tags = new HashMap<String,List<Integer>>();
                 for(Iterator<String> keys = tx_tags.keys(); keys.hasNext();)  {
-                	String key = keys.next();
+                    String key = keys.next();
                     JSONArray tagsObj = (JSONArray)tx_tags.get(key);
                     List<Integer> tags = new ArrayList<Integer>();
                     for(int i = 0; i < tagsObj.length(); i++)  {
@@ -371,14 +371,14 @@ public class Payload {
                     hdw.mnemonic_verified(wallet.getBoolean("mnemonic_verified"));
                 }
                 if(wallet.has("default_account_idx"))  {
-                	int i = 0;
-                	try  {
-                    	String val = (String)wallet.get("default_account_idx");
-                    	i = Integer.parseInt(val);
-                	}
-                	catch(java.lang.ClassCastException cce)  {
-                    	i = (Integer)wallet.get("default_account_idx");
-                	}
+                    int i = 0;
+                    try  {
+                        String val = (String)wallet.get("default_account_idx");
+                        i = Integer.parseInt(val);
+                    }
+                    catch(java.lang.ClassCastException cce)  {
+                        i = (Integer)wallet.get("default_account_idx");
+                    }
                     hdw.setDefaultIndex(i);
                 }
 
@@ -406,13 +406,13 @@ public class Payload {
                                 account2Xpub.put(i, (String)accountObj.get("xpub"));
                             }
                             else  {
-                            	continue;
+                                continue;
                             }
                             if(accountObj.has("xpriv") && ((String)accountObj.get("xpriv")) != null && ((String)accountObj.get("xpriv")).length() > 0)  {
                                 account.setXpriv((String)accountObj.get("xpriv"));
                             }
                             else  {
-                            	continue;
+                                continue;
                             }
 
                             if(accountObj.has("receive_addresses"))  {
@@ -550,8 +550,8 @@ public class Payload {
                     for(int i = 0; i < address_book.length(); i++)  {
                         addr = (JSONObject)address_book.get(i);
                         addr_entry = new AddressBookEntry(
-                            addr.has("addr") ? (String)addr.get("addr") : null,
-                            addr.has("label") ? (String)addr.get("label") : null
+                                addr.has("addr") ? (String)addr.get("addr") : null,
+                                addr.has("label") ? (String)addr.get("label") : null
                         );
                         addressBookEntries.add(addr_entry);
                     }
@@ -609,14 +609,14 @@ public class Payload {
 
         JSONArray keys = new JSONArray();
         for(LegacyAddress addr : legacyAddresses) {
-        	JSONObject key = new JSONObject();
-        	key.put("priv", addr.getEncryptedKey());
-        	key.put("addr", addr.getAddress());
-        	key.put("label", addr.getLabel());
-        	key.put("tag", addr.getTag());
-        	key.put("created_time", addr.getCreated());
-        	key.put("created_device_name", addr.getCreatedDeviceName() == null ? "" : addr.getCreatedDeviceName());
-        	key.put("created_device_version", addr.getCreatedDeviceVersion() == null ? "" : addr.getCreatedDeviceVersion());
+            JSONObject key = new JSONObject();
+            key.put("priv", addr.getEncryptedKey());
+            key.put("addr", addr.getAddress());
+            key.put("label", addr.getLabel());
+            key.put("tag", addr.getTag());
+            key.put("created_time", addr.getCreated());
+            key.put("created_device_name", addr.getCreatedDeviceName() == null ? "" : addr.getCreatedDeviceName());
+            key.put("created_device_version", addr.getCreatedDeviceVersion() == null ? "" : addr.getCreatedDeviceVersion());
             keys.put(key);
         }
         obj.put("keys", keys);
@@ -666,7 +666,7 @@ public class Payload {
             pobj.put("redeemedAt", pto.getRedeemedAt());
             pobj.put("address", pto.getAddress());
             paidToObj.put(key, pobj);
-            }
+        }
         obj.put("paidTo", paidToObj);
 
         return obj;

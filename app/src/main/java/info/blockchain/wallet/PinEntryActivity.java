@@ -17,8 +17,9 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.apache.commons.io.IOUtils;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
@@ -42,7 +43,7 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-import libsrc.org.apache.commons.io.IOUtils;
+//import libsrc.org.apache.commons.io.IOUtils;
 import piuk.blockchain.android.R;
 
 public class PinEntryActivity extends Activity {

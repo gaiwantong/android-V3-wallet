@@ -38,8 +38,8 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -54,8 +54,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
@@ -927,8 +928,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             PayloadFactory.getInstance().get().getIterations());
 
                                     try {
-                                        HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                                        HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
+                                        Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                                        WalletFactory.getInstance().setWatchOnlyWallet(hdw);
                                     } catch (IOException | DecoderException | AddressFormatException |
                                             MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
                                             MnemonicException.MnemonicWordException e) {

@@ -17,10 +17,9 @@
 
 package info.blockchain.wallet.send;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.Utils;
-
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Utils;
 
 import info.blockchain.wallet.util.Hash;
 
@@ -43,7 +42,7 @@ public class BitcoinAddress implements Serializable {
 
 		this.hash160 = new Hash(bytes);
 	}
-
+/*
 	@Override
 	public String toString() {
 		if (_toStringCache == null) {
@@ -62,7 +61,7 @@ public class BitcoinAddress implements Serializable {
 
 		return _toStringCache;
 	}
-
+*/
 	// from pubKey
 	public BitcoinAddress(byte[] pubKey) {
 		this.hash160 = new Hash(Utils.sha256hash160(pubKey));

@@ -2,12 +2,13 @@ package info.blockchain.wallet.send;
 
 import java.math.BigInteger;
 
-import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.NetworkParameters;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutPoint;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionInput;
+import org.bitcoinj.core.TransactionOutPoint;
 
 public class MyTransactionInput extends TransactionInput {
 
@@ -34,8 +35,8 @@ public class MyTransactionInput extends TransactionInput {
 		return null;
 	}
 	
-	public BigInteger getValue() {
-		return value;
+	public Coin getValue() {
+		return Coin.valueOf(value.longValue());
 	}
 
 	public void setValue(BigInteger value) {

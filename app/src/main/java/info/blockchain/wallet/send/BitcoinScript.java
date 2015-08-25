@@ -1,12 +1,11 @@
 package info.blockchain.wallet.send;
 
-
 import info.blockchain.wallet.util.Hash;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
 
 public class BitcoinScript {
 

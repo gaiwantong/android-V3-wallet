@@ -3,8 +3,8 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 //import android.util.Log;
 
@@ -126,12 +127,12 @@ public class BackupWalletUtil {
 
         // Try to create a using the decrypted seed hex
         try {
-            HD_Wallet hdw = HD_WalletFactory.getInstance(context).get();
-            HD_WalletFactory.getInstance(context).restoreWallet(decrypted_hex, "", 1);
+            Wallet hdw =WalletFactory.getInstance().get();
+            WalletFactory.getInstance().restoreWallet(decrypted_hex, "", 1);
 
-            mnemonic = HD_WalletFactory.getInstance(context).get().getMnemonic();
+            mnemonic = WalletFactory.getInstance().get().getMnemonic();
 
-            HD_WalletFactory.getInstance(context).set(hdw);
+            WalletFactory.getInstance().set(hdw);
 
         } catch (IOException | DecoderException | AddressFormatException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException e) {
             e.printStackTrace();

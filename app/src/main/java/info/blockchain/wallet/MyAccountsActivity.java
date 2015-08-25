@@ -31,10 +31,11 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.uri.BitcoinURI;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -262,7 +263,7 @@ public class MyAccountsActivity extends Activity {
                             addressView.setText(currentSelectedAddress);
 
                             //Receiving QR
-                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
 
                             if (originalHeight == 0) {
                                 originalHeight = view.getHeight();
