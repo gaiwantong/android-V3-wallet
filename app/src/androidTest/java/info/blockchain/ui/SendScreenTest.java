@@ -3,6 +3,7 @@ package info.blockchain.ui;
 import android.support.v7.widget.RecyclerView;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -135,5 +136,19 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         }
 
         return xpub;
+    }
+
+    public void testB_InputToAddressManually() throws AssertionError{
+
+        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
+
+        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        solo.enterText(amount1,"0.0001");
+        solo.clickOnView(solo.getView(R.id.action_send));
+
+        TestCase.assertTrue("Ensure wallet has sufficient funds!",solo.waitForText(getActivity().getString(R.string.confirm_details),1,500));
+        solo.goBack();
+
     }
 }
