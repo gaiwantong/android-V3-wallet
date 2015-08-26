@@ -236,6 +236,8 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     public void testF_SendMoreThanAvailable() throws AssertionError{
 
+        selectFromAccountWithValidBalance();
+
         EditText toAddress = (EditText)solo.getView(R.id.destination);
         solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
 
@@ -246,11 +248,57 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             max = max.replace(unit.toString(), "").trim();
 
         EditText amount1 = (EditText)solo.getView(R.id.amount1);
-        solo.enterText(amount1, "1"+max);
+        solo.enterText(amount1, "1" + max);
         solo.clickOnView(solo.getView(R.id.action_send));
 
-        assertTrue("Expected a 'Insufficient funds' toast.", solo.waitForText(getActivity().getString(R.string.insufficient_funds),1, 500));
+        assertTrue("Expected a 'Insufficient funds' toast.", solo.waitForText(getActivity().getString(R.string.insufficient_funds), 1, 500));
+    }
+
+    public void testF_SendLessThanAvailable() throws AssertionError{
+
+        selectFromAccountWithValidBalance();
+
+        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
+
+        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        solo.enterText(amount1, (SendFactory.bFee.longValue() / 1e8) + "");
+        solo.clickOnView(solo.getView(R.id.action_send));
+
+        assertTrue("Expected a '"+getActivity().getString(R.string.confirm_details)+"' dialog.", solo.waitForText(getActivity().getString(R.string.confirm_details), 1, 500));
+
+        solo.clickOnText(getActivity().getString(R.string.SEND));
+
+        assertTrue("Expected a '"+getActivity().getString(R.string.transaction_submitted)+"' toast.", solo.waitForText(getActivity().getString(R.string.transaction_submitted), 1, 500));
 
         exitApp();
+    }
+
+    private void selectFromAccountWithValidBalance(){
+        Spinner mSpinner = solo.getView(Spinner.class, 0);
+        int itemCount = mSpinner.getAdapter().getCount();
+        View spinnerView = solo.getView(Spinner.class, 0);
+
+        for(int i = 0; i < itemCount; i++){
+
+            solo.clickOnView(spinnerView);
+            solo.scrollToTop();
+            TextView tvMax = (TextView)solo.getView(LinearLayout.class, i).findViewById(R.id.receive_account_balance);
+            solo.clickOnView(solo.getView(LinearLayout.class, i));
+            try{solo.sleep(500);}catch (Exception e){}
+
+            String spinnerTextTotal = tvMax.getText().toString();
+            spinnerTextTotal = spinnerTextTotal.replace("(", "").trim();
+            spinnerTextTotal = spinnerTextTotal.replace(")", "").trim();
+            CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
+            for(CharSequence unit : units){
+                spinnerTextTotal = spinnerTextTotal.replace(unit.toString(), "").trim();
+            }
+
+            double available = Double.parseDouble(spinnerTextTotal);
+
+            if(available * 1e8 > SendFactory.bFee.doubleValue())
+                break;
+        }
     }
 }
