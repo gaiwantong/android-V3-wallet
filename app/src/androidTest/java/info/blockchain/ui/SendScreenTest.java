@@ -1,6 +1,5 @@
 package info.blockchain.ui;
 
-import android.support.v7.widget.RecyclerView;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.EditText;
@@ -9,8 +8,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.robotium.solo.Solo;
-
-import junit.framework.TestCase;
 
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.HDPayloadBridge;
@@ -27,7 +24,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     private Solo solo = null;
 
-    RecyclerView txList = null;
+    private static boolean loggedIn = false;
 
     public SendScreenTest() {
         super(MainActivity.class);
@@ -36,17 +33,26 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
     @Override
     public void setUp() throws Exception {
 
+        super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
-        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
+
+        if(!loggedIn){
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+            try{solo.sleep(4000);}catch (Exception e){}
+            loggedIn = true;
+        }
+
         solo.clickOnView(solo.getView(R.id.btActivateBottomSheet));
-        try{solo.sleep(1000);}catch (Exception e){}
+        try{solo.sleep(500);}catch (Exception e){}
         solo.clickOnText(getActivity().getString(R.string.send_bitcoin));
     }
 
     @Override
     public void tearDown() throws Exception {
-        //Press back button twice to exit app
+        solo.finishOpenedActivities();
+    }
+
+    private void exitApp(){
         solo.goBack();
         solo.goBack();
         solo.goBack();
@@ -117,10 +123,10 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
                 available = available.replace(unit.toString(), "").trim();
 
             //Test if spinner totals matches actual account total
-            TestCase.assertTrue(expectedTextTotal.equals(spinnerTextTotal));
+            assertTrue(expectedTextTotal.equals(spinnerTextTotal));
 
             //Test if max available matches actual available for account (total - fee)
-            TestCase.assertTrue(expectedTextAvailable.equals(available));
+            assertTrue(expectedTextAvailable.equals(available));
         }
     }
 
@@ -144,11 +150,38 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
 
         EditText amount1 = (EditText)solo.getView(R.id.amount1);
-        solo.enterText(amount1,"0.0001");
+        solo.enterText(amount1, "0.0001");
         solo.clickOnView(solo.getView(R.id.action_send));
 
-        TestCase.assertTrue("Ensure wallet has sufficient funds!",solo.waitForText(getActivity().getString(R.string.confirm_details),1,500));
+        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.confirm_details),1,500));
         solo.goBack();
 
+    }
+
+    public void testC_InputToAddressFromDropdown() throws AssertionError{
+
+        Spinner mSpinner = solo.getView(Spinner.class, 1);
+        int itemCount = mSpinner.getAdapter().getCount();
+        View spinnerView = solo.getView(Spinner.class, 1);
+
+        String prevAddress = null;
+        for(int i = 0; i < itemCount; i++){
+
+            solo.clickOnView(spinnerView);
+            solo.scrollToTop();
+            solo.clickOnView(solo.getView(LinearLayout.class, i));
+            try{solo.sleep(500);}catch (Exception e){}
+
+            EditText destination = (EditText)solo.getView(R.id.destination);
+            String selectedAddress = destination.getText().toString();
+
+            //Test destination address is not empty, and ensure it changes for each account selected
+            if(prevAddress!=null)
+                assertTrue("Address not populated or address same for different accounts.", !selectedAddress.isEmpty() && !prevAddress.equals(selectedAddress));
+
+            prevAddress = selectedAddress;
+        }
+
+        exitApp();
     }
 }
