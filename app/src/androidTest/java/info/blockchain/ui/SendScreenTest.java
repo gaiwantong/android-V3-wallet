@@ -1,7 +1,6 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -232,6 +231,25 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         double displayedFiat = Double.parseDouble(fiatEt.getText().toString());
 
         assertTrue("Expected fiat= " + fiatTestAmount + ", UI shows fiat=" + displayedFiat + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedFiat >= fiatTestAmount * (1.0 - allowedFluctuation) && displayedFiat <= fiatTestAmount * (1.0 + allowedFluctuation));
+
+    }
+
+    public void testF_SendMoreThanAvailable() throws AssertionError{
+
+        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
+
+        TextView maxTv = (TextView)solo.getView(R.id.max);
+        String max = maxTv.getText().toString().replace(getActivity().getResources().getText(R.string.max_available) + " ","");
+        CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
+        for(CharSequence unit : units)
+            max = max.replace(unit.toString(), "").trim();
+
+        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        solo.enterText(amount1, "1"+max);
+        solo.clickOnView(solo.getView(R.id.action_send));
+
+        assertTrue("Expected a 'Insufficient funds' toast.", solo.waitForText(getActivity().getString(R.string.insufficient_funds),1, 500));
 
         exitApp();
     }
