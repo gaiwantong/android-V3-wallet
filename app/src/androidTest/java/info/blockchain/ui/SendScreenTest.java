@@ -217,7 +217,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         try {
             expectedBtc = Double.parseDouble(info.blockchain.wallet.util.WebUtil.getInstance().getURL("https://blockchain.info/tobtc?currency=" + fiatFormat + "&value=" + fiatEt.getText().toString()));
             double displayedBtc = Double.parseDouble(btcEt.getText().toString());
-            Log.v("", "vos "+displayedBtc+" >= "+expectedBtc * (1.0 - allowedFluctuation)+" && "+displayedBtc+" <= "+expectedBtc * (1.0 + allowedFluctuation));
+
             assertTrue("Expected btc= "+expectedBtc+", UI shows btc="+ displayedBtc +" ("+(allowedFluctuation*100)+"% fluctuation allowed.)",displayedBtc >= expectedBtc * (1.0-allowedFluctuation) && displayedBtc <= expectedBtc * (1.0+allowedFluctuation));
 
         } catch (Exception e) {
@@ -230,7 +230,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         //Test btc converted to fiat
         solo.enterText(btcEt, expectedBtc + "");
         double displayedFiat = Double.parseDouble(fiatEt.getText().toString());
-        Log.v("", "vos "+displayedFiat+" >= "+fiatTestAmount * (1.0 - allowedFluctuation)+" && "+displayedFiat+" <= "+fiatTestAmount * (1.0 + allowedFluctuation));
+
         assertTrue("Expected fiat= " + fiatTestAmount + ", UI shows fiat=" + displayedFiat + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedFiat >= fiatTestAmount * (1.0 - allowedFluctuation) && displayedFiat <= fiatTestAmount * (1.0 + allowedFluctuation));
 
         exitApp();
