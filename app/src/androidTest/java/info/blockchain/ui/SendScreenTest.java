@@ -1,6 +1,7 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -18,6 +19,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -193,8 +195,43 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         solo.enterText(amount1, "0.0001");
         solo.clickOnView(solo.getView(R.id.action_send));
 
-        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.invalid_bitcoin_address),1,500));
+        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.invalid_bitcoin_address), 1, 500));
         solo.goBack();
+
+    }
+
+    public void testE_Conversion() throws AssertionError{
+
+        double allowedFluctuation = 0.01;//only 1% fluctuation allowed for volatility
+
+        EditText btcEt = (EditText)solo.getView(R.id.amount1);
+        EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+
+        double fiatTestAmount = 500.0;
+        solo.enterText(fiatEt, fiatTestAmount+"");
+
+        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT,"USD");
+
+        //Test fiat converted to btc
+        double expectedBtc = 0.0;
+        try {
+            expectedBtc = Double.parseDouble(info.blockchain.wallet.util.WebUtil.getInstance().getURL("https://blockchain.info/tobtc?currency=" + fiatFormat + "&value=" + fiatEt.getText().toString()));
+            double displayedBtc = Double.parseDouble(btcEt.getText().toString());
+            Log.v("", "vos "+displayedBtc+" >= "+expectedBtc * (1.0 - allowedFluctuation)+" && "+displayedBtc+" <= "+expectedBtc * (1.0 + allowedFluctuation));
+            assertTrue("Expected btc= "+expectedBtc+", UI shows btc="+ displayedBtc +" ("+(allowedFluctuation*100)+"% fluctuation allowed.)",displayedBtc >= expectedBtc * (1.0-allowedFluctuation) && displayedBtc <= expectedBtc * (1.0+allowedFluctuation));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Clear text
+        solo.enterText(btcEt, "");
+
+        //Test btc converted to fiat
+        solo.enterText(btcEt, expectedBtc + "");
+        double displayedFiat = Double.parseDouble(fiatEt.getText().toString());
+        Log.v("", "vos "+displayedFiat+" >= "+fiatTestAmount * (1.0 - allowedFluctuation)+" && "+displayedFiat+" <= "+fiatTestAmount * (1.0 + allowedFluctuation));
+        assertTrue("Expected fiat= " + fiatTestAmount + ", UI shows fiat=" + displayedFiat + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedFiat >= fiatTestAmount * (1.0 - allowedFluctuation) && displayedFiat <= fiatTestAmount * (1.0 + allowedFluctuation));
 
         exitApp();
     }
