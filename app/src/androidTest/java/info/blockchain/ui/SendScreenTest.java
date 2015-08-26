@@ -182,6 +182,20 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             prevAddress = selectedAddress;
         }
 
+    }
+
+    public void testD_InputInvalidAddress() throws AssertionError{
+
+        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        solo.enterText(toAddress, "aaaaaaaaaaaaaaaaaaaa");
+
+        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        solo.enterText(amount1, "0.0001");
+        solo.clickOnView(solo.getView(R.id.action_send));
+
+        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.invalid_bitcoin_address),1,500));
+        solo.goBack();
+
         exitApp();
     }
 }
