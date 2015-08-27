@@ -23,7 +23,7 @@ import piuk.blockchain.android.R;
 
 /**
  *
- * PayloadFactory.java : singleton class for reading/writing/parsing Blockchain HD JSON payload
+ * PayloadBridge.java : singleton class for remote save of payload and wallet creation
  *
  */
 public class PayloadBridge	{
@@ -32,17 +32,15 @@ public class PayloadBridge	{
     private static Context context = null;
 
     private static PayloadBridge instance = null;
-    // active payload:
-//    private static Payload payload = null;
 
     private PayloadBridge()	{ ; }
 
     /**
-     * Return instance for a payload factory. Provide Android context if needed.
+     * Return instance for a PayloadBridge
      *
      * @param  Context ctx app context
      *
-     * @return HD_WalletFactory
+     * @return PayloadBridge
      *
      */
     public static PayloadBridge getInstance(Context ctx) {
@@ -51,8 +49,6 @@ public class PayloadBridge	{
 
         if (instance == null) {
             instance = new PayloadBridge();
-//            payload = new Payload();
-//            cached_payload = "";
         }
 
         return instance;
