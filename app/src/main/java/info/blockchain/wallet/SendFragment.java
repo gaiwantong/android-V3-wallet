@@ -61,6 +61,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
@@ -1183,7 +1184,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     }
 
                                                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                    PayloadFactory.getInstance(context).remoteSaveThread();
+                                                    PayloadBridge.getInstance(context).remoteSaveThread();
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
@@ -1236,7 +1237,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 public void onSuccess(final String hash) {
                                                     ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                     if (strNote != null) {
-                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                        PayloadBridge.getInstance(getActivity()).remoteSaveThread();
                                                     }
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));

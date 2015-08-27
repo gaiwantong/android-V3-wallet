@@ -12,6 +12,7 @@ import org.bitcoinj.core.bip44.Address;
 import java.io.IOException;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 
@@ -71,7 +72,7 @@ public class AddressFactory {
             }
             if(((idx - MultiAddrFactory.getInstance().getHighestTxReceiveIdx(PayloadFactory.getInstance().get().getAccount2Xpub().get(accountIdx))) < (LOOKAHEAD_GAP - 1)))	{
 //                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
-                PayloadFactory.getInstance(context).remoteSaveThread();
+                PayloadBridge.getInstance(context).remoteSaveThread();
             }
 
         }

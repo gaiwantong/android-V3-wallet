@@ -20,6 +20,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
@@ -112,7 +113,7 @@ public class HDPayloadBridge	{
                 return false;
             }
             else {
-                PayloadFactory.getInstance(context).remoteSaveThread();
+                PayloadBridge.getInstance(context).remoteSaveThread();
             }
 
         }
@@ -180,12 +181,12 @@ public class HDPayloadBridge	{
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException	{
         WalletFactory.getInstance().newWallet(12, passphrase, 1);
-        PayloadFactory.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
+        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 
     public void restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException	{
         WalletFactory.getInstance().restoreWallet(seed, passphrase, 1);
-        PayloadFactory.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
+        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 
     //

@@ -53,6 +53,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -686,7 +687,7 @@ public class MyAccountsActivity extends Activity {
                                                         }
                                                         PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                        PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                         updateAndRecreate(legacyAddress);
                                                     }
@@ -695,7 +696,7 @@ public class MyAccountsActivity extends Activity {
                                                 legacyAddress.setLabel("");
                                                 PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                 updateAndRecreate(legacyAddress);
                                             }
@@ -776,7 +777,7 @@ public class MyAccountsActivity extends Activity {
                             PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
 
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                            PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                             updateAndRecreate(legacyAddress);
                         }
@@ -785,7 +786,7 @@ public class MyAccountsActivity extends Activity {
                     legacyAddress.setLabel("");
                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                    PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                     updateAndRecreate(legacyAddress);
                 }

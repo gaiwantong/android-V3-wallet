@@ -340,7 +340,7 @@ public class PayloadFactory	{
      * @return boolean
      *
      */
-    private boolean put() {
+    public boolean put() {
 
         String strOldCheckSum = strCheckSum;
         String payloadCleartext = null;
@@ -453,6 +453,8 @@ public class PayloadFactory	{
      * @return boolean
      *
      */
+
+    /*
     public boolean createBlockchainWallet(org.bitcoinj.core.bip44.Wallet hdw)	{
 
         String guid = UUID.randomUUID().toString();
@@ -493,10 +495,14 @@ public class PayloadFactory	{
         return true;
     }
 
+    */
+
     /**
      * Thread for remote save of payload to server.
      *
      */
+
+    /*
     public void remoteSaveThread() {
 
         final Handler handler = new Handler();
@@ -534,6 +540,8 @@ public class PayloadFactory	{
         }).start();
     }
 
+    */
+
     public String getEmail() {
         return email;
     }
@@ -541,4 +549,5 @@ public class PayloadFactory	{
     public void setEmail(String email) {
         PayloadFactory.email = email;
     }
+
 }

@@ -36,6 +36,7 @@ import java.util.TimerTask;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -173,7 +174,7 @@ public class PinEntryActivity extends Activity {
 
             HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
-            PayloadFactory.getInstance(this).remoteSaveThread();
+            PayloadBridge.getInstance(this).remoteSaveThread();
 
             whitelistGuid("alpha");// <-- remove after beta invite system
             whitelistGuid("dev");// <-- remove after beta invite system
