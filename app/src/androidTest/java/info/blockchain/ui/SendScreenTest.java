@@ -147,7 +147,10 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     public void testB_InputToAddressManually() throws AssertionError{
 
+        smartAccountSelect();
+
         EditText toAddress = (EditText)solo.getView(R.id.destination);
+        solo.enterText(toAddress, "");
         solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
 
         EditText amount1 = (EditText)solo.getView(R.id.amount1);
@@ -267,7 +270,43 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     }
 
-    public void testG_SendAllAvailable() throws AssertionError{
+
+    public void testG_ConfirmDetails() throws AssertionError{
+
+        smartAccountSelect();
+
+        TextView maxTv = (TextView) solo.getView(R.id.max);
+        String max = maxTv.getText().toString().replace(getActivity().getResources().getText(R.string.max_available) + " ", "");
+        CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
+        for (CharSequence unit : units)
+            max = max.replace(unit.toString(), "").trim();
+
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
+        solo.enterText(amount1, "");
+        solo.enterText(amount1, max);
+        solo.clickOnView(solo.getView(R.id.action_send));
+        solo.waitForText(getActivity().getString(R.string.confirm_details));
+
+        TextView totalToSend = (TextView) solo.getView(R.id.confirm_total_to_send);
+        double totalToSendD = Double.parseDouble(totalToSend.getText().toString().split(" ")[0]);
+        TextView confirm_fee = (TextView) solo.getView(R.id.confirm_fee);
+        double confirm_feeD = Double.parseDouble(confirm_fee.getText().toString().split(" ")[0]);
+        double amount1D = Double.parseDouble(max);
+
+        EditText destination = (EditText) solo.getView(R.id.destination);
+        TextView confirm_to = (TextView) solo.getView(R.id.confirm_to);
+
+        assertTrue("Expected a '" + getActivity().getString(R.string.confirm_details) + "' dialog.", solo.waitForText(getActivity().getString(R.string.confirm_details), 1, 1000));
+
+        assertTrue("Destination address doesn't match confirm modal.", destination.getText().toString().equals(confirm_to.getText().toString()));
+
+        assertTrue("Total to Send not equal to input (value + fee)", totalToSendD == (confirm_feeD + amount1D));
+
+        solo.clickOnText(getActivity().getString(R.string.dialog_cancel));
+
+    }
+
+    public void testH_SendAllAvailable() throws AssertionError{
 
         smartAccountSelect();
 
