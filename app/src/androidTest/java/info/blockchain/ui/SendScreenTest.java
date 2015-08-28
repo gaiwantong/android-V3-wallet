@@ -298,9 +298,9 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
         assertTrue("Expected a '" + getActivity().getString(R.string.confirm_details) + "' dialog.", solo.waitForText(getActivity().getString(R.string.confirm_details), 1, 1000));
 
-        assertTrue("Destination address doesn't match confirm modal.", destination.getText().toString().equals(confirm_to.getText().toString()));
+        assertTrue("Destination address doesn't match confirm modal - Expected '"+destination.getText().toString()+"' - Got '"+confirm_to.getText().toString()+"'", destination.getText().toString().equals(confirm_to.getText().toString()));
 
-        assertTrue("Total to Send not equal to input (value + fee)", totalToSendD == (confirm_feeD + amount1D));
+        assertTrue("Total to Send not equal to input - Expected '"+totalToSendD+"' - Got '"+(confirm_feeD + amount1D)+"'", totalToSendD == (confirm_feeD + amount1D));
 
         solo.clickOnText(getActivity().getString(R.string.dialog_cancel));
 
@@ -337,7 +337,8 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
         int highestAccountIndex = 0;
         int smallestAccountIndex = 0;
-        double prevAccountBalance = -1;
+        double highestAccountBalance = -1;
+        double smallestAccountBalance = -1;
         for(int i = 0; i < itemCount; i++){
 
             solo.clickOnView(spinnerView);
@@ -356,13 +357,15 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
             double available = Double.parseDouble(spinnerTextTotal);
 
-            if(prevAccountBalance==-1 || prevAccountBalance < available)
+            if(highestAccountBalance==-1 || highestAccountBalance < available) {
                 highestAccountIndex = i;
+                highestAccountBalance = available;
+            }
 
-            if(prevAccountBalance==-1 || prevAccountBalance > available)
+            if(smallestAccountBalance==-1 || smallestAccountBalance > available) {
                 smallestAccountIndex = i;
-
-            prevAccountBalance = available;
+                smallestAccountBalance = available;
+            }
         }
 
         //Select from account with highest balance

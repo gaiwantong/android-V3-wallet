@@ -26,6 +26,8 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
 
     RecyclerView txList = null;
 
+    private static boolean loggedIn = false;
+
     public BalanceScreenTest() {
         super(MainActivity.class);
     }
@@ -33,13 +35,22 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
     @Override
     public void setUp() throws Exception {
 
+        super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
-        UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin1));
+
+        if(!loggedIn){
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+            try{solo.sleep(4000);}catch (Exception e){}
+            loggedIn = true;
+        }
     }
 
     @Override
     public void tearDown() throws Exception {
-        //Press back button twice to exit app
+        solo.finishOpenedActivities();
+    }
+
+    private void exitApp(){
         solo.goBack();
         solo.goBack();
     }
@@ -135,9 +146,8 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
             i.addCategory(Intent.CATEGORY_LAUNCHER);
             getActivity().startActivity(i);
             try{solo.sleep(1000);}catch (Exception e){}
-            solo.goBack();
-            solo.goBack();
-            solo.goBack();
         }
+
+        exitApp();
     }
 }
