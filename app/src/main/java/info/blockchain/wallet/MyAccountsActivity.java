@@ -412,7 +412,7 @@ public class MyAccountsActivity extends Activity {
         accountList.add(new MyAccountItem(ACCOUNT_HEADER, "", getResources().getDrawable(R.drawable.icon_accounthd)));
 
         int i = 0;
-        if(PayloadFactory.getInstance(this).get().isUpgraded()) {
+        if(PayloadFactory.getInstance().get().isUpgraded()) {
 
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
             List<Account> accountClone = new ArrayList<Account>(accounts.size());

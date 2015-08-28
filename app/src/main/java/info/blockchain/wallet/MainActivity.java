@@ -77,6 +77,7 @@ import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
@@ -158,7 +159,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
-            SSLVerifierUtil.getInstance(MainActivity.this).validateSSLThread();
+            SSLVerifierThreadUtil.getInstance(MainActivity.this).validateSSLThread();
 
             exchangeRateThread();
 
@@ -908,7 +909,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
 
-                if(pass.getText().toString().equals(PayloadFactory.getInstance(MainActivity.this).getTempPassword().toString())) {
+                if(pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
 
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);

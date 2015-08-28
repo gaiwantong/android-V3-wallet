@@ -138,7 +138,7 @@ public class ManualPairingFragment extends Fragment {
 
                                 if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
                                     PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                    PayloadFactory.getInstance(getActivity()).setTempPassword(password);
+                                    PayloadFactory.getInstance().setTempPassword(password);
                                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);

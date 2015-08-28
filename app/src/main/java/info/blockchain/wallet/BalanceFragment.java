@@ -76,6 +76,7 @@ import info.blockchain.wallet.util.FloatingActionButton;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.SSLVerifierUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -202,7 +203,7 @@ public class BalanceFragment extends Fragment {
 
         setupViews(rootView);
 
-        SSLVerifierUtil.getInstance(getActivity()).validateSSLThread();
+        SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
 
         return rootView;
     }
@@ -422,7 +423,7 @@ public class BalanceFragment extends Fragment {
         Account hda = null;
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             //All accounts / funds
-            if(PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+            if(PayloadFactory.getInstance().get().isUpgraded())
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance());
             else
                 btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
@@ -430,7 +431,7 @@ public class BalanceFragment extends Fragment {
             //Individual account / address
             hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
             if (hda instanceof ImportedAccount) {
-                if(PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                if(PayloadFactory.getInstance().get().isUpgraded())
                     btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
                 else
                     btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
@@ -473,7 +474,7 @@ public class BalanceFragment extends Fragment {
 
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             //All accounts / funds
-            if (PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+            if (PayloadFactory.getInstance().get().isUpgraded())
                 txs = MultiAddrFactory.getInstance().getAllXpubTxs();
             else
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
@@ -487,7 +488,7 @@ public class BalanceFragment extends Fragment {
             } else {
                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                 if (hda instanceof ImportedAccount) {
-                    if(PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                    if(PayloadFactory.getInstance().get().isUpgraded())
                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                     else
                         txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
@@ -793,7 +794,7 @@ public class BalanceFragment extends Fragment {
 
                         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
                             //All accounts / funds
-                            if (PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                            if (PayloadFactory.getInstance().get().isUpgraded())
                                 txs = MultiAddrFactory.getInstance().getAllXpubTxs();
                             else
                                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
@@ -808,7 +809,7 @@ public class BalanceFragment extends Fragment {
                             } else {
                                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                                 if (hda instanceof ImportedAccount) {
-                                    if(PayloadFactory.getInstance(getActivity()).get().isUpgraded())
+                                    if(PayloadFactory.getInstance().get().isUpgraded())
                                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                                     else
                                         txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
@@ -907,7 +908,7 @@ public class BalanceFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                SSLVerifierUtil.getInstance(getActivity()).validateSSLThread();
+                SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
 
                 Fragment fragment = new SendFragment();
                 FragmentManager fragmentManager = getFragmentManager();
