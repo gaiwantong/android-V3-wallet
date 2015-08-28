@@ -11,6 +11,7 @@ import com.robotium.solo.Solo;
 
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -87,5 +88,41 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
     private String getClipboardText(){
         android.text.ClipboardManager clipboard = (android.text.ClipboardManager)getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
         return clipboard.getText().toString();
+    }
+
+    public void testB_Conversion() throws AssertionError{
+
+        double allowedFluctuation = 0.01;//only 1% fluctuation allowed for volatility
+
+        EditText btcEt = (EditText)solo.getView(R.id.amount1);
+        EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+
+        double fiatTestAmount = 500.0;
+        solo.enterText(fiatEt, fiatTestAmount+"");
+
+        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT,"USD");
+
+        //Test fiat converted to btc
+        double expectedBtc = 0.0;
+        try {
+            expectedBtc = Double.parseDouble(info.blockchain.wallet.util.WebUtil.getInstance().getURL("https://blockchain.info/tobtc?currency=" + fiatFormat + "&value=" + fiatEt.getText().toString()));
+            double displayedBtc = Double.parseDouble(btcEt.getText().toString());
+
+            assertTrue("Expected btc= "+expectedBtc+", UI shows btc="+ displayedBtc +" ("+(allowedFluctuation*100)+"% fluctuation allowed.)",displayedBtc >= expectedBtc * (1.0-allowedFluctuation) && displayedBtc <= expectedBtc * (1.0+allowedFluctuation));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Clear text
+        solo.enterText(btcEt, "");
+
+        //Test btc converted to fiat
+        solo.enterText(btcEt, expectedBtc + "");
+        double displayedFiat = Double.parseDouble(fiatEt.getText().toString());
+
+        assertTrue("Expected fiat= " + fiatTestAmount + ", UI shows fiat=" + displayedFiat + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedFiat >= fiatTestAmount * (1.0 - allowedFluctuation) && displayedFiat <= fiatTestAmount * (1.0 + allowedFluctuation));
+
+        exitApp();
     }
 }
