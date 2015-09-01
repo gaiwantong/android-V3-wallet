@@ -1,6 +1,7 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -122,6 +123,60 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         double displayedFiat = Double.parseDouble(fiatEt.getText().toString());
 
         assertTrue("Expected fiat= " + fiatTestAmount + ", UI shows fiat=" + displayedFiat + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedFiat >= fiatTestAmount * (1.0 - allowedFluctuation) && displayedFiat <= fiatTestAmount * (1.0 + allowedFluctuation));
+
+    }
+
+    public void testC_EnterInvalidCharacters() throws AssertionError{
+
+        final EditText btcEt = (EditText)solo.getView(R.id.amount1);
+        final EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+
+        //BTC field
+        //Test invalid chars
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                btcEt.requestFocus();
+            }
+        });
+        solo.sendKey(KeyEvent.KEYCODE_A);
+        solo.sendKey(KeyEvent.KEYCODE_A);
+        assertTrue(!btcEt.getText().toString().toLowerCase().contains("a"));
+        solo.enterText(btcEt, "");
+
+        //Test no multiple decimals excepted
+        solo.sendKey(KeyEvent.KEYCODE_0);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        solo.sendKey(KeyEvent.KEYCODE_0);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        solo.sendKey(KeyEvent.KEYCODE_1);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        assertTrue(btcEt.getText().toString().equals("0.01"));
+        solo.enterText(btcEt, "");
+
+
+        //FIAT field
+        //Test invalid chars
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fiatEt.requestFocus();
+            }
+        });
+        solo.sendKey(KeyEvent.KEYCODE_A);
+        solo.sendKey(KeyEvent.KEYCODE_A);
+        assertTrue(!fiatEt.getText().toString().toLowerCase().contains("a"));
+        solo.enterText(fiatEt, "");
+
+        //Test no multiple decimals excepted
+        solo.sendKey(KeyEvent.KEYCODE_0);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        solo.sendKey(KeyEvent.KEYCODE_0);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        solo.sendKey(KeyEvent.KEYCODE_1);
+        solo.sendKey(KeyEvent.KEYCODE_PERIOD);
+        assertTrue(fiatEt.getText().toString().equals("0.01"));
+        solo.enterText(fiatEt, "");
 
         exitApp();
     }
