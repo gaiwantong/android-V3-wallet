@@ -1,6 +1,7 @@
 package info.blockchain.ui.util;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 
@@ -85,5 +86,19 @@ public class UiUtil {
         HD_WalletFactory.getInstance(context).set(null);
         PayloadFactory.getInstance().wipe();
         PrefsUtil.getInstance(context).clear();
+    }
+
+    public void openNavigationDrawer(Solo solo) {
+        Point deviceSize = new Point();
+        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+
+        int screenWidth = deviceSize.x;
+        int screenHeight = deviceSize.y;
+        int fromX = 0;
+        int toX = screenWidth / 2;
+        int fromY = screenHeight / 2;
+        int toY = fromY;
+
+        solo.drag(fromX, toX, fromY, toY, 1);
     }
 }

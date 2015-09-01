@@ -39,6 +39,9 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
         //Test send screen
         t.addTestSuite(ReceiveScreenTest.class);
 
+        //Test my accounts screen
+        t.addTestSuite(MyAccountsScreenTest.class);
+
         return t;
     }
 
