@@ -124,6 +124,12 @@ public class BalanceFragment extends Fragment {
 
     private static int nbConfirmations = 3;
 
+    private final static int SHOW_BTC = 1;
+    private final static int SHOW_FIAT = 2;
+    private final static int SHOW_HIDE = 3;
+
+    private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -200,6 +206,11 @@ public class BalanceFragment extends Fragment {
         setHasOptionsMenu(true);
 
         balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
+
+        BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
+        if(BALANCE_DISPLAY_STATE == SHOW_FIAT)    {
+            isBTC = false;
+        }
 
         setupViews(rootView);
 
@@ -447,15 +458,24 @@ public class BalanceFragment extends Fragment {
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";
-        if(isBTC)
+        if(isBTC) {
             balanceTotal = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
-        else
+        }
+        else {
             balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
+        }
 
         span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
 
         span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tvBalance1.setText(span1);
+        if(BALANCE_DISPLAY_STATE != SHOW_HIDE)    {
+            tvBalance1.setText(span1);
+        }
+        else    {
+            span1 = Spannable.Factory.getInstance().newSpannable(getActivity().getText(R.string.show_balance));
+            span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tvBalance1.setText(span1);
+        }
     }
 
     private String getDisplayUnits() {
@@ -750,7 +770,21 @@ public class BalanceFragment extends Fragment {
         tvBalance1.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                isBTC = (isBTC) ? false : true;
+
+                if(BALANCE_DISPLAY_STATE == SHOW_BTC)    {
+                    BALANCE_DISPLAY_STATE = SHOW_FIAT;
+                    isBTC = false;
+                }
+                else if(BALANCE_DISPLAY_STATE == SHOW_FIAT)   {
+                    BALANCE_DISPLAY_STATE = SHOW_HIDE;
+                    isBTC = true;
+                }
+                else    {
+                    BALANCE_DISPLAY_STATE = SHOW_BTC;
+                    isBTC = true;
+                }
+                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
+
                 displayBalance();
                 accountsAdapter.notifyDataSetChanged();
                 txAdapter.notifyDataSetChanged();
