@@ -53,7 +53,12 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.goBack();
     }
 
-    public void testA_SelectToAccounts() throws AssertionError{
+    public void testA_NavigateToReceive() throws AssertionError{
+
+        assertTrue(solo.waitForText(getActivity().getString(R.string.receive_bitcoin)));
+    }
+
+    public void testB_SelectToAccounts() throws AssertionError{
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
         int itemCount = mSpinner.getAdapter().getCount();
@@ -91,7 +96,7 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         return clipboard.getText().toString();
     }
 
-    public void testB_Conversion() throws AssertionError{
+    public void testC_Conversion() throws AssertionError{
 
         double allowedFluctuation = 0.01;//only 1% fluctuation allowed for volatility
 
@@ -126,7 +131,7 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
 
     }
 
-    public void testC_EnterInvalidCharacters() throws AssertionError{
+    public void testD_EnterInvalidCharacters() throws AssertionError{
 
         final EditText btcEt = (EditText)solo.getView(R.id.amount1);
         final EditText fiatEt = (EditText)solo.getView(R.id.amount2);
