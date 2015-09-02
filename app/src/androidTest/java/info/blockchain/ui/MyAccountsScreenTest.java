@@ -45,7 +45,7 @@ public class MyAccountsScreenTest extends ActivityInstrumentationTestCase2<MainA
     }
 
     private void exitApp(){
-        solo.goBack();
+        solo.clickOnActionBarHomeButton();
         solo.goBack();
         solo.goBack();
     }
@@ -86,6 +86,16 @@ public class MyAccountsScreenTest extends ActivityInstrumentationTestCase2<MainA
                 yd+=rowHeight;
             }
         }
+    }
+
+    public void testB_OpenCamera() throws AssertionError{
+
+        solo.clickOnView(solo.getView(R.id.menu_import));
+        solo.clickOnText(getActivity().getString(R.string.import_address));
+
+        assertTrue(solo.waitForText(getActivity().getString(R.string.scan_qr),1,500));
+        solo.clickOnActionBarHomeButton();
+
         exitApp();
     }
 }
