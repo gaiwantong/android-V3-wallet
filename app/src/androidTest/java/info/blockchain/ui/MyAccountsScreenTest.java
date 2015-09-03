@@ -44,12 +44,6 @@ public class MyAccountsScreenTest extends ActivityInstrumentationTestCase2<MainA
         solo.finishOpenedActivities();
     }
 
-    private void exitApp(){
-        solo.clickOnActionBarHomeButton();
-        solo.goBack();
-        solo.goBack();
-    }
-
     private float toPx(int dp){
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getActivity().getResources().getDisplayMetrics());
     }
@@ -96,6 +90,6 @@ public class MyAccountsScreenTest extends ActivityInstrumentationTestCase2<MainA
         assertTrue(solo.waitForText(getActivity().getString(R.string.scan_qr),1,500));
         solo.clickOnActionBarHomeButton();
 
-        exitApp();
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 }

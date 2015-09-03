@@ -51,11 +51,6 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.finishOpenedActivities();
     }
 
-    private void exitApp(){
-        solo.goBack();
-        solo.goBack();
-    }
-
     public void testA_ChangeCurrencyTapBalance() throws AssertionError{
 
         TextView balance = (TextView)solo.getView(R.id.balance1);
@@ -160,6 +155,6 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
             try{solo.sleep(1000);}catch (Exception e){}
         }
 
-        exitApp();
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 }

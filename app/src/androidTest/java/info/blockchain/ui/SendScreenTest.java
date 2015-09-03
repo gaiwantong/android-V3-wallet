@@ -54,12 +54,6 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         solo.finishOpenedActivities();
     }
 
-    private void exitApp(){
-        solo.goBack();
-        solo.goBack();
-        solo.goBack();
-    }
-
     public void testA_SelectFromAccounts() throws AssertionError{
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
@@ -381,7 +375,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         assertTrue(fiatEt.getText().toString().equals("0.01"));
         solo.enterText(fiatEt, "");
 
-        exitApp();
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 
     private void smartAccountSelect(){

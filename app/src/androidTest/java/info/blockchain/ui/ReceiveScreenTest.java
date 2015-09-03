@@ -47,12 +47,6 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.finishOpenedActivities();
     }
 
-    private void exitApp(){
-        solo.goBack();
-        solo.goBack();
-        solo.goBack();
-    }
-
     public void testA_NavigateToReceive() throws AssertionError{
 
         assertTrue(solo.waitForText(getActivity().getString(R.string.receive_bitcoin)));
@@ -183,6 +177,6 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         assertTrue(fiatEt.getText().toString().equals("0.01"));
         solo.enterText(fiatEt, "");
 
-        exitApp();
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 }

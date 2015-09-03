@@ -101,4 +101,12 @@ public class UiUtil {
 
         solo.drag(fromX, toX, fromY, toY, 1);
     }
+
+    public void exitApp(Solo solo){
+
+        while(!solo.waitForText(context.getString(R.string.exit_confirm),1,100))
+            solo.goBack();
+
+        solo.goBack();
+    }
 }
