@@ -43,9 +43,10 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
-import com.google.bitcoin.uri.BitcoinURI;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -590,8 +591,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             }
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
             if(!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
-                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
+                generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
+                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
             }
             else {
                 generateQRCode("bitcoin:" + currentSelectedAddress);

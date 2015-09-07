@@ -134,11 +134,11 @@ public class ManualPairingFragment extends Fragment {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
                             if(payloadObj != null && payloadObj.has("sharedKey")) {
                                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
-                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SHARED_KEY, (String)payloadObj.get("sharedKey"));
+                                AppUtil.getInstance(getActivity()).setSharedKey((String)payloadObj.get("sharedKey"));
 
                                 if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
                                     PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                    PayloadFactory.getInstance(getActivity()).setTempPassword(password);
+                                    PayloadFactory.getInstance().setTempPassword(password);
                                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);

@@ -17,8 +17,9 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.apache.commons.io.IOUtils;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ import java.util.TimerTask;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -42,7 +44,7 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-import libsrc.org.apache.commons.io.IOUtils;
+//import libsrc.org.apache.commons.io.IOUtils;
 import piuk.blockchain.android.R;
 
 public class PinEntryActivity extends Activity {
@@ -172,9 +174,10 @@ public class PinEntryActivity extends Activity {
 
             HDPayloadBridge.getInstance(this).createHDWallet(12, "", 1);
 
-            PayloadFactory.getInstance(this).remoteSaveThread();
+            PayloadBridge.getInstance(this).remoteSaveThread();
 
-            whitelistGuid();// <-- remove after beta invite system
+            whitelistGuid("alpha");// <-- remove after beta invite system
+            whitelistGuid("dev");// <-- remove after beta invite system
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
@@ -184,7 +187,7 @@ public class PinEntryActivity extends Activity {
 
     }
 
-    private void whitelistGuid() {
+    private void whitelistGuid(final String domain) {
 
         if(progress != null && progress.isShowing()) {
             progress.dismiss();
@@ -206,8 +209,6 @@ public class PinEntryActivity extends Activity {
 
                 URL url = null;
                 try {
-
-                    String domain = AppUtil.getInstance(PinEntryActivity.this).getSubDomain();
 
                     url = new URL("https://"+domain+".blockchain.info/whitelist_guid/");
                     JSONObject json = new JSONObject();
@@ -348,10 +349,12 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
+                        PayloadFactory.getInstance().setTempPassword(pw);
+                        AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
+
                         if(AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet()!=null && (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel()==null || PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
 
-                        PayloadFactory.getInstance().setTempPassword(pw);
 
                         handler.post(new Runnable() {
                             @Override
@@ -369,7 +372,7 @@ public class PinEntryActivity extends Activity {
                                 }
                                 else    {
 
-                                    if(Long.parseLong(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0")) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
+                                    if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
                                         Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);

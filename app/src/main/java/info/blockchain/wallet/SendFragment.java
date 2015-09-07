@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,8 +38,8 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -53,16 +54,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.send.FeeUtil;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -167,7 +169,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    validateSpend(true);
+                    validateSpend(true, spAccounts.getSelectedItemPosition());
                 }
 
                 return false;
@@ -178,7 +180,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                     currentSelectedToAddress = edDestination.getText().toString();
-                    validateSpend(false);
+                    validateSpend(false, spAccounts.getSelectedItemPosition());
                 }
 
             }
@@ -204,7 +206,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    validateSpend(true);
+                    validateSpend(true, spAccounts.getSelectedItemPosition());
                 }
 
                 return false;
@@ -259,7 +261,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                     if (edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                         currentSelectedToAddress = edDestination.getText().toString();
-                        validateSpend(false);
+                        validateSpend(false, spAccounts.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
                 }
@@ -323,7 +325,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                     if(edAmount1 != null && edDestination != null && edAmount2 != null && spAccounts != null) {
                         currentSelectedToAddress = edDestination.getText().toString();
-                        validateSpend(false);
+                        validateSpend(false, spAccounts.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
                 }
@@ -525,7 +527,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 validate = true;
             }
             if(validate) {
-                validateSpend(true);
+                int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
+                if(currentSelected!=0)currentSelected--;//exclude 'all account'
+                validateSpend(true, currentSelected);
             }
         }
 
@@ -670,7 +674,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         super.onDestroy();
     }
 
-    private void validateSpend(boolean showMessages) {
+    private void validateSpend(boolean showMessages, int position) {
 
         pendingSpend.amount = null;
         pendingSpend.destination = null;
@@ -679,7 +683,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         pendingSpend.isHD = true;
         pendingSpend.btc_units = strBTC;
 
-        int position = spAccounts.getSelectedItemPosition();
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
 
         //Legacy addresses
@@ -926,8 +929,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             PayloadFactory.getInstance().get().getIterations());
 
                                     try {
-                                        HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                                        HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
+                                        Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                                        WalletFactory.getInstance().setWatchOnlyWallet(hdw);
                                     } catch (IOException | DecoderException | AddressFormatException |
                                             MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
                                             MnemonicException.MnemonicWordException e) {
@@ -1181,7 +1184,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     }
 
                                                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                    PayloadFactory.getInstance(context).remoteSaveThread();
+                                                    PayloadBridge.getInstance(context).remoteSaveThread();
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
@@ -1234,7 +1237,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 public void onSuccess(final String hash) {
                                                     ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                     if (strNote != null) {
-                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                        PayloadBridge.getInstance(getActivity()).remoteSaveThread();
                                                     }
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));

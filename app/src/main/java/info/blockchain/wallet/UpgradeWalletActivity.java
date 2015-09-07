@@ -23,8 +23,10 @@ import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+import android.util.Log;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -130,7 +132,7 @@ public class UpgradeWalletActivity extends Activity {
                                             Looper.prepare();
 
                                             if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
-                                                PayloadFactory.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
+                                                PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
                                             else    {
@@ -208,7 +210,7 @@ public class UpgradeWalletActivity extends Activity {
                         try {
                             AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
 
-                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis() + "");
+                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
                             AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
                             HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
@@ -216,12 +218,12 @@ public class UpgradeWalletActivity extends Activity {
                         } catch (Exception e) {
                             e.printStackTrace();
                             onUpgradeFail();
-                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0);
+                            PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                             Looper.loop();
                         }
 
                         onUpgradeCompleted();
-                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0);
+                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                         Looper.loop();
                     }
                 }).start();

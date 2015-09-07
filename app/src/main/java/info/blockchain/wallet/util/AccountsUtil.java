@@ -85,7 +85,7 @@ public class AccountsUtil {
 		//All Account - if multiple accounts or contains legacy address
 		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
 
-            if(PayloadFactory.getInstance(context).get().isUpgraded()) {
+            if(PayloadFactory.getInstance().get().isUpgraded()) {
                 Account all = new Account();
                 all.setLabel(context.getResources().getString(R.string.all_accounts));
                 balanceAccountMap.put(-1, all);
@@ -96,7 +96,7 @@ public class AccountsUtil {
 		}
 
         //Add Legacy addresses to accounts
-        if (PayloadFactory.getInstance(context).get().isUpgraded()) {
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
             if (accounts != null && accounts.size() > 0
                     && !(accounts.get(accounts.size() - 1) instanceof ImportedAccount)
                     && (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0)) {

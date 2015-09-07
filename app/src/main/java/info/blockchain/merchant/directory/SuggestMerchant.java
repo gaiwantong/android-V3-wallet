@@ -39,7 +39,6 @@ import java.util.Locale;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
 
 public class SuggestMerchant extends ActionBarActivity {
@@ -56,7 +55,7 @@ public class SuggestMerchant extends ActionBarActivity {
 	private GoogleMap map = null;
 
 	TextView commandSave;
-	DecimalFormat df = new DecimalFormat("#0.000000");
+	DecimalFormat df = new DecimalFormat("#0.00");
 
 	private EditText edName = null;
 	private EditText edDescription = null;

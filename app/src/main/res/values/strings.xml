@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.47a</string>
+    <string name="version_name">5.0.48a</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -50,7 +50,7 @@
 
     <string name="SENT">Sent</string>
     <string name="RECEIVED">Received</string>
-    <string name="MOVED">Moved</string>
+    <string name="MOVED">Transferred</string>
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
@@ -376,5 +376,7 @@
     <string name="verify_email">Verify Email</string>
     <string name="email_verified">Email Verified</string>
     <string name="verify_email2">Your verified email address is used to send login codes when suspicious or unusual activity is detected, to remind you of your wallet login ID, and to send bitcoin payment alerts when funds are sent or received. We will not use your email address for marketing purposes</string>
+
+    <string name="show_balance">Show Balance</string>
 
 </resources>

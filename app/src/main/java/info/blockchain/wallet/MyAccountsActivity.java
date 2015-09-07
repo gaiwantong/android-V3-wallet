@@ -31,10 +31,11 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.uri.BitcoinURI;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -52,6 +53,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -262,7 +264,7 @@ public class MyAccountsActivity extends Activity {
                             addressView.setText(currentSelectedAddress);
 
                             //Receiving QR
-                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
 
                             if (originalHeight == 0) {
                                 originalHeight = view.getHeight();
@@ -410,7 +412,7 @@ public class MyAccountsActivity extends Activity {
         accountList.add(new MyAccountItem(ACCOUNT_HEADER, "", getResources().getDrawable(R.drawable.icon_accounthd)));
 
         int i = 0;
-        if(PayloadFactory.getInstance(this).get().isUpgraded()) {
+        if(PayloadFactory.getInstance().get().isUpgraded()) {
 
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
             List<Account> accountClone = new ArrayList<Account>(accounts.size());
@@ -685,7 +687,7 @@ public class MyAccountsActivity extends Activity {
                                                         }
                                                         PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                        PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                         updateAndRecreate(legacyAddress);
                                                     }
@@ -694,7 +696,7 @@ public class MyAccountsActivity extends Activity {
                                                 legacyAddress.setLabel("");
                                                 PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                 updateAndRecreate(legacyAddress);
                                             }
@@ -775,7 +777,7 @@ public class MyAccountsActivity extends Activity {
                             PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
 
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                            PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                             updateAndRecreate(legacyAddress);
                         }
@@ -784,7 +786,7 @@ public class MyAccountsActivity extends Activity {
                     legacyAddress.setLabel("");
                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                    PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                     updateAndRecreate(legacyAddress);
                 }

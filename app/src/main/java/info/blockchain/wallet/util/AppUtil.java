@@ -9,8 +9,10 @@ import android.os.Looper;
 
 import java.io.File;
 
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import piuk.blockchain.android.R;
 
@@ -36,8 +38,6 @@ public class AppUtil {
 
     private static boolean isClosed = false;
 
-    private static String SUB_DOMAIN = "";
-
 	private AppUtil() { ; }
 
 	public static AppUtil getInstance(Context ctx) {
@@ -53,7 +53,7 @@ public class AppUtil {
 	}
 
 	public void clearCredentialsAndRestart() {
-        HD_WalletFactory.getInstance(context).set(null);
+        WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
 		PrefsUtil.getInstance(context).clear();
 		restartApp();
@@ -86,19 +86,7 @@ public class AppUtil {
     }
 
     public void setDEBUG(boolean debug) {
-
         DEBUG = debug;
-
-        SUB_DOMAIN = DEBUG ? "alpha" : "";
-
-    }
-
-    public String getSubDomain() {
-        return SUB_DOMAIN;
-    }
-
-    public void setSubDomain(String SUB_DOMAIN) {
-        AppUtil.SUB_DOMAIN = SUB_DOMAIN;
     }
 
     public void updatePinEntryTime() {
@@ -170,7 +158,7 @@ public class AppUtil {
     public boolean isTimeForUpgradeReminder() {
         long lastReminder = 0L;
         try {
-            lastReminder = Long.parseLong(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, "0L"));
+            lastReminder = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
         }
         catch(NumberFormatException nfe) {
             lastReminder = 0L;
@@ -179,7 +167,7 @@ public class AppUtil {
     }
 
     public void setUpgradeReminder(long ts) {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, Long.toString(ts));
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, ts);
     }
 
     public boolean isNewlyCreated() {
@@ -193,9 +181,8 @@ public class AppUtil {
     public boolean isSane() {
 
         String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
-        String shareKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
 
-        if(!guid.matches(REGEX_UUID) || !shareKey.matches(REGEX_UUID))  {
+        if(!guid.matches(REGEX_UUID))  {
             return false;
         }
 
@@ -249,4 +236,36 @@ public class AppUtil {
 
         return false;
     }
+
+    public String getSharedKey()   {
+        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
+            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+            setSharedKey(sharedKey);
+            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
+            return sharedKey;
+        }
+        else    {
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+        }
+
+    }
+
+    public String getSharedKey(CharSequenceX password)   {
+        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
+            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+            setSharedKey(sharedKey);
+            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
+            return sharedKey;
+        }
+        else    {
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), password, AESUtil.PasswordPBKDF2Iterations);
+        }
+
+    }
+
+    public void setSharedKey(String sharedKey)   {
+        String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
+    }
+
 }
