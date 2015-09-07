@@ -256,9 +256,7 @@ public class SendFactory	{
 
                     if(!isQueueSend)    {
                         if(ConnectivityStatus.hasConnectivity(context)) {
-//					Log.i("SendFactory tx string", hexString);
-                            String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
-//					Log.i("Send response", response);
+                            String response = SendCoins.getInstance().pushTx(tx);
                             if(response.contains("Transaction Submitted")) {
 
                                 opc.onSuccess(tx.getHashAsString());
