@@ -248,7 +248,7 @@ public class SendFactory	{
                     }
 
                     SendCoins.getInstance().signTx(tx, wallet);
-                    String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
+                    String hexString = SendCoins.getInstance().encodeHex(tx);
                     if(hexString.length() > (100 * 1024)) {
                         opc.onFail();
                         throw new Exception(context.getString(R.string.tx_length_error));
