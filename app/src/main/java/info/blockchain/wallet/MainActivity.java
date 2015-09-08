@@ -207,9 +207,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             // Legacy app has not been prompted for upgrade
             //
             else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
+                /*
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
                 Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
                 startActivity(intent);
+                */
+
+                AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+                PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+                AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+                AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
+
             }
             //
             // App has been PIN validated
@@ -1007,8 +1016,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doUpgrade(){
+        /*
         Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
         startActivity(intent);
+        */
+
+        AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+        AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+        AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
+
     }
 
     public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){

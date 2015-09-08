@@ -206,16 +206,18 @@ public class HDPayloadBridge	{
 
         }
 
-        int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
-        for(int i = 0; i < nb_accounts; i++) {
-            boolean isArchived = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).isArchived();
-            if(isArchived && !includeArchives) {
-                ;
-            }
-            else {
-                String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
-                if(s != null && s.length() > 0) {
-                    xpubs.add(s);
+        if(PayloadFactory.getInstance().get().getHdWallet() != null)    {
+            int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+            for(int i = 0; i < nb_accounts; i++) {
+                boolean isArchived = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).isArchived();
+                if(isArchived && !includeArchives) {
+                    ;
+                }
+                else {
+                    String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+                    if(s != null && s.length() > 0) {
+                        xpubs.add(s);
+                    }
                 }
             }
         }

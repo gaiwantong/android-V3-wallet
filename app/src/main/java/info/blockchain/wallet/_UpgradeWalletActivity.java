@@ -35,7 +35,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
-public class UpgradeWalletActivity extends Activity {
+public class _UpgradeWalletActivity extends Activity {
 
     private AlertDialog alertDialog = null;
     private ViewPager mViewPager = null;
@@ -65,7 +65,7 @@ public class UpgradeWalletActivity extends Activity {
         pageHeader.setFactory(new ViewSwitcher.ViewFactory() {
 
             public View makeView() {
-                TextView myText = new TextView(UpgradeWalletActivity.this);
+                TextView myText = new TextView(_UpgradeWalletActivity.this);
                 myText.setGravity(Gravity.CENTER);
                 myText.setTextSize(14);
                 myText.setTextColor(Color.WHITE);
@@ -113,12 +113,12 @@ public class UpgradeWalletActivity extends Activity {
 
                             if (password1 == null || password1.length() < 9 || password1.length() > 255 ||
                                     password2 == null  || password2.length() < 9 || password2.length() > 255 ) {
-                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
                             else {
 
                                 if (!password2.equals(password1)) {
-                                    ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 else    {
 
@@ -131,14 +131,14 @@ public class UpgradeWalletActivity extends Activity {
 
                                             Looper.prepare();
 
-                                            if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
-                                                PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
-                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                            if (AccessFactory.getInstance(_UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(_UpgradeWalletActivity.this).getPIN())) {
+                                                PayloadBridge.getInstance(_UpgradeWalletActivity.this).remoteSaveThread();
+                                                ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
                                             else    {
                                                 PayloadFactory.getInstance().setTempPassword(currentPassword);
-                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
 
                                             Looper.loop();
@@ -153,7 +153,7 @@ public class UpgradeWalletActivity extends Activity {
                     })
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(_UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
                     }).show();
 
@@ -191,8 +191,8 @@ public class UpgradeWalletActivity extends Activity {
 
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+                AccessFactory.getInstance(_UpgradeWalletActivity.this).setIsLoggedIn(true);
+                AppUtil.getInstance(_UpgradeWalletActivity.this).restartApp("verified", true);
             }
         });
 
@@ -208,7 +208,7 @@ public class UpgradeWalletActivity extends Activity {
                     public void run() {
                         Looper.prepare();
                         try {
-                            AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
+                            AppUtil.getInstance(_UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
 
                             PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
                             AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
@@ -261,10 +261,10 @@ public class UpgradeWalletActivity extends Activity {
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
-                        AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+                        PrefsUtil.getInstance(_UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                        PrefsUtil.getInstance(_UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+                        AccessFactory.getInstance(_UpgradeWalletActivity.this).setIsLoggedIn(true);
+                        AppUtil.getInstance(_UpgradeWalletActivity.this).restartApp("verified", true);
                     }
                 });
             }
@@ -285,7 +285,7 @@ public class UpgradeWalletActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+                        AppUtil.getInstance(_UpgradeWalletActivity.this).restartApp();
                     }
                 });
             }
@@ -294,10 +294,10 @@ public class UpgradeWalletActivity extends Activity {
 
     public void askLaterClicked(View view) {
         AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
-        AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+        PrefsUtil.getInstance(_UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+        PrefsUtil.getInstance(_UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+        AccessFactory.getInstance(_UpgradeWalletActivity.this).setIsLoggedIn(true);
+        AppUtil.getInstance(_UpgradeWalletActivity.this).restartApp("verified", true);
     }
 
     class CustomPagerAdapter extends PagerAdapter {
@@ -374,7 +374,7 @@ public class UpgradeWalletActivity extends Activity {
 
         if(keyCode == KeyEvent.KEYCODE_BACK) {
 
-            AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+            AppUtil.getInstance(_UpgradeWalletActivity.this).restartApp();
 
             return true;
         }

@@ -373,9 +373,18 @@ public class PinEntryActivity extends Activity {
                                 else    {
 
                                     if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
+                                        /*
                                         Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
+                                        */
+
+                                        AppUtil.getInstance(PinEntryActivity.this).setUpgradeReminder(System.currentTimeMillis());
+                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+                                        AccessFactory.getInstance(PinEntryActivity.this).setIsLoggedIn(true);
+                                        AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
+
                                     }
                                     else if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false) || PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))    {
                                         AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
