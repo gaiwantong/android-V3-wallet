@@ -18,29 +18,32 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
 
         TestSuite t = new TestSuite();
 
-        //Test creating a wallet
-        t.addTestSuite(ClearWalletData.class);
-        t.addTestSuite(CreateAWalletTest.class);
+//        //Test creating a wallet
+//        t.addTestSuite(ClearWalletData.class);
+//        t.addTestSuite(CreateAWalletTest.class);
+//
+//        //Test email confirmation
+//        t.addTestSuite(ClearWalletData.class);
+//        t.addTestSuite(ConfirmationCodeTest.class);
+//
+//        //Test pairing
+//        t.addTestSuite(ClearWalletData.class);
+//        t.addTestSuite(PairingTest.class);
+//
+//        //Test balance screen
+//        t.addTestSuite(BalanceScreenTest.class);
+//
+//        //Test send screen
+//        t.addTestSuite(SendScreenTest.class);
+//
+//        //Test send screen
+//        t.addTestSuite(ReceiveScreenTest.class);
+//
+//        //Test accounts screen
+//        t.addTestSuite(MyAccountsScreenTest.class);
 
-        //Test email confirmation
-        t.addTestSuite(ClearWalletData.class);
-        t.addTestSuite(ConfirmationCodeTest.class);
-
-        //Test pairing
-        t.addTestSuite(ClearWalletData.class);
-        t.addTestSuite(PairingTest.class);
-
-        //Test balance screen
-        t.addTestSuite(BalanceScreenTest.class);
-
-        //Test send screen
-        t.addTestSuite(SendScreenTest.class);
-
-        //Test send screen
-        t.addTestSuite(ReceiveScreenTest.class);
-
-        //Test my accounts screen
-        t.addTestSuite(MyAccountsScreenTest.class);
+        //Test settings screen
+        t.addTestSuite(SettingsScreenTest.class);
 
         return t;
     }

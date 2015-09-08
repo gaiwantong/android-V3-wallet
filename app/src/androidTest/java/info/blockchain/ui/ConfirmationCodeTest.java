@@ -3,10 +3,11 @@ package info.blockchain.ui;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 
-import com.google.bitcoin.crypto.MnemonicException;
 import com.robotium.solo.Solo;
 
 import junit.framework.TestCase;
+
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 

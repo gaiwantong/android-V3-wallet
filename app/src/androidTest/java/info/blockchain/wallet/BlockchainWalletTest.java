@@ -2,20 +2,16 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
-
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
 
 import java.io.IOException;
 
 import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 
 public class BlockchainWalletTest extends BlockchainTest {

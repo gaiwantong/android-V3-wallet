@@ -9,7 +9,6 @@ import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
 
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
@@ -83,7 +82,6 @@ public class UiUtil {
     }
 
     public void wipeWallet(){
-        HD_WalletFactory.getInstance(context).set(null);
         PayloadFactory.getInstance().wipe();
         PrefsUtil.getInstance(context).clear();
     }
@@ -108,5 +106,10 @@ public class UiUtil {
             solo.goBack();
 
         solo.goBack();
+    }
+
+    public String getClipboardText(){
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager)context.getSystemService(context.CLIPBOARD_SERVICE);
+        return clipboard.getText().toString();
     }
 }
