@@ -54,11 +54,11 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
 
-//        BlockchainWalletTest bwt = new BlockchainWalletTest("BlockchainWalletTest", getActivity());
-//        bwt.test();
+        BlockchainWalletTest bwt = new BlockchainWalletTest("BlockchainWalletTest", getActivity());
+        bwt.test();
 
-//        SendTest sendTest = new SendTest("SendTest", getActivity());
-//        sendTest.test();
+        SendTest sendTest = new SendTest("SendTest", getActivity());
+        sendTest.test();
 
     }
 
