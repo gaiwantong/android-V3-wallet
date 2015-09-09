@@ -6,8 +6,11 @@ import android.widget.TextView;
 
 import com.robotium.solo.Solo;
 
+import junit.framework.TestCase;
+
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.PolicyActivity;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -133,5 +136,13 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
         solo.clickOnText(getActivity().getString(R.string.about_us));
         assertTrue(solo.waitForText(getActivity().getString(R.string.version_name)));
         solo.goBack();
+    }
+
+    public void testE_Policies() throws AssertionError{
+        solo.clickOnText(getActivity().getString(R.string.options_tos));
+        TestCase.assertEquals(true, solo.waitForActivity(PolicyActivity.class));
+        solo.goBack();
+        solo.clickOnText(getActivity().getString(R.string.options_privacy));
+        TestCase.assertEquals(true, solo.waitForActivity(PolicyActivity.class));
     }
 }
