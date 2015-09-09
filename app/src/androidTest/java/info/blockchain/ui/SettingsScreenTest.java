@@ -1,6 +1,8 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.FlakyTest;
+import android.widget.TextView;
 
 import com.robotium.solo.Solo;
 
@@ -43,6 +45,7 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
         solo.finishOpenedActivities();
     }
 
+    @FlakyTest(tolerance = 2)
     public void testA_CopyGUI() throws AssertionError{
         solo.clickOnText(getActivity().getString(R.string.options_id));
         solo.waitForText(getActivity().getString(R.string.copied_to_clipboard), 1, 200);
@@ -57,10 +60,11 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
 
     public void testB_SelectBTCUnits() throws AssertionError{
 
-        PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, 0);
         final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
 
         for(CharSequence unit : units) {
+
+            PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, 0);
 
             if(solo.searchText(getActivity().getString(R.string.options_units)))
                 solo.clickOnText(getActivity().getString(R.string.options_units));
@@ -69,7 +73,20 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
             solo.clickOnText(unit.toString());
             try{solo.sleep(500);}catch (Exception e){}
             int sel = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, 0);
-            assertTrue("Found: '"+units[sel]+"' - Expected: '"+unit+"'",units[sel].equals(unit));
+            assertTrue("Found: '" + units[sel] + "' - Expected: '" + unit + "'", units[sel].equals(unit));
+
+            solo.goBack();
+            while(!solo.searchText(units[sel].toString())){
+                TextView balance = (TextView)solo.getView(R.id.balance1);
+                solo.clickOnView(balance);
+            }
+
+            assertTrue(solo.searchText(units[sel].toString()));
+
+            UiUtil.getInstance(getActivity()).openNavigationDrawer(solo);
+            try{solo.sleep(500);}catch (Exception e){}
+            solo.clickOnText(getActivity().getString(R.string.action_settings));
+            try{solo.sleep(500);}catch (Exception e){}
         }
     }
 }
