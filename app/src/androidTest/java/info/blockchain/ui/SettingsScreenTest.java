@@ -128,4 +128,10 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
             try{solo.sleep(500);}catch (Exception e){}
         }
     }
+
+    public void testD_AboutUs() throws AssertionError{
+        solo.clickOnText(getActivity().getString(R.string.about_us));
+        assertTrue(solo.waitForText(getActivity().getString(R.string.version_name)));
+        solo.goBack();
+    }
 }
