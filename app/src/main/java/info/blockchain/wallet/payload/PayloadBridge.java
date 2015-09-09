@@ -5,18 +5,24 @@ import android.os.Handler;
 import android.os.Looper;
 //import android.util.Log;
 
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
 
 import info.blockchain.wallet.util.AppUtil;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
@@ -74,6 +80,9 @@ public class PayloadBridge	{
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
         AppUtil.getInstance(context).setSharedKey(sharedKey);
 
+        //
+        // commented out for lame mode create wallet
+/*
         HDWallet payloadHDWallet = new HDWallet();
         payloadHDWallet.setSeedHex(hdw.getSeedHex());
 
@@ -96,6 +105,25 @@ public class PayloadBridge	{
         payloadHDWallet.setAccounts(payloadAccounts);
 
         payload.setHdWallets(payloadHDWallet);
+*/
+
+        //
+        // 'lame' mode: create legacy address
+        //
+        // Apply PRNG fixes for Android 4.1
+        PRNGFixes.apply();
+
+        ECKey ecKey = new ECKey(new SecureRandom());
+        String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
+
+        LegacyAddress legacyAddress = new LegacyAddress();
+        legacyAddress.setEncryptedKey(encryptedKey);
+        List<LegacyAddress> legacyAddresses = new ArrayList<LegacyAddress>();
+
+        payload.setLegacyAddresses(legacyAddresses);
+        //
+        //
+        //
 
         PayloadFactory.getInstance().set(payload);
         PayloadFactory.getInstance().setNew(true);

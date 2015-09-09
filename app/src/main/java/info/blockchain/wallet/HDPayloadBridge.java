@@ -180,7 +180,9 @@ public class HDPayloadBridge	{
     }
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException	{
-        WalletFactory.getInstance().newWallet(12, passphrase, 1);
+        //
+        // commented out for lame mode create wallet
+//        WalletFactory.getInstance().newWallet(12, passphrase, 1);
         PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 
@@ -206,6 +208,9 @@ public class HDPayloadBridge	{
 
         }
 
+        //
+        // null test added for 'lame' mode
+        //
         if(PayloadFactory.getInstance().get().getHdWallet() != null)    {
             int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
             for(int i = 0; i < nb_accounts; i++) {
