@@ -120,6 +120,9 @@ public class PayloadBridge	{
         legacyAddress.setEncryptedKey(encryptedKey);
         List<LegacyAddress> legacyAddresses = new ArrayList<LegacyAddress>();
 
+        // LAMF
+        legacyAddresses.add(legacyAddress);
+
         payload.setLegacyAddresses(legacyAddresses);
         //
         //
