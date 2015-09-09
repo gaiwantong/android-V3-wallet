@@ -6,6 +6,7 @@ import com.robotium.solo.Solo;
 
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
@@ -52,5 +53,23 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
         solo.clickOnText(getActivity().getString(R.string.yes));
 
         assertTrue(UiUtil.getInstance(getActivity()).getClipboardText().equals(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_GUID, "")));
+    }
+
+    public void testB_SelectBTCUnits() throws AssertionError{
+
+        PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, 0);
+        final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
+
+        for(CharSequence unit : units) {
+
+            if(solo.searchText(getActivity().getString(R.string.options_units)))
+                solo.clickOnText(getActivity().getString(R.string.options_units));
+
+            solo.waitForText(getActivity().getString(R.string.select_units), 1, 500);
+            solo.clickOnText(unit.toString());
+            try{solo.sleep(500);}catch (Exception e){}
+            int sel = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, 0);
+            assertTrue("Found: '"+units[sel]+"' - Expected: '"+unit+"'",units[sel].equals(unit));
+        }
     }
 }
