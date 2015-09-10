@@ -826,7 +826,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
                 continue;//No backup for legacy wallets
             }
+            /*
+             *
+             * hide 'upgrade wallet'
+             *
+             * commented out for 'lame' mode
+             *
             else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+                continue;//Wallet has been upgraded
+            }
+            */
+            else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet))){
                 continue;//Wallet has been upgraded
             }
 
