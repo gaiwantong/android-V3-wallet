@@ -1,17 +1,23 @@
 package info.blockchain.wallet;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bitcoinj.core.bip44.Wallet;
 import org.bitcoinj.core.bip44.WalletFactory;
@@ -20,12 +26,14 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
@@ -79,6 +87,9 @@ public class HDPayloadBridge	{
         //
         // create HD wallet and sync w/ payload
         //
+        /*
+         * lines below commented out for 'lame' mode
+         *
         if(PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
 
             String xpub = null;
@@ -117,16 +128,21 @@ public class HDPayloadBridge	{
             }
 
         }
+        */
 
         getBalances();
 
         // update highest idxs here, they were just updated above in getBalances();
+        /*
+         * lines below commented out for 'lame' mode
+         *
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         for(Account a : accounts) {
             a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
             a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
         }
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
+        */
 
         PayloadFactory.getInstance().cache();
 
@@ -180,9 +196,7 @@ public class HDPayloadBridge	{
     }
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException	{
-        //
-        // commented out for lame mode create wallet
-//        WalletFactory.getInstance().newWallet(12, passphrase, 1);
+        WalletFactory.getInstance().newWallet(12, passphrase, 1);
         PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 

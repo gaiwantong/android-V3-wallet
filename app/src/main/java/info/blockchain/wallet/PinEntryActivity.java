@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -19,9 +20,12 @@ import android.widget.TextView;
 
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,16 +35,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
@@ -162,7 +173,7 @@ public class PinEntryActivity extends Activity {
         PayloadFactory.getInstance().setEmail(strEmail);
         PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
     }
-
+/*
     private void createWallet() {
 
         try {
@@ -184,6 +195,52 @@ public class PinEntryActivity extends Activity {
             ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             AppUtil.getInstance(this).clearCredentialsAndRestart();
         }
+
+    }
+*/
+    //
+    // 'lame' mode: create legacy address, LAMF
+    //
+    private void createWallet() {
+
+        AppUtil.getInstance(this).setNewlyCreated(true);
+
+        String guid = UUID.randomUUID().toString();
+        String sharedKey = UUID.randomUUID().toString();
+
+        Payload payload = new Payload();
+        payload.setGuid(guid);
+        payload.setSharedKey(sharedKey);
+
+        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_GUID, guid);
+        AppUtil.getInstance(PinEntryActivity.this).setSharedKey(sharedKey);
+
+        // Apply PRNG fixes for Android 4.1
+        PRNGFixes.apply();
+
+        ECKey ecKey = new ECKey(new SecureRandom());
+        String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
+
+        LegacyAddress legacyAddress = new LegacyAddress();
+        legacyAddress.setEncryptedKey(encryptedKey);
+        legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
+        legacyAddress.setLabel(PinEntryActivity.this.getString(R.string.my_address));
+        List<LegacyAddress> legacyAddresses = new ArrayList<LegacyAddress>();
+        legacyAddresses.add(legacyAddress);
+
+        payload.setLegacyAddresses(legacyAddresses);
+
+        PayloadFactory.getInstance().set(payload);
+        PayloadFactory.getInstance().setNew(true);
+        //
+        //
+        //
+
+        PayloadBridge.getInstance(this).remoteSaveThread();
+
+        whitelistGuid("alpha");// <-- remove after beta invite system
+        whitelistGuid("dev");// <-- remove after beta invite system
+//            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
     }
 
