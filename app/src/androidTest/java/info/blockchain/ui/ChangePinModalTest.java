@@ -45,6 +45,14 @@ public class ChangePinModalTest extends ActivityInstrumentationTestCase2<MainAct
 
         try{solo.sleep(500);}catch (Exception e){}
         solo.clickOnText(getActivity().getString(R.string.dialog_cancel));
-        assertTrue("Cancel pin change modal failed.",!solo.waitForText(getActivity().getString(R.string.dialog_cancel), 1, 500));
+        assertTrue("Cancel pin change modal failed.", !solo.waitForText(getActivity().getString(R.string.dialog_cancel), 1, 500));
+    }
+
+    public void testB_EnterInvalidPassword() throws AssertionError{
+
+        try{solo.sleep(500);}catch (Exception e){}
+        solo.enterText(solo.getEditText(0),"aaaaaaaaaaaaa");
+        solo.clickOnText(getActivity().getString(R.string.ok_cap));
+        assertTrue("Invalid password toast did not appear.",solo.waitForText(getActivity().getString(R.string.invalid_password), 1, 500));
     }
 }
