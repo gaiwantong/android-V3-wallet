@@ -160,7 +160,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
                         if(!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER,false)) {
                             if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                //
+                                //
+                                // line below commented out for 'lame' mode
+//                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                                 AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                             }
                         }else{
