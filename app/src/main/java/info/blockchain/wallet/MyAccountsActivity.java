@@ -53,6 +53,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -118,7 +119,7 @@ public class MyAccountsActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                String[] list = new String[] {getResources().getString(R.string.import_address)};
+                String[] list = new String[] { getResources().getString(R.string.create_new_address), getResources().getString(R.string.import_address) };
                 ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_dropdown, list);
 
                 final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
@@ -133,6 +134,25 @@ public class MyAccountsActivity extends Activity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
                             case 0:
+
+                                ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
+                                String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
+
+                                LegacyAddress legacyAddress = new LegacyAddress();
+                                legacyAddress.setEncryptedKey(encryptedKey);
+                                legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
+                                Payload payload = PayloadFactory.getInstance().get();
+                                List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
+                                legacyAddresses.add(legacyAddress);
+                                payload.setLegacyAddresses(legacyAddresses);
+                                PayloadFactory.getInstance().set(payload);
+
+                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+                                updateAndRecreate(legacyAddress);
+
+                                break;
+                            case 1:
                                 if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
                                     scanPrivateKey();
                                 }
