@@ -3,20 +3,28 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 //import android.util.Log;
 
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
 
 import info.blockchain.wallet.util.AppUtil;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.params.MainNetParams;
 
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
 import piuk.blockchain.android.R;
@@ -142,6 +150,22 @@ public class PayloadBridge	{
 
             }
         }).start();
+    }
+
+    /*
+     *
+     *
+        For 'lame' mode only
+     *
+     *
+     */
+    public ECKey newLegacyAddress()  {
+
+        PRNGFixes.apply();
+
+        ECKey ecKey = new ECKey(new SecureRandom());
+
+        return ecKey;
     }
 
 }

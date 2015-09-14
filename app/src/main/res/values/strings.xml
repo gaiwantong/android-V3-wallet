@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.48a</string>
+    <string name="version_name">5.0.49a</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -27,7 +27,10 @@
         <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
 
+    <!--
     <string name="app_name">Blockchain HD</string>
+    -->
+    <string name="app_name">Blockchain</string>
     <string name="action_settings">Settings</string>
 
     <string name="all_accounts">All Accounts</string>
@@ -378,5 +381,7 @@
     <string name="verify_email2">Your verified email address is used to send login codes when suspicious or unusual activity is detected, to remind you of your wallet login ID, and to send bitcoin payment alerts when funds are sent or received. We will not use your email address for marketing purposes</string>
 
     <string name="show_balance">Show Balance</string>
+    <string name="my_address">My Address</string>
+    <string name="create_new_address">Create new address</string>
 
 </resources>
