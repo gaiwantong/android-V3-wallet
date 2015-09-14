@@ -55,4 +55,26 @@ public class ChangePinModalTest extends ActivityInstrumentationTestCase2<MainAct
         solo.clickOnText(getActivity().getString(R.string.ok_cap));
         assertTrue("Invalid password toast did not appear.",solo.waitForText(getActivity().getString(R.string.invalid_password), 1, 500));
     }
+
+    public void testC_EnterValidPassword() throws AssertionError{
+
+        try{solo.sleep(500);}catch (Exception e){}
+        solo.enterText(solo.getEditText(0),getActivity().getString(R.string.qa_test_password1));
+        solo.clickOnText(getActivity().getString(R.string.ok_cap));
+
+        solo.waitForText(getActivity().getString(R.string.create_pin),1,500);
+
+        //Mismatching PINs
+        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+        UiUtil.getInstance(getActivity()).enterPin(solo, "6666");
+
+        assertTrue(solo.waitForText(getActivity().getString(R.string.pin_mismatch_error)));
+
+        //Create valid PIN
+        for (int i = 0; i < 2; i++) {
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
+        }
+
+        UiUtil.getInstance(getActivity()).exitApp(solo);
+    }
 }

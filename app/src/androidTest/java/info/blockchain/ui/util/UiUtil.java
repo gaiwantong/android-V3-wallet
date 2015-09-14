@@ -35,7 +35,7 @@ public class UiUtil {
 
     public void enterPin(Solo solo, String pin) {
 
-        if(solo.searchText(context.getString(R.string.pin_entry)) || solo.searchText(context.getString(R.string.confirm_pin))|| solo.searchText(context.getString(R.string.create_pin))) {
+        if(solo.waitForText(context.getString(R.string.pin_entry), 1, 500) || solo.waitForText(context.getString(R.string.confirm_pin), 1, 500)|| solo.waitForText(context.getString(R.string.create_pin), 1, 500)) {
             ArrayList<Integer> pinSequence = new ArrayList<>();
             pinSequence.add(Integer.parseInt(pin.substring(0, 1)));
             pinSequence.add(Integer.parseInt(pin.substring(1, 2)));

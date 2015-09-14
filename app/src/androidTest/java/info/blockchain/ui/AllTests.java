@@ -51,6 +51,9 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
         //Test change pin code
         t.addTestSuite(ChangePinModalTest.class);
 
+        //Test backup wallet
+//        t.addTestSuite(BackupWalletTest.class);
+
         return t;
     }
 

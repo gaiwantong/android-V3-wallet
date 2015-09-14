@@ -144,5 +144,7 @@ public class SettingsScreenTest extends ActivityInstrumentationTestCase2<MainAct
         solo.goBack();
         solo.clickOnText(getActivity().getString(R.string.options_privacy));
         TestCase.assertEquals(true, solo.waitForActivity(PolicyActivity.class));
+
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 }

@@ -55,6 +55,8 @@ public class SupportScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.clickOnText(getActivity().getString(R.string.yes));
 
         assertTrue(UiUtil.getInstance(getActivity()).getClipboardText().equals(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_GUID, "")));
+
+        UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 
 }
