@@ -215,10 +215,7 @@ public class PinEntryActivity extends Activity {
         PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_GUID, guid);
         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(sharedKey);
 
-        // Apply PRNG fixes for Android 4.1
-        PRNGFixes.apply();
-
-        ECKey ecKey = new ECKey(new SecureRandom());
+        ECKey ecKey = PayloadBridge.getInstance(PinEntryActivity.this).newLegacyAddress();
         String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
 
         LegacyAddress legacyAddress = new LegacyAddress();

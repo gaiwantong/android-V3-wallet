@@ -152,4 +152,20 @@ public class PayloadBridge	{
         }).start();
     }
 
+    /*
+     *
+     *
+        For 'lame' mode only
+     *
+     *
+     */
+    public ECKey newLegacyAddress()  {
+
+        PRNGFixes.apply();
+
+        ECKey ecKey = new ECKey(new SecureRandom());
+
+        return ecKey;
+    }
+
 }
