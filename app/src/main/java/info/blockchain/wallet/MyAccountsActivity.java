@@ -31,20 +31,19 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.uri.BitcoinURI;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -827,11 +826,12 @@ public class MyAccountsActivity extends Activity {
                 JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
 
                 long balance = 0l;
-                try {
-                    balance = info.getLong("final_balance");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                if(info!=null)
+                    try {
+                        balance = info.getLong("final_balance");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance()+balance);
