@@ -24,6 +24,7 @@ public class AppUtil {
 	private static Context context = null;
 
     private static boolean DEBUG = false;
+    private static boolean LEGACY = true;
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
     private static long lastPin = 0L;
@@ -266,6 +267,14 @@ public class AppUtil {
     public void setSharedKey(String sharedKey)   {
         String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
+    }
+
+    public boolean isLegacy() {
+        return LEGACY;
+    }
+
+    public void setLegacy(boolean lame) {
+        LEGACY = lame;
     }
 
 }
