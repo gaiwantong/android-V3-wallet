@@ -383,5 +383,6 @@
     <string name="show_balance">Show Balance</string>
     <string name="my_address">My Address</string>
     <string name="create_new_address">Create new address</string>
+    <string name="confirmation_code_error">The code you entered is incorrect. Please try again.</string>
 
 </resources>
