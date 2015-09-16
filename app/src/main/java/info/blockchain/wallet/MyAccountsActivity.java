@@ -137,7 +137,7 @@ public class MyAccountsActivity extends Activity {
                                 ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
                                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
 
-                                LegacyAddress legacyAddress = new LegacyAddress();
+                                final LegacyAddress legacyAddress = new LegacyAddress();
                                 legacyAddress.setEncryptedKey(encryptedKey);
                                 legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
                                 Payload payload = PayloadFactory.getInstance().get();
@@ -149,6 +149,37 @@ public class MyAccountsActivity extends Activity {
                                 PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                 updateAndRecreate(legacyAddress);
+
+                                final EditText address_label = new EditText(MyAccountsActivity.this);
+                                address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+                                new AlertDialog.Builder(MyAccountsActivity.this)
+                                        .setTitle(R.string.app_name)
+                                        .setMessage(R.string.label_address)
+                                        .setView(address_label)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                String label = address_label.getText().toString();
+                                                if(label != null && label.length() > 0) {
+                                                    ;
+                                                }
+                                                else {
+                                                    label = "";
+                                                }
+
+                                                int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                                                PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
+                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+                                                updateAndRecreate(legacyAddress);
+
+                                            }
+                                        }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        ;
+                                    }
+                                }).show();
 
                                 break;
                             case 1:
