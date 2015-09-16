@@ -44,6 +44,7 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'com.google.guava:guava:17.0'
     compile 'com.madgag.spongycastle:core:1.52.0.0'
+    compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
     compile 'com.android.support:multidex:1.0.0'
     compile('eu.livotov.labs:zxscanlib:2.0.1@aar') { transitive = true }
     androidTestCompile files('libs/robotium-solo-5.3.1.jar')

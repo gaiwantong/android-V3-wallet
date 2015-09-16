@@ -38,7 +38,7 @@ public class SSLVerifierThreadUtil {
 
                 if(ConnectivityStatus.hasConnectivity(context)) {
 
-                    if(!SSLVerifierUtil.getInstance().isValidHostname()) {
+                    if(!SSLVerifierUtil.getInstance(context).isValidHostname()) {
 
                         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -57,7 +57,7 @@ public class SSLVerifierThreadUtil {
 
                     }
 
-                    if(SSLVerifierUtil.getInstance().certificatePinningStatus() == -1) {
+                    if(!SSLVerifierUtil.getInstance(context).certificatePinned()) {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                         final String message = context.getString(R.string.ssl_pinning_invalid);
