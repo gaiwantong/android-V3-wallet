@@ -82,14 +82,14 @@ public class SSLVerifierUtil {
             HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(context, pins, url);
             byte[] data = new byte[4096];
             connection.getInputStream().read(data);
-            Log.i("SSLVerfifierUtil", "Certificate pinning success");
+            Log.i("SSLVerifierUtil", "Certificate pinning success");
 
             return true;
         }
         catch(Exception e)  {
 
             Toast.makeText(context, "Certificate pinning failed: " + e.getMessage().toString(), Toast.LENGTH_LONG).show();
-            Log.i("SSLVerfifierUtil", "Certificate pinning failed: " + e.getMessage().toString());
+            Log.i("SSLVerifierUtil", "Certificate pinning failed: " + e.getMessage().toString());
 
             return false;
         }
