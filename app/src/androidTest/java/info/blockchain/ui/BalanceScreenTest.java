@@ -53,30 +53,39 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
 
     public void testA_ChangeCurrencyTapBalance() throws AssertionError{
 
-        TextView balance = (TextView)solo.getView(R.id.balance1);
-        String btc = balance.getText().toString();
+        txList = (RecyclerView)solo.getView(R.id.txList2);
+        if(txList.getChildCount()>0) {
 
-        //Set default fiat, btc
-        PrefsUtil.getInstance(solo.getCurrentActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        PrefsUtil.getInstance(solo.getCurrentActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+            TextView balance = (TextView) solo.getView(R.id.balance1);
+            String btc = balance.getText().toString();
 
-        String strFiat = PrefsUtil.getInstance(solo.getCurrentActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        double btc_fx = ExchangeRateFactory.getInstance(solo.getCurrentActivity()).getLastPrice(strFiat);
-        double fiat_balance = btc_fx * Double.parseDouble(btc.split(" ")[0]);
+            //Set default fiat, btc
+            PrefsUtil.getInstance(solo.getCurrentActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            PrefsUtil.getInstance(solo.getCurrentActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
 
-        solo.clickOnView(balance);
+            String strFiat = PrefsUtil.getInstance(solo.getCurrentActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            double btc_fx = ExchangeRateFactory.getInstance(solo.getCurrentActivity()).getLastPrice(strFiat);
+            double fiat_balance = btc_fx * Double.parseDouble(btc.split(" ")[0]);
 
-        DecimalFormat df = new DecimalFormat("#.##");
-        String fiat = balance.getText().toString();
+            solo.clickOnView(balance);
 
-        //Test if btc converts to correct fiat
-        TestCase.assertTrue(fiat.split(" ")[0].equals(df.format(fiat_balance)));
+            DecimalFormat df = new DecimalFormat("#.##");
+            String fiat = balance.getText().toString();
+
+            //Test if btc converts to correct fiat
+            TestCase.assertTrue(fiat.split(" ")[0].equals(df.format(fiat_balance)));
+        }
     }
 
     public void testB_ChangeCurrencyTapTxAmount() throws AssertionError{
 
         TextView balance = (TextView)solo.getView(R.id.balance1);
         String btc = balance.getText().toString();
+
+        while(btc.contains(getActivity().getString(R.string.show_balance))) {
+            btc = balance.getText().toString();
+            solo.clickOnView(balance);
+        }
 
         //Set default fiat, btc
         PrefsUtil.getInstance(solo.getCurrentActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
