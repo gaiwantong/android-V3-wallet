@@ -1,11 +1,13 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.widget.TextView;
 
 import com.robotium.solo.Solo;
 
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
 public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -41,8 +43,41 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
         solo.finishOpenedActivities();
     }
 
-    public void testA_CancelModal() throws AssertionError {
+    public void testA_Reveal() throws AssertionError {
+        if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
 
-        assertTrue(true);
+        solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
+        solo.clickOnText(getActivity().getString(R.string.START));
+
+        TextView currentWordTv = (TextView) solo.getView(R.id.tv_current_word);
+        TextView hiddenTv = (TextView)solo.getView(R.id.tv_press_reveal);
+
+        for(int i = 0; i < 11; i ++){
+
+            //Test word count increments
+            int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
+            assertTrue(c == (i+1));
+
+            //Test word reveals
+            solo.clickLongOnView(solo.getView(R.id.card_layout));
+            assertTrue(solo.waitForText(hiddenTv.getText().toString()));
+
+            solo.clickOnText(getActivity().getString(R.string.NEXT_WORD));
+            try{solo.sleep(500);}catch (Exception e){}
+        }
+
+//        for(int i = 11; i > 0; i --){
+//
+//            solo.clickOnScreen(50f,50f);
+//            try{solo.sleep(500);}catch (Exception e){}
+//
+//            //Test word count increments
+//            int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
+//            assertTrue(c + " != " + (i + 1), c == (i + 1));
+//
+//            //Test word reveals
+//            solo.clickLongOnView(solo.getView(R.id.card_layout));
+//            assertTrue(solo.waitForText(hiddenTv.getText().toString()));
+//        }
     }
 }
