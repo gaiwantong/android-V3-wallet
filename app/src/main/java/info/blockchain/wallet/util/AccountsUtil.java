@@ -72,15 +72,15 @@ public class AccountsUtil {
         for (Account item : accountsTemp)
             if(!item.isArchived())accounts.add(item);
 
-		List<LegacyAddress> legacyAddressesTemp = PayloadFactory.getInstance().get().getLegacyAddresses();
+//		List<LegacyAddress> legacyAddressesTemp = PayloadFactory.getInstance().get().getLegacyAddresses();
         List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
-        if(legacyAddressesTemp!=null) {
-            for (int j = 0; j < legacyAddressesTemp.size(); j++) {
-                LegacyAddress leg = legacyAddressesTemp.get(j);
-                if(leg.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
-                    legacyAddresses.remove(j);
-            }
-        }
+//        if(legacyAddressesTemp!=null) {
+//            for (int j = 0; j < legacyAddressesTemp.size(); j++) {
+//                LegacyAddress leg = legacyAddressesTemp.get(j);
+//                if(leg.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+//                    legacyAddresses.remove(j);
+//            }
+//        }
 //
 		//All Account - if multiple accounts or contains legacy address
 		if(accounts != null && accounts.size() > 1 || legacyAddresses.size() > 0) {
