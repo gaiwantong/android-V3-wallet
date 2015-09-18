@@ -9,6 +9,7 @@ import com.robotium.solo.Solo;
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.BackupWalletUtil;
 import piuk.blockchain.android.R;
 
 public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -35,8 +36,6 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
 
         UiUtil.getInstance(getActivity()).openNavigationDrawer(solo);
         try{solo.sleep(500);}catch (Exception e){}
-        solo.clickOnText(getActivity().getString(R.string.backup_wallet));
-        try{solo.sleep(500);}catch (Exception e){}
     }
 
     @Override
@@ -45,6 +44,8 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testA_Reveal() throws AssertionError {
+        solo.clickOnText(getActivity().getString(R.string.backup_wallet));
+        try{solo.sleep(500);}catch (Exception e){}
         if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
 
         solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
@@ -83,6 +84,8 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testB_IncorrectMnemonic() throws AssertionError {
+        solo.clickOnText(getActivity().getString(R.string.backup_wallet));
+        try{solo.sleep(500);}catch (Exception e){}
         if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
 
         solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
@@ -101,5 +104,53 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
         solo.clickOnText(getActivity().getString(R.string.VERIFY_BACKUP));
 
         assertTrue(solo.waitForText(getActivity().getString(R.string.backup_word_mismatch)));
+    }
+
+    public void testC_CorrectMnemonic() throws AssertionError {
+        solo.clickOnText(getActivity().getString(R.string.backup_wallet));
+        try{solo.sleep(500);}catch (Exception e){}
+        if (AppUtil.getInstance(getActivity()).isLegacy()) assertTrue(true);
+
+        solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
+        solo.clickOnText(getActivity().getString(R.string.START));
+
+        for (int i = 0; i < 11; i++)
+            solo.clickOnText(getActivity().getString(R.string.NEXT_WORD));
+
+        solo.clickOnText(getActivity().getString(R.string.VERIFY));
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
+
+        String[] mnemonic = BackupWalletUtil.getInstance(getActivity()).getMnemonic();
+        String[] mnemonicRequestHint = getActivity().getResources().getStringArray(R.array.mnemonic_word_requests);
+
+        EditText first = (EditText) solo.getView(R.id.etFirstRequest);
+        EditText second = (EditText) solo.getView(R.id.etSecondRequest);
+        EditText third = (EditText) solo.getView(R.id.etThirdRequest);
+
+        for(int i = 0; i < mnemonicRequestHint.length; i++){
+
+            if(first.getHint().toString().equals(mnemonicRequestHint[i])){
+                solo.enterText((EditText) solo.getView(R.id.etFirstRequest), mnemonic[i]);
+            }
+            if(second.getHint().toString().equals(mnemonicRequestHint[i])){
+                solo.enterText((EditText) solo.getView(R.id.etSecondRequest), mnemonic[i]);
+            }
+            if(third.getHint().toString().equals(mnemonicRequestHint[i])){
+                solo.enterText((EditText) solo.getView(R.id.etThirdRequest), mnemonic[i]);
+            }
+        }
+
+        solo.clickOnText(getActivity().getString(R.string.VERIFY_BACKUP));
+
+        assertTrue(solo.waitForText(getActivity().getString(R.string.backup_confirmed)));
+        assertTrue(solo.waitForText(getActivity().getString(R.string.backup_days_ago).replace("[--time--]","0").replace("[--day--]",getActivity().getString(R.string.days))));
+    }
+
+    public void testD_LockIconColourChanged() throws AssertionError {
+        if (AppUtil.getInstance(getActivity()).isLegacy()) assertTrue(true);
+        solo.getCurrentActivity().getResources().getDrawable(R.drawable.good_backup).isVisible();
     }
 }
