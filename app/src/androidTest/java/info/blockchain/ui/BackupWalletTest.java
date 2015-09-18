@@ -66,18 +66,18 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
             try{solo.sleep(500);}catch (Exception e){}
         }
 
-//        for(int i = 11; i > 0; i --){
-//
-//            solo.clickOnScreen(50f,50f);
-//            try{solo.sleep(500);}catch (Exception e){}
-//
-//            //Test word count increments
-//            int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
-//            assertTrue(c + " != " + (i + 1), c == (i + 1));
-//
-//            //Test word reveals
-//            solo.clickLongOnView(solo.getView(R.id.card_layout));
-//            assertTrue(solo.waitForText(hiddenTv.getText().toString()));
-//        }
+        for(int i = 11; i > 0; i --){
+
+            solo.clickOnScreen(50f,50f);
+            try{solo.sleep(500);}catch (Exception e){}
+
+            //Test word count increments
+            int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
+            assertTrue(c + " != " + i, c == i);
+
+            //Test word reveals
+            solo.clickLongOnView(solo.getView(R.id.card_layout));
+            assertTrue(solo.waitForText(hiddenTv.getText().toString()));
+        }
     }
 }
