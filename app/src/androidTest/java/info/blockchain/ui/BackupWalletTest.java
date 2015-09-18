@@ -1,6 +1,7 @@
 package info.blockchain.ui;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.robotium.solo.Solo;
@@ -79,5 +80,26 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
             solo.clickLongOnView(solo.getView(R.id.card_layout));
             assertTrue(solo.waitForText(hiddenTv.getText().toString()));
         }
+    }
+
+    public void testB_IncorrectMnemonic() throws AssertionError {
+        if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
+
+        solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
+        solo.clickOnText(getActivity().getString(R.string.START));
+
+        for(int i = 0; i < 11; i ++)
+            solo.clickOnText(getActivity().getString(R.string.NEXT_WORD));
+
+        solo.clickOnText(getActivity().getString(R.string.VERIFY));
+        try{solo.sleep(500);}catch (Exception e){}
+
+        solo.enterText((EditText) solo.getView(R.id.etFirstRequest),"aaaa");
+        solo.enterText((EditText) solo.getView(R.id.etSecondRequest),"aaaa");
+        solo.enterText((EditText) solo.getView(R.id.etThirdRequest),"aaaa");
+
+        solo.clickOnText(getActivity().getString(R.string.VERIFY_BACKUP));
+
+        assertTrue(solo.waitForText(getActivity().getString(R.string.backup_word_mismatch)));
     }
 }
