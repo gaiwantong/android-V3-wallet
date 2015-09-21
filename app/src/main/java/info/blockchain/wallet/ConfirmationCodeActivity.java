@@ -175,13 +175,13 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                         }
 
                     }else {
-                        ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         clearBoxes();
                     }
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                     clearBoxes();
                 }
                 finally {

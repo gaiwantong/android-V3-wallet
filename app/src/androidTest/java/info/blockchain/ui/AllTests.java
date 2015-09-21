@@ -52,7 +52,11 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
         t.addTestSuite(ChangePinModalTest.class);
 
         //Test backup wallet
-//        t.addTestSuite(BackupWalletTest.class);
+        t.addTestSuite(BackupWalletTest.class);
+
+        //Test backup wallet
+        t.addTestSuite(UnpairWalletTest.class);
+        t.addTestSuite(PairingTest.class);//repair after unpair
 
         return t;
     }

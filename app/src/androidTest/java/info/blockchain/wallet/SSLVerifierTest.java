@@ -40,7 +40,7 @@ public class SSLVerifierTest extends BlockchainTest {
     }
 
     public SSLVerifierUtil getSSLVerifierInstance() {
-        SSLVerifierUtil ssl = SSLVerifierUtil.getInstance();
+        SSLVerifierUtil ssl = SSLVerifierUtil.getInstance(context);
         AssertUtil.getInstance().assert_true(this, "SSLVerifierUtil instance returned", ssl != null);
         return ssl;
     }
@@ -50,6 +50,6 @@ public class SSLVerifierTest extends BlockchainTest {
     }
 
     public void checkCertificatePinning(SSLVerifierUtil ssl) {
-        AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificatePinningStatus()==200);
+        AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificatePinned());
     }
 }
