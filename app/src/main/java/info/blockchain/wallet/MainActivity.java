@@ -73,6 +73,7 @@ import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
@@ -694,6 +695,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
+        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+
         Fragment fragment = new SendFragment();
         Bundle args = new Bundle();
         args.putString("btc_address", btc_address);
@@ -810,6 +813,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         for (int i = 0; i < drawerTitles.length; i++) {
 
             if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
+                /*
                 backupWalletDrawerIndex = i;
 
                 int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
@@ -821,6 +825,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
+                */
                 continue;
             }
             else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
