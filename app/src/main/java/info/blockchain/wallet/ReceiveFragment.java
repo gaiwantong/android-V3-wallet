@@ -590,6 +590,10 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8));
             }
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
+            if(bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                return;
+            }
             if(!bamount.equals(BigInteger.ZERO)) {
                 generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
                 write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
