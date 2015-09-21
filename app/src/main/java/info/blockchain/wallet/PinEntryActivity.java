@@ -196,6 +196,9 @@ public class PinEntryActivity extends Activity {
             legacyAddress.setEncryptedKey(encryptedKey);
             legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
             legacyAddress.setLabel(PinEntryActivity.this.getString(R.string.my_address));
+            legacyAddress.setCreatedDeviceName("android");
+            legacyAddress.setCreated(System.currentTimeMillis());
+            legacyAddress.setCreatedDeviceVersion(PinEntryActivity.this.getString(R.string.version_name));
             List<LegacyAddress> legacyAddresses = new ArrayList<LegacyAddress>();
             legacyAddresses.add(legacyAddress);
 

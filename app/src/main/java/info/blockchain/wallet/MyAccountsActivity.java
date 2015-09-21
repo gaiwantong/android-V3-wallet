@@ -140,6 +140,9 @@ public class MyAccountsActivity extends Activity {
                                 final LegacyAddress legacyAddress = new LegacyAddress();
                                 legacyAddress.setEncryptedKey(encryptedKey);
                                 legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
+                                legacyAddress.setCreatedDeviceName("android");
+                                legacyAddress.setCreated(System.currentTimeMillis());
+                                legacyAddress.setCreatedDeviceVersion(MyAccountsActivity.this.getString(R.string.version_name));
                                 Payload payload = PayloadFactory.getInstance().get();
                                 List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
                                 legacyAddresses.add(legacyAddress);
