@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -213,6 +214,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         btcTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
+
+                long lamount = 0L;
+                try {
+                    lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
+                    if(BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                        ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        edAmount1.setText("0.0");
+                        pendingSpend.bamount = BigInteger.ZERO;
+                        return;
+                    }
+                }
+                catch(NumberFormatException nfe) {
+                    ;
+                }
+                catch(ParseException pe) {
+                    ;
+                }
 
                 edAmount1.removeTextChangedListener(this);
 
@@ -721,6 +739,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         try {
             lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
+            if(pendingSpend.bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                edAmount1.setText("0.0");
+                pendingSpend.bamount = BigInteger.ZERO;
+                return;
+            }
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 if(showMessages) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
