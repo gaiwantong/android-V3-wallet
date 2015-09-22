@@ -549,7 +549,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
 
+        edAmount1.removeTextChangedListener(btcTextWatcher);
+        edAmount2.removeTextChangedListener(fiatTextWatcher);
         decimalCompatCheck(rootView);
+        edAmount1.addTextChangedListener(btcTextWatcher);
+        edAmount2.addTextChangedListener(fiatTextWatcher);
 
         return rootView;
     }
