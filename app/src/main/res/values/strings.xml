@@ -100,6 +100,7 @@
     <string name="confirm_pin">Confirm Pin</string>
     <string name="create_pin_failed">PIN creation failed. Please pair device again.</string>
     <string name="pairing_failed">Pairing failed. Please try again.</string>
+    <string name="pairing_failed_decrypt_error">Pairing failed. Decryption error.</string>
     <string name="pairing_success">Pairing OK.</string>
 
     <string name="check_connectivity_exit">Blockchain Wallet cannot obtain an Internet connection. Please check the connectivity on your device and try again.</string>
@@ -384,5 +385,6 @@
     <string name="my_address">My Address</string>
     <string name="create_new_address">Create new address</string>
     <string name="confirmation_code_error">The code you entered is incorrect. Please try again.</string>
+    <string name="auth_failed">Authorization failed. Please try again.</string>
 
 </resources>

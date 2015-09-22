@@ -25,7 +25,6 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-
 import piuk.blockchain.android.R;
 
 public class ManualPairingFragment extends Fragment {
@@ -115,6 +114,11 @@ public class ManualPairingFragment extends Fragment {
                         response = waitForAuthThread(guid, password);
                     }
 
+                    if(response!=null && response.equals("Authorization Required")){
+                        ToastCustom.makeText(getActivity(), getString(R.string.auth_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                    }
+
                     JSONObject jsonObj = new JSONObject(response);
 
                     if(jsonObj != null && jsonObj.has("payload")) {
@@ -126,7 +130,7 @@ public class ManualPairingFragment extends Fragment {
                         }
                         catch(Exception e) {
                             e.printStackTrace();
-                            ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed_decrypt_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                         }
 
@@ -134,6 +138,7 @@ public class ManualPairingFragment extends Fragment {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
                             if(payloadObj != null && payloadObj.has("sharedKey")) {
                                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
+                                PayloadFactory.getInstance().setTempPassword(password);
                                 AppUtil.getInstance(getActivity()).setSharedKey((String)payloadObj.get("sharedKey"));
 
                                 if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
