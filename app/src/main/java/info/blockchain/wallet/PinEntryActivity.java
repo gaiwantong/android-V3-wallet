@@ -209,8 +209,10 @@ public class PinEntryActivity extends Activity {
 
             PayloadBridge.getInstance(this).remoteSaveThread();
 
-            whitelistGuid("alpha");// <-- remove after beta invite system
-            whitelistGuid("dev");// <-- remove after beta invite system
+            if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                whitelistGuid("alpha");// <-- remove after beta invite system
+                whitelistGuid("dev");// <-- remove after beta invite system
+            }
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
         }
         else    {
@@ -225,8 +227,10 @@ public class PinEntryActivity extends Activity {
 
                 PayloadBridge.getInstance(this).remoteSaveThread();
 
-                whitelistGuid("alpha");// <-- remove after beta invite system
-                whitelistGuid("dev");// <-- remove after beta invite system
+                if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                    whitelistGuid("alpha");// <-- remove after beta invite system
+                    whitelistGuid("dev");// <-- remove after beta invite system
+                }
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
             } catch (IOException | MnemonicException.MnemonicLengthException e) {
