@@ -44,24 +44,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.bitcoinj.core.bip44.WalletFactory;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -74,7 +72,6 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -670,6 +667,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void scanURI() {
         Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+        intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_URI);
         startActivityForResult(intent, SCAN_URI);
     }
 

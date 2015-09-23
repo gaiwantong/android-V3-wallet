@@ -631,6 +631,7 @@ public class MyAccountsActivity extends Activity {
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
             Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
+            intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
         }
         else {
@@ -657,6 +658,7 @@ public class MyAccountsActivity extends Activity {
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                 Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
+                                intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
                                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
                             }

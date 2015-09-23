@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,10 +13,12 @@ import android.view.MenuItem;
 
 import java.util.regex.Pattern;
 
-import eu.livotov.zxscan.ScannerView;
+import eu.livotov.labs.android.camview.ScannerLiveView;
+import eu.livotov.labs.android.camview.camera.CameraController;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
+import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 public class ScanActivity extends ActionBarActivity{
@@ -25,9 +26,19 @@ public class ScanActivity extends ActionBarActivity{
     public static final String SCAN_RESULT = "SCAN_RESULT";
     public static final String ERROR_INFO = "ERROR_INFO";
 
-    private ScannerView scanner;
+    public static final String SCAN_ACTION = "SCAN_ACTION";
+    public static final int SCAN_PAIR = 0;
+    public static final int SCAN_IMPORT = 1;
+    public static final int SCAN_URI = 2;
+
     private boolean hasFlashLight = false;
-    private boolean flashOn = false;
+
+    private ScannerLiveView camera;
+    private CameraController controller;
+    private boolean flashStatus;
+
+    long start = 0;
+    long end = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,66 +47,87 @@ public class ScanActivity extends ActionBarActivity{
         setContentView(R.layout.activity_scan);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.scan_qr));
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        scanner = (ScannerView) findViewById(R.id.scanner);
-        scanner.setHudVisible(false);
-        scanner.setPlaySound(false);
-        scanner.setScannerViewEventListener(new ScannerView.ScannerViewEventListener() {
-            @Override
-            public void onScannerReady() {
+        final int action = getIntent().getIntExtra(SCAN_ACTION, -1);
 
+        camera = (ScannerLiveView) findViewById(R.id.camview);
+        camera.setHudVisible(false);
+        camera.setPlaySound(false);
+        camera.setScannerViewEventListener(new ScannerLiveView.ScannerViewEventListener() {
+            @Override
+            public void onScannerStarted(ScannerLiveView scanner) {
             }
 
             @Override
-            public void onScannerFailure(int i) {
-                scanner.stopScanner();
-                Intent dataIntent = new Intent();
-                dataIntent.putExtra(ERROR_INFO, "Camera unavailable - ERROR CODE: "+i);
-                setResult(Activity.RESULT_CANCELED, dataIntent);
-                finish();
+            public void onScannerStopped(ScannerLiveView scanner) {
             }
 
-            public boolean onCodeScanned(final String data) {
+            @Override
+            public void onScannerError(Throwable err) {
+            }
 
-                //ZXScanLib v2.0.1: Currently scanner tries to recognize all supported barcodes - So we'll check for valid QR
-                String privKey;
-                try {privKey = PrivateKeyFactory.getInstance().getFormat(data);}catch (Exception e){privKey = null;}
+            @Override
+            public void onCodeScanned(String data) {
+                start = System.currentTimeMillis();
+                switch (action) {
+                    case SCAN_PAIR:
+                        boolean isValidPairingQR = (data.split("\\|", Pattern.LITERAL).length == 3);
+                        if (isValidPairingQR)
+                            scan(data);
+                        else
+                            ToastCustom.makeText(ScanActivity.this,"Invalid QR",ToastCustom.LENGTH_SHORT,ToastCustom.TYPE_ERROR);
+                        break;
 
-                boolean isValidPrivKey = privKey!=null ? true : false;
-                boolean isValidBitcoinUri = FormatsUtil.getInstance().isBitcoinUri(data);
-                boolean isValidPairingQR = (data.split("\\|", Pattern.LITERAL).length == 3);
-                boolean isValidBitcoinAddress = FormatsUtil.getInstance().isValidBitcoinAddress(data);
+                    case SCAN_IMPORT:
+                        String privKey;
+                        try {
+                            privKey = PrivateKeyFactory.getInstance().getFormat(data);
+                        } catch (Exception e) {
+                            privKey = null;
+                        }
+                        boolean isValidPrivKey = privKey != null ? true : false;
+                        if (isValidPrivKey)
+                            scan(data);
+                        else
+                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        break;
 
-                if(isValidBitcoinUri || isValidPrivKey || isValidPairingQR || isValidBitcoinAddress) {
-
-                    scanner.stopScanner();
-
-                    Intent dataIntent = new Intent();
-                    dataIntent.putExtra(SCAN_RESULT, data);
-                    setResult(Activity.RESULT_OK, dataIntent);
-                    finish();
+                    case SCAN_URI:
+                        boolean isValidBitcoinUri = FormatsUtil.getInstance().isBitcoinUri(data);
+                        boolean isValidBitcoinAddress = FormatsUtil.getInstance().isValidBitcoinAddress(data);
+                        if (isValidBitcoinUri || isValidBitcoinAddress)
+                            scan(data);
+                        else
+                            ToastCustom.makeText(ScanActivity.this, "Invalid Address.", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        break;
                 }
-                return true;
             }
         });
-        scanner.startScanner();
 
         hasFlashLight = this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+
+    private void scan(String data){
+        camera.stopScanner();
+
+        Intent dataIntent = new Intent();
+        dataIntent.putExtra(SCAN_RESULT, data);
+        setResult(Activity.RESULT_OK, dataIntent);
+        end = System.currentTimeMillis();
+        finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        camera.startScanner();
         AppUtil.getInstance(this).setIsBackgrounded(false);
-
-        if(!scanner.getCamera().isStreaming())
-            scanner.startScanner();
     }
 
     @Override
@@ -106,9 +138,9 @@ public class ScanActivity extends ActionBarActivity{
 
     @Override
     protected void onPause() {
+        camera.stopScanner();
         super.onPause();
         AppUtil.getInstance(this).setIsBackgrounded(true);
-        scanner.stopScanner();
     }
 
     @Override
@@ -134,17 +166,7 @@ public class ScanActivity extends ActionBarActivity{
     }
 
     private void doFlashLight(){
-        if(!flashOn) {
-            Camera.Parameters para = scanner.getCamera().getCamera().getParameters();
-            para.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            scanner.getCamera().getCamera().setParameters(para);
-
-            flashOn = true;
-        }else{
-            Camera.Parameters para = scanner.getCamera().getCamera().getParameters();
-            para.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            scanner.getCamera().getCamera().setParameters(para);
-            flashOn = false;
-        }
+        flashStatus = !flashStatus;
+        camera.getCamera().getController().switchFlashlight(flashStatus);
     }
 }

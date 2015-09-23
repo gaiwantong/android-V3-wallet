@@ -30,6 +30,7 @@ public class PairWalletFragment extends Fragment {
             public void onClick(View v) {
                 if(!AppUtil.getInstance(getActivity()).isCameraOpen())    {
                     Intent intent = new Intent(getActivity(), ScanActivity.class);
+                    intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_PAIR);
                     getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
                 }
                 else    {

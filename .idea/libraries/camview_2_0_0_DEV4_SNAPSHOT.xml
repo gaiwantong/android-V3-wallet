@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="camview-2.0.0.DEV4-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/eu.livotov.labs/camview/2.0.0.DEV4-SNAPSHOT/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/eu.livotov.labs/camview/2.0.0.DEV4-SNAPSHOT/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
