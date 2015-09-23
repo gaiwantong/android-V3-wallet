@@ -6,7 +6,7 @@
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
     <string-array name="navigation_drawer_items">
-        <item>My Accounts</item>
+        <item>My Addresses</item>
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
         <item>Support</item>
@@ -240,7 +240,7 @@
         <item>Suggest a merchant</item>
     </string-array>
 
-    <string name="my_accounts">My Accounts</string>
+    <string name="my_accounts">My Addresses</string>
     <string name="accounts">Accounts</string>
     <string name="create_new_account">Create New Account</string>
     <string name="import_address">Import Address</string>
