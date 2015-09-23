@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 170
-        versionName "5.0.50a"
+        versionName "5.0.50b"
         multiDexEnabled true
     }
     buildTypes {
