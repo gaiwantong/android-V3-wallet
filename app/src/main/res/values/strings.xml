@@ -176,6 +176,7 @@
     <string name="exit_confirm">Press back button again to exit</string>
 
     <string name="label_address">Your address has been imported successfully. Optionally assign a friendly display name to this address.</string>
+    <string name="label_address2">Your address has been created successfully. Optionally assign a friendly display name to this address.</string>
 
     <string name="bip38_error">Null key returned (BIP38)</string>
     <string name="privkey_error">Unrecognized private key format</string>

@@ -158,7 +158,7 @@ public class MyAccountsActivity extends Activity {
 
                                 new AlertDialog.Builder(MyAccountsActivity.this)
                                         .setTitle(R.string.app_name)
-                                        .setMessage(R.string.label_address)
+                                        .setMessage(R.string.label_address2)
                                         .setView(address_label)
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
