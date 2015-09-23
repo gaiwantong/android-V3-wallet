@@ -1,6 +1,6 @@
 package info.blockchain.wallet.util;
 
-import libsrc.org.apache.commons.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;

@@ -43,9 +43,10 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
-import com.google.bitcoin.uri.BitcoinURI;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -589,9 +590,13 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8));
             }
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
+            if(bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                return;
+            }
             if(!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
-                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, bamount, "", ""));
+                generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
+                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
             }
             else {
                 generateQRCode("bitcoin:" + currentSelectedAddress);

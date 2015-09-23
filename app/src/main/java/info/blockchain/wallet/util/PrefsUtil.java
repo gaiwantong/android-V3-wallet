@@ -5,26 +5,9 @@ import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-public class PrefsUtil {
+import info.blockchain.wallet.util.PersistantPrefs;
 
-    public static final String DEFAULT_CURRENCY = "USD";
-
-    public static final String KEY_PIN_IDENTIFIER       = "pin_kookup_key";
-    public static final String KEY_ENCRYPTED_PASSWORD   = "encrypted_password";
-    public static final String KEY_GUID                 = "guid";
-    public static final String KEY_SHARED_KEY           = "sharedKey";
-    public static final String KEY_SHARED_KEY_X           = "sharedKeyX";   // encrypted sharedKey
-    public static final String KEY_PIN_FAILS            = "pin_fails";
-    // public static final String KEY_LOGGED_IN              = "logged_in";
-    public static final String KEY_BTC_UNITS            = "btcUnits";
-    public static final String KEY_SELECTED_FIAT        = "ccurrency";
-    public static final String KEY_INITIAL_ACCOUNT_NAME = "_1ST_ACCOUNT_NAME";
-	public static final String KEY_EMAIL           		= "email";
-	public static final String KEY_EMAIL_VERIFIED 		= "code_verified";
-    public static final String KEY_SESSION_ID 			= "session_id";
-    public static final String KEY_HD_UPGRADED_LAST_REMINDER = "hd_upgraded_last_reminder";
-    public static final String KEY_ASK_LATER = "ask_later";
-    public static final String KEY_EMAIL_VERIFY_ASK_LATER = "email_verify_ask_later";
+public class PrefsUtil implements PersistantPrefs {
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;

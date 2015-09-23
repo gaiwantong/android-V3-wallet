@@ -3,10 +3,11 @@ package info.blockchain.ui;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 
-import com.google.bitcoin.crypto.MnemonicException;
 import com.robotium.solo.Solo;
 
 import junit.framework.TestCase;
+
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
@@ -71,18 +72,13 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
 
-        try{solo.sleep(3000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     public void testB_EnterIncorrectCode() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
 
         solo.enterText((EditText) solo.getView(R.id.confirmBox0), "A");
         solo.enterText((EditText) solo.getView(R.id.confirmBox1), "A");
@@ -95,9 +91,7 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
 
     public void testC_ResendEmail() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
 
         solo.clickOnText(getActivity().getString(R.string.resend_email_confirmation));
 
@@ -107,9 +101,7 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
 
     public void testD_ForgetWallet() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
 
         solo.clickOnText(getActivity().getString(R.string.wipe_wallet));
         try{solo.sleep(1000);}catch (Exception e){}
@@ -139,22 +131,20 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
 
-        try{solo.sleep(3000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(6000);}catch (Exception e){}
     }
 
     public void testF_EnterCorrectCode() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        try{solo.sleep(1000);}catch (Exception e){}
-        UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
+        if(AllTests.enableUserInteraction) {
 
-        //Confirm email received needs to be done manually by tester - so we'll make a sound to alert tester
-        UiUtil.getInstance(getActivity()).soundAlert();
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
 
-        TestCase.assertTrue(solo.waitForText(getActivity().getString(R.string.my_bitcoin_wallet), 1, 240000));
+            //Confirm email received needs to be done manually by tester - so we'll make a sound to alert tester
+            UiUtil.getInstance(getActivity()).soundAlert();
+
+            TestCase.assertTrue(solo.waitForText(getActivity().getString(R.string.my_bitcoin_wallet), 1, 240000));
+        }
     }
 }

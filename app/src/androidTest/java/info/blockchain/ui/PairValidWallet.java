@@ -44,10 +44,7 @@ public class PairValidWallet extends ActivityInstrumentationTestCase2<MainActivi
         UiUtil.getInstance(getActivity()).soundAlert();
 
         solo.waitForActivity(PinEntryActivity.class, 120000);
-        try{solo.sleep(2000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
     }
 }

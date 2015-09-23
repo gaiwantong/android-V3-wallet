@@ -160,7 +160,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
                         if(!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER,false)) {
                             if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+
+                                if(!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy())    {
+                                    PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                }
                                 AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                             }
                         }else{
@@ -172,13 +175,13 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                         }
 
                     }else {
-                        ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         clearBoxes();
                     }
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    ToastCustom.makeText(ConfirmationCodeActivity.this, response, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                     clearBoxes();
                 }
                 finally {
@@ -269,7 +272,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
                 try {
                     if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
-                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+
+                        if(!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy())    {
+                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                        }
                         AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                     }
                 } catch (Exception e) {

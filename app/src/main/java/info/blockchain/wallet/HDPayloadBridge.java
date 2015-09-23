@@ -1,29 +1,39 @@
 package info.blockchain.wallet;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
@@ -77,8 +87,7 @@ public class HDPayloadBridge	{
         //
         // create HD wallet and sync w/ payload
         //
-        if(PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
-
+        if(!AppUtil.getInstance(context).isLegacy() && (PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0))    {
             String xpub = null;
             int attempts = 0;
             boolean no_tx = false;
@@ -87,15 +96,15 @@ public class HDPayloadBridge	{
 
                 attempts++;
 
-                HD_WalletFactory.getInstance(context).newWallet(12, "", 1);
+                WalletFactory.getInstance().newWallet(12, "", 1);
                 HDWallet hdw = new HDWallet();
-                hdw.setSeedHex(HD_WalletFactory.getInstance(context).get().getSeedHex());
+                hdw.setSeedHex(WalletFactory.getInstance().get().getSeedHex());
                 List<Account> accounts = new ArrayList<Account>();
-                xpub = HD_WalletFactory.getInstance(context).get().getAccount(0).xpubstr();
+                xpub = WalletFactory.getInstance().get().getAccount(0).xpubstr();
                 if(AppUtil.getInstance(context).isNewlyCreated()) {
                     accounts.add(new Account());
                     accounts.get(0).setXpub(xpub);
-                    accounts.get(0).setXpriv(HD_WalletFactory.getInstance(context).get().getAccount(0).xprvstr());
+                    accounts.get(0).setXpriv(WalletFactory.getInstance().get().getAccount(0).xprvstr());
                 }
                 hdw.setAccounts(accounts);
                 PayloadFactory.getInstance().get().setHdWallets(hdw);
@@ -111,25 +120,26 @@ public class HDPayloadBridge	{
                 return false;
             }
             else {
-                PayloadFactory.getInstance(context).remoteSaveThread();
+                PayloadBridge.getInstance(context).remoteSaveThread();
             }
-
         }
 
         getBalances();
 
-        // update highest idxs here, they were just updated above in getBalances();
-        List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        for(Account a : accounts) {
-            a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
-            a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
+        if(!AppUtil.getInstance(context).isLegacy())    {
+            // update highest idxs here, they were just updated above in getBalances();
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for(Account a : accounts) {
+                a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
+                a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
+            }
+            PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
         }
-        PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
 
         PayloadFactory.getInstance().cache();
 
         return true;
-     }
+    }
 
     public void getBalances() throws JSONException, IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException	{
 
@@ -149,15 +159,15 @@ public class HDPayloadBridge	{
     }
 
     public String getHDSeed() throws IOException, MnemonicException.MnemonicLengthException {
-        return HD_WalletFactory.getInstance(context).get().getSeedHex();
+        return WalletFactory.getInstance().get().getSeedHex();
     }
-    
+
     public String getHDMnemonic() throws IOException, MnemonicException.MnemonicLengthException {
-        return HD_WalletFactory.getInstance(context).get().getMnemonic();
+        return WalletFactory.getInstance().get().getMnemonic();
     }
 
     public String getHDPassphrase() throws IOException, MnemonicException.MnemonicLengthException {
-        return HD_WalletFactory.getInstance(context).get().getPassphrase();
+        return WalletFactory.getInstance().get().getPassphrase();
     }
 
     public ReceiveAddress getReceiveAddress(int accountIdx) throws DecoderException, IOException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicLengthException, AddressFormatException {
@@ -178,13 +188,13 @@ public class HDPayloadBridge	{
     }
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException	{
-        HD_WalletFactory.getInstance(context).newWallet(12, passphrase, 1);
-        PayloadFactory.getInstance(context).createBlockchainWallet(HD_WalletFactory.getInstance(context).get());
+        WalletFactory.getInstance().newWallet(12, passphrase, 1);
+        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 
     public void restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException	{
-        HD_WalletFactory.getInstance(context).restoreWallet(seed, passphrase, 1);
-        PayloadFactory.getInstance(context).createBlockchainWallet(HD_WalletFactory.getInstance(context).get());
+        WalletFactory.getInstance().restoreWallet(seed, passphrase, 1);
+        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
     }
 
     //
@@ -196,24 +206,29 @@ public class HDPayloadBridge	{
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
-            HD_Wallet hd_wallet = null;
+            org.bitcoinj.core.bip44.Wallet hd_wallet = null;
 
             if(PayloadFactory.getInstance().get().getHdWallet() != null) {
-                hd_wallet = HD_WalletFactory.getInstance(context).restoreWallet(PayloadFactory.getInstance().get().getHdWallet().getSeedHex(), PayloadFactory.getInstance().get().getHdWallet().getPassphrase(), PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                hd_wallet = WalletFactory.getInstance().restoreWallet(PayloadFactory.getInstance().get().getHdWallet().getSeedHex(), PayloadFactory.getInstance().get().getHdWallet().getPassphrase(), PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
             }
 
         }
 
-        int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
-        for(int i = 0; i < nb_accounts; i++) {
-            boolean isArchived = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).isArchived();
-            if(isArchived && !includeArchives) {
-                ;
-            }
-            else {
-                String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
-                if(s != null && s.length() > 0) {
-                    xpubs.add(s);
+        //
+        // null test added for 'lame' mode
+        //
+        if(PayloadFactory.getInstance().get().getHdWallet() != null)    {
+            int nb_accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+            for(int i = 0; i < nb_accounts; i++) {
+                boolean isArchived = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).isArchived();
+                if(isArchived && !includeArchives) {
+                    ;
+                }
+                else {
+                    String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+                    if(s != null && s.length() > 0) {
+                        xpubs.add(s);
+                    }
                 }
             }
         }

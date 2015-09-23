@@ -16,6 +16,11 @@ gen/
 .gradle/
 build/
 
+# User-specific stuff:
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+
 # Local configuration file (sdk path, etc)
 local.properties
 

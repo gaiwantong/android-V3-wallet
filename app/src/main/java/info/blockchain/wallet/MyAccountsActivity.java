@@ -31,19 +31,19 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.Base58;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.uri.BitcoinURI;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +52,8 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -116,7 +118,7 @@ public class MyAccountsActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                String[] list = new String[] {getResources().getString(R.string.import_address)};
+                String[] list = new String[] { getResources().getString(R.string.create_new_address), getResources().getString(R.string.import_address) };
                 ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_dropdown, list);
 
                 final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
@@ -131,6 +133,59 @@ public class MyAccountsActivity extends Activity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
                             case 0:
+
+                                ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
+                                String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
+
+                                final LegacyAddress legacyAddress = new LegacyAddress();
+                                legacyAddress.setEncryptedKey(encryptedKey);
+                                legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
+                                legacyAddress.setCreatedDeviceName("android");
+                                legacyAddress.setCreated(System.currentTimeMillis());
+                                legacyAddress.setCreatedDeviceVersion(MyAccountsActivity.this.getString(R.string.version_name));
+                                Payload payload = PayloadFactory.getInstance().get();
+                                List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
+                                legacyAddresses.add(legacyAddress);
+                                payload.setLegacyAddresses(legacyAddresses);
+                                PayloadFactory.getInstance().set(payload);
+
+                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+                                updateAndRecreate(legacyAddress);
+
+                                final EditText address_label = new EditText(MyAccountsActivity.this);
+                                address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+                                new AlertDialog.Builder(MyAccountsActivity.this)
+                                        .setTitle(R.string.app_name)
+                                        .setMessage(R.string.label_address)
+                                        .setView(address_label)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                String label = address_label.getText().toString();
+                                                if(label != null && label.length() > 0) {
+                                                    ;
+                                                }
+                                                else {
+                                                    label = "";
+                                                }
+
+                                                int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                                                PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
+                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+
+                                                updateAndRecreate(legacyAddress);
+
+                                            }
+                                        }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        ;
+                                    }
+                                }).show();
+
+                                break;
+                            case 1:
                                 if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
                                     scanPrivateKey();
                                 }
@@ -262,7 +317,7 @@ public class MyAccountsActivity extends Activity {
                             addressView.setText(currentSelectedAddress);
 
                             //Receiving QR
-                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, BigInteger.ZERO, "", "")));
+                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
 
                             if (originalHeight == 0) {
                                 originalHeight = view.getHeight();
@@ -410,7 +465,7 @@ public class MyAccountsActivity extends Activity {
         accountList.add(new MyAccountItem(ACCOUNT_HEADER, "", getResources().getDrawable(R.drawable.icon_accounthd)));
 
         int i = 0;
-        if(PayloadFactory.getInstance(this).get().isUpgraded()) {
+        if(PayloadFactory.getInstance().get().isUpgraded()) {
 
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
             List<Account> accountClone = new ArrayList<Account>(accounts.size());
@@ -576,6 +631,7 @@ public class MyAccountsActivity extends Activity {
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
             Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
+            intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
         }
         else {
@@ -602,6 +658,7 @@ public class MyAccountsActivity extends Activity {
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                 Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
+                                intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
                                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
                             }
@@ -685,7 +742,7 @@ public class MyAccountsActivity extends Activity {
                                                         }
                                                         PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                        PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                         updateAndRecreate(legacyAddress);
                                                     }
@@ -694,7 +751,7 @@ public class MyAccountsActivity extends Activity {
                                                 legacyAddress.setLabel("");
                                                 PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                                                 updateAndRecreate(legacyAddress);
                                             }
@@ -775,7 +832,7 @@ public class MyAccountsActivity extends Activity {
                             PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
 
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                            PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                             updateAndRecreate(legacyAddress);
                         }
@@ -784,7 +841,7 @@ public class MyAccountsActivity extends Activity {
                     legacyAddress.setLabel("");
                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    PayloadFactory.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                    PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
 
                     updateAndRecreate(legacyAddress);
                 }
@@ -805,11 +862,12 @@ public class MyAccountsActivity extends Activity {
                 JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
 
                 long balance = 0l;
-                try {
-                    balance = info.getLong("final_balance");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                if(info!=null)
+                    try {
+                        balance = info.getLong("final_balance");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance()+balance);

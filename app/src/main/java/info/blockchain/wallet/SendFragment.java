@@ -37,9 +37,10 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+//import android.util.Log;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 
@@ -54,12 +55,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.payload.Tx;
@@ -76,8 +79,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
-
-//import android.util.Log;
 
 public class SendFragment extends Fragment implements View.OnClickListener, CustomKeypadCallback {
 
@@ -213,6 +214,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         btcTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
+
+                long lamount = 0L;
+                try {
+                    lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
+                    if(BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                        ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        edAmount1.setText("0.0");
+                        pendingSpend.bamount = BigInteger.ZERO;
+                        return;
+                    }
+                }
+                catch(NumberFormatException nfe) {
+                    ;
+                }
+                catch(ParseException pe) {
+                    ;
+                }
 
                 edAmount1.removeTextChangedListener(this);
 
@@ -531,7 +549,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
 
+        edAmount1.removeTextChangedListener(btcTextWatcher);
+        edAmount2.removeTextChangedListener(fiatTextWatcher);
         decimalCompatCheck(rootView);
+        edAmount1.addTextChangedListener(btcTextWatcher);
+        edAmount2.addTextChangedListener(fiatTextWatcher);
 
         return rootView;
     }
@@ -721,6 +743,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         try {
             lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
             pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
+            if(pendingSpend.bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
+                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                edAmount1.setText("0.0");
+                pendingSpend.bamount = BigInteger.ZERO;
+                return;
+            }
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 if(showMessages) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -927,8 +955,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             PayloadFactory.getInstance().get().getIterations());
 
                                     try {
-                                        HD_Wallet hdw = HD_WalletFactory.getInstance(getActivity()).restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                                        HD_WalletFactory.getInstance(getActivity()).setWatchOnlyWallet(hdw);
+                                        Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                                        WalletFactory.getInstance().setWatchOnlyWallet(hdw);
                                     } catch (IOException | DecoderException | AddressFormatException |
                                             MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
                                             MnemonicException.MnemonicWordException e) {
@@ -1182,7 +1210,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     }
 
                                                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                                    PayloadFactory.getInstance(context).remoteSaveThread();
+                                                    PayloadBridge.getInstance(context).remoteSaveThread();
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
@@ -1235,7 +1263,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 public void onSuccess(final String hash) {
                                                     ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                                     if (strNote != null) {
-                                                        PayloadFactory.getInstance(getActivity()).remoteSaveThread();
+                                                        PayloadBridge.getInstance(getActivity()).remoteSaveThread();
                                                     }
 
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));

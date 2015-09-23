@@ -9,9 +9,10 @@ import android.os.Looper;
 
 import java.io.File;
 
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import piuk.blockchain.android.R;
 
@@ -23,6 +24,7 @@ public class AppUtil {
 	private static Context context = null;
 
     private static boolean DEBUG = false;
+    private static boolean LEGACY = true;
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
     private static long lastPin = 0L;
@@ -52,7 +54,7 @@ public class AppUtil {
 	}
 
 	public void clearCredentialsAndRestart() {
-        HD_WalletFactory.getInstance(context).set(null);
+        WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
 		PrefsUtil.getInstance(context).clear();
 		restartApp();
@@ -265,6 +267,14 @@ public class AppUtil {
     public void setSharedKey(String sharedKey)   {
         String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
+    }
+
+    public boolean isLegacy() {
+        return LEGACY;
+    }
+
+    public void setLegacy(boolean lame) {
+        LEGACY = lame;
     }
 
 }

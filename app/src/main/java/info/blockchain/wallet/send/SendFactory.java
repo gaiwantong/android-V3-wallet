@@ -1,29 +1,30 @@
 package info.blockchain.wallet.send;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.Pair;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.core.ECKey;
-import com.google.bitcoin.core.ScriptException;
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.Transaction.SigHash;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
-import com.google.bitcoin.core.Utils;
-import com.google.bitcoin.core.Wallet;
-import com.google.bitcoin.crypto.TransactionSignature;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.script.Script;
-import com.google.bitcoin.script.ScriptBuilder;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.ScriptException;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.Transaction.SigHash;
+import org.bitcoinj.core.TransactionInput;
+import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.Wallet;
+import org.bitcoinj.crypto.TransactionSignature;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptBuilder;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.spongycastle.util.encoders.Hex;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -36,12 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bitcoinj.core.bip44.Address;
+import org.bitcoinj.core.bip44.WalletFactory;
+
 import info.blockchain.wallet.OpCallback;
-import info.blockchain.wallet.hd.HD_Address;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -68,8 +71,8 @@ public class SendFactory	{
 
     private boolean sentChange = false;
 
-    private static final BigInteger bDust = Utils.toNanoCoins("0.00000546");
-    public static final BigInteger bFee = Utils.toNanoCoins("0.0001");
+    private static final BigInteger bDust = BigInteger.valueOf(Coin.parseCoin("0.00000546").longValue());
+    public static final BigInteger bFee = BigInteger.valueOf(Coin.parseCoin("0.0001").longValue());
 
     public static SendFactory getInstance(Context ctx) {
 
@@ -188,23 +191,23 @@ public class SendFactory	{
                     if(isHD) {
                         int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
                         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                            changeAddr = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                            changeAddr = WalletFactory.getInstance().get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
                         }
                         else {
-                            changeAddr = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
+                            changeAddr = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
                         }
                     }
                     else {
                         changeAddr = legacyAddress.getAddress();
                     }
-                    pair = makeTransaction(true, unspent, receivers, fee, changeAddr);
+                    pair = SendCoins.getInstance().makeTransaction(true, unspent, receivers, fee, changeAddr);
                     // Transaction cancelled
                     if(pair == null) {
                         opc.onFail();
                         return;
                     }
-                    Transaction tx = pair.first;
-                    Long priority = pair.second;
+                    Transaction tx = pair.getLeft();
+                    Long priority = pair.getRight();
 
                     Wallet wallet = new Wallet(MainNetParams.get());
                     for (TransactionInput input : tx.getInputs()) {
@@ -216,12 +219,12 @@ public class SendFactory	{
                             if(isHD) {
                                 String path = froms.get(address);
                                 String[] s = path.split("/");
-                                HD_Address hd_address = null;
+                                Address hd_address = null;
                                 if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                    hd_address = HD_WalletFactory.getInstance(context).get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                    hd_address = WalletFactory.getInstance().get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
                                 }
                                 else {
-                                    hd_address = HD_WalletFactory.getInstance(context).getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
+                                    hd_address = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
                                 }
                                 privStr = hd_address.getPrivateKeyString();
                                 walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
@@ -244,8 +247,8 @@ public class SendFactory	{
 
                     }
 
-                    signTx(tx, wallet);
-                    String hexString = new String(Hex.encode(tx.bitcoinSerialize()));
+                    SendCoins.getInstance().signTx(tx, wallet);
+                    String hexString = SendCoins.getInstance().encodeHex(tx);
                     if(hexString.length() > (100 * 1024)) {
                         opc.onFail();
                         throw new Exception(context.getString(R.string.tx_length_error));
@@ -253,9 +256,7 @@ public class SendFactory	{
 
                     if(!isQueueSend)    {
                         if(ConnectivityStatus.hasConnectivity(context)) {
-//					Log.i("SendFactory tx string", hexString);
-                            String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
-//					Log.i("Send response", response);
+                            String response = SendCoins.getInstance().pushTx(tx);
                             if(response.contains("Transaction Submitted")) {
 
                                 opc.onSuccess(tx.getHashAsString());
@@ -422,188 +423,6 @@ public class SendFactory	{
         }
 
         return ret;
-    }
-
-    /**
-     * Creates, populates, and returns transaction instance for this
-     * spend and returns it with calculated priority. Change output
-     * is positioned randomly.
-     *
-     * @param  boolean isSimpleSend Always true, not currently used
-     * @param  List<MyTransactionOutPoint> unspent Unspent outputs
-     * @param  BigInteger amount Spending amount (not including fee)
-     * @param  HashMap<String, BigInteger> receivingAddresses
-     * @param  BigInteger fee Miner's fee for this spend
-     * @param  String changeAddress Change address for this spend
-     *
-     * @return Pair<Transaction, Long>
-     *
-     */
-    public Pair<Transaction, Long> makeTransaction(boolean isSimpleSend, List<MyTransactionOutPoint> unspent, HashMap<String, BigInteger> receivingAddresses, BigInteger fee, final String changeAddress) throws Exception {
-
-        long priority = 0;
-
-        if(unspent == null || unspent.size() == 0) {
-//			throw new InsufficientFundsException("No free outputs to spend.");
-            return null;
-        }
-
-        if(fee == null) {
-            fee = BigInteger.ZERO;
-        }
-
-        List<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
-        // Construct a new transaction
-        Transaction tx = new Transaction(MainNetParams.get());
-        BigInteger outputValueSum = BigInteger.ZERO;
-
-        for(Iterator<Entry<String, BigInteger>> iterator = receivingAddresses.entrySet().iterator(); iterator.hasNext();)   {
-            Map.Entry<String, BigInteger> mapEntry = iterator.next();
-            String toAddress = mapEntry.getKey();
-            BigInteger amount = mapEntry.getValue();
-
-            if(amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-                throw new Exception(context.getString(R.string.invalid_amount));
-            }
-
-            if(amount.compareTo(bDust) < 1)    {
-                throw new Exception(context.getString(R.string.dust_amount));
-            }
-
-            outputValueSum = outputValueSum.add(amount);
-            // Add the output
-            BitcoinScript toOutputScript = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(toAddress));
-            TransactionOutput output = new TransactionOutput(MainNetParams.get(), null, amount, toOutputScript.getProgram());
-            outputs.add(output);
-        }
-
-        // Now select the appropriate inputs
-        BigInteger valueSelected = BigInteger.ZERO;
-        BigInteger valueNeeded =  outputValueSum.add(fee);
-        BigInteger minFreeOutputSize = BigInteger.valueOf(1000000);
-
-        MyTransactionOutPoint changeOutPoint = null;
-
-        for(MyTransactionOutPoint outPoint : unspent) {
-
-            BitcoinScript script = new BitcoinScript(outPoint.getScriptBytes());
-
-            if(script.getOutType() == BitcoinScript.ScriptOutTypeStrange) {
-                continue;
-            }
-
-            BitcoinScript inputScript = new BitcoinScript(outPoint.getConnectedPubKeyScript());
-            String address = inputScript.getAddress().toString();
-
-            // if isSimpleSend don't use address as input if is output
-            if(isSimpleSend && receivingAddresses.get(address) != null) {
-                continue;
-            }
-
-            MyTransactionInput input = new MyTransactionInput(MainNetParams.get(), null, new byte[0], outPoint);
-            tx.addInput(input);
-            valueSelected = valueSelected.add(outPoint.getValue());
-            priority += outPoint.getValue().longValue() * outPoint.getConfirmations();
-
-            if(changeAddress == null) {
-                changeOutPoint = outPoint;
-            }
-
-            if(valueSelected.compareTo(valueNeeded) == 0 || valueSelected.compareTo(valueNeeded.add(minFreeOutputSize)) >= 0) {
-                break;
-            }
-        }
-
-        if(valueSelected.compareTo(BigInteger.valueOf(2100000000000000L)) > 0)    {
-            throw new Exception(context.getString(R.string.limit_21m_exceeded));
-        }
-
-        // Check the amount we have selected is greater than the amount we need
-        if(valueSelected.compareTo(valueNeeded) < 0) {
-//			throw new InsufficientFundsException("Insufficient Funds");
-            return null;
-        }
-
-        BigInteger change = valueSelected.subtract(outputValueSum).subtract(fee);
-        // Now add the change if there is any
-        if (change.compareTo(BigInteger.ZERO) > 0) {
-            if(change.compareTo(bDust) <= 0)    {
-                throw new Exception(context.getString(R.string.dust_change));
-            }
-            BitcoinScript change_script;
-            if (changeAddress != null) {
-                change_script = BitcoinScript.createSimpleOutBitcoinScript(new BitcoinAddress(changeAddress));
-                sentChange = true;
-            }
-            else {
-                throw new Exception(context.getString(R.string.invalid_tx));
-            }
-            TransactionOutput change_output = new TransactionOutput(MainNetParams.get(), null, change, change_script.getProgram());
-            outputs.add(change_output);
-        }
-        else {
-            sentChange = false;
-        }
-
-        Collections.shuffle(outputs, new SecureRandom());
-        for(TransactionOutput to : outputs) {
-            tx.addOutput(to);
-        }
-
-        long estimatedSize = tx.bitcoinSerialize().length + (114 * tx.getInputs().size());
-        priority /= estimatedSize;
-
-        return new Pair<Transaction, Long>(tx, priority);
-    }
-
-    /**
-     * <p>Calculate signatures for inputs of a transaction.
-     *
-     * @param Transaction transaction  Transaction for which the inputs must be signed
-     * @param Wallet wallet Wallet used as key bag, not for actual spending
-     */
-    private synchronized void signTx(Transaction transaction, Wallet wallet) throws ScriptException {
-
-        List<TransactionInput> inputs = transaction.getInputs();
-
-        TransactionSignature[] sigs = new TransactionSignature[inputs.size()];
-        ECKey[] keys = new ECKey[inputs.size()];
-
-        for (int i = 0; i < inputs.size(); i++) {
-
-            TransactionInput input = inputs.get(i);
-
-            // Find the signing key
-            ECKey key = input.getOutpoint().getConnectedKey(wallet);
-            // Keep key for script creation step below
-            keys[i] = key;
-            byte[] connectedPubKeyScript = input.getOutpoint().getConnectedPubKeyScript();
-            if(key.hasPrivKey() || key.isEncrypted()) {
-                sigs[i] = transaction.calculateSignature(i, key, null, connectedPubKeyScript, SigHash.ALL, false);
-            }
-            else {
-                sigs[i] = TransactionSignature.dummy();   // watch only ?
-            }
-        }
-
-        for(int i = 0; i < inputs.size(); i++) {
-            if(sigs[i] == null)   {
-                continue;
-            }
-            TransactionInput input = inputs.get(i);
-            final TransactionOutput connectedOutput = input.getOutpoint().getConnectedOutput();
-            Script scriptPubKey = connectedOutput.getScriptPubKey();
-            if(scriptPubKey.isSentToAddress()) {
-                input.setScriptSig(ScriptBuilder.createInputScript(sigs[i], keys[i]));
-            }
-            else if(scriptPubKey.isSentToRawPubKey()) {
-                input.setScriptSig(ScriptBuilder.createInputScript(sigs[i]));
-            }
-            else {
-                throw new RuntimeException("Unknown script type: " + scriptPubKey);
-            }
-        }
-
     }
 
     /**

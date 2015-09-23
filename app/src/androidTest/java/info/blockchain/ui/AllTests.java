@@ -8,6 +8,8 @@ import junit.framework.TestSuite;
 
 public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
 
+    public static boolean enableUserInteraction = false;//false will skip any tests that require user interaction (confirmation code input, manual pair confirm)
+
     public AllTests(Class<Activity> activityClass) {
         super(Activity.class);
     }
@@ -24,12 +26,37 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
         t.addTestSuite(ClearWalletData.class);
         t.addTestSuite(ConfirmationCodeTest.class);
 
-        //After ConfirmationCodeTest we now have empty wallet to test with
-
-        //Pair valid funded wallet for testing - Tester must manually confirm email when received
+        //Test pairing
         t.addTestSuite(ClearWalletData.class);
-        t.addTestSuite(PairValidWallet.class);
+        t.addTestSuite(PairingTest.class);
+
+        //Test balance screen
         t.addTestSuite(BalanceScreenTest.class);
+
+        //Test send screen
+        t.addTestSuite(SendScreenTest.class);
+
+        //Test send screen
+        t.addTestSuite(ReceiveScreenTest.class);
+
+        //Test accounts screen
+        t.addTestSuite(MyAccountsScreenTest.class);
+
+        //Test settings screen
+        t.addTestSuite(SettingsScreenTest.class);
+
+        //Test support screen
+        t.addTestSuite(SupportScreenTest.class);
+
+        //Test change pin code
+        t.addTestSuite(ChangePinModalTest.class);
+
+        //Test backup wallet
+        t.addTestSuite(BackupWalletTest.class);
+
+        //Test backup wallet
+        t.addTestSuite(UnpairWalletTest.class);
+        t.addTestSuite(PairingTest.class);//repair after unpair
 
         return t;
     }

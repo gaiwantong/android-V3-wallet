@@ -3,10 +3,11 @@ package info.blockchain.ui;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 
-import com.google.bitcoin.crypto.MnemonicException;
 import com.robotium.solo.Solo;
 
 import junit.framework.TestCase;
+
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -202,20 +203,15 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         solo.clickOnView(solo.getView(R.id.command_next));
 
         //Test result
-        TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
+//        TestCase.assertEquals(true, solo.waitForText(getActivity().getString(R.string.create_pin)));
 
-        try{solo.sleep(3000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
     }
 
     public void testG_ConfirmationCodeForgetWallet() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        try{solo.sleep(1000);}catch (Exception e){}
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-        try{solo.sleep(4000);}catch (Exception e){}
 
         solo.clickOnText(getActivity().getString(R.string.wipe_wallet));
         try{solo.sleep(1000);}catch (Exception e){}

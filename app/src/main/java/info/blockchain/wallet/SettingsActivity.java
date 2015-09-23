@@ -19,15 +19,15 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 
 import java.io.IOException;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -186,11 +186,11 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Try to create a using the decrypted seed hex
         try {
-            HD_Wallet hdw = HD_WalletFactory.getInstance(this).get();
-            HD_WalletFactory.getInstance(this).restoreWallet(decrypted_hex, "", 1);
+            Wallet hdw = WalletFactory.getInstance().get();
+            WalletFactory.getInstance().restoreWallet(decrypted_hex, "", 1);
 
-            mnemonic = HD_WalletFactory.getInstance(this).get().getMnemonic();
-            HD_WalletFactory.getInstance(this).set(hdw);
+            mnemonic = WalletFactory.getInstance().get().getMnemonic();
+            WalletFactory.getInstance().set(hdw);
         } catch (IOException | DecoderException | AddressFormatException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException e) {
             e.printStackTrace();
         } finally {

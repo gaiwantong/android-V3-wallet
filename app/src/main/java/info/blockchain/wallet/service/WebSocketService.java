@@ -11,9 +11,12 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.WebUtil;
 
 public class WebSocketService extends android.app.Service	{
 
@@ -69,7 +72,7 @@ public class WebSocketService extends android.app.Service	{
             }
         }
 
-		String[] xpubs = new String[nbAccounts];
+		final String[] xpubs = new String[nbAccounts];
 		for(int i = 0; i < nbAccounts; i++) {
 			String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
 			if(s != null && s.length() > 0) {
@@ -78,7 +81,7 @@ public class WebSocketService extends android.app.Service	{
 		}
 
 		int nbLegacy = PayloadFactory.getInstance().get().getLegacyAddresses().size();
-		String[] addrs = new String[nbLegacy];
+		final String[] addrs = new String[nbLegacy];
 		for(int i = 0; i < nbLegacy; i++) {
 			String s = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
 			if(s != null && s.length() > 0) {
@@ -87,8 +90,8 @@ public class WebSocketService extends android.app.Service	{
 		}
 
 		webSocketHandler = new WebSocketHandler(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
-
-		connectToWebsocketIfNotConnected();
+		Log.i("WebSocketService", "webSocketHandler is " + ((webSocketHandler == null) ? "null" : "not null"));
+//					connectToWebsocketIfNotConnected();
 
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -106,7 +109,7 @@ public class WebSocketService extends android.app.Service	{
 	public void connectToWebsocketIfNotConnected()
 	{
 		try {
-			if(!webSocketHandler.isConnected()) {
+			if(webSocketHandler != null && !webSocketHandler.isConnected()) {
 				webSocketHandler.start();
 			}
 		} catch (Exception e) {
@@ -116,7 +119,9 @@ public class WebSocketService extends android.app.Service	{
 
 	public void stop() {
 		try {
-			webSocketHandler.stop(); 
+			if(webSocketHandler != null)	{
+				webSocketHandler.stop();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

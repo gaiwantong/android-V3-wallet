@@ -6,8 +6,8 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
 import org.json.JSONArray;
@@ -15,15 +15,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
-import libsrc_hp.de.tavendo.autobahn.WebSocketConnection;
 import info.blockchain.wallet.EventListeners;
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
+
+import com.neovisionaries.ws.client.*;
 
 import piuk.blockchain.android.R;
 
@@ -33,7 +32,7 @@ public class WebSocketHandler {
 	private boolean isRunning = true;
 	private long lastConnectAttempt = 0;
 	private static final long nextConnectDelay = 30000L;
-	private WebSocketConnection mConnection = new WebSocketConnection();
+	private WebSocket mConnection = null;
 
 	private static String guid = null;
 	private static String[] xpubs = null;
@@ -72,8 +71,8 @@ public class WebSocketHandler {
 
 	public void send(String message) {
 		try {
-			if(mConnection.isConnected()) {
-				mConnection.sendTextMessage(message);
+			if(mConnection != null && mConnection.isOpen()) {
+				mConnection.sendText(message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -105,11 +104,11 @@ public class WebSocketHandler {
 	}
 
 	public boolean isConnected() {
-		return  mConnection != null && mConnection.isConnected();
+		return  mConnection != null && mConnection.isOpen();
 	}
 
 	public void stop() {
-		if(mConnection.isConnected()) {
+		if(mConnection != null && mConnection.isOpen()) {
 			mConnection.disconnect();
 		}
 
@@ -118,9 +117,10 @@ public class WebSocketHandler {
 		this.isRunning = false;
 	}
 
+	/*
 	public void connect() throws URISyntaxException, InterruptedException {
 
-		mConnection = new WebSocketConnection();
+		mConnection = new WebSocket();
 
 		final WebSocketHandler handler = this;
 		
@@ -134,157 +134,6 @@ public class WebSocketHandler {
 				public void onOpen() {
 					handler.subscribe();
 					handler.nfailures = 0;				
-				}
-
-				@Override
-				public void onTextMessage(String message) {
-					if(guid == null) {
-						return;
-					}
-
-					try {
-//						Map<String, Object> top = (Map<String, Object>) JSONValue.parse(message);
-						JSONObject jsonObject = null;
-				        try {
-				            jsonObject = new JSONObject(message);
-				        }
-				        catch(JSONException je) {
-				            jsonObject = null;
-				        }
-
-						if(jsonObject == null) {
-							return;
-						}
-
-						String op = (String)jsonObject.get("op");
-						if(op.equals("utx") && jsonObject.has("x")) {
-
-							JSONObject objX = (JSONObject)jsonObject.get("x");
-
-		            		long value = 0L;
-		            		long total_value = 0L;
-		            		long ts = 0L;
-		            		String in_addr = null;
-
-							if(objX.has("time")) {
-								ts = objX.getLong("time");
-							}
-
-		                    if(objX.has("inputs"))  {
-		                    	JSONArray inputArray = (JSONArray)objX.get("inputs");
-		                    	JSONObject inputObj = null;
-		                    	for(int j = 0; j < inputArray.length(); j++)  {
-		                    		inputObj = (JSONObject)inputArray.get(j);
-		                            if(inputObj.has("prev_out"))  {
-		                            	JSONObject prevOutObj = (JSONObject)inputObj.get("prev_out");
-		                                if(prevOutObj.has("value"))  {
-		                                	value = prevOutObj.getLong("value");
-		                                }
-		                                if(prevOutObj.has("xpub"))  {
-		                                	total_value -= value;
-		                                }
-		                                else if(prevOutObj.has("addr"))  {
-			                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)prevOutObj.get("addr")))  {
-			                                	total_value -= value;
-			                                }
-			                                else if(in_addr == null)  {
-				                                	in_addr = (String)prevOutObj.get("addr");
-			                                }
-			                                else  {
-			                                	;
-			                                }
-		                                }
-		                                else  {
-		                                	;
-		                                }
-		                            }
-		                    	}
-		                    }
-
-		                    if(objX.has("out"))  {
-		                    	JSONArray outArray = (JSONArray)objX.get("out");
-		                    	JSONObject outObj = null;
-		                    	for(int j = 0; j < outArray.length(); j++)  {
-		                    		outObj = (JSONObject)outArray.get(j);
-	                                if(outObj.has("value"))  {
-	                                	value = outObj.getLong("value");
-	                                }
-	                                if(outObj.has("xpub"))  {
-	                                	total_value += value;
-	                                }
-	                                else if(outObj.has("addr"))  {
-		                                if(PayloadFactory.getInstance().get().containsLegacyAddress((String)outObj.get("addr")))  {
-		                                	total_value += value;
-		                                }
-	                                }
-	                                else  {
-	                                	;
-	                                }
-		                    	}
-	                    	}
-							
-		                    String title = context.getString(R.string.app_name);
-		                    if(total_value > 0L)  {
-			                    String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + " BTC";
-			                    String text = marquee;
-			                    if(total_value > 0)  {
-			                    	text += " from " + in_addr;
-			                    }
-
-								NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
-		                    }
-
-		                	new Thread()	{
-		                	    public void run() {
-		                	    	
-		                	    	Looper.prepare();
-
-		         					try {
-		             		        	HDPayloadBridge.getInstance().getBalances();
-		         					}
-		         		        	catch(JSONException je) {
-		         		        		je.printStackTrace();
-		         		        	}
-		         		        	catch(IOException ioe) {
-		         		        		ioe.printStackTrace();
-		         		        	}
-		         		        	catch(DecoderException de) {
-		         		        		de.printStackTrace();
-		         		        	}
-		         		        	catch(AddressFormatException afe) {
-		         		        		afe.printStackTrace();
-		         		        	}
-		         		        	catch(MnemonicException.MnemonicLengthException mle) {
-		         		        		mle.printStackTrace();
-		         		        	}
-		         		        	catch(MnemonicException.MnemonicChecksumException mce) {
-		         		        		mce.printStackTrace();
-		         		        	}
-		         		        	catch(MnemonicException.MnemonicWordException mwe) {
-		         		        		mwe.printStackTrace();
-		         		        	}
-
-				                    Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
-				        		    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-		                	    	Looper.loop();
-		                	    }
-		                	}.start();
-
-						}
-						else if(op.equals("on_change")) {
-							;
-						}
-						else if(op.equals("block")) {
-							;
-						}
-						else {
-							;
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					
 				}
 
 //				@Override
@@ -305,6 +154,7 @@ public class WebSocketHandler {
 
 		EventListeners.addEventListener(walletEventListener);
 	}
+	*/
 
 	public void start() {
 
@@ -317,10 +167,180 @@ public class WebSocketHandler {
 		try {
 			stop();
 			connect();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		}
+		catch (IOException | com.neovisionaries.ws.client.WebSocketException e) {
 			e.printStackTrace();
 		}
+
 	}
+
+	/**
+	 * Connect to the server.
+	 */
+	private void connect() throws IOException, WebSocketException
+	{
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Looper.prepare();
+
+				try	{
+					mConnection = new WebSocketFactory()
+							.createSocket("wss://ws.blockchain.info/inv")
+							.addListener(new WebSocketAdapter() {
+
+								public void onTextMessage(WebSocket websocket, String message) {
+
+									if(guid == null) {
+										return;
+									}
+
+									try {
+//						Map<String, Object> top = (Map<String, Object>) JSONValue.parse(message);
+										JSONObject jsonObject = null;
+										try {
+											jsonObject = new JSONObject(message);
+										}
+										catch(JSONException je) {
+											jsonObject = null;
+										}
+
+										if(jsonObject == null) {
+											return;
+										}
+
+										String op = (String)jsonObject.get("op");
+										if(op.equals("utx") && jsonObject.has("x")) {
+
+											JSONObject objX = (JSONObject)jsonObject.get("x");
+
+											long value = 0L;
+											long total_value = 0L;
+											long ts = 0L;
+											String in_addr = null;
+
+											if(objX.has("time")) {
+												ts = objX.getLong("time");
+											}
+
+											if(objX.has("inputs"))  {
+												JSONArray inputArray = (JSONArray)objX.get("inputs");
+												JSONObject inputObj = null;
+												for(int j = 0; j < inputArray.length(); j++)  {
+													inputObj = (JSONObject)inputArray.get(j);
+													if(inputObj.has("prev_out"))  {
+														JSONObject prevOutObj = (JSONObject)inputObj.get("prev_out");
+														if(prevOutObj.has("value"))  {
+															value = prevOutObj.getLong("value");
+														}
+														if(prevOutObj.has("xpub"))  {
+															total_value -= value;
+														}
+														else if(prevOutObj.has("addr"))  {
+															if(PayloadFactory.getInstance().get().containsLegacyAddress((String)prevOutObj.get("addr")))  {
+																total_value -= value;
+															}
+															else if(in_addr == null)  {
+																in_addr = (String)prevOutObj.get("addr");
+															}
+															else  {
+																;
+															}
+														}
+														else  {
+															;
+														}
+													}
+												}
+											}
+
+											if(objX.has("out"))  {
+												JSONArray outArray = (JSONArray)objX.get("out");
+												JSONObject outObj = null;
+												for(int j = 0; j < outArray.length(); j++)  {
+													outObj = (JSONObject)outArray.get(j);
+													if(outObj.has("value"))  {
+														value = outObj.getLong("value");
+													}
+													if(outObj.has("xpub"))  {
+														total_value += value;
+													}
+													else if(outObj.has("addr"))  {
+														if(PayloadFactory.getInstance().get().containsLegacyAddress((String)outObj.get("addr")))  {
+															total_value += value;
+														}
+													}
+													else  {
+														;
+													}
+												}
+											}
+
+											String title = context.getString(R.string.app_name);
+											if(total_value > 0L)  {
+												String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double)total_value / 1e8) + " BTC";
+												String text = marquee;
+												if(total_value > 0)  {
+													text += " from " + in_addr;
+												}
+
+												NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
+											}
+
+											new Thread()	{
+												public void run() {
+
+													Looper.prepare();
+
+													try {
+														HDPayloadBridge.getInstance().getBalances();
+													}
+													catch(JSONException | IOException | DecoderException | AddressFormatException
+															| MnemonicException.MnemonicChecksumException
+															| MnemonicException.MnemonicLengthException
+															| MnemonicException.MnemonicWordException e) {
+														e.printStackTrace();
+													}
+
+													Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+													LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+													Looper.loop();
+												}
+											}.start();
+
+										}
+										else if(op.equals("on_change")) {
+											;
+										}
+										else if(op.equals("block")) {
+											;
+										}
+										else {
+											;
+										}
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+
+								}
+							});
+					mConnection.connect();
+
+					subscribe();
+
+					Log.i("WebSocketHandler", "mConnection is " + ((mConnection == null) ? "null" : "not null"));
+				}
+				catch(Exception e)	{
+					e.printStackTrace();
+				}
+
+				Looper.loop();
+
+			}
+		}).start();
+
+	}
+
 }

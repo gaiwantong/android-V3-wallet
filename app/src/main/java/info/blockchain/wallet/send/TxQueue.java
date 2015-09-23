@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import com.google.bitcoin.core.Transaction;
+import org.bitcoinj.core.Transaction;
 
 import org.spongycastle.util.encoders.Hex;
 

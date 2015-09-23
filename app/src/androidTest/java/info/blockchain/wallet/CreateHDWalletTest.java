@@ -2,20 +2,19 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import com.google.bitcoin.crypto.MnemonicException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
-import info.blockchain.wallet.hd.HD_Wallet;
-import info.blockchain.wallet.hd.HD_WalletFactory;
-
-public class CreateHDWalletTest extends BlockchainTest {
+class CreateWalletTest extends BlockchainTest {
 
     /**
      * @param String name
      * @param Context ctx
      */
-    public CreateHDWalletTest(String name, Context ctx) {
+    public CreateWalletTest(String name, Context ctx) {
         super(name, ctx);
     }
 
@@ -37,9 +36,9 @@ public class CreateHDWalletTest extends BlockchainTest {
      * Test something
      */
     public void test() {
-        HD_WalletFactory hdwf = getFactoryInstance(context);
+        WalletFactory hdwf = getFactoryInstance(context);
 
-        HD_Wallet hdw = createDefaultWallet(hdwf);
+        Wallet hdw = createDefaultWallet(hdwf);
 
         hdw = createDefaultWalletWithBadParams(hdwf);
 
@@ -47,14 +46,14 @@ public class CreateHDWalletTest extends BlockchainTest {
 
     }
 
-    public HD_WalletFactory getFactoryInstance(Context ctx) {
-        HD_WalletFactory hdwf = HD_WalletFactory.getInstance(ctx);
-        AssertUtil.getInstance().assert_true(this, "HD_WalletFactory instance returned", hdwf != null);
+    public WalletFactory getFactoryInstance(Context ctx) {
+        WalletFactory hdwf = WalletFactory.getInstance();
+        AssertUtil.getInstance().assert_true(this, "WalletFactory instance returned", hdwf != null);
         return hdwf;
     }
 
-    public HD_Wallet createDefaultWallet(HD_WalletFactory hdwf) {
-        HD_Wallet hdw = null;
+    public Wallet createDefaultWallet(WalletFactory hdwf) {
+        Wallet hdw = null;
 
         //
         // test default wallet create
@@ -72,8 +71,8 @@ public class CreateHDWalletTest extends BlockchainTest {
         return hdw;
     }
 
-    public HD_Wallet createDefaultWalletWithBadParams(HD_WalletFactory hdwf) {
-        HD_Wallet hdw = null;
+    public Wallet createDefaultWalletWithBadParams(WalletFactory hdwf) {
+        Wallet hdw = null;
 
         //
         // test default wallet create with bad params, should return a good default wallet
@@ -91,15 +90,15 @@ public class CreateHDWalletTest extends BlockchainTest {
         return hdw;
     }
 
-    public HD_Wallet isHoldingWallet(HD_WalletFactory hdwf) {
-        HD_Wallet hdw = null;
+    public Wallet isHoldingWallet(WalletFactory hdwf) {
+        Wallet hdw = null;
 
         //
         // test that Factory is holding a wallet
         //
         try {
             hdw = hdwf.get();
-            AssertUtil.getInstance().assert_true(this, "HD_WalletFactory is holding a wallet", hdw != null);
+            AssertUtil.getInstance().assert_true(this, "WalletFactory is holding a wallet", hdw != null);
         }
         catch(IOException | MnemonicException.MnemonicLengthException e) {
             ;

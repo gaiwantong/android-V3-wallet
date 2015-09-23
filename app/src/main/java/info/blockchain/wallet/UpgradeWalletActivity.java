@@ -26,6 +26,7 @@ import android.widget.ViewSwitcher;
 import android.util.Log;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -131,7 +132,7 @@ public class UpgradeWalletActivity extends Activity {
                                             Looper.prepare();
 
                                             if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
-                                                PayloadFactory.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
+                                                PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
                                             else    {

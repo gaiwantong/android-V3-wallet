@@ -44,25 +44,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.crypto.MnemonicException;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.hd.HD_WalletFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -72,11 +71,11 @@ import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.SSLVerifierUtil;
+import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
@@ -157,7 +156,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
 
-            SSLVerifierUtil.getInstance(MainActivity.this).validateSSLThread();
+            SSLVerifierThreadUtil.getInstance(MainActivity.this).validateSSLThread();
 
             exchangeRateThread();
 
@@ -205,9 +204,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             // Legacy app has not been prompted for upgrade
             //
             else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
-                AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
-                Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
-                startActivity(intent);
+
+                if(AppUtil.getInstance(MainActivity.this).isLegacy())    {
+                    AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+                    PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                    PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+                    AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+                    AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
+                }
+                else    {
+                    AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+                    Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+                    startActivity(intent);
+                }
+
             }
             //
             // App has been PIN validated
@@ -657,6 +667,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     private void scanURI() {
         Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+        intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_URI);
         startActivityForResult(intent, SCAN_URI);
     }
 
@@ -681,6 +692,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             ToastCustom.makeText(MainActivity.this, getString(R.string.scan_not_recognized), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
+
+        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
 
         Fragment fragment = new SendFragment();
         Bundle args = new Bundle();
@@ -798,6 +811,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         for (int i = 0; i < drawerTitles.length; i++) {
 
             if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
+                /*
                 backupWalletDrawerIndex = i;
 
                 int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
@@ -809,12 +823,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
+                */
                 continue;
             }
             else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
                 continue;//No backup for legacy wallets
             }
-            else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+            else if(!AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+                continue;//Wallet has been upgraded
+            }
+            else if(AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet))){
                 continue;//Wallet has been upgraded
             }
 
@@ -907,7 +925,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
 
-                if(pass.getText().toString().equals(PayloadFactory.getInstance(MainActivity.this).getTempPassword().toString())) {
+                if(pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
 
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
@@ -954,7 +972,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
-                HD_WalletFactory.getInstance(MainActivity.this).set(null);
+                WalletFactory.getInstance().set(null);
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();
@@ -1005,8 +1023,19 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doUpgrade(){
-        Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
-        startActivity(intent);
+
+        if(AppUtil.getInstance(MainActivity.this).isLegacy())    {
+            AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+            AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+            AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
+        }
+        else    {
+            Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+            startActivity(intent);
+        }
+
     }
 
     public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){

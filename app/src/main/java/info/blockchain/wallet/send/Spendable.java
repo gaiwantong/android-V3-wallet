@@ -1,6 +1,6 @@
 package info.blockchain.wallet.send;
 
-import com.google.bitcoin.core.Transaction;
+import org.bitcoinj.core.Transaction;
 
 import info.blockchain.wallet.OpCallback;
 

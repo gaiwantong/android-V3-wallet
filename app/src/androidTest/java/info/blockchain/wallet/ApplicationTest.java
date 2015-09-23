@@ -1,7 +1,8 @@
 package info.blockchain.wallet;
 
-import com.robotium.solo.Solo;
 import android.test.ActivityInstrumentationTestCase2;
+
+import com.robotium.solo.Solo;
 
 public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
@@ -38,7 +39,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         AESTest aesTest = new AESTest("AESTest", getActivity());
         aesTest.test();
 
-        CreateHDWalletTest createHDTest = new CreateHDWalletTest("CreateHDWalletTest", getActivity());
+        CreateWalletTest createHDTest = new CreateWalletTest("CreateHDWalletTest", getActivity());
         createHDTest.test();
 
         RestoreHDWalletTest restoreHDTest = new RestoreHDWalletTest("RestoreHDWalletTest", getActivity());

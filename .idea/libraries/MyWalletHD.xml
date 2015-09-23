@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MyWalletHD">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/MyWalletHD.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
