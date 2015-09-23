@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -69,13 +70,14 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     @Override
     public void onBackPressed() {
 
-        if(fragment instanceof ManualPairingFragment)
+        if(fragment != null && fragment instanceof ManualPairingFragment) {
+            fragment = null;
             getFragmentManager().popBackStack();
-        else {
-            Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
-            startActivity(intent);
-            finish();
         }
+        else {
+            AppUtil.getInstance(PairOrCreateWalletActivity.this).restartApp();
+        }
+
     }
 
     public void setActionBarTitle(String title){
