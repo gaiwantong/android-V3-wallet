@@ -122,7 +122,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         // Apply PRNG fixes for Android 4.1
-        PRNGFixes.apply();
+        if(!AppUtil.getInstance(MainActivity.this).isPRNG_FIXED())    {
+            PRNGFixes.apply();
+            AppUtil.getInstance(MainActivity.this).setPRNG_FIXED(true);
+        }
 
         Locale.setDefault(Locale.US);
 
