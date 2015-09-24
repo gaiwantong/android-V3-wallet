@@ -126,8 +126,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         Locale.setDefault(Locale.US);
 
-        AppUtil.getInstance(MainActivity.this).setDEBUG(true);
-
         if(!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 

@@ -220,13 +220,6 @@ public class SettingsActivity extends PreferenceActivity {
                 seed = HDPayloadBridge.getInstance(SettingsActivity.this).getHDSeed();
             }
 
-            if(AppUtil.getInstance(SettingsActivity.this).isDEBUG()) {
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager)this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = null;
-                clip = android.content.ClipData.newPlainText(mnemonic ? "Mnemonic" : "Hex seed", seed);
-                clipboard.setPrimaryClip(clip);
-            }
-
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();
             ToastCustom.makeText(SettingsActivity.this, getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
