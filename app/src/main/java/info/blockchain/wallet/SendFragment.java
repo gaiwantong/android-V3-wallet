@@ -20,7 +20,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,12 +36,12 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-//import android.util.Log;
-
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -54,9 +53,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -79,6 +75,8 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 public class SendFragment extends Fragment implements View.OnClickListener, CustomKeypadCallback {
 
@@ -1250,6 +1248,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                                 }
 
+                                                @Override
+                                                public void onFailPermanently() {
+                                                    ToastCustom.makeText(context, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                                    closeDialog(alertDialog);
+                                                }
+
                                             });
                                         }
                                         else if (legacyAddress != null) {
@@ -1302,6 +1306,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                             Looper.loop();
                                                         }
                                                     }).start();
+                                                }
+
+                                                @Override
+                                                public void onFailPermanently() {
+                                                    ToastCustom.makeText(context, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                    closeDialog(alertDialog);
                                                 }
 
                                             });

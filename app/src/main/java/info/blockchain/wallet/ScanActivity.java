@@ -79,7 +79,7 @@ public class ScanActivity extends ActionBarActivity{
                         if (isValidPairingQR)
                             scan(data);
                         else if (scanAttempts==3) {
-                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(ScanActivity.this, getString(R.string.invalid_qr), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             finish();
                         }
                         break;
@@ -95,7 +95,7 @@ public class ScanActivity extends ActionBarActivity{
                         if (isValidPrivKey)
                             scan(data);
                         else if (scanAttempts==3) {
-                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(ScanActivity.this, getString(R.string.invalid_qr), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             finish();
                         }
                         break;
@@ -106,7 +106,7 @@ public class ScanActivity extends ActionBarActivity{
                         if (isValidBitcoinUri || isValidBitcoinAddress)
                             scan(data);
                         else if (scanAttempts==3) {
-                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(ScanActivity.this, getString(R.string.invalid_qr), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             finish();
                         }
                         break;

@@ -5,4 +5,5 @@ public interface OpCallback {
     public void onSuccess(String hash);
 
     public void onFail();
+    public void onFailPermanently();
 }

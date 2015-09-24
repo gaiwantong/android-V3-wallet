@@ -387,5 +387,7 @@
     <string name="create_new_address">Create new address</string>
     <string name="confirmation_code_error">The code you entered is incorrect. Please try again.</string>
     <string name="auth_failed">Authorization failed. Please try again.</string>
+    <string name="send_failed">Send failed. Please try again.</string>
+    <string name="invalid_qr">Invalid QR</string>
 
 </resources>

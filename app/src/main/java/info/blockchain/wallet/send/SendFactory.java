@@ -295,6 +295,7 @@ public class SendFactory	{
                 }
                 catch(Exception e) {
                     e.printStackTrace();
+                    opc.onFailPermanently();
                 }
             }
         }).start();
