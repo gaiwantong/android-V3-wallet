@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import java.util.regex.Pattern;
 
 import eu.livotov.labs.android.camview.ScannerLiveView;
-import eu.livotov.labs.android.camview.camera.CameraController;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -34,11 +33,8 @@ public class ScanActivity extends ActionBarActivity{
     private boolean hasFlashLight = false;
 
     private ScannerLiveView camera;
-    private CameraController controller;
     private boolean flashStatus;
-
-    long start = 0;
-    long end = 0;
+    private int scanAttempts = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +70,18 @@ public class ScanActivity extends ActionBarActivity{
 
             @Override
             public void onCodeScanned(String data) {
-                start = System.currentTimeMillis();
+
+                scanAttempts++;
+
                 switch (action) {
                     case SCAN_PAIR:
                         boolean isValidPairingQR = (data.split("\\|", Pattern.LITERAL).length == 3);
                         if (isValidPairingQR)
                             scan(data);
-                        else
-                            ToastCustom.makeText(ScanActivity.this,"Invalid QR",ToastCustom.LENGTH_SHORT,ToastCustom.TYPE_ERROR);
+                        else if (scanAttempts==3) {
+                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            finish();
+                        }
                         break;
 
                     case SCAN_IMPORT:
@@ -94,8 +94,10 @@ public class ScanActivity extends ActionBarActivity{
                         boolean isValidPrivKey = privKey != null ? true : false;
                         if (isValidPrivKey)
                             scan(data);
-                        else
+                        else if (scanAttempts==3) {
                             ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            finish();
+                        }
                         break;
 
                     case SCAN_URI:
@@ -103,8 +105,10 @@ public class ScanActivity extends ActionBarActivity{
                         boolean isValidBitcoinAddress = FormatsUtil.getInstance().isValidBitcoinAddress(data);
                         if (isValidBitcoinUri || isValidBitcoinAddress)
                             scan(data);
-                        else
-                            ToastCustom.makeText(ScanActivity.this, "Invalid Address.", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        else if (scanAttempts==3) {
+                            ToastCustom.makeText(ScanActivity.this, "Invalid QR", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            finish();
+                        }
                         break;
                 }
             }
@@ -119,7 +123,6 @@ public class ScanActivity extends ActionBarActivity{
         Intent dataIntent = new Intent();
         dataIntent.putExtra(SCAN_RESULT, data);
         setResult(Activity.RESULT_OK, dataIntent);
-        end = System.currentTimeMillis();
         finish();
     }
 
