@@ -629,17 +629,23 @@ public class PinEntryActivity extends Activity {
         .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
         .setView(password)
         .setCancelable(false)
-        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
 
-                final String pw = password.getText().toString();
+                        AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                    }
+                })
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
 
-                if(pw != null && pw.length() > 0) {
-                    validatePasswordThread(new CharSequenceX(pw));
-                }
+                        final String pw = password.getText().toString();
 
-            }
-        }).show();
+                        if (pw != null && pw.length() > 0) {
+                            validatePasswordThread(new CharSequenceX(pw));
+                        }
+
+                    }
+                }).show();
 
     }
 
