@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -60,6 +61,7 @@ import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -134,55 +136,12 @@ public class MyAccountsActivity extends Activity {
                         switch (position) {
                             case 0:
 
-                                ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
-                                String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
-
-                                final LegacyAddress legacyAddress = new LegacyAddress();
-                                legacyAddress.setEncryptedKey(encryptedKey);
-                                legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
-                                legacyAddress.setCreatedDeviceName("android");
-                                legacyAddress.setCreated(System.currentTimeMillis());
-                                legacyAddress.setCreatedDeviceVersion(MyAccountsActivity.this.getString(R.string.version_name));
-                                Payload payload = PayloadFactory.getInstance().get();
-                                List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
-                                legacyAddresses.add(legacyAddress);
-                                payload.setLegacyAddresses(legacyAddresses);
-                                PayloadFactory.getInstance().set(payload);
-
-                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
-
-                                updateAndRecreate(legacyAddress);
-
-                                final EditText address_label = new EditText(MyAccountsActivity.this);
-                                address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
-
-                                new AlertDialog.Builder(MyAccountsActivity.this)
-                                        .setTitle(R.string.app_name)
-                                        .setMessage(R.string.label_address2)
-                                        .setView(address_label)
-                                        .setCancelable(false)
-                                        .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                String label = address_label.getText().toString();
-                                                if(label != null && label.length() > 0) {
-                                                    ;
-                                                }
-                                                else {
-                                                    label = "";
-                                                }
-
-                                                int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
-                                                PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
-                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
-
-                                                updateAndRecreate(legacyAddress);
-
-                                            }
-                                        }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        ;
-                                    }
-                                }).show();
+                                if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+                                else    {
+                                    addAddress();
+                                }
 
                                 break;
                             case 1:
@@ -889,5 +848,100 @@ public class MyAccountsActivity extends Activity {
     protected void onPause() {
         super.onPause();
         AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
+
+    private void addAddress()   {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
+                String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
+
+                final LegacyAddress legacyAddress = new LegacyAddress();
+                legacyAddress.setEncryptedKey(encryptedKey);
+                legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
+                legacyAddress.setCreatedDeviceName("android");
+                legacyAddress.setCreated(System.currentTimeMillis());
+                legacyAddress.setCreatedDeviceVersion(MyAccountsActivity.this.getString(R.string.version_name));
+                Payload payload = PayloadFactory.getInstance().get();
+                final List<LegacyAddress> rollbackLegacyAddresses = payload.getLegacyAddresses();
+                List<LegacyAddress> legacyAddresses = payload.getLegacyAddresses();
+                legacyAddresses.add(legacyAddress);
+                payload.setLegacyAddresses(legacyAddresses);
+                PayloadFactory.getInstance().set(payload);
+
+                final EditText address_label = new EditText(MyAccountsActivity.this);
+                address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+                new AlertDialog.Builder(MyAccountsActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.label_address2)
+                        .setView(address_label)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String label = address_label.getText().toString();
+                                if(label != null && label.length() > 0) {
+                                    ;
+                                }
+                                else {
+                                    label = "";
+                                }
+
+                                int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                                PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
+
+                                remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+
+                            }
+                        }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+
+                    }
+                }).show();
+
+                Looper.loop();
+
+            }
+        }).start();
+
+    }
+
+    private void remoteSaveNewAddress(List<LegacyAddress> rollbackLegacyAddresses, LegacyAddress legacy)  {
+
+        if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
+            PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
+            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return;
+        }
+
+        ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(MyAccountsActivity.this.getResources().getString(R.string.please_wait));
+        progress.show();
+
+        if(PayloadFactory.getInstance().get() != null)	{
+            if(PayloadFactory.getInstance().put())	{
+                ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                updateAndRecreate(legacy);
+            }
+            else	{
+                PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
+                ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            }
+
+        }
+        else	{
+            PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
+            ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+
+        progress.dismiss();
+
     }
 }
