@@ -11,12 +11,9 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.util.Log;
+//import android.util.Log;
 
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.WebUtil;
 
 public class WebSocketService extends android.app.Service	{
 
@@ -90,7 +87,6 @@ public class WebSocketService extends android.app.Service	{
 		}
 
 		webSocketHandler = new WebSocketHandler(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
-		Log.i("WebSocketService", "webSocketHandler is " + ((webSocketHandler == null) ? "null" : "not null"));
 //					connectToWebsocketIfNotConnected();
 
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -104,6 +100,7 @@ public class WebSocketService extends android.app.Service	{
 				});
 			}
 		}, 5000, checkIfNotConnectedDelay);
+
 	}
 
 	public void connectToWebsocketIfNotConnected()
