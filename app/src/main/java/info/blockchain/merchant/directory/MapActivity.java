@@ -43,12 +43,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import info.blockchain.wallet.OnSwipeTouchListener;
-import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
-
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -797,6 +795,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
     private void doSuggest() {
     	Intent intent = new Intent(MapActivity.this, SuggestMerchant.class);
+        intent.putExtra("ULAT", currLocation.getLatitude());
+        intent.putExtra("ULON", currLocation.getLongitude());
 		startActivity(intent);
     }
 

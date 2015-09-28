@@ -70,6 +70,9 @@ public class SuggestMerchant extends ActionBarActivity {
 	ReverseGeocodingTask reverseGeocodingTask;
 	UpdateLastLocationThread updateLastLocationThread;
 
+    private double strULat = 0.0;
+    private double strULon = 0.0;
+
 	@Override
 	public boolean onSupportNavigateUp() {
 		onBackPressed();
@@ -208,6 +211,32 @@ public class SuggestMerchant extends ActionBarActivity {
 		mapView.setVisibility(View.GONE);
 		confirmLayout.setVisibility(View.GONE);
 		commandSave.setVisibility(View.GONE);
+
+        currLocation = new Location(LocationManager.NETWORK_PROVIDER);
+        Location lastKnownByGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location lastKnownByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if(lastKnownByGps == null && lastKnownByNetwork == null) {
+            currLocation.setLatitude(0.0);
+            currLocation.setLongitude(0.0);
+        }
+        else if(lastKnownByGps != null && lastKnownByNetwork == null) {
+            currLocation  = lastKnownByGps;
+        }
+        else if(lastKnownByGps == null && lastKnownByNetwork != null) {
+            currLocation  = lastKnownByNetwork;
+        }
+        else {
+            currLocation = (lastKnownByGps.getAccuracy() <= lastKnownByNetwork.getAccuracy()) ? lastKnownByGps : lastKnownByNetwork;
+        }
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null)	{
+            strULat = extras.getDouble("ULAT");
+            strULon = extras.getDouble("ULON");
+
+            currLocation.setLongitude(strULon);
+            currLocation.setLatitude(strULat);
+        }
 	}
 
     @Override
