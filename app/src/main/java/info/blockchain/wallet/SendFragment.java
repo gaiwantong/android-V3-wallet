@@ -32,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -65,6 +66,7 @@ import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -357,6 +359,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         edAmount2.addTextChangedListener(fiatTextWatcher);
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
+
+        if(AppUtil.getInstance(getActivity()).isLegacy())    {
+            LinearLayout fromRow = (LinearLayout)rootView.findViewById(R.id.from_row);
+            fromRow.setVisibility(View.GONE);
+        }
 
         _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
 
@@ -826,7 +833,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         long amount = 0L;
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
         if(position >= hdAccountsIdx) {
-            amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx).getAddress());
+            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                amount = MultiAddrFactory.getInstance().getLegacyBalance();
+            }
+            else    {
+                amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx).getAddress());
+            }
         }
         else {
             String xpub = account2Xpub(position);
@@ -1397,7 +1409,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
         else {
-            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+            long _lamount = 0L;
+            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                _lamount = MultiAddrFactory.getInstance().getLegacyBalance();
+            }
+            else    {
+                _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+            }
+
             if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendFactory.bFee.longValue()) > _lamount) {
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
