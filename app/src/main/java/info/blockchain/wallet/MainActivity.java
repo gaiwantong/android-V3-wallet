@@ -44,9 +44,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.codec.DecoderException;
@@ -61,7 +59,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -229,6 +226,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
+
+                this.setSessionId();
 
                 if(PayloadFactory.getInstance().get().isUpgraded()) {
 
@@ -1064,5 +1063,32 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 .placeholder(R.drawable.ic_account_circle_white_48dp)
                 .transform(new CircleTransform())
                 .into(avatarImage);
+    }
+
+    private void setSessionId(){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+
+                String sid = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SESSION_ID, null);
+                if(sid.isEmpty())sid=null;
+
+                if(sid==null){
+                    //Get new SID
+                    String guid = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID,"");
+                    try {
+                        sid = WebUtil.getInstance().getCookie(WebUtil.PAYLOAD_URL + "/" + guid + "?format=json&resend_code=false","SID");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if(sid!=null && !sid.isEmpty())PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SESSION_ID,sid);
+                }
+
+                Looper.loop();
+
+            }
+        }).start();
     }
 }
