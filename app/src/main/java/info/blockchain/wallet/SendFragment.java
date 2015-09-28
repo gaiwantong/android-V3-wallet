@@ -32,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -358,6 +359,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         edAmount2.addTextChangedListener(fiatTextWatcher);
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
+
+        if(AppUtil.getInstance(getActivity()).isLegacy())    {
+            LinearLayout fromRow = (LinearLayout)rootView.findViewById(R.id.from_row);
+            fromRow.setVisibility(View.GONE);
+        }
 
         _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
 
