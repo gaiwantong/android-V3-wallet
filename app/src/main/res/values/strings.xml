@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.50b</string>
+    <string name="version_name">5.0.51b</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -389,5 +389,7 @@
     <string name="auth_failed">Authorization failed. Please try again.</string>
     <string name="send_failed">Send failed. Please try again.</string>
     <string name="invalid_qr">Invalid QR</string>
+
+    <string name="wallet_updated">Wallet update received</string>
 
 </resources>
