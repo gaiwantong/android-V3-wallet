@@ -11,20 +11,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
-
-import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -51,12 +48,12 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-//import libsrc.org.apache.commons.io.IOUtils;
 import piuk.blockchain.android.R;
+
+//import libsrc.org.apache.commons.io.IOUtils;
 
 public class PinEntryActivity extends Activity {
 
@@ -375,6 +372,7 @@ public class PinEntryActivity extends Activity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(this).setIsLocked(true);
+        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
     @Override
