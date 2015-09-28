@@ -45,6 +45,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.send.SendCoins;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -142,6 +143,11 @@ public class SendFactory	{
                 ret = getUnspentOutputPoints(true, new String[]{ xpub }, amount.add(fee));
             }
             else {
+                if(AppUtil.getInstance(context).isLegacy())    {
+                    List<String> addrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
+                    from = addrs.toArray(new String[addrs.size()]);
+                }
+
                 ret = getUnspentOutputPoints(false, from, amount.add(fee));
             }
         }
@@ -243,6 +249,17 @@ public class SendFactory	{
                         }
                         else {
                             opc.onFail();
+                        }
+
+                    }
+
+                    if(AppUtil.getInstance(context).isLegacy())    {
+                        wallet = new Wallet(MainNetParams.get());
+                        List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getLegacyAddresses();
+                        for(LegacyAddress addr : addrs)   {
+                            if(addr.getECKey().hasPrivKey())    {
+                                wallet.addKey(addr.getECKey());
+                            }
                         }
 
                     }
