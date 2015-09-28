@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +33,9 @@ import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.Intents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import org.bitcoinj.core.Base58;
@@ -46,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
@@ -558,13 +560,13 @@ public class MyAccountsActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
-                && data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
+                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null)	{
             try	{
-                final String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
+                final String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if(format != null)	{
                     if(!format.equals(PrivateKeyFactory.BIP38))	{
-                        Log.v("","importNonBIP38Address");
+                        Log.v("", "importNonBIP38Address");
                         importNonBIP38Address(format, strResult);
                     }
                     else	{
@@ -589,8 +591,9 @@ public class MyAccountsActivity extends Activity {
     private void scanPrivateKey() {
 
         if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-            Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
-            intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
+            Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+            intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
+            intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
         }
         else {
@@ -616,8 +619,9 @@ public class MyAccountsActivity extends Activity {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
-                                Intent intent = new Intent(MyAccountsActivity.this, ScanActivity.class);
-                                intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_IMPORT);
+                                Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+                                intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
+                                intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
                                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
                             }

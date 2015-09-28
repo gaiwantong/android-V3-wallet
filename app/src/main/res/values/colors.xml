@@ -34,4 +34,10 @@
 
 	<color name="blockchain_upgrade_wallet_bg">#22AFEC</color>
 
+    <color name="barcode_viewfinder_laser">#ffcc0000</color>
+    <color name="barcode_viewfinder_mask">#60000000</color>
+    <color name="barcode_possible_result_points">#FF1B8AC7</color>
+    <color name="barcode_result_view">#b0000000</color>
+    <color name="barcode_result_points">#8085b45b</color>
+
 </resources>

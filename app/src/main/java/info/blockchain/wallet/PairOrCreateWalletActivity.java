@@ -11,9 +11,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.google.zxing.client.android.CaptureActivity;
 
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.util.AppUtil;
@@ -88,9 +89,9 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR)	{
-            if(data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
+            if(data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null)	{
                 AppUtil.getInstance(this).clearCredentialsAndRestart();
-                String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
+                String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
                 pairingThreadQR(strResult);
             }
         }

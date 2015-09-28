@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
@@ -29,8 +31,7 @@ public class PairWalletFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(!AppUtil.getInstance(getActivity()).isCameraOpen())    {
-                    Intent intent = new Intent(getActivity(), ScanActivity.class);
-                    intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_PAIR);
+                    Intent intent = new Intent(getActivity(), CaptureActivity.class);
                     getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
                 }
                 else    {

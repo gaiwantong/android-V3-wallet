@@ -44,6 +44,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.codec.DecoderException;
@@ -58,6 +61,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -448,8 +452,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
-                && data != null && data.getStringExtra(ScanActivity.SCAN_RESULT) != null)	{
-            String strResult = data.getStringExtra(ScanActivity.SCAN_RESULT);
+                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null)	{
+            String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
             doScanInput(strResult);
         }
         else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
@@ -667,8 +671,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
-        Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-        intent.putExtra(ScanActivity.SCAN_ACTION,ScanActivity.SCAN_URI);
+        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intent, SCAN_URI);
     }
 

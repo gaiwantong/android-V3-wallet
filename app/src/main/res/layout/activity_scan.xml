@@ -5,18 +5,21 @@
               android:background="@color/blockchain_blue"
               android:orientation="vertical">
 
-    <include layout="@layout/toolbar_general"/>
+    <FrameLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        <SurfaceView android:id="@+id/preview_view"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent"/>
 
-        <eu.livotov.labs.android.camview.ScannerLiveView
-            android:id="@+id/camview"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_centerInParent="true"/>
+        <com.google.zxing.client.android.ViewfinderView
+            android:id="@+id/viewfinder_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
 
-    </RelativeLayout>
+        <include layout="@layout/toolbar_general"/>
+
+    </FrameLayout>
 
 </LinearLayout>
