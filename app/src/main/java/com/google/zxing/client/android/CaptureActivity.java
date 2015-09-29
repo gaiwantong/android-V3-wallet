@@ -30,7 +30,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+//import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -310,7 +310,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
 
     private void handleDecodeExternally(Result rawResult) {
 
-        Log.v(TAG,rawResult.toString());
+//        Log.v(TAG,rawResult.toString());
 
         Intent intent = new Intent(getIntent().getAction());
         intent.putExtra(SCAN_RESULT, rawResult.toString());
@@ -323,7 +323,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
             throw new IllegalStateException("No SurfaceHolder provided");
         }
         if (cameraManager.isOpen()) {
-            Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
+//            Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
             return;
         }
         try {
