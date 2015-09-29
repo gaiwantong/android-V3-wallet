@@ -28,7 +28,7 @@ public class AppUtil {
     private static boolean PRNG_FIXES = false;
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
-    private static long PRE_TIMEOUT_DELAY = 1000L;
+    private static long PRE_TIMEOUT_DELAY = 2000L;
     private static long lastPin = 0L;
 
     private static String strReceiveQRFilename = null;
@@ -127,6 +127,9 @@ public class AppUtil {
 
                     if(isBackgrounded && ! myKM.inKeyguardRestrictedInputMode()) {
                         //app is in background, time is up - lock app
+                        if(OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                            ((Activity) context).stopService(new Intent(context, info.blockchain.wallet.service.WebSocketService.class));
+                        }
                         ((Activity) context).finish();
                         clearPinEntryTime();
                     }
@@ -141,14 +144,12 @@ public class AppUtil {
                     if( myKM.inKeyguardRestrictedInputMode()) {
                         //screen is locked, time is up - lock app
                         ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                        if(OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                            ((Activity) context).stopService(new Intent(context, info.blockchain.wallet.service.WebSocketService.class));
+                        }
                         restartApp();
                         clearPinEntryTime();
                         if(lockThread!=null)lockThread.interrupt();
-                    }else if(isBackgrounded) {
-                        //PRE_TIMEOUT_DELAY now replaces this (lock app if backgrounded)
-                        //app is in background, time is up - lock app
-                        ((Activity) context).finish();
-                        clearPinEntryTime();
                     }else{
                         //screen not locked and app is not in background, sleep some more
                         updatePinEntryTime();

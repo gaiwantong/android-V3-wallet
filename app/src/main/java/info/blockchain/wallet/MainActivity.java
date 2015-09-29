@@ -32,6 +32,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -325,6 +326,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
             AppUtil.getInstance(this).setIsBackgrounded(false);
+
+            if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+            }
         }
 
         if(Build.VERSION.SDK_INT >= 16){
@@ -506,6 +511,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             if (exitClicked == 2) {
                 AppUtil.getInstance(this).setIsClosed(true);
                 AppUtil.getInstance(this).clearPinEntryTime();
+
+                if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                    stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+                }
+
                 finish();
             }else
                 ToastCustom.makeText(MainActivity.this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
