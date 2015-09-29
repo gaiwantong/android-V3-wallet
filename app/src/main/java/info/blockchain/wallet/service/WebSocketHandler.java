@@ -24,15 +24,11 @@ import info.blockchain.wallet.util.NotificationsFactory;
 
 import com.neovisionaries.ws.client.*;
 
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-import piuk.blockchain.android.R;
 
 public class WebSocketHandler {
 
-	private int nfailures = 0;
 	private boolean isRunning = true;
-	private long lastConnectAttempt = 0;
 	private static final long nextConnectDelay = 30000L;
 	private WebSocket mConnection = null;
 
@@ -122,11 +118,7 @@ public class WebSocketHandler {
 	}
 
 	public void start() {
-
-		if(lastConnectAttempt > System.currentTimeMillis() - nextConnectDelay) {
-			return; 
-		}
-
+        
 		this.isRunning = true;
 
 		try {
