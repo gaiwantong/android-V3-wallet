@@ -28,7 +28,7 @@ public class AppUtil {
     private static boolean PRNG_FIXES = false;
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
-    private static long PRE_TIMEOUT_DELAY = 2000L;
+    private static long MINIMIZE_TIMEOUT_DELAY = 3000L;
     private static long lastPin = 0L;
 
     private static String strReceiveQRFilename = null;
@@ -118,9 +118,9 @@ public class AppUtil {
                 try{
                     KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 
-                    Thread.sleep(PRE_TIMEOUT_DELAY);
+                    Thread.sleep(MINIMIZE_TIMEOUT_DELAY);
 
-                    if(isLocked){
+                    if(isLocked){//After sleep - App is locked, no further action required
                         if(lockThread!=null)lockThread.interrupt();
                         return;
                     }
@@ -136,7 +136,7 @@ public class AppUtil {
 
                     Thread.sleep(TIMEOUT_DELAY);
 
-                    if(isLocked){
+                    if(isLocked){//After sleep - App is locked, no further action required
                         if(lockThread!=null)lockThread.interrupt();
                         return;
                     }
