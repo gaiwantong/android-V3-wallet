@@ -70,6 +70,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
@@ -1178,10 +1179,18 @@ public class BalanceFragment extends Fragment {
                                 HashMap<String, Long> toddressValuePair = transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
 
                                 toAddressContainer.removeAllViews();
+
+                                List<String> ownLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+
                                 for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
+
+                                    if(AppUtil.getInstance(getActivity()).isLegacy() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey()))    {
+                                        continue;
+                                    }
 
                                     View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
                                     TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
+
                                     TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
                                     toAddressContainer.addView(v);
 

@@ -58,9 +58,7 @@ public class BackupWalletFragment1 extends Fragment {
 
                                     final String pw = double_encrypt_password.getText().toString();
 
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-
-                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
 
                                         getFragmentManager().beginTransaction()
                                             .replace(R.id.content_frame, new BackupWalletFragment2())

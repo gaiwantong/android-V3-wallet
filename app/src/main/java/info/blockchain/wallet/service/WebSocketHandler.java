@@ -87,10 +87,7 @@ public class WebSocketHandler {
 			return;
 		}
 
-		String sid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SESSION_ID, "");
-
 		send("{\"op\":\"blocks_sub\"}");
-		send("{\"op\":\"wallet_sub\",\"sid\":\"\" + sid + \"\"}");
 		send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 //		Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
@@ -123,45 +120,6 @@ public class WebSocketHandler {
 		
 		this.isRunning = false;
 	}
-
-	/*
-	public void connect() throws URISyntaxException, InterruptedException {
-
-		mConnection = new WebSocket();
-
-		final WebSocketHandler handler = this;
-		
-		if(guid == null) {
-			return;
-		}
-
-		try {
-			mConnection.connect(new URI("wss://ws.blockchain.info/inv"), new libsrc_hp.de.tavendo.autobahn.WebSocketConnectionHandler() {
-				@Override
-				public void onOpen() {
-					handler.subscribe();
-					handler.nfailures = 0;				
-				}
-
-//				@Override
-				public void onClose(int code, String reason) {
-					++handler.nfailures;
-					Log.i("WebSocketHandler", "failure:" + reason);
-				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-
-			++handler.nfailures;
-		}
-
-		lastConnectAttempt = System.currentTimeMillis();
-
-		Log.i("WebSocketHandler", "Websocket connect()");
-
-		EventListeners.addEventListener(walletEventListener);
-	}
-	*/
 
 	public void start() {
 
