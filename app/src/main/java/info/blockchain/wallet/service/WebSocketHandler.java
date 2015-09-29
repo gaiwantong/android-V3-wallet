@@ -130,7 +130,7 @@ public class WebSocketHandler {
 		mConnection = new WebSocket();
 
 		final WebSocketHandler handler = this;
-		
+
 		if(guid == null) {
 			return;
 		}
@@ -140,7 +140,7 @@ public class WebSocketHandler {
 				@Override
 				public void onOpen() {
 					handler.subscribe();
-					handler.nfailures = 0;				
+					handler.nfailures = 0;
 				}
 
 //				@Override

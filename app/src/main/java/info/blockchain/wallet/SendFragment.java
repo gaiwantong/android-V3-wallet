@@ -953,9 +953,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 final String pw = password.getText().toString();
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-
-                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
 
                                     String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
                                     String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
@@ -978,7 +976,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     confirmPayment(true, AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spAccounts.getSelectedItemPosition()), null);
                                 } else {
                                     ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
 
                             }
@@ -1024,14 +1021,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 final String pw = password.getText().toString();
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-
-                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword(), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
 
                                     confirmPayment(false, -1, legacyAddress);
                                 } else {
                                     ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
 
                             }
