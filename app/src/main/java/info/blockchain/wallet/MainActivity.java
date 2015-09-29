@@ -991,7 +991,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 PrefsUtil.getInstance(MainActivity.this).clear();
 
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-                stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
 
                 AppUtil.getInstance(MainActivity.this).restartApp();
 

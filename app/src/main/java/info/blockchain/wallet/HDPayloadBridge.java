@@ -1,6 +1,7 @@
 package info.blockchain.wallet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.bitcoinj.core.AddressFormatException;
@@ -33,6 +34,7 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
@@ -137,6 +139,11 @@ public class HDPayloadBridge	{
         }
 
         PayloadFactory.getInstance().cache();
+
+        if(OSUtil.getInstance(context.getApplicationContext()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+            context.getApplicationContext().stopService(new Intent(context.getApplicationContext(), info.blockchain.wallet.service.WebSocketService.class));
+        }
+        context.getApplicationContext().startService(new Intent(context.getApplicationContext(), info.blockchain.wallet.service.WebSocketService.class));
 
         return true;
     }
