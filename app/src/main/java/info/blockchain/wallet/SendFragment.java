@@ -118,6 +118,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private static Context context = null;
 
+    private View rootView;
+
     private class PendingSpend {
         boolean isHD;
         String amount;
@@ -135,7 +137,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_send, container, false);
+        rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
         rootView.setFilterTouchesWhenObscured(true);
 
@@ -360,11 +362,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         spAccounts = (Spinner)rootView.findViewById(R.id.accounts);
 
-        if(AppUtil.getInstance(getActivity()).isLegacy())    {
-            LinearLayout fromRow = (LinearLayout)rootView.findViewById(R.id.from_row);
-            fromRow.setVisibility(View.GONE);
-        }
-
         _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
 
         if(_accounts.size()==1)rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
@@ -450,6 +447,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
 
                 spDestination.setDropDownWidth(spAccounts.getWidth());
+
+                if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                    LinearLayout fromRow = (LinearLayout)rootView.findViewById(R.id.from_row);
+                    fromRow.setVisibility(View.GONE);
+                }
             }
         });
 

@@ -87,10 +87,7 @@ public class WebSocketHandler {
 			return;
 		}
 
-		String sid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SESSION_ID, "");
-
 		send("{\"op\":\"blocks_sub\"}");
-		send("{\"op\":\"wallet_sub\",\"sid\":\"\" + sid + \"\"}");
 		send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 //		Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
