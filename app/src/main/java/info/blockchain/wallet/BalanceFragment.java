@@ -472,7 +472,7 @@ public class BalanceFragment extends Fragment {
             tvBalance1.setText(span1);
         }
         else    {
-            span1 = Spannable.Factory.getInstance().newSpannable(getActivity().getText(R.string.show_balance));
+            span1 = Spannable.Factory.getInstance().newSpannable(thisActivity.getText(R.string.show_balance));
             span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvBalance1.setText(span1);
         }
