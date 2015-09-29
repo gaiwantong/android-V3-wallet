@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-//import android.util.Log;
 
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
+import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketException;
+import com.neovisionaries.ws.client.WebSocketFactory;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,17 +21,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashSet;
 
-import info.blockchain.wallet.EventListeners;
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
-
-import com.neovisionaries.ws.client.*;
-
 import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 public class WebSocketHandler {
 
@@ -43,31 +44,7 @@ public class WebSocketHandler {
 
     private HashSet<String> subHashSet = new HashSet<String>();
     private HashSet<String> onChangeHashSet = new HashSet<String>();
-
-
-    final private EventListeners.EventListener walletEventListener = new EventListeners.EventListener() {
-        @Override
-        public String getDescription() {
-            return "Websocket Listener";
-        }
-
-        @Override
-        public void onWalletDidChange() {
-            Log.d("WebSocket", "onWalletDidChange"+isRunning);
-            try {
-                if(isRunning) {
-                    start();
-                } else if(isConnected()) {
-                    // Disconnect and reconnect
-                    // To resubscribe
-                    subscribe();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
+    
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
@@ -99,22 +76,18 @@ public class WebSocketHandler {
         }
         send("{\"op\":\"blocks_sub\"}");
         send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
-//		Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
         for(int i = 0; i < xpubs.length; i++) {
             if(xpubs[i] != null && xpubs[i].length() > 0) {
                 send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
-//				Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
             }
         }
 
         for(int i = 0; i < addrs.length; i++) {
             if (addrs[i] != null && addrs[i].length() > 0) {
                 send("{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
-//                Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
             }
         }
-
     }
 
     public boolean isConnected() {
@@ -126,7 +99,7 @@ public class WebSocketHandler {
             mConnection.disconnect();
         }
 
-        EventListeners.removeEventListener(walletEventListener);
+//        EventListeners.removeEventListener(walletEventListener);
 
         this.isRunning = false;
     }
@@ -174,21 +147,21 @@ public class WebSocketHandler {
                                     }
 
                                     try {
-//						Map<String, Object> top = (Map<String, Object>) JSONValue.parse(message);
                                         JSONObject jsonObject = null;
                                         try {
                                             jsonObject = new JSONObject(message);
                                         } catch (JSONException je) {
-//											Log.i("WebSocketHandler", "JSONException:" + je.getMessage());
+//                                            Log.i("WebSocketHandler", "JSONException:" + je.getMessage());
+                                            Log.i("WebSocketHandler", "JSONException");
                                             jsonObject = null;
                                         }
 
                                         if (jsonObject == null) {
-//											Log.i("WebSocketHandler", "jsonObject is null");
+                                            Log.i("WebSocketHandler", "jsonObject is null");
                                             return;
                                         }
 
-//										Log.i("WebSocketHandler", jsonObject.toString());
+//                                        Log.i("WebSocketHandler", jsonObject.toString());
 
                                         String op = (String) jsonObject.get("op");
                                         if (op.equals("utx") && jsonObject.has("x")) {
