@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+//import android.util.Log;
 
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
@@ -15,18 +16,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import info.blockchain.wallet.EventListeners;
 import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 
-import piuk.blockchain.android.R;
-
 import com.neovisionaries.ws.client.*;
 
 import info.blockchain.wallet.util.ToastCustom;
+import piuk.blockchain.android.R;
 
 public class WebSocketHandler {
 
@@ -39,6 +41,10 @@ public class WebSocketHandler {
 
     private static Context context = null;
 
+    private HashSet<String> subHashSet = new HashSet<String>();
+    private HashSet<String> onChangeHashSet = new HashSet<String>();
+
+
     final private EventListeners.EventListener walletEventListener = new EventListeners.EventListener() {
         @Override
         public String getDescription() {
@@ -47,6 +53,7 @@ public class WebSocketHandler {
 
         @Override
         public void onWalletDidChange() {
+            Log.d("WebSocket", "onWalletDidChange"+isRunning);
             try {
                 if(isRunning) {
                     start();
@@ -69,36 +76,42 @@ public class WebSocketHandler {
     }
 
     public void send(String message) {
-        try {
-            if(mConnection != null && mConnection.isOpen()) {
-                 //Log.i("WebSocketHandler", "send(\"" + message + "\")");
-
-                mConnection.sendText(message);
+        //Make sure each message is only sent once per socket lifetime
+        if(!subHashSet.contains(message)) {
+            try {
+                if (mConnection != null && mConnection.isOpen()) {
+                    Log.i("WebSocketHandler", "Websocket subscribe:" +message);
+                    mConnection.sendText(message);
+                    subHashSet.add(message);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            Log.d("WebSocketHandler", "Message sent already: "+message);
         }
     }
 
     public synchronized void subscribe() {
 
         if(guid == null) {
-            Log.i("WebSocketHandler", "cannot subscribe with nil guid");
             return;
         }
-
         send("{\"op\":\"blocks_sub\"}");
         send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
+//		Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
         for(int i = 0; i < xpubs.length; i++) {
             if(xpubs[i] != null && xpubs[i].length() > 0) {
                 send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
+//				Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
             }
         }
 
         for(int i = 0; i < addrs.length; i++) {
-            if(addrs[i] != null && addrs[i].length() > 0) {
+            if (addrs[i] != null && addrs[i].length() > 0) {
                 send("{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
+//                Log.i("WebSocketHandler", "Websocket subscribe:" + "{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
             }
         }
 
@@ -144,12 +157,17 @@ public class WebSocketHandler {
                 Looper.prepare();
 
                 try {
+                    //Seems we make a new connection here, so we should clear our HashSet
+                    Log.d("WebSocketHandler", "Reconnect of websocket..");
+                    subHashSet.clear();
+
                     mConnection = new WebSocketFactory()
                             .createSocket("wss://ws.blockchain.info/inv")
                             .addHeader("Origin", "https://blockchain.info").recreate()
                             .addListener(new WebSocketAdapter() {
 
                                 public void onTextMessage(WebSocket websocket, String message) {
+                                    Log.d("WebSocket", message);
 
                                     if (guid == null) {
                                         return;
@@ -241,7 +259,7 @@ public class WebSocketHandler {
                                                     text += " from " + in_addr;
                                                 }
 
-                                                NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, info.blockchain.wallet.MainActivity.class, 1000);
+                                                NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
                                             }
 
                                             new Thread() {
@@ -267,11 +285,13 @@ public class WebSocketHandler {
 
                                         } else if (op.equals("on_change")) {
 
-//											Log.i("WalletSocketHandler", "on_change:" + message);
+                                            if(!onChangeHashSet.contains(message)) {
 
-                                            if (PayloadFactory.getInstance().getTempPassword() != null) {
-                                                HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
-                                                ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                if (PayloadFactory.getInstance().getTempPassword() != null) {
+                                                    HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
+                                                    ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                }
+                                                onChangeHashSet.add(message);
                                             }
 
                                         } else if (op.equals("block")) {
