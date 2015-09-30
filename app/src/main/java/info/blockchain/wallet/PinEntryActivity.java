@@ -207,6 +207,9 @@ public class PinEntryActivity extends Activity {
             PayloadBridge.getInstance(this).remoteSaveThread();
 
             if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                ;
+            }
+            else    {
                 whitelistGuid("alpha");// <-- remove after beta invite system
                 whitelistGuid("dev");// <-- remove after beta invite system
             }
@@ -225,6 +228,9 @@ public class PinEntryActivity extends Activity {
                 PayloadBridge.getInstance(this).remoteSaveThread();
 
                 if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                    ;
+                }
+                else    {
                     whitelistGuid("alpha");// <-- remove after beta invite system
                     whitelistGuid("dev");// <-- remove after beta invite system
                 }
