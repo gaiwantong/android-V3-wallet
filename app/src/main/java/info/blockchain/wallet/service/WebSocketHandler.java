@@ -57,7 +57,7 @@ public class WebSocketHandler {
         if(!subHashSet.contains(message)) {
             try {
                 if (mConnection != null && mConnection.isOpen()) {
-                    Log.i("WebSocketHandler", "Websocket subscribe:" +message);
+//                    Log.i("WebSocketHandler", "Websocket subscribe:" +message);
                     mConnection.sendText(message);
                     subHashSet.add(message);
                 }
