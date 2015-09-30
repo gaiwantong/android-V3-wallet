@@ -140,7 +140,7 @@ public class WebSocketHandler {
                             .addListener(new WebSocketAdapter() {
 
                                 public void onTextMessage(WebSocket websocket, String message) {
-                                    Log.d("WebSocket", message);
+//                                    Log.d("WebSocket", message);
 
                                     if (guid == null) {
                                         return;
@@ -235,26 +235,7 @@ public class WebSocketHandler {
                                                 NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
                                             }
 
-                                            new Thread() {
-                                                public void run() {
-
-                                                    Looper.prepare();
-
-                                                    try {
-                                                        HDPayloadBridge.getInstance().getBalances();
-                                                    } catch (JSONException | IOException | DecoderException | AddressFormatException
-                                                            | MnemonicException.MnemonicChecksumException
-                                                            | MnemonicException.MnemonicLengthException
-                                                            | MnemonicException.MnemonicWordException e) {
-                                                        e.printStackTrace();
-                                                    }
-
-                                                    Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
-                                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-                                                    Looper.loop();
-                                                }
-                                            }.start();
+                                            updateBalance();
 
                                         } else if (op.equals("on_change")) {
 
@@ -263,6 +244,7 @@ public class WebSocketHandler {
                                                 if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                     HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
                                                     ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                    updateBalance();
                                                 }
                                                 onChangeHashSet.add(message);
                                             }
@@ -292,6 +274,30 @@ public class WebSocketHandler {
             }
         }).start();
 
+    }
+
+    private void updateBalance()    {
+        new Thread() {
+            public void run() {
+
+                Looper.prepare();
+
+                try {
+                    HDPayloadBridge.getInstance().getBalances();
+                } catch (JSONException | IOException | DecoderException | AddressFormatException
+                        | MnemonicException.MnemonicChecksumException
+                        | MnemonicException.MnemonicLengthException
+                        | MnemonicException.MnemonicWordException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+                Looper.loop();
+
+            }
+        }.start();
     }
 
 }
