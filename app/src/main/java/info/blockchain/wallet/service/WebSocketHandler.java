@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+//import android.util.Log;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -28,8 +28,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
-
-//import android.util.Log;
 
 public class WebSocketHandler {
 
@@ -65,7 +63,7 @@ public class WebSocketHandler {
                 e.printStackTrace();
             }
         } else {
-            Log.d("WebSocketHandler", "Message sent already: "+message);
+//            Log.d("WebSocketHandler", "Message sent already: "+message);
         }
     }
 
@@ -131,7 +129,7 @@ public class WebSocketHandler {
 
                 try {
                     //Seems we make a new connection here, so we should clear our HashSet
-                    Log.d("WebSocketHandler", "Reconnect of websocket..");
+//                    Log.d("WebSocketHandler", "Reconnect of websocket..");
                     subHashSet.clear();
 
                     mConnection = new WebSocketFactory()
@@ -152,12 +150,11 @@ public class WebSocketHandler {
                                             jsonObject = new JSONObject(message);
                                         } catch (JSONException je) {
 //                                            Log.i("WebSocketHandler", "JSONException:" + je.getMessage());
-                                            Log.i("WebSocketHandler", "JSONException");
                                             jsonObject = null;
                                         }
 
                                         if (jsonObject == null) {
-                                            Log.i("WebSocketHandler", "jsonObject is null");
+//                                            Log.i("WebSocketHandler", "jsonObject is null");
                                             return;
                                         }
 
