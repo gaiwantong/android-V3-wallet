@@ -72,7 +72,7 @@ public class WebSocketHandler {
         if(guid == null) {
             return;
         }
-        send("{\"op\":\"blocks_sub\"}");
+        // send("{\"op\":\"blocks_sub\"}");
         send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
         for(int i = 0; i < xpubs.length; i++) {
@@ -246,9 +246,11 @@ public class WebSocketHandler {
                                                 onChangeHashSet.add(message);
                                             }
 
-                                        } else if (op.equals("block")) {
-                                            ;
-                                        } else {
+                                        }
+//                                        else if (op.equals("block")) {
+//                                            ;
+//                                        }
+                                        else {
                                             ;
                                         }
                                     } catch (Exception e) {
