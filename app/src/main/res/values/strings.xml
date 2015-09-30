@@ -142,6 +142,7 @@
     <string name="total_to_send">Total To Send</string>
 
     <string name="no_funds_available">No funds available for this account</string>
+    <string name="no_funds_available2">No funds available for this address</string>
     <string name="max_available">Maximum available:</string>
 
     <string name="invalid_bitcoin_address">Invalid Bitcoin address</string>

@@ -858,7 +858,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
         }
         else {
-            tvMax.setText(R.string.no_funds_available);
+            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                tvMax.setText(R.string.no_funds_available2);
+            }
+            else    {
+                tvMax.setText(R.string.no_funds_available);
+            }
         }
 
     }
