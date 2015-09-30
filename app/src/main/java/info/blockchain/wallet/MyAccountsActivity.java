@@ -107,12 +107,17 @@ public class MyAccountsActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         if(AppUtil.getInstance(MyAccountsActivity.this).isLegacy())    {
-            ACCOUNT_HEADER = getResources().getString(R.string.addresses);
+            ACCOUNT_HEADER = "";
         }
         else    {
             ACCOUNT_HEADER = getResources().getString(R.string.accounts);
         }
-        IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
+        if(AppUtil.getInstance(MyAccountsActivity.this).isLegacy())    {
+            IMPORTED_HEADER = getResources().getString(R.string.addresses);
+        }
+        else    {
+            IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
+        }
 
         backNav = (ImageView)findViewById(R.id.back_nav);
         backNav.setOnClickListener(new View.OnClickListener() {
