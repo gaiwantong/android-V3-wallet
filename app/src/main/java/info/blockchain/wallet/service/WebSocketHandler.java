@@ -240,7 +240,7 @@ public class WebSocketHandler {
 
                                                 if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                     HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
-                                                    ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                    ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                     updateBalance();
                                                 }
                                                 onChangeHashSet.add(message);
