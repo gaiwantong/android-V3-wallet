@@ -243,6 +243,7 @@
 
     <string name="my_accounts">My Addresses</string>
     <string name="accounts">Accounts</string>
+    <string name="addresses">Addresses</string>
     <string name="create_new_account">Create New Account</string>
     <string name="import_address">Import Address</string>
     <string name="save_name">Save name</string>

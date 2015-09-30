@@ -106,7 +106,12 @@ public class MyAccountsActivity extends Activity {
         setContentView(R.layout.activity_my_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        ACCOUNT_HEADER = getResources().getString(R.string.accounts);
+        if(AppUtil.getInstance(MyAccountsActivity.this).isLegacy())    {
+            ACCOUNT_HEADER = getResources().getString(R.string.addresses);
+        }
+        else    {
+            ACCOUNT_HEADER = getResources().getString(R.string.accounts);
+        }
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
         backNav = (ImageView)findViewById(R.id.back_nav);
