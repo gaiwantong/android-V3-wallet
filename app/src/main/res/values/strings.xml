@@ -393,5 +393,6 @@
     <string name="invalid_qr">Invalid QR</string>
 
     <string name="wallet_updated">Wallet update received</string>
+    <string name="lame_mode_hd_pair_fail">Can\'t pair HD Wallet.</string>
 
 </resources>

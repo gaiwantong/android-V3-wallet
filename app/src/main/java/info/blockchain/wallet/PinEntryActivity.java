@@ -408,6 +408,12 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
+                        if(AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0){
+                            ToastCustom.makeText(PinEntryActivity.this,getString(R.string.lame_mode_hd_pair_fail),ToastCustom.LENGTH_SHORT,ToastCustom.TYPE_ERROR);
+                            AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                            return;
+                        }
+
                         PayloadFactory.getInstance().setTempPassword(pw);
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
 
