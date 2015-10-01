@@ -780,7 +780,7 @@ public class MyAccountsActivity extends Activity {
                                     }
                                 }
                                 catch(Exception e) {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(MyAccountsActivity.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 finally {
                                     if(progress != null && progress.isShowing()) {
