@@ -1029,6 +1029,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                 final String pw = password.getText().toString();
 
                                 if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                     confirmPayment(false, -1, legacyAddress);
                                 } else {
