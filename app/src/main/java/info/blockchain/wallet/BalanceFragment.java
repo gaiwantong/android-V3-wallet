@@ -78,6 +78,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
@@ -843,6 +844,13 @@ public class BalanceFragment extends Fragment {
                             } else {
                                 Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
                                 if (hda instanceof ImportedAccount) {
+
+                                    if(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS){
+                                        accountSpinner.setSelection(0);
+                                        ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                        return;
+                                    }
+
                                     if(PayloadFactory.getInstance().get().isUpgraded())
                                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                                     else
