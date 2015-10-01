@@ -856,7 +856,6 @@ public class MyAccountsActivity extends Activity {
                             remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
-                            updateAndRecreate(legacyAddress);
                         }
                     }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -866,7 +865,6 @@ public class MyAccountsActivity extends Activity {
                     remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
-                    updateAndRecreate(legacyAddress);
                 }
             }).show();
 
