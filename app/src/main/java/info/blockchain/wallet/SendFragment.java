@@ -158,6 +158,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
+
+                //Default to 'Total Funds' for lame mode
+                if(AppUtil.getInstance(getActivity()).isLegacy())
+                    AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
+
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -1374,6 +1379,10 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.cancel();
         }
+
+        //Default to 'Total Funds' for lame mode
+        if(AppUtil.getInstance(getActivity()).isLegacy())
+            AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
 
         Fragment fragment = new BalanceFragment();
         FragmentManager fragmentManager = getFragmentManager();
