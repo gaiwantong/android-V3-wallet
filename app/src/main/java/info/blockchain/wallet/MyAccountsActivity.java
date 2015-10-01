@@ -14,7 +14,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
+//import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -152,7 +152,52 @@ public class MyAccountsActivity extends Activity {
                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 else    {
-                                    addAddress();
+
+                                    if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+
+                                        addAddress();
+                                    }
+                                    else    {
+
+                                        final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+                                        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                                        new AlertDialog.Builder(MyAccountsActivity.this)
+                                                .setTitle(R.string.app_name)
+                                                .setMessage(R.string.enter_double_encryption_pw)
+                                                .setView(double_encrypt_password)
+                                                .setCancelable(false)
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                                                        String pw2 = double_encrypt_password.getText().toString();
+
+                                                        if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                                                PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                                                PayloadFactory.getInstance().get().getSharedKey(),
+                                                                new CharSequenceX(pw2),
+                                                                PayloadFactory.getInstance().get().getIterations()
+                                                        )) {
+
+                                                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+
+                                                            addAddress();
+
+                                                        }
+                                                        else {
+                                                            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                                        }
+
+                                                    }
+                                                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                ;
+                                            }
+                                        }).show();
+
+                                    }
+
                                 }
 
                                 break;
@@ -576,11 +621,11 @@ public class MyAccountsActivity extends Activity {
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if(format != null)	{
                     if(!format.equals(PrivateKeyFactory.BIP38))	{
-                        Log.v("", "importNonBIP38Address");
+  //                      Log.v("", "importNonBIP38Address");
                         importNonBIP38Address(format, strResult);
                     }
                     else	{
-                        Log.v("","importBIP38Address");
+  //                      Log.v("","importBIP38Address");
                         importBIP38Address(strResult);
                     }
                 }
@@ -770,6 +815,9 @@ public class MyAccountsActivity extends Activity {
         }
 
         if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+
+            final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
             final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
             /*
              * if double encrypted, save encrypted in payload
@@ -805,7 +853,8 @@ public class MyAccountsActivity extends Activity {
                             PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
 
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                            remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                             updateAndRecreate(legacyAddress);
                         }
@@ -814,7 +863,8 @@ public class MyAccountsActivity extends Activity {
                     legacyAddress.setLabel("");
                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
+                    remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                     updateAndRecreate(legacyAddress);
                 }
@@ -873,7 +923,9 @@ public class MyAccountsActivity extends Activity {
 
                 ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
-
+                if(PayloadFactory.getInstance().get().isDoubleEncrypted())  {
+                    encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                }
                 final LegacyAddress legacyAddress = new LegacyAddress();
                 legacyAddress.setEncryptedKey(encryptedKey);
                 legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
