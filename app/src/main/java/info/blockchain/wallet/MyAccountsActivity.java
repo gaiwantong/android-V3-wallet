@@ -697,6 +697,8 @@ public class MyAccountsActivity extends Activity {
 
     private void importBIP38Address(final String data)	{
 
+        final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
         final EditText password = new EditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -760,18 +762,16 @@ public class MyAccountsActivity extends Activity {
                                                         }
                                                         PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                        PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
-
-                                                        updateAndRecreate(legacyAddress);
+                                                        remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+                                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                                     }
                                                 }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
                                                 legacyAddress.setLabel("");
                                                 PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                PayloadBridge.getInstance(MyAccountsActivity.this).remoteSaveThread();
-
-                                                updateAndRecreate(legacyAddress);
+                                                remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+                                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                             }
                                         }).show();
 
