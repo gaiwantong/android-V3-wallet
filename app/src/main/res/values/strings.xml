@@ -357,7 +357,7 @@
     <string name="unexpected_error">Unexpected error, please try again later.</string>
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
-    <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please repair your wallet or create a new one.</string>
+    <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please re-pair your wallet or create a new one.</string>
 
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
@@ -394,5 +394,6 @@
 
     <string name="wallet_updated">Wallet update received</string>
     <string name="lame_mode_hd_pair_fail">Can\'t pair HD Wallet.</string>
+    <string name="please_repair">An error has occurred. Wallet can't be decoded in it's current state. Please re-pair your wallet.</string>
 
 </resources>

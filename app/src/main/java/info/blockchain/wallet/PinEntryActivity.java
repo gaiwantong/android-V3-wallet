@@ -469,15 +469,12 @@ public class PinEntryActivity extends Activity {
 
                     }
                     else {
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.please_repair), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         if(progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
-
-                        Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
+                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
                     }
 
                     Looper.loop();
