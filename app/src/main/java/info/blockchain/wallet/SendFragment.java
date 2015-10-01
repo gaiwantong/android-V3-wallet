@@ -1289,6 +1289,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
 
                                                     updateTx(isHd, strNote, hash, 0, legacyAddress);
+                                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                                     closeDialog(alertDialog);
                                                 }
 
@@ -1309,6 +1310,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                     SendFactory.getInstance(getActivity()).execSend(-1, unspents.getOutputs(), destination, bamount, legacyAddress, bfee, strNote, true, this);
 
+                                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+
                                                     closeDialog(alertDialog);
 
                                                     new Thread(new Runnable() {
@@ -1320,10 +1323,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                             Looper.loop();
                                                         }
                                                     }).start();
+
                                                 }
 
                                                 @Override
                                                 public void onFailPermanently() {
+                                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                                     ToastCustom.makeText(context, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                     closeDialog(alertDialog);
                                                 }
@@ -1333,6 +1338,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     }
                                     else{
 
+                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                         ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                         closeDialog(alertDialog);
                                     }
@@ -1352,6 +1358,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
         else    {
+            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
