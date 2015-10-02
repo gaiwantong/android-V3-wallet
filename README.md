@@ -12,8 +12,6 @@ Build -> Make Project
 
 If there are build errors, in Android Studio go to Tools -> Android -> SDK Manager and install any available updates.
 
-libsrc_hp.de.tavendo.autobahn: provided in source form following changes made for accessing wss://ws.blockchain.info/inv
-
 ### Notes
 
 Bitcoinj version used is 0.13.2 . Compiled from repo source.
