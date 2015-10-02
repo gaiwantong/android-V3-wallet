@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.0.53b</string>
+    <string name="version_name">5.0.54b</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -395,5 +395,7 @@
     <string name="wallet_updated">Wallet update received</string>
     <string name="lame_mode_hd_pair_fail">Can\'t pair HD Wallet.</string>
     <string name="please_repair">An error has occurred. Wallet can\'t be decoded in it\'s current state. Please re-pair your wallet.</string>
+
+    <string name="device_rooted">Your device appears to be rooted. Be advised that storing funds on a rooted device is unsafe and, in addition, can cause stability issues. If you continue to use our Bitcoin wallet on this device we recommend that you use double encryption on your Blockchain account.</string>
 
 </resources>

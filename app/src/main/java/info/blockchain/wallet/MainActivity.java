@@ -77,6 +77,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
@@ -122,6 +123,23 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         super.onCreate(savedInstanceState);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        if(RootUtil.getInstance().isDeviceRooted())    {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final String message = getString(R.string.device_rooted);
+
+            builder.setMessage(message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_continue,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int id) {
+                                    d.dismiss();
+                                }
+                            });
+
+            builder.create().show();
+        }
 
         // Apply PRNG fixes for Android 4.1
         if(!AppUtil.getInstance(MainActivity.this).isPRNG_FIXED())    {
