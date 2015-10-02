@@ -724,18 +724,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             return;
         }
 
-        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-
         Fragment fragment = new SendFragment();
         Bundle args = new Bundle();
         args.putString("btc_address", btc_address);
         args.putBoolean("incoming_from_scan", true);
         if(btc_amount != null) {
             try {
-                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-                btcFormat.setMaximumFractionDigits(8);
-                btcFormat.setMinimumFractionDigits(1);
-                args.putString("btc_amount", btcFormat.format(Double.parseDouble(btc_amount) / 1e8));
+                args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(Long.parseLong(btc_amount)));
             }
             catch (NumberFormatException nfe) {
                 ;

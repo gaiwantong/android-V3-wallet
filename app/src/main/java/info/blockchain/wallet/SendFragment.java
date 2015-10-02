@@ -224,7 +224,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 long lamount = 0L;
                 try {
-                    lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
+                    lamount = (long)( MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()) * 1e8));
+
                     if(BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
                         ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         edAmount1.setText("0.0");
@@ -233,9 +234,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
                 }
                 catch(NumberFormatException nfe) {
-                    ;
-                }
-                catch(ParseException pe) {
                     ;
                 }
 
@@ -399,17 +397,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                             LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
 
-                            if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                            if (legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS) {
                                 spAccounts.setSelection(0);
                                 ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                 return;
-                            }
-                            else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                            } else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                                 spAccounts.setSelection(0);
                                 ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                 return;
-                            }
-                            else    {
+                            } else {
                                 currentSelectedFromAddress = legacyAddress.getAddress();
                             }
 
@@ -530,9 +526,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 double btc_amount = 0.0;
                 try {
-                    btc_amount = NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue();
+                    btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
                 }
-                catch(NumberFormatException | ParseException e) {
+                catch(NumberFormatException e) {
                     btc_amount = 0.0;
                 }
 
@@ -753,8 +749,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         long lamount = 0L;
         try {
-            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
-            pendingSpend.bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
+            lamount = (long)( MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(pendingSpend.amount) * 1e8));
+            pendingSpend.bamount = BigInteger.valueOf(lamount);
             if(pendingSpend.bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
                 ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                 edAmount1.setText("0.0");
@@ -769,12 +765,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
         catch(NumberFormatException nfe) {
-            if(showMessages) {
-                ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            }
-            return;
-        }
-        catch(ParseException pe) {
             if(showMessages) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
@@ -1158,6 +1148,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         pendingSpend.bfee = BigInteger.valueOf(10000L);
                         confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
 
+
+
                         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
                         BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
                         confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
@@ -1403,13 +1395,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         long lamount = 0L;
         try {
-            lamount = (long)(Math.round(NumberFormat.getInstance(locale).parse(pendingSpend.amount).doubleValue() * 1e8));
+            lamount = (long) (( MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(pendingSpend.amount) ) ) * 1e8);
             if(!(pendingSpend.bamount.compareTo(BigInteger.ZERO) >= 0)) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
             }
         }
-        catch(NumberFormatException | ParseException e) {
+        catch(NumberFormatException e) {
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return false;
         }
