@@ -117,6 +117,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;
 
+    public long sendFragmentBitcoinAmountStorage = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -349,6 +351,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
             }
         }
+
+        sendFragmentBitcoinAmountStorage = 0;
 
         if(Build.VERSION.SDK_INT >= 16){
             Intent intent = getIntent();
@@ -735,6 +739,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             catch (NumberFormatException nfe) {
                 ;
             }
+        } else if(sendFragmentBitcoinAmountStorage > 0){
+            args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(sendFragmentBitcoinAmountStorage));
         }
         fragment.setArguments(args);
         FragmentManager fragmentManager = getFragmentManager();

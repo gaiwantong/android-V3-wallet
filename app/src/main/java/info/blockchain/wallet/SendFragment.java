@@ -236,6 +236,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 catch(NumberFormatException nfe) {
                     ;
                 }
+                //TODO: I feel this is a little bit hacky, but it will solve the problem of keeping the amount after a scan
+                ((MainActivity)getActivity()).sendFragmentBitcoinAmountStorage = lamount;
 
                 edAmount1.removeTextChangedListener(this);
 
@@ -710,6 +712,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         pendingSpend.bfee = BigInteger.valueOf(PayloadFactory.getInstance().get().getOptions().getFeePerKB());
         pendingSpend.isHD = true;
         pendingSpend.btc_units = strBTC;
+
+
 
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
 
