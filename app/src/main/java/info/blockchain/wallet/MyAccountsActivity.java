@@ -41,6 +41,7 @@ import com.google.zxing.client.android.encode.QRCodeEncoder;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.uri.BitcoinURI;
 import org.json.JSONException;
@@ -728,7 +729,9 @@ public class MyAccountsActivity extends Activity {
                                 Looper.prepare();
 
                                 try {
-                                    final ECKey key = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.BIP38, data, new CharSequenceX(pw));
+                                    BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), data);
+                                    final ECKey key = bip38.decrypt(pw);
+
                                     if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
                                         final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
                                                     /*
@@ -780,7 +783,7 @@ public class MyAccountsActivity extends Activity {
                                     }
                                 }
                                 catch(Exception e) {
-                                    ToastCustom.makeText(MyAccountsActivity.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 finally {
                                     if(progress != null && progress.isShowing()) {
