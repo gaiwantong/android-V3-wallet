@@ -1,5 +1,6 @@
 package info.blockchain.wallet.util;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -55,6 +56,27 @@ public class SSLVerifierThreadUtil {
 
                             final String message = context.getString(R.string.ssl_hostname_invalid);
 
+                            if(!((Activity) context).isFinishing()) {
+                                builder.setMessage(message)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.dialog_continue,
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface d, int id) {
+                                                        d.dismiss();
+                                                    }
+                                                });
+
+                                builder.create().show();
+                            }
+                        }
+                    }
+
+                    if(!SSLVerifierUtil.getInstance(context).certificatePinned()) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                        final String message = context.getString(R.string.ssl_pinning_invalid);
+
+                        if(!((Activity) context).isFinishing()) {
                             builder.setMessage(message)
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.dialog_continue,
@@ -66,23 +88,6 @@ public class SSLVerifierThreadUtil {
 
                             builder.create().show();
                         }
-                    }
-
-                    if(!SSLVerifierUtil.getInstance(context).certificatePinned()) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                        final String message = context.getString(R.string.ssl_pinning_invalid);
-
-                        builder.setMessage(message)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.dialog_continue,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface d, int id) {
-                                                d.dismiss();
-                                            }
-                                        });
-
-                        builder.create().show();
                     }
 
                     strike = 0;
