@@ -397,5 +397,6 @@
     <string name="please_repair">An error has occurred. Wallet can\'t be decoded in it\'s current state. Please re-pair your wallet.</string>
 
     <string name="device_rooted">Your device appears to be rooted. Be advised that storing funds on a rooted device is unsafe and, in addition, can cause stability issues. If you continue to use our Bitcoin wallet on this device we recommend that you use double encryption on your Blockchain account.</string>
+    <string name="address_already_in_wallet">Your wallet already contains this address.</string>
 
 </resources>

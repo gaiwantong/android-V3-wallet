@@ -77,6 +77,9 @@ public class MyAccountsActivity extends Activity {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
 
+    private static final int ADDRESS_ADD = 0;
+    private static final int ADDRESS_IMPORT = 1;
+
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
 
     public static String ACCOUNT_HEADER = "";
@@ -147,7 +150,7 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
-                            case 0:
+                            case ADDRESS_ADD:
 
                                 if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -155,7 +158,6 @@ public class MyAccountsActivity extends Activity {
                                 else    {
 
                                     if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-
                                         addAddress();
                                     }
                                     else    {
@@ -202,7 +204,8 @@ public class MyAccountsActivity extends Activity {
                                 }
 
                                 break;
-                            case 1:
+
+                            case ADDRESS_IMPORT:
                                 if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
                                     scanPrivateKey();
                                 }
@@ -212,9 +215,13 @@ public class MyAccountsActivity extends Activity {
                                 break;
                         }
 
-                        if (menuPopup.isShowing()) menuPopup.dismiss();
+                        if(menuPopup.isShowing())   {
+                            menuPopup.dismiss();
+                        }
+
                     }
                 });
+
                 menuPopup.show();
             }
 
@@ -300,9 +307,7 @@ public class MyAccountsActivity extends Activity {
 
                         ValueAnimator headerResizeAnimator;
                         if (!mIsViewExpanded) {
-                            //Expanding
 
-                            //Receiving Address
                             String currentSelectedAddress = null;
 
                             if (position-2 >= hdAccountsIdx) {//2 headers before imported
@@ -393,7 +398,8 @@ public class MyAccountsActivity extends Activity {
                             view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
                             headerResizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
 
-                        } else {
+                        }
+                        else {
                             //Collapsing
                             TypedValue outValue = new TypedValue();
                             MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
@@ -622,11 +628,9 @@ public class MyAccountsActivity extends Activity {
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if(format != null)	{
                     if(!format.equals(PrivateKeyFactory.BIP38))	{
-  //                      Log.v("", "importNonBIP38Address");
                         importNonBIP38Address(format, strResult);
                     }
                     else	{
-  //                      Log.v("","importBIP38Address");
                         importBIP38Address(strResult);
                     }
                 }
@@ -817,7 +821,10 @@ public class MyAccountsActivity extends Activity {
             return;
         }
 
-        if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+        if(key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))    {
+            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+        else if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
 
             final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
 
@@ -875,6 +882,7 @@ public class MyAccountsActivity extends Activity {
         else	{
             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
+
     }
 
     private void updateAndRecreate(final LegacyAddress legacyAddress)	{
@@ -905,6 +913,7 @@ public class MyAccountsActivity extends Activity {
                 });
 
                 Looper.loop();
+
             }
         }).start();
     }
@@ -979,7 +988,7 @@ public class MyAccountsActivity extends Activity {
 
     }
 
-    private void remoteSaveNewAddress(List<LegacyAddress> rollbackLegacyAddresses, LegacyAddress legacy)  {
+    private void remoteSaveNewAddress(final List<LegacyAddress> rollbackLegacyAddresses, final LegacyAddress legacy)  {
 
         if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
             PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
@@ -987,28 +996,40 @@ public class MyAccountsActivity extends Activity {
             return;
         }
 
-        ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
+        final ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
         progress.setTitle(R.string.app_name);
         progress.setMessage(MyAccountsActivity.this.getResources().getString(R.string.please_wait));
         progress.show();
 
-        if(PayloadFactory.getInstance().get() != null)	{
-            if(PayloadFactory.getInstance().put())	{
-                ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                updateAndRecreate(legacy);
-            }
-            else	{
-                PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
-                ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        }
-        else	{
-            PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
-            ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-        }
+                Looper.prepare();
 
-        progress.dismiss();
+                if(PayloadFactory.getInstance().get() != null)	{
+                    if(PayloadFactory.getInstance().put())	{
+                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        updateAndRecreate(legacy);
+                    }
+                    else	{
+                        PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
+                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+
+                }
+                else	{
+                    PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
+                    ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+                progress.dismiss();
+
+                Looper.loop();
+
+            }
+        }).start();
 
     }
+
 }
