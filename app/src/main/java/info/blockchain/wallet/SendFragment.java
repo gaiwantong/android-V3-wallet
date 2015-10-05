@@ -395,22 +395,35 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         int position = spAccounts.getSelectedItemPosition();
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
 
-                        if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
+                        if(AppUtil.getInstance(getActivity()).isLegacy())    {
 
-                            LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
-
-                            if (legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS) {
-                                spAccounts.setSelection(0);
-                                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                return;
-                            } else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                                spAccounts.setSelection(0);
-                                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                return;
-                            } else {
-                                currentSelectedFromAddress = legacyAddress.getAddress();
+                            List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getLegacyAddresses();
+                            for(int i = 0; i < legacy.size(); i++) {
+                                if(legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS) {
+                                    currentSelectedFromAddress = legacy.get(i).getAddress();
+                                    break;
+                                }
                             }
 
+                        }
+                        else    {
+                            if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
+
+                                LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+
+                                if (legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS) {
+                                    spAccounts.setSelection(0);
+                                    ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    return;
+                                } else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                                    spAccounts.setSelection(0);
+                                    ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    return;
+                                } else {
+                                    currentSelectedFromAddress = legacyAddress.getAddress();
+                                }
+
+                            }
                         }
 
                         displayMaxAvailable();
