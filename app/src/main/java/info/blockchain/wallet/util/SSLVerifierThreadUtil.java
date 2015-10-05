@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
-//import android.util.Log;
 
 import piuk.blockchain.android.R;
 
@@ -13,6 +12,7 @@ public class SSLVerifierThreadUtil {
 
     private static SSLVerifierThreadUtil instance = null;
     private static Context context = null;
+    private int strike = 0;
 
     private SSLVerifierThreadUtil() { ; }
 
@@ -40,21 +40,32 @@ public class SSLVerifierThreadUtil {
 
                     if(!SSLVerifierUtil.getInstance(context).isValidHostname()) {
 
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        strike++;
+                        if(strike < 3){
 
-                        final String message = context.getString(R.string.ssl_hostname_invalid);
+                            //Possible connection issue, retry  ssl verify
+                            try{Thread.sleep(500);}catch (Exception e){}
+                            validateSSLThread();
+                            return;
 
-                        builder.setMessage(message)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.dialog_continue,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface d, int id) {
-                                                d.dismiss();
-                                            }
-                                        });
+                        }else{
 
-                        builder.create().show();
+                            //ssl verify failed 3 time - something is wrong, warn user
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
+                            final String message = context.getString(R.string.ssl_hostname_invalid);
+
+                            builder.setMessage(message)
+                                    .setCancelable(false)
+                                    .setPositiveButton(R.string.dialog_continue,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface d, int id) {
+                                                    d.dismiss();
+                                                }
+                                            });
+
+                            builder.create().show();
+                        }
                     }
 
                     if(!SSLVerifierUtil.getInstance(context).certificatePinned()) {
@@ -74,6 +85,7 @@ public class SSLVerifierThreadUtil {
                         builder.create().show();
                     }
 
+                    strike = 0;
                 }
 
                 handler.post(new Runnable() {
