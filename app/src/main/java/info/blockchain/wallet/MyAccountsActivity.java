@@ -776,6 +776,9 @@ public class MyAccountsActivity extends Activity {
                                                         ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                         remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                                                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                                        List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                                                        MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                                                        AccountsUtil.getInstance(context).initAccountMaps();
                                                     }
                                                 }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -784,6 +787,9 @@ public class MyAccountsActivity extends Activity {
                                                 ToastCustom.makeText(getApplicationContext(), key.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                                List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                                                MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                                                AccountsUtil.getInstance(context).initAccountMaps();
                                             }
                                         }).show();
 
@@ -876,6 +882,9 @@ public class MyAccountsActivity extends Activity {
                                     ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                    List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                                    MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                                    AccountsUtil.getInstance(context).initAccountMaps();
 
 
                                 }
@@ -887,14 +896,10 @@ public class MyAccountsActivity extends Activity {
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-
-                        }
-                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
                             List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
                             MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
                             AccountsUtil.getInstance(context).initAccountMaps();
+
                         }
                     }).show();
 
