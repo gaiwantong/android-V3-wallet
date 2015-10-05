@@ -995,11 +995,21 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         else {
             LegacyAddress addr = null;
-            List<LegacyAddress> legacy = AccountsUtil.getInstance(getActivity()).getLegacyAddresses();
+//            List<LegacyAddress> legacy = AccountsUtil.getInstance(getActivity()).getLegacyAddresses();
+            List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getLegacyAddresses();
             for(int i = 0; i < legacy.size(); i++) {
                 if(legacy.get(i).getAddress().equals(currentSelectedFromAddress)) {
                     addr = legacy.get(i);
                     break;
+                }
+            }
+
+            if(addr.getTag() != PayloadFactory.NORMAL_ADDRESS)    {
+                for(int i = 0; i < legacy.size(); i++) {
+                    if(legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS) {
+                        addr = legacy.get(i);
+                        break;
+                    }
                 }
             }
 
