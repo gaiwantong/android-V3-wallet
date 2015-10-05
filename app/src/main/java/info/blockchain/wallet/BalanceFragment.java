@@ -500,14 +500,14 @@ public class BalanceFragment extends Fragment {
             else
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
         } else {
-            String xpub = account2Xpub(selectedAccount);
+            String xpub = account2Xpub(selectedAccount+1);
 
             if (xpub != null) {
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                     txs = txMap.get(xpub);
                 }
             } else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
+                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount+1);
                 if (hda instanceof ImportedAccount) {
                     if(PayloadFactory.getInstance().get().isUpgraded())
                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
@@ -834,7 +834,7 @@ public class BalanceFragment extends Fragment {
                             else
                                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
                         } else {
-                            String xpub = account2Xpub(selectedAccount);
+                            String xpub = account2Xpub(selectedAccount+1);
 
                             if (xpub != null) {
                                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
