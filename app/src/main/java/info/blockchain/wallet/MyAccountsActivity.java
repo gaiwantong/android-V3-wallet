@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -103,9 +104,13 @@ public class MyAccountsActivity extends Activity {
     private ProgressDialog progress = null;
     private HashMap<Integer, Integer> accountIndexResover;
 
+    private Context context = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        context = this;
 
         setContentView(R.layout.activity_my_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -846,37 +851,56 @@ public class MyAccountsActivity extends Activity {
 
             final ECKey scannedKey = key;
 
-            new AlertDialog.Builder(MyAccountsActivity.this)
-                    .setTitle(R.string.app_name)
-                    .setMessage(R.string.label_address)
-                    .setView(address_label)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            String label = address_label.getText().toString();
-                            if(label != null && label.length() > 0) {
-                                legacyAddress.setLabel(label);
-                            }
-                            else {
-                                legacyAddress.setLabel("");
-                            }
-                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
 
+                    new AlertDialog.Builder(MyAccountsActivity.this)
+                            .setTitle(R.string.app_name)
+                            .setMessage(R.string.label_address)
+                            .setView(address_label)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+
+
+                                    String label = address_label.getText().toString();
+                                    if (label != null && label.length() > 0) {
+                                        legacyAddress.setLabel(label);
+                                    } else {
+                                        legacyAddress.setLabel("");
+                                    }
+                                    PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
+
+                                    ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+
+
+                                }
+                            }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            legacyAddress.setLabel("");
+                            PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
                             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                         }
-                    }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    legacyAddress.setLabel("");
-                    PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
-                    ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                            MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                            AccountsUtil.getInstance(context).initAccountMaps();
+                        }
+                    }).show();
 
+                    Looper.loop();
                 }
-            }).show();
+            }).start();
 
         }
         else	{
