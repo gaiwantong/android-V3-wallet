@@ -530,8 +530,11 @@ public class BalanceFragment extends Fragment {
         }
 
         if(txs != null) {
-            Collections.sort(txs, new TxDateComparator());
-        }
+            List<Tx> _txs = new ArrayList<Tx>();
+            _txs.addAll(txs);
+            Collections.sort(_txs, new TxDateComparator());
+            txs = _txs;
+           }
 
     }
 
