@@ -101,7 +101,9 @@
     <string name="create_pin_failed">PIN creation failed. Please pair device again.</string>
     <string name="pairing_failed">Pairing failed. Please try again.</string>
     <string name="pairing_failed_decrypt_error">Pairing failed. Decryption error.</string>
+    <!--
     <string name="pairing_success">Pairing OK.</string>
+    -->
 
     <string name="check_connectivity_exit">Blockchain Wallet cannot obtain an Internet connection. Please check the connectivity on your device and try again.</string>
     <string name="dialog_continue">Continue</string>
@@ -393,7 +395,7 @@
     <string name="invalid_qr">Invalid QR</string>
 
     <string name="wallet_updated">Wallet update received</string>
-    <string name="lame_mode_hd_pair_fail">Can\'t pair HD Wallet.</string>
+    <string name="lame_mode_hd_pair_fail">Can\'t pair V3 wallet.</string>
     <string name="please_repair">An error has occurred. Wallet can\'t be decoded in it\'s current state. Please re-pair your wallet.</string>
 
     <string name="device_rooted">Your device appears to be rooted. Be advised that storing funds on a rooted device is unsafe and, in addition, can cause stability issues. If you continue to use our Bitcoin wallet on this device we recommend that you use double encryption on your Blockchain account.</string>
