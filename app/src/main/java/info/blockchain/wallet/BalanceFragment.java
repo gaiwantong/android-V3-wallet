@@ -438,13 +438,15 @@ public class BalanceFragment extends Fragment {
             if(PayloadFactory.getInstance().get().isUpgraded())
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance());
             else
-                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+//                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance(PayloadFactory.NORMAL_ADDRESS));
         } else {
             //Individual account / address
             hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
             if (hda instanceof ImportedAccount) {
                 if(PayloadFactory.getInstance().get().isUpgraded())
-                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+//                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance(PayloadFactory.NORMAL_ADDRESS));
                 else
                     btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
 
