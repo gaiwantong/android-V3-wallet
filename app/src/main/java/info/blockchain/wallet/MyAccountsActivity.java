@@ -876,7 +876,7 @@ public class MyAccountsActivity extends Activity {
                                     if (label != null && label.length() > 0) {
                                         legacyAddress.setLabel(label);
                                     } else {
-                                        legacyAddress.setLabel("");
+                                        legacyAddress.setLabel(legacyAddress.getAddress());
                                     }
                                     PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
 
@@ -994,7 +994,7 @@ public class MyAccountsActivity extends Activity {
                                     ;
                                 }
                                 else {
-                                    label = "";
+                                    label = legacyAddress.getAddress();
                                 }
 
                                 int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
