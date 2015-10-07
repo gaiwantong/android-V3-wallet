@@ -892,7 +892,7 @@ public class MyAccountsActivity extends Activity {
                             }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
-                            legacyAddress.setLabel("");
+                            legacyAddress.setLabel(legacyAddress.getAddress());
                             PayloadFactory.getInstance().get().getLegacyAddresses().add(legacyAddress);
                             ToastCustom.makeText(getApplicationContext(), scannedKey.toAddress(MainNetParams.get()).toString(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
@@ -1005,6 +1005,9 @@ public class MyAccountsActivity extends Activity {
                             }
                         }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+
+                        int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                        PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(legacyAddress.getAddress());
 
                         remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
 
