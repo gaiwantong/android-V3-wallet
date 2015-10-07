@@ -828,6 +828,7 @@ public class MyAccountsActivity extends Activity {
             key = PrivateKeyFactory.getInstance().getKey(format, data);
         }
         catch(Exception e)	{
+            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             e.printStackTrace();
             return;
         }
