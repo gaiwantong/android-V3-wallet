@@ -12,11 +12,10 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
-//import android.util.Log;
-
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 public class LandingActivity extends Activity	{
 
@@ -78,17 +77,5 @@ public class LandingActivity extends Activity	{
                 builder.create().show();
             }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 }

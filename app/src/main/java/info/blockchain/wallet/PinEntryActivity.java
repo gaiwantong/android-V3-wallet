@@ -345,8 +345,7 @@ public class PinEntryActivity extends Activity {
     {
         exitClicked++;
         if(exitClicked==2) {
-            AppUtil.getInstance(this).setIsClosed(true);
-            AppUtil.getInstance(this).clearPinEntryTime();
+            AppUtil.getInstance(this).clearUserInteractionTime();
             finish();
         }else
             ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
@@ -372,19 +371,6 @@ public class PinEntryActivity extends Activity {
 
     public void validatePIN(final String PIN) {
         validatePINThread(PIN);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppUtil.getInstance(this).setIsLocked(true);
-        AppUtil.getInstance(this).setIsBackgrounded(false);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        AppUtil.getInstance(this).setIsLocked(false);
     }
 
     private void updatePayloadThread(final CharSequenceX pw) {
@@ -416,6 +402,7 @@ public class PinEntryActivity extends Activity {
 
                         PayloadFactory.getInstance().setTempPassword(pw);
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
+                        AppUtil.getInstance(PinEntryActivity.this).initUserInteraction();
 
                         if(AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet()!=null && (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel()==null || PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
@@ -595,6 +582,7 @@ public class PinEntryActivity extends Activity {
                     }
 
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                    AppUtil.getInstance(PinEntryActivity.this).setIsLocked(false);
                     updatePayloadThread(password);
                 }
                 else {
@@ -794,5 +782,11 @@ public class PinEntryActivity extends Activity {
                 pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);//reset pin buttons blank
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).setIsLocked(true);
     }
 }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.net.Uri;
 //import android.util.Log;
 
+import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
 public class AboutActivity extends Activity	{
@@ -72,4 +73,33 @@ public class AboutActivity extends Activity	{
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }

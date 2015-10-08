@@ -15,7 +15,6 @@ import android.widget.TextView;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
-
 import piuk.blockchain.android.R;
 
 public class SupportActivity extends Activity {
@@ -90,16 +89,33 @@ public class SupportActivity extends Activity {
         });
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
     }
 
     @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 }

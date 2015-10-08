@@ -1,6 +1,7 @@
 package info.blockchain.merchant.directory;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.location.Address;
 import android.location.Geocoder;
@@ -242,13 +243,26 @@ public class SuggestMerchant extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, info.blockchain.wallet.PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
     }
 
     @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
 	@Override
@@ -449,4 +463,9 @@ public class SuggestMerchant extends ActionBarActivity {
 			return null;
 		}
 	}
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }

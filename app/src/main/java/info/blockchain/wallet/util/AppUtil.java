@@ -1,7 +1,6 @@
 package info.blockchain.wallet.util;
 
 import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
@@ -12,9 +11,9 @@ import org.bitcoinj.core.bip44.WalletFactory;
 import java.io.File;
 
 import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
-import piuk.blockchain.android.R;
 
 public class AppUtil {
 
@@ -27,19 +26,16 @@ public class AppUtil {
     private static boolean LEGACY = true;
     private static boolean PRNG_FIXES = false;
 
-    private static long TIMEOUT_DELAY = 1000L * 60L * 5L;
-    private static long MINIMIZE_TIMEOUT_DELAY = 3000L;
-    private static long lastPin = 0L;
+    private static long TIMEOUT_DELAY = 1000L * 60L * 1L;
+    private static long lastUserInteraction = 0L;
+    private static Thread lockThread;
+    private static boolean inBackground = false;
+    private static boolean isLocked = true;
 
     private static String strReceiveQRFilename = null;
-    private static Thread lockThread = null;
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
     private static boolean newlyCreated = false;
-    private static boolean isBackgrounded = false;
-    private static boolean isLocked = false;
-
-    private static boolean isClosed = false;
 
 	private AppUtil() { ; }
 
@@ -100,75 +96,32 @@ public class AppUtil {
         PRNG_FIXES = prng;
     }
 
-    public void updatePinEntryTime() {
 
-        if(isClosed){
-            if(lockThread!=null)lockThread.interrupt();
-            return;
-        }
-
-        lastPin = System.currentTimeMillis();
-        if(lockThread!=null){
-            lockThread.interrupt();
-        }
-        lockThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                try{
-                    KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-
-                    Thread.sleep(MINIMIZE_TIMEOUT_DELAY);
-
-                    if(isLocked){//After sleep - App is locked, no further action required
-                        if(lockThread!=null)lockThread.interrupt();
-                        return;
-                    }
-
-                    if(isBackgrounded && ! myKM.inKeyguardRestrictedInputMode()) {
-                        //app is in background, time is up - lock app
-                        if(OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-                            ((Activity) context).stopService(new Intent(context, info.blockchain.wallet.service.WebSocketService.class));
-                        }
-                        ((Activity) context).finish();
-                        clearPinEntryTime();
-                    }
-
-                    Thread.sleep(TIMEOUT_DELAY);
-
-                    if(isLocked){//After sleep - App is locked, no further action required
-                        if(lockThread!=null)lockThread.interrupt();
-                        return;
-                    }
-
-                    if( myKM.inKeyguardRestrictedInputMode()) {
-                        //screen is locked, time is up - lock app
-                        ToastCustom.makeText(context, context.getString(R.string.logging_out_automatically), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                        if(OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-                            ((Activity) context).stopService(new Intent(context, info.blockchain.wallet.service.WebSocketService.class));
-                        }
-                        restartApp();
-                        clearPinEntryTime();
-                        if(lockThread!=null)lockThread.interrupt();
-                    }else{
-                        //screen not locked and app is not in background, sleep some more
-                        updatePinEntryTime();
-                    }
-                }catch (Exception e){
-                }
-                Looper.loop();
-            }
-        });
-        lockThread.start();
+    public void initUserInteraction() {
+        lastUserInteraction = System.currentTimeMillis();
     }
 
-	public void clearPinEntryTime() {
-		lastPin = 0L;
-        if(lockThread!=null)lockThread.interrupt();
+    public void updateUserInteractionTime() {
+
+        if(AppUtil.getInstance(context).isTimedOut()) {
+
+            if(!AppUtil.getInstance(context).isLocked()) {
+                Intent i = new Intent(context, PinEntryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(i);
+            }
+        }else
+            lastUserInteraction = System.currentTimeMillis();
+    }
+
+	public void clearUserInteractionTime() {
+		lastUserInteraction = 0L;
 	}
 
     public boolean isTimedOut() {
-        return (System.currentTimeMillis() - lastPin) > TIMEOUT_DELAY;
+
+        boolean result = (System.currentTimeMillis() - lastUserInteraction) > TIMEOUT_DELAY;
+        return result;
     }
 
     public String getReceiveQRFilename(){
@@ -221,28 +174,6 @@ public class AppUtil {
         }
 
         return true;
-    }
-
-    public boolean isBackgrounded() {
-        return isBackgrounded;
-    }
-
-    public void setIsBackgrounded(boolean isBackgrounded) {
-        AppUtil.isBackgrounded = isBackgrounded;
-        if(!isLocked)updatePinEntryTime();
-    }
-
-    public boolean isLocked() {
-        return isLocked;
-    }
-
-    public void setIsLocked(boolean isLocked) {
-        AppUtil.isLocked = isLocked;
-        updatePinEntryTime();
-    }
-
-    public void setIsClosed(boolean isClosed) {
-        AppUtil.isClosed = isClosed;
     }
 
     public boolean isCameraOpen() {
@@ -303,4 +234,68 @@ public class AppUtil {
         LEGACY = lame;
     }
 
+    /*
+    Called from all activities' onPause
+     */
+    public void startLockTimer() {
+
+        if(AppUtil.getInstance(context).isTimedOut() || AppUtil.getInstance(context).isLocked())return;
+
+
+        if(lockThread!=null){
+            lockThread.interrupt();
+        }
+        lockThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Looper.prepare();
+                    //If thread has not been interrupted, the app is backgrounded or minimized - go to pin screen
+                    Thread.sleep(2000);
+                    if (context != null && !isLocked) {
+
+                        clearUserInteractionTime();
+
+                        if(inBackground){
+                            ((Activity) context).finish();
+                        }else{
+                            Intent i = new Intent(context, PinEntryActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(i);
+                        }
+
+                    }
+                } catch (Exception e) {
+                }
+                Looper.loop();
+            }
+        });
+
+        lockThread.start();
+    }
+
+    /*
+    Called from all activities' onResume
+     */
+    public void stopLockTimer(){
+
+        inBackground = false;
+
+        //App is not backgrounded - interrupt thread
+        if(lockThread!=null){
+            lockThread.interrupt();
+        }
+    }
+
+    public static void setInBackground(boolean inBackground) {
+        AppUtil.inBackground = inBackground;
+    }
+
+    public static boolean isLocked() {
+        return isLocked;
+    }
+
+    public static void setIsLocked(boolean isLocked) {
+        AppUtil.isLocked = isLocked;
+    }
 }

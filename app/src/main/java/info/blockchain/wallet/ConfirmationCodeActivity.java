@@ -251,18 +251,6 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         AppUtil.getInstance(this).clearCredentialsAndRestart();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
-    }
-
     public void askMeLaterClicked(View view) {
         new Thread(new Runnable() {
             @Override

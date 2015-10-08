@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,7 +24,6 @@ import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
-import android.util.Log;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
@@ -162,12 +162,6 @@ public class UpgradeWalletActivity extends Activity {
         pageBox0 = (TextView)findViewById(R.id.pageBox0);
         pageBox1 = (TextView)findViewById(R.id.pageBox1);
         pageBox2 = (TextView)findViewById(R.id.pageBox2);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
     }
 
     public void upgradeClicked(View view) {
@@ -364,12 +358,6 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
-    }
-
-    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -385,4 +373,33 @@ public class UpgradeWalletActivity extends Activity {
         return false;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+    protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }

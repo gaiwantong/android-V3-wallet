@@ -1,5 +1,6 @@
 package info.blockchain.wallet;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -36,7 +37,14 @@ public class BackupWalletActivity extends ActionBarActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
     }
 
     @Override
@@ -56,7 +64,12 @@ public class BackupWalletActivity extends ActionBarActivity{
 
     @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 }

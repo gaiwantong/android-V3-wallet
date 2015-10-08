@@ -512,23 +512,26 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
 
-        if(AppUtil.getInstance(MapActivity.this).isTimedOut()) {
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(MapActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(MapActivity.this, info.blockchain.wallet.PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         }
-        else {
-            AppUtil.getInstance(this).setIsBackgrounded(false);
-        }
+    }
 
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
     }
 
     @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
     @Override
@@ -800,4 +803,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		startActivity(intent);
     }
 
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }

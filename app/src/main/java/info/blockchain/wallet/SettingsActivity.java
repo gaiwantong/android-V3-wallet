@@ -19,15 +19,14 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
-
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -304,15 +303,13 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
 
-        if(AppUtil.getInstance(SettingsActivity.this).isTimedOut()) {
-            Intent i = new Intent(SettingsActivity.this, PinEntryActivity.class);
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
-        }
-        else {
-            AppUtil.getInstance(this).setIsBackgrounded(false);
         }
 
         PreferenceScreen scr = getPreferenceScreen();
@@ -322,8 +319,19 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 }

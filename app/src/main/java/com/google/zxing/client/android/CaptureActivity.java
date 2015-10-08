@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
@@ -129,7 +130,15 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
         // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
@@ -191,7 +200,8 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).setIsBackgrounded(true);
+
+        AppUtil.getInstance(this).startLockTimer();
 
         if (handler != null) {
             handler.quitSynchronously();
@@ -401,5 +411,16 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     private void toggleTorch(){
         flashStatus = !flashStatus;
         cameraManager.setTorch(flashStatus);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 }

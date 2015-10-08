@@ -24,7 +24,6 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
@@ -229,23 +228,26 @@ public class ListActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(false);
 
-        if(AppUtil.getInstance(ListActivity.this).isTimedOut()) {
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(ListActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(ListActivity.this, info.blockchain.wallet.PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         }
-        else {
-            AppUtil.getInstance(this).setIsBackgrounded(false);
-        }
+    }
 
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
     }
 
     @Override
     protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
-        AppUtil.getInstance(getApplicationContext()).setIsBackgrounded(true);
     }
 
 	public void setAdapterContent() {
@@ -380,4 +382,8 @@ public class ListActivity extends ActionBarActivity {
 		startActivity(intent);
     }
 
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }

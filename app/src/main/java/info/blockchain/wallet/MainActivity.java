@@ -32,7 +32,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,7 +57,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -327,11 +325,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).setIsClosed(false);
-
+        AppUtil.getInstance(MainActivity.this).stopLockTimer();
         AppUtil.getInstance(MainActivity.this).deleteQR();
 
-        if(AppUtil.getInstance(MainActivity.this).isTimedOut()) {
+        if(AppUtil.getInstance(MainActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 c = LandingActivity.class;
@@ -345,7 +342,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             startActivity(i);
         }
         else {
-            AppUtil.getInstance(this).setIsBackgrounded(false);
 
             if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
@@ -375,12 +371,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     public void onStart() {
         super.onStart();
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
     }
 
     @Override
@@ -531,8 +521,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exitClicked++;
             if (exitClicked == 2) {
-                AppUtil.getInstance(this).setIsClosed(true);
-                AppUtil.getInstance(this).clearPinEntryTime();
+                AppUtil.getInstance(this).clearUserInteractionTime();
 
                 if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
@@ -1000,6 +989,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             @Override
             public void onClick(View v) {
 
+                AppUtil.getInstance(MainActivity.this).clearUserInteractionTime();
+
                 if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
@@ -1118,5 +1109,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             }
         }).start();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+     protected void onPause() {
+            AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 }

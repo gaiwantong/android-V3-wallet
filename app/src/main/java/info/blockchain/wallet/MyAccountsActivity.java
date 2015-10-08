@@ -620,7 +620,14 @@ public class MyAccountsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsBackgrounded(false);
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
     }
 
     @Override
@@ -948,12 +955,6 @@ public class MyAccountsActivity extends Activity {
         }).start();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        AppUtil.getInstance(this).setIsBackgrounded(true);
-    }
-
     private void addAddress()   {
 
         new Thread(new Runnable() {
@@ -1065,4 +1066,20 @@ public class MyAccountsActivity extends Activity {
 
     }
 
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+    protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
+    }
 }
