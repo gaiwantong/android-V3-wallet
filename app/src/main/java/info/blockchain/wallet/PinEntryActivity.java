@@ -76,6 +76,9 @@ public class PinEntryActivity extends Activity {
     private String strEmail    = null;
     private String strPassword = null;
 
+    int exitClickCount = 0;
+    int exitClickCooldown = 2;//seconds
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -338,13 +341,12 @@ public class PinEntryActivity extends Activity {
             AppUtil.getInstance(this).restartApp(); // ?
     }
 
-    int exitClicked = 0;
-    int exitCooldown = 2;//seconds
+
     @Override
     public void onBackPressed()
     {
-        exitClicked++;
-        if(exitClicked==2) {
+        exitClickCount++;
+        if(exitClickCount ==2) {
             AppUtil.getInstance(this).clearUserInteractionTime();
             finish();
         }else
@@ -355,10 +357,10 @@ public class PinEntryActivity extends Activity {
             @Override
             public void run()
             {
-                for(int j = 0; j <= exitCooldown; j++)
+                for(int j = 0; j <= exitClickCooldown; j++)
                 {
                     try{Thread.sleep(1000);} catch (InterruptedException e){e.printStackTrace();}
-                    if(j >= exitCooldown)exitClicked = 0;
+                    if(j >= exitClickCooldown) exitClickCount = 0;
                 }
             }
         }).start();

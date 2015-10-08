@@ -116,6 +116,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private DrawerAdapter adapterDrawer;
 
     public long sendFragmentBitcoinAmountStorage = 0;
+    int exitClickCount = 0;
+    int exitClickCooldown = 2;//seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -510,8 +512,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-    int exitClicked = 0;
-    int exitCooldown = 2;//seconds
     @Override
     public void onBackPressed()
     {
@@ -519,8 +519,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             mDrawerLayout.closeDrawers();
         }else if(currentFragment instanceof BalanceFragment) {
 
-            exitClicked++;
-            if (exitClicked == 2) {
+            exitClickCount++;
+            if (exitClickCount == 2) {
                 AppUtil.getInstance(this).clearUserInteractionTime();
 
                 if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
@@ -534,13 +534,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int j = 0; j <= exitCooldown; j++) {
+                    for (int j = 0; j <= exitClickCooldown; j++) {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        if (j >= exitCooldown) exitClicked = 0;
+                        if (j >= exitClickCooldown) exitClickCount = 0;
                     }
                 }
             }).start();
