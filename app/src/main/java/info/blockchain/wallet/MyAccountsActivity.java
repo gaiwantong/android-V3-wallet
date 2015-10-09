@@ -83,8 +83,9 @@ public class MyAccountsActivity extends Activity {
 
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
 
-    public static String ACCOUNT_HEADER = "";
-    public static String IMPORTED_HEADER = "";
+    private static String[] HEADERS;
+    public static String ACCOUNT_HEADER;
+    public static String IMPORTED_HEADER;
 
     private LinearLayoutManager layoutManager = null;
     private RecyclerView mRecyclerView = null;
@@ -115,18 +116,13 @@ public class MyAccountsActivity extends Activity {
         setContentView(R.layout.activity_my_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        if(AppUtil.getInstance(MyAccountsActivity.this).isLegacy())    {
-            ACCOUNT_HEADER = "";
-        }
-        else    {
-            ACCOUNT_HEADER = getResources().getString(R.string.accounts);
-        }
-        if(AppUtil.getInstance(MyAccountsActivity.this).isLegacy())    {
-            IMPORTED_HEADER = getResources().getString(R.string.addresses);
-        }
-        else    {
-            IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
-        }
+        ACCOUNT_HEADER = getResources().getString(R.string.accounts);
+        IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
+
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+            HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
+        else
+            HEADERS = new String[0];
 
         backNav = (ImageView)findViewById(R.id.back_nav);
         backNav.setOnClickListener(new View.OnClickListener() {
@@ -267,6 +263,12 @@ public class MyAccountsActivity extends Activity {
         });
 
         myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
+
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+            myAccountsHeader.setText(getString(R.string.my_accounts));
+        else
+            myAccountsHeader.setText(getString(R.string.my_addresses));
+
         myAccountsHeader.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
         originalHeaderTextSize = myAccountsHeader.getTextSize();
 
@@ -299,7 +301,8 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if (headerPositions.contains(position)) return;//headers unclickable
+                        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+                            if (headerPositions.contains(position)) return;//headers unclickable
 
                         try {
                             mIsViewExpanded = rowViewState.get(view);
@@ -315,9 +318,9 @@ public class MyAccountsActivity extends Activity {
 
                             String currentSelectedAddress = null;
 
-                            if (position-2 >= hdAccountsIdx) {//2 headers before imported
+                            if (position-HEADERS.length >= hdAccountsIdx) {//2 headers before imported
 
-                                LegacyAddress legacyAddress = legacy.get(position - 2 - hdAccountsIdx);
+                                LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
 
                                 if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
@@ -488,9 +491,11 @@ public class MyAccountsActivity extends Activity {
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
         accountIndexResover = new HashMap<>();
 
-        //First Header Position
-        headerPositions.add(0);
-        accountList.add(new MyAccountItem(ACCOUNT_HEADER, "", getResources().getDrawable(R.drawable.icon_accounthd)));
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy()) {
+            //First Header Position - HD
+            headerPositions.add(0);
+            accountList.add(new MyAccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+        }
 
         int i = 0;
         if(PayloadFactory.getInstance().get().isUpgraded()) {
@@ -526,9 +531,11 @@ public class MyAccountsActivity extends Activity {
         }
         if(iAccount != null) {
 
-            //Imported Header Position
-            headerPositions.add(accountList.size());
-            accountList.add(new MyAccountItem(IMPORTED_HEADER,"", getResources().getDrawable(R.drawable.icon_accounthd)));
+            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacy()){
+                //Imported Header Position
+                headerPositions.add(accountList.size());
+                accountList.add(new MyAccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+            }
 
             legacy = iAccount.getLegacyAddresses();
             for(int j = 0; j < legacy.size(); j++) {
@@ -577,7 +584,7 @@ public class MyAccountsActivity extends Activity {
             super.onScrolled(recyclerView, dx, dy);
 
             //Only bring heading back down after 2nd item visible (0 = heading)
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= HEADERS.length) {
 
                 if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
                     mToolbarOffset += dy;
@@ -1043,7 +1050,7 @@ public class MyAccountsActivity extends Activity {
 
                 if(PayloadFactory.getInstance().get() != null)	{
                     if(PayloadFactory.getInstance().put())	{
-                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         updateAndRecreate(legacy);
                     }
                     else	{
