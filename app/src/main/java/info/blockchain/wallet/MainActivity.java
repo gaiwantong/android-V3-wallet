@@ -827,7 +827,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
         drawerItems = new ArrayList<>();
-        final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
+        String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
+        if(AppUtil.getInstance(this).isLegacy())
+            drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
+
         final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
         for (int i = 0; i < drawerTitles.length; i++) {
 
