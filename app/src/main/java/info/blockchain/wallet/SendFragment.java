@@ -768,7 +768,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         long lamount = 0L;
         try {
-            lamount = (long)( MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(pendingSpend.amount) * 1e8));
+            //Long is safe to use, but double can lead to ugly rounding issues..
+            lamount = ( BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
+
             pendingSpend.bamount = BigInteger.valueOf(lamount);
             if(pendingSpend.bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1)    {
                 ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
