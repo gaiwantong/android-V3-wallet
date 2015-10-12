@@ -76,6 +76,9 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
             TextView forgetWalletTv = (TextView) findViewById(R.id.forget_wallet);
             forgetWalletTv.setVisibility(View.INVISIBLE);
+
+            TextView askLayterTv = (TextView) findViewById(R.id.askMeLaterTv);
+            askLayterTv.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -273,5 +276,28 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
             }
         }).start();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+
+        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+            AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+            AppUtil.getInstance(this).stopLockTimer();
+    }
+
+    @Override
+    protected void onPause() {
+        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+            AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
     }
 }
