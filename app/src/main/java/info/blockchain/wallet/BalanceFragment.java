@@ -867,7 +867,9 @@ public class BalanceFragment extends Fragment {
                         }
 
                         if(txs != null) {
-                            Collections.sort(txs, new TxDateComparator());
+                            List<Tx> _txs = txs;
+                            Collections.sort(_txs, new TxDateComparator());
+                            txs = _txs;
                         }
 
                         displayBalance();
