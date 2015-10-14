@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.util.Log;
 //import android.util.Log;
 
-import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
 
@@ -19,16 +18,14 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.params.MainNetParams;
 import org.spongycastle.util.encoders.Hex;
 
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
-
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.util.Util;
+
 import piuk.blockchain.android.R;
 
 /**
@@ -168,8 +165,8 @@ public class PayloadBridge	{
         String result = null;
         byte[] data = null;
         try {
-            result = WebUtil.getInstance().getURL("https://api.blockchain.info/v2/randombytes?bytes=128&format=hex");
-            if(!result.matches("^[A-Fa-f0-9]{256}$"))    {
+            result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
+            if(!result.matches("^[A-Fa-f0-9]{64}$"))    {
                 return null;
             }
             data = Hex.decode(result);
@@ -180,14 +177,15 @@ public class PayloadBridge	{
 
         ECKey ecKey = null;
         if(data != null)    {
-            byte[] rdata = new byte[128];
+            byte[] rdata = new byte[32];
             SecureRandom random = new SecureRandom();
             random.nextBytes(rdata);
-            byte[] privbytes = xor(data, rdata);
+            byte[] privbytes = Util.getInstance().xor(data, rdata);
             if(privbytes == null)    {
                 return null;
             }
             ecKey = ECKey.fromPrivate(privbytes, true);
+            Log.i("PayloadBridge", "" + ecKey.hasPrivKey());
             // erase all byte arrays:
             random.nextBytes(privbytes);
             random.nextBytes(rdata);
@@ -198,21 +196,6 @@ public class PayloadBridge	{
         }
 
         return ecKey;
-    }
-
-    private byte[] xor(byte[] a, byte[] b) {
-
-        if(a.length != b.length)    {
-            return null;
-        }
-
-        byte[] ret = new byte[a.length];
-
-        for(int i = 0; i < a.length; i++)   {
-            ret[i] = (byte)((int)b[i] ^ (int)a[i]);
-        }
-
-        return ret;
     }
 
 }
