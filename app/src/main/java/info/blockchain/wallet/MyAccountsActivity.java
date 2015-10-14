@@ -68,6 +68,7 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
@@ -1066,6 +1067,11 @@ public class MyAccountsActivity extends Activity {
                 else	{
                     PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
                     ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+                if(OSUtil.getInstance(MyAccountsActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                    stopService(new Intent(MyAccountsActivity.this, info.blockchain.wallet.service.WebSocketService.class));
+                    startService(new Intent(MyAccountsActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
                 progress.dismiss();
