@@ -251,6 +251,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     }
 
     public void forgetClicked(View view) {
+        AppUtil.getInstance(this).setIsLocked(true);
         AppUtil.getInstance(this).clearCredentialsAndRestart();
     }
 

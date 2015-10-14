@@ -297,5 +297,8 @@ public class AppUtil {
 
     public static void setIsLocked(boolean isLocked) {
         AppUtil.isLocked = isLocked;
+        if(lockThread!=null){
+            lockThread.interrupt();
+        }
     }
 }

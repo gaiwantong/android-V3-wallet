@@ -1005,6 +1005,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
 
+                AppUtil.getInstance(MainActivity.this).setIsLocked(true);
                 AppUtil.getInstance(MainActivity.this).restartApp();
 
                 alertDialog.dismiss();
