@@ -257,11 +257,10 @@ public class SendFactory	{
                         wallet = new Wallet(MainNetParams.get());
                         List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getLegacyAddresses();
                         for(LegacyAddress addr : addrs)   {
-                            if(addr.getECKey().hasPrivKey())    {
+                            if(addr != null && addr.getECKey() != null && addr.getECKey().hasPrivKey())    {
                                 wallet.addKey(addr.getECKey());
                             }
                         }
-
                     }
 
                     SendCoins.getInstance().signTx(tx, wallet);
