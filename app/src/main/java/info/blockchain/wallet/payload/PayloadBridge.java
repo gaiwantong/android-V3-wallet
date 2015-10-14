@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.params.MainNetParams;
+import org.spongycastle.util.encoders.Hex;
 
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PRNGFixes;
@@ -27,6 +28,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
+import info.blockchain.wallet.util.WebUtil;
 import piuk.blockchain.android.R;
 
 /**
@@ -163,9 +165,54 @@ public class PayloadBridge	{
 
         PRNGFixes.apply();
 
-        ECKey ecKey = new ECKey(new SecureRandom());
+        String result = null;
+        byte[] data = null;
+        try {
+            result = WebUtil.getInstance().getURL("https://api.blockchain.info/v2/randombytes?bytes=128&format=hex");
+            if(!result.matches("^[A-Fa-f0-9]{256}$"))    {
+                return null;
+            }
+            data = Hex.decode(result);
+        }
+        catch(Exception e) {
+            return null;
+        }
+
+        ECKey ecKey = null;
+        if(data != null)    {
+            byte[] rdata = new byte[128];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(rdata);
+            byte[] privbytes = xor(data, rdata);
+            if(privbytes == null)    {
+                return null;
+            }
+            ecKey = ECKey.fromPrivate(privbytes, true);
+            // erase all byte arrays:
+            random.nextBytes(privbytes);
+            random.nextBytes(rdata);
+            random.nextBytes(data);
+        }
+        else    {
+            return null;
+        }
 
         return ecKey;
+    }
+
+    private byte[] xor(byte[] a, byte[] b) {
+
+        if(a.length != b.length)    {
+            return null;
+        }
+
+        byte[] ret = new byte[a.length];
+
+        for(int i = 0; i < a.length; i++)   {
+            ret[i] = (byte)((int)b[i] ^ (int)a[i]);
+        }
+
+        return ret;
     }
 
 }

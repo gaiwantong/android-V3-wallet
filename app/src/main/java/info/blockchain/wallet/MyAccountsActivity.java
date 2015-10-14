@@ -970,6 +970,10 @@ public class MyAccountsActivity extends Activity {
                 Looper.prepare();
 
                 ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
+                if(ecKey == null)    {
+                    ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    return;
+                }
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
                 if(PayloadFactory.getInstance().get().isDoubleEncrypted())  {
                     encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
