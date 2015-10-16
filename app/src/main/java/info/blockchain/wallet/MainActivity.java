@@ -189,6 +189,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 isPinValidated = extras.getBoolean("verified");
             }
 
+            String action = getIntent().getAction();
+            String scheme = getIntent().getScheme();
+            if(action != null && Intent.ACTION_VIEW.equals(action) && scheme.equals("bitcoin")) {
+                PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, getIntent().getData().toString());
+            }
+
             //
             // No GUID? Treat as new installation
             //
@@ -254,9 +260,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     AccountsUtil.getInstance(this).initAccountMaps();
 
-                    Fragment fragment = new BalanceFragment();
-                    FragmentManager fragmentManager = getFragmentManager();
-                    fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0)    {
+                        String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
+                        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
+                        doScanInput(strUri);
+                    }
+                    else    {
+                        Fragment fragment = new BalanceFragment();
+                        FragmentManager fragmentManager = getFragmentManager();
+                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    }
 
                 }else{
 
@@ -281,9 +294,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 progress.dismiss();
                             }
 
-                            Fragment fragment = new BalanceFragment();
-                            FragmentManager fragmentManager = getFragmentManager();
-                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                            if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0)    {
+                                String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
+                                PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
+                                doScanInput(strUri);
+                            }
+                            else    {
+                                Fragment fragment = new BalanceFragment();
+                                FragmentManager fragmentManager = getFragmentManager();
+                                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                            }
 
                             Looper.loop();
                         }
@@ -558,78 +578,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
     }
 
-    private void updatePayloadThread(final CharSequenceX pw) {
-
-        final Handler handler = new Handler();
-
-        if(progress != null && progress.isShowing()) {
-            progress.dismiss();
-            progress = null;
-        }
-        progress = new ProgressDialog(MainActivity.this);
-        progress.setTitle(R.string.app_name);
-        progress.setMessage(MainActivity.this.getResources().getString(R.string.please_wait));
-        progress.show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    Looper.prepare();
-
-                    if(HDPayloadBridge.getInstance(MainActivity.this).init(pw)) {
-
-                        PayloadFactory.getInstance().setTempPassword(pw);
-
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                if(progress != null && progress.isShowing()) {
-                                    progress.dismiss();
-                                    progress = null;
-                                }
-
-                                if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-                                    startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-                                }
-
-                                Fragment fragment = new BalanceFragment();
-                                FragmentManager fragmentManager = getFragmentManager();
-                                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                            }
-                        });
-
-                    }
-                    else {
-                        ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        if(progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                            progress = null;
-                        }
-                        AppUtil.getInstance(MainActivity.this).restartApp();
-                    }
-
-                    Looper.loop();
-
-                }
-                catch(JSONException | IOException | DecoderException | AddressFormatException
-                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
-                        | MnemonicException.MnemonicWordException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    if(progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
-                }
-
-            }
-        }).start();
-    }
-
     private void exchangeRateThread() {
 
         final Handler handler = new Handler();
@@ -714,6 +662,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
         else {
             ToastCustom.makeText(MainActivity.this, getString(R.string.scan_not_recognized), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            AppUtil.getInstance(MainActivity.this).restartApp();
             return;
         }
 
