@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
-import android.os.Looper;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.PinEntryActivity;
@@ -28,7 +29,7 @@ public class AppUtil {
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 1L;
     private static long lastUserInteraction = 0L;
-    private static Thread lockThread;
+    private static Timer timer;
     private static boolean inBackground = false;
     private static boolean isLocked = true;
 
@@ -241,37 +242,28 @@ public class AppUtil {
 
         if(AppUtil.getInstance(context).isTimedOut() || AppUtil.getInstance(context).isLocked())return;
 
-
-        if(lockThread!=null){
-            lockThread.interrupt();
+        if(timer!=null){
+            timer.cancel();
         }
-        lockThread = new Thread(new Runnable() {
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                try {
-                    Looper.prepare();
-                    //If thread has not been interrupted, the app is backgrounded or minimized - go to pin screen
-                    Thread.sleep(2000);
-                    if (context != null && !isLocked) {
+                if (context != null && !isLocked) {
 
-                        clearUserInteractionTime();
+                    clearUserInteractionTime();
 
-                        if(inBackground){
-                            ((Activity) context).finish();
-                        }else{
-                            Intent i = new Intent(context, PinEntryActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(i);
-                        }
-
+                    if (inBackground) {
+                        ((Activity) context).finish();
+                    } else {
+                        Intent i = new Intent(context, PinEntryActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(i);
                     }
-                } catch (Exception e) {
                 }
-                Looper.loop();
             }
-        });
-
-        lockThread.start();
+        }, 2000);
     }
 
     /*
@@ -282,8 +274,8 @@ public class AppUtil {
         inBackground = false;
 
         //App is not backgrounded - interrupt thread
-        if(lockThread!=null){
-            lockThread.interrupt();
+        if(timer!=null){
+            timer.cancel();
         }
     }
 
@@ -297,8 +289,8 @@ public class AppUtil {
 
     public static void setIsLocked(boolean isLocked) {
         AppUtil.isLocked = isLocked;
-        if(lockThread!=null){
-            lockThread.interrupt();
+        if(timer!=null){
+            timer.cancel();
         }
     }
 }
