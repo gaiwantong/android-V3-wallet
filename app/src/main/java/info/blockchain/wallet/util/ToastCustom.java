@@ -1,6 +1,7 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,15 +36,24 @@ public class ToastCustom{
                 tv.setText(text);
 
                 if (type.equals(TYPE_ERROR)){
-                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                        tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
+                    else
+                        tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
                     tv.setTextColor(context.getResources().getColor(R.color.toast_error_text));
 
                 }else if(type.equals(TYPE_GENERAL)){
-                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                        tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
+                    else
+                        tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
                     tv.setTextColor(context.getResources().getColor(R.color.toast_warning_text));
 
                 }else if(type.equals(TYPE_OK)){
-                    tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                        tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
+                    else
+                        tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
                     tv.setTextColor(context.getResources().getColor(R.color.toast_info_text));
                 }
                 toast.setView(v);
