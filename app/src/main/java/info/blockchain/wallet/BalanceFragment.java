@@ -502,7 +502,7 @@ public class BalanceFragment extends Fragment {
             else
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
         } else {
-            String xpub = account2Xpub(selectedAccount+1);
+            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacy() ? selectedAccount +1 : selectedAccount);
 
             if (xpub != null) {
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
@@ -839,7 +839,7 @@ public class BalanceFragment extends Fragment {
                             else
                                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
                         } else {
-                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacy() ? selectedAccount : selectedAccount+1);
+                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacy() ? selectedAccount +1 : selectedAccount);
 
                             if (xpub != null) {
                                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
@@ -847,19 +847,20 @@ public class BalanceFragment extends Fragment {
                                 }else
                                     txs = new ArrayList<Tx>();
                             } else {
-                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isLegacy() ? selectedAccount : selectedAccount + 1);
+                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isLegacy() ? selectedAccount +1 : selectedAccount);
                                 if (hda instanceof ImportedAccount) {
-
-                                    if(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS){
-                                        accountSpinner.setSelection(0);
-                                        ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                        return;
-                                    }
 
                                     if(PayloadFactory.getInstance().get().isUpgraded())
                                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                                    else
-                                        txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
+                                    else {
+                                        if(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS){
+                                            accountSpinner.setSelection(0);
+                                            ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                            return;
+                                        }else{
+                                            txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
+                                        }
+                                    }
                                 }else
                                     txs = new ArrayList<Tx>();
                             }

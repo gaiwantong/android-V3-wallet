@@ -146,7 +146,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
         EditText toAddress = (EditText)solo.getView(R.id.destination);
         solo.enterText(toAddress, "");
-        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
+//        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
 
         EditText amount1 = (EditText)solo.getView(R.id.amount1);
         solo.enterText(amount1, "0.0001");

@@ -27,7 +27,7 @@ public class AppUtil {
     private static boolean LEGACY = true;
     private static boolean PRNG_FIXES = false;
 
-    private static long TIMEOUT_DELAY = 1000L * 60L * 1L;
+    private static long TIMEOUT_DELAY = 1000L * 60L * 2L;
     private static long lastUserInteraction = 0L;
     private static Timer timer;
     private static boolean inBackground = false;
