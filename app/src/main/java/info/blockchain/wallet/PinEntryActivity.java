@@ -610,13 +610,8 @@ public class PinEntryActivity extends Activity {
                         progress = null;
                     }
 
-                    int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
-//		        	PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_LOGGED_IN, false);
-                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    incFailure();
+
                 }
 
                 handler.post(new Runnable() {
@@ -655,6 +650,8 @@ public class PinEntryActivity extends Activity {
 
                         if (pw != null && pw.length() > 0) {
                             validatePasswordThread(new CharSequenceX(pw));
+                        } else {
+                            incFailure();
                         }
 
                     }
@@ -806,5 +803,17 @@ public class PinEntryActivity extends Activity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(this).setIsLocked(true);
+    }
+
+    //
+    // increment failure count
+    //
+    private void incFailure()   {
+        int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
+        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
