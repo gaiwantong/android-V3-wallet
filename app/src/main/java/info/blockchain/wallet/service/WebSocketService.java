@@ -1,6 +1,7 @@
 package info.blockchain.wallet.service;
 
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -8,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,6 +31,8 @@ public class WebSocketService extends android.app.Service	{
     private NotificationManager nm;
     private static final int NOTIFICATION_ID_CONNECTED = 0;
     public static boolean isRunning = false;
+
+    public static final String ACTION_INTENT = "info.blockchain.wallet.WebSocketService.SUBSCRIBE_TO_ADDRESS";
 
     public class LocalBinder extends Binder
     {
@@ -58,6 +62,9 @@ public class WebSocketService extends android.app.Service	{
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 
+        IntentFilter filter = new IntentFilter(ACTION_INTENT);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(receiver, filter);
+
         int nbAccounts = 0;
         if(PayloadFactory.getInstance().get().isUpgraded())    {
             try {
@@ -85,7 +92,7 @@ public class WebSocketService extends android.app.Service	{
             }
         }
 
-        webSocketHandler = WebSocketHandler.getInstance(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+        webSocketHandler = new WebSocketHandler(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -113,9 +120,13 @@ public class WebSocketService extends android.app.Service	{
     }
 
     public void stop() {
+
+        timer.cancel();
+
         try {
             if(webSocketHandler != null)	{
                 webSocketHandler.stop();
+                LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,4 +153,13 @@ public class WebSocketService extends android.app.Service	{
         super.onDestroy();
     }
 
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+
+            if (ACTION_INTENT.equals(intent.getAction())) {
+                webSocketHandler.subscribeToAddress(intent.getStringExtra("address"));
+            }
+        }
+    };
 }
