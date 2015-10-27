@@ -47,13 +47,8 @@ import android.widget.TextView;
 import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.crypto.MnemonicException;
-import org.json.JSONException;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -500,8 +495,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
 
             drawerItems = new ArrayList<>();
-            final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items);
-            final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+            final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
+            final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
             for (int i = 0; i < drawerTitles.length; i++) {
 
                 if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
@@ -777,14 +772,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         drawerItems = new ArrayList<>();
         String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
-        if(AppUtil.getInstance(this).isLegacy())
+        if(AppUtil.getInstance(this).isLegacy() || !PayloadFactory.getInstance().get().isUpgraded())
             drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
 
-        final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons);
+        TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
+        if(AppUtil.getInstance(this).isLegacy() || !PayloadFactory.getInstance().get().isUpgraded())
+            drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_lame);
+
         for (int i = 0; i < drawerTitles.length; i++) {
 
-            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && PayloadFactory.getInstance().get().isUpgraded()){
-                /*
+            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+
                 backupWalletDrawerIndex = i;
 
                 int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
@@ -796,7 +794,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
-                */
+
                 continue;
             }
             else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
@@ -819,38 +817,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
 
-                        switch (position) {
-                            case 0:
-                                doMyAccounts();
-                                break;
-                            case 1:
-                                doExchangeRates();
-                                break;
-                            case 2:
-                                doSettings();
-                                break;
-                            case 3:
-                                doSupport();
-                                break;
-                            case 4:
-                                doChangePin();
-                                break;
-                            case 5:
-                                if(PayloadFactory.getInstance().get().isUpgraded()) {
-                                    doBackupWallet();
-                                }
-                                else {
-                                    doUnpairWallet();
-                                }
-                                break;
-                            case 6:
-                                if(PayloadFactory.getInstance().get().isUpgraded()) {
-                                    doUnpairWallet();
-                                }
-                                else {
-                                    doUpgrade();
-                                }
-                                break;
+                        if(AppUtil.getInstance(MainActivity.this).isLegacy()){
+                            selectDrawerItemLegacy(position);
+                        }else{
+                            selectDrawerItemHd(position);
                         }
 
                         mDrawerLayout.closeDrawers();
@@ -858,6 +828,55 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     }
                 })
         );
+    }
+
+    private void selectDrawerItemLegacy(int position) {
+        switch (position) {
+            case 0:
+                doMyAccounts();
+                break;
+            case 1:
+                doExchangeRates();
+                break;
+            case 2:
+                doSettings();
+                break;
+            case 3:
+                doSupport();
+                break;
+            case 4:
+                doChangePin();
+                break;
+            case 5:
+                doUnpairWallet();
+                break;
+        }
+    }
+
+    private void selectDrawerItemHd(int position) {
+        switch (position) {
+            case 0:
+                doMyAccounts();
+                break;
+            case 1:
+                doExchangeRates();
+                break;
+            case 2:
+                doSettings();
+                break;
+            case 3:
+                doSupport();
+                break;
+            case 4:
+                doChangePin();
+                break;
+            case 5:
+                doBackupWallet();
+                break;
+            case 6:
+                doUnpairWallet();
+                break;
+        }
     }
 
     @Override
