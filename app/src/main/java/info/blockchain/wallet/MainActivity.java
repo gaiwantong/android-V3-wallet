@@ -47,13 +47,8 @@ import android.widget.TextView;
 import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.crypto.MnemonicException;
-import org.json.JSONException;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

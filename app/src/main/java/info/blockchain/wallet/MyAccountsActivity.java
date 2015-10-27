@@ -9,7 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
-//import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -61,6 +62,7 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.service.WebSocketHandler;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
@@ -68,12 +70,13 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 public class MyAccountsActivity extends Activity {
 
@@ -965,16 +968,36 @@ public class MyAccountsActivity extends Activity {
 
     private void addAddress()   {
 
-        new Thread(new Runnable() {
+        final Handler mHandler = new Handler();
+
+        final ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(getString(R.string.please_wait));
+        progress.setCancelable(false);
+
+        new AsyncTask<Void, Void, ECKey>() {
+
             @Override
-            public void run() {
-                Looper.prepare();
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress.show();
+            }
+
+            @Override
+            protected ECKey doInBackground(Void... params) {
 
                 ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
                 if(ecKey == null)    {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    return;
+                    return null;
                 }
+                return ecKey;
+            }
+
+            @Override
+            protected void onPostExecute(ECKey ecKey) {
+                super.onPostExecute(ecKey);
+
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
                 if(PayloadFactory.getInstance().get().isDoubleEncrypted())  {
                     encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
@@ -992,46 +1015,58 @@ public class MyAccountsActivity extends Activity {
                 payload.setLegacyAddresses(legacyAddresses);
                 PayloadFactory.getInstance().set(payload);
 
-                final EditText address_label = new EditText(MyAccountsActivity.this);
-                address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                progress.dismiss();
 
-                new AlertDialog.Builder(MyAccountsActivity.this)
-                        .setTitle(R.string.app_name)
-                        .setMessage(R.string.label_address2)
-                        .setView(address_label)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                String label = address_label.getText().toString();
-                                if(label != null && label.length() > 0) {
-                                    ;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            mHandler.post(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    final EditText address_label = new EditText(MyAccountsActivity.this);
+                                    address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+                                    new AlertDialog.Builder(MyAccountsActivity.this)
+                                            .setTitle(R.string.app_name)
+                                            .setMessage(R.string.label_address2)
+                                            .setView(address_label)
+                                            .setCancelable(false)
+                                            .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
+                                                    String label = address_label.getText().toString();
+                                                    if (label != null && label.length() > 0) {
+                                                        ;
+                                                    } else {
+                                                        label = legacyAddress.getAddress();
+                                                    }
+
+                                                    int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                                                    PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
+
+                                                    remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+
+                                                }
+                                            }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                                            int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
+                                            PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(legacyAddress.getAddress());
+
+                                            remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
+
+                                        }
+                                    }).show();
                                 }
-                                else {
-                                    label = legacyAddress.getAddress();
-                                }
-
-                                int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
-                                PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(label);
-
-                                remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
-
-                            }
-                        }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        int idx = PayloadFactory.getInstance().get().getLegacyAddresses().size() - 1;
-                        PayloadFactory.getInstance().get().getLegacyAddresses().get(idx).setLabel(legacyAddress.getAddress());
-
-                        remoteSaveNewAddress(rollbackLegacyAddresses, legacyAddress);
-
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }).show();
-
-                Looper.loop();
-
+                }).start();
             }
-        }).start();
-
+        }.execute();
     }
 
     private void remoteSaveNewAddress(final List<LegacyAddress> rollbackLegacyAddresses, final LegacyAddress legacy)  {
@@ -1044,43 +1079,70 @@ public class MyAccountsActivity extends Activity {
 
         final ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(MyAccountsActivity.this.getResources().getString(R.string.please_wait));
+        progress.setMessage(getString(R.string.saving_address));
+        progress.setCancelable(false);
         progress.show();
 
-        new Thread(new Runnable() {
+        new AsyncTask<Void, Void, Void>() {
+
             @Override
-            public void run() {
+            protected Void doInBackground(Void... params) {
 
-                Looper.prepare();
+                if (PayloadFactory.getInstance().get() != null) {
 
-                if(PayloadFactory.getInstance().get() != null)	{
-                    if(PayloadFactory.getInstance().put())	{
+                    if (PayloadFactory.getInstance().put()) {
                         ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                        //Subscribe to new address only if succesfully created
+                        WebSocketHandler webSocketHandler = WebSocketHandler.getInstance();
+
+                        if(webSocketHandler == null){
+                            int nbAccounts = 0;
+                            if(PayloadFactory.getInstance().get().isUpgraded())    {
+                                try {
+                                    nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+                                }
+                                catch(java.lang.IndexOutOfBoundsException e) {
+                                    nbAccounts = 0;
+                                }
+                            }
+
+                            final String[] xpubs = new String[nbAccounts];
+                            for(int i = 0; i < nbAccounts; i++) {
+                                String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+                                if(s != null && s.length() > 0) {
+                                    xpubs[i] = s;
+                                }
+                            }
+
+                            int nbLegacy = PayloadFactory.getInstance().get().getLegacyAddresses().size();
+                            final String[] addrs = new String[nbLegacy];
+                            for(int i = 0; i < nbLegacy; i++) {
+                                String s = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+                                if(s != null && s.length() > 0) {
+                                    addrs[i] = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+                                }
+                            }
+
+                            webSocketHandler = WebSocketHandler.getInstance(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+                        }
+                        webSocketHandler.subscribeToAddress(legacy.getAddress());
+
                         updateAndRecreate(legacy);
-                    }
-                    else	{
+                    } else {
                         PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
                         ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-
-                }
-                else	{
+                } else {
                     PayloadFactory.getInstance().get().setLegacyAddresses(rollbackLegacyAddresses);
                     ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
 
-                if(OSUtil.getInstance(MyAccountsActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-                    stopService(new Intent(MyAccountsActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-                    startService(new Intent(MyAccountsActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-                }
-
                 progress.dismiss();
 
-                Looper.loop();
-
+                return null;
             }
-        }).start();
-
+        }.execute();
     }
 
     @Override

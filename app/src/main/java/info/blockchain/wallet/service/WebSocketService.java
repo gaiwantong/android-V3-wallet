@@ -85,7 +85,7 @@ public class WebSocketService extends android.app.Service	{
             }
         }
 
-        webSocketHandler = new WebSocketHandler(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+        webSocketHandler = WebSocketHandler.getInstance(WebSocketService.this, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
