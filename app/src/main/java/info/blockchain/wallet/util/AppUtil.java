@@ -37,6 +37,7 @@ public class AppUtil {
 
     private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
     private static boolean newlyCreated = false;
+    private static boolean allowLockTimer = true;
 
 	private AppUtil() { ; }
 
@@ -52,7 +53,7 @@ public class AppUtil {
 		return instance;
 	}
 
-	public void clearCredentialsAndRestart() {
+    public void clearCredentialsAndRestart() {
         WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
 		PrefsUtil.getInstance(context).clear();
@@ -246,24 +247,26 @@ public class AppUtil {
             timer.cancel();
         }
 
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (context != null && !isLocked) {
+        if(allowLockTimer) {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (context != null && !isLocked) {
 
-                    clearUserInteractionTime();
+                        clearUserInteractionTime();
 
-                    if (inBackground) {
-                        ((Activity) context).finish();
-                    } else {
-                        Intent i = new Intent(context, PinEntryActivity.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(i);
+                        if (inBackground) {
+                            ((Activity) context).finish();
+                        } else {
+                            Intent i = new Intent(context, PinEntryActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(i);
+                        }
                     }
                 }
-            }
-        }, 2000);
+            }, 2000);
+        }
     }
 
     /*
@@ -292,5 +295,13 @@ public class AppUtil {
         if(timer!=null){
             timer.cancel();
         }
+    }
+
+    /*
+    Only disable the lock timer when app navigates to web browser,zeroblock or any qr sharing app.
+    This will allow the blockchain app to not go to pin screen immediately
+     */
+    public static void setAllowLockTimer(boolean allowLockTimer) {
+        AppUtil.allowLockTimer = allowLockTimer;
     }
 }
