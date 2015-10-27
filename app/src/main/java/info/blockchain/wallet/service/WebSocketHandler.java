@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -33,7 +34,6 @@ import piuk.blockchain.android.R;
 
 public class WebSocketHandler {
 
-    private boolean isRunning = true;
     private WebSocket mConnection = null;
 
     private static String guid = null;
@@ -45,22 +45,7 @@ public class WebSocketHandler {
     private HashSet<String> subHashSet = new HashSet<String>();
     private HashSet<String> onChangeHashSet = new HashSet<String>();
 
-    private static WebSocketHandler instance;
-
-    public static WebSocketHandler getInstance(Context ctx, String guid, String[] xpubs, String[] addrs){
-
-        if(instance == null){
-            instance = new WebSocketHandler(ctx, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
-        }
-
-        return instance;
-    }
-
-    public static WebSocketHandler getInstance(){
-        return instance;
-    }
-
-    private WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
+    public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
@@ -106,7 +91,6 @@ public class WebSocketHandler {
     }
 
     public synchronized void subscribeToAddress(String address) {
-
         send("{\"op\":\"addr_sub\", \"addr\":\"" + address + "\"}");
     }
 
@@ -118,15 +102,9 @@ public class WebSocketHandler {
         if(mConnection != null && mConnection.isOpen()) {
             mConnection.disconnect();
         }
-
-//        EventListeners.removeEventListener(walletEventListener);
-
-        this.isRunning = false;
     }
 
     public void start() {
-
-        this.isRunning = true;
 
         try {
             stop();
@@ -283,6 +261,7 @@ public class WebSocketHandler {
 
                                     } else if (op.equals("on_change")) {
 
+                                        Log.v("","on_change");
                                         if(!onChangeHashSet.contains(message)) {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {

@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
@@ -62,7 +63,7 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.service.WebSocketHandler;
+import info.blockchain.wallet.service.WebSocketService;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
@@ -1093,40 +1094,10 @@ public class MyAccountsActivity extends Activity {
                     if (PayloadFactory.getInstance().put()) {
                         ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
-                        //Subscribe to new address only if succesfully created
-                        WebSocketHandler webSocketHandler = WebSocketHandler.getInstance();
-
-                        if(webSocketHandler == null){
-                            int nbAccounts = 0;
-                            if(PayloadFactory.getInstance().get().isUpgraded())    {
-                                try {
-                                    nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
-                                }
-                                catch(java.lang.IndexOutOfBoundsException e) {
-                                    nbAccounts = 0;
-                                }
-                            }
-
-                            final String[] xpubs = new String[nbAccounts];
-                            for(int i = 0; i < nbAccounts; i++) {
-                                String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
-                                if(s != null && s.length() > 0) {
-                                    xpubs[i] = s;
-                                }
-                            }
-
-                            int nbLegacy = PayloadFactory.getInstance().get().getLegacyAddresses().size();
-                            final String[] addrs = new String[nbLegacy];
-                            for(int i = 0; i < nbLegacy; i++) {
-                                String s = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
-                                if(s != null && s.length() > 0) {
-                                    addrs[i] = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
-                                }
-                            }
-
-                            webSocketHandler = WebSocketHandler.getInstance(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
-                        }
-                        webSocketHandler.subscribeToAddress(legacy.getAddress());
+                        //Subscribe to new address only if successfully created
+                        Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+                        intent.putExtra("address",legacy.getAddress());
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                         updateAndRecreate(legacy);
                     } else {
