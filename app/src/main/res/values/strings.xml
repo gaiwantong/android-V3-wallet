@@ -418,5 +418,6 @@
     <string name="device_rooted">Your device appears to be rooted. Be advised that storing funds on a rooted device is unsafe and, in addition, can cause stability issues. If you continue to use our Bitcoin wallet on this device we recommend that you use double encryption on your Blockchain account.</string>
     <string name="address_already_in_wallet">Your wallet already contains this address.</string>
     <string name="cannot_create_address">A new address cannot be created at this time. Please try again.</string>
+    <string name="saving_address">Saving address...</string>
 
 </resources>

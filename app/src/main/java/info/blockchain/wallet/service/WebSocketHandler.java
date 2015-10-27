@@ -45,7 +45,22 @@ public class WebSocketHandler {
     private HashSet<String> subHashSet = new HashSet<String>();
     private HashSet<String> onChangeHashSet = new HashSet<String>();
 
-    public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
+    private static WebSocketHandler instance;
+
+    public static WebSocketHandler getInstance(Context ctx, String guid, String[] xpubs, String[] addrs){
+
+        if(instance == null){
+            instance = new WebSocketHandler(ctx, PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+        }
+
+        return instance;
+    }
+
+    public static WebSocketHandler getInstance(){
+        return instance;
+    }
+
+    private WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
@@ -88,6 +103,11 @@ public class WebSocketHandler {
                 send("{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
             }
         }
+    }
+
+    public synchronized void subscribeToAddress(String address) {
+
+        send("{\"op\":\"addr_sub\", \"addr\":\"" + address + "\"}");
     }
 
     public boolean isConnected() {
