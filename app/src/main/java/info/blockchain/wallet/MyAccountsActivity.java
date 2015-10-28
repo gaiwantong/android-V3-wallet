@@ -4,9 +4,11 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -41,19 +43,15 @@ import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.uri.BitcoinURI;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -115,6 +113,25 @@ public class MyAccountsActivity extends Activity {
     private HashMap<Integer, Integer> accountIndexResover;
 
     private Context context = null;
+
+    public static final String ACTION_INTENT = "info.blockchain.wallet.MyAccountsActivity.REFRESH";
+
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+
+            if (ACTION_INTENT.equals(intent.getAction())) {
+
+                MyAccountsActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyAccountsActivity.this.recreate();
+                    }
+                });
+
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -637,6 +654,9 @@ public class MyAccountsActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        IntentFilter filter = new IntentFilter(ACTION_INTENT);
+        LocalBroadcastManager.getInstance(MyAccountsActivity.this).registerReceiver(receiver, filter);
+
         AppUtil.getInstance(this).stopLockTimer();
 
         if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
@@ -644,6 +664,13 @@ public class MyAccountsActivity extends Activity {
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         }
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(MyAccountsActivity.this).unregisterReceiver(receiver);
+        AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
     }
 
     @Override
@@ -795,23 +822,13 @@ public class MyAccountsActivity extends Activity {
                                                         }
 
                                                         remoteSaveNewAddress(legacyAddress);
-                                                        /*
-                                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                                        List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                                                        MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-                                                        AccountsUtil.getInstance(context).initAccountMaps();
-                                                        */
+
                                                     }
                                                 }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
                                                 legacyAddress.setLabel(legacyAddress.getAddress());
                                                 remoteSaveNewAddress(legacyAddress);
-                                                /*
-                                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                                List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                                                MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-                                                AccountsUtil.getInstance(context).initAccountMaps();
-                                                */
+
                                             }
                                         }).show();
 
@@ -899,12 +916,6 @@ public class MyAccountsActivity extends Activity {
                                     }
 
                                     remoteSaveNewAddress(legacyAddress);
-                                    /*
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                    List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                                    MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-                                    AccountsUtil.getInstance(context).initAccountMaps();
-                                    */
 
                                 }
                             }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
@@ -912,12 +923,6 @@ public class MyAccountsActivity extends Activity {
 
                             legacyAddress.setLabel(legacyAddress.getAddress());
                             remoteSaveNewAddress(legacyAddress);
-                            /*
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                            List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                            MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-                            AccountsUtil.getInstance(context).initAccountMaps();
-                            */
 
                         }
                     }).show();
@@ -1123,12 +1128,6 @@ public class MyAccountsActivity extends Activity {
     public void onUserInteraction() {
         super.onUserInteraction();
         AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
-    protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
-        super.onPause();
     }
 
     @Override
