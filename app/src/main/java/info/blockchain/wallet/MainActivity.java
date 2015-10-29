@@ -345,6 +345,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         AppUtil.getInstance(MainActivity.this).stopLockTimer();
         AppUtil.getInstance(MainActivity.this).deleteQR();
 
+        AppUtil.getInstance(this).setAllowLockTimer(true);
+
         if(AppUtil.getInstance(MainActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Class c = null;
             if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
@@ -612,6 +614,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doExchangeRates()	{
+
+        AppUtil.getInstance(this).setAllowLockTimer(false);
+
         if(hasZeroBlock())	{
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);

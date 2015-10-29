@@ -43,10 +43,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.crypto.MnemonicException;
-import org.bitcoinj.uri.BitcoinURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -54,6 +50,10 @@ import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.uri.BitcoinURI;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -77,7 +77,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
-
 import piuk.blockchain.android.R;
 
 public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
@@ -520,6 +519,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     public void onResume() {
         super.onResume();
 
+        AppUtil.getInstance(getActivity()).setAllowLockTimer(true);
+
         MainActivity.currentFragment = this;
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
@@ -864,6 +865,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             rowView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    AppUtil.getInstance(getActivity()).setAllowLockTimer(false);
                     startActivity(repoDataArrayList.get(position).getIntent());
                 }
             });
