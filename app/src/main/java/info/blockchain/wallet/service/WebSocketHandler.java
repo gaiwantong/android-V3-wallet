@@ -267,15 +267,16 @@ public class WebSocketHandler {
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                updateBalance();
+                                                    updateBalance();
+
+                                                Intent intent = new Intent("info.blockchain.wallet.MyAccountsActivity.REFRESH");
+                                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                                             }
+
                                             onChangeHashSet.add(message);
                                         }
 
                                     }
-//                                        else if (op.equals("block")) {
-//                                            ;
-//                                        }
                                     else {
                                         ;
                                     }

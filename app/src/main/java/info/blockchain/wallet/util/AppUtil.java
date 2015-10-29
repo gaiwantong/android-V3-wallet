@@ -126,6 +126,10 @@ public class AppUtil {
         return result;
     }
 
+    public void timeOut() {
+        lastUserInteraction = 0L;
+    }
+
     public String getReceiveQRFilename(){
         return strReceiveQRFilename;
     }
