@@ -2,32 +2,22 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.MnemonicException;
 
 import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -35,8 +25,8 @@ import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.OSUtil;
-import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -74,7 +64,13 @@ public class HDPayloadBridge	{
                 AppUtil.getInstance(context).getSharedKey(password),
                 password);
 
-        if(PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().getJSON() == null) {
+        if(PayloadFactory.getInstance().get() == null) {
+            ToastCustom.makeText(context, context.getString(R.string.cannot_create_wallet), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            return false;
+        }
+
+        if(PayloadFactory.getInstance().get().getJSON() == null) {
+            ToastCustom.makeText(context, context.getString(R.string.please_repair), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             return false;
         }
 

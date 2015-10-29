@@ -474,7 +474,6 @@ public class PinEntryActivity extends Activity {
 
                     }
                     else {
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.please_repair), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         if(progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
