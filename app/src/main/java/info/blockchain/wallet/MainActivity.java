@@ -639,6 +639,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
+
+        AppUtil.getInstance(this).setAllowLockTimer(false);
+
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intent, SCAN_URI);
     }
