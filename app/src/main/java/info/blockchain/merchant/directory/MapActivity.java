@@ -39,9 +39,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import info.blockchain.wallet.OnSwipeTouchListener;
 import info.blockchain.wallet.util.AppUtil;
@@ -478,7 +480,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 				try {
 					if(fetch) {
-						final String url = WebUtil.MERCHANT_DIRECTORY_URL + "ULAT=" + currLocation.getLatitude() + "&ULON=" + currLocation.getLongitude() + "&D=40000&K=1";
+
+						NumberFormat format = NumberFormat.getInstance(Locale.US);
+						format.setMaximumFractionDigits(2);
+						String strLat = format.format(currLocation.getLatitude());
+						String strLon = format.format(currLocation.getLongitude());
+
+						final String url = WebUtil.MERCHANT_DIRECTORY_URL + "ULAT=" + strLat + "&ULON=" + strLon + "&D=40000&K=1";
 						strJSONData = WebUtil.getInstance().getURL(url);
 					}
 
