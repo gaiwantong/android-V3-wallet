@@ -2,7 +2,7 @@ package info.blockchain.wallet.send;
 
 import org.bitcoinj.core.Transaction;
 
-import info.blockchain.wallet.OpCallback;
+import info.blockchain.wallet.callbacks.OpCallback;
 
 public class Spendable    {
 

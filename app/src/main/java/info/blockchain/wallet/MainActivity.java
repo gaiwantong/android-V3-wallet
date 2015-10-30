@@ -57,6 +57,9 @@ import java.util.List;
 import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.drawer.DrawerAdapter;
+import info.blockchain.wallet.drawer.DrawerItem;
+import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -64,6 +67,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.CircleTransform;
 import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.EnableGeo;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;

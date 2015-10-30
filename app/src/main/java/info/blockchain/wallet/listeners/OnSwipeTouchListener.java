@@ -1,4 +1,4 @@
-package info.blockchain.wallet;
+package info.blockchain.wallet.listeners;
 
 import android.content.Context;
 import android.view.GestureDetector;

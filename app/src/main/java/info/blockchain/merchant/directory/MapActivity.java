@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.OnSwipeTouchListener;
+import info.blockchain.wallet.listeners.OnSwipeTouchListener;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;

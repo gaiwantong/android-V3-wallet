@@ -2,49 +2,34 @@ package info.blockchain.wallet.send;
 
 import android.content.Context;
 import android.os.Looper;
-import android.util.Log;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.Transaction.SigHash;
 import org.bitcoinj.core.TransactionInput;
-import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.Wallet;
-import org.bitcoinj.crypto.TransactionSignature;
+import org.bitcoinj.core.bip44.Address;
+import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.script.Script;
-import org.bitcoinj.script.ScriptBuilder;
-
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.spongycastle.util.encoders.Hex;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.bitcoinj.core.bip44.Address;
-import org.bitcoinj.core.bip44.WalletFactory;
-
-import info.blockchain.wallet.OpCallback;
+import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.Hash;

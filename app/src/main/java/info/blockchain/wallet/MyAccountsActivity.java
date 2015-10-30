@@ -57,6 +57,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
