@@ -1179,8 +1179,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         pendingSpend.bfee = BigInteger.valueOf(10000L);
                         confirmFee.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bfee.longValue()) + " " + strBTC);
 
-
-
                         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
                         BigInteger cTotal = (pendingSpend.bamount.add(pendingSpend.bfee));
                         confirmTotal.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(cTotal.longValue()) + " " + strBTC);
@@ -1312,12 +1310,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                         PayloadBridge.getInstance(getActivity()).remoteSaveThread();
                                                     }
 
-                                                    MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (bamount.longValue() + bfee.longValue()));
-                                                    MultiAddrFactory.getInstance().setLegacyBalance(destination, MultiAddrFactory.getInstance().getLegacyBalance(destination) - (bamount.longValue() + bfee.longValue()));
+
+                                                    List<String> legacyAddrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
+                                                    String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
+                                                    MultiAddrFactory.getInstance().getLegacy(addrs, false);
 
                                                     updateTx(isHd, strNote, hash, 0, legacyAddress);
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+
                                                     closeDialog(alertDialog);
                                                 }
 
@@ -1404,8 +1405,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //Default to 'Total Funds' for lame mode
-        if(AppUtil.getInstance(getActivity()).isLegacy())
+        if(AppUtil.getInstance(getActivity()).isLegacy())   {
             AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
+        }
 
         Fragment fragment = new BalanceFragment();
         FragmentManager fragmentManager = getFragmentManager();
