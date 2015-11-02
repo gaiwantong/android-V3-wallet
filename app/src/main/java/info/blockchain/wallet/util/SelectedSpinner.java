@@ -1,4 +1,4 @@
-package info.blockchain.wallet;
+package info.blockchain.wallet.util;
 
 import android.content.Context;
 import android.util.AttributeSet;

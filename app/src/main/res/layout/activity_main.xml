@@ -19,7 +19,7 @@
 			android:layout_height="match_parent"/>
 	</LinearLayout>
 
-	<info.blockchain.wallet.ScrimInsetsFrameLayout
+	<info.blockchain.wallet.drawer.ScrimInsetsFrameLayout
 		android:id="@+id/scrimInsetsFrameLayout"
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="@dimen/navigation_drawer_width"
@@ -31,6 +31,6 @@
 
 		<include layout="@layout/navigation_drawer"/>
 
-	</info.blockchain.wallet.ScrimInsetsFrameLayout>
+	</info.blockchain.wallet.drawer.ScrimInsetsFrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

@@ -1,4 +1,4 @@
-package info.blockchain.wallet;
+package info.blockchain.wallet.drawer;
 
 import android.content.Context;
 import android.content.res.TypedArray;
