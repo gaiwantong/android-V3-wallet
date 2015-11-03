@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -11,6 +12,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -71,6 +73,14 @@ public class ManualPairingFragment extends Fragment {
         edPassword.setTypeface(typeface);
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+
+        super.onDestroy();
     }
 
     private void pairingThreadManual(final String guid, final CharSequenceX password) {
