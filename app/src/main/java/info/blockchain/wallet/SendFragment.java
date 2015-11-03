@@ -1256,8 +1256,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
 
-                                                    updateTx(isHd, strNote, hash, currentAcc, null);
-
                                                     closeDialog(alertDialog);
                                                 }
 
@@ -1319,7 +1317,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
                                                     MultiAddrFactory.getInstance().getLegacy(addrs, false);
 
-                                                    updateTx(isHd, strNote, hash, 0, legacyAddress);
+//                                                    updateTx(isHd, strNote, hash, 0, legacyAddress);
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                                                     closeDialog(alertDialog);
@@ -1510,26 +1508,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             return row;
         }
-    }
-
-    private void updateTx(boolean isHd, String strNote, String hash, int currentAcc, LegacyAddress legacyAddress) {
-
-        String direction = MultiAddrFactory.SENT;
-        if(spDestinationSelected)direction = MultiAddrFactory.MOVED;
-
-        if(isHd){
-            Tx tx = new Tx(hash, strNote, direction, -(pendingSpend.bamount.doubleValue()+pendingSpend.bfee.doubleValue()), System.currentTimeMillis()/1000, new HashMap<Integer,String>());
-            if(spDestinationSelected)tx.setIsMove(true);
-            MultiAddrFactory.getInstance().getXpubTxs().get(account2Xpub(currentAcc)).add(tx);
-        }else{
-            Tx tx = new Tx(hash, strNote, direction, -(pendingSpend.bamount.doubleValue()+pendingSpend.bfee.doubleValue()), System.currentTimeMillis()/1000, new HashMap<Integer,String>());
-            if(spDestinationSelected)tx.setIsMove(true);
-            MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress()).add(tx);
-            MultiAddrFactory.getInstance().getLegacyTxs().add(tx);
-        }
-
-        Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     @Override
