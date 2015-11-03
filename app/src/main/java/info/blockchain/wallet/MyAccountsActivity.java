@@ -102,6 +102,12 @@ public class MyAccountsActivity extends Activity {
     private float originalHeaderTextSize;
     public int toolbarHeight;
 
+    private ValueAnimator headerResizeAnimator;
+    private int originalHeight = 0;
+    private int newHeight = 0;
+    private int expandDuration = 200;
+    private boolean mIsViewExpanded = false;
+
     private ImageView backNav;
     private ImageView menuImport;
     private HashMap<View,Boolean> rowViewState;
@@ -320,11 +326,6 @@ public class MyAccountsActivity extends Activity {
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
 
-                    private int originalHeight = 0;
-                    private int newHeight = 0;
-                    private int expandDuration = 200;
-                    private boolean mIsViewExpanded = false;
-
                     @Override
                     public void onItemClick(final View view, int position) {
 
@@ -337,164 +338,14 @@ public class MyAccountsActivity extends Activity {
                             mIsViewExpanded = false;
                         }
 
-                        final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
-                        final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
-
-                        ValueAnimator headerResizeAnimator;
                         if (!mIsViewExpanded) {
-
-                            String currentSelectedAddress = null;
-
-                            if (position-HEADERS.length >= hdAccountsIdx) {//2 headers before imported
-
-                                LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
-
-                                if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                    return;
-                                }
-                                else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                    return;
-                                }
-                                else    {
-                                    currentSelectedAddress = legacyAddress.getAddress();
-                                }
-
-                            }
-                            else {
-                                ReceiveAddress currentSelectedReceiveAddress = null;
-                                try {
-                                    currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
-                                    currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            addressView.setText(currentSelectedAddress);
-
-                            //Receiving QR
-                            qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
-
-                            if (originalHeight == 0) {
-                                originalHeight = view.getHeight();
-                            }
-
-                            newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
-
-                            final String finalCurrentSelectedAddress = currentSelectedAddress;
-                            qrTest.setOnLongClickListener(new View.OnLongClickListener() {
-                                @Override
-                                public boolean onLongClick(View v) {
-
-                                    new AlertDialog.Builder(MyAccountsActivity.this)
-                                            .setTitle(R.string.app_name)
-                                            .setMessage(R.string.receive_address_to_clipboard)
-                                            .setCancelable(false)
-                                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                                                    android.content.ClipData clip = null;
-                                                    clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
-                                                    clipboard.setPrimaryClip(clip);
-
-                                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-
-                                                }
-
-                                            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            ;
-                                        }
-                                    }).show();
-
-                                    return false;
-                                }
-                            });
-
-                            view.setBackgroundColor(getResources().getColor(R.color.white));
-
-                            //Fade QR in - expansion of row will create slide down effect
-                            qrTest.setVisibility(View.VISIBLE);
-                            qrTest.setAnimation(AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in));
-                            qrTest.setEnabled(true);
-
-                            addressView.setVisibility(View.VISIBLE);
-                            Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in);
-                            aanim.setDuration(expandDuration);
-                            addressView.setAnimation(aanim);
-                            addressView.setEnabled(true);
-
-                            mIsViewExpanded = !mIsViewExpanded;
-                            view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
-                            headerResizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
-
+                            expandView(view, position);
                         }
                         else {
-                            //Collapsing
-                            TypedValue outValue = new TypedValue();
-                            MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-                            view.setBackgroundResource(outValue.resourceId);
-
-                            view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
-                            view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
-                            mIsViewExpanded = !mIsViewExpanded;
-                            headerResizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
-
-                            //Slide QR away
-                            qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
-                            Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_out);
-                            aanim.setDuration(expandDuration/2);
-                            addressView.setAnimation(aanim);
-
-                            //Fade QR and hide when done
-                            Animation anim = new AlphaAnimation(1.00f, 0.00f);
-                            anim.setDuration(expandDuration/2);
-                            // Set a listener to the animation and configure onAnimationEnd
-                            anim.setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    qrTest.setVisibility(View.INVISIBLE);
-                                    qrTest.setEnabled(false);
-
-                                    addressView.setVisibility(View.INVISIBLE);
-                                    addressView.setEnabled(false);
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-
-                                }
-                            });
-
-                            qrTest.startAnimation(anim);
-                            addressView.startAnimation(anim);
+                            collapseView(view);
                         }
 
-                        //Set and start row collapse/expand
-                        headerResizeAnimator.setDuration(expandDuration);
-                        headerResizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-                        headerResizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                            public void onAnimationUpdate(ValueAnimator animation) {
-                                Integer value = (Integer) animation.getAnimatedValue();
-                                view.getLayoutParams().height = value.intValue();
-                                view.requestLayout();
-                            }
-                        });
-
-
-                        headerResizeAnimator.start();
-
-                        rowViewState.put(view,mIsViewExpanded);
+                        rowViewState.put(view, mIsViewExpanded);
                     }
                 })
         );
@@ -511,6 +362,170 @@ public class MyAccountsActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void expandView(View view, int position){
+
+        final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
+        final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
+
+        String currentSelectedAddress = null;
+
+        if (position-HEADERS.length >= hdAccountsIdx) {//2 headers before imported
+
+            LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
+
+            if(legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS)    {
+                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
+            else if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
+            else    {
+                currentSelectedAddress = legacyAddress.getAddress();
+            }
+
+        }
+        else {
+            ReceiveAddress currentSelectedReceiveAddress = null;
+            try {
+                currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
+                currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        addressView.setText(currentSelectedAddress);
+
+        //Receiving QR
+        qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
+
+        if (originalHeight == 0) {
+            originalHeight = view.getHeight();
+        }
+
+        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
+
+        final String finalCurrentSelectedAddress = currentSelectedAddress;
+        qrTest.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                new AlertDialog.Builder(MyAccountsActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.receive_address_to_clipboard)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                android.content.ClipData clip = null;
+                                clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
+                                clipboard.setPrimaryClip(clip);
+
+                                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                            }
+
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+
+                return false;
+            }
+        });
+
+        view.setBackgroundColor(getResources().getColor(R.color.white));
+
+        //Fade QR in - expansion of row will create slide down effect
+        qrTest.setVisibility(View.VISIBLE);
+        qrTest.setAnimation(AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in));
+        qrTest.setEnabled(true);
+
+        addressView.setVisibility(View.VISIBLE);
+        Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in);
+        aanim.setDuration(expandDuration);
+        addressView.setAnimation(aanim);
+        addressView.setEnabled(true);
+
+        mIsViewExpanded = !mIsViewExpanded;
+        view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
+        headerResizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+
+        startAnim(view);
+    }
+
+    private void collapseView(View view){
+
+        final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
+        final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
+
+        TypedValue outValue = new TypedValue();
+        MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        view.setBackgroundResource(outValue.resourceId);
+
+        view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
+        mIsViewExpanded = !mIsViewExpanded;
+        headerResizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
+
+        //Slide QR away
+        qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
+        Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_out);
+        aanim.setDuration(expandDuration/2);
+        addressView.setAnimation(aanim);
+
+        //Fade QR and hide when done
+        Animation anim = new AlphaAnimation(1.00f, 0.00f);
+        anim.setDuration(expandDuration/2);
+        // Set a listener to the animation and configure onAnimationEnd
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                qrTest.setVisibility(View.INVISIBLE);
+                qrTest.setEnabled(false);
+
+                addressView.setVisibility(View.INVISIBLE);
+                addressView.setEnabled(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        qrTest.startAnimation(anim);
+        addressView.startAnimation(anim);
+
+        startAnim(view);
+    }
+
+    private void startAnim(final View view){
+        //Set and start row collapse/expand
+        headerResizeAnimator.setDuration(expandDuration);
+        headerResizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        headerResizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Integer value = (Integer) animation.getAnimatedValue();
+                view.getLayoutParams().height = value.intValue();
+                view.requestLayout();
+            }
+        });
+
+        headerResizeAnimator.start();
     }
 
     private List<MyAccountItem> getAccounts() {
