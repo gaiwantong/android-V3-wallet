@@ -15,9 +15,8 @@ import piuk.blockchain.android.R;
 public class MyAccountsAdapter extends RecyclerView.Adapter<MyAccountsAdapter.ViewHolder> {
 
     private ArrayList<MyAccountItem> items;
-    private static final int TYPE_ACCOUNT_HEADER = 0;
-    private static final int TYPE_NORMAL = 1;
-    private static final int TYPE_IMPORTED_HEADER = 2;
+    private static final int TYPE_ACCOUNT_HEADER = -1;
+    private static final int TYPE_IMPORTED_HEADER = -2;
 
     public class ViewHolder extends RecyclerView.ViewHolder  {
 
@@ -83,7 +82,6 @@ public class MyAccountsAdapter extends RecyclerView.Adapter<MyAccountsAdapter.Vi
             return TYPE_IMPORTED_HEADER;
 
         else
-            return TYPE_NORMAL;
-
+            return position;
     }
 }

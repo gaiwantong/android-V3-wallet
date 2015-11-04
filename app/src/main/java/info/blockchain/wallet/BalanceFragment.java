@@ -419,6 +419,11 @@ public class BalanceFragment extends Fragment {
             if (txs == null) return 0;
             return txs.size();
         }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
+        }
     }
 
     private void displayBalance() {
@@ -1259,66 +1264,12 @@ public class BalanceFragment extends Fragment {
 
                 newHeight = originalHeight + txsDetails.getHeight();
 
-                ValueAnimator resizeAnimator;
                 if (!mIsViewExpanded) {
-                    //Expanding
-                    view.setBackgroundColor(getResources().getColor(R.color.white));
-
-                    //Fade Details in - expansion of row will create slide down effect
-                    txsDetails.setVisibility(View.VISIBLE);
-                    txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
-                    txsDetails.setEnabled(true);
-
-                    mIsViewExpanded = !mIsViewExpanded;
-                    resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+                    expandView(view, txsDetails);
 
                 } else {
-                    //Collapsing
-                    TypedValue outValue = new TypedValue();
-                    getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-                    view.setBackgroundResource(outValue.resourceId);
-
-                    mIsViewExpanded = !mIsViewExpanded;
-                    resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
-
-                    txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
-
-                    Animation anim = new AlphaAnimation(1.00f, 0.00f);
-                    anim.setDuration(expandDuration / 2);
-                    anim.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            txsDetails.setVisibility(View.INVISIBLE);
-                            txsDetails.setEnabled(false);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    txsDetails.startAnimation(anim);
+                    collapseView(view, txsDetails);
                 }
-
-                //Set and start row collapse/expand
-                resizeAnimator.setDuration(expandDuration);
-                resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-                resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        Integer value = (Integer) animation.getAnimatedValue();
-                        view.getLayoutParams().height = value.intValue();
-                        view.requestLayout();
-                    }
-                });
-
-
-                resizeAnimator.start();
 
                 rowViewState.put(view, mIsViewExpanded);
             } else {
@@ -1331,6 +1282,74 @@ public class BalanceFragment extends Fragment {
                 prevRowClicked = view;
             }
         }
+    }
+
+    private void expandView(View view, ScrollView txsDetails) {
+
+        view.setBackgroundColor(getResources().getColor(R.color.white));
+
+        //Fade Details in - expansion of row will create slide down effect
+        txsDetails.setVisibility(View.VISIBLE);
+        txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
+        txsDetails.setEnabled(true);
+
+        mIsViewExpanded = !mIsViewExpanded;
+
+
+        startAnim(view);
+    }
+
+    private void collapseView(View view, final ScrollView txsDetails) {
+
+        TypedValue outValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        view.setBackgroundResource(outValue.resourceId);
+
+        mIsViewExpanded = !mIsViewExpanded;
+
+        txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+
+        Animation anim = new AlphaAnimation(1.00f, 0.00f);
+        anim.setDuration(expandDuration / 2);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                txsDetails.setVisibility(View.INVISIBLE);
+                txsDetails.setEnabled(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        txsDetails.startAnimation(anim);
+
+        startAnim(view);
+    }
+
+    private void startAnim(final View view){
+
+        //Set and start row collapse/expand
+        ValueAnimator resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+        resizeAnimator.setDuration(expandDuration);
+        resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Integer value = (Integer) animation.getAnimatedValue();
+                view.getLayoutParams().height = value.intValue();
+                view.requestLayout();
+            }
+        });
+
+
+        resizeAnimator.start();
     }
 
     private class TxDateComparator implements Comparator<Tx> {
