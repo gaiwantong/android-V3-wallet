@@ -50,9 +50,6 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         toolbar.setTitle(getResources().getString(R.string.confirmation_code));
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
         tvInstructions = (TextView)findViewById(R.id.tvInstructions);
         tvInstructions.setText(tvInstructions.getText().toString().replace("[--email_address--]",PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,"'unknown'")));
 
@@ -72,6 +69,9 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
         if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
 
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+
             sendClicked();
 
             TextView forgetWalletTv = (TextView) findViewById(R.id.forget_wallet);
@@ -79,6 +79,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
             TextView askLayterTv = (TextView) findViewById(R.id.askMeLaterTv);
             askLayterTv.setVisibility(View.INVISIBLE);
+        }else{
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setHomeButtonEnabled(false);
         }
     }
 
