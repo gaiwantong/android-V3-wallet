@@ -52,7 +52,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,7 +64,6 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AccountsUtil;
@@ -724,6 +722,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private void validateSpend(boolean showMessages, int position) {
 
+        if(edAmount1.getText() == null || edAmount1.getText().toString().isEmpty()) return;
+        if(edAmount2.getText() == null || edAmount2.getText().toString().isEmpty()) return;
+        
         pendingSpend.amount = null;
         pendingSpend.destination = null;
         pendingSpend.bamount = BigInteger.ZERO;
