@@ -45,15 +45,6 @@ public class ListActivity extends ActionBarActivity {
     private String strULat = null;
     private String strULon = null;
 
-	//
-	//
-	//
-    /*
-	private DrawerLayout mDrawerLayout = null;
-	private ListView mDrawerList = null;
-	private ActionBarDrawerToggle mDrawerToggle = null;
-	*/
-
 	@Override
 	public boolean onSupportNavigateUp() {
 		onBackPressed();
