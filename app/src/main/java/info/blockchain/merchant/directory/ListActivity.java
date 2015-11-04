@@ -37,11 +37,8 @@ public class ListActivity extends ActionBarActivity {
 	private static final int HEADING_ATM = 5;
 
 	private ArrayList<BTCBusiness> businesses = null;
-    private int curSelection = -1;
     private BTCBusinessAdapter adapter = null;
-    
-    private Handler mHandler = new Handler();
-    
+
     private String strULat = null;
     private String strULon = null;
 
@@ -162,23 +159,16 @@ public class ListActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		
-//		if (mDrawerToggle.onOptionsItemSelected(item)) {
-//			return true;
-//		}
-//		else {
-		    switch (item.getItemId()) {
-	    	case R.id.action_merchant_map:
-	    		finish();
-	    		return true;
-	    	case R.id.action_merchant_suggest:
-	    		doSuggest();
-	    		return true;
-		    default:
-		        return super.onOptionsItemSelected(item);
-		    }
-//		}
-
+		switch (item.getItemId()) {
+			case R.id.action_merchant_map:
+				finish();
+				return true;
+			case R.id.action_merchant_suggest:
+				doSuggest();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
     private class BTCBusinessAdapter extends BaseAdapter {
@@ -259,10 +249,6 @@ public class ListActivity extends ActionBarActivity {
 	        return view;
 		}
 
-    }
-
-    private void doMapView() {
-    	finish();
     }
 
     private void doSuggest() {

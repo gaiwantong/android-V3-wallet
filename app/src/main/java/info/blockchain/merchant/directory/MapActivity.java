@@ -56,16 +56,12 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 	private GoogleMap map = null;
 	private LocationManager locationManager = null;
-	private String provider = null;
-	private Location location = null;
 	private Location currLocation = null;
 	private static final long MIN_TIME = 400;
 	private static final float MIN_DISTANCE = 1000;
-//	private Marker mSelf = null;
 
 	private static float Z00M_LEVEL_DEFAULT = 13.0f;
 	private static float Z00M_LEVEL_CLOSE = 18.0f;
-	private static float Z00M_LEVEL_FAR = 10.0f;
 	private float saveZ00mLevel = Z00M_LEVEL_DEFAULT;
 	private boolean changeZoom = false;
 
@@ -96,7 +92,6 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 	private TextView tvName = null;
 	private TextView tvAddress = null;
-	//    private TextView tvCity = null;
 	private TextView tvTel = null;
 	private TextView tvWeb = null;
 	private TextView tvDesc = null;
@@ -157,8 +152,6 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		tvName.setTypeface(TypefaceUtil.getInstance(this).getRobotoLightTypeface());
 		tvAddress = (TextView)findViewById(R.id.tv_address);
 		tvAddress.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
-//        tvCity = (TextView)findViewById(R.id.tv_city);
-//        tvCity.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 		tvTel = (TextView)findViewById(R.id.tv_tel);
 		tvTel.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 		tvWeb = (TextView)findViewById(R.id.tv_web);
@@ -193,7 +186,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				tvAddress.setText(Html.fromHtml("<a href=\"" + url + "\">" + b.address + ", " + b.city + " " + b.pcode + "</a>"));
 				tvAddress.setMovementMethod(LinkMovementMethod.getInstance());
 
-				if(b.tel != null && b.tel.length() > 0)	{
+				if(b.tel != null && b.tel.trim().length() > 0)	{
 					tvTel.setText(b.tel);
 					Linkify.addLinks(tvTel, Linkify.PHONE_NUMBERS);
 				}
@@ -201,7 +194,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 					((LinearLayout)findViewById(R.id.row_call)).setVisibility(View.GONE);
 				}
 
-				if(b.web != null && b.web.length() > 0)	{
+				if(b.web != null && b.web.trim().length() > 0)	{
 					tvWeb.setText(b.web);
 					Linkify.addLinks(tvWeb, Linkify.WEB_URLS);
 				}
@@ -210,18 +203,6 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				}
 
 				tvDesc.setText(b.desc);
-
-				Double distance = Double.parseDouble(markerValues.get(marker.getId()).distance);
-				String strDistance = null;
-				if(distance < 1.0) {
-					distance *= 1000;
-					DecimalFormat df = new DecimalFormat("###");
-					strDistance = df.format(distance) + " meters";
-				}
-				else {
-					DecimalFormat df = new DecimalFormat("#####.#");
-					strDistance = df.format(distance) + " km";
-				}
 
 				tvName.setText(b.name);
 				switch(Integer.parseInt(b.hc)) {
@@ -298,7 +279,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				imgCafe.setImageResource(cafeSelected ? R.drawable.marker_cafe_off : R.drawable.marker_cafe);
 				dividerCafe.setBackgroundColor(cafeSelected ? color_category_unselected : color_cafe_selected);
 				cafeSelected = cafeSelected ? false : true;
-				drawData(false);
+				drawData(false, null, null, false);
 				return false;
 			}
 		});
@@ -311,7 +292,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				imgDrink.setImageResource(drinkSelected ? R.drawable.marker_drink_off : R.drawable.marker_drink);
 				dividerDrink.setBackgroundColor(drinkSelected ? color_category_unselected : color_drink_selected);
 				drinkSelected = drinkSelected ? false : true;
-				drawData(false);
+				drawData(false, null, null, false);
 				return false;
 			}
 		});
@@ -324,7 +305,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				imgEat.setImageResource(eatSelected ? R.drawable.marker_eat_off : R.drawable.marker_eat);
 				dividerEat.setBackgroundColor(eatSelected ? color_category_unselected : color_eat_selected);
 				eatSelected = eatSelected ? false : true;
-				drawData(false);
+				drawData(false, null, null, false);
 				return false;
 			}
 		});
@@ -337,7 +318,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				imgSpend.setImageResource(spendSelected ? R.drawable.marker_spend_off : R.drawable.marker_spend);
 				dividerSpend.setBackgroundColor(spendSelected ? color_category_unselected : color_spend_selected);
 				spendSelected = spendSelected ? false : true;
-				drawData(false);
+				drawData(false, null, null, false);
 				return false;
 			}
 		});
@@ -350,7 +331,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 				imgATM.setImageResource(atmSelected ? R.drawable.marker_atm_off : R.drawable.marker_atm);
 				dividerATM.setBackgroundColor(atmSelected ? color_category_unselected : color_atm_selected);
 				atmSelected = atmSelected ? false : true;
-				drawData(false);
+				drawData(false, null, null, false);
 				return false;
 			}
 		});
@@ -373,7 +354,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		}
 
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), Z00M_LEVEL_DEFAULT));
-		drawData(true);
+		drawData(true, null, null, false);
 	}
 
 	@Override
@@ -387,7 +368,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		locationManager.removeUpdates(this);
 
 		setProperZoomLevel(latLng, radius, 1);
-		drawData(true);
+//		drawData(true, null, null);
 
 	}
 
@@ -466,7 +447,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		return false;
 	}
 
-	private void drawData(final boolean fetch) {
+	private void drawData(final boolean fetch, final Double lat, final Double lng, final boolean doListView) {
 
 		map.clear();
 
@@ -483,8 +464,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 						NumberFormat format = NumberFormat.getInstance(Locale.US);
 						format.setMaximumFractionDigits(2);
-						String strLat = format.format(currLocation.getLatitude());
-						String strLon = format.format(currLocation.getLongitude());
+						String strLat = format.format(lat == null ? currLocation.getLatitude() : lat);
+						String strLon = format.format(lng == null ? currLocation.getLongitude() : lng);
 
 						final String url = WebUtil.MERCHANT_DIRECTORY_URL + "ULAT=" + strLat + "&ULON=" + strLon + "&D=40000&K=1";
 						strJSONData = WebUtil.getInstance().getURL(url);
@@ -583,6 +564,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 									}
 
+									if(doListView)	{
+										Intent intent = new Intent(MapActivity.this, ListActivity.class);
+										intent.putExtra("ULAT", Double.toString(lat));
+										intent.putExtra("ULON", Double.toString(lng));
+										startActivity(intent);
+									}
+
 								}
 
 							} catch (Exception e) {
@@ -597,6 +585,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 							}
 
 						}
+
 					});
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -680,10 +669,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		}
 
 		if(doList) {
-			Intent intent = new Intent(MapActivity.this, ListActivity.class);
-			intent.putExtra("ULAT", Double.toString(currLocation.getLatitude()));
-			intent.putExtra("ULON", Double.toString(currLocation.getLongitude()));
-			startActivity(intent);
+			LatLng cameraPos = map.getCameraPosition().target;
+			drawData(true, cameraPos.latitude, cameraPos.longitude, true);
 		}
 		else {
 			ToastCustom.makeText(MapActivity.this, getString(R.string.no_merchants_in_range), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
