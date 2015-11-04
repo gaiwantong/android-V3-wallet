@@ -881,6 +881,7 @@ public class BalanceFragment extends Fragment {
 
                         displayBalance();
 
+                        txList.setAdapter(txAdapter);
                         txAdapter.notifyDataSetChanged();
                     }
 
