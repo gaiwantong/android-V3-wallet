@@ -37,6 +37,7 @@
 			android:textColor="@color/primary_text_default_material_light"
 			android:textColorHint="@color/blockchain_light_grey"
 			android:textCursorDrawable="@null"
+			android:maxLength="17"
 			>
 
 			<requestFocus/>
@@ -73,6 +74,7 @@
 			android:textColor="@color/primary_text_default_material_light"
 			android:textColorHint="@color/blockchain_light_grey"
 			android:textCursorDrawable="@null"
+			android:maxLength="17"
 			/>
 
 	</LinearLayout>
