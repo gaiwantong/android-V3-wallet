@@ -941,6 +941,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     alertDialog.dismiss();
                 }else{
+                    pass.setText("");
                     ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
             }
