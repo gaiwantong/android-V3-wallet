@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,99 +70,7 @@ public class ListActivity extends ActionBarActivity {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
 		toolbar.setTitle(R.string.merchant_list);
 		setSupportActionBar(toolbar);
-/*
-        ActionBar actionBar = getActionBar();
-        actionBar.hide();
-        actionBar.setDisplayOptions(actionBar.getDisplayOptions() | ActionBar.DISPLAY_SHOW_CUSTOM);
-        
-        LinearLayout layout_icons = new LinearLayout(actionBar.getThemedContext());
-        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-	    if(!DeviceUtil.getInstance(this).isSmallScreen()) {
-	        layoutParams.height = 72;
-	    }
-	    else {
-	        layoutParams.height = 30;
-	    }
 
-        layoutParams.width = layoutParams.height + 50;
-        layout_icons.setLayoutParams(layoutParams);
-        layout_icons.setOrientation(LinearLayout.HORIZONTAL);
-
-        ActionBar.LayoutParams imgParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL);
-        imgParams.height = layoutParams.height;
-        imgParams.width = layoutParams.height;
-        imgParams.rightMargin = 5;
-        
-        final ImageView mapview_icon = new ImageView(actionBar.getThemedContext());
-        mapview_icon.setImageResource(R.drawable.mapview_icon);
-        mapview_icon.setScaleType(ImageView.ScaleType.FIT_XY);
-        mapview_icon.setLayoutParams(imgParams);
-        mapview_icon.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-            	
-            	finish();
-            	
-        		return false;
-            }
-        });
-
-        layout_icons.addView(mapview_icon);
-
-//        actionBar.setDisplayOptions(actionBar.getDisplayOptions() ^ ActionBar.DISPLAY_SHOW_TITLE);
-        actionBar.setLogo(R.drawable.masthead);
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF1B8AC7")));
-
-        //
-        //
-        //
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerList = (ListView) findViewById(R.id.drawer_list);
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-			
-			public void onDrawerClosed(View view) {
-				super.onDrawerClosed(view);
-				}
-
-			public void onDrawerOpened(View view) {
-				super.onDrawerOpened(view);
-			    }
-
-			};
-
-		// hide settings menu
-//		invalidateOptionsMenu();
-
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		ArrayAdapter<String> hAdapter = new ArrayAdapter<String>(getBaseContext(), R.layout.drawer_list_item, getResources().getStringArray(R.array.menus_merchantDirectory));
-		mDrawerList.setAdapter(hAdapter);
-		actionBar.setDisplayHomeAsUpEnabled(false);
-		actionBar.setHomeButtonEnabled(true);
-		mDrawerList.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-			    switch (position) {
-		    	case 0:
-		    		doSuggest();
-		    		break;
-		    	default:
-		    		break;
-			    }
-
-				// Closing the drawer
-				mDrawerLayout.closeDrawer(mDrawerList);
-			    invalidateOptionsMenu();
-
-			}
-		});
-		
-        actionBar.setCustomView(layout_icons);
-        actionBar.show();
-*/
         Bundle extras = getIntent().getExtras();
         if(extras != null)	{
         	strULat = extras.getString("ULAT");
@@ -180,7 +89,7 @@ public class ListActivity extends ActionBarActivity {
             	
             	final BTCBusiness b = businesses.get(position);
 
-     			AlertDialog.Builder alert = new AlertDialog.Builder(ListActivity.this);
+				AlertDialog.Builder alert = new AlertDialog.Builder(ListActivity.this);
                 alert.setTitle(R.string.merchant_info);
                 alert.setPositiveButton(R.string.directions,
                         new DialogInterface.OnClickListener() {
@@ -194,28 +103,16 @@ public class ListActivity extends ActionBarActivity {
                      			startActivity(intent);
                             }
                         });
-                if(b.tel != null) {
-                    alert.setNeutralButton(R.string.call,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface arg0, int arg1) {
-                                	Intent intent = new Intent(Intent.ACTION_DIAL);
-                                	intent.setData(Uri.parse("tel:" +b.tel));
-                                	startActivity(intent);
-                                }
-                            });
+                if(b.tel != null && b.tel.trim().length() > 0) {
+					alert.setNegativeButton(R.string.call,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface arg0, int arg1) {
+									Intent intent = new Intent(Intent.ACTION_DIAL);
+									intent.setData(Uri.parse("tel:" + b.tel));
+									startActivity(intent);
+								}
+							});
                 }
-                /*
-                if(markerValues.get(marker.getId()).web != null) {
-                    alert.setNegativeButton("Web",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface arg0, int arg1) {
-                         			Intent intent = new Intent(Intent.ACTION_VIEW);
-                         			intent.setData(Uri.parse(markerValues.get(marker.getId()).web));
-                         			startActivity(intent);
-                                }
-                            });
-                }
-                */
                 alert.show();
 
             }
