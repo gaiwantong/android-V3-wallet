@@ -67,8 +67,8 @@
   <string name="no_NFC_support">此设备不支持 NFC。</string>
   <string name="NFC_disabled">NFC 被禁用。</string>
   <string name="no_private_key">无法生成私钥。</string>
-  <string name="pin_3_strikes">3 失败的密码尝试。请提供密码。</string>
-  <string name="pin_3_strikes_password_accepted">密码均可接受。请定义新的 PIN 码。</string>
+  <string name="pin_4_strikes">3 失败的密码尝试。请提供密码。</string>
+  <string name="pin_4_strikes_password_accepted">密码均可接受。请定义新的 PIN 码。</string>
   <string name="pin_entry">输入 Pin</string>
   <string name="password_entry">请输入密码</string>
   <string name="options_CLEAR">确认</string>

@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Това устройство не поддържа NFC.</string>
   <string name="NFC_disabled">NFC е забранено.</string>
   <string name="no_private_key">Не може да произвежда частен ключ.</string>
-  <string name="pin_3_strikes">3 неуспешни опита ПИН. Предоставете парола.</string>
-  <string name="pin_3_strikes_password_accepted">Парола приети. Дефинирайте нов ПИН код.</string>
+  <string name="pin_4_strikes">3 неуспешни опита ПИН. Предоставете парола.</string>
+  <string name="pin_4_strikes_password_accepted">Парола приети. Дефинирайте нов ПИН код.</string>
   <string name="pin_entry">Въведете ПИН</string>
   <string name="password_entry">Моля, въведете парола</string>
   <string name="options_CLEAR">ИЗЧИСТИ</string>

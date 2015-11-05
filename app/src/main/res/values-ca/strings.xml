@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Aquest dispositiu no dóna suport a NFC.</string>
   <string name="NFC_disabled">NFC s\'impossibilita.</string>
   <string name="no_private_key">No pot produir clau privada.</string>
-  <string name="pin_3_strikes">3 PIN intents fallits. Proporcioneu la contrasenya.</string>
-  <string name="pin_3_strikes_password_accepted">Contrasenya acceptat. Si us plau definir codi PIN nou.</string>
+  <string name="pin_4_strikes">3 PIN intents fallits. Proporcioneu la contrasenya.</string>
+  <string name="pin_4_strikes_password_accepted">Contrasenya acceptat. Si us plau definir codi PIN nou.</string>
   <string name="pin_entry">Introduïu el Pin</string>
   <string name="password_entry">Si us plau, introdueixi la contrasenya</string>
   <string name="options_CLEAR">CLAR</string>

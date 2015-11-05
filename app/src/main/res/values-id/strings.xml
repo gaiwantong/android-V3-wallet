@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Perangkat ini tidak mendukung NFC.</string>
   <string name="NFC_disabled">NFC dinonaktifkan.</string>
   <string name="no_private_key">Tidak dapat menghasilkan kunci pribadi.</string>
-  <string name="pin_3_strikes">3 gagal upaya PIN. Harap memberikan password.</string>
-  <string name="pin_3_strikes_password_accepted">Sandi yang diterima. Harap define kode PIN baru.</string>
+  <string name="pin_4_strikes">3 gagal upaya PIN. Harap memberikan password.</string>
+  <string name="pin_4_strikes_password_accepted">Sandi yang diterima. Harap define kode PIN baru.</string>
   <string name="pin_entry">Masukkan Pin</string>
   <string name="password_entry">Harap masukkan sandi</string>
   <string name="options_CLEAR">JELAS</string>

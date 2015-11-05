@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Acest dispozitiv nu acceptă NFC.</string>
   <string name="NFC_disabled">NFC este dezactivat.</string>
   <string name="no_private_key">Nu poate produce cheia privată.</string>
-  <string name="pin_3_strikes">3 PIN tentative eșuate. Vă rugăm să furnizaţi parola.</string>
-  <string name="pin_3_strikes_password_accepted">Parola acceptate. Vă rugăm să definească noul cod PIN.</string>
+  <string name="pin_4_strikes">3 PIN tentative eșuate. Vă rugăm să furnizaţi parola.</string>
+  <string name="pin_4_strikes_password_accepted">Parola acceptate. Vă rugăm să definească noul cod PIN.</string>
   <string name="pin_entry">Introduceţi codul Pin</string>
   <string name="password_entry">Va rugam introduceti parola</string>
   <string name="options_CLEAR">CLAR</string>

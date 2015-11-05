@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Это устройство не поддерживает NFC.</string>
   <string name="NFC_disabled">NFC будет отключена.</string>
   <string name="no_private_key">Нельзя производить закрытый ключ.</string>
-  <string name="pin_3_strikes">3 неудачных попыток ПИН-код. Просьба представьте пароль.</string>
-  <string name="pin_3_strikes_password_accepted">Пароль принят. Введите новый PIN-код.</string>
+  <string name="pin_4_strikes">3 неудачных попыток ПИН-код. Просьба представьте пароль.</string>
+  <string name="pin_4_strikes_password_accepted">Пароль принят. Введите новый PIN-код.</string>
   <string name="pin_entry">Введите PIN-код</string>
   <string name="password_entry">Пожалуйста, введите пароль</string>
   <string name="options_CLEAR">Очистить</string>

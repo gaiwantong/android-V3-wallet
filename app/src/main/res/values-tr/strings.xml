@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Bu aygıt NFC desteklemiyor.</string>
   <string name="NFC_disabled">NFC devre dışı bırakılır.</string>
   <string name="no_private_key">Özel anahtar üretemez.</string>
-  <string name="pin_3_strikes">3 PIN girişimleri başarısız oldu. Lütfen parolayı girin.</string>
-  <string name="pin_3_strikes_password_accepted">Şifre kabul edildi. Lütfen yeni PIN kodunu tanımlayın.</string>
+  <string name="pin_4_strikes">3 PIN girişimleri başarısız oldu. Lütfen parolayı girin.</string>
+  <string name="pin_4_strikes_password_accepted">Şifre kabul edildi. Lütfen yeni PIN kodunu tanımlayın.</string>
   <string name="pin_entry">PIN kodunu girin</string>
   <string name="password_entry">Lütfen parolayı girin</string>
   <string name="options_CLEAR">AÇIK</string>

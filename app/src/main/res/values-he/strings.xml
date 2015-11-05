@@ -67,8 +67,8 @@
   <string name="no_NFC_support">התקן זה אינו תומך NFC.</string>
   <string name="NFC_disabled">NFC אינו זמין.</string>
   <string name="no_private_key">לא יכול לייצר מפתח פרטי.</string>
-  <string name="pin_3_strikes">3 ניסיונות PIN. נא לספק סיסמה.</string>
-  <string name="pin_3_strikes_password_accepted">. סיסמא התקבלה בבקשה להגדיר קוד PIN חדש.</string>
+  <string name="pin_4_strikes">3 ניסיונות PIN. נא לספק סיסמה.</string>
+  <string name="pin_4_strikes_password_accepted">. סיסמא התקבלה בבקשה להגדיר קוד PIN חדש.</string>
   <string name="pin_entry">הזן את מספר הזיהוי האישי שלך</string>
   <string name="password_entry">אנא הכניסו את הסיסמה</string>
   <string name="options_CLEAR">ברור</string>

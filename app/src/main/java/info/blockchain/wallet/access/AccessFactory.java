@@ -155,7 +155,7 @@ public class AccessFactory	{
         args.append("&pin=" + _pin);
         args.append("&method=get");
 
-        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString());
+        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString(), 1);
 
         if (response == null || response.length() == 0)
             throw new Exception("Invalid Server Response");

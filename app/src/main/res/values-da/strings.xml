@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Denne enhed understøtter NFC.</string>
   <string name="NFC_disabled">NFC er deaktiveret.</string>
   <string name="no_private_key">Ikke kan producere private nøgle.</string>
-  <string name="pin_3_strikes">3 mislykkedes PIN forsøg. Giv password.</string>
-  <string name="pin_3_strikes_password_accepted">Adgangskode accepteret. Angiv ny PIN-kode.</string>
+  <string name="pin_4_strikes">3 mislykkedes PIN forsøg. Giv password.</string>
+  <string name="pin_4_strikes_password_accepted">Adgangskode accepteret. Angiv ny PIN-kode.</string>
   <string name="pin_entry">Indtast PIN-kode</string>
   <string name="password_entry">Indtast adgangskode</string>
   <string name="options_CLEAR">KLART</string>

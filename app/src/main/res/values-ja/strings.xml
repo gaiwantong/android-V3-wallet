@@ -67,8 +67,8 @@
   <string name="no_NFC_support">このデバイスは、NFC をサポートしていません。</string>
   <string name="NFC_disabled">NFC が無効になります。</string>
   <string name="no_private_key">秘密キーを生成できません。</string>
-  <string name="pin_3_strikes">3 は、PIN の試行に失敗しました。パスワードを入力してください。</string>
-  <string name="pin_3_strikes_password_accepted">パスワードが受け入れ。新しい「PIN コードを定義していますください。</string>
+  <string name="pin_4_strikes">3 は、PIN の試行に失敗しました。パスワードを入力してください。</string>
+  <string name="pin_4_strikes_password_accepted">パスワードが受け入れ。新しい「PIN コードを定義していますください。</string>
   <string name="pin_entry">Pin を入力してください。</string>
   <string name="password_entry">パスワードを入力してください。</string>
   <string name="options_CLEAR">CLEAR</string>
