@@ -61,7 +61,7 @@ public class PinEntryActivity extends Activity {
     String userEnteredPINConfirm = null;
 
     final int PIN_LENGTH = 4;
-    final int attempts = 4;
+    final int maxAttempts = 4;
 
     TextView titleView = null;
 
@@ -143,7 +143,7 @@ public class PinEntryActivity extends Activity {
         }
 
         int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-        if(fails >= attempts)	{
+        if(fails >= maxAttempts)	{
             ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_4_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 //        	validationDialog();
 
