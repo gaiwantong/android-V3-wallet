@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Dit apparaat ondersteunt geen NFC.</string>
   <string name="NFC_disabled">NFC is uitgeschakeld.</string>
   <string name="no_private_key">Geen persoonlijke sleutel.</string>
-  <string name="pin_3_strikes">3 mislukte PIN pogingen. Geef wachtwoord.</string>
-  <string name="pin_3_strikes_password_accepted">Wachtwoord geaccepteerd. Geef nieuwe PIN-code.</string>
+  <string name="pin_4_strikes">3 mislukte PIN pogingen. Geef wachtwoord.</string>
+  <string name="pin_4_strikes_password_accepted">Wachtwoord geaccepteerd. Geef nieuwe PIN-code.</string>
   <string name="pin_entry">Pin invoeren</string>
   <string name="password_entry">Voer wachtwoord</string>
   <string name="options_CLEAR">DUIDELIJK</string>

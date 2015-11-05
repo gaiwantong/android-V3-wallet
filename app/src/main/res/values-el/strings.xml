@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Αυτή η συσκευή δεν υποστηρίζει NFC.</string>
   <string name="NFC_disabled">NFC είναι απενεργοποιημένη.</string>
   <string name="no_private_key">Δεν μπορεί να παράγει το ιδιωτικό κλειδί.</string>
-  <string name="pin_3_strikes">3 αποτυχημένες προσπάθειες PIN. Παρακαλείσθε να δώσετε τον κωδικό πρόσβασης.</string>
-  <string name="pin_3_strikes_password_accepted">Κωδικός πρόσβασης αποδεκτή. Παρακαλώ καθορίστε νέο κωδικό PIN.</string>
+  <string name="pin_4_strikes">3 αποτυχημένες προσπάθειες PIN. Παρακαλείσθε να δώσετε τον κωδικό πρόσβασης.</string>
+  <string name="pin_4_strikes_password_accepted">Κωδικός πρόσβασης αποδεκτή. Παρακαλώ καθορίστε νέο κωδικό PIN.</string>
   <string name="pin_entry">Εισαγάγετε το Pin</string>
   <string name="password_entry">Παρακαλούμε εισάγετε τον κωδικό πρόσβασης</string>
   <string name="options_CLEAR">ΣΑΦΈΣ</string>

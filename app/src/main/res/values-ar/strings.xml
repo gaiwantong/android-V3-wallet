@@ -67,8 +67,8 @@
   <string name="no_NFC_support">لا يدعم هذا الجهاز نفك.</string>
   <string name="NFC_disabled">نفك معطل.</string>
   <string name="no_private_key">لا يمكن أن تنتج المفتاح الخاص.</string>
-  <string name="pin_3_strikes">3 فشل محاولات PIN. الرجاء توفير كلمة المرور.</string>
-  <string name="pin_3_strikes_password_accepted">وقبل كلمة المرور. يرجى تحديد رمز PIN جديد.</string>
+  <string name="pin_4_strikes">3 فشل محاولات PIN. الرجاء توفير كلمة المرور.</string>
+  <string name="pin_4_strikes_password_accepted">وقبل كلمة المرور. يرجى تحديد رمز PIN جديد.</string>
   <string name="pin_entry">أدخل رقم التعريف الشخصي</string>
   <string name="password_entry">الرجاء إدخال كلمة المرور</string>
   <string name="options_CLEAR">واضحة</string>

@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Cet appareil ne supporte pas NFC.</string>
   <string name="NFC_disabled">NFC est désactivé.</string>
   <string name="no_private_key">Ne peut pas produire la clé privée.</string>
-  <string name="pin_3_strikes">3 tentatives de code PIN. S\'il vous plaît fournir de mot de passe.</string>
-  <string name="pin_3_strikes_password_accepted">Mot de passe accepté. S\'il vous plaît définir nouveau code PIN.</string>
+  <string name="pin_4_strikes">3 tentatives de code PIN. S\'il vous plaît fournir de mot de passe.</string>
+  <string name="pin_4_strikes_password_accepted">Mot de passe accepté. S\'il vous plaît définir nouveau code PIN.</string>
   <string name="pin_entry">Entrez le code Pin</string>
   <string name="password_entry">Veuillez entrer le mot de passe</string>
   <string name="options_CLEAR">CLAIRE</string>

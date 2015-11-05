@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Denna enhet stöder inte NFC.</string>
   <string name="NFC_disabled">NFC är inaktiverad.</string>
   <string name="no_private_key">Inte kan producera privata nyckel.</string>
-  <string name="pin_3_strikes">3 misslyckade PIN försök. Vänligen ange lösenord.</string>
-  <string name="pin_3_strikes_password_accepted">Lösenord accepteras. Definiera ny PIN-kod.</string>
+  <string name="pin_4_strikes">3 misslyckade PIN försök. Vänligen ange lösenord.</string>
+  <string name="pin_4_strikes_password_accepted">Lösenord accepteras. Definiera ny PIN-kod.</string>
   <string name="pin_entry">Ange PIN-kod</string>
   <string name="password_entry">Ange lösenord</string>
   <string name="options_CLEAR">KLART</string>

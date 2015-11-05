@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Цей пристрій не підтримує NFC.</string>
   <string name="NFC_disabled">NFC вимкнуто.</string>
   <string name="no_private_key">Не може виробляти закритого ключа.</string>
-  <string name="pin_3_strikes">3 не вдалося PIN спроб. Надайте, будь ласка, пароль.</string>
-  <string name="pin_3_strikes_password_accepted">Пароль приймаються. Будь ласка, визначити новий PIN-код.</string>
+  <string name="pin_4_strikes">3 не вдалося PIN спроб. Надайте, будь ласка, пароль.</string>
+  <string name="pin_4_strikes_password_accepted">Пароль приймаються. Будь ласка, визначити новий PIN-код.</string>
   <string name="pin_entry">Введіть PIN-код</string>
   <string name="password_entry">Будь ласка, введіть пароль</string>
   <string name="options_CLEAR">ЧІТКИЙ</string>

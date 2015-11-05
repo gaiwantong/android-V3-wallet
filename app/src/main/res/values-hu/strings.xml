@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Ez a készülék nem támogatja az NFC.</string>
   <string name="NFC_disabled">NFC le van tiltva.</string>
   <string name="no_private_key">Nem termel privát kulcs.</string>
-  <string name="pin_3_strikes">3 PIN kísérlet nem sikerült. Kérjük, adja meg jelszavát.</string>
-  <string name="pin_3_strikes_password_accepted">Jelszó elfogadott. Kérjük, adja meg az új PIN-kódot.</string>
+  <string name="pin_4_strikes">3 PIN kísérlet nem sikerült. Kérjük, adja meg jelszavát.</string>
+  <string name="pin_4_strikes_password_accepted">Jelszó elfogadott. Kérjük, adja meg az új PIN-kódot.</string>
   <string name="pin_entry">PIN-kód</string>
   <string name="password_entry">Kérjük adja meg a jelszót</string>
   <string name="options_CLEAR">EGYÉRTELMŰ,</string>

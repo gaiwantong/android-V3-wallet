@@ -67,8 +67,8 @@
   <string name="no_NFC_support">इस डिवाइस NFC समर्थन नहीं करता।</string>
   <string name="NFC_disabled">NFC अक्षम किया गया है।</string>
   <string name="no_private_key">निजी कुंजी का उत्पादन नहीं कर सकते।</string>
-  <string name="pin_3_strikes">3 पिन के प्रयास विफल रहे। कृपया पासवर्ड प्रदान करें।</string>
-  <string name="pin_3_strikes_password_accepted">पासवर्ड स्वीकार किए जाते हैं। कृपया नए पिन कोड को परिभाषित।</string>
+  <string name="pin_4_strikes">3 पिन के प्रयास विफल रहे। कृपया पासवर्ड प्रदान करें।</string>
+  <string name="pin_4_strikes_password_accepted">पासवर्ड स्वीकार किए जाते हैं। कृपया नए पिन कोड को परिभाषित।</string>
   <string name="pin_entry">Pin दर्ज करें</string>
   <string name="password_entry">कृपया पासवर्ड दर्ज करें</string>
   <string name="options_CLEAR">स्पष्ट</string>

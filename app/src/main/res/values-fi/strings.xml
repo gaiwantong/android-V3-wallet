@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Tämä laite ei tue NFC.</string>
   <string name="NFC_disabled">NFC on poistettu käytöstä.</string>
   <string name="no_private_key">Ei voi tuottaa yksityinen avain.</string>
-  <string name="pin_3_strikes">3 PIN epäonnistunut. Anna salasana.</string>
-  <string name="pin_3_strikes_password_accepted">Salasanaa hyväksytty. Määritä uusi PIN-koodi.</string>
+  <string name="pin_4_strikes">3 PIN epäonnistunut. Anna salasana.</string>
+  <string name="pin_4_strikes_password_accepted">Salasanaa hyväksytty. Määritä uusi PIN-koodi.</string>
   <string name="pin_entry">Anna PIN-koodi</string>
   <string name="password_entry">Kirjoita salasana</string>
   <string name="options_CLEAR">SELKEÄ</string>

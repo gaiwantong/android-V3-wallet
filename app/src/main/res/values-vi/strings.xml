@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Thiết bị này không hỗ trợ NFC.</string>
   <string name="NFC_disabled">NFC bị vô hiệu hóa.</string>
   <string name="no_private_key">Không thể sản xuất khóa riêng.</string>
-  <string name="pin_3_strikes">3 PIN nỗ lực thất bại. Xin vui lòng cung cấp mật khẩu.</string>
-  <string name="pin_3_strikes_password_accepted">Mật khẩu được chấp nhận. Xin vui lòng xác định mã PIN mới.</string>
+  <string name="pin_4_strikes">3 PIN nỗ lực thất bại. Xin vui lòng cung cấp mật khẩu.</string>
+  <string name="pin_4_strikes_password_accepted">Mật khẩu được chấp nhận. Xin vui lòng xác định mã PIN mới.</string>
   <string name="pin_entry">Nhập mã Pin</string>
   <string name="password_entry">Vui lòng nhập mật khẩu</string>
   <string name="options_CLEAR">RÕ RÀNG</string>

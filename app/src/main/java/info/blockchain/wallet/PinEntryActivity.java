@@ -61,6 +61,7 @@ public class PinEntryActivity extends Activity {
     String userEnteredPINConfirm = null;
 
     final int PIN_LENGTH = 4;
+    final int attempts = 4;
 
     TextView titleView = null;
 
@@ -142,8 +143,8 @@ public class PinEntryActivity extends Activity {
         }
 
         int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-        if(fails >= 3)	{
-            ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_3_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        if(fails >= attempts)	{
+            ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_4_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 //        	validationDialog();
 
             new AlertDialog.Builder(PinEntryActivity.this)
@@ -681,7 +682,7 @@ public class PinEntryActivity extends Activity {
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_3_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
                         PayloadFactory.getInstance().setTempPassword(pw);
                         PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);

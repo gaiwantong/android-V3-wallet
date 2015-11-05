@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Toto zařízení nepodporuje NFC.</string>
   <string name="NFC_disabled">NFC je zakázán.</string>
   <string name="no_private_key">Nelze vytvořit soukromý klíč.</string>
-  <string name="pin_3_strikes">3 neúspěšné PIN pokusy. Zadejte heslo.</string>
-  <string name="pin_3_strikes_password_accepted">Heslo přijato. Zadejte nový kód PIN.</string>
+  <string name="pin_4_strikes">3 neúspěšné PIN pokusy. Zadejte heslo.</string>
+  <string name="pin_4_strikes_password_accepted">Heslo přijato. Zadejte nový kód PIN.</string>
   <string name="pin_entry">Zadejte kód Pin</string>
   <string name="password_entry">Zadejte prosím heslo</string>
   <string name="options_CLEAR">JASNÉ</string>

@@ -67,8 +67,8 @@
   <string name="no_NFC_support">Ta naprava ne podpira NFC.</string>
   <string name="NFC_disabled">NFC je onemogočen.</string>
   <string name="no_private_key">Zasebni ključ ne more proizvesti.</string>
-  <string name="pin_3_strikes">3 neuspešnih poskusih PIN. Navedite geslo.</string>
-  <string name="pin_3_strikes_password_accepted">Geslo sprejeto. Določite novo kodo PIN.</string>
+  <string name="pin_4_strikes">3 neuspešnih poskusih PIN. Navedite geslo.</string>
+  <string name="pin_4_strikes_password_accepted">Geslo sprejeto. Določite novo kodo PIN.</string>
   <string name="pin_entry">Vnesite Pin</string>
   <string name="password_entry">Vnesite geslo</string>
   <string name="options_CLEAR">JASNO</string>

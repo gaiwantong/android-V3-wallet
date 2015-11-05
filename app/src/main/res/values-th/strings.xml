@@ -67,8 +67,8 @@
   <string name="no_NFC_support">อุปกรณ์นี้ไม่สนับสนุนเงื่อนงำ</string>
   <string name="NFC_disabled">เงื่อนงำถูกปิดใช้งาน</string>
   <string name="no_private_key">ไม่สามารถสร้างคีย์ส่วนตัว</string>
-  <string name="pin_3_strikes">3 ล้ม PIN ความพยายาม กรุณาใส่รหัสผ่าน</string>
-  <string name="pin_3_strikes_password_accepted">รหัสผ่านที่ยอมรับ กรุณากำหนดรหัส PIN ใหม่</string>
+  <string name="pin_4_strikes">3 ล้ม PIN ความพยายาม กรุณาใส่รหัสผ่าน</string>
+  <string name="pin_4_strikes_password_accepted">รหัสผ่านที่ยอมรับ กรุณากำหนดรหัส PIN ใหม่</string>
   <string name="pin_entry">ป้อน Pin</string>
   <string name="password_entry">โปรดใส่รหัสผ่าน</string>
   <string name="options_CLEAR">ชัดเจน</string>

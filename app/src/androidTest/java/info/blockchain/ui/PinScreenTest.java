@@ -80,7 +80,7 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
             UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin2));
             solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_pin));
         }
-        solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_3_strikes));
+        solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_4_strikes));
 
         //Select 'Use Password'
         TestCase.assertEquals(true, solo.waitForDialogToOpen());
@@ -119,7 +119,7 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
             UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin2));
             solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_pin));
         }
-        solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_3_strikes));
+        solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_4_strikes));
 
         //Select 'Forget Wallet'
         TestCase.assertEquals(true, solo.waitForDialogToOpen());
