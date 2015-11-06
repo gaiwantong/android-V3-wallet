@@ -1295,9 +1295,8 @@ public class BalanceFragment extends Fragment {
         txsDetails.setEnabled(true);
 
         mIsViewExpanded = !mIsViewExpanded;
-
-
-        startAnim(view);
+        ValueAnimator resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
+        startAnim(view, resizeAnimator);
     }
 
     private void collapseView(View view, final ScrollView txsDetails) {
@@ -1307,6 +1306,7 @@ public class BalanceFragment extends Fragment {
         view.setBackgroundResource(outValue.resourceId);
 
         mIsViewExpanded = !mIsViewExpanded;
+        ValueAnimator resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
         txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
 
@@ -1332,13 +1332,12 @@ public class BalanceFragment extends Fragment {
 
         txsDetails.startAnimation(anim);
 
-        startAnim(view);
+        startAnim(view, resizeAnimator);
     }
 
-    private void startAnim(final View view){
+    private void startAnim(final View view, ValueAnimator resizeAnimator){
 
         //Set and start row collapse/expand
-        ValueAnimator resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
         resizeAnimator.setDuration(expandDuration);
         resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
