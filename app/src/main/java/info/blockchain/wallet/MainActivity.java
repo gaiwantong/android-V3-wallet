@@ -43,6 +43,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
@@ -52,6 +53,7 @@ import org.bitcoinj.core.bip44.WalletFactory;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -142,10 +144,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             builder.create().show();
         }
 
-        // Apply PRNG fixes for Android 4.1
-        if(!AppUtil.getInstance(MainActivity.this).isPRNG_FIXED())    {
+        try {
             PRNGFixes.apply();
-            AppUtil.getInstance(MainActivity.this).setPRNG_FIXED(true);
+        }
+        catch(SecurityException se0) {
+            //
+            // some Android 4.0 devices throw an exception when PRNGFixes is re-applied
+            // removing provider before apply() is a workaround
+            //
+            Security.removeProvider("LinuxPRNG");
+            try {
+                PRNGFixes.apply();
+            }
+            catch(SecurityException se1) {
+                ToastCustom.makeText(MainActivity.this, getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                finish();
+            }
         }
 
         Locale.setDefault(Locale.US);
