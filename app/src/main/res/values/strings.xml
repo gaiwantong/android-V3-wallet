@@ -421,4 +421,6 @@
     <string name="saving_address">Saving address...</string>
     <string name="cannot_create_wallet">Wallet cannot be created/restored at this time. Please try again.</string>
 
+    <string name="cannot_launch_app">Blockchain Wallet cannot be run on this device.</string>
+
 </resources>
