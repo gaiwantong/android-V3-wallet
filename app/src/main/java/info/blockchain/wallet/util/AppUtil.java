@@ -8,6 +8,8 @@ import android.hardware.Camera;
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Security;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -305,7 +307,7 @@ public class AppUtil {
         try {
             PRNGFixes.apply();
         }
-        catch(SecurityException se0) {
+        catch(Exception e0) {
             //
             // some Android 4.0 devices throw an exception when PRNGFixes is re-applied
             // removing provider before apply() is a workaround
@@ -314,7 +316,7 @@ public class AppUtil {
             try {
                 PRNGFixes.apply();
             }
-            catch(SecurityException se1) {
+            catch(Exception e1) {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                 System.exit(0);
             }
