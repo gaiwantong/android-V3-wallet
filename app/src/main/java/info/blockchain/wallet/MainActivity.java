@@ -144,8 +144,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             builder.create().show();
         }
 
-        AppUtil.getInstance(MainActivity.this).applyPRNGFixes();
-
         Locale.setDefault(Locale.US);
 
         if(!ConnectivityStatus.hasConnectivity(this)) {
