@@ -86,6 +86,9 @@ public class HDPayloadBridge	{
         // create HD wallet and sync w/ payload
         //
         if(!AppUtil.getInstance(context).isLegacy() && (PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0))    {
+
+            AppUtil.getInstance(context).applyPRNGFixes();
+
             String xpub = null;
             int attempts = 0;
             boolean no_tx = false;

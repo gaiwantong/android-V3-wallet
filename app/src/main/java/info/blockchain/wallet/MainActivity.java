@@ -144,23 +144,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             builder.create().show();
         }
 
-        try {
-            PRNGFixes.apply();
-        }
-        catch(SecurityException se0) {
-            //
-            // some Android 4.0 devices throw an exception when PRNGFixes is re-applied
-            // removing provider before apply() is a workaround
-            //
-            Security.removeProvider("LinuxPRNG");
-            try {
-                PRNGFixes.apply();
-            }
-            catch(SecurityException se1) {
-                ToastCustom.makeText(MainActivity.this, getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                finish();
-            }
-        }
+        AppUtil.getInstance(MainActivity.this).applyPRNGFixes();
 
         Locale.setDefault(Locale.US);
 

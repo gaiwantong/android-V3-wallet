@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -53,6 +54,8 @@ public class AccessFactory	{
         }
 
         _pin = pin;
+
+		AppUtil.getInstance(context).applyPRNGFixes();
 
         try {
             byte[] bytes = new byte[16];
