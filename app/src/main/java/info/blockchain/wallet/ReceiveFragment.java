@@ -726,6 +726,9 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
+                InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
                 onShareClicked();
 
                 return false;
