@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -65,6 +64,7 @@ import java.util.Map;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
@@ -131,43 +131,6 @@ public class BalanceFragment extends Fragment {
 
     private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
 
-    protected BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, final Intent intent) {
-
-            if (ACTION_INTENT.equals(intent.getAction())) {
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if(forceRefresh){
-
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    swipeLayout.setRefreshing(false);
-                                    refreshUI(intent);
-                                }
-                            }, 2000);
-                        }else {
-                            refreshUI(intent);
-                        }
-
-                        forceRefresh = false;
-                    }
-
-                    private void refreshUI(Intent intent){
-                        displayBalance();
-                        accountsAdapter.notifyDataSetChanged();
-                        updateTx(intent);
-                        txAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        }
-    };
-
     private SlidingUpPanelLayout mLayout;
     private LinearLayout bottomSel1 = null;
     private LinearLayout bottomSel2 = null;
@@ -195,7 +158,68 @@ public class BalanceFragment extends Fragment {
     private View rootView = null;
     private View prevRowClicked = null;
     private SwipeRefreshLayout swipeLayout = null;
-    private boolean forceRefresh = false;
+
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+
+            if (ACTION_INTENT.equals(intent.getAction())) {
+
+                new AsyncTask<Void, Void, Void>(){
+
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        swipeLayout.setRefreshing(true);
+                    }
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+
+                        //Update legacy multiaddr
+                        Payload payload = PayloadFactory.getInstance().get();
+                        if(payload!=null) {
+                            List<String> legacyAddrs = payload.getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
+                            String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
+                            MultiAddrFactory.getInstance().getLegacy(addrs, false);
+                        }
+
+                        //Update xpub multiaddr
+                        if(!AppUtil.getInstance(getActivity()).isLegacy()){
+                            try {
+                                HDPayloadBridge.getInstance(getActivity()).getBalances();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        AccountsUtil.getInstance(getActivity()).initAccountMaps();
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                displayBalance();
+                                accountsAdapter.notifyDataSetChanged();
+                                updateTx(intent);
+                                txAdapter.notifyDataSetChanged();
+
+                            }
+                        });
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        swipeLayout.setRefreshing(false);
+                    }
+
+                }.execute();
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -1011,8 +1035,7 @@ public class BalanceFragment extends Fragment {
             @Override
             public void onRefresh() {
 
-                forceRefresh = true;
-                Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             }
         });
