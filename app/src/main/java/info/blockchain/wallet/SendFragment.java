@@ -1257,7 +1257,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (bamount.longValue() + bfee.longValue()));
                                                     MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(account), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(account)) - (bamount.longValue() + bfee.longValue()));
 
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, true);
                                                 }
 
                                                 public void onFail() {
@@ -1276,7 +1276,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                     SendFactory.getInstance(context).execSend(account, unspents.getOutputs(), destination, bamount, null, bfee, strNote, true, this);
 
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, true);
 
                                                     new Thread(new Runnable() {
                                                         @Override
@@ -1293,7 +1293,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 @Override
                                                 public void onFailPermanently() {
                                                     if(getActivity()!=null)ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, false);
                                                 }
 
                                             });
@@ -1321,7 +1321,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 //                                                    updateTx(isHd, strNote, hash, 0, legacyAddress);
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, true);
                                                 }
 
                                                 public void onFail() {
@@ -1343,7 +1343,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, true);
 
                                                     new Thread(new Runnable() {
                                                         @Override
@@ -1361,7 +1361,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 public void onFailPermanently() {
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                                     if(getActivity()!=null)ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                    closeDialog(alertDialog);
+                                                    closeDialog(alertDialog, false);
                                                 }
 
                                             });
@@ -1371,7 +1371,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                         ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        closeDialog(alertDialog);
+                                        closeDialog(alertDialog, false);
                                     }
 
                                     spendInProgress = false;
@@ -1390,12 +1390,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         else    {
             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-            ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         }
 
     }
 
-    private void closeDialog(AlertDialog alertDialog){
+    private void closeDialog(AlertDialog alertDialog, boolean sendSuccess){
 
         if(progress != null && progress.isShowing()) {
             progress.dismiss();
@@ -1406,14 +1406,16 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             alertDialog.cancel();
         }
 
-        //Default to 'Total Funds' for lame mode
-        if(AppUtil.getInstance(getActivity()).isLegacy())   {
-            AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
-        }
+        if(sendSuccess) {
+            //Default to 'Total Funds' for lame mode
+            if (AppUtil.getInstance(getActivity()).isLegacy()) {
+                AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
+            }
 
-        Fragment fragment = new BalanceFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+            Fragment fragment = new BalanceFragment();
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        }
     }
 
     private boolean isValidSpend() {

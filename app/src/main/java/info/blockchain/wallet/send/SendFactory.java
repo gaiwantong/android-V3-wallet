@@ -280,7 +280,8 @@ public class SendFactory	{
                             }
                         }
                         else {
-                            ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                            opc.onFailPermanently();
                         }
                     }
                     else    {
