@@ -160,7 +160,12 @@ public class ManualPairingFragment extends Fragment {
                                     getActivity().startActivity(intent);
                                 }
                                 else {
-                                    edPassword.setText("");
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            edPassword.setText("");
+                                        }
+                                    });
                                     ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
 
@@ -168,7 +173,12 @@ public class ManualPairingFragment extends Fragment {
 
                         }
                         else {
-                            edPassword.setText("");
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    edPassword.setText("");
+                                }
+                            });
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
 
