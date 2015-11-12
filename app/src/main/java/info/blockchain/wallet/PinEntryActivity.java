@@ -803,6 +803,7 @@ public class PinEntryActivity extends Activity {
     protected void onResume() {
         super.onResume();
         AppUtil.getInstance(this).setIsLocked(true);
+        cancelClicked(null);
     }
 
     //
