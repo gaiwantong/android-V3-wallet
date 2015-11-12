@@ -64,7 +64,6 @@ import java.util.Map;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
@@ -177,11 +176,12 @@ public class BalanceFragment extends Fragment {
                     protected Void doInBackground(Void... params) {
 
                         //Update legacy multiaddr
-                        Payload payload = PayloadFactory.getInstance().get();
-                        if(payload!=null) {
-                            List<String> legacyAddrs = payload.getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
+                        try {
+                            List<String> legacyAddrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
                             String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
                             MultiAddrFactory.getInstance().getLegacy(addrs, false);
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
 
                         //Update xpub multiaddr
