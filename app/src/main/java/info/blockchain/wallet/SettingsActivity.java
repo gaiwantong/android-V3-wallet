@@ -67,7 +67,7 @@ public class SettingsActivity extends PreferenceActivity {
                                 android.content.ClipData clip = null;
                                 clip = android.content.ClipData.newPlainText("guid", guid);
                                 clipboard.setPrimaryClip(clip);
-                                ToastCustom.makeText(SettingsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(SettingsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             }
 
                         }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

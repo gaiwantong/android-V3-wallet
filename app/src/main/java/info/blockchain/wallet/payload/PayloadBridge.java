@@ -161,6 +161,8 @@ public class PayloadBridge	{
      */
     public ECKey newLegacyAddress()  {
 
+        AppUtil.getInstance(context).applyPRNGFixes();
+
         String result = null;
         byte[] data = null;
         try {
