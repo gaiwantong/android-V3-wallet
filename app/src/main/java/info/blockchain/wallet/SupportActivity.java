@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -81,12 +82,45 @@ public class SupportActivity extends Activity {
         emailAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "support@blockchain.zendesk.com", null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.email_subject));
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "Your wallet id - "+guid+"\n\n");
-                startActivity(Intent.createChooser(emailIntent, SupportActivity.this.getResources().getText(R.string.email_chooser)));
+
+                new AlertDialog.Builder(SupportActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(getString(R.string.support_guide))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                emailIntent(guid);
+                            }
+
+                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+
             }
         });
+    }
+
+    private void emailIntent(String guid){
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "support@blockchain.zendesk.com", null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.email_subject));
+        emailIntent.putExtra(Intent.EXTRA_TEXT,
+                "Dear Blockchain Support," +
+                "\n\n" +
+                "" +
+                "\n\n" +
+                "--\n" +
+                "App: "+getString(R.string.app_name)+", Version "+getString(R.string.version_name)+" \n" +
+                "Wallet id: "+guid+"\n" +
+                "System: "+ Build.MANUFACTURER+"\n" +
+                "Model: "+ Build.MODEL+"\n" +
+                "Version: "+ Build.VERSION.RELEASE);
+        startActivity(Intent.createChooser(emailIntent, SupportActivity.this.getResources().getText(R.string.email_chooser)));
+
     }
 
     @Override

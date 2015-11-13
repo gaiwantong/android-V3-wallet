@@ -281,7 +281,7 @@
     <string name="EMAIL">EMAIL</string>
     <string name="new_support_request">New Support Request</string>
     <string name="contact_support">Contact Support</string>
-    <string name="email_subject">Bitcoin Wallet Android Tech Support</string>
+    <string name="email_subject">Android Support Request</string>
 
     <string name="merchant_map">Merchant Map</string>
     <string name="merchant_list">Merchant List</string>
@@ -422,5 +422,6 @@
     <string name="cannot_create_wallet">Wallet cannot be created/restored at this time. Please try again.</string>
 
     <string name="cannot_launch_app">Blockchain Wallet cannot be run on this device.</string>
+    <string name="support_guide">Please describe in detail the issue you are experiencing, along with any steps we can take to reproduce it.</string>
 
 </resources>
