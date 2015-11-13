@@ -60,6 +60,8 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         SendTest sendTest = new SendTest("SendTest", getActivity());
         sendTest.test();
 
+        EntropyTest entropyTest = new EntropyTest("EntropyTest", getActivity());
+        entropyTest.test();
     }
 
 }
