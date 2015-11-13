@@ -94,10 +94,10 @@
     <orderEntry type="library" exported="" name="multidex-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
     <orderEntry type="library" exported="" name="core-3.2.1" level="project" />
+    <orderEntry type="library" exported="" name="bitcoinj-core-0.13.3" level="project" />
     <orderEntry type="library" exported="" name="MyWalletHD" level="project" />
     <orderEntry type="library" exported="" name="protobuf-java-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
-    <orderEntry type="library" exported="" name="bitcoinj-core-0.13.2" level="project" />
     <orderEntry type="library" exported="" name="nv-websocket-client-1.9" level="project" />
     <orderEntry type="library" exported="" name="AndroidPinning-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />

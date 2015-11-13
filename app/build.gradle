@@ -8,8 +8,8 @@ android {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 171
-        versionName "5.0.55a"
+        versionCode 173
+        versionName "5.0.59a"
         multiDexEnabled true
     }
     buildTypes {
