@@ -115,7 +115,6 @@ public class SupportActivity extends Activity {
                 "\n\n" +
                 "--\n" +
                 "App: "+getString(R.string.app_name)+", Version "+getString(R.string.version_name)+" \n" +
-                "Wallet id: "+guid+"\n" +
                 "System: "+ Build.MANUFACTURER+"\n" +
                 "Model: "+ Build.MODEL+"\n" +
                 "Version: "+ Build.VERSION.RELEASE);
