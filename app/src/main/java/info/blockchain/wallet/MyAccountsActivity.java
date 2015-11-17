@@ -86,8 +86,8 @@ public class MyAccountsActivity extends Activity {
 
     private static final int IMPORT_PRIVATE_KEY = 2006;
 
-    private static final int ADDRESS_ADD = 0;
-    private static final int ADDRESS_IMPORT = 1;
+    private static final int ADDRESS_IMPORT = 0;
+    private static final int ADDRESS_ADD = 1;
 
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
 
@@ -170,7 +170,11 @@ public class MyAccountsActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                String[] list = new String[] { getResources().getString(R.string.create_new_address), getResources().getString(R.string.import_address) };
+                String[] list = new String[] { getResources().getString(R.string.import_address) };
+
+                if(AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+                    list = new String[] { getResources().getString(R.string.import_address), getResources().getString(R.string.create_new_address) };
+
                 ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_dropdown, list);
 
                 final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
@@ -184,6 +188,14 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
+                            case ADDRESS_IMPORT:
+                                if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
+                                    scanPrivateKey();
+                                }
+                                else    {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+                                break;
                             case ADDRESS_ADD:
 
                                 if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
@@ -237,15 +249,6 @@ public class MyAccountsActivity extends Activity {
 
                                 }
 
-                                break;
-
-                            case ADDRESS_IMPORT:
-                                if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
-                                    scanPrivateKey();
-                                }
-                                else    {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
                                 break;
                         }
 
