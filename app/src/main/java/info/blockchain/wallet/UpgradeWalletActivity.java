@@ -195,6 +195,8 @@ public class UpgradeWalletActivity extends Activity {
             @Override
             public void onClick(View v) {
 
+                PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+
                 onUpgradeStart();
 
                 new Thread(new Runnable() {
