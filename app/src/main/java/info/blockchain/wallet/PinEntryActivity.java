@@ -319,7 +319,6 @@ public class PinEntryActivity extends Activity {
 
                         if (conn.getResponseCode() == 200) {
                             ToastCustom.makeText(getApplicationContext(), "Successfully registered", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
-                            AppUtil.getInstance(PinEntryActivity.this).restartApp();
                         } else {
                             ToastCustom.makeText(getApplicationContext(), "Error: " + IOUtils.toString(conn.getErrorStream(), "UTF-8"), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         }
