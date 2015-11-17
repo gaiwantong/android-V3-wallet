@@ -399,7 +399,6 @@ public class MyAccountsActivity extends Activity {
         }
         addressView.setText(currentSelectedAddress);
 
-
         //Receiving QR
         qrTest.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
 

@@ -612,7 +612,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
     }
 
-    
     private void generateQRCode(final String uri) {
 
         new AsyncTask<Void, Void, Bitmap>(){
