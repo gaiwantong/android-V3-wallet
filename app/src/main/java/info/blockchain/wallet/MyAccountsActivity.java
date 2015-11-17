@@ -152,7 +152,7 @@ public class MyAccountsActivity extends Activity {
         ACCOUNT_HEADER = getResources().getString(R.string.accounts);
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
             HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
         else
             HEADERS = new String[0];
@@ -297,7 +297,7 @@ public class MyAccountsActivity extends Activity {
 
         myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
             myAccountsHeader.setText(getString(R.string.my_accounts));
         else
             myAccountsHeader.setText(getString(R.string.my_addresses));
@@ -329,7 +329,7 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy())
+                        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         try {
@@ -533,7 +533,7 @@ public class MyAccountsActivity extends Activity {
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
         accountIndexResover = new HashMap<>();
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacy()) {
+        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
             //First Header Position - HD
             headerPositions.add(0);
             accountList.add(new MyAccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
@@ -573,7 +573,7 @@ public class MyAccountsActivity extends Activity {
         }
         if(iAccount != null) {
 
-            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacy()){
+            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()){
                 //Imported Header Position
                 headerPositions.add(accountList.size());
                 accountList.add(new MyAccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
