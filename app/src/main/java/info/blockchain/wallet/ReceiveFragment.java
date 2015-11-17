@@ -631,16 +631,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 Bitmap bitmap = null;
                 int qrCodeDimension = 260;
 
-                String strZeroAmount = "?amount=0";
-                String strUri = null;
-                if(uri.endsWith(strZeroAmount))    {
-                    strUri = uri.substring(0, uri.length() - strZeroAmount.length());
-                }
-                else    {
-                    strUri = uri;
-                }
-
-                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(strUri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
+                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
 
                 try {
                     bitmap = qrCodeEncoder.encodeAsBitmap();
