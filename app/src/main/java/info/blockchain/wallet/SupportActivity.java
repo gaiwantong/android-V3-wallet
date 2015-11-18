@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
 
@@ -62,6 +63,7 @@ public class SupportActivity extends Activity {
                                 android.content.ClipData clip = null;
                                 clip = android.content.ClipData.newPlainText("guid", guid);
                                 clipboard.setPrimaryClip(clip);
+                                ToastCustom.makeText(SupportActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             }
 
                         }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
