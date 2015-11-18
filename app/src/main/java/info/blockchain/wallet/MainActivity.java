@@ -43,7 +43,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
@@ -53,7 +52,6 @@ import org.bitcoinj.core.bip44.WalletFactory;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -74,7 +72,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
-import info.blockchain.wallet.util.PRNGFixes;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
@@ -126,6 +123,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         super.onCreate(savedInstanceState);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        AppUtil.getInstance(this).setLegacy(false);
 
         if(RootUtil.getInstance().isDeviceRooted())    {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -782,12 +781,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         drawerItems = new ArrayList<>();
         String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
-        if(AppUtil.getInstance(this).isLegacy() || !PayloadFactory.getInstance().get().isUpgraded())
-            drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
-
         TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
-        if(AppUtil.getInstance(this).isLegacy() || !PayloadFactory.getInstance().get().isUpgraded())
+
+        if(AppUtil.getInstance(this).isLegacyOrNotUpgraded()) {
+            drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
             drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_lame);
+        }
 
         for (int i = 0; i < drawerTitles.length; i++) {
 
@@ -807,7 +806,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 continue;
             }
-            else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet)) && !PayloadFactory.getInstance().get().isUpgraded()){
+            else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
                 continue;//No backup for legacy wallets
             }
             else if(!AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
@@ -827,7 +826,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
 
-                        if(AppUtil.getInstance(MainActivity.this).isLegacy()){
+                        if(AppUtil.getInstance(MainActivity.this).isLegacyOrNotUpgraded()){
                             selectDrawerItemLegacy(position);
                         }else{
                             selectDrawerItemHd(position);
@@ -859,6 +858,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 break;
             case 5:
                 doUnpairWallet();
+                break;
+            case 6:
+                doUpgrade();
                 break;
         }
     }
@@ -1101,8 +1103,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     @Override
-     protected void onPause() {
-            AppUtil.getInstance(this).startLockTimer();
+    protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
         super.onPause();
     }
 

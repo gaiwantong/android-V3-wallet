@@ -8,8 +8,6 @@ import android.hardware.Camera;
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.Security;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -228,6 +226,10 @@ public class AppUtil {
 
     public boolean isLegacy() {
         return LEGACY;
+    }
+
+    public boolean isLegacyOrNotUpgraded() {
+        return LEGACY | !PayloadFactory.getInstance().get().isUpgraded();
     }
 
     public void setLegacy(boolean lame) {

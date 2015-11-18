@@ -163,7 +163,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
 
                 //Default to 'Total Funds' for lame mode
-                if(AppUtil.getInstance(getActivity()).isLegacy())
+                if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())
                     AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
 
                 Fragment fragment = new BalanceFragment();
@@ -399,7 +399,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         int position = spAccounts.getSelectedItemPosition();
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
 
-                        if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                        if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
 
                             List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getLegacyAddresses();
                             for(int i = 0; i < legacy.size(); i++) {
@@ -468,7 +468,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 spDestination.setDropDownWidth(spAccounts.getWidth());
 
-                if(AppUtil.getInstance(getActivity()).isLegacy())    {
+                if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
                     LinearLayout fromRow = (LinearLayout)rootView.findViewById(R.id.from_row);
                     fromRow.setVisibility(View.GONE);
                 }
@@ -856,7 +856,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         long amount = 0L;
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
         if(position >= hdAccountsIdx) {
-            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+            if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
                 amount = MultiAddrFactory.getInstance().getLegacyBalance();
             }
             else    {
@@ -879,7 +879,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
         }
         else {
-            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+            if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
                 tvMax.setText(R.string.no_funds_available2);
             }
             else    {
@@ -1409,7 +1409,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         if(sendSuccess) {
             //Default to 'Total Funds' for lame mode
-            if (AppUtil.getInstance(getActivity()).isLegacy()) {
+            if (AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded()) {
                 AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
             }
 
@@ -1458,7 +1458,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         else {
             long _lamount = 0L;
-            if(AppUtil.getInstance(getActivity()).isLegacy())    {
+            if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
                 _lamount = MultiAddrFactory.getInstance().getLegacyBalance();
             }
             else    {

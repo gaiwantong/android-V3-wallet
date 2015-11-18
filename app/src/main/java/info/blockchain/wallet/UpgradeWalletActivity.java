@@ -133,7 +133,7 @@ public class UpgradeWalletActivity extends Activity {
 
                                             if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
                                                 PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
-                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                             }
                                             else    {
                                                 PayloadFactory.getInstance().setTempPassword(currentPassword);
@@ -153,7 +153,7 @@ public class UpgradeWalletActivity extends Activity {
                     })
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                         }
                     }).show();
 
@@ -194,6 +194,8 @@ public class UpgradeWalletActivity extends Activity {
         confirmUpgrade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
 
                 onUpgradeStart();
 
