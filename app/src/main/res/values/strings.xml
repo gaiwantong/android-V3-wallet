@@ -134,7 +134,7 @@
     <string name="pair_your_wallet">Pair Your Wallet</string>
     <string name="scan_pairing_code">Scan pairing code</string>
     <string name="manual_pairing">Manual Pairing</string>
-    <string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.com/wallet.</string>
+    <string name="pair_wallet_step_1">Log in to your Blockchain Wallet on your PC or Mac at blockchain.info/wallet.</string>
     <string name="pair_wallet_step_2">Click the Account Settings button, then choose the Mobile tab.</string>
     <string name="pair_wallet_step_3">Click Show Pairing Code to reveal a QR Code - a square black and white barcode. Scan the code with your camera.</string>
     <string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
@@ -298,7 +298,7 @@
     <string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
     <string name="BACKUP_WALLET">BACKUP WALLET</string>
     <string name="backup_how_to">How to restore your wallet</string>
-    <string name="backup_step_1">Go to blockchain.com/restorewallet</string>
+    <string name="backup_step_1">Go to blockchain.info/restorewallet</string>
     <string name="backup_step_2">Enter your 12 word backup phrase</string>
     <string name="backup_step_3">Your wallet will be restored and your funds safe</string>
     <string name="START">START</string>
