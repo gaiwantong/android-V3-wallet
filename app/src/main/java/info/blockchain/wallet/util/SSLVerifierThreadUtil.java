@@ -13,7 +13,8 @@ public class SSLVerifierThreadUtil {
 
     private static SSLVerifierThreadUtil instance = null;
     private static Context context = null;
-    private int strike = 0;
+    private int strikeCount = 0;
+    private int strikeLimit = 5;
 
     private SSLVerifierThreadUtil() { ; }
 
@@ -41,17 +42,17 @@ public class SSLVerifierThreadUtil {
 
                     if(!SSLVerifierUtil.getInstance(context).isValidHostname()) {
 
-                        strike++;
-                        if(strike < 3){
+                        strikeCount++;
+                        if(strikeCount < strikeLimit){
 
                             //Possible connection issue, retry  ssl verify
-                            try{Thread.sleep(500);}catch (Exception e){}
+                            try{Thread.sleep(1000);}catch (Exception e){}
                             validateSSLThread();
                             return;
 
                         }else{
 
-                            //ssl verify failed 3 time - something is wrong, warn user
+                            //ssl verify failed 5 time - something is wrong, warn user
                             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                             final String message = context.getString(R.string.ssl_hostname_invalid);
@@ -90,7 +91,7 @@ public class SSLVerifierThreadUtil {
                         }
                     }
 
-                    strike = 0;
+                    strikeCount = 0;
                 }
 
                 handler.post(new Runnable() {
