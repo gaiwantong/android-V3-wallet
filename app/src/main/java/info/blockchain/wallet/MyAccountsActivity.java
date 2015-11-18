@@ -400,7 +400,7 @@ public class MyAccountsActivity extends Activity {
         addressView.setText(currentSelectedAddress);
 
         //Receiving QR
-        qrTest.setImageBitmap(generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.ZERO, "", "")));
+        qrTest.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
 
         if (originalHeight == 0) {
             originalHeight = view.getHeight();
