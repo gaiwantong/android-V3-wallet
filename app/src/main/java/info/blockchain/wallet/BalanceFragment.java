@@ -169,7 +169,12 @@ public class BalanceFragment extends Fragment {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        swipeLayout.setRefreshing(true);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeLayout.setRefreshing(true);
+                            }
+                        });
                     }
 
                     @Override
@@ -213,7 +218,12 @@ public class BalanceFragment extends Fragment {
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);
-                        swipeLayout.setRefreshing(false);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeLayout.setRefreshing(false);
+                            }
+                        });
                     }
 
                 }.execute();
