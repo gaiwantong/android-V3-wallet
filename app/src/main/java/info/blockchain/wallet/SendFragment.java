@@ -1361,7 +1361,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                                 @Override
                                                 public void onFailPermanently() {
                                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                                    if(getActivity()!=null)ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                                    if(getActivity()!=null)ToastCustom.makeText(getActivity().getApplicationContext(), getActivity().getApplicationContext().getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                     closeDialog(alertDialog, false);
                                                 }
 
