@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/My-Wallet-Android-HD.iml" filepath="$PROJECT_DIR$/My-Wallet-Android-HD.iml" />
-      <module fileurl="file://$PROJECT_DIR$/My-Wallet-Android-HD-UI2.iml" filepath="$PROJECT_DIR$/My-Wallet-Android-HD-UI2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/My-Wallet-V3-Android.iml" filepath="$PROJECT_DIR$/My-Wallet-V3-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
