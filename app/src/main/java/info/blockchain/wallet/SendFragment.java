@@ -811,7 +811,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
         else {
-            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+            long _lamount = 0L;
+            if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
+                _lamount = MultiAddrFactory.getInstance().getLegacyBalance();
+            }
+            else    {
+                _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+            }
+
             if((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendCoins.bFee.longValue()) > _lamount) {
                 if(showMessages) {
                     ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
