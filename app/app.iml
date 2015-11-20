@@ -87,27 +87,32 @@
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.0.0" level="project" />
-    <orderEntry type="library" exported="" name="robotium-solo-5.3.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="robotium-solo-5.3.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="core-3.2.1" level="project" />
     <orderEntry type="library" exported="" name="bitcoinj-core-0.13.3" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.0.0" level="project" />
-    <orderEntry type="library" exported="" name="slf4j-api-1.6.2" level="project" />
+    <orderEntry type="library" exported="" name="core-1.51.0.0" level="project" />
+    <orderEntry type="library" exported="" name="okhttp-2.2.0" level="project" />
     <orderEntry type="library" exported="" name="AndroidPinning-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="jsr305-2.0.1" level="project" />
+    <orderEntry type="library" exported="" name="okio-1.2.0" level="project" />
     <orderEntry type="library" exported="" name="nv-websocket-client-1.9" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="camview-2.0.0.DEV4-SNAPSHOT" level="project" />
-    <orderEntry type="library" exported="" name="core-1.52.0.0" level="project" />
+    <orderEntry type="library" exported="" name="orchid-1.1.1" level="project" />
+    <orderEntry type="library" exported="" name="jcip-annotations-1.0" level="project" />
     <orderEntry type="library" exported="" name="commons-codec-1.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
-    <orderEntry type="library" exported="" name="guava-17.0" level="project" />
-    <orderEntry type="library" exported="" name="scrypt-1.4.0" level="project" />
+    <orderEntry type="library" exported="" name="guava-16.0.1" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1" level="project" />
+    <orderEntry type="library" exported="" name="scrypt-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="protobuf-java-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="multidex-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="BitcoinjBIP44" level="project" />
     <orderEntry type="library" exported="" name="library-3.0.0" level="project" />
     <orderEntry type="library" exported="" name="MyWalletHD" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-1.7.13" level="project" />
   </component>
 </module>
