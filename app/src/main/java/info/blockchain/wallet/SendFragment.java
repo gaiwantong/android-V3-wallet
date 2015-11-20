@@ -43,6 +43,7 @@ import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.Wallet;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.uri.BitcoinURI;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -954,6 +955,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
         if(amt == 0.0) {
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return;
+        }
+
+        String dest = edDestination.getText().toString();
+        if(dest == null || dest.length() == 0 || !FormatsUtil.getInstance().isValidBitcoinAddress(dest))    {
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
