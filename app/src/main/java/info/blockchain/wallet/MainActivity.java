@@ -53,6 +53,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -577,6 +578,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void exchangeRateThread() {
+
+        List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance(MainActivity.this).getCurrencies());
+        String strCurrentSelectedFiat = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, "");
+        if(!currencies.contains(strCurrentSelectedFiat))    {
+            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        }
 
         final Handler handler = new Handler();
 
