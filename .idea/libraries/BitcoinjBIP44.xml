@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="BitcoinjBIP44">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/libs/BitcoinjBIP44.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
