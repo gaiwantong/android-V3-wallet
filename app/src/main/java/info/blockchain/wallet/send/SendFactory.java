@@ -126,7 +126,7 @@ public class SendFactory	{
             }
             else {
                 if(AppUtil.getInstance(context).isLegacyOrNotUpgraded())    {
-                    List<String> addrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
+                    List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
                     from = addrs.toArray(new String[addrs.size()]);
                 }
 
@@ -237,7 +237,7 @@ public class SendFactory	{
 
                     if(AppUtil.getInstance(context).isLegacyOrNotUpgraded())    {
                         wallet = new Wallet(MainNetParams.get());
-                        List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getLegacyAddresses(PayloadFactory.NORMAL_ADDRESS);
+                        List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
                         for(LegacyAddress addr : addrs)   {
                             if(addr != null && addr.getECKey() != null && addr.getECKey().hasPrivKey())    {
                                 wallet.addKey(addr.getECKey());

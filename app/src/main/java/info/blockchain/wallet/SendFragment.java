@@ -416,7 +416,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
 
-                                if (legacyAddress.getTag() == PayloadFactory.WATCHONLY_ADDRESS) {
+                                if (legacyAddress.isWatchOnly()) {
                                     spAccounts.setSelection(0);
                                     ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     return;
@@ -1027,7 +1027,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         else {
             LegacyAddress addr = null;
 //            List<LegacyAddress> legacy = AccountsUtil.getInstance(getActivity()).getLegacyAddresses();
-            List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getLegacyAddresses();
+            List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
             for(int i = 0; i < legacy.size(); i++) {
                 if(legacy.get(i).getAddress().equals(currentSelectedFromAddress)) {
                     addr = legacy.get(i);

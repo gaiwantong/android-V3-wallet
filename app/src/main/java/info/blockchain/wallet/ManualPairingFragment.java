@@ -83,6 +83,7 @@ public class ManualPairingFragment extends Fragment {
         super.onDestroy();
     }
 
+    // TODO there should only be one place to download and decrypt a wallet
     private void pairingThreadManual(final String guid, final CharSequenceX password) {
 
         waitinForAuth = true;
@@ -136,6 +137,7 @@ public class ManualPairingFragment extends Fragment {
 
                         String decrypted_payload = null;
                         try {
+                            // TODO - use actual iterations if available
                             decrypted_payload = AESUtil.decrypt(encrypted_payload, password, AESUtil.PasswordPBKDF2Iterations);
                         }
                         catch(Exception e) {
