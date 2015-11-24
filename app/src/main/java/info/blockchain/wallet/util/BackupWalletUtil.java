@@ -18,6 +18,7 @@ import org.bitcoinj.core.bip44.Wallet;
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 //import android.util.Log;
 
@@ -121,7 +122,7 @@ public class BackupWalletUtil {
                 PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
                 PayloadFactory.getInstance().get().getSharedKey(),
                 PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                PayloadFactory.getInstance().get().getIterations());
+                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
 
         String mnemonic = null;
 

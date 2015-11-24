@@ -70,7 +70,7 @@ public class AccessFactory	{
             JSONObject json = apiStoreKey();
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
 			if(json.get("success") != null) {
-				String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(_value), AESUtil.PasswordPBKDF2Iterations);
+				String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(_value), AESUtil.PinPbkdf2Iterations);
 				PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
 				PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, _key);
 				return true;
@@ -102,7 +102,7 @@ public class AccessFactory	{
 			final JSONObject json = apiGetValue();
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
 			String decryptionKey = (String)json.get("success");
-			password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PasswordPBKDF2Iterations));
+			password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
 			return password;
         }
         catch(UnsupportedEncodingException uee) {
@@ -140,14 +140,6 @@ public class AccessFactory	{
 
     public void setIsLoggedIn(boolean logged) {
         isLoggedIn = logged;
-    }
-
-    public String encryptPW(CharSequenceX pw) {
-        return AESUtil.encrypt(pw.toString(), new CharSequenceX(getValue()), AESUtil.PasswordPBKDF2Iterations);
-    }
-
-    public String decryptPW(CharSequenceX pw, CharSequenceX dkey) {
-        return AESUtil.decrypt(pw.toString(), new CharSequenceX(dkey), AESUtil.PasswordPBKDF2Iterations);
     }
 
     private JSONObject apiGetValue() throws Exception {

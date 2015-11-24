@@ -27,6 +27,7 @@ import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -180,7 +181,7 @@ public class SettingsActivity extends PreferenceActivity {
                 PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
                 PayloadFactory.getInstance().get().getSharedKey(),
                 PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                PayloadFactory.getInstance().get().getIterations());
+                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
 
         String mnemonic = null;
 

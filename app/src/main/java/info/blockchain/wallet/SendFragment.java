@@ -62,6 +62,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -990,14 +991,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 final String pw = password.getText().toString();
 
-                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
 
                                     String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
                                     String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
                                             encrypted_hex,
                                             PayloadFactory.getInstance().get().getSharedKey(),
                                             pw,
-                                            PayloadFactory.getInstance().get().getIterations());
+                                            PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
 
                                     try {
                                         Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
@@ -1068,7 +1069,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 final String pw = password.getText().toString();
 
-                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getIterations())) {
+                                if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                     confirmPayment(false, -1, legacyAddress);

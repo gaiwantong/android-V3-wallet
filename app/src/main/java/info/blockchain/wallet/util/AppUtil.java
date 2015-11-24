@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.crypto.AESUtil;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import piuk.blockchain.android.R;
 
@@ -201,7 +202,7 @@ public class AppUtil {
             return sharedKey;
         }
         else    {
-            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), PayloadFactory.getInstance().getTempPassword(), AESUtil.PinPbkdf2Iterations);
         }
 
     }
@@ -214,13 +215,13 @@ public class AppUtil {
             return sharedKey;
         }
         else    {
-            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), password, AESUtil.PasswordPBKDF2Iterations);
+            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), password, AESUtil.PinPbkdf2Iterations);
         }
 
     }
 
     public void setSharedKey(String sharedKey)   {
-        String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PasswordPBKDF2Iterations);
+        String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PinPbkdf2Iterations);
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
     }
 

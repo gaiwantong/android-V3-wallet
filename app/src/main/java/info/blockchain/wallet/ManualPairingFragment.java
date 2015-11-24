@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -137,8 +138,7 @@ public class ManualPairingFragment extends Fragment {
 
                         String decrypted_payload = null;
                         try {
-                            // TODO - use actual iterations if available
-                            decrypted_payload = AESUtil.decrypt(encrypted_payload, password, AESUtil.PasswordPBKDF2Iterations);
+                            decrypted_payload = AESUtil.decrypt(encrypted_payload, password, PayloadFactory.WalletPbkdf2Iterations);
                         }
                         catch(Exception e) {
                             e.printStackTrace();

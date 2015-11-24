@@ -71,7 +71,7 @@ public class PairingFactory	{
             return false;
         }
 
-        String decrypted = AESUtil.decrypt(encrypted, new CharSequenceX(temp_password), AESUtil.QRCodePBKDF2Iterations);
+        String decrypted = AESUtil.decrypt(encrypted, new CharSequenceX(temp_password), AESUtil.QrCodePbkdf2Iterations);
         if(decrypted == null) {
             return false;
         }
