@@ -20,7 +20,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 
 public class WebSocketService extends android.app.Service	{
 
-    private static final long checkIfNotConnectedDelay = 15000L;
+    private static final long checkIfNotConnectedDelay = 5000L;
 
     private WebSocketHandler webSocketHandler = null;
 
