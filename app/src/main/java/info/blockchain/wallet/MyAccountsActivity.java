@@ -225,7 +225,7 @@ public class MyAccountsActivity extends Activity {
                                                                 PayloadFactory.getInstance().get().getDoublePasswordHash(),
                                                                 PayloadFactory.getInstance().get().getSharedKey(),
                                                                 new CharSequenceX(pw2),
-                                                                PayloadFactory.getInstance().get().getIterations()
+                                                                PayloadFactory.getInstance().get().getOptions().getIterations()
                                                         )) {
 
                                                             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
@@ -744,7 +744,7 @@ public class MyAccountsActivity extends Activity {
                                     PayloadFactory.getInstance().get().getDoublePasswordHash(),
                                     PayloadFactory.getInstance().get().getSharedKey(),
                                     new CharSequenceX(pw2),
-                                    PayloadFactory.getInstance().get().getIterations()
+                                    PayloadFactory.getInstance().get().getOptions().getIterations()
                             )) {
 
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
@@ -815,7 +815,7 @@ public class MyAccountsActivity extends Activity {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
                                             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
@@ -901,7 +901,7 @@ public class MyAccountsActivity extends Activity {
             }
             else	{
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
@@ -1020,7 +1020,7 @@ public class MyAccountsActivity extends Activity {
 
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
                 if(PayloadFactory.getInstance().get().isDoubleEncrypted())  {
-                    encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getIterations());
+                    encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
                 }
                 final LegacyAddress legacyAddress = new LegacyAddress();
                 legacyAddress.setEncryptedKey(encryptedKey);
