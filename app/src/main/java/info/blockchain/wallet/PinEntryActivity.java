@@ -417,6 +417,19 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 try {
                     Looper.prepare();
+
+                    //V3 Upgrade Sanity check
+                    if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED,false)){
+
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.upgrade_interrupted), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        if(progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
+                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                        return;
+                    }
+
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
                         if(AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0){

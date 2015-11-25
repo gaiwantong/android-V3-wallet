@@ -196,6 +196,7 @@ public class UpgradeWalletActivity extends Activity {
             @Override
             public void onClick(View v) {
 
+                PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, true);
                 PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
 
                 onUpgradeStart();
@@ -255,6 +256,7 @@ public class UpgradeWalletActivity extends Activity {
 
     private void onUpgradeCompleted(){
 
+        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED,false);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

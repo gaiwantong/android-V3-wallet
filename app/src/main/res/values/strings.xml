@@ -370,6 +370,7 @@
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
+    <string name="upgrade_interrupted">Wallet upgrade has been interrupted. Please re-pair your wallet and try again.</string>
     <string name="upgrade_success_info">You are now running the most secure and private Blockchain Wallet, you may continue to your wallet now.</string>
     <string name="CLOSE">CLOSE</string>
     <string name="total_funds">Total funds</string>
