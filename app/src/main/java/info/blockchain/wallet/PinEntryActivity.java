@@ -462,6 +462,11 @@ public class PinEntryActivity extends Activity {
                                 }
                                 else    {
 
+                                    //--- Activate HD ---
+//                                    AppUtil.getInstance(PinEntryActivity.this).setLegacy(false);
+//                                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                    //-------------------
+
                                     if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
 
                                         if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
