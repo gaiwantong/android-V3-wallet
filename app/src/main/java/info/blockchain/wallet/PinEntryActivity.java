@@ -77,6 +77,7 @@ public class PinEntryActivity extends Activity {
     private String strEmail    = null;
     private String strPassword = null;
 
+    boolean allowExit = true;
     int exitClickCount = 0;
     int exitClickCooldown = 2;//seconds
 
@@ -95,6 +96,7 @@ public class PinEntryActivity extends Activity {
         //Coming from CreateWalletFragment
         getBundleData();
         if (strPassword != null && strEmail != null) {
+            allowExit = false;
             saveLoginAndPassword();
             createWallet();
         }
@@ -361,25 +363,30 @@ public class PinEntryActivity extends Activity {
     @Override
     public void onBackPressed()
     {
-        exitClickCount++;
-        if(exitClickCount ==2) {
-            AppUtil.getInstance(this).clearUserInteractionTime();
-            finish();
-        }else
-            ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+        if(allowExit) {
+            exitClickCount++;
+            if (exitClickCount == 2) {
+                AppUtil.getInstance(this).clearUserInteractionTime();
+                finish();
+            } else
+                ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                for(int j = 0; j <= exitClickCooldown; j++)
-                {
-                    try{Thread.sleep(1000);} catch (InterruptedException e){e.printStackTrace();}
-                    if(j >= exitClickCooldown) exitClickCount = 0;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = 0; j <= exitClickCooldown; j++) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (j >= exitClickCooldown) exitClickCount = 0;
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -410,6 +417,19 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 try {
                     Looper.prepare();
+
+                    //V3 Upgrade Sanity check
+                    if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED,false)){
+
+                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.upgrade_interrupted), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        if(progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
+                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                        return;
+                    }
+
                     if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
                         if(AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0){
@@ -441,6 +461,11 @@ public class PinEntryActivity extends Activity {
 
                                 }
                                 else    {
+
+                                    //--- Activate HD ---
+//                                    AppUtil.getInstance(PinEntryActivity.this).setLegacy(false);
+//                                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                    //-------------------
 
                                     if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
 

@@ -125,8 +125,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-//        AppUtil.getInstance(this).setLegacy(false);
-
         if(RootUtil.getInstance().isDeviceRooted())    {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 

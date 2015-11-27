@@ -1,16 +1,16 @@
 package info.blockchain.wallet.util;
  
 import android.content.Context;
-import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-
-import info.blockchain.wallet.util.PersistantPrefs;
+import android.preference.PreferenceManager;
 
 public class PrefsUtil implements PersistantPrefs {
 
     private static Context   context  = null;
     private static PrefsUtil instance = null;
+
+    public static String KEY_UPGRADE_INTERRUPTED = "KEY_UPGRADE_INTERRUPTED";//Move to PersistantPrefs in jar
 
     private PrefsUtil() {
         ;
