@@ -52,7 +52,7 @@ public class CreateWalletFragment extends Fragment {
 
         rootView.setFilterTouchesWhenObscured(true);
 
-        getActivity().setTitle(getResources().getString(R.string.create_wallet));
+        getActivity().setTitle(getResources().getString(R.string.new_wallet));
 
         ((TextView) rootView.findViewById(R.id.tos)).setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
 

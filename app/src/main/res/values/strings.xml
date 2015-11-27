@@ -129,7 +129,7 @@
 
     <string name="command2">Scan pairing code</string>
     <string name="command3">I can\'t access my camera</string>
-    <string name="CREATE">CREATE A NEW WALLET</string>
+    <string name="CREATE">CREATE NEW WALLET</string>
     <string name="LOGIN">Log in to my wallet</string>
     <string name="pair_your_wallet">Pair Your Wallet</string>
     <string name="scan_pairing_code">Scan pairing code</string>
