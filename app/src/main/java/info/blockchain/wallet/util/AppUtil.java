@@ -232,10 +232,6 @@ public class AppUtil {
         return LEGACY | !PayloadFactory.getInstance().get().isUpgraded();
     }
 
-    public void setLegacy(boolean lame) {
-        LEGACY = lame;
-    }
-
     /*
     Called from all activities' onPause
      */
