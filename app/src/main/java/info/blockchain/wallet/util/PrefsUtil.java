@@ -57,7 +57,15 @@ public class PrefsUtil implements PersistantPrefs {
 
     public long getValue(String name, long value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getLong(name, 0L);
+
+        long result = 0l;
+        try{
+            result = prefs.getLong(name, 0L);
+        }catch (Exception e){
+            result = (long)prefs.getInt(name, 0);
+        }
+
+        return result;
     }
 
 	public boolean getValue(String name, boolean value) {
