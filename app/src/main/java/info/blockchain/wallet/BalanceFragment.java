@@ -896,7 +896,13 @@ public class BalanceFragment extends Fragment {
                                             accountSpinner.setSelection(0);
                                             ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                             return;
-                                        }else{
+                                        }
+                                        else if(AccountsUtil.getLegacyAddress(selectedAccount).isWatchOnly()){
+                                            accountSpinner.setSelection(0);
+                                            ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                            return;
+                                        }
+                                        else {
                                             txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
                                         }
                                     }
