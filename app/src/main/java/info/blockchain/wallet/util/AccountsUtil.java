@@ -113,10 +113,18 @@ public class AccountsUtil {
                     LegacyAddress leg = list.get(j);
                     if(leg.getLabel()==null || leg.getLabel().length() == 0)leg.setLabel(leg.getAddress());
 
+					String labelOrAddress = leg.getLabel();
+					if(leg.isWatchOnly()) {
+						labelOrAddress = context.getString(R.string.watch_only_label) + labelOrAddress;
+					}
+					else if (leg.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+						labelOrAddress = context.getString(R.string.archived_label) + labelOrAddress;
+					}
+
                     List<LegacyAddress> legList = new ArrayList<>();
                     legList.add(leg);
                     ImportedAccount imp = new ImportedAccount(leg.getLabel(), legList, new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(leg.getAddress()));
-                    imp.setLabel(leg.getLabel());
+                    imp.setLabel(labelOrAddress);
                     accounts.add(imp);
                 }
             }
@@ -177,7 +185,15 @@ public class AccountsUtil {
 		if(iAccount != null) {
 			legacyAddresses = iAccount.getLegacyAddresses();
 			for(int j = 0; j < legacyAddresses.size(); j++) {
-				sendReceiveAccountList.add((legacyAddresses.get(j).getLabel() == null || legacyAddresses.get(j).getLabel().length() == 0) ? legacyAddresses.get(j).getAddress() : legacyAddresses.get(j).getLabel());
+				final LegacyAddress legacyAddress = legacyAddresses.get(j);
+				String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+				if (legacyAddress.isWatchOnly()) {
+					labelOrAddress = context.getString(R.string.watch_only_label) + labelOrAddress;
+				}
+				else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+					labelOrAddress = context.getString(R.string.archived_label) + labelOrAddress;
+				}
+				sendReceiveAccountList.add(labelOrAddress);
 			}
 		}else if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0){
             sendReceiveAccountList.add((PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel() == null)

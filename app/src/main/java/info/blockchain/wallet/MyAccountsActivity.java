@@ -588,6 +588,13 @@ public class MyAccountsActivity extends Activity {
                 String label = legacy.get(j).getLabel();
                 if(label==null || label.length() == 0)label = legacy.get(j).getAddress();
 
+                if(legacy.get(j).isWatchOnly()) {
+                    label = context.getString(R.string.watch_only_label) + label;
+                }
+                else if (legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                    label = context.getString(R.string.archived_label) + label;
+                }
+
                 accountList.add(new MyAccountItem(label,displayBalanceImported(j),getResources().getDrawable(R.drawable.icon_imported)));
             }
         }
