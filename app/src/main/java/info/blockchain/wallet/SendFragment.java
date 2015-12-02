@@ -494,6 +494,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                 ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                 return;
                             }
+                            else if(account.isWatchOnly())   {
+                                edDestination.setText("");
+                                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                return;
+                            }
                             else    {
                                 currentSelectedToAddress = account.getAddress();
                             }
@@ -810,7 +815,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         else {
             long _lamount = 0L;
             if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
-                _lamount = MultiAddrFactory.getInstance().getLegacyBalance();
+                _lamount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
             }
             else    {
                 _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
@@ -861,7 +866,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
         if(position >= hdAccountsIdx) {
             if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
-                amount = MultiAddrFactory.getInstance().getLegacyBalance(PayloadFactory.NORMAL_ADDRESS);
+                amount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
             }
             else    {
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx).getAddress());
@@ -1469,7 +1474,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         else {
             long _lamount = 0L;
             if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded())    {
-                _lamount = MultiAddrFactory.getInstance().getLegacyBalance();
+                _lamount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
             }
             else    {
                 _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);

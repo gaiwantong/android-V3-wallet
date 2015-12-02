@@ -382,6 +382,10 @@ public class MyAccountsActivity extends Activity {
                 ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                 return;
             }
+            else if(legacyAddress.isWatchOnly()) {
+                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
             else    {
                 currentSelectedAddress = legacyAddress.getAddress();
             }
