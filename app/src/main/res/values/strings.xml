@@ -10,7 +10,7 @@
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
         <item>Support</item>
-        <item>Change PIN Code</item>
+        <item>Change PIN</item>
         <item>Unpair Wallet</item>
         <item>@string/upgrade_wallet</item>
     </string-array>
@@ -19,7 +19,7 @@
         <item>News, Price &amp; Charts</item>
         <item>Settings</item>
         <item>Support</item>
-        <item>Change PIN Code</item>
+        <item>Change PIN</item>
         <item>@string/backup_wallet</item>
         <item>Unpair Wallet</item>
     </string-array>
@@ -53,8 +53,8 @@
 
     <string name="please_wait">Please wait</string>
 
-    <string name="send_bitcoin">Send Bitcoin</string>
-    <string name="receive_bitcoin">Receive Bitcoin</string>
+    <string name="send_bitcoin">Send</string>
+    <string name="receive_bitcoin">Receive</string>
     <string name="blockchain">Blockchain</string>
 
     <string name="ok">Ok</string>
@@ -73,20 +73,20 @@
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
-    <string name="options_id">Blockchain Identifier</string>
-    <string name="options_id2">Your Blockchain identifier</string>
+    <string name="options_id">Wallet ID</string>
+    <string name="options_id2">Wallet ID</string>
     <string name="preferences_about_title">About Us</string>
     <string name="about_us">About us</string>
 
     <string name="ask_you_sure_unpair">Are you sure you want to unpair your device?</string>
 
     <string name="select_currency">Select Currency</string>
-    <string name="options_currency">Currency</string>
+    <string name="options_currency">Local Currency</string>
     <string name="options_currency2">Your preferred fiat currency</string>
 
     <string name="options_mnemonic">Show Mnemonic</string>
     <string name="options_mnemonic2">Show mnemonic for this wallet</string>
-    <string name="options_units">BTC Units</string>
+    <string name="options_units">Bitcoin Unit</string>
     <string name="options_units2">BTC, mBTC or bits</string>
     <string name="options_tos">Terms of Service</string>
     <string name="options_tos2">Blockchain Android Bitcoin Wallet terms of service</string>
@@ -103,17 +103,17 @@
     <string name="NFC_disabled">NFC is disabled.</string>
     <string name="no_private_key">Cannot produce private key.</string>
     <string name="pin_4_strikes">4 failed PIN attempts. Please provide password.</string>
-    <string name="pin_4_strikes_password_accepted">Password accepted. Please define new PIN code.</string>
+    <string name="pin_4_strikes_password_accepted">Password accepted. Please define new PIN.</string>
 
-    <string name="pin_entry">Enter Pin</string>
+    <string name="pin_entry">Enter PIN</string>
     <string name="password_entry">Please enter password</string>
     <string name="options_CLEAR">CLEAR</string>
     <string name="options_FORGOT_PIN">FORGOT PIN</string>
-    <string name="zero_pin">0000 is an invalid PIN code. Please try again.</string>
-    <string name="invalid_pin">Invalid PIN code. Please try again.</string>
+    <string name="zero_pin">0000 is an invalid PIN. Please try again.</string>
+    <string name="invalid_pin">Invalid PIN. Please try again.</string>
     <string name="pin_mismatch_error">PINs do not match</string>
-    <string name="create_pin">Create Pin</string>
-    <string name="confirm_pin">Confirm Pin</string>
+    <string name="create_pin">Create PIN</string>
+    <string name="confirm_pin">Confirm PIN</string>
     <string name="create_pin_failed">PIN creation failed. Please pair device again.</string>
     <string name="pairing_failed">Pairing failed. Please try again.</string>
     <string name="pairing_failed_decrypt_error">Pairing failed. Decryption error.</string>
@@ -213,7 +213,7 @@
     <string name="remote_save_ko">Remote save failed</string>
     <string name="payload_corrupted">Remote payload corrupted, not saved to server.</string>
 
-    <string name="my_bitcoin_wallet">My Bitcoin Wallet</string>
+    <string name="my_bitcoin_wallet">Blockchain Wallet</string>
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer close</string>
 
@@ -221,8 +221,8 @@
     <string name="unpair">UNPAIR</string>
 
     <string name="ok_cap">OK</string>
-    <string name="change_pin_code">Change PIN Code</string>
-    <string name="enter_password_to_change_pin">Please enter password to change PIN code.</string>
+    <string name="change_pin_code">Change PIN</string>
+    <string name="enter_password_to_change_pin">Please enter password to change PIN.</string>
 
     <string name="suggest_merchant">Suggest merchant</string>
     <string name="business_name">Business name</string>
@@ -270,7 +270,7 @@
 
     <string name="receive_address_to_clipboard">Copy this receive address to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
     <string name="receive_address_to_share">Share this receive address for sending? If so, be advised that other applications may be able to look at this information.</string>
-    <string name="guid_to_clipboard">Copy your Blockchain ID to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
+    <string name="guid_to_clipboard">Copy your Wallet ID to the clipboard? If so, be advised that other applications may be able to look at this information.</string>
 
     <string name="ssl_hostname_invalid">We are unable to validate the hostname of the SSL certificate. This might indicate malicious activity. Please verify your network connection and device before continuing.</string>
     <string name="ssl_pinning_invalid">SSL certificate pinning has failed. This might indicate malicious activity. Please verify your network connection and device before continuing.</string>
@@ -354,6 +354,9 @@
     <string name="click">Click</string>
     <string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
+    <string name="watch_only_label">(watch only) </string>
+    <string name="archived_label">(archived) </string>
+
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
     <string name="logging_out_automatically">Logging out automatically</string>
@@ -372,7 +375,7 @@
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
     <string name="upgrade_success_info">You are now running the most secure and private Blockchain Wallet, you may continue to your wallet now.</string>
     <string name="CLOSE">CLOSE</string>
-    <string name="total_funds">Total funds</string>
+    <string name="total_funds">Balance</string>
     <string name="unexpected_error">Unexpected error, please try again later.</string>
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>
@@ -388,8 +391,8 @@
 
     <string name="limit_21m_exceeded">This amount cannot be transmitted on the Bitcoin network.</string>
     <string name="validating_password">Validating Password...</string>
-    <string name="validating_pin">Validating Pin...</string>
-    <string name="creating_pin">Creating Pin...</string>
+    <string name="validating_pin">Validating PIN...</string>
+    <string name="creating_pin">Creating PIN...</string>
     <string name="decrypting_wallet">Decrypting Wallet...</string>
     <string name="verifying_email">Verifying Email...</string>
     <string name="pairing_wallet">Pairing Wallet...</string>
