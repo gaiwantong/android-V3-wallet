@@ -354,8 +354,8 @@
     <string name="click">Click</string>
     <string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
-    <string name="watch_only_label">(watch only) </string>
-    <string name="archived_label">(archived) </string>
+    <string name="watch_only_label">(watch only)</string>
+    <string name="archived_label">(archived)</string>
 
     <string name="dust_change">Transaction returns dust amount as change.</string>
     <string name="dust_amount">Transaction spends dust amount.</string>
@@ -375,7 +375,7 @@
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
     <string name="upgrade_success_info">You are now running the most secure and private Blockchain Wallet, you may continue to your wallet now.</string>
     <string name="CLOSE">CLOSE</string>
-    <string name="total_funds">Balance</string>
+    <string name="total_funds">All</string>
     <string name="unexpected_error">Unexpected error, please try again later.</string>
     <string name="upgrade_fail_heading">Wallet upgrade failed!</string>
     <string name="upgrade_fail_info">There was an error upgrading your wallet. Please try again later.</string>

@@ -115,10 +115,10 @@ public class AccountsUtil {
 
 					String labelOrAddress = leg.getLabel();
 					if(leg.isWatchOnly()) {
-						labelOrAddress = context.getString(R.string.watch_only_label) + labelOrAddress;
+						labelOrAddress = context.getString(R.string.watch_only_label) + " " + labelOrAddress;
 					}
 					else if (leg.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-						labelOrAddress = context.getString(R.string.archived_label) + labelOrAddress;
+						labelOrAddress = context.getString(R.string.archived_label) + " " + labelOrAddress;
 					}
 
                     List<LegacyAddress> legList = new ArrayList<>();
@@ -188,10 +188,10 @@ public class AccountsUtil {
 				final LegacyAddress legacyAddress = legacyAddresses.get(j);
 				String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
 				if (legacyAddress.isWatchOnly()) {
-					labelOrAddress = context.getString(R.string.watch_only_label) + labelOrAddress;
+					labelOrAddress = context.getString(R.string.watch_only_label) + " " + labelOrAddress;
 				}
 				else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-					labelOrAddress = context.getString(R.string.archived_label) + labelOrAddress;
+					labelOrAddress = context.getString(R.string.archived_label) + " " + labelOrAddress;
 				}
 				sendReceiveAccountList.add(labelOrAddress);
 			}
