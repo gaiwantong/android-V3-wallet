@@ -195,34 +195,11 @@ public class AppUtil {
     }
 
     public String getSharedKey()   {
-        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
-            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
-            setSharedKey(sharedKey);
-            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
-            return sharedKey;
-        }
-        else    {
-            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), PayloadFactory.getInstance().getTempPassword(), AESUtil.PinPbkdf2Iterations);
-        }
-
-    }
-
-    public String getSharedKey(CharSequenceX password)   {
-        if(PrefsUtil.getInstance(context).has(PrefsUtil.KEY_SHARED_KEY))    {
-            String sharedKey = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
-            setSharedKey(sharedKey);
-            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_SHARED_KEY);
-            return sharedKey;
-        }
-        else    {
-            return AESUtil.decrypt(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY_X, ""), password, AESUtil.PinPbkdf2Iterations);
-        }
-
+        return PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
     }
 
     public void setSharedKey(String sharedKey)   {
-        String sharedKeyEncrypted = AESUtil.encrypt(sharedKey, PayloadFactory.getInstance().getTempPassword(), AESUtil.PinPbkdf2Iterations);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY_X, sharedKeyEncrypted);
+        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
 
     public boolean isLegacy() {

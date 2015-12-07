@@ -61,7 +61,7 @@ public class HDPayloadBridge	{
     public boolean init(CharSequenceX password) throws JSONException, IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException	{
 
         PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, ""),
-                AppUtil.getInstance(context).getSharedKey(password),
+                AppUtil.getInstance(context).getSharedKey(),
                 password);
 
         if(PayloadFactory.getInstance().get() == null) {
