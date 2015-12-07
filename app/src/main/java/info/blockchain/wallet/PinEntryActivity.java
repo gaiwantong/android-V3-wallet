@@ -465,7 +465,6 @@ public class PinEntryActivity extends Activity {
                                     if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
 
                                         if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
-                                            AppUtil.getInstance(PinEntryActivity.this).setUpgradeReminder(System.currentTimeMillis());
                                             PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                             PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
                                             AccessFactory.getInstance(PinEntryActivity.this).setIsLoggedIn(true);
