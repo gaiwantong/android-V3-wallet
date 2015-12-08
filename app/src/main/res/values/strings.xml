@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_name">5.1.0</string>
+    <string name="version_name">5.1.1</string>
 
     <string name="backup_wallet">Backup Wallet</string>
     <string name="upgrade_wallet">Upgrade Wallet</string>
@@ -129,7 +129,7 @@
 
     <string name="command2">Scan pairing code</string>
     <string name="command3">I can\'t access my camera</string>
-    <string name="CREATE">CREATE A NEW WALLET</string>
+    <string name="CREATE">CREATE NEW WALLET</string>
     <string name="LOGIN">Log in to my wallet</string>
     <string name="pair_your_wallet">Pair Your Wallet</string>
     <string name="scan_pairing_code">Scan pairing code</string>
@@ -373,6 +373,7 @@
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
+    <string name="upgrade_interrupted">Wallet upgrade has been interrupted. Please re-pair your wallet and try again.</string>
     <string name="upgrade_success_info">You are now running the most secure and private Blockchain Wallet, you may continue to your wallet now.</string>
     <string name="CLOSE">CLOSE</string>
     <string name="total_funds">All</string>

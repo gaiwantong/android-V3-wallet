@@ -207,11 +207,7 @@ public class AppUtil {
     }
 
     public boolean isLegacyOrNotUpgraded() {
-        return LEGACY | !PayloadFactory.getInstance().get().isUpgraded();
-    }
-
-    public void setLegacy(boolean lame) {
-        LEGACY = lame;
+        return LEGACY | (PayloadFactory.getInstance().get() != null && !PayloadFactory.getInstance().get().isUpgraded());
     }
 
     /*

@@ -114,6 +114,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 
 	private static final int radius = 40000;
 
+	private static boolean launchedList = false;
+
 	@Override
 	public boolean onSupportNavigateUp() {
 		onBackPressed();
@@ -353,6 +355,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 			currLocation = (lastKnownByGps.getAccuracy() <= lastKnownByNetwork.getAccuracy()) ? lastKnownByGps : lastKnownByNetwork;
 		}
 
+		launchedList = false;
+
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), Z00M_LEVEL_DEFAULT));
 		drawData(true, null, null, false);
 	}
@@ -386,6 +390,8 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 		super.onResume();
 
 		AppUtil.getInstance(this).stopLockTimer();
+
+		launchedList = false;
 
 		if(AppUtil.getInstance(MapActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
 			Intent i = new Intent(MapActivity.this, info.blockchain.wallet.PinEntryActivity.class);
@@ -668,12 +674,16 @@ public class MapActivity extends ActionBarActivity implements LocationListener	{
 			}
 		}
 
-		if(doList) {
+		if(doList && !launchedList) {
+			launchedList = true;
 			LatLng cameraPos = map.getCameraPosition().target;
 			drawData(true, cameraPos.latitude, cameraPos.longitude, true);
 		}
-		else {
+		else if(!doList) {
 			ToastCustom.makeText(MapActivity.this, getString(R.string.no_merchants_in_range), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+		}
+		else {
+			;
 		}
 	}
 

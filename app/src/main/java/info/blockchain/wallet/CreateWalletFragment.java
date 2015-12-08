@@ -52,7 +52,7 @@ public class CreateWalletFragment extends Fragment {
 
         rootView.setFilterTouchesWhenObscured(true);
 
-        getActivity().setTitle(getResources().getString(R.string.create_wallet));
+        getActivity().setTitle(getResources().getString(R.string.new_wallet));
 
         ((TextView) rootView.findViewById(R.id.tos)).setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
 
@@ -171,7 +171,7 @@ public class CreateWalletFragment extends Fragment {
                                 }
                             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+                            if(!AppUtil.getInstance(getActivity()).isLegacy())AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
                             Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                             intent.putExtra("_email", em);
@@ -180,7 +180,7 @@ public class CreateWalletFragment extends Fragment {
                         }
                     }).show();
                 } else {
-                    AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+                    if(!AppUtil.getInstance(getActivity()).isLegacy())AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                     intent.putExtra("_email", em);
