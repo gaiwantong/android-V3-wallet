@@ -237,10 +237,11 @@ public class PinEntryActivity extends Activity {
                         // create wallet
                         // restart
 
-//            PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_HD_ISUPGRADED, true);
                         AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
 
                         HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
+
+                        PayloadFactory.getInstance().get().setUpgraded(true);
 
                         PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
 
