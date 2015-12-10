@@ -136,9 +136,14 @@ public class ManualPairingFragment extends Fragment {
                     if(jsonObj != null && jsonObj.has("payload")) {
                         String encrypted_payload = (String)jsonObj.getString("payload");
 
+                        int iterations = PayloadFactory.WalletPbkdf2Iterations;
+                        if(jsonObj.has("pbkdf2_iterations")) {
+                            iterations = Integer.valueOf(jsonObj.get("pbkdf2_iterations").toString()).intValue();
+                        }
+
                         String decrypted_payload = null;
                         try {
-                            decrypted_payload = AESUtil.decrypt(encrypted_payload, password, PayloadFactory.WalletPbkdf2Iterations);
+                            decrypted_payload = AESUtil.decrypt(encrypted_payload, password, iterations);
                         }
                         catch(Exception e) {
                             e.printStackTrace();
