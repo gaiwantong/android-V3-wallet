@@ -27,7 +27,7 @@ public class AppUtil {
 	private static Context context = null;
 
     private static boolean DEBUG = false;
-    private static boolean LEGACY = false;
+    private static boolean LEGACY = true;
 
     private static long TIMEOUT_DELAY = 1000L * 60L * 2L;
     private static long lastUserInteraction = 0L;
