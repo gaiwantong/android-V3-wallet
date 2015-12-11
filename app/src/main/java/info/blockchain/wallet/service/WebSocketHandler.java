@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
+import com.neovisionaries.ws.client.WebSocketFrame;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -21,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.MainActivity;
@@ -44,6 +46,11 @@ public class WebSocketHandler {
 
     private HashSet<String> subHashSet = new HashSet<String>();
     private HashSet<String> onChangeHashSet = new HashSet<String>();
+
+    private Timer pingTimer = null;
+    private final long pingInterval = 20000L;//ping pong every 20 seconds
+    private final long pongTimeout = 5000L;//pong timeout after 5 seconds
+    private boolean pingPongSuccess = false;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
@@ -94,26 +101,57 @@ public class WebSocketHandler {
         send("{\"op\":\"addr_sub\", \"addr\":\"" + address + "\"}");
     }
 
-    public boolean isConnected() {
-        return  mConnection != null && mConnection.isOpen();
-    }
-
     public void stop() {
+
+        stopPingTimer();
+
         if(mConnection != null && mConnection.isOpen()) {
             mConnection.disconnect();
         }
     }
 
     public void start() {
-
         try {
             stop();
             connect();
+            startPingTimer();
         }
         catch (IOException | com.neovisionaries.ws.client.WebSocketException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void startPingTimer(){
+
+        pingTimer = new Timer();
+        pingTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (mConnection != null) {
+
+                    pingPongSuccess = false;
+                    mConnection.sendPing();
+                    startPongTimer();
+                }
+            }
+        }, pingInterval, pingInterval);
+    }
+
+    private void stopPingTimer(){
+        if(pingTimer != null) pingTimer.cancel();
+    }
+
+    private void startPongTimer(){
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (!pingPongSuccess) {
+                    //ping pong unsuccessful after x seconds - restart connection
+                    start();
+                }
+            }
+        }, pongTimeout);
     }
 
     /**
@@ -161,6 +199,12 @@ public class WebSocketHandler {
                         .createSocket("wss://ws.blockchain.info/inv")
                         .addHeader("Origin", "https://blockchain.info").recreate()
                         .addListener(new WebSocketAdapter() {
+
+                            @Override
+                            public void onPongFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+                                super.onPongFrame(websocket, frame);
+                                pingPongSuccess = true;
+                            }
 
                             public void onTextMessage(WebSocket websocket, String message) {
 //                                    Log.d("WebSocket", message);
@@ -261,7 +305,6 @@ public class WebSocketHandler {
 
                                     } else if (op.equals("on_change")) {
 
-                                        Log.v("","on_change");
                                         if(!onChangeHashSet.contains(message)) {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
