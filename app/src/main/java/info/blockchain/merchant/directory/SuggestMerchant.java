@@ -44,6 +44,8 @@ import piuk.blockchain.android.R;
 
 public class SuggestMerchant extends ActionBarActivity {
 
+	private static final String SUGGEST_MERCHANT_URL = "https://merchant-directory.blockchain.info/api/suggest_merchant.php";
+
 	private LocationManager locationManager = null;
 	private LocationListener locationListener = null;
 	private Location currLocation = null;
@@ -157,17 +159,19 @@ public class SuggestMerchant extends ActionBarActivity {
 					confirmLayout.setVisibility(View.GONE);
 
                     final StringBuilder args = new StringBuilder();
-                    args.append("NAME="+edName.getText().toString());
-                    args.append("&DESCRIPTION="+edDescription.getText().toString());
-                    args.append("&STREET_ADDRESS="+edStreetAddress.getText().toString());
-                    args.append("&CITY="+edCity.getText().toString());
-                    args.append("&ZIP="+edPostal.getText().toString());
-                    args.append("&TELEPHONE="+edTelephone.getText().toString());
-                    args.append("&WEB="+edWeb.getText().toString());
-                    args.append("&LATITUDE="+df.format(selectedY));
-                    args.append("&LONGITUDE="+df.format(selectedX));
-                    args.append("&CATEGORY="+Integer.toString(spCategory.getSelectedItemPosition()));
-                    args.append("&SOURCE=Android");
+					args.append("{");
+					args.append("\"NAME\":\"" + edName.getText().toString());
+					args.append("\",\"DESCRIPTION\":\"" + edDescription.getText().toString());
+					args.append("\",\"STREET_ADDRESS\":\"" + edStreetAddress.getText().toString());
+					args.append("\",\"CITY\":\"" + edCity.getText().toString());
+					args.append("\",\"ZIP\":\"" + edPostal.getText().toString());
+					args.append("\",\"TELEPHONE\":\"" + edTelephone.getText().toString());
+					args.append("\",\"WEB\":\"" + edWeb.getText().toString());
+					args.append("\",\"LATITUDE\":" + df.format(selectedY));
+					args.append(",\"LONGITUDE\":" + df.format(selectedX));
+					args.append(",\"CATEGORY\":" + Integer.toString(spCategory.getSelectedItemPosition()));
+					args.append(",\"SOURCE\":\"Android\"");
+					args.append("}");
 
 					new Thread(new Runnable() {
 						@Override
@@ -177,7 +181,7 @@ public class SuggestMerchant extends ActionBarActivity {
 
 							String res = null;
 							try {
-                                res = WebUtil.getInstance().postURL("https://merchant-directory.blockchain.info/cgi-bin/btcp.pl", args.toString());
+                                res = WebUtil.getInstance().postURLJson(SUGGEST_MERCHANT_URL, args.toString());
 							}
 							catch(Exception e) {
                                 ToastCustom.makeText(SuggestMerchant.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
