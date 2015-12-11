@@ -105,6 +105,8 @@
     <string name="pin_4_strikes">4 failed PIN attempts. Please provide password.</string>
     <string name="pin_4_strikes_password_accepted">Password accepted. Please define new PIN.</string>
 
+    <string name="bip38_password_entry">Please enter private key password</string>
+
     <string name="pin_entry">Enter PIN</string>
     <string name="password_entry">Please enter password</string>
     <string name="options_CLEAR">CLEAR</string>

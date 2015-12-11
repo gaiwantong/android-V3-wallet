@@ -790,7 +790,7 @@ public class MyAccountsActivity extends Activity {
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.app_name)
-                .setMessage(R.string.password_entry)
+                .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
