@@ -11,6 +11,7 @@ import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
+import com.neovisionaries.ws.client.WebSocketFrame;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -21,6 +22,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.MainActivity;
@@ -44,6 +47,9 @@ public class WebSocketHandler {
 
     private HashSet<String> subHashSet = new HashSet<String>();
     private HashSet<String> onChangeHashSet = new HashSet<String>();
+
+    private Timer keepAliveTimer = null;
+    private final long pingPongInterval = 20000L;//ping pong every 20 seconds
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
@@ -99,6 +105,9 @@ public class WebSocketHandler {
     }
 
     public void stop() {
+
+        stopKeepAliveTimer();
+
         if(mConnection != null && mConnection.isOpen()) {
             mConnection.disconnect();
         }
@@ -109,11 +118,30 @@ public class WebSocketHandler {
         try {
             stop();
             connect();
+            startKeepAliveTimer();
         }
         catch (IOException | com.neovisionaries.ws.client.WebSocketException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void startKeepAliveTimer(){
+
+        keepAliveTimer = new Timer();
+        keepAliveTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (mConnection != null){
+//                    Log.v(WebSocketHandler.class.getSimpleName(), "-> Ping");
+                    mConnection.sendPing();
+                }
+            }
+        }, pingPongInterval, pingPongInterval);
+    }
+
+    private void stopKeepAliveTimer(){
+        if(keepAliveTimer != null) keepAliveTimer.cancel();
     }
 
     /**
@@ -161,6 +189,12 @@ public class WebSocketHandler {
                         .createSocket("wss://ws.blockchain.info/inv")
                         .addHeader("Origin", "https://blockchain.info").recreate()
                         .addListener(new WebSocketAdapter() {
+
+                            @Override
+                            public void onPongFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+                                super.onPongFrame(websocket, frame);
+//                                Log.v(WebSocketHandler.class.getSimpleName(), "<- Pong");
+                            }
 
                             public void onTextMessage(WebSocket websocket, String message) {
 //                                    Log.d("WebSocket", message);
