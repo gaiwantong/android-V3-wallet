@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -225,30 +223,40 @@ public class ListActivity extends ActionBarActivity {
 	        ((TextView)view.findViewById(R.id.txt4)).setText(b.desc);
 	        
 	        ImageView ivHeading = (ImageView)view.findViewById(R.id.heading);
-			switch(Integer.parseInt(b.hc)) {
-			case HEADING_CAFE:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_cafe_featured : R.drawable.marker_cafe);
-				break;
-			case HEADING_BAR:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_drink_featured : R.drawable.marker_drink);
-				break;
-			case HEADING_RESTAURANT:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_eat_featured : R.drawable.marker_eat);
-				break;
-			case HEADING_SPEND:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_spend_featured : R.drawable.marker_spend);
-				break;
-			case HEADING_ATM:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_atm_featured : R.drawable.marker_atm);
-				break;
-			default:
-		        ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_cafe_featured : R.drawable.marker_cafe);
-				break;
+			System.out.println("HERE");
+			System.out.println(b.id);
+			System.out.println(b.name);
+			System.out.println(position);
+			System.out.println(b.hc);
+
+			// default
+			ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_spend_featured : R.drawable.marker_spend);
+
+			try {
+				switch (Integer.parseInt(b.hc)) {
+					case HEADING_CAFE:
+						ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_cafe_featured : R.drawable.marker_cafe);
+						break;
+					case HEADING_BAR:
+						ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_drink_featured : R.drawable.marker_drink);
+						break;
+					case HEADING_RESTAURANT:
+						ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_eat_featured : R.drawable.marker_eat);
+						break;
+					case HEADING_SPEND:
+						ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_spend_featured : R.drawable.marker_spend);
+						break;
+					case HEADING_ATM:
+						ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_atm_featured : R.drawable.marker_atm);
+						break;
+				}
+			}
+			catch (NumberFormatException e) {
+				// do nothing
 			}
 
 	        return view;
 		}
-
     }
 
     private void doSuggest() {
