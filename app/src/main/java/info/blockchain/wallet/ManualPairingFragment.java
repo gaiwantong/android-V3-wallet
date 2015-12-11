@@ -196,14 +196,12 @@ public class ManualPairingFragment extends Fragment {
                     je.printStackTrace();
                     if(getActivity()!=null) {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                     }
                 }
                 catch(Exception e) {
                     e.printStackTrace();
                     if(getActivity()!=null) {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                     }
                 }finally {
                     if(progress != null && progress.isShowing()) {
