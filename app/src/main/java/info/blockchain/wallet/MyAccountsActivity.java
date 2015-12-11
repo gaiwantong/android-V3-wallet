@@ -876,11 +876,7 @@ public class MyAccountsActivity extends Activity {
                         }).start();
 
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                AppUtil.getInstance(MyAccountsActivity.this).restartApp();
-            }
-        }).show();
+                }).setNegativeButton(R.string.cancel, null).show();
     }
 
     private void importNonBIP38Address(final String format, final String data)	{
