@@ -1040,9 +1040,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
             }
 
-            if(addr.getTag() != PayloadFactory.NORMAL_ADDRESS)    {
+            if(addr.getTag() != PayloadFactory.NORMAL_ADDRESS || addr.isWatchOnly())    {
                 for(int i = 0; i < legacy.size(); i++) {
-                    if(legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS) {
+                    if(legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS && !addr.isWatchOnly()) {
                         addr = legacy.get(i);
                         break;
                     }
