@@ -300,7 +300,15 @@ public class WebSocketHandler {
 
                                     } else if (op.equals("on_change")) {
 
-                                        if (!onChangeHashSet.contains(message)) {
+                                        final String localChecksum = PayloadFactory.getInstance().getCheckSum();
+
+                                        boolean isSameChecksum = false;
+                                        if (jsonObject.has("checksum")) {
+                                            final String remoteChecksum = (String) jsonObject.get("checksum");
+                                            isSameChecksum = remoteChecksum.equals(localChecksum);
+                                        }
+
+                                        if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
