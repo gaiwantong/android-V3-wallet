@@ -13,7 +13,7 @@ import java.io.IOException;
 public class RestoreHDWalletTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public RestoreHDWalletTest(String name, Context ctx) {
@@ -70,13 +70,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
         //
         try {
             hdw = hdwf.restoreWallet("all all all all all all all all all all all all", "", 1);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Good mnemonic restore non null wallet", hdw != null);
         }
 
@@ -91,13 +89,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
         //
         try {
             hdw = hdwf.restoreWallet("all all all all all all all all all all all bogus", "", 1);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Bad mnemonic restore null wallet", hdw == null);
         }
 
@@ -112,13 +108,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
         //
         try {
             hdw_pass = hdwf.restoreWallet("all all all all all all all all all all all all", "passphrase", 1);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Good mnemonic + passphrase restore non null wallet", hdw_pass != null);
         }
 
@@ -133,13 +127,11 @@ public class RestoreHDWalletTest extends BlockchainTest {
         //
         try {
             hdw = hdwf.restoreWallet("0660cc198330660cc198330660cc1983", "", 1);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Good hex seed restore non null wallet", hdw != null);
         }
 
@@ -169,8 +161,7 @@ public class RestoreHDWalletTest extends BlockchainTest {
         try {
             hdw = hdwf.get();
             AssertUtil.getInstance().assert_true(this, "WalletFactory is holding a wallet", hdw != null);
-        }
-        catch(IOException | MnemonicException.MnemonicLengthException e) {
+        } catch (IOException | MnemonicException.MnemonicLengthException e) {
             ;
         }
 

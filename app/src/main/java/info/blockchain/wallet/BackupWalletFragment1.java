@@ -14,12 +14,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
+
 import piuk.blockchain.android.R;
 
 public class BackupWalletFragment1 extends Fragment {
@@ -35,17 +35,17 @@ public class BackupWalletFragment1 extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_backup_wallet_1, container, false);
 
-        tvHeader = (TextView)rootView.findViewById(R.id.backup_header);
-        tvSubHeader = (TextView)rootView.findViewById(R.id.backup_subheader);
-        ivAlert = (ImageView)rootView.findViewById(R.id.ic_alert);
+        tvHeader = (TextView) rootView.findViewById(R.id.backup_header);
+        tvSubHeader = (TextView) rootView.findViewById(R.id.backup_subheader);
+        ivAlert = (ImageView) rootView.findViewById(R.id.ic_alert);
 
-        tvBackupWallet = (TextView)rootView.findViewById(R.id.backup_wallet_action);
+        tvBackupWallet = (TextView) rootView.findViewById(R.id.backup_wallet_action);
         tvBackupWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 // Wallet is double encrypted AND User has not already entered double-encryption password
-                if(PayloadFactory.getInstance().get().isDoubleEncrypted() && !DoubleEncryptionFactory.getInstance().isActivated()){
+                if (PayloadFactory.getInstance().get().isDoubleEncrypted() && !DoubleEncryptionFactory.getInstance().isActivated()) {
                     final EditText double_encrypt_password = new EditText(getActivity());
                     double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -62,9 +62,9 @@ public class BackupWalletFragment1 extends Fragment {
                                     if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
 
                                         getFragmentManager().beginTransaction()
-                                            .replace(R.id.content_frame, new BackupWalletFragment2())
-                                            .addToBackStack(null)
-                                            .commit();
+                                                .replace(R.id.content_frame, new BackupWalletFragment2())
+                                                .addToBackStack(null)
+                                                .commit();
                                     } else {
                                         ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
@@ -75,8 +75,7 @@ public class BackupWalletFragment1 extends Fragment {
                             ;
                         }
                     }).show();
-                }
-                else{
+                } else {
                     getFragmentManager().beginTransaction()
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .replace(R.id.content_frame, new BackupWalletFragment2())
@@ -101,12 +100,12 @@ public class BackupWalletFragment1 extends Fragment {
             }
         });
 
-        int lastBackup  = PrefsUtil.getInstance(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
-        if(lastBackup!=0){
+        int lastBackup = PrefsUtil.getInstance(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+        if (lastBackup != 0) {
 
-            String daysAgo = (Math.round(((System.currentTimeMillis()/1000) - lastBackup)/86400.0))+"";
+            String daysAgo = (Math.round(((System.currentTimeMillis() / 1000) - lastBackup) / 86400.0)) + "";
             String day = getResources().getString(R.string.days);
-            if(daysAgo.equals("1"))day = getResources().getString(R.string.day);
+            if (daysAgo.equals("1")) day = getResources().getString(R.string.day);
 
             String msg = getResources().getString(R.string.backup_days_ago).replace("[--time--]", daysAgo).replace("[--day--]", day);
             tvHeader.setText(msg);

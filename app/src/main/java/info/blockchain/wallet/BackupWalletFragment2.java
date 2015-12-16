@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.util.BackupWalletUtil;
+
 import piuk.blockchain.android.R;
 
 public class BackupWalletFragment2 extends Fragment {
@@ -48,19 +49,19 @@ public class BackupWalletFragment2 extends Fragment {
 
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar_general);
 
-        tvStart = (TextView)rootView.findViewById(R.id.start_action);
+        tvStart = (TextView) rootView.findViewById(R.id.start_action);
         tvStart.setVisibility(View.VISIBLE);
 
-        tvNextWord = (TextView)rootView.findViewById(R.id.next_word_action);
+        tvNextWord = (TextView) rootView.findViewById(R.id.next_word_action);
         tvNextWord.setVisibility(View.INVISIBLE);
 
-        cardLayout = (LinearLayout)rootView.findViewById(R.id.card_layout);
+        cardLayout = (LinearLayout) rootView.findViewById(R.id.card_layout);
         cardLayout.setVisibility(View.INVISIBLE);
 
-        tvPressReveal = (TextView)rootView.findViewById(R.id.tv_press_reveal);
+        tvPressReveal = (TextView) rootView.findViewById(R.id.tv_press_reveal);
         tvPressReveal.setVisibility(View.INVISIBLE);
 
-        tvCurrentWord = (TextView)rootView.findViewById(R.id.tv_current_word);
+        tvCurrentWord = (TextView) rootView.findViewById(R.id.tv_current_word);
         tvCurrentWord.setVisibility(View.INVISIBLE);
 
         tvStart.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +85,7 @@ public class BackupWalletFragment2 extends Fragment {
         animEnterFromLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left);
 
         mnemonic = BackupWalletUtil.getInstance(getActivity()).getMnemonic();
-        if(currentWordIndex == mnemonic.length) {
+        if (currentWordIndex == mnemonic.length) {
             currentWordIndex = 0;
         }
         showWordAtIndex(currentWordIndex);
@@ -93,7 +94,7 @@ public class BackupWalletFragment2 extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if (currentWordIndex < mnemonic.length){
+                if (currentWordIndex < mnemonic.length) {
 
                     animExitToLeft.setAnimationListener(new Animation.AnimationListener() {
                         @Override
@@ -125,7 +126,7 @@ public class BackupWalletFragment2 extends Fragment {
                             .commit();
                 } else {
 
-                    if(currentWordIndex == mnemonic.length-1)
+                    if (currentWordIndex == mnemonic.length - 1)
                         tvNextWord.setText(getResources().getString(R.string.VERIFY));
                     else
                         tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
@@ -138,9 +139,9 @@ public class BackupWalletFragment2 extends Fragment {
 
                             tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
 
-                            if (currentWordIndex == 0){
+                            if (currentWordIndex == 0) {
                                 getActivity().onBackPressed();
-                            }else {
+                            } else {
 
                                 animExitToRight.setAnimationListener(new Animation.AnimationListener() {
                                     @Override
@@ -171,9 +172,9 @@ public class BackupWalletFragment2 extends Fragment {
         return rootView;
     }
 
-    private void showWordAtIndex(final int index){
+    private void showWordAtIndex(final int index) {
 
-        tvCurrentWord.setText(word+" "+(index+1)+" "+of+" 12");
+        tvCurrentWord.setText(word + " " + (index + 1) + " " + of + " 12");
 
         cardLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -197,7 +198,7 @@ public class BackupWalletFragment2 extends Fragment {
 
     }
 
-    private void revealText(int index, MotionEvent event, View v){
+    private void revealText(int index, MotionEvent event, View v) {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
@@ -252,7 +253,7 @@ public class BackupWalletFragment2 extends Fragment {
         super.onDestroyView();
         View view = getActivity().getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }

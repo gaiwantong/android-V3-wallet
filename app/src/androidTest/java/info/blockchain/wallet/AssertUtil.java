@@ -7,11 +7,13 @@ public class AssertUtil {
     private static AssertUtil instance = null;
     private static boolean EXIT_ON_FAIL = false;
 
-    private AssertUtil() { ; }
+    private AssertUtil() {
+        ;
+    }
 
     public static AssertUtil getInstance() {
 
-        if(instance == null) {
+        if (instance == null) {
             instance = new AssertUtil();
         }
 
@@ -30,11 +32,10 @@ public class AssertUtil {
 
         boolean passed = false;
 
-        if(EXIT_ON_FAIL) {
+        if (EXIT_ON_FAIL) {
             TestCase.assertTrue(test);
             passed = true;
-        }
-        else {
+        } else {
             try {
                 TestCase.assertTrue(test);
                 passed = true;
@@ -44,7 +45,7 @@ public class AssertUtil {
             }
         }
 
-        if(passed) {
+        if (passed) {
             LogUtil.getInstance().log(obj.getName(), "assert true passed: " + msg);
         }
 

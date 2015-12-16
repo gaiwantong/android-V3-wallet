@@ -18,9 +18,10 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
+
 import piuk.blockchain.android.R;
 
-public class ConfirmationCodeActivity extends ActionBarActivity implements TextWatcher{
+public class ConfirmationCodeActivity extends ActionBarActivity implements TextWatcher {
 
     private TextView tvInstructions = null;
 
@@ -46,18 +47,18 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.confirmation_code));
         setSupportActionBar(toolbar);
 
-        tvInstructions = (TextView)findViewById(R.id.tvInstructions);
-        tvInstructions.setText(tvInstructions.getText().toString().replace("[--email_address--]",PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,"'unknown'")));
+        tvInstructions = (TextView) findViewById(R.id.tvInstructions);
+        tvInstructions.setText(tvInstructions.getText().toString().replace("[--email_address--]", PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "'unknown'")));
 
-        etConfirmBox0 = (EditText)findViewById(R.id.confirmBox0);
-        etConfirmBox1 = (EditText)findViewById(R.id.confirmBox1);
-        etConfirmBox2 = (EditText)findViewById(R.id.confirmBox2);
-        etConfirmBox3 = (EditText)findViewById(R.id.confirmBox3);
-        etConfirmBox4 = (EditText)findViewById(R.id.confirmBox4);
+        etConfirmBox0 = (EditText) findViewById(R.id.confirmBox0);
+        etConfirmBox1 = (EditText) findViewById(R.id.confirmBox1);
+        etConfirmBox2 = (EditText) findViewById(R.id.confirmBox2);
+        etConfirmBox3 = (EditText) findViewById(R.id.confirmBox3);
+        etConfirmBox4 = (EditText) findViewById(R.id.confirmBox4);
 
         etConfirmBox0.addTextChangedListener(this);
         etConfirmBox1.addTextChangedListener(this);
@@ -79,7 +80,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
             TextView askLayterTv = (TextView) findViewById(R.id.askMeLaterTv);
             askLayterTv.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
 
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setHomeButtonEnabled(false);
@@ -88,18 +89,18 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
     public void sendClicked() {
 
-        final String email = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL,"");
+        final String email = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "");
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
         progress = new ProgressDialog(this);
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(getResources().getString(R.string.please_wait)+"...");
+        progress.setMessage(getResources().getString(R.string.please_wait) + "...");
         progress.show();
 
         new Thread(new Runnable() {
@@ -110,12 +111,11 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                 boolean sent = false;
                 try {
                     sent = AccessFactory.getInstance(ConfirmationCodeActivity.this).resendEmailConfirmation(email);
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     clearBoxes();
-                }finally {
-                    if(progress != null && progress.isShowing()) {
+                } finally {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -141,12 +141,12 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
     public void verifyClicked(final String done) {
 
-        if(code==null)return;
-        if(code.length()!=5 )return;
+        if (code == null) return;
+        if (code.length() != 5) return;
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -165,15 +165,15 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     response = AccessFactory.getInstance(ConfirmationCodeActivity.this).verifyEmail(done);
                     if (response != null && response.equals("Email successfully verified")) {
 
-                        if(!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER,false)) {
+                        if (!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
                             if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
 
-                                if(!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy())    {
+                                if (!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy()) {
                                     PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                                 }
                                 AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                             }
-                        }else{
+                        } else {
                             PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false);
                             PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 
@@ -181,18 +181,16 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                             ConfirmationCodeActivity.this.finish();
                         }
 
-                    }else {
+                    } else {
                         ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         clearBoxes();
                     }
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.confirmation_code_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                     clearBoxes();
-                }
-                finally {
-                    if(progress != null && progress.isShowing()) {
+                } finally {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -211,7 +209,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         }).start();
     }
 
-    private void clearBoxes(){
+    private void clearBoxes() {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -238,10 +236,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     @Override
     public void afterTextChanged(Editable s) {
 
-        if (etConfirmBox0.hasFocus() && etConfirmBox0.getText().length()>0)etConfirmBox1.requestFocus();
-        else if (etConfirmBox1.hasFocus() && etConfirmBox1.getText().length()>0)etConfirmBox2.requestFocus();
-        else if (etConfirmBox2.hasFocus() && etConfirmBox2.getText().length()>0)etConfirmBox3.requestFocus();
-        else if (etConfirmBox3.hasFocus() && etConfirmBox3.getText().length()>0)etConfirmBox4.requestFocus();
+        if (etConfirmBox0.hasFocus() && etConfirmBox0.getText().length() > 0) etConfirmBox1.requestFocus();
+        else if (etConfirmBox1.hasFocus() && etConfirmBox1.getText().length() > 0) etConfirmBox2.requestFocus();
+        else if (etConfirmBox2.hasFocus() && etConfirmBox2.getText().length() > 0) etConfirmBox3.requestFocus();
+        else if (etConfirmBox3.hasFocus() && etConfirmBox3.getText().length() > 0) etConfirmBox4.requestFocus();
 
         String a = etConfirmBox0.getText().toString();
         String b = etConfirmBox1.getText().toString();
@@ -249,7 +247,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         String d = etConfirmBox3.getText().toString();
         String e = etConfirmBox4.getText().toString();
 
-        code = a+b+c+d+e;
+        code = a + b + c + d + e;
 
         verifyClicked(code);
     }
@@ -269,7 +267,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                 try {
                     if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
 
-                        if(!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy())    {
+                        if (!AppUtil.getInstance(ConfirmationCodeActivity.this).isLegacy()) {
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                         }
                         AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);

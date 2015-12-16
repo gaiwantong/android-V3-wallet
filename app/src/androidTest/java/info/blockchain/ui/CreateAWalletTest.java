@@ -5,6 +5,12 @@ import android.widget.EditText;
 
 import com.robotium.solo.Solo;
 
+import info.blockchain.ui.util.UiUtil;
+import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.PinEntryActivity;
+import info.blockchain.wallet.PolicyActivity;
+import info.blockchain.wallet.util.PrefsUtil;
+
 import junit.framework.TestCase;
 
 import org.bitcoinj.crypto.MnemonicException;
@@ -12,11 +18,6 @@ import org.bitcoinj.crypto.MnemonicException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import info.blockchain.ui.util.UiUtil;
-import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.PinEntryActivity;
-import info.blockchain.wallet.PolicyActivity;
-import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -43,19 +44,22 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         solo.goBack();
     }
 
-    private void navigateToCreate(){
+    private void navigateToCreate() {
 
         //Navigate to create wallet
         solo.clickOnView(solo.getView(R.id.create));
-        try{solo.sleep(1000);}catch (Exception e){}
+        try {
+            solo.sleep(1000);
+        } catch (Exception e) {
+        }
 
         //Set up views
-        emailAddressView = (EditText)solo.getCurrentActivity().findViewById(R.id.email_address);
-        walletPasswordView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass);
-        walletPasswordConfirmView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
+        emailAddressView = (EditText) solo.getCurrentActivity().findViewById(R.id.email_address);
+        walletPasswordView = (EditText) solo.getCurrentActivity().findViewById(R.id.wallet_pass);
+        walletPasswordConfirmView = (EditText) solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
     }
 
-    public void testA_InvalidEmail()  throws AssertionError{
+    public void testA_InvalidEmail() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -76,7 +80,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_email)));
     }
 
-    public void testB_MismatchedPassword()  throws AssertionError{
+    public void testB_MismatchedPassword() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -98,7 +102,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.password_mismatch_error)));
     }
 
-    public void testC_PasswordStrengthIndicator()  throws AssertionError{
+    public void testC_PasswordStrengthIndicator() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -117,20 +121,28 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
 
             //Enter details
             String pw = null;
-            switch (i){
-                case 0: pw = "weakweak";break;
-                case 1: pw = "RegularR";break;
-                case 2: pw = "Str0ngPass80";break;
-                case 3: pw = "!vErY##stR0ng?PassW32*%";break;
+            switch (i) {
+                case 0:
+                    pw = "weakweak";
+                    break;
+                case 1:
+                    pw = "RegularR";
+                    break;
+                case 2:
+                    pw = "Str0ngPass80";
+                    break;
+                case 3:
+                    pw = "!vErY##stR0ng?PassW32*%";
+                    break;
             }
             solo.enterText(walletPasswordView, pw);
 
             //Test result
-            TestCase.assertEquals("Password: '"+pw+"' strength not equal to: '"+strengthsSet.get(i)+"'", true, solo.waitForText(strengthsSet.get(i)));
+            TestCase.assertEquals("Password: '" + pw + "' strength not equal to: '" + strengthsSet.get(i) + "'", true, solo.waitForText(strengthsSet.get(i)));
         }
     }
 
-    public void testD_TermsOfServiceLink()  throws AssertionError{
+    public void testD_TermsOfServiceLink() throws AssertionError {
         navigateToCreate();
         solo.clickOnView(solo.getView(R.id.tos));
 
@@ -142,7 +154,7 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         solo.goBack();
     }
 
-    public void testE_DefineNewPasswordModal()  throws AssertionError{
+    public void testE_DefineNewPasswordModal() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -180,11 +192,14 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         //Test result
         TestCase.assertEquals(true, solo.waitForActivity(PinEntryActivity.class));
 
-        try{solo.sleep(2000);}catch (Exception e){}
+        try {
+            solo.sleep(2000);
+        } catch (Exception e) {
+        }
         UiUtil.getInstance(getActivity()).wipeWallet();
     }
 
-    public void testF_CreateValidWallet()  throws AssertionError{
+    public void testF_CreateValidWallet() throws AssertionError {
 
         navigateToCreate();
         //Clear text fields
@@ -214,7 +229,10 @@ public class CreateAWalletTest extends ActivityInstrumentationTestCase2<MainActi
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
 
         solo.clickOnText(getActivity().getString(R.string.wipe_wallet));
-        try{solo.sleep(1000);}catch (Exception e){}
+        try {
+            solo.sleep(1000);
+        } catch (Exception e) {
+        }
 
         //Test wiped
         TestCase.assertTrue(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_GUID, "").isEmpty());

@@ -3,53 +3,47 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
-//import android.util.Log;
-
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.MnemonicException;
 
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.Util;
+import info.blockchain.wallet.util.WebUtil;
+
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.bitcoinj.core.bip44.WalletFactory;
-import org.spongycastle.util.encoders.Hex;
-
-import info.blockchain.wallet.util.PRNGFixes;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
-import info.blockchain.wallet.util.Util;
-
 import piuk.blockchain.android.R;
 
+//import android.util.Log;
+
 /**
- *
  * PayloadBridge.java : singleton class for remote save of payload and wallet creation
- *
  */
-public class PayloadBridge	{
+public class PayloadBridge {
 
 
     private static Context context = null;
 
     private static PayloadBridge instance = null;
 
-    private PayloadBridge()	{ ; }
+    private PayloadBridge() {
+        ;
+    }
 
     /**
      * Return instance for a PayloadBridge
      *
-     * @param  Context ctx app context
-     *
+     * @param Context ctx app context
      * @return PayloadBridge
-     *
      */
     public static PayloadBridge getInstance(Context ctx) {
 
@@ -63,14 +57,13 @@ public class PayloadBridge	{
     }
 
     /**
-     * Create a Blockchain wallet and include the HD_Wallet passed as an argument and write it to this instance's payload.
+     * Create a Blockchain wallet and include the HD_Wallet passed as an argument and write it to this instance's
+     * payload.
      *
      * @param HD_Wallet hdw HD wallet to include in the payload
-     *
      * @return boolean
-     *
      */
-    public boolean createBlockchainWallet(org.bitcoinj.core.bip44.Wallet hdw)	{
+    public boolean createBlockchainWallet(org.bitcoinj.core.bip44.Wallet hdw) {
 
         String guid = UUID.randomUUID().toString();
         String sharedKey = UUID.randomUUID().toString();
@@ -87,15 +80,14 @@ public class PayloadBridge	{
 
         List<org.bitcoinj.core.bip44.Account> hdAccounts = hdw.getAccounts();
         List<info.blockchain.wallet.payload.Account> payloadAccounts = new ArrayList<info.blockchain.wallet.payload.Account>();
-        for(int i = 0; i < hdAccounts.size(); i++)	{
+        for (int i = 0; i < hdAccounts.size(); i++) {
             info.blockchain.wallet.payload.Account account = new info.blockchain.wallet.payload.Account();
-            try  {
+            try {
                 String xpub = WalletFactory.getInstance().get().getAccounts().get(i).xpubstr();
                 account.setXpub(xpub);
                 String xpriv = WalletFactory.getInstance().get().getAccounts().get(i).xprvstr();
                 account.setXpriv(xpriv);
-            }
-            catch(IOException | MnemonicException.MnemonicLengthException e)  {
+            } catch (IOException | MnemonicException.MnemonicLengthException e) {
                 e.printStackTrace();
             }
 
@@ -113,7 +105,6 @@ public class PayloadBridge	{
 
     /**
      * Thread for remote save of payload to server.
-     *
      */
     public void remoteSaveThread() {
 
@@ -124,18 +115,16 @@ public class PayloadBridge	{
             public void run() {
                 Looper.prepare();
 
-                if(PayloadFactory.getInstance().get() != null)	{
+                if (PayloadFactory.getInstance().get() != null) {
 
-                    if(PayloadFactory.getInstance().put())	{
+                    if (PayloadFactory.getInstance().put()) {
 //                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         ;
-                    }
-                    else	{
+                    } else {
                         ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
 
-                }
-                else	{
+                } else {
                     ToastCustom.makeText(context, context.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
 
@@ -159,7 +148,7 @@ public class PayloadBridge	{
      *
      *
      */
-    public ECKey newLegacyAddress()  {
+    public ECKey newLegacyAddress() {
 
         AppUtil.getInstance(context).applyPRNGFixes();
 
@@ -167,22 +156,21 @@ public class PayloadBridge	{
         byte[] data = null;
         try {
             result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
-            if(!result.matches("^[A-Fa-f0-9]{64}$"))    {
+            if (!result.matches("^[A-Fa-f0-9]{64}$")) {
                 return null;
             }
             data = Hex.decode(result);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return null;
         }
 
         ECKey ecKey = null;
-        if(data != null)    {
+        if (data != null) {
             byte[] rdata = new byte[32];
             SecureRandom random = new SecureRandom();
             random.nextBytes(rdata);
             byte[] privbytes = Util.getInstance().xor(data, rdata);
-            if(privbytes == null)    {
+            if (privbytes == null) {
                 return null;
             }
             ecKey = ECKey.fromPrivate(privbytes, true);
@@ -190,8 +178,7 @@ public class PayloadBridge	{
             random.nextBytes(privbytes);
             random.nextBytes(rdata);
             random.nextBytes(data);
-        }
-        else    {
+        } else {
             return null;
         }
 

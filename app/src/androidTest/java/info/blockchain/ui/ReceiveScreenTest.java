@@ -13,13 +13,13 @@ import com.robotium.solo.Solo;
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.PrefsUtil;
+
 import piuk.blockchain.android.R;
 
 public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo = null;
-
     private static boolean loggedIn = false;
+    private Solo solo = null;
 
     public ReceiveScreenTest() {
         super(MainActivity.class);
@@ -31,14 +31,20 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
 
         solo.clickOnView(solo.getView(R.id.btActivateBottomSheet));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
         solo.clickOnText(getActivity().getString(R.string.receive_bitcoin));
     }
 
@@ -47,37 +53,40 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.finishOpenedActivities();
     }
 
-    public void testA_NavigateToReceive() throws AssertionError{
+    public void testA_NavigateToReceive() throws AssertionError {
 
         assertTrue(solo.waitForText(getActivity().getString(R.string.receive_bitcoin)));
     }
 
-    public void testB_SelectToAccounts() throws AssertionError{
+    public void testB_SelectToAccounts() throws AssertionError {
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
         int itemCount = mSpinner.getAdapter().getCount();
         View spinnerView = solo.getView(Spinner.class, 0);
 
-        for(int i = 0; i < itemCount; i++){
+        for (int i = 0; i < itemCount; i++) {
 
             solo.clickOnView(spinnerView);
             solo.scrollToTop();
             solo.clickOnView(solo.getView(TextView.class, i));
-            try{solo.sleep(500);}catch (Exception e){}
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
 
             //Test copy address from text
-            EditText receivingAddress = (EditText)solo.getView(R.id.receiving_address);
+            EditText receivingAddress = (EditText) solo.getView(R.id.receiving_address);
             solo.clickLongOnView(receivingAddress);
 
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager)getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
             clipboard.setText(receivingAddress.getText().toString());
 
-            assertTrue("Copy to clipboard fail",getClipboardText().toString().equals(receivingAddress.getText().toString()));
+            assertTrue("Copy to clipboard fail", getClipboardText().toString().equals(receivingAddress.getText().toString()));
 
             //Test copy address from qr
-            ImageView qr = (ImageView)solo.getView(R.id.qr);
+            ImageView qr = (ImageView) solo.getView(R.id.qr);
             solo.clickOnView(qr);
-            solo.waitForText(getActivity().getString(R.string.receive_address_to_share),1,500);
+            solo.waitForText(getActivity().getString(R.string.receive_address_to_share), 1, 500);
             solo.clickOnText(getActivity().getString(R.string.yes));
 
             assertTrue("Copy to clipboard fail", getClipboardText().toString().equals(receivingAddress.getText().toString()));
@@ -85,22 +94,22 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
         }
     }
 
-    private String getClipboardText(){
-        android.text.ClipboardManager clipboard = (android.text.ClipboardManager)getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
+    private String getClipboardText() {
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
         return clipboard.getText().toString();
     }
 
-    public void testC_Conversion() throws AssertionError{
+    public void testC_Conversion() throws AssertionError {
 
         double allowedFluctuation = 0.01;//only 1% fluctuation allowed for volatility
 
-        EditText btcEt = (EditText)solo.getView(R.id.amount1);
-        EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+        EditText btcEt = (EditText) solo.getView(R.id.amount1);
+        EditText fiatEt = (EditText) solo.getView(R.id.amount2);
 
         double fiatTestAmount = 500.0;
-        solo.enterText(fiatEt, fiatTestAmount+"");
+        solo.enterText(fiatEt, fiatTestAmount + "");
 
-        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT,"USD");
+        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, "USD");
 
         //Test fiat converted to btc
         double expectedBtc = 0.0;
@@ -108,7 +117,7 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
             expectedBtc = Double.parseDouble(info.blockchain.wallet.util.WebUtil.getInstance().getURL("https://blockchain.info/tobtc?currency=" + fiatFormat + "&value=" + fiatEt.getText().toString()));
             double displayedBtc = Double.parseDouble(btcEt.getText().toString());
 
-            assertTrue("Expected btc= "+expectedBtc+", UI shows btc="+ displayedBtc +" ("+(allowedFluctuation*100)+"% fluctuation allowed.)",displayedBtc >= expectedBtc * (1.0-allowedFluctuation) && displayedBtc <= expectedBtc * (1.0+allowedFluctuation));
+            assertTrue("Expected btc= " + expectedBtc + ", UI shows btc=" + displayedBtc + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedBtc >= expectedBtc * (1.0 - allowedFluctuation) && displayedBtc <= expectedBtc * (1.0 + allowedFluctuation));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,10 +134,10 @@ public class ReceiveScreenTest extends ActivityInstrumentationTestCase2<MainActi
 
     }
 
-    public void testD_EnterInvalidCharacters() throws AssertionError{
+    public void testD_EnterInvalidCharacters() throws AssertionError {
 
-        final EditText btcEt = (EditText)solo.getView(R.id.amount1);
-        final EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+        final EditText btcEt = (EditText) solo.getView(R.id.amount1);
+        final EditText fiatEt = (EditText) solo.getView(R.id.amount2);
 
         //BTC field
         //Test invalid chars

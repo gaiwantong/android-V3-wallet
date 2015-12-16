@@ -49,18 +49,6 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
@@ -80,35 +68,58 @@ import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import piuk.blockchain.android.R;
 
 public class BalanceFragment extends Fragment {
 
+    public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
+    private final static int SHOW_BTC = 1;
+    private final static int SHOW_FIAT = 2;
+    private final static int SHOW_HIDE = 3;
+    private static int selectedAccount = 0;
+    private static int nbConfirmations = 3;
+    private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
+    private static boolean isBottomSheetOpen = false;
+    private final String strBTC = "BTC";
+    public int balanceBarHeight;
+    ArrayAdapter<String> accountsAdapter = null;
+    LinearLayoutManager layoutManager;
+    HashMap<View, Boolean> rowViewState = null;
+    Communicator comm;
+    ImageButton fab;
+    ValueAnimator movingFabUp;
+    ValueAnimator movingFabDown;
+    float fabTopY;
+    float fabBottomY;
     private Locale locale = null;
-
     //
     // main balance display
     //
     private TextView tvBalance1 = null;
-
     private double btc_balance = 0.0;
     private double fiat_balance = 0.0;
     private double btc_fx = 319.13;
-
     private Spannable span1 = null;
-    private final String strBTC = "BTC";
     private String strFiat = null;
     private boolean isBTC = true;
-
     //
     // accounts list
     //
     private Spinner accountSpinner = null;
-    ArrayAdapter<String> accountsAdapter = null;
-    private static int selectedAccount = 0;
-    public int balanceBarHeight;
     private ArrayList<String> accountList = null;
-
     //
     // tx list
     //
@@ -116,40 +127,12 @@ public class BalanceFragment extends Fragment {
     private List<Tx> txs = new ArrayList<Tx>();
     private RecyclerView txList = null;
     private TxAdapter txAdapter = null;
-    LinearLayoutManager layoutManager;
-    HashMap<View, Boolean> rowViewState = null;
     private LinearLayout noTxMessage = null;
-
-    public static final String ACTION_INTENT = "info.blockchain.wallet.BalanceFragment.REFRESH";
-
-    private static int nbConfirmations = 3;
-
-    private final static int SHOW_BTC = 1;
-    private final static int SHOW_FIAT = 2;
-    private final static int SHOW_HIDE = 3;
-
-    private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
-
     private SlidingUpPanelLayout mLayout;
     private LinearLayout bottomSel1 = null;
     private LinearLayout bottomSel2 = null;
     private LinearLayout mainContentShadow;
-    private static boolean isBottomSheetOpen = false;
-
     private Activity thisActivity = null;
-
-    public BalanceFragment() {
-        ;
-    }
-
-    Communicator comm;
-    ImageButton fab;
-
-    ValueAnimator movingFabUp;
-    ValueAnimator movingFabDown;
-    float fabTopY;
-    float fabBottomY;
-
     private int originalHeight = 0;
     private int newHeight = 0;
     private int expandDuration = 200;
@@ -157,14 +140,13 @@ public class BalanceFragment extends Fragment {
     private View rootView = null;
     private View prevRowClicked = null;
     private SwipeRefreshLayout swipeLayout = null;
-
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
 
-                new AsyncTask<Void, Void, Void>(){
+                new AsyncTask<Void, Void, Void>() {
 
                     @Override
                     protected void onPreExecute() {
@@ -185,12 +167,12 @@ public class BalanceFragment extends Fragment {
                             List<String> legacyAddrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
                             String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
                             MultiAddrFactory.getInstance().getLegacy(addrs, false);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                         //Update xpub multiaddr
-                        if(!AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded()){
+                        if (!AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded()) {
                             try {
                                 HDPayloadBridge.getInstance(getActivity()).getBalances();
                             } catch (Exception e) {
@@ -231,6 +213,10 @@ public class BalanceFragment extends Fragment {
         }
     };
 
+    public BalanceFragment() {
+        ;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -243,7 +229,7 @@ public class BalanceFragment extends Fragment {
         balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
         BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
-        if(BALANCE_DISPLAY_STATE == SHOW_FIAT)    {
+        if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
             isBTC = false;
         }
 
@@ -275,7 +261,7 @@ public class BalanceFragment extends Fragment {
             AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
             Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
-            if(acc != null && acc.getLabel() != null) {
+            if (acc != null && acc.getLabel() != null) {
                 ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
             }
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
@@ -343,123 +329,6 @@ public class BalanceFragment extends Fragment {
         LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
     }
 
-    private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            public ViewHolder(View view) {
-                super(view);
-            }
-        }
-
-        @Override
-        public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            View v = null;
-
-            boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
-            if (!isTwoPane)
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
-            else
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
-            return new ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
-
-            if (txs != null) {
-                final Tx tx = txs.get(position);
-                double _btc_balance = tx.getAmount() / 1e8;
-                double _fiat_balance = btc_fx * _btc_balance;
-
-                View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
-
-                TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
-                tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-                tvResult.setTextColor(Color.WHITE);
-
-                TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-                tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-                tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
-
-                TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
-                tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
-                String dirText = tx.getDirection();
-                if (dirText.equals(MultiAddrFactory.MOVED))
-                    tvDirection.setText(getResources().getString(R.string.MOVED));
-                if (dirText.equals(MultiAddrFactory.RECEIVED))
-                    tvDirection.setText(getResources().getString(R.string.RECEIVED));
-                if (dirText.equals(MultiAddrFactory.SENT))
-                    tvDirection.setText(getResources().getString(R.string.SENT));
-
-                if (isBTC) {
-                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + getDisplayUnits());
-                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                } else {
-                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
-                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-                if (tx.isMove()) {
-                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
-                } else if (_btc_balance < 0.0) {
-                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
-                } else {
-                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
-                }
-
-                tvResult.setText(span1);
-
-                tvResult.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        FrameLayout parent = (FrameLayout) v.getParent();
-                        event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
-                        parent.onTouchEvent(event);
-
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            isBTC = (isBTC) ? false : true;
-                            displayBalance();
-                            accountsAdapter.notifyDataSetChanged();
-                            txAdapter.notifyDataSetChanged();
-                        }
-                        return true;
-                    }
-                });
-
-                txTouchView.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        FrameLayout parent = (FrameLayout) v.getParent();
-                        event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
-                        parent.onTouchEvent(event);
-
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            onRowClick(holder.itemView, position);
-                        }
-                        return true;
-                    }
-                });
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            if (txs == null) return 0;
-            return txs.size();
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return position;
-        }
-    }
-
     private void displayBalance() {
 
         if (txs != null && txs.size() > 0) {
@@ -476,18 +345,18 @@ public class BalanceFragment extends Fragment {
         Account hda = null;
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             //All accounts / funds
-            if(PayloadFactory.getInstance().get().isUpgraded())
+            if (PayloadFactory.getInstance().get().isUpgraded())
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance());
             else
 //                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
-                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
         } else {
             //Individual account / address
             hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
             if (hda instanceof ImportedAccount) {
-                if(PayloadFactory.getInstance().get().isUpgraded())
+                if (PayloadFactory.getInstance().get().isUpgraded())
 //                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
-                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
                 else
                     btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
 
@@ -502,20 +371,18 @@ public class BalanceFragment extends Fragment {
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";
-        if(isBTC) {
+        if (isBTC) {
             balanceTotal = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
-        }
-        else {
+        } else {
             balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
         }
 
         span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
 
         span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        if(BALANCE_DISPLAY_STATE != SHOW_HIDE)    {
+        if (BALANCE_DISPLAY_STATE != SHOW_HIDE) {
             tvBalance1.setText(span1);
-        }
-        else    {
+        } else {
             span1 = Spannable.Factory.getInstance().newSpannable(thisActivity.getText(R.string.show_balance));
             span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvBalance1.setText(span1);
@@ -543,16 +410,16 @@ public class BalanceFragment extends Fragment {
             else
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
         } else {
-            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount +1 : selectedAccount);
+            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
 
             if (xpub != null) {
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                     txs = txMap.get(xpub);
                 }
             } else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount+1);
+                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount + 1);
                 if (hda instanceof ImportedAccount) {
-                    if(PayloadFactory.getInstance().get().isUpgraded())
+                    if (PayloadFactory.getInstance().get().isUpgraded())
                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                     else
                         txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
@@ -560,31 +427,31 @@ public class BalanceFragment extends Fragment {
             }
         }
 
-        if(intent!=null && intent.getExtras()!=null){
+        if (intent != null && intent.getExtras() != null) {
             long amount = intent.getLongExtra("queued_bamount", 0);
             String strNote = intent.getStringExtra("queued_strNote");
             String direction = intent.getStringExtra("queued_direction");
             long time = intent.getLongExtra("queued_time", System.currentTimeMillis() / 1000);
 
-            Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer,String>());
-            txs.add(0,tx);
-        }else if(txs!=null && txs.size()>0){
-            if(txs.get(0).getHash().isEmpty())txs.remove(0);
+            Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer, String>());
+            txs.add(0, tx);
+        } else if (txs != null && txs.size() > 0) {
+            if (txs.get(0).getHash().isEmpty()) txs.remove(0);
         }
 
-        if(txs != null) {
+        if (txs != null) {
             List<Tx> _txs = new ArrayList<Tx>();
             _txs.addAll(txs);
             Collections.sort(_txs, new TxDateComparator());
             txs = _txs;
-           }
+        }
 
     }
 
     private String account2Xpub(int accountIndex) {
 
         LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
-        if(accountIndex > (accountMap.size()-1))accountIndex = 0;
+        if (accountIndex > (accountMap.size() - 1)) accountIndex = 0;
         Account hda = accountMap.get(accountIndex);
         String xpub = null;
         if (hda instanceof ImportedAccount) {
@@ -640,49 +507,6 @@ public class BalanceFragment extends Fragment {
         super.onAttach(activity);
 
         comm = (Communicator) activity;
-    }
-
-    interface Communicator {
-
-        public void setNavigationDrawerToggleEnabled(boolean enabled);
-
-        public void resetNavigationDrawer();
-    }
-
-    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
-
-        private int mToolbarOffset = 0;
-
-        public CollapseActionbarScrollListener() {
-        }
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-
-            swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
-
-            //Only bring heading back down after 2nd item visible (0 = heading)
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
-
-                if ((mToolbarOffset < balanceBarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
-                    mToolbarOffset += dy;
-                }
-
-                clipToolbarOffset();
-                onMoved(mToolbarOffset);
-            }
-        }
-
-        private void clipToolbarOffset() {
-            if (mToolbarOffset > balanceBarHeight) {
-                mToolbarOffset = balanceBarHeight;
-            } else if (mToolbarOffset < 0) {
-                mToolbarOffset = 0;
-            }
-        }
-
-        public abstract void onMoved(int distance);
     }
 
     private void initFab(final View rootView) {
@@ -749,32 +573,6 @@ public class BalanceFragment extends Fragment {
         });
     }
 
-    private class AccountAdapter extends ArrayAdapter<String> {
-
-        Context context;
-        int layoutResourceId;
-        String data[] = null;
-
-        public AccountAdapter(Context context, int layoutResourceId, String[] data) {
-            super(context, layoutResourceId, data);
-            this.layoutResourceId = layoutResourceId;
-            this.context = context;
-            this.data = data;
-        }
-
-        @Override
-        public View getView(final int position, final View convertView, final ViewGroup parent) {
-            View view = convertView;
-            if (null == view) {
-                view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
-                ((TextView) view).setText(getItem(position));
-            }
-            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            view.setLayoutParams(params);
-            return view;
-        }
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -801,7 +599,7 @@ public class BalanceFragment extends Fragment {
         tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
         //Elevation compat
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             //reapply layout attributes after setBackgroundResource
             int bottom = tvBalance1.getPaddingBottom();
             int top = tvBalance1.getPaddingTop();
@@ -816,15 +614,13 @@ public class BalanceFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                if(BALANCE_DISPLAY_STATE == SHOW_BTC)    {
+                if (BALANCE_DISPLAY_STATE == SHOW_BTC) {
                     BALANCE_DISPLAY_STATE = SHOW_FIAT;
                     isBTC = false;
-                }
-                else if(BALANCE_DISPLAY_STATE == SHOW_FIAT)   {
+                } else if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
                     BALANCE_DISPLAY_STATE = SHOW_HIDE;
                     isBTC = true;
-                }
-                else    {
+                } else {
                     BALANCE_DISPLAY_STATE = SHOW_BTC;
                     isBTC = true;
                 }
@@ -878,41 +674,39 @@ public class BalanceFragment extends Fragment {
                             else
                                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
                         } else {
-                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount +1 : selectedAccount);
+                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
 
                             if (xpub != null) {
                                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                                     txs = txMap.get(xpub);
-                                }else
+                                } else
                                     txs = new ArrayList<Tx>();
                             } else {
-                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount +1 : selectedAccount);
+                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
                                 if (hda instanceof ImportedAccount) {
 
-                                    if(PayloadFactory.getInstance().get().isUpgraded())
+                                    if (PayloadFactory.getInstance().get().isUpgraded())
                                         txs = MultiAddrFactory.getInstance().getLegacyTxs();
                                     else {
-                                        if(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS){
+                                        if (AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                                             accountSpinner.setSelection(0);
                                             ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                             return;
-                                        }
-                                        else if(AccountsUtil.getLegacyAddress(selectedAccount).isWatchOnly()) {
+                                        } else if (AccountsUtil.getLegacyAddress(selectedAccount).isWatchOnly()) {
                                             accountSpinner.setSelection(0);
                                             ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                             return;
-                                        }
-                                        else {
+                                        } else {
                                             txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
                                         }
                                     }
-                                }else
+                                } else
                                     txs = new ArrayList<Tx>();
                             }
 
                         }
 
-                        if(txs != null) {
+                        if (txs != null) {
                             List<Tx> _txs = new ArrayList<Tx>();
                             _txs.addAll(txs);
                             Collections.sort(_txs, new TxDateComparator());
@@ -1046,7 +840,7 @@ public class BalanceFragment extends Fragment {
         });
 
         swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
-        swipeLayout.setProgressViewEndTarget(false, (int)(getResources().getDisplayMetrics().density*(72+20)));
+        swipeLayout.setProgressViewEndTarget(false, (int) (getResources().getDisplayMetrics().density * (72 + 20)));
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -1106,7 +900,7 @@ public class BalanceFragment extends Fragment {
                 tvStatus.setVisibility(View.INVISIBLE);
                 ivStatus.setVisibility(View.INVISIBLE);
 
-                if(tx.getDirection().equals(MultiAddrFactory.RECEIVED)) {
+                if (tx.getDirection().equals(MultiAddrFactory.RECEIVED)) {
                     feeContainer.setVisibility(View.GONE);
                     feeSeparator.setVisibility(View.GONE);
                 }
@@ -1129,7 +923,7 @@ public class BalanceFragment extends Fragment {
                     public boolean onTouch(View v, MotionEvent event) {
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            if(tvStatus.getTag()!=null) {
+                            if (tvStatus.getTag() != null) {
                                 String tag = tvStatus.getTag().toString();
                                 String text = tvStatus.getText().toString();
                                 tvStatus.setText(tag);
@@ -1173,7 +967,7 @@ public class BalanceFragment extends Fragment {
                     });
 
                 //Get Details
-                if(tx.getHash().isEmpty()) {
+                if (tx.getHash().isEmpty()) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1186,7 +980,7 @@ public class BalanceFragment extends Fragment {
                             tvStatus.setVisibility(View.VISIBLE);
                         }
                     });
-                }else {
+                } else {
                     new AsyncTask<Void, Void, String>() {
 
                         @Override
@@ -1247,7 +1041,7 @@ public class BalanceFragment extends Fragment {
 
                                 for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
 
-                                    if(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey()))    {
+                                    if (AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey())) {
                                         continue;
                                     }
 
@@ -1374,7 +1168,7 @@ public class BalanceFragment extends Fragment {
         startAnim(view, resizeAnimator);
     }
 
-    private void startAnim(final View view, ValueAnimator resizeAnimator){
+    private void startAnim(final View view, ValueAnimator resizeAnimator) {
 
         //Set and start row collapse/expand
         resizeAnimator.setDuration(expandDuration);
@@ -1391,6 +1185,192 @@ public class BalanceFragment extends Fragment {
         resizeAnimator.start();
     }
 
+    interface Communicator {
+
+        public void setNavigationDrawerToggleEnabled(boolean enabled);
+
+        public void resetNavigationDrawer();
+    }
+
+    private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
+
+        @Override
+        public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View v = null;
+
+            boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
+            if (!isTwoPane)
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
+            else
+                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
+
+            if (txs != null) {
+                final Tx tx = txs.get(position);
+                double _btc_balance = tx.getAmount() / 1e8;
+                double _fiat_balance = btc_fx * _btc_balance;
+
+                View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
+
+                TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
+                tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                tvResult.setTextColor(Color.WHITE);
+
+                TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
+                tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
+
+                TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
+                tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
+                String dirText = tx.getDirection();
+                if (dirText.equals(MultiAddrFactory.MOVED))
+                    tvDirection.setText(getResources().getString(R.string.MOVED));
+                if (dirText.equals(MultiAddrFactory.RECEIVED))
+                    tvDirection.setText(getResources().getString(R.string.RECEIVED));
+                if (dirText.equals(MultiAddrFactory.SENT))
+                    tvDirection.setText(getResources().getString(R.string.SENT));
+
+                if (isBTC) {
+                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + getDisplayUnits());
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                } else {
+                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
+                    span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                if (tx.isMove()) {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+                } else if (_btc_balance < 0.0) {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+                } else {
+                    tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
+                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+                }
+
+                tvResult.setText(span1);
+
+                tvResult.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        FrameLayout parent = (FrameLayout) v.getParent();
+                        event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
+                        parent.onTouchEvent(event);
+
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            isBTC = (isBTC) ? false : true;
+                            displayBalance();
+                            accountsAdapter.notifyDataSetChanged();
+                            txAdapter.notifyDataSetChanged();
+                        }
+                        return true;
+                    }
+                });
+
+                txTouchView.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        FrameLayout parent = (FrameLayout) v.getParent();
+                        event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
+                        parent.onTouchEvent(event);
+
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            onRowClick(holder.itemView, position);
+                        }
+                        return true;
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            if (txs == null) return 0;
+            return txs.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ViewHolder(View view) {
+                super(view);
+            }
+        }
+    }
+
+    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
+
+        private int mToolbarOffset = 0;
+
+        public CollapseActionbarScrollListener() {
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+
+            //Only bring heading back down after 2nd item visible (0 = heading)
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
+
+                if ((mToolbarOffset < balanceBarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+                    mToolbarOffset += dy;
+                }
+
+                clipToolbarOffset();
+                onMoved(mToolbarOffset);
+            }
+        }
+
+        private void clipToolbarOffset() {
+            if (mToolbarOffset > balanceBarHeight) {
+                mToolbarOffset = balanceBarHeight;
+            } else if (mToolbarOffset < 0) {
+                mToolbarOffset = 0;
+            }
+        }
+
+        public abstract void onMoved(int distance);
+    }
+
+    private class AccountAdapter extends ArrayAdapter<String> {
+
+        Context context;
+        int layoutResourceId;
+        String data[] = null;
+
+        public AccountAdapter(Context context, int layoutResourceId, String[] data) {
+            super(context, layoutResourceId, data);
+            this.layoutResourceId = layoutResourceId;
+            this.context = context;
+            this.data = data;
+        }
+
+        @Override
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            View view = convertView;
+            if (null == view) {
+                view = LayoutInflater.from(this.getContext()).inflate(R.layout.spinner_title_bar, null);
+                ((TextView) view).setText(getItem(position));
+            }
+            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            view.setLayoutParams(params);
+            return view;
+        }
+    }
+
     private class TxDateComparator implements Comparator<Tx> {
 
         public int compare(Tx t1, Tx t2) {
@@ -1399,13 +1379,11 @@ public class BalanceFragment extends Fragment {
             final int EQUAL = 0;
             final int AFTER = 1;
 
-            if(t2.getTS() < t1.getTS())    {
+            if (t2.getTS() < t1.getTS()) {
                 return BEFORE;
-            }
-            else if(t2.getTS() > t1.getTS())    {
+            } else if (t2.getTS() > t1.getTS()) {
                 return AFTER;
-            }
-            else    {
+            } else {
                 return EQUAL;
             }
 

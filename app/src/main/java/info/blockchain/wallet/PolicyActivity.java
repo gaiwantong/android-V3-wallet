@@ -14,7 +14,7 @@ import android.webkit.WebViewClient;
 
 import info.blockchain.wallet.util.AppUtil;
 
-public class PolicyActivity extends Activity	{
+public class PolicyActivity extends Activity {
 
     private WebView webview = null;
 
@@ -31,17 +31,17 @@ public class PolicyActivity extends Activity	{
         webview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-            return event.getAction() == MotionEvent.ACTION_UP;
+                return event.getAction() == MotionEvent.ACTION_UP;
             }
         });
 
         String uri = this.getIntent().getStringExtra("uri");
-        if(uri.contains(".pdf")) {
+        if (uri.contains(".pdf")) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(uri));
             startActivity(intent);
             finish();
-        }else {
+        } else {
 
             webview.getSettings().setTextZoom(60);
             webview.loadUrl(uri);
@@ -64,7 +64,7 @@ public class PolicyActivity extends Activity	{
 
         AppUtil.getInstance(this).stopLockTimer();
 
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 

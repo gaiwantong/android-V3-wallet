@@ -14,7 +14,7 @@ public class MyAccountItem {
         this.amount = amount;
     }
 
-    public MyAccountItem(String title,  String amount, Drawable icon) {
+    public MyAccountItem(String title, String amount, Drawable icon) {
         this.title = title;
         this.amount = amount;
         this.icon = icon;
@@ -28,7 +28,7 @@ public class MyAccountItem {
         return icon;
     }
 
-    public String getAmount(){
+    public String getAmount() {
         return amount;
     }
 }

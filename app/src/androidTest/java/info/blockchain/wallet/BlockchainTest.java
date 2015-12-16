@@ -10,7 +10,7 @@ public class BlockchainTest extends TestCase {
     protected String name = null;
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     protected BlockchainTest(String name, Context ctx) {
@@ -37,7 +37,9 @@ public class BlockchainTest extends TestCase {
     /**
      * Test something
      */
-    protected void test() { ; }
+    protected void test() {
+        ;
+    }
 
     @Override
     public String getName() {

@@ -8,13 +8,13 @@ import com.robotium.solo.Solo;
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.PrefsUtil;
+
 import piuk.blockchain.android.R;
 
 public class SupportScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo = null;
-
     private static boolean loggedIn = false;
+    private Solo solo = null;
 
     public SupportScreenTest() {
         super(MainActivity.class);
@@ -26,16 +26,25 @@ public class SupportScreenTest extends ActivityInstrumentationTestCase2<MainActi
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
 
         UiUtil.getInstance(getActivity()).openNavigationDrawer(solo);
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
         solo.clickOnText(getActivity().getString(R.string.support));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
     }
 
     @Override
@@ -44,7 +53,7 @@ public class SupportScreenTest extends ActivityInstrumentationTestCase2<MainActi
     }
 
     @FlakyTest(tolerance = 2)
-    public void testA_CopyGUI() throws AssertionError{
+    public void testA_CopyGUI() throws AssertionError {
 
         solo.clickOnText(getActivity().getString(R.string.my_wallet_id));
         solo.waitForText(getActivity().getString(R.string.copied_to_clipboard), 1, 200);

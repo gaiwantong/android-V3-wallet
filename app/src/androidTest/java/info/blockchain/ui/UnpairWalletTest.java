@@ -6,16 +6,16 @@ import com.robotium.solo.Solo;
 
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
+
 import piuk.blockchain.android.R;
 
 /**
  * Created by riaanvos on 18/09/15.
  */
-public class UnpairWalletTest  extends ActivityInstrumentationTestCase2<MainActivity> {
-
-    private Solo solo = null;
+public class UnpairWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private static boolean loggedIn = false;
+    private Solo solo = null;
 
     public UnpairWalletTest() {
         super(MainActivity.class);
@@ -27,16 +27,25 @@ public class UnpairWalletTest  extends ActivityInstrumentationTestCase2<MainActi
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
 
         UiUtil.getInstance(getActivity()).openNavigationDrawer(solo);
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
         solo.clickOnText(getActivity().getString(R.string.unpair_wallet));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
     }
 
     @Override

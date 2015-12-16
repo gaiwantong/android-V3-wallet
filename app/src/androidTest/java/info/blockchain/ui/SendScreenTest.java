@@ -20,13 +20,13 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+
 import piuk.blockchain.android.R;
 
 public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo = null;
-
     private static boolean loggedIn = false;
+    private Solo solo = null;
 
     public SendScreenTest() {
         super(MainActivity.class);
@@ -38,14 +38,20 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
 
         solo.clickOnView(solo.getView(R.id.btActivateBottomSheet));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
         solo.clickOnText(getActivity().getString(R.string.send_bitcoin));
     }
 
@@ -54,19 +60,22 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         solo.finishOpenedActivities();
     }
 
-    public void testA_SelectFromAccounts() throws AssertionError{
+    public void testA_SelectFromAccounts() throws AssertionError {
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
         int itemCount = mSpinner.getAdapter().getCount();
         View spinnerView = solo.getView(Spinner.class, 0);
 
-        for(int i = 0; i < itemCount; i++){
+        for (int i = 0; i < itemCount; i++) {
 
             solo.clickOnView(spinnerView);
             solo.scrollToTop();
-            TextView tvMax = (TextView)solo.getView(LinearLayout.class, i).findViewById(R.id.receive_account_balance);
+            TextView tvMax = (TextView) solo.getView(LinearLayout.class, i).findViewById(R.id.receive_account_balance);
             solo.clickOnView(solo.getView(LinearLayout.class, i));
-            try{solo.sleep(500);}catch (Exception e){}
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
 
             //Test if amount available correct
             long amount = 0L;
@@ -75,16 +84,14 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
 
             //Legacy addresses
-            if(i >= hdAccountsIdx) {
+            if (i >= hdAccountsIdx) {
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(i - hdAccountsIdx).getAddress());
-            }
-            else {
+            } else {
                 //HD Accounts
                 String xpub = account2Xpub(i);
-                if(MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                     amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-                }
-                else {
+                } else {
                     amount = 0L;
                 }
             }
@@ -94,13 +101,13 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             long amount_available = amount - SendFactory.bFee.longValue();
             long amount_total = amount;
 
-            if(amount_available > 0L) {
-                double btc_balance = (((double)amount_available) / 1e8);
+            if (amount_available > 0L) {
+                double btc_balance = (((double) amount_available) / 1e8);
                 expectedTextAvailable = getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance));
             }
 
-            if(amount_total > 0L) {
-                double btc_total = (((double)amount_total) / 1e8);
+            if (amount_total > 0L) {
+                double btc_total = (((double) amount_total) / 1e8);
                 expectedTextTotal = MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_total));
             }
 
@@ -109,13 +116,13 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             spinnerTextTotal = spinnerTextTotal.replace("(", "").trim();
             spinnerTextTotal = spinnerTextTotal.replace(")", "").trim();
             CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-            for(CharSequence unit : units){
+            for (CharSequence unit : units) {
                 spinnerTextTotal = spinnerTextTotal.replace(unit.toString(), "").trim();
             }
 
-            TextView tvMax2 = (TextView)solo.getCurrentActivity().findViewById(R.id.max);
+            TextView tvMax2 = (TextView) solo.getCurrentActivity().findViewById(R.id.max);
             String available = tvMax2.getText().toString();
-            for(CharSequence unit : units)
+            for (CharSequence unit : units)
                 available = available.replace(unit.toString(), "").trim();
 
             //Test if spinner totals matches actual account total
@@ -130,52 +137,54 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
         Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
         String xpub = null;
-        if(hda instanceof ImportedAccount) {
+        if (hda instanceof ImportedAccount) {
             xpub = null;
-        }
-        else {
+        } else {
             xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
         }
 
         return xpub;
     }
 
-    public void testB_InputToAddressManually() throws AssertionError{
+    public void testB_InputToAddressManually() throws AssertionError {
 
         smartAccountSelect();
 
-        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        EditText toAddress = (EditText) solo.getView(R.id.destination);
         solo.enterText(toAddress, "");
 //        solo.enterText(toAddress, getActivity().getString(R.string.qa_test_address_1));
 
-        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
         solo.enterText(amount1, "0.0001");
         solo.clickOnView(solo.getView(R.id.action_send));
 
-        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.confirm_details),1,500));
+        assertTrue("Ensure wallet has sufficient funds!", solo.waitForText(getActivity().getString(R.string.confirm_details), 1, 500));
         solo.goBack();
 
     }
 
-    public void testC_InputToAddressFromDropdown() throws AssertionError{
+    public void testC_InputToAddressFromDropdown() throws AssertionError {
 
         Spinner mSpinner = solo.getView(Spinner.class, 1);
         int itemCount = mSpinner.getAdapter().getCount();
         View spinnerView = solo.getView(Spinner.class, 1);
 
         String prevAddress = null;
-        for(int i = 0; i < itemCount; i++){
+        for (int i = 0; i < itemCount; i++) {
 
             solo.clickOnView(spinnerView);
             solo.scrollToTop();
             solo.clickOnView(solo.getView(LinearLayout.class, i));
-            try{solo.sleep(500);}catch (Exception e){}
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
 
-            EditText destination = (EditText)solo.getView(R.id.destination);
+            EditText destination = (EditText) solo.getView(R.id.destination);
             String selectedAddress = destination.getText().toString();
 
             //Test destination address is not empty, and ensure it changes for each account selected
-            if(prevAddress!=null)
+            if (prevAddress != null)
                 assertTrue("Address not populated or address same for different accounts.", !selectedAddress.isEmpty() && !prevAddress.equals(selectedAddress));
 
             prevAddress = selectedAddress;
@@ -183,12 +192,12 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     }
 
-    public void testD_InputInvalidAddress() throws AssertionError{
+    public void testD_InputInvalidAddress() throws AssertionError {
 
-        EditText toAddress = (EditText)solo.getView(R.id.destination);
+        EditText toAddress = (EditText) solo.getView(R.id.destination);
         solo.enterText(toAddress, "aaaaaaaaaaaaaaaaaaaa");
 
-        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
         solo.enterText(amount1, "0.0001");
         solo.clickOnView(solo.getView(R.id.action_send));
 
@@ -197,17 +206,17 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     }
 
-    public void testE_Conversion() throws AssertionError{
+    public void testE_Conversion() throws AssertionError {
 
         double allowedFluctuation = 0.01;//only 1% fluctuation allowed for volatility
 
-        EditText btcEt = (EditText)solo.getView(R.id.amount1);
-        EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+        EditText btcEt = (EditText) solo.getView(R.id.amount1);
+        EditText fiatEt = (EditText) solo.getView(R.id.amount2);
 
         double fiatTestAmount = 500.0;
-        solo.enterText(fiatEt, fiatTestAmount+"");
+        solo.enterText(fiatEt, fiatTestAmount + "");
 
-        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT,"USD");
+        String fiatFormat = info.blockchain.wallet.util.PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, "USD");
 
         //Test fiat converted to btc
         double expectedBtc = 0.0;
@@ -215,7 +224,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
             expectedBtc = Double.parseDouble(info.blockchain.wallet.util.WebUtil.getInstance().getURL("https://blockchain.info/tobtc?currency=" + fiatFormat + "&value=" + fiatEt.getText().toString()));
             double displayedBtc = Double.parseDouble(btcEt.getText().toString());
 
-            assertTrue("Expected btc= "+expectedBtc+", UI shows btc="+ displayedBtc +" ("+(allowedFluctuation*100)+"% fluctuation allowed.)",displayedBtc >= expectedBtc * (1.0-allowedFluctuation) && displayedBtc <= expectedBtc * (1.0+allowedFluctuation));
+            assertTrue("Expected btc= " + expectedBtc + ", UI shows btc=" + displayedBtc + " (" + (allowedFluctuation * 100) + "% fluctuation allowed.)", displayedBtc >= expectedBtc * (1.0 - allowedFluctuation) && displayedBtc <= expectedBtc * (1.0 + allowedFluctuation));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -232,28 +241,28 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     }
 
-    public void testF_SendMoreThanAvailable() throws AssertionError{
+    public void testF_SendMoreThanAvailable() throws AssertionError {
 
         smartAccountSelect();
 
-        TextView maxTv = (TextView)solo.getView(R.id.max);
+        TextView maxTv = (TextView) solo.getView(R.id.max);
         String max = maxTv.getText().toString().replace(getActivity().getResources().getText(R.string.max_available) + " ", "");
         CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-        for(CharSequence unit : units)
+        for (CharSequence unit : units)
             max = max.replace(unit.toString(), "").trim();
 
-        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
         solo.enterText(amount1, "1" + max);
         solo.clickOnView(solo.getView(R.id.action_send));
 
         assertTrue("Expected a 'Insufficient funds' toast.", solo.waitForText(getActivity().getString(R.string.insufficient_funds), 1, 500));
     }
 
-    public void testF_SendLessThanAvailable() throws AssertionError{
+    public void testF_SendLessThanAvailable() throws AssertionError {
 
         smartAccountSelect();
 
-        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
         solo.enterText(amount1, (SendFactory.bFee.longValue() / 1e8) + "");
         solo.clickOnView(solo.getView(R.id.action_send));
 
@@ -266,7 +275,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
     }
 
 
-    public void testG_ConfirmDetails() throws AssertionError{
+    public void testG_ConfirmDetails() throws AssertionError {
 
         smartAccountSelect();
 
@@ -293,25 +302,25 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
         assertTrue("Expected a '" + getActivity().getString(R.string.confirm_details) + "' dialog.", solo.waitForText(getActivity().getString(R.string.confirm_details), 1, 1000));
 
-        assertTrue("Destination address doesn't match confirm modal - Expected '"+destination.getText().toString()+"' - Got '"+confirm_to.getText().toString()+"'", destination.getText().toString().equals(confirm_to.getText().toString()));
+        assertTrue("Destination address doesn't match confirm modal - Expected '" + destination.getText().toString() + "' - Got '" + confirm_to.getText().toString() + "'", destination.getText().toString().equals(confirm_to.getText().toString()));
 
-        assertTrue("Total to Send not equal to input - Expected '"+totalToSendD+"' - Got '"+(confirm_feeD + amount1D)+"'", totalToSendD == (confirm_feeD + amount1D));
+        assertTrue("Total to Send not equal to input - Expected '" + totalToSendD + "' - Got '" + (confirm_feeD + amount1D) + "'", totalToSendD == (confirm_feeD + amount1D));
 
         solo.clickOnText(getActivity().getString(R.string.dialog_cancel));
 
     }
 
-    public void testH_SendAllAvailable() throws AssertionError{
+    public void testH_SendAllAvailable() throws AssertionError {
 
         smartAccountSelect();
 
-        TextView maxTv = (TextView)solo.getView(R.id.max);
+        TextView maxTv = (TextView) solo.getView(R.id.max);
         String max = maxTv.getText().toString().replace(getActivity().getResources().getText(R.string.max_available) + " ", "");
         CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-        for(CharSequence unit : units)
+        for (CharSequence unit : units)
             max = max.replace(unit.toString(), "").trim();
 
-        EditText amount1 = (EditText)solo.getView(R.id.amount1);
+        EditText amount1 = (EditText) solo.getView(R.id.amount1);
         solo.enterText(amount1, max);
         solo.clickOnView(solo.getView(R.id.action_send));
 
@@ -323,10 +332,10 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
 
     }
 
-    public void testI_EnterInvalidCharacters() throws AssertionError{
+    public void testI_EnterInvalidCharacters() throws AssertionError {
 
-        final EditText btcEt = (EditText)solo.getView(R.id.amount1);
-        final EditText fiatEt = (EditText)solo.getView(R.id.amount2);
+        final EditText btcEt = (EditText) solo.getView(R.id.amount1);
+        final EditText fiatEt = (EditText) solo.getView(R.id.amount2);
 
         //BTC field
         //Test invalid chars
@@ -378,7 +387,7 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         UiUtil.getInstance(getActivity()).exitApp(solo);
     }
 
-    private void smartAccountSelect(){
+    private void smartAccountSelect() {
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
         int itemCount = mSpinner.getAdapter().getCount();
@@ -388,30 +397,33 @@ public class SendScreenTest extends ActivityInstrumentationTestCase2<MainActivit
         int smallestAccountIndex = 0;
         double highestAccountBalance = -1;
         double smallestAccountBalance = -1;
-        for(int i = 0; i < itemCount; i++){
+        for (int i = 0; i < itemCount; i++) {
 
             solo.clickOnView(spinnerView);
             solo.scrollToTop();
-            TextView tvMax = (TextView)solo.getView(LinearLayout.class, i).findViewById(R.id.receive_account_balance);
+            TextView tvMax = (TextView) solo.getView(LinearLayout.class, i).findViewById(R.id.receive_account_balance);
             solo.clickOnView(solo.getView(LinearLayout.class, i));
-            try{solo.sleep(500);}catch (Exception e){}
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
 
             String spinnerTextTotal = tvMax.getText().toString();
             spinnerTextTotal = spinnerTextTotal.replace("(", "").trim();
             spinnerTextTotal = spinnerTextTotal.replace(")", "").trim();
             CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-            for(CharSequence unit : units){
+            for (CharSequence unit : units) {
                 spinnerTextTotal = spinnerTextTotal.replace(unit.toString(), "").trim();
             }
 
             double available = Double.parseDouble(spinnerTextTotal);
 
-            if(highestAccountBalance==-1 || highestAccountBalance < available) {
+            if (highestAccountBalance == -1 || highestAccountBalance < available) {
                 highestAccountIndex = i;
                 highestAccountBalance = available;
             }
 
-            if(smallestAccountBalance==-1 || smallestAccountBalance > available) {
+            if (smallestAccountBalance == -1 || smallestAccountBalance > available) {
                 smallestAccountIndex = i;
                 smallestAccountBalance = available;
             }

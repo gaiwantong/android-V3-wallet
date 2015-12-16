@@ -10,13 +10,13 @@ import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BackupWalletUtil;
+
 import piuk.blockchain.android.R;
 
 public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo = null;
-
     private static boolean loggedIn = false;
+    private Solo solo = null;
 
     public BackupWalletTest() {
         super(MainActivity.class);
@@ -28,14 +28,20 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
 
         UiUtil.getInstance(getActivity()).openNavigationDrawer(solo);
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
     }
 
     @Override
@@ -45,33 +51,42 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
 
     public void testA_Reveal() throws AssertionError {
         solo.clickOnText(getActivity().getString(R.string.backup_wallet));
-        try{solo.sleep(500);}catch (Exception e){}
-        if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
+        if (AppUtil.getInstance(getActivity()).isLegacy()) assertTrue(true);
 
         solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
         solo.clickOnText(getActivity().getString(R.string.START));
 
         TextView currentWordTv = (TextView) solo.getView(R.id.tv_current_word);
-        TextView hiddenTv = (TextView)solo.getView(R.id.tv_press_reveal);
+        TextView hiddenTv = (TextView) solo.getView(R.id.tv_press_reveal);
 
-        for(int i = 0; i < 11; i ++){
+        for (int i = 0; i < 11; i++) {
 
             //Test word count increments
             int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
-            assertTrue(c == (i+1));
+            assertTrue(c == (i + 1));
 
             //Test word reveals
             solo.clickLongOnView(solo.getView(R.id.card_layout));
             assertTrue(solo.waitForText(hiddenTv.getText().toString()));
 
             solo.clickOnText(getActivity().getString(R.string.NEXT_WORD));
-            try{solo.sleep(500);}catch (Exception e){}
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
         }
 
-        for(int i = 11; i > 0; i --){
+        for (int i = 11; i > 0; i--) {
 
-            solo.clickOnScreen(50f,50f);
-            try{solo.sleep(500);}catch (Exception e){}
+            solo.clickOnScreen(50f, 50f);
+            try {
+                solo.sleep(500);
+            } catch (Exception e) {
+            }
 
             //Test word count increments
             int c = Integer.parseInt(currentWordTv.getText().toString().split(" ")[1]);
@@ -85,21 +100,27 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
 
     public void testB_IncorrectMnemonic() throws AssertionError {
         solo.clickOnText(getActivity().getString(R.string.backup_wallet));
-        try{solo.sleep(500);}catch (Exception e){}
-        if(AppUtil.getInstance(getActivity()).isLegacy())assertTrue(true);
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
+        if (AppUtil.getInstance(getActivity()).isLegacy()) assertTrue(true);
 
         solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
         solo.clickOnText(getActivity().getString(R.string.START));
 
-        for(int i = 0; i < 11; i ++)
+        for (int i = 0; i < 11; i++)
             solo.clickOnText(getActivity().getString(R.string.NEXT_WORD));
 
         solo.clickOnText(getActivity().getString(R.string.VERIFY));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
 
-        solo.enterText((EditText) solo.getView(R.id.etFirstRequest),"aaaa");
-        solo.enterText((EditText) solo.getView(R.id.etSecondRequest),"aaaa");
-        solo.enterText((EditText) solo.getView(R.id.etThirdRequest),"aaaa");
+        solo.enterText((EditText) solo.getView(R.id.etFirstRequest), "aaaa");
+        solo.enterText((EditText) solo.getView(R.id.etSecondRequest), "aaaa");
+        solo.enterText((EditText) solo.getView(R.id.etThirdRequest), "aaaa");
 
         solo.clickOnText(getActivity().getString(R.string.VERIFY_BACKUP));
 
@@ -108,7 +129,10 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
 
     public void testC_CorrectMnemonic() throws AssertionError {
         solo.clickOnText(getActivity().getString(R.string.backup_wallet));
-        try{solo.sleep(500);}catch (Exception e){}
+        try {
+            solo.sleep(500);
+        } catch (Exception e) {
+        }
         if (AppUtil.getInstance(getActivity()).isLegacy()) assertTrue(true);
 
         solo.clickOnText(getActivity().getString(R.string.BACKUP_WALLET));
@@ -130,15 +154,15 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
         EditText second = (EditText) solo.getView(R.id.etSecondRequest);
         EditText third = (EditText) solo.getView(R.id.etThirdRequest);
 
-        for(int i = 0; i < mnemonicRequestHint.length; i++){
+        for (int i = 0; i < mnemonicRequestHint.length; i++) {
 
-            if(first.getHint().toString().equals(mnemonicRequestHint[i])){
+            if (first.getHint().toString().equals(mnemonicRequestHint[i])) {
                 solo.enterText((EditText) solo.getView(R.id.etFirstRequest), mnemonic[i]);
             }
-            if(second.getHint().toString().equals(mnemonicRequestHint[i])){
+            if (second.getHint().toString().equals(mnemonicRequestHint[i])) {
                 solo.enterText((EditText) solo.getView(R.id.etSecondRequest), mnemonic[i]);
             }
-            if(third.getHint().toString().equals(mnemonicRequestHint[i])){
+            if (third.getHint().toString().equals(mnemonicRequestHint[i])) {
                 solo.enterText((EditText) solo.getView(R.id.etThirdRequest), mnemonic[i]);
             }
         }
@@ -146,7 +170,7 @@ public class BackupWalletTest extends ActivityInstrumentationTestCase2<MainActiv
         solo.clickOnText(getActivity().getString(R.string.VERIFY_BACKUP));
 
         assertTrue(solo.waitForText(getActivity().getString(R.string.backup_confirmed)));
-        assertTrue(solo.waitForText(getActivity().getString(R.string.backup_days_ago).replace("[--time--]","0").replace("[--day--]",getActivity().getString(R.string.days))));
+        assertTrue(solo.waitForText(getActivity().getString(R.string.backup_days_ago).replace("[--time--]", "0").replace("[--day--]", getActivity().getString(R.string.days))));
     }
 
     public void testD_LockIconColourChanged() throws AssertionError {

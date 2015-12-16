@@ -17,6 +17,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
+
 import piuk.blockchain.android.R;
 
 public class SupportActivity extends Activity {
@@ -28,7 +29,7 @@ public class SupportActivity extends Activity {
         setContentView(R.layout.activity_support);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.contact_support));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,16 +38,16 @@ public class SupportActivity extends Activity {
             }
         });
 
-        TextView header = (TextView)findViewById(R.id.my_wallet_id_header);
+        TextView header = (TextView) findViewById(R.id.my_wallet_id_header);
         header.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
-        TextView walletId = (TextView)findViewById(R.id.wallet_id);
+        TextView walletId = (TextView) findViewById(R.id.wallet_id);
         walletId.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         final String guid = PayloadFactory.getInstance().get().getGuid();
         walletId.setText(guid);
 
-        LinearLayout idContainer = (LinearLayout)findViewById(R.id.wallet_id_container);
+        LinearLayout idContainer = (LinearLayout) findViewById(R.id.wallet_id_container);
         idContainer.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -75,10 +76,10 @@ public class SupportActivity extends Activity {
             }
         });
 
-        TextView newSupportRequest = (TextView)findViewById(R.id.new_support_request);
+        TextView newSupportRequest = (TextView) findViewById(R.id.new_support_request);
         newSupportRequest.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
-        TextView emailAction = (TextView)findViewById(R.id.email_action);
+        TextView emailAction = (TextView) findViewById(R.id.email_action);
         emailAction.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         emailAction.setOnClickListener(new View.OnClickListener() {
@@ -106,20 +107,20 @@ public class SupportActivity extends Activity {
         });
     }
 
-    private void emailIntent(String guid){
+    private void emailIntent(String guid) {
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "support@blockchain.zendesk.com", null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.email_subject));
         emailIntent.putExtra(Intent.EXTRA_TEXT,
                 "Dear Blockchain Support," +
-                "\n\n" +
-                "" +
-                "\n\n" +
-                "--\n" +
-                "App: "+getString(R.string.app_name)+", Version "+getString(R.string.version_name)+" \n" +
-                "System: "+ Build.MANUFACTURER+"\n" +
-                "Model: "+ Build.MODEL+"\n" +
-                "Version: "+ Build.VERSION.RELEASE);
+                        "\n\n" +
+                        "" +
+                        "\n\n" +
+                        "--\n" +
+                        "App: " + getString(R.string.app_name) + ", Version " + getString(R.string.version_name) + " \n" +
+                        "System: " + Build.MANUFACTURER + "\n" +
+                        "Model: " + Build.MODEL + "\n" +
+                        "Version: " + Build.VERSION.RELEASE);
         startActivity(Intent.createChooser(emailIntent, SupportActivity.this.getResources().getText(R.string.email_chooser)));
 
     }
@@ -130,7 +131,7 @@ public class SupportActivity extends Activity {
 
         AppUtil.getInstance(this).stopLockTimer();
 
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);

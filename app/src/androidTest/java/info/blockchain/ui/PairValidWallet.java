@@ -8,6 +8,7 @@ import com.robotium.solo.Solo;
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.PinEntryActivity;
+
 import piuk.blockchain.android.R;
 
 public class PairValidWallet extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -30,12 +31,15 @@ public class PairValidWallet extends ActivityInstrumentationTestCase2<MainActivi
         solo.goBack();
     }
 
-    public void testPairValidWallet()  throws AssertionError{
+    public void testPairValidWallet() throws AssertionError {
 
         solo.clickOnView(solo.getView(R.id.login));
         solo.clickOnView(solo.getView(R.id.command_manual));
-        try{solo.sleep(1000);}catch (Exception e){}
-        solo.enterText((EditText)solo.getView(R.id.wallet_id), solo.getString(R.string.qa_test_guid1));
+        try {
+            solo.sleep(1000);
+        } catch (Exception e) {
+        }
+        solo.enterText((EditText) solo.getView(R.id.wallet_id), solo.getString(R.string.qa_test_guid1));
         solo.enterText((EditText) solo.getView(R.id.wallet_pass), solo.getString(R.string.qa_test_password1));
 
         solo.clickOnText(solo.getString(R.string.dialog_continue));

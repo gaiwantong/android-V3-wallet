@@ -5,14 +5,14 @@ import android.widget.EditText;
 
 import com.robotium.solo.Solo;
 
-import junit.framework.TestCase;
-
+import info.blockchain.ui.util.UiUtil;
+import info.blockchain.wallet.LandingActivity;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.PinEntryActivity;
-import info.blockchain.wallet.LandingActivity;
-import piuk.blockchain.android.R;
 
-import info.blockchain.ui.util.UiUtil;
+import junit.framework.TestCase;
+
+import piuk.blockchain.android.R;
 
 public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
@@ -37,7 +37,7 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
         solo.goBack();
     }
 
-    public void testA_PairingV3Success()  throws AssertionError{
+    public void testA_PairingV3Success() throws AssertionError {
 
         UiUtil.getInstance(solo.getCurrentActivity()).wipeWallet();
 
@@ -73,11 +73,11 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
         TestCase.assertEquals(true, solo.waitForText("Received")); //TO-DO: Replace with translated string
     }
 
-    public void testB_PinPasswordSuccess() throws AssertionError{
+    public void testB_PinPasswordSuccess() throws AssertionError {
 
         //Enter incorrect PIN three times, validate toasts
         for (int i = 0; i < 3; i++) {
-            UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin2));
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin2));
             solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_pin));
         }
         solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_4_strikes));
@@ -112,11 +112,11 @@ public class PinScreenTest extends ActivityInstrumentationTestCase2<MainActivity
         TestCase.assertEquals(true, solo.waitForText("Received")); //TO-DO: Replace with translated string
     }
 
-    public void testC_PinForgetWallet() throws AssertionError{
+    public void testC_PinForgetWallet() throws AssertionError {
 
         //Enter incorrect PIN three times, validate toasts
         for (int i = 0; i < 3; i++) {
-            UiUtil.getInstance(getActivity()).enterPin(solo,solo.getString(R.string.qa_test_pin2));
+            UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin2));
             solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_pin));
         }
         solo.waitForText(solo.getCurrentActivity().getString(R.string.pin_4_strikes));

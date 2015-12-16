@@ -69,7 +69,7 @@ public class AllTests extends ActivityInstrumentationTestCase2<Activity> {
     public void tearDown() throws Exception {
     }
 
-    public void testEmpty() throws AssertionError{
+    public void testEmpty() throws AssertionError {
         //to avoid warning we need an empty test
         TestCase.assertTrue(true);
     }

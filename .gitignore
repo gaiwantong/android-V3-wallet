@@ -21,6 +21,7 @@ build/
 .idea/tasks.xml
 .idea/dictionaries
 .idea/libraries
+.idea/codeStyleSettings.xml
 
 # Local configuration file (sdk path, etc)
 local.properties

@@ -19,6 +19,14 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
+
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.Wallet;
@@ -27,14 +35,6 @@ import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
-import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -256,7 +256,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState){
+    protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
         Toolbar bar;
@@ -279,7 +279,7 @@ public class SettingsActivity extends PreferenceActivity {
             TypedValue tv = new TypedValue();
             if (getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
                 height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-            }else{
+            } else {
                 height = bar.getHeight();
             }
 
@@ -308,7 +308,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         AppUtil.getInstance(this).stopLockTimer();
 
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -316,7 +316,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         PreferenceScreen scr = getPreferenceScreen();
         Preference verifyEmail = (Preference) findPreference("verify_email");
-        if (scr!=null && verifyEmail!=null && !PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+        if (scr != null && verifyEmail != null && !PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
             scr.removePreference(verifyEmail);
     }
 

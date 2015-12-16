@@ -16,18 +16,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import piuk.blockchain.android.R;
 
 public class ManualPairingFragment extends Fragment {
@@ -49,9 +49,9 @@ public class ManualPairingFragment extends Fragment {
 
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
 
-        edGuid = (EditText)rootView.findViewById(R.id.wallet_id);
-        edPassword = (EditText)rootView.findViewById(R.id.wallet_pass);
-        next = (TextView)rootView.findViewById(R.id.command_next);
+        edGuid = (EditText) rootView.findViewById(R.id.wallet_id);
+        edPassword = (EditText) rootView.findViewById(R.id.wallet_pass);
+        next = (TextView) rootView.findViewById(R.id.command_next);
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +91,7 @@ public class ManualPairingFragment extends Fragment {
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -115,7 +115,7 @@ public class ManualPairingFragment extends Fragment {
                 try {
                     String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
 
-                    if(response.equals(PairingFactory.KEY_AUTH_REQUIRED)){
+                    if (response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -126,47 +126,45 @@ public class ManualPairingFragment extends Fragment {
                         response = waitForAuthThread(guid, password);
                     }
 
-                    if(response!=null && response.equals("Authorization Required")){
+                    if (response != null && response.equals("Authorization Required")) {
                         ToastCustom.makeText(getActivity(), getString(R.string.auth_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                     }
 
                     JSONObject jsonObj = new JSONObject(response);
 
-                    if(jsonObj != null && jsonObj.has("payload")) {
-                        String encrypted_payload = (String)jsonObj.getString("payload");
+                    if (jsonObj != null && jsonObj.has("payload")) {
+                        String encrypted_payload = (String) jsonObj.getString("payload");
 
                         int iterations = PayloadFactory.WalletPbkdf2Iterations;
-                        if(jsonObj.has("pbkdf2_iterations")) {
+                        if (jsonObj.has("pbkdf2_iterations")) {
                             iterations = Integer.valueOf(jsonObj.get("pbkdf2_iterations").toString()).intValue();
                         }
 
                         String decrypted_payload = null;
                         try {
                             decrypted_payload = AESUtil.decrypt(encrypted_payload, password, iterations);
-                        }
-                        catch(Exception e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed_decrypt_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
                         }
 
-                        if(decrypted_payload != null) {
+                        if (decrypted_payload != null) {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
-                            if(payloadObj != null && payloadObj.has("sharedKey")) {
+                            if (payloadObj != null && payloadObj.has("sharedKey")) {
                                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
                                 PayloadFactory.getInstance().setTempPassword(password);
-                                AppUtil.getInstance(getActivity()).setSharedKey((String)payloadObj.get("sharedKey"));
+                                AppUtil.getInstance(getActivity()).setSharedKey((String) payloadObj.get("sharedKey"));
 
-                                if(HDPayloadBridge.getInstance(getActivity()).init(password)) {
+                                if (HDPayloadBridge.getInstance(getActivity()).init(password)) {
                                     PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                     PayloadFactory.getInstance().setTempPassword(password);
 //                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                                     intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
                                     getActivity().startActivity(intent);
-                                }
-                                else {
+                                } else {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -178,8 +176,7 @@ public class ManualPairingFragment extends Fragment {
 
                             }
 
-                        }
-                        else {
+                        } else {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -191,20 +188,18 @@ public class ManualPairingFragment extends Fragment {
 
                     }
 
-                }
-                catch(JSONException je) {
+                } catch (JSONException je) {
                     je.printStackTrace();
-                    if(getActivity()!=null) {
+                    if (getActivity() != null) {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                    if(getActivity()!=null) {
+                    if (getActivity() != null) {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-                }finally {
-                    if(progress != null && progress.isShowing()) {
+                } finally {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -223,16 +218,16 @@ public class ManualPairingFragment extends Fragment {
         }).start();
     }
 
-    private String waitForAuthThread(final String guid, final CharSequenceX password){
+    private String waitForAuthThread(final String guid, final CharSequenceX password) {
 
         final int waitTime = 2;//minutes to wait for auth
-        timer = (waitTime*60);
+        timer = (waitTime * 60);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                while(waitinForAuth) {
+                while (waitinForAuth) {
                     getActivity().runOnUiThread(new Runnable() {
 
                         @Override
@@ -247,7 +242,7 @@ public class ManualPairingFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    if(timer<=0){
+                    if (timer <= 0) {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         waitinForAuth = false;
                         progress.cancel();
@@ -258,15 +253,19 @@ public class ManualPairingFragment extends Fragment {
         }).start();
 
         int sleep = 5;//second
-        while(waitinForAuth){
+        while (waitinForAuth) {
 
-            try {Thread.sleep(1000*sleep);} catch (InterruptedException e) {e.printStackTrace();}
+            try {
+                Thread.sleep(1000 * sleep);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             sleep = 1;//after initial sleep, poll every 1 second
 
             String response = null;
             try {
                 response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
-                if(!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+                if (!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
                     waitinForAuth = false;
                     return response;
                 }

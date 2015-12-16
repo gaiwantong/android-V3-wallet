@@ -10,24 +10,23 @@ import android.widget.TextView;
 
 import com.robotium.solo.Solo;
 
-import junit.framework.TestCase;
-
-import java.text.DecimalFormat;
-
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+
+import junit.framework.TestCase;
+
+import java.text.DecimalFormat;
+
 import piuk.blockchain.android.R;
 
 public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo = null;
-
-    RecyclerView txList = null;
-
     private static boolean loggedIn = false;
+    RecyclerView txList = null;
+    private Solo solo = null;
 
     public BalanceScreenTest() {
         super(MainActivity.class);
@@ -39,9 +38,12 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
 
-        if(!loggedIn){
+        if (!loggedIn) {
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
-            try{solo.sleep(4000);}catch (Exception e){}
+            try {
+                solo.sleep(4000);
+            } catch (Exception e) {
+            }
             loggedIn = true;
         }
     }
@@ -51,10 +53,10 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         solo.finishOpenedActivities();
     }
 
-    public void testA_ChangeCurrencyTapBalance() throws AssertionError{
+    public void testA_ChangeCurrencyTapBalance() throws AssertionError {
 
-        txList = (RecyclerView)solo.getView(R.id.txList2);
-        if(txList.getChildCount()>0) {
+        txList = (RecyclerView) solo.getView(R.id.txList2);
+        if (txList.getChildCount() > 0) {
 
             TextView balance = (TextView) solo.getView(R.id.balance1);
             String btc = balance.getText().toString();
@@ -77,12 +79,12 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         }
     }
 
-    public void testB_ChangeCurrencyTapTxAmount() throws AssertionError{
+    public void testB_ChangeCurrencyTapTxAmount() throws AssertionError {
 
-        TextView balance = (TextView)solo.getView(R.id.balance1);
+        TextView balance = (TextView) solo.getView(R.id.balance1);
         String btc = balance.getText().toString();
 
-        while(btc.contains(getActivity().getString(R.string.show_balance))) {
+        while (btc.contains(getActivity().getString(R.string.show_balance))) {
             btc = balance.getText().toString();
             solo.clickOnView(balance);
         }
@@ -95,9 +97,9 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         double btc_fx = ExchangeRateFactory.getInstance(solo.getCurrentActivity()).getLastPrice(strFiat);
         double fiat_balance = btc_fx * Double.parseDouble(btc.split(" ")[0]);
 
-        txList = (RecyclerView)solo.getView(R.id.txList2);
+        txList = (RecyclerView) solo.getView(R.id.txList2);
 
-        if(txList.getChildCount()>0) {
+        if (txList.getChildCount() > 0) {
 
             solo.clickOnView(txList.getChildAt(0).findViewById(R.id.result));
 
@@ -109,59 +111,77 @@ public class BalanceScreenTest extends ActivityInstrumentationTestCase2<MainActi
         }
     }
 
-    private float toPx(int dp){
+    private float toPx(int dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getActivity().getResources().getDisplayMetrics());
     }
 
-    public void testC_BasicUI() throws AssertionError{
+    public void testC_BasicUI() throws AssertionError {
 
         Spinner mSpinner = solo.getView(Spinner.class, 0);
         int itemCount = mSpinner.getAdapter().getCount();
         View spinnerView = solo.getView(Spinner.class, 0);
         txList = (RecyclerView) solo.getView(R.id.txList2);
 
-        for(int i = itemCount-1; i >= 0; i--){
+        for (int i = itemCount - 1; i >= 0; i--) {
 
             solo.clickOnView(spinnerView);
             solo.scrollToTop(); // I put this in here so that it always keeps the list at start
             solo.clickOnView(solo.getView(TextView.class, i));
-            try{solo.sleep(1000);}catch (Exception e){}
+            try {
+                solo.sleep(1000);
+            } catch (Exception e) {
+            }
 
-            if(txList.getAdapter().getItemCount()==0)continue;
+            if (txList.getAdapter().getItemCount() == 0) continue;
 
             float actionBarHeight = toPx(56);
             float headerHeight = toPx(72);
             float rowHeight = toPx(72);
-            float yd = actionBarHeight + headerHeight + (float) (rowHeight/2.0);
+            float yd = actionBarHeight + headerHeight + (float) (rowHeight / 2.0);
 
-            solo.clickOnScreen(50,  yd);
-            try{solo.sleep(200);}catch (Exception e){}
+            solo.clickOnScreen(50, yd);
+            try {
+                solo.sleep(200);
+            } catch (Exception e) {
+            }
 
             //Test if expanded
             TestCase.assertTrue(solo.waitForText(solo.getString(R.string.from)) && solo.waitForText(solo.getString(R.string.transaction_fee)));
 
             //Toggle status/confirmation amount
-            solo.clickOnScreen(info.blockchain.wallet.util.DeviceUtil.getInstance(getActivity()).getWidth() - toPx(50), yd+rowHeight);
-            solo.clickOnScreen(info.blockchain.wallet.util.DeviceUtil.getInstance(getActivity()).getWidth() - toPx(50), yd+rowHeight);
-            solo.clickOnScreen(50,  yd);
+            solo.clickOnScreen(info.blockchain.wallet.util.DeviceUtil.getInstance(getActivity()).getWidth() - toPx(50), yd + rowHeight);
+            solo.clickOnScreen(info.blockchain.wallet.util.DeviceUtil.getInstance(getActivity()).getWidth() - toPx(50), yd + rowHeight);
+            solo.clickOnScreen(50, yd);
 
             //Test scrolling
             txList.fling(0, 20000);
-            try{solo.sleep(1000);}catch (Exception e){}
+            try {
+                solo.sleep(1000);
+            } catch (Exception e) {
+            }
             txList.fling(0, -20000);
-            try{solo.sleep(1000);}catch (Exception e){}
+            try {
+                solo.sleep(1000);
+            } catch (Exception e) {
+            }
         }
 
         //Test hash opens link
-        if(txList.getAdapter().getItemCount()>0) {
+        if (txList.getAdapter().getItemCount() > 0) {
             solo.clickOnView(txList.getChildAt(0));
             solo.clickOnView(solo.getView(R.id.tx_hash));
-            try{solo.sleep(1000);}catch (Exception e){}
+            try {
+                solo.sleep(1000);
+            } catch (Exception e) {
+            }
             Intent i = new Intent(getActivity(), MainActivity.class);
             i.setAction(Intent.ACTION_MAIN);
             i.addCategory(Intent.CATEGORY_LAUNCHER);
             getActivity().startActivity(i);
-            try{solo.sleep(1000);}catch (Exception e){}
+            try {
+                solo.sleep(1000);
+            } catch (Exception e) {
+            }
         }
 
         UiUtil.getInstance(getActivity()).exitApp(solo);

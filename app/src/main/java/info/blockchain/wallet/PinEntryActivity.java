@@ -17,6 +17,19 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadBridge;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.TypefaceUtil;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
@@ -39,30 +52,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
 
 //import libsrc.org.apache.commons.io.IOUtils;
 
 public class PinEntryActivity extends Activity {
 
-    String userEnteredPIN = "";
-    String userEnteredPINConfirm = null;
-
     final int PIN_LENGTH = 4;
     final int maxAttempts = 4;
-
+    String userEnteredPIN = "";
+    String userEnteredPINConfirm = null;
     TextView titleView = null;
 
     TextView pinBox0 = null;
@@ -71,15 +70,12 @@ public class PinEntryActivity extends Activity {
     TextView pinBox3 = null;
 
     TextView[] pinBoxArray = null;
-
-    private ProgressDialog progress = null;
-
-    private String strEmail    = null;
-    private String strPassword = null;
-
     boolean allowExit = true;
     int exitClickCount = 0;
     int exitClickCooldown = 2;//seconds
+    private ProgressDialog progress = null;
+    private String strEmail = null;
+    private String strPassword = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,20 +99,19 @@ public class PinEntryActivity extends Activity {
 
         // Set title state
         Typeface typeface = TypefaceUtil.getInstance(this).getRobotoTypeface();
-        titleView = (TextView)findViewById(R.id.titleBox);
+        titleView = (TextView) findViewById(R.id.titleBox);
         titleView.setTypeface(typeface);
-        if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
+        if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
 
             titleView.setText(R.string.create_pin);
-        }
-        else {
+        } else {
             titleView.setText(R.string.pin_entry);
         }
 
-        pinBox0 = (TextView)findViewById(R.id.pinBox0);
-        pinBox1 = (TextView)findViewById(R.id.pinBox1);
-        pinBox2 = (TextView)findViewById(R.id.pinBox2);
-        pinBox3 = (TextView)findViewById(R.id.pinBox3);
+        pinBox0 = (TextView) findViewById(R.id.pinBox0);
+        pinBox1 = (TextView) findViewById(R.id.pinBox1);
+        pinBox2 = (TextView) findViewById(R.id.pinBox2);
+        pinBox3 = (TextView) findViewById(R.id.pinBox3);
 
         pinBoxArray = new TextView[PIN_LENGTH];
         pinBoxArray[0] = pinBox0;
@@ -124,28 +119,28 @@ public class PinEntryActivity extends Activity {
         pinBoxArray[2] = pinBox2;
         pinBoxArray[3] = pinBox3;
 
-        if(!ConnectivityStatus.hasConnectivity(this)) {
+        if (!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             final String message = getString(R.string.check_connectivity_exit);
 
             builder.setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.dialog_continue,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface d, int id) {
-                            d.dismiss();
-                            Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        }
-                });
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_continue,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int id) {
+                                    d.dismiss();
+                                    Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                            });
 
             builder.create().show();
         }
 
         int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-        if(fails >= maxAttempts)	{
+        if (fails >= maxAttempts) {
             ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_4_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 //        	validationDialog();
 
@@ -185,7 +180,7 @@ public class PinEntryActivity extends Activity {
 
                 Looper.prepare();
 
-                if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
                     AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
 
                     String guid = UUID.randomUUID().toString();
@@ -199,7 +194,7 @@ public class PinEntryActivity extends Activity {
                     AppUtil.getInstance(PinEntryActivity.this).setSharedKey(sharedKey);
 
                     ECKey ecKey = PayloadBridge.getInstance(PinEntryActivity.this).newLegacyAddress();
-                    if(ecKey == null)    {
+                    if (ecKey == null) {
                         ToastCustom.makeText(PinEntryActivity.this, PinEntryActivity.this.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
                         return;
@@ -223,16 +218,14 @@ public class PinEntryActivity extends Activity {
 
                     PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
 
-                    if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                    if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
                         ;
-                    }
-                    else    {
+                    } else {
                         whitelistGuid("alpha");// <-- remove after beta invite system
                         whitelistGuid("dev");// <-- remove after beta invite system
                     }
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
-                }
-                else    {
+                } else {
                     try {
                         // create wallet
                         // restart
@@ -245,10 +238,9 @@ public class PinEntryActivity extends Activity {
 
                         PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
 
-                        if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
                             ;
-                        }
-                        else    {
+                        } else {
                             whitelistGuid("alpha");// <-- remove after beta invite system
                             whitelistGuid("dev");// <-- remove after beta invite system
                         }
@@ -270,7 +262,7 @@ public class PinEntryActivity extends Activity {
 
     private void whitelistGuid(final String domain) {
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -291,7 +283,7 @@ public class PinEntryActivity extends Activity {
                 URL url = null;
                 try {
 
-                    url = new URL("https://"+domain+".blockchain.info/whitelist_guid/");
+                    url = new URL("https://" + domain + ".blockchain.info/whitelist_guid/");
                     JSONObject json = new JSONObject();
                     json.put("secret", "HvWJeR1WdybHvq0316i");
                     json.put("guid", PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_GUID, ""));
@@ -315,7 +307,7 @@ public class PinEntryActivity extends Activity {
                         os.write(message.getBytes());
                         os.flush();
 
-                        if(progress != null && progress.isShowing()) {
+                        if (progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
@@ -330,7 +322,7 @@ public class PinEntryActivity extends Activity {
                         if (is != null) is.close();
                         conn.disconnect();
 
-                        if(progress != null && progress.isShowing()) {
+                        if (progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
@@ -362,9 +354,8 @@ public class PinEntryActivity extends Activity {
 
 
     @Override
-    public void onBackPressed()
-    {
-        if(allowExit) {
+    public void onBackPressed() {
+        if (allowExit) {
             exitClickCount++;
             if (exitClickCount == 2) {
                 AppUtil.getInstance(this).clearUserInteractionTime();
@@ -385,7 +376,7 @@ public class PinEntryActivity extends Activity {
                     }
                 }
             }).start();
-        }else{
+        } else {
             super.onBackPressed();
         }
     }
@@ -403,7 +394,7 @@ public class PinEntryActivity extends Activity {
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -420,10 +411,10 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     //V3 Upgrade Sanity check
-                    if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED,false)){
+                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, false)) {
 
                         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.upgrade_interrupted), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        if(progress != null && progress.isShowing()) {
+                        if (progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
@@ -431,10 +422,10 @@ public class PinEntryActivity extends Activity {
                         return;
                     }
 
-                    if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
+                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
-                        if(AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0){
-                            ToastCustom.makeText(PinEntryActivity.this,getString(R.string.lame_mode_hd_pair_fail),ToastCustom.LENGTH_SHORT,ToastCustom.TYPE_ERROR);
+                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0) {
+                            ToastCustom.makeText(PinEntryActivity.this, getString(R.string.lame_mode_hd_pair_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
                             return;
                         }
@@ -443,7 +434,7 @@ public class PinEntryActivity extends Activity {
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
                         AppUtil.getInstance(PinEntryActivity.this).initUserInteraction();
 
-                        if(AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet()!=null && (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel()==null || PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
+                        if (AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null && (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null || PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
 
 
@@ -451,50 +442,45 @@ public class PinEntryActivity extends Activity {
                             @Override
                             public void run() {
 
-                                if(progress != null && progress.isShowing()) {
+                                if (progress != null && progress.isShowing()) {
                                     progress.dismiss();
                                     progress = null;
                                 }
 
-                                if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false)){
+                                if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false)) {
 
                                     AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
 
-                                }
-                                else    {
+                                } else {
 
-                                    if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded())    {
+                                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
 
-                                        if(AppUtil.getInstance(PinEntryActivity.this).isLegacy())    {
+                                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
                                             PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                             PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
                                             AccessFactory.getInstance(PinEntryActivity.this).setIsLoggedIn(true);
                                             AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                        }
-                                        else    {
+                                        } else {
                                             Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                             startActivity(intent);
                                         }
 
-                                    }
-                                    else if(PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false) || PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))    {
+                                    } else if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false) || PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
                                         AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                    }
-                                    else    {
+                                    } else {
                                         Intent intent = new Intent(PinEntryActivity.this, ConfirmationCodeActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
                                     }
                                 }
 
-                           }
+                            }
 
                         });
 
-                    }
-                    else {
-                        if(progress != null && progress.isShowing()) {
+                    } else {
+                        if (progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
@@ -503,14 +489,12 @@ public class PinEntryActivity extends Activity {
 
                     Looper.loop();
 
-                }
-                catch(JSONException | IOException | DecoderException | AddressFormatException
+                } catch (JSONException | IOException | DecoderException | AddressFormatException
                         | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
                         | MnemonicException.MnemonicChecksumException e) {
                     e.printStackTrace();
-                }
-                finally {
-                    if(progress != null && progress.isShowing()) {
+                } finally {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -524,7 +508,7 @@ public class PinEntryActivity extends Activity {
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -539,9 +523,9 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 Looper.prepare();
 
-                if(AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
+                if (AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
 
-                    if(progress != null && progress.isShowing()) {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -549,10 +533,9 @@ public class PinEntryActivity extends Activity {
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
                     updatePayloadThread(PayloadFactory.getInstance().getTempPassword());
 
-                }
-                else {
+                } else {
 
-                    if(progress != null && progress.isShowing()) {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -579,7 +562,7 @@ public class PinEntryActivity extends Activity {
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -598,8 +581,8 @@ public class PinEntryActivity extends Activity {
 
                 try {
                     password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
-                }catch (Exception e){
-                    if(progress != null && progress.isShowing()) {
+                } catch (Exception e) {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -611,9 +594,9 @@ public class PinEntryActivity extends Activity {
                     return;
                 }
 
-                if(password != null) {
+                if (password != null) {
 
-                    if(progress != null && progress.isShowing()) {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -621,10 +604,9 @@ public class PinEntryActivity extends Activity {
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
                     AppUtil.getInstance(PinEntryActivity.this).setIsLocked(false);
                     updatePayloadThread(password);
-                }
-                else {
+                } else {
 
-                    if(progress != null && progress.isShowing()) {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -646,16 +628,16 @@ public class PinEntryActivity extends Activity {
         }).start();
     }
 
-    private void validationDialog()	{
+    private void validationDialog() {
 
         final EditText password = new EditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
         new AlertDialog.Builder(this)
-        .setTitle(R.string.app_name)
-        .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
-        .setView(password)
-        .setCancelable(false)
+                .setTitle(R.string.app_name)
+                .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
+                .setView(password)
+                .setCancelable(false)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -682,7 +664,7 @@ public class PinEntryActivity extends Activity {
 
         final Handler handler = new Handler();
 
-        if(progress != null && progress.isShowing()) {
+        if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
         }
@@ -699,7 +681,7 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                    if(HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
+                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
 
                         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
@@ -710,10 +692,9 @@ public class PinEntryActivity extends Activity {
                         Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
-                    }
-                    else {
+                    } else {
                         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        if(progress != null && progress.isShowing()) {
+                        if (progress != null && progress.isShowing()) {
                             progress.dismiss();
                             progress = null;
                         }
@@ -724,14 +705,12 @@ public class PinEntryActivity extends Activity {
 
                     Looper.loop();
 
-                }
-                catch(JSONException | IOException | DecoderException | AddressFormatException
+                } catch (JSONException | IOException | DecoderException | AddressFormatException
                         | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
                         | MnemonicException.MnemonicChecksumException e) {
                     e.printStackTrace();
-                }
-                finally {
-                    if(progress != null && progress.isShowing()) {
+                } finally {
+                    if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
@@ -743,7 +722,7 @@ public class PinEntryActivity extends Activity {
 
     public void padClicked(View view) {
 
-        if(userEnteredPIN.length() == PIN_LENGTH) {
+        if (userEnteredPIN.length() == PIN_LENGTH) {
             return;
         }
 
@@ -767,10 +746,7 @@ public class PinEntryActivity extends Activity {
             if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
                 titleView.setVisibility(View.INVISIBLE);
                 validatePIN(userEnteredPIN);
-            }
-
-            else if(userEnteredPINConfirm == null)
-            {
+            } else if (userEnteredPINConfirm == null) {
                 //End of Create -  Change to Confirm
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
@@ -788,8 +764,7 @@ public class PinEntryActivity extends Activity {
                     }
                 }, 200);
 
-            }else if (userEnteredPINConfirm != null && userEnteredPINConfirm.equals(userEnteredPIN))
-            {
+            } else if (userEnteredPINConfirm != null && userEnteredPINConfirm.equals(userEnteredPIN)) {
                 //End of Confirm - Pin is confirmed
                 createPINThread(userEnteredPIN); // Pin is confirmed. Save to server.
 
@@ -810,9 +785,9 @@ public class PinEntryActivity extends Activity {
         userEnteredPIN = "";
     }
 
-    private void clearPinBoxes(){
-        if(userEnteredPIN.length() > 0)	{
-            for(int i = 0; i < pinBoxArray.length; i++)	{
+    private void clearPinBoxes() {
+        if (userEnteredPIN.length() > 0) {
+            for (int i = 0; i < pinBoxArray.length; i++) {
                 pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);//reset pin buttons blank
             }
         }
@@ -828,7 +803,7 @@ public class PinEntryActivity extends Activity {
     //
     // increment failure count
     //
-    private void incFailure()   {
+    private void incFailure() {
         int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
         PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);

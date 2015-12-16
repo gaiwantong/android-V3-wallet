@@ -2,20 +2,21 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.Util;
+import info.blockchain.wallet.util.WebUtil;
+
 import org.bitcoinj.core.ECKey;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
 
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.Util;
-import info.blockchain.wallet.util.WebUtil;
-
-public class EntropyTest extends BlockchainTest{
+public class EntropyTest extends BlockchainTest {
 
     Context ctx;
+
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public EntropyTest(String name, Context ctx) {
@@ -57,7 +58,7 @@ public class EntropyTest extends BlockchainTest{
     /*
     Test XOR method with predefined values
      */
-    public void predefinedXOR(){
+    public void predefinedXOR() {
 
         //http://xor.pw/
         byte[] data1 = Hex.decode("033cdcaecb07a62695963be9dbeec3362f1b26b048e8e15fb239c8f6967e8410");
@@ -71,39 +72,39 @@ public class EntropyTest extends BlockchainTest{
     /*
     If the server returns incomplete result, confirm that no new address is generated for the wallet
      */
-    public void serverResultIncomplete(){
+    public void serverResultIncomplete() {
 
-        AssertUtil.getInstance().assert_true(this, "serverResultIncomplete", newLegacyAddress(0)==null);
+        AssertUtil.getInstance().assert_true(this, "serverResultIncomplete", newLegacyAddress(0) == null);
     }
 
     /*
     If there is a server issue and server-side entropy cannot be obtained, confirm that no new address is generated for the wallet
      */
-    public void serverConnectionError(){
+    public void serverConnectionError() {
 
-        AssertUtil.getInstance().assert_true(this, "serverConnectionError", newLegacyAddress(1)==null);
+        AssertUtil.getInstance().assert_true(this, "serverConnectionError", newLegacyAddress(1) == null);
     }
 
     /*
     If server result cannot be decoded, confirm that no new address is generated for the wallet
      */
-    public void hexDecodeError(){
+    public void hexDecodeError() {
 
-        AssertUtil.getInstance().assert_true(this, "hexDecodeError", newLegacyAddress(2)==null);
+        AssertUtil.getInstance().assert_true(this, "hexDecodeError", newLegacyAddress(2) == null);
     }
 
     /*
     If xor fails, confirm that no new address is generated for the wallet
      */
-    public void xorError(){
+    public void xorError() {
 
-        AssertUtil.getInstance().assert_true(this, "xorError", newLegacyAddress(3)==null);
+        AssertUtil.getInstance().assert_true(this, "xorError", newLegacyAddress(3) == null);
     }
 
     /*
     Duplicate of PayloadBridge.newLegacyAddress() - testCase added to break at various points
      */
-    public ECKey newLegacyAddress(int testCase)  {
+    public ECKey newLegacyAddress(int testCase) {
 
         AppUtil.getInstance(context).applyPRNGFixes();
 
@@ -113,35 +114,34 @@ public class EntropyTest extends BlockchainTest{
             result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
 
             //TestCase insert start
-            if(testCase == 0)result = "abc123";//emulate server returns incomplete result
-            if(testCase == 1)result = null;//emulate connection error
+            if (testCase == 0) result = "abc123";//emulate server returns incomplete result
+            if (testCase == 1) result = null;//emulate connection error
             //TestCase insert end
 
-            if(!result.matches("^[A-Fa-f0-9]{64}$"))    {
+            if (!result.matches("^[A-Fa-f0-9]{64}$")) {
                 return null;//testCase 0 and 1 will trigger this
             }
             data = Hex.decode(result);
 
             //TestCase insert start
-            if(testCase == 2)data = null;//emulate Hex decode error
+            if (testCase == 2) data = null;//emulate Hex decode error
             //TestCase insert end
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return null;//testCase 2 will trigger this
         }
 
         ECKey ecKey = null;
-        if(data != null)    {
+        if (data != null) {
             byte[] rdata = new byte[32];
             SecureRandom random = new SecureRandom();
             random.nextBytes(rdata);
             byte[] privbytes = Util.getInstance().xor(data, rdata);
 
             //TestCase insert start
-            if(testCase == 3)privbytes = null;//emulate xor error
+            if (testCase == 3) privbytes = null;//emulate xor error
             //TestCase insert end
 
-            if(privbytes == null)    {
+            if (privbytes == null) {
                 return null;
             }
             ecKey = ECKey.fromPrivate(privbytes, true);
@@ -149,8 +149,7 @@ public class EntropyTest extends BlockchainTest{
             random.nextBytes(privbytes);
             random.nextBytes(rdata);
             random.nextBytes(data);
-        }
-        else    {
+        } else {
             return null;//testCase 3 will trigger this
         }
         return ecKey;

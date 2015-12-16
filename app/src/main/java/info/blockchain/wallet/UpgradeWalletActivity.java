@@ -34,6 +34,7 @@ import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
+
 import piuk.blockchain.android.R;
 
 public class UpgradeWalletActivity extends Activity {
@@ -96,10 +97,10 @@ public class UpgradeWalletActivity extends Activity {
             }
         });
 
-        if(PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50)    {
+        if (PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50) {
 
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            final LinearLayout pwLayout = (LinearLayout)inflater.inflate(R.layout.modal_change_password, null);
+            final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password, null);
 
             new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
@@ -109,19 +110,17 @@ public class UpgradeWalletActivity extends Activity {
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
-                            String password1 = ((EditText)pwLayout.findViewById(R.id.pw1)).getText().toString();
-                            String password2 = ((EditText)pwLayout.findViewById(R.id.pw2)).getText().toString();
+                            String password1 = ((EditText) pwLayout.findViewById(R.id.pw1)).getText().toString();
+                            String password2 = ((EditText) pwLayout.findViewById(R.id.pw2)).getText().toString();
 
                             if (password1 == null || password1.length() < 9 || password1.length() > 255 ||
-                                    password2 == null  || password2.length() < 9 || password2.length() > 255 ) {
+                                    password2 == null || password2.length() < 9 || password2.length() > 255) {
                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            }
-                            else {
+                            } else {
 
                                 if (!password2.equals(password1)) {
                                     ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
-                                else    {
+                                } else {
 
                                     final CharSequenceX currentPassword = PayloadFactory.getInstance().getTempPassword();
                                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2));
@@ -135,8 +134,7 @@ public class UpgradeWalletActivity extends Activity {
                                             if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
                                                 PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                            }
-                                            else    {
+                                            } else {
                                                 PayloadFactory.getInstance().setTempPassword(currentPassword);
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -160,9 +158,9 @@ public class UpgradeWalletActivity extends Activity {
 
         }
 
-        pageBox0 = (TextView)findViewById(R.id.pageBox0);
-        pageBox1 = (TextView)findViewById(R.id.pageBox1);
-        pageBox2 = (TextView)findViewById(R.id.pageBox2);
+        pageBox0 = (TextView) findViewById(R.id.pageBox0);
+        pageBox1 = (TextView) findViewById(R.id.pageBox1);
+        pageBox2 = (TextView) findViewById(R.id.pageBox2);
     }
 
     public void upgradeClicked(View view) {
@@ -175,9 +173,9 @@ public class UpgradeWalletActivity extends Activity {
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);
 
-        heading = (TextView)dialogView.findViewById(R.id.heading_tv);
-        info = (TextView)dialogView.findViewById(R.id.upgrade_info_tv);
-        progressBar = (ProgressBar)dialogView.findViewById(R.id.progressBar3);
+        heading = (TextView) dialogView.findViewById(R.id.heading_tv);
+        info = (TextView) dialogView.findViewById(R.id.upgrade_info_tv);
+        progressBar = (ProgressBar) dialogView.findViewById(R.id.progressBar3);
 
         confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {
@@ -207,14 +205,14 @@ public class UpgradeWalletActivity extends Activity {
                         Looper.prepare();
                         try {
 
-                            if(ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
+                            if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
                                 AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
 
                                 PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
                                 AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
                                 HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
                                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                            }else{
+                            } else {
                                 AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
                                 PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                                 onUpgradeFail();
@@ -241,7 +239,7 @@ public class UpgradeWalletActivity extends Activity {
         alertDialog.show();
     }
 
-    private void onUpgradeStart(){
+    private void onUpgradeStart() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -254,9 +252,9 @@ public class UpgradeWalletActivity extends Activity {
         });
     }
 
-    private void onUpgradeCompleted(){
+    private void onUpgradeCompleted() {
 
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED,false);
+        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, false);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -280,7 +278,7 @@ public class UpgradeWalletActivity extends Activity {
         });
     }
 
-    private void onUpgradeFail(){
+    private void onUpgradeFail() {
 
         runOnUiThread(new Runnable() {
             @Override
@@ -307,6 +305,73 @@ public class UpgradeWalletActivity extends Activity {
         PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+    }
+
+    private void setSelectedPage(int position) {
+
+        pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
+        pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
+        pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
+
+        switch (position) {
+            case 0:
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
+                pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
+                break;
+            case 1:
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_2));
+                pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
+                break;
+            case 2:
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
+                pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
+                break;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+
+            AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+
+            return true;
+        } else {
+            ;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        AppUtil.getInstance(this).stopLockTimer();
+
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+            Intent i = new Intent(this, PinEntryActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        AppUtil.getInstance(this).updateUserInteractionTime();
+    }
+
+    @Override
+    protected void onPause() {
+        AppUtil.getInstance(this).startLockTimer();
+        super.onPause();
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        AppUtil.getInstance(this).setInBackground(true);
     }
 
     class CustomPagerAdapter extends PagerAdapter {
@@ -351,70 +416,5 @@ public class UpgradeWalletActivity extends Activity {
             container.removeView((LinearLayout) object);
         }
 
-    }
-
-    private void setSelectedPage(int position){
-
-        pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
-        pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
-        pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_dark_blue));
-
-        switch (position){
-            case 0:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
-                pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
-            case 1:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_2));
-                pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
-            case 2:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
-                pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));break;
-        }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-
-            AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
-
-            return true;
-        }
-        else	{
-            ;
-        }
-
-        return false;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
-    protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
-        super.onPause();
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 }

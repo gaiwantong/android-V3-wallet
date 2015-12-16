@@ -2,16 +2,16 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import org.json.JSONObject;
-
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.util.CharSequenceX;
 
+import org.json.JSONObject;
+
 public class PairingTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public PairingTest(String name, Context ctx) {
@@ -81,9 +81,8 @@ public class PairingTest extends BlockchainTest {
         try {
             payload1 = PairingFactory.getInstance(context).getWalletManualPairing(guid);
             JSONObject jsonObj = new JSONObject(payload1);
-            payload2 = (String)jsonObj.getString("payload");
-        }
-        catch(Exception e) {
+            payload2 = (String) jsonObj.getString("payload");
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -97,8 +96,7 @@ public class PairingTest extends BlockchainTest {
         String decrypt = null;
         try {
             decrypt = AESUtil.decrypt(encrypted, new CharSequenceX(password), AESUtil.PasswordPBKDF2Iterations);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("decrypt ko");
         }
 

@@ -7,7 +7,7 @@ import info.blockchain.wallet.util.SSLVerifierUtil;
 public class SSLVerifierTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public SSLVerifierTest(String name, Context ctx) {

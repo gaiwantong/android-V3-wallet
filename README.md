@@ -1,4 +1,4 @@
-# My-Wallet-HD-Android
+# My-Wallet-V3-Android
 
 Next-generation HD (BIP32, BIP39, BIP44) bitcoin wallet. 
 
@@ -11,6 +11,14 @@ Import as Android Studio project.
 Build -> Make Project
 
 If there are build errors, in Android Studio go to Tools -> Android -> SDK Manager and install any available updates.
+
+## Code style
+
+To install the Google Java Style in Android Studio, copy the IntelliJ codestyle from here:
+
+https://raw.githubusercontent.com/google/styleguide/gh-pages/intellij-java-google-style.xml
+
+to `~/Library/Preferences/AndroidStudio1.5/codestyles/` (on Mac OS X).
 
 ### Notes
 

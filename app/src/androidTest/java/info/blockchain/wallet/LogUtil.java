@@ -8,11 +8,13 @@ public class LogUtil {
 
     private static boolean LOGGING_ON = true;
 
-    private LogUtil() { ; }
+    private LogUtil() {
+        ;
+    }
 
     public static LogUtil getInstance() {
 
-        if(instance == null) {
+        if (instance == null) {
             instance = new LogUtil();
         }
 
@@ -29,7 +31,7 @@ public class LogUtil {
 
     public void log(String tag, String msg) {
 
-        if(LOGGING_ON) {
+        if (LOGGING_ON) {
             Log.i(tag, msg);
         }
 

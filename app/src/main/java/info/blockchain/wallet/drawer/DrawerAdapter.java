@@ -15,13 +15,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder
 
     private ArrayList<DrawerItem> drawerItems;
 
-    public class ViewHolder extends RecyclerView.ViewHolder  {
-
-        public ViewHolder(View view) {
-            super(view);
-        }
-    }
-
     public DrawerAdapter(ArrayList<DrawerItem> drawerItems) {
         this.drawerItems = drawerItems;
     }
@@ -44,5 +37,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder
     @Override
     public int getItemCount() {
         return drawerItems.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        public ViewHolder(View view) {
+            super(view);
+        }
     }
 }

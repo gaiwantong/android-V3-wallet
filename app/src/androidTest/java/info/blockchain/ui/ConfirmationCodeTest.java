@@ -5,16 +5,17 @@ import android.widget.EditText;
 
 import com.robotium.solo.Solo;
 
+import info.blockchain.ui.util.UiUtil;
+import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.PinEntryActivity;
+import info.blockchain.wallet.util.PrefsUtil;
+
 import junit.framework.TestCase;
 
 import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 
-import info.blockchain.ui.util.UiUtil;
-import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.PinEntryActivity;
-import info.blockchain.wallet.util.PrefsUtil;
 import piuk.blockchain.android.R;
 
 public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -40,19 +41,22 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
         solo.goBack();
     }
 
-    private void navigateToCreate(){
+    private void navigateToCreate() {
 
         //Navigate to create wallet
         solo.clickOnView(solo.getView(R.id.create));
-        try{solo.sleep(1000);}catch (Exception e){}
+        try {
+            solo.sleep(1000);
+        } catch (Exception e) {
+        }
 
         //Set up views
-        emailAddressView = (EditText)solo.getCurrentActivity().findViewById(R.id.email_address);
-        walletPasswordView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass);
-        walletPasswordConfirmView = (EditText)solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
+        emailAddressView = (EditText) solo.getCurrentActivity().findViewById(R.id.email_address);
+        walletPasswordView = (EditText) solo.getCurrentActivity().findViewById(R.id.wallet_pass);
+        walletPasswordConfirmView = (EditText) solo.getCurrentActivity().findViewById(R.id.wallet_pass_confrirm);
     }
 
-    public void testA_CreateValidWallet()  throws AssertionError{
+    public void testA_CreateValidWallet() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -104,14 +108,17 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
 
         solo.clickOnText(getActivity().getString(R.string.wipe_wallet));
-        try{solo.sleep(1000);}catch (Exception e){}
+        try {
+            solo.sleep(1000);
+        } catch (Exception e) {
+        }
 
         //Test wiped
         TestCase.assertTrue(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_GUID, "").isEmpty());
         TestCase.assertTrue(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").isEmpty());
     }
 
-    public void testE_CreateValidWallet()  throws AssertionError{
+    public void testE_CreateValidWallet() throws AssertionError {
         navigateToCreate();
         //Clear text fields
         solo.clearEditText(emailAddressView);
@@ -137,7 +144,7 @@ public class ConfirmationCodeTest extends ActivityInstrumentationTestCase2<MainA
 
     public void testF_EnterCorrectCode() throws AssertionError, IOException, MnemonicException.MnemonicLengthException {
 
-        if(AllTests.enableUserInteraction) {
+        if (AllTests.enableUserInteraction) {
 
             UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
 

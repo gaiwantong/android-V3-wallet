@@ -2,11 +2,6 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import org.bitcoinj.core.Transaction;
-
-import java.math.BigInteger;
-import java.util.HashMap;
-
 import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
@@ -17,12 +12,17 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.MonetaryUtil;
 
+import org.bitcoinj.core.Transaction;
+
+import java.math.BigInteger;
+import java.util.HashMap;
+
 public class SendTest extends BlockchainTest {
 
-    long lamount = (long)(Double.parseDouble("0.0001") * 1e8);
+    long lamount = (long) (Double.parseDouble("0.0001") * 1e8);
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public SendTest(String name, Context ctx) {
@@ -52,11 +52,10 @@ public class SendTest extends BlockchainTest {
         PayloadFactory.getInstance().set(new Payload(payload));
         try {
             PayloadFactory.getInstance().get().parseJSON();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             ;
         }
-        MultiAddrFactory.getInstance().getXPUB(new String[] { PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub() } );
+        MultiAddrFactory.getInstance().getXPUB(new String[]{PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub()});
 
         SendFactory sf = getFactoryInstance(context);
 
@@ -95,8 +94,7 @@ public class SendTest extends BlockchainTest {
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
             pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, MonetaryUtil.getInstance().getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -123,8 +121,7 @@ public class SendTest extends BlockchainTest {
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
             pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, MonetaryUtil.getInstance().getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import piuk.blockchain.android.R;
 
-public class ToastCustom{
+public class ToastCustom {
 
     public static final String TYPE_ERROR = "TYPE_ERROR";
     public static final String TYPE_GENERAL = "TYPE_GENERAL";
@@ -21,7 +21,7 @@ public class ToastCustom{
 
     private static Toast toast = null;
 
-    public static void makeText(final Context context,final  CharSequence text,final  int duration,final  String type) {
+    public static void makeText(final Context context, final CharSequence text, final int duration, final String type) {
 
         new Thread(new Runnable() {
             @Override
@@ -30,26 +30,26 @@ public class ToastCustom{
 
                 toast = Toast.makeText(context, text, duration);
 
-                LayoutInflater inflate = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View v = inflate.inflate(R.layout.transient_notification, null);
                 TextView tv = (TextView) v.findViewById(R.id.message);
                 tv.setText(text);
 
-                if (type.equals(TYPE_ERROR)){
+                if (type.equals(TYPE_ERROR)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
                         tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
                     else
                         tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.rounded_view_toast_error));
                     tv.setTextColor(context.getResources().getColor(R.color.toast_error_text));
 
-                }else if(type.equals(TYPE_GENERAL)){
+                } else if (type.equals(TYPE_GENERAL)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
                         tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
                     else
                         tv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.rounded_view_toast_warning));
                     tv.setTextColor(context.getResources().getColor(R.color.toast_warning_text));
 
-                }else if(type.equals(TYPE_OK)){
+                } else if (type.equals(TYPE_OK)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
                         tv.setBackground(context.getResources().getDrawable(R.drawable.rounded_view_toast_info));
                     else

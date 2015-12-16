@@ -51,7 +51,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
     compile 'com.neovisionaries:nv-websocket-client:1.9'
-    compile('eu.livotov.labs:camview:2.0.0.DEV4-SNAPSHOT@aar') {transitive=true}
+    compile('eu.livotov.labs:camview:2.0.0.DEV4-SNAPSHOT@aar') { transitive = true }
 
     androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
 }

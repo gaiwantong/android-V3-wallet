@@ -13,69 +13,70 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import info.blockchain.wallet.util.ConnectivityStatus;
+
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class LandingActivity extends Activity	{
+public class LandingActivity extends Activity {
 
     private Button btCreate = null;
     private TextView btLogin = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_landing);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            setTitle(R.string.app_name);
-            
-            btCreate = (Button)findViewById(R.id.create);
-            btCreate.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_landing);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setTitle(R.string.app_name);
 
-                    Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("starting_fragment",0);
-                    startActivity(intent);
+        btCreate = (Button) findViewById(R.id.create);
+        btCreate.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
 
-                    return false;
-                }
-            });
-            
-            btLogin = (TextView)findViewById(R.id.login);
-            btLogin.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
+                Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("starting_fragment", 0);
+                startActivity(intent);
 
-                    Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("starting_fragment",1);
-                    startActivity(intent);
+                return false;
+            }
+        });
 
-                    return false;
-                }
-            });
-            
-            if(!ConnectivityStatus.hasConnectivity(this)) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        btLogin = (TextView) findViewById(R.id.login);
+        btLogin.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
 
-                final String message = getString(R.string.check_connectivity_exit);
+                Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("starting_fragment", 1);
+                startActivity(intent);
 
-                builder.setMessage(message)
+                return false;
+            }
+        });
+
+        if (!ConnectivityStatus.hasConnectivity(this)) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final String message = getString(R.string.check_connectivity_exit);
+
+            builder.setMessage(message)
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface d, int id) {
-                                d.dismiss();
-                                Intent intent = new Intent(LandingActivity.this, LandingActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                    });
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int id) {
+                                    d.dismiss();
+                                    Intent intent = new Intent(LandingActivity.this, LandingActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                            });
 
-                builder.create().show();
-            }
+            builder.create().show();
+        }
 
     }
 }

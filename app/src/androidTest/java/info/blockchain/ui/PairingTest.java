@@ -5,11 +5,12 @@ import android.widget.EditText;
 
 import com.robotium.solo.Solo;
 
-import junit.framework.TestCase;
-
 import info.blockchain.ui.util.UiUtil;
 import info.blockchain.wallet.LandingActivity;
 import info.blockchain.wallet.PinEntryActivity;
+
+import junit.framework.TestCase;
+
 import piuk.blockchain.android.R;
 
 public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivity> {
@@ -41,7 +42,7 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         solo.finishOpenedActivities();
     }
 
-    public void testPairingPasswordEmpty()  throws AssertionError{
+    public void testPairingPasswordEmpty() throws AssertionError {
 
         //Clear text fields
         solo.clearEditText(walletIDView);
@@ -58,7 +59,7 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_password)));
     }
 
-    public void testPairingUIDEmpty()  throws AssertionError{
+    public void testPairingUIDEmpty() throws AssertionError {
 
         //Clear text fields
         solo.clearEditText(walletIDView);
@@ -75,7 +76,7 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.invalid_guid)));
     }
 
-    public void testPairingPasswordInvalid()  throws AssertionError{
+    public void testPairingPasswordInvalid() throws AssertionError {
 
         //Clear text fields
         solo.clearEditText(walletIDView);
@@ -94,7 +95,7 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         TestCase.assertEquals(true, solo.waitForText(solo.getCurrentActivity().getString(R.string.pairing_failed)));
     }
 
-    public void testPairingV3Success()  throws AssertionError{
+    public void testPairingV3Success() throws AssertionError {
 
         //Clear text fields
         solo.clearEditText(walletIDView);
@@ -116,7 +117,7 @@ public class PairingTest extends ActivityInstrumentationTestCase2<LandingActivit
         UiUtil.getInstance(getActivity()).enterPin(solo, solo.getString(R.string.qa_test_pin1));
     }
 
-    public void testPairingV2Success()  throws AssertionError{
+    public void testPairingV2Success() throws AssertionError {
 
         //Clear text fields
         solo.clearEditText(walletIDView);

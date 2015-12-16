@@ -2,6 +2,11 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
+import info.blockchain.credentials.WalletUtil;
+import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.PrefsUtil;
+
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
@@ -9,15 +14,10 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
-import info.blockchain.credentials.WalletUtil;
-import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.PrefsUtil;
-
 public class BlockchainWalletTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public BlockchainWalletTest(String name, Context ctx) {
@@ -92,13 +92,11 @@ public class BlockchainWalletTest extends BlockchainTest {
 
         try {
             loggedIn = HDPayloadBridge.getInstance(context).init(pw);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException | JSONException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Logged in with proper credentials", loggedIn);
         }
     }
@@ -109,13 +107,11 @@ public class BlockchainWalletTest extends BlockchainTest {
 
         try {
             loggedIn = HDPayloadBridge.getInstance(context).init(new CharSequenceX(pw));
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException | JSONException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Not logged in with bad password", !loggedIn);
         }
     }
@@ -126,13 +122,11 @@ public class BlockchainWalletTest extends BlockchainTest {
 
         try {
             loggedIn = HDPayloadBridge.getInstance(context).init(pw);
-        }
-        catch(IOException | DecoderException | AddressFormatException
+        } catch (IOException | DecoderException | AddressFormatException
                 | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                 | MnemonicException.MnemonicWordException | JSONException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Not logged in with bad credentials", !loggedIn);
         }
     }

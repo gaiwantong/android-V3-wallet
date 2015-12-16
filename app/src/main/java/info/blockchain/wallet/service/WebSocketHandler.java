@@ -12,6 +12,13 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
+import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.NotificationsFactory;
+import info.blockchain.wallet.util.ToastCustom;
+
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
@@ -24,32 +31,22 @@ import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
-import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
 public class WebSocketHandler {
 
-    private WebSocket mConnection = null;
-
     private static String guid = null;
     private static String[] xpubs = null;
     private static String[] addrs = null;
-
     private static Context context = null;
-
-    private HashSet<String> subHashSet = new HashSet<String>();
-    private HashSet<String> onChangeHashSet = new HashSet<String>();
-
-    private Timer pingTimer = null;
     private final long pingInterval = 20000L;//ping pong every 20 seconds
     private final long pongTimeout = 5000L;//pong timeout after 5 seconds
+    private WebSocket mConnection = null;
+    private HashSet<String> subHashSet = new HashSet<String>();
+    private HashSet<String> onChangeHashSet = new HashSet<String>();
+    private Timer pingTimer = null;
     private boolean pingPongSuccess = false;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
@@ -61,7 +58,7 @@ public class WebSocketHandler {
 
     public void send(String message) {
         //Make sure each message is only sent once per socket lifetime
-        if(!subHashSet.contains(message)) {
+        if (!subHashSet.contains(message)) {
             try {
                 if (mConnection != null && mConnection.isOpen()) {
 //                    Log.i("WebSocketHandler", "Websocket subscribe:" +message);
@@ -78,19 +75,19 @@ public class WebSocketHandler {
 
     public synchronized void subscribe() {
 
-        if(guid == null) {
+        if (guid == null) {
             return;
         }
         // send("{\"op\":\"blocks_sub\"}");
         send("{\"op\":\"wallet_sub\",\"guid\":\"" + guid + "\"}");
 
-        for(int i = 0; i < xpubs.length; i++) {
-            if(xpubs[i] != null && xpubs[i].length() > 0) {
+        for (int i = 0; i < xpubs.length; i++) {
+            if (xpubs[i] != null && xpubs[i].length() > 0) {
                 send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpubs[i] + "\"}");
             }
         }
 
-        for(int i = 0; i < addrs.length; i++) {
+        for (int i = 0; i < addrs.length; i++) {
             if (addrs[i] != null && addrs[i].length() > 0) {
                 send("{\"op\":\"addr_sub\", \"addr\":\"" + addrs[i] + "\"}");
             }
@@ -105,7 +102,7 @@ public class WebSocketHandler {
 
         stopPingTimer();
 
-        if(mConnection != null && mConnection.isOpen()) {
+        if (mConnection != null && mConnection.isOpen()) {
             mConnection.disconnect();
         }
     }
@@ -115,14 +112,13 @@ public class WebSocketHandler {
             stop();
             connect();
             startPingTimer();
-        }
-        catch (IOException | com.neovisionaries.ws.client.WebSocketException e) {
+        } catch (IOException | com.neovisionaries.ws.client.WebSocketException e) {
             e.printStackTrace();
         }
 
     }
 
-    private void startPingTimer(){
+    private void startPingTimer() {
 
         pingTimer = new Timer();
         pingTimer.scheduleAtFixedRate(new TimerTask() {
@@ -138,11 +134,11 @@ public class WebSocketHandler {
         }, pingInterval, pingInterval);
     }
 
-    private void stopPingTimer(){
-        if(pingTimer != null) pingTimer.cancel();
+    private void stopPingTimer() {
+        if (pingTimer != null) pingTimer.cancel();
     }
 
-    private void startPongTimer(){
+    private void startPongTimer() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -157,12 +153,11 @@ public class WebSocketHandler {
     /**
      * Connect to the server.
      */
-    private void connect() throws IOException, WebSocketException
-    {
+    private void connect() throws IOException, WebSocketException {
         new ConnectionTask().execute();
     }
 
-    private void updateBalance()    {
+    private void updateBalance() {
         new Thread() {
             public void run() {
 
@@ -305,12 +300,12 @@ public class WebSocketHandler {
 
                                     } else if (op.equals("on_change")) {
 
-                                        if(!onChangeHashSet.contains(message)) {
+                                        if (!onChangeHashSet.contains(message)) {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                    updateBalance();
+                                                updateBalance();
 
                                                 Intent intent = new Intent("info.blockchain.wallet.MyAccountsActivity.REFRESH");
                                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
@@ -319,8 +314,7 @@ public class WebSocketHandler {
                                             onChangeHashSet.add(message);
                                         }
 
-                                    }
-                                    else {
+                                    } else {
                                         ;
                                     }
                                 } catch (Exception e) {
@@ -333,8 +327,7 @@ public class WebSocketHandler {
 
                 subscribe();
 
-            }
-            catch(Exception e)	{
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

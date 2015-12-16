@@ -8,11 +8,13 @@ public class RootUtil {
 
     private static RootUtil instance = null;
 
-    private RootUtil()  { ; }
+    private RootUtil() {
+        ;
+    }
 
     public static RootUtil getInstance() {
 
-        if(instance == null)  {
+        if (instance == null) {
             instance = new RootUtil();
         }
 
@@ -43,7 +45,7 @@ public class RootUtil {
         };
 
         for (String path : paths) {
-            if(new File(path).exists()) {
+            if (new File(path).exists()) {
                 return true;
             }
         }
@@ -55,18 +57,16 @@ public class RootUtil {
 
         Process process = null;
         try {
-            process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+            process = Runtime.getRuntime().exec(new String[]{"/system/xbin/which", "su"});
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            if(in.readLine() != null)  {
+            if (in.readLine() != null) {
                 return true;
             }
             return false;
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             return false;
-        }
-        finally {
-            if(process != null)  {
+        } finally {
+            if (process != null) {
                 process.destroy();
             }
         }

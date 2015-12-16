@@ -1,10 +1,10 @@
 package info.blockchain.wallet.send;
 
-import org.bitcoinj.core.Transaction;
-
 import info.blockchain.wallet.callbacks.OpCallback;
 
-public class Spendable    {
+import org.bitcoinj.core.Transaction;
+
+public class Spendable {
 
     private Transaction tx = null;
     private OpCallback opc = null;
@@ -13,7 +13,7 @@ public class Spendable    {
     private boolean sentChange = false;
     private int accountIdx = -1;
 
-    public Spendable(Transaction tx, OpCallback opc, String note, boolean isHD, boolean sentChange, int accountIdx)  {
+    public Spendable(Transaction tx, OpCallback opc, String note, boolean isHD, boolean sentChange, int accountIdx) {
         this.tx = tx;
         this.opc = opc;
         this.note = note;

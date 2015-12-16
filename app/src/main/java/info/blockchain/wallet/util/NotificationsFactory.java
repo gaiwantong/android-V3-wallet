@@ -17,27 +17,27 @@ public class NotificationsFactory {
     private static Context context = null;
     private static NotificationsFactory instance = null;
 
-    private NotificationsFactory()	{
-    	;
+    private NotificationsFactory() {
+        ;
     }
 
     public static NotificationsFactory getInstance(Context ctx) {
-    	
-    	context = ctx;
-    	
-    	if(instance == null) {
-    		instance = new NotificationsFactory();
-    	}
-    	
-    	return instance;
+
+        context = ctx;
+
+        if (instance == null) {
+            instance = new NotificationsFactory();
+        }
+
+        return instance;
     }
 
     public void setNotification(String title, String marquee, String text, int drawablePostLollipop, int drawablePreLollipop, Class cls, int id) {
         mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-		int drawableCompat = drawablePreLollipop;
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			drawableCompat = drawablePostLollipop;
+        int drawableCompat = drawablePreLollipop;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            drawableCompat = drawablePostLollipop;
 
         Intent notifyIntent = new Intent(context, cls);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -49,12 +49,12 @@ public class NotificationsFactory {
                 .setContentIntent(intent)
                 .setWhen(System.currentTimeMillis())
                 .setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.alert))
-				.setTicker(marquee)
-				.setAutoCancel(true)
+                .setTicker(marquee)
+                .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .setDefaults(Notification.DEFAULT_LIGHTS)
-				.setContentText(text);
+                .setContentText(text);
 
-		mNotificationManager.notify(id, mBuilder.build());
-	}
+        mNotificationManager.notify(id, mBuilder.build());
+    }
 }

@@ -9,7 +9,7 @@ import info.blockchain.wallet.util.DoubleEncryptionFactory;
 public class DoubleEncryptionTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public DoubleEncryptionTest(String name, Context ctx) {

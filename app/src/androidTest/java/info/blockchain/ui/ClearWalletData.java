@@ -25,7 +25,7 @@ public class ClearWalletData extends ActivityInstrumentationTestCase2<MainActivi
         solo.finishOpenedActivities();
     }
 
-    public void testClear() throws AssertionError{
+    public void testClear() throws AssertionError {
         UiUtil.getInstance(solo.getCurrentActivity()).wipeWallet();
     }
 }

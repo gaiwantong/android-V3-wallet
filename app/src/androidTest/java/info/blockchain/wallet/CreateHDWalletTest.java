@@ -11,7 +11,7 @@ import java.io.IOException;
 class CreateWalletTest extends BlockchainTest {
 
     /**
-     * @param String name
+     * @param String  name
      * @param Context ctx
      */
     public CreateWalletTest(String name, Context ctx) {
@@ -60,11 +60,9 @@ class CreateWalletTest extends BlockchainTest {
         //
         try {
             hdw = hdwf.newWallet(12, "", 1);
-        }
-        catch(IOException | MnemonicException.MnemonicLengthException e) {
+        } catch (IOException | MnemonicException.MnemonicLengthException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Good params create new wallet", hdw != null);
         }
 
@@ -79,11 +77,9 @@ class CreateWalletTest extends BlockchainTest {
         //
         try {
             hdw = hdwf.newWallet(13, null, 0);
-        }
-        catch(IOException | MnemonicException.MnemonicLengthException e) {
+        } catch (IOException | MnemonicException.MnemonicLengthException e) {
             ;
-        }
-        finally {
+        } finally {
             AssertUtil.getInstance().assert_true(this, "Bad params create new wallet", hdw != null);
         }
 
@@ -99,8 +95,7 @@ class CreateWalletTest extends BlockchainTest {
         try {
             hdw = hdwf.get();
             AssertUtil.getInstance().assert_true(this, "WalletFactory is holding a wallet", hdw != null);
-        }
-        catch(IOException | MnemonicException.MnemonicLengthException e) {
+        } catch (IOException | MnemonicException.MnemonicLengthException e) {
             ;
         }
 

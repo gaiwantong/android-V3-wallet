@@ -1,5 +1,12 @@
 package info.blockchain.wallet;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.Intents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,27 +43,6 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.Intents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
-
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.uri.BitcoinURI;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -78,51 +64,34 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
 public class MyAccountsActivity extends Activity {
 
+    public static final String ACTION_INTENT = "info.blockchain.wallet.MyAccountsActivity.REFRESH";
     private static final int IMPORT_PRIVATE_KEY = 2006;
-
     private static final int ADDRESS_IMPORT = 0;
     private static final int ADDRESS_ADD = 1;
-
-    private static int ADDRESS_LABEL_MAX_LENGTH = 32;
-
-    private static String[] HEADERS;
     public static String ACCOUNT_HEADER;
     public static String IMPORTED_HEADER;
-
-    private LinearLayoutManager layoutManager = null;
-    private RecyclerView mRecyclerView = null;
-    private List<MyAccountItem> accountsAndImportedList = null;
-    private TextView myAccountsHeader;
-    private float originalHeaderTextSize;
+    private static int ADDRESS_LABEL_MAX_LENGTH = 32;
+    private static String[] HEADERS;
     public int toolbarHeight;
-
-    private ValueAnimator headerResizeAnimator;
-    private int originalHeight = 0;
-    private int newHeight = 0;
-    private int expandDuration = 200;
-    private boolean mIsViewExpanded = false;
-
-    private ImageView backNav;
-    private ImageView menuImport;
-    private HashMap<View,Boolean> rowViewState;
-
-    private ArrayList<Integer> headerPositions;
-    private int hdAccountsIdx;
-    private List<LegacyAddress> legacy = null;
-
-    private ProgressDialog progress = null;
-    private HashMap<Integer, Integer> accountIndexResover;
-
-    private Context context = null;
-
-    public static final String ACTION_INTENT = "info.blockchain.wallet.MyAccountsActivity.REFRESH";
-
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -139,6 +108,25 @@ public class MyAccountsActivity extends Activity {
             }
         }
     };
+    private LinearLayoutManager layoutManager = null;
+    private RecyclerView mRecyclerView = null;
+    private List<MyAccountItem> accountsAndImportedList = null;
+    private TextView myAccountsHeader;
+    private float originalHeaderTextSize;
+    private ValueAnimator headerResizeAnimator;
+    private int originalHeight = 0;
+    private int newHeight = 0;
+    private int expandDuration = 200;
+    private boolean mIsViewExpanded = false;
+    private ImageView backNav;
+    private ImageView menuImport;
+    private HashMap<View, Boolean> rowViewState;
+    private ArrayList<Integer> headerPositions;
+    private int hdAccountsIdx;
+    private List<LegacyAddress> legacy = null;
+    private ProgressDialog progress = null;
+    private HashMap<Integer, Integer> accountIndexResover;
+    private Context context = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,12 +140,12 @@ public class MyAccountsActivity extends Activity {
         ACCOUNT_HEADER = getResources().getString(R.string.accounts);
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
             HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
         else
             HEADERS = new String[0];
 
-        backNav = (ImageView)findViewById(R.id.back_nav);
+        backNav = (ImageView) findViewById(R.id.back_nav);
         backNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,19 +153,19 @@ public class MyAccountsActivity extends Activity {
             }
         });
 
-        menuImport = (ImageView)findViewById(R.id.menu_import);
+        menuImport = (ImageView) findViewById(R.id.menu_import);
         menuImport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String[] list = new String[] { getResources().getString(R.string.import_address) };
+                String[] list = new String[]{getResources().getString(R.string.import_address)};
 
-                if(AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
-                    list = new String[] { getResources().getString(R.string.import_address), getResources().getString(R.string.create_new_address) };
+                if (AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+                    list = new String[]{getResources().getString(R.string.import_address), getResources().getString(R.string.create_new_address)};
 
-                ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this,R.layout.spinner_dropdown, list);
+                ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this, R.layout.spinner_dropdown, list);
 
-                final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this,null);
+                final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this, null);
                 menuPopup.setAnchorView(menuImport);
                 menuPopup.setAdapter(popupAdapter);
                 menuPopup.setVerticalOffset((int) -(getResources().getDimension(R.dimen.action_bar_height) / 1.5));
@@ -189,24 +177,21 @@ public class MyAccountsActivity extends Activity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         switch (position) {
                             case ADDRESS_IMPORT:
-                                if(!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen())    {
+                                if (!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen()) {
                                     scanPrivateKey();
-                                }
-                                else    {
+                                } else {
                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 }
                                 break;
                             case ADDRESS_ADD:
 
-                                if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
+                                if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
                                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
-                                else    {
+                                } else {
 
-                                    if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                    if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                                         addAddress();
-                                    }
-                                    else    {
+                                    } else {
 
                                         final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
                                         double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -221,7 +206,7 @@ public class MyAccountsActivity extends Activity {
 
                                                         String pw2 = double_encrypt_password.getText().toString();
 
-                                                        if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                                        if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
                                                                 PayloadFactory.getInstance().get().getDoublePasswordHash(),
                                                                 PayloadFactory.getInstance().get().getSharedKey(),
                                                                 new CharSequenceX(pw2),
@@ -232,8 +217,7 @@ public class MyAccountsActivity extends Activity {
 
                                                             addAddress();
 
-                                                        }
-                                                        else {
+                                                        } else {
                                                             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                                         }
@@ -252,7 +236,7 @@ public class MyAccountsActivity extends Activity {
                                 break;
                         }
 
-                        if(menuPopup.isShowing())   {
+                        if (menuPopup.isShowing()) {
                             menuPopup.dismiss();
                         }
 
@@ -298,9 +282,9 @@ public class MyAccountsActivity extends Activity {
 
         });
 
-        myAccountsHeader = (TextView)findViewById(R.id.my_accounts_heading);
+        myAccountsHeader = (TextView) findViewById(R.id.my_accounts_heading);
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
             myAccountsHeader.setText(getString(R.string.my_accounts));
         else
             myAccountsHeader.setText(getString(R.string.my_addresses));
@@ -308,7 +292,7 @@ public class MyAccountsActivity extends Activity {
         myAccountsHeader.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
         originalHeaderTextSize = myAccountsHeader.getTextSize();
 
-        mRecyclerView = (RecyclerView)findViewById(R.id.accountsList);
+        mRecyclerView = (RecyclerView) findViewById(R.id.accountsList);
         layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -316,9 +300,9 @@ public class MyAccountsActivity extends Activity {
 
         ArrayList<MyAccountItem> accountItems = new ArrayList<>();
         accountsAndImportedList = getAccounts();
-        toolbarHeight = (int)getResources().getDimension(R.dimen.action_bar_height)+35;
+        toolbarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
-        for(MyAccountItem item : accountsAndImportedList){
+        for (MyAccountItem item : accountsAndImportedList) {
             accountItems.add(item);
         }
 
@@ -332,7 +316,7 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+                        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         try {
@@ -343,8 +327,7 @@ public class MyAccountsActivity extends Activity {
 
                         if (!mIsViewExpanded) {
                             expandView(view, position);
-                        }
-                        else {
+                        } else {
                             collapseView(view);
                         }
 
@@ -367,31 +350,28 @@ public class MyAccountsActivity extends Activity {
         });
     }
 
-    private void expandView(View view, int position){
+    private void expandView(View view, int position) {
 
         final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
-        final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
+        final TextView addressView = (TextView) view.findViewById(R.id.my_account_row_address);
 
         String currentSelectedAddress = null;
 
-        if (position-HEADERS.length >= hdAccountsIdx) {//2 headers before imported
+        if (position - HEADERS.length >= hdAccountsIdx) {//2 headers before imported
 
             LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
 
-            if(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)   {
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                 ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                 return;
-            }
-            else if(legacyAddress.isWatchOnly()) {
+            } else if (legacyAddress.isWatchOnly()) {
                 ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                 return;
-            }
-            else    {
+            } else {
                 currentSelectedAddress = legacyAddress.getAddress();
             }
 
-        }
-        else {
+        } else {
             ReceiveAddress currentSelectedReceiveAddress = null;
             try {
                 currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
@@ -409,7 +389,7 @@ public class MyAccountsActivity extends Activity {
             originalHeight = view.getHeight();
         }
 
-        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight()*2)+(24*2);
+        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight() * 2) + (24 * 2);
 
         final String finalCurrentSelectedAddress = currentSelectedAddress;
         qrTest.setOnLongClickListener(new View.OnLongClickListener() {
@@ -465,10 +445,10 @@ public class MyAccountsActivity extends Activity {
         startAnim(view);
     }
 
-    private void collapseView(View view){
+    private void collapseView(View view) {
 
         final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
-        final TextView addressView = (TextView)view.findViewById(R.id.my_account_row_address);
+        final TextView addressView = (TextView) view.findViewById(R.id.my_account_row_address);
 
         TypedValue outValue = new TypedValue();
         MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
@@ -482,12 +462,12 @@ public class MyAccountsActivity extends Activity {
         //Slide QR away
         qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
         Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_out);
-        aanim.setDuration(expandDuration/2);
+        aanim.setDuration(expandDuration / 2);
         addressView.setAnimation(aanim);
 
         //Fade QR and hide when done
         Animation anim = new AlphaAnimation(1.00f, 0.00f);
-        anim.setDuration(expandDuration/2);
+        anim.setDuration(expandDuration / 2);
         // Set a listener to the animation and configure onAnimationEnd
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -516,7 +496,7 @@ public class MyAccountsActivity extends Activity {
         startAnim(view);
     }
 
-    private void startAnim(final View view){
+    private void startAnim(final View view) {
         //Set and start row collapse/expand
         headerResizeAnimator.setDuration(expandDuration);
         headerResizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -536,14 +516,14 @@ public class MyAccountsActivity extends Activity {
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
         accountIndexResover = new HashMap<>();
 
-        if(!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
             //First Header Position - HD
             headerPositions.add(0);
             accountList.add(new MyAccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
         }
 
         int i = 0;
-        if(PayloadFactory.getInstance().get().isUpgraded()) {
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
 
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
             List<Account> accountClone = new ArrayList<Account>(accounts.size());
@@ -560,42 +540,41 @@ public class MyAccountsActivity extends Activity {
                 String label = accountClone.get(i).getLabel();
                 if (label == null || label.length() == 0) label = "Account: " + (i + 1);
 
-                if(!accountClone.get(i).isArchived()) {
-                    accountIndexResover.put(j,i);
+                if (!accountClone.get(i).isArchived()) {
+                    accountIndexResover.put(j, i);
                     j++;
                     accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
-                }else
+                } else
                     archivedCount++;
             }
-            hdAccountsIdx = accountClone.size()-archivedCount;
+            hdAccountsIdx = accountClone.size() - archivedCount;
         }
 
         ImportedAccount iAccount = null;
-        if(PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+        if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
             iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
-        if(iAccount != null) {
+        if (iAccount != null) {
 
-            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()){
+            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountList.size());
                 accountList.add(new MyAccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
             }
 
             legacy = iAccount.getLegacyAddresses();
-            for(int j = 0; j < legacy.size(); j++) {
+            for (int j = 0; j < legacy.size(); j++) {
 
                 String label = legacy.get(j).getLabel();
-                if(label==null || label.length() == 0)label = legacy.get(j).getAddress();
+                if (label == null || label.length() == 0) label = legacy.get(j).getAddress();
 
-                if(legacy.get(j).isWatchOnly()) {
+                if (legacy.get(j).isWatchOnly()) {
                     label = context.getString(R.string.watch_only_label) + " " + label;
-                }
-                else if (legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                } else if (legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                     label = context.getString(R.string.archived_label) + " " + label;
                 }
 
-                accountList.add(new MyAccountItem(label,displayBalanceImported(j),getResources().getDrawable(R.drawable.icon_imported)));
+                accountList.add(new MyAccountItem(label, displayBalanceImported(j), getResources().getDrawable(R.drawable.icon_imported)));
             }
         }
 
@@ -606,7 +585,7 @@ public class MyAccountsActivity extends Activity {
 
         String address = HDPayloadBridge.getInstance(this).account2Xpub(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
-        if(amount==null)amount = 0l;
+        if (amount == null) amount = 0l;
 
         String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
@@ -617,47 +596,10 @@ public class MyAccountsActivity extends Activity {
 
         String address = legacy.get(index).getAddress();
         Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
-        if(amount==null)amount = 0l;
+        if (amount == null) amount = 0l;
         String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
         return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
-    }
-
-    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
-
-        private int mToolbarOffset = 0;
-        private float scaleFactor = 1;
-
-        public CollapseActionbarScrollListener() {
-        }
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-
-            //Only bring heading back down after 2nd item visible (0 = heading)
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= HEADERS.length) {
-
-                if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
-                    mToolbarOffset += dy;
-                    scaleFactor = (float) ((toolbarHeight*2) - mToolbarOffset) / (float) (toolbarHeight*2);
-                }
-
-                clipToolbarOffset();
-                onMoved(mToolbarOffset, scaleFactor);
-            }
-        }
-
-        private void clipToolbarOffset() {
-            if(mToolbarOffset > toolbarHeight) {
-                mToolbarOffset = toolbarHeight;
-            } else if(mToolbarOffset < 0) {
-                mToolbarOffset = 0;
-                scaleFactor = 0.7f;
-            }
-        }
-
-        public abstract void onMoved(int distance, float scaleFactor);
     }
 
     private Bitmap generateQRCode(String uri) {
@@ -685,7 +627,7 @@ public class MyAccountsActivity extends Activity {
 
         AppUtil.getInstance(this).stopLockTimer();
 
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -702,28 +644,24 @@ public class MyAccountsActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
-                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null)	{
-            try	{
+        if (resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
+                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
+            try {
                 final String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
-                if(format != null)	{
-                    if(!format.equals(PrivateKeyFactory.BIP38))	{
+                if (format != null) {
+                    if (!format.equals(PrivateKeyFactory.BIP38)) {
                         importNonBIP38Address(format, strResult);
-                    }
-                    else	{
+                    } else {
                         importBIP38Address(strResult);
                     }
-                }
-                else	{
+                } else {
                     ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
-            }
-            catch(Exception e)	{
+            } catch (Exception e) {
                 ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
-        }
-        else if(resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY)	{
+        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY) {
             ;
         }
 
@@ -731,13 +669,12 @@ public class MyAccountsActivity extends Activity {
 
     private void scanPrivateKey() {
 
-        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
             Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
             intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
             intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
             startActivityForResult(intent, IMPORT_PRIVATE_KEY);
-        }
-        else {
+        } else {
             final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
             double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -751,7 +688,7 @@ public class MyAccountsActivity extends Activity {
 
                             String pw2 = double_encrypt_password.getText().toString();
 
-                            if(pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                            if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
                                     PayloadFactory.getInstance().get().getDoublePasswordHash(),
                                     PayloadFactory.getInstance().get().getSharedKey(),
                                     new CharSequenceX(pw2),
@@ -765,8 +702,7 @@ public class MyAccountsActivity extends Activity {
                                 intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
                                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
-                            }
-                            else {
+                            } else {
                                 ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                             }
@@ -781,7 +717,7 @@ public class MyAccountsActivity extends Activity {
 
     }
 
-    private void importBIP38Address(final String data)	{
+    private void importBIP38Address(final String data) {
 
         final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
 
@@ -879,23 +815,21 @@ public class MyAccountsActivity extends Activity {
                 }).setNegativeButton(R.string.cancel, null).show();
     }
 
-    private void importNonBIP38Address(final String format, final String data)	{
+    private void importNonBIP38Address(final String format, final String data) {
 
         ECKey key = null;
 
-        try	{
+        try {
             key = PrivateKeyFactory.getInstance().getKey(format, data);
-        }
-        catch(Exception e)	{
+        } catch (Exception e) {
             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             e.printStackTrace();
             return;
         }
 
-        if(key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))    {
+        if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-        }
-        else if(key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString()))	{
+        } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
             final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
 
@@ -903,17 +837,16 @@ public class MyAccountsActivity extends Activity {
             /*
              * if double encrypted, save encrypted in payload
              */
-            if(!PayloadFactory.getInstance().get().isDoubleEncrypted())	{
+            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-            }
-            else	{
+            } else {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
                 String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
             final EditText address_label = new EditText(MyAccountsActivity.this);
-            address_label.setFilters(new InputFilter[] {new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+            address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
             final ECKey scannedKey = key;
 
@@ -953,14 +886,13 @@ public class MyAccountsActivity extends Activity {
                 }
             }).start();
 
-        }
-        else	{
+        } else {
             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
     }
 
-    private void updateAndRecreate(final LegacyAddress legacyAddress)	{
+    private void updateAndRecreate(final LegacyAddress legacyAddress) {
 
         new Thread(new Runnable() {
             @Override
@@ -969,7 +901,7 @@ public class MyAccountsActivity extends Activity {
                 JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
 
                 long balance = 0l;
-                if(info!=null)
+                if (info != null)
                     try {
                         balance = info.getLong("final_balance");
                     } catch (JSONException e) {
@@ -977,7 +909,7 @@ public class MyAccountsActivity extends Activity {
                     }
 
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
-                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance()+balance);
+                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() + balance);
                 AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
 
                 MyAccountsActivity.this.runOnUiThread(new Runnable() {
@@ -993,7 +925,7 @@ public class MyAccountsActivity extends Activity {
         }).start();
     }
 
-    private void addAddress()   {
+    private void addAddress() {
 
         final Handler mHandler = new Handler();
 
@@ -1014,7 +946,7 @@ public class MyAccountsActivity extends Activity {
             protected ECKey doInBackground(Void... params) {
 
                 ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
-                if(ecKey == null)    {
+                if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     return null;
                 }
@@ -1026,7 +958,7 @@ public class MyAccountsActivity extends Activity {
                 super.onPostExecute(ecKey);
 
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
-                if(PayloadFactory.getInstance().get().isDoubleEncrypted())  {
+                if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                     encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
                 }
                 final LegacyAddress legacyAddress = new LegacyAddress();
@@ -1086,9 +1018,9 @@ public class MyAccountsActivity extends Activity {
         }.execute();
     }
 
-    private void remoteSaveNewAddress(final LegacyAddress legacy)  {
+    private void remoteSaveNewAddress(final LegacyAddress legacy) {
 
-        if(!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this))    {
+        if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
             ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
@@ -1123,7 +1055,7 @@ public class MyAccountsActivity extends Activity {
 
                         //Subscribe to new address only if successfully created
                         Intent intent = new Intent(WebSocketService.ACTION_INTENT);
-                        intent.putExtra("address",legacy.getAddress());
+                        intent.putExtra("address", legacy.getAddress());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                         updateAndRecreate(legacy);
@@ -1155,6 +1087,43 @@ public class MyAccountsActivity extends Activity {
     @Override
     public void onUserLeaveHint() {
         AppUtil.getInstance(this).setInBackground(true);
+    }
+
+    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
+
+        private int mToolbarOffset = 0;
+        private float scaleFactor = 1;
+
+        public CollapseActionbarScrollListener() {
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            //Only bring heading back down after 2nd item visible (0 = heading)
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= HEADERS.length) {
+
+                if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
+                    mToolbarOffset += dy;
+                    scaleFactor = (float) ((toolbarHeight * 2) - mToolbarOffset) / (float) (toolbarHeight * 2);
+                }
+
+                clipToolbarOffset();
+                onMoved(mToolbarOffset, scaleFactor);
+            }
+        }
+
+        private void clipToolbarOffset() {
+            if (mToolbarOffset > toolbarHeight) {
+                mToolbarOffset = toolbarHeight;
+            } else if (mToolbarOffset < 0) {
+                mToolbarOffset = 0;
+                scaleFactor = 0.7f;
+            }
+        }
+
+        public abstract void onMoved(int distance, float scaleFactor);
     }
 
 }

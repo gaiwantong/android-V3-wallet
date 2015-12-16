@@ -10,7 +10,7 @@ import info.blockchain.wallet.util.AppUtil;
 
 import piuk.blockchain.android.R;
 
-public class BackupWalletActivity extends ActionBarActivity{
+public class BackupWalletActivity extends ActionBarActivity {
 
     public static final String BACKUP_DATE_KEY = "BACKUP_DATE_KEY";
 
@@ -21,7 +21,7 @@ public class BackupWalletActivity extends ActionBarActivity{
         setContentView(R.layout.activity_backup_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        Toolbar toolbar = (Toolbar)this.findViewById(R.id.toolbar_general);
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.backup_wallet));
         setSupportActionBar(toolbar);
 
@@ -40,7 +40,7 @@ public class BackupWalletActivity extends ActionBarActivity{
 
         AppUtil.getInstance(this).stopLockTimer();
 
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Intent i = new Intent(this, PinEntryActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -50,7 +50,7 @@ public class BackupWalletActivity extends ActionBarActivity{
     @Override
     public void onBackPressed() {
 
-        if(getFragmentManager().getBackStackEntryCount()<=1)
+        if (getFragmentManager().getBackStackEntryCount() <= 1)
             finish();
         else
             getFragmentManager().popBackStack();

@@ -13,8 +13,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
 
         try {
             testAll();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

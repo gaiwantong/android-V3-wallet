@@ -23,11 +23,13 @@ public class WalletUtil {
 
     private static WalletUtil instance = null;
 
-    private WalletUtil() { ; }
+    private WalletUtil() {
+        ;
+    }
 
     public static WalletUtil getInstance(Context ctx) {
 
-        if(instance == null) {
+        if (instance == null) {
 
             context = ctx;
 
@@ -37,7 +39,7 @@ public class WalletUtil {
         return instance;
     }
 
-    public void setValidCredentials()   {
+    public void setValidCredentials() {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
 
@@ -45,11 +47,11 @@ public class WalletUtil {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
     }
 
-    public String getValidPassword()   {
+    public String getValidPassword() {
         return password;
     }
 
-    public String getValidPin()   {
+    public String getValidPin() {
         return pin;
     }
 

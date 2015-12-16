@@ -1,5 +1,7 @@
 package info.blockchain.wallet;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -44,18 +46,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
-
-import org.bitcoinj.core.bip44.WalletFactory;
-
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.drawer.DrawerAdapter;
@@ -78,45 +69,46 @@ import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+import org.bitcoinj.core.bip44.WalletFactory;
+
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 
 //import android.nfc.Tag;
 
 public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
 
+    public static final String MIME_TEXT_PLAIN = "text/plain";
     private static final int SCAN_URI = 2007;
     private static final int REQUEST_BACKUP = 2225;
-
-    private static int MERCHANT_ACTIVITY = 1;
-
-    // toolbar
-    private Toolbar toolbar = null;
-
-    private boolean wasPaused = false;
-
+    private static final int MESSAGE_SENT = 1;
     public static boolean drawerIsOpen = false;
-
+    public static Fragment currentFragment;
+    private static int MERCHANT_ACTIVITY = 1;
+    public long sendFragmentBitcoinAmountStorage = 0;
     RecyclerView recyclerViewDrawer;
     RecyclerView.Adapter mAdapter;
     RecyclerView.LayoutManager mLayoutManager;
     DrawerLayout mDrawerLayout;
-
     ActionBarDrawerToggle mDrawerToggle;
-
+    int exitClickCount = 0;
+    int exitClickCooldown = 2;//seconds
+    // toolbar
+    private Toolbar toolbar = null;
+    private boolean wasPaused = false;
     private ProgressDialog progress = null;
-
     private NfcAdapter mNfcAdapter = null;
-    public static final String MIME_TEXT_PLAIN = "text/plain";
-    private static final int MESSAGE_SENT = 1;
-
-    public static Fragment currentFragment;
     private ArrayList<DrawerItem> drawerItems;
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;
-
-    public long sendFragmentBitcoinAmountStorage = 0;
-    int exitClickCount = 0;
-    int exitClickCooldown = 2;//seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +117,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-        if(RootUtil.getInstance().isDeviceRooted())    {
+        if (RootUtil.getInstance().isDeviceRooted()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             final String message = getString(R.string.device_rooted);
@@ -146,7 +138,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         Locale.setDefault(Locale.US);
 
-        if(!ConnectivityStatus.hasConnectivity(this)) {
+        if (!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             final String message = getString(R.string.check_connectivity_exit);
@@ -158,10 +150,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 public void onClick(DialogInterface d, int id) {
                                     d.dismiss();
                                     Class c = null;
-                                    if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+                                    if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                                         c = LandingActivity.class;
-                                    }
-                                    else {
+                                    } else {
                                         c = PinEntryActivity.class;
                                     }
                                     Intent intent = new Intent(MainActivity.this, c);
@@ -171,8 +162,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                             });
 
             builder.create().show();
-        }
-        else {
+        } else {
 
             SSLVerifierThreadUtil.getInstance(MainActivity.this).validateSSLThread();
 
@@ -180,20 +170,20 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             boolean isPinValidated = false;
             Bundle extras = getIntent().getExtras();
-            if(extras != null && extras.containsKey("verified"))	{
+            if (extras != null && extras.containsKey("verified")) {
                 isPinValidated = extras.getBoolean("verified");
             }
 
             String action = getIntent().getAction();
             String scheme = getIntent().getScheme();
-            if(action != null && Intent.ACTION_VIEW.equals(action) && scheme.equals("bitcoin")) {
+            if (action != null && Intent.ACTION_VIEW.equals(action) && scheme.equals("bitcoin")) {
                 PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, getIntent().getData().toString());
             }
 
             //
             // No GUID? Treat as new installation
             //
-            if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+            if (PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
                 Intent intent = new Intent(MainActivity.this, LandingActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -202,7 +192,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // No PIN ID? Treat as installed app without confirmed PIN
             //
-            else if(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
+            else if (PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -210,7 +200,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // Installed app, check sanity
             //
-            else if(!AppUtil.getInstance(MainActivity.this).isSane()) {
+            else if (!AppUtil.getInstance(MainActivity.this).isSane()) {
 
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.app_name)
@@ -227,7 +217,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // Legacy app has not been prompted for upgrade
             //
-            else if(isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !AppUtil.getInstance(MainActivity.this).isLegacy()) {
+            else if (isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !AppUtil.getInstance(MainActivity.this).isLegacy()) {
 
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
                 Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
@@ -237,27 +227,26 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // App has been PIN validated
             //
-            else if(isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
+            else if (isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 this.setSessionId();
 
-                if(PayloadFactory.getInstance().get().isUpgraded()) {
+                if (PayloadFactory.getInstance().get().isUpgraded()) {
 
                     AccountsUtil.getInstance(this).initAccountMaps();
 
-                    if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0)    {
+                    if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0) {
                         String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
                         PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
                         doScanInput(strUri);
-                    }
-                    else    {
+                    } else {
                         Fragment fragment = new BalanceFragment();
                         FragmentManager fragmentManager = getFragmentManager();
                         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                     }
 
-                }else{
+                } else {
 
                     final ProgressDialog progress = new ProgressDialog(this);
                     progress.setCancelable(false);
@@ -280,12 +269,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 progress.dismiss();
                             }
 
-                            if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0)    {
+                            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0) {
                                 String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
                                 PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
                                 doScanInput(strUri);
-                            }
-                            else    {
+                            } else {
                                 Fragment fragment = new BalanceFragment();
                                 FragmentManager fragmentManager = getFragmentManager();
                                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -296,8 +284,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     }).start();
                 }
 
-            }
-            else {
+            } else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -306,22 +293,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         setContentView(R.layout.activity_main);
 
-        if (!getResources().getBoolean(R.bool.isRotatable))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (!getResources().getBoolean(R.bool.isRotatable))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         setToolbar();
         setNavigationDrawer();
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(mNfcAdapter == null)   {
+        if (mNfcAdapter == null) {
 //            Toast.makeText(MainActivity.this, "nfcAdapter == null, no NFC adapter exists", Toast.LENGTH_SHORT).show();
-        }
-        else    {
+        } else {
 //            Toast.makeText(MainActivity.this, "Set NFC Callback(s)", Toast.LENGTH_SHORT).show();
             mNfcAdapter.setNdefPushMessageCallback(this, this);
             mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
         }
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
 //			selectItem(0);
         }
 
@@ -338,34 +325,32 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         AppUtil.getInstance(this).setAllowLockTimer(true);
 
-        if(AppUtil.getInstance(MainActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
+        if (AppUtil.getInstance(MainActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
             Class c = null;
-            if(PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 c = LandingActivity.class;
-            }
-            else {
+            } else {
                 c = PinEntryActivity.class;
             }
 
             Intent i = new Intent(MainActivity.this, c);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
-        }
-        else {
+        } else {
 
-            if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+            if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
             }
         }
 
         sendFragmentBitcoinAmountStorage = 0;
 
-        if(Build.VERSION.SDK_INT >= 16){
+        if (Build.VERSION.SDK_INT >= 16) {
             Intent intent = getIntent();
             String action = intent.getAction();
-            if(mNfcAdapter != null && action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+            if (mNfcAdapter != null && action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
                 Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-                NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
+                NdefMessage inNdefMessage = (NdefMessage) parcelables[0];
                 NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
                 NdefRecord NdefRecord_0 = inNdefRecords[0];
                 String inMsg = new String(NdefRecord_0.getPayload(), 1, NdefRecord_0.getPayload().length - 1, Charset.forName("US-ASCII"));
@@ -386,7 +371,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     protected void onDestroy() {
 
-        if(!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
             stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
         }
 
@@ -403,7 +388,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public void onNdefPushComplete(NfcEvent event) {
 
-        if(Build.VERSION.SDK_INT < 16){
+        if (Build.VERSION.SDK_INT < 16) {
             return;
         }
 
@@ -422,7 +407,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
 
-        if(Build.VERSION.SDK_INT < 16){
+        if (Build.VERSION.SDK_INT < 16) {
             return null;
         }
 
@@ -449,10 +434,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 doMerchantDirectory();
                 return true;
             case R.id.action_qr:
-                if(!AppUtil.getInstance(MainActivity.this).isCameraOpen())    {
+                if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
                     scanURI();
-                }
-                else    {
+                } else {
                     ToastCustom.makeText(MainActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
                 return true;
@@ -462,7 +446,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     @Override
-    public void setTitle(CharSequence title) { ; }
+    public void setTitle(CharSequence title) {
+        ;
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -477,66 +463,62 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
-                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null)	{
+        if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
+                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
             doScanInput(strResult);
-        }
-        else if(resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI)	{
+        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI) {
             ;
-        }
-        else if(resultCode == RESULT_OK && requestCode == REQUEST_BACKUP){
+        } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
 
             drawerItems = new ArrayList<>();
             final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
             final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
             for (int i = 0; i < drawerTitles.length; i++) {
 
-                if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+                if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
                     backupWalletDrawerIndex = i;
 
-                    int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+                    int lastBackup = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
 
-                    if(lastBackup==0) {
+                    if (lastBackup == 0) {
                         //Not backed up
                         drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-                    }else{
+                    } else {
                         //Backed up
                         drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                     }
-                }else if(drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+                } else if (drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
                     continue;//Wallet has been upgraded
-                }else{
+                } else {
                     drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
                 }
             }
             drawerIcons.recycle();
             adapterDrawer = new DrawerAdapter(drawerItems);
             recyclerViewDrawer.setAdapter(adapterDrawer);
-        }
-        else {
+        } else {
             ;
         }
 
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if(drawerIsOpen){
+    public void onBackPressed() {
+        if (drawerIsOpen) {
             mDrawerLayout.closeDrawers();
-        }else if(currentFragment instanceof BalanceFragment) {
+        } else if (currentFragment instanceof BalanceFragment) {
 
             exitClickCount++;
             if (exitClickCount == 2) {
                 AppUtil.getInstance(this).clearUserInteractionTime();
 
-                if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                if (OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
                 finish();
-            }else
+            } else
                 ToastCustom.makeText(MainActivity.this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
             new Thread(new Runnable() {
@@ -553,13 +535,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 }
             }).start();
 
-        }else if(currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).isKeypadVisible) {
+        } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).isKeypadVisible) {
             ((ReceiveFragment) currentFragment).onKeypadClose();
 
-        }else if(currentFragment instanceof SendFragment && ((SendFragment) currentFragment).isKeypadVisible){
+        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).isKeypadVisible) {
             ((SendFragment) currentFragment).onKeypadClose();
 
-        }else{
+        } else {
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -570,7 +552,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance(MainActivity.this).getCurrencies());
         String strCurrentSelectedFiat = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SELECTED_FIAT, "");
-        if(!currencies.contains(strCurrentSelectedFiat))    {
+        if (!currencies.contains(strCurrentSelectedFiat)) {
             PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         }
 
@@ -587,8 +569,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                     ExchangeRateFactory.getInstance(MainActivity.this).setData(response);
                     ExchangeRateFactory.getInstance(MainActivity.this).updateFxPricesForEnabledCurrencies();
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -605,32 +586,30 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }).start();
     }
 
-    private void doSettings()	{
+    private void doSettings() {
         Intent intent = new Intent(MainActivity.this, info.blockchain.wallet.SettingsActivity.class);
         startActivity(intent);
     }
 
-    private void doExchangeRates()	{
+    private void doExchangeRates() {
 
         AppUtil.getInstance(this).setAllowLockTimer(false);
 
-        if(hasZeroBlock())	{
+        if (hasZeroBlock()) {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);
-        }
-        else	{
+        } else {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + "com.phlint.android.zeroblock"));
             startActivity(intent);
         }
     }
 
-    private boolean hasZeroBlock()	{
+    private boolean hasZeroBlock() {
         PackageManager pm = this.getPackageManager();
-        try	{
+        try {
             pm.getPackageInfo("com.phlint.android.zeroblock", 0);
             return true;
-        }
-        catch(NameNotFoundException nnfe)	{
+        } catch (NameNotFoundException nnfe) {
             return false;
         }
     }
@@ -643,24 +622,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         startActivityForResult(intent, SCAN_URI);
     }
 
-    private void doScanInput(String address)	{
+    private void doScanInput(String address) {
 
         String btc_address = null;
         String btc_amount = null;
 
         // check for poorly formed BIP21 URIs
-        if(address.startsWith("bitcoin://") && address.length() > 10)	{
+        if (address.startsWith("bitcoin://") && address.length() > 10) {
             address = "bitcoin:" + address.substring(10);
         }
 
-        if(FormatsUtil.getInstance().isValidBitcoinAddress(address)) {
+        if (FormatsUtil.getInstance().isValidBitcoinAddress(address)) {
             btc_address = address;
-        }
-        else if(FormatsUtil.getInstance().isBitcoinUri(address)) {
+        } else if (FormatsUtil.getInstance().isBitcoinUri(address)) {
             btc_address = FormatsUtil.getInstance().getBitcoinAddress(address);
             btc_amount = FormatsUtil.getInstance().getBitcoinAmount(address);
-        }
-        else {
+        } else {
             ToastCustom.makeText(MainActivity.this, getString(R.string.scan_not_recognized), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             AppUtil.getInstance(MainActivity.this).restartApp();
             return;
@@ -670,14 +647,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         Bundle args = new Bundle();
         args.putString("btc_address", btc_address);
         args.putBoolean("incoming_from_scan", true);
-        if(btc_amount != null) {
+        if (btc_amount != null) {
             try {
                 args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(Long.parseLong(btc_amount)));
-            }
-            catch (NumberFormatException nfe) {
+            } catch (NumberFormatException nfe) {
                 ;
             }
-        } else if(sendFragmentBitcoinAmountStorage > 0){
+        } else if (sendFragmentBitcoinAmountStorage > 0) {
             args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(sendFragmentBitcoinAmountStorage));
         }
         fragment.setArguments(args);
@@ -688,19 +664,19 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     public void setToolbar() {
 
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
         setSupportActionBar(toolbar);
     }
 
-    public void resetNavigationDrawer(){
+    public void resetNavigationDrawer() {
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
 
             public void onDrawerClosed(View view) {
                 drawerIsOpen = false;
 
-                for(int i = 0; i < toolbar.getChildCount(); i++){
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     toolbar.getChildAt(i).setEnabled(true);
                     toolbar.getChildAt(i).setClickable(true);
                 }
@@ -709,10 +685,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void onDrawerOpened(View drawerView) {
                 drawerIsOpen = true;
 
-                InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager inputManager = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-                for(int i = 0; i < toolbar.getChildCount(); i++){
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     toolbar.getChildAt(i).setEnabled(false);
                     toolbar.getChildAt(i).setClickable(false);
                 }
@@ -734,7 +710,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void onDrawerClosed(View view) {
                 drawerIsOpen = false;
 
-                for(int i = 0; i < toolbar.getChildCount(); i++){
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     toolbar.getChildAt(i).setEnabled(true);
                     toolbar.getChildAt(i).setClickable(true);
                 }
@@ -744,10 +720,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             public void onDrawerOpened(View drawerView) {
                 drawerIsOpen = true;
 
-                InputMethodManager inputManager = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager inputManager = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-                for(int i = 0; i < toolbar.getChildCount(); i++){
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     toolbar.getChildAt(i).setEnabled(false);
                     toolbar.getChildAt(i).setClickable(false);
                 }
@@ -764,10 +740,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         final int colorStatusBar = typedValueStatusBarColor.data;
         mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
 
-        TextView tvEmail = (TextView)mDrawerLayout.findViewById(R.id.drawer_email);
+        TextView tvEmail = (TextView) mDrawerLayout.findViewById(R.id.drawer_email);
         tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, ""));
 
-        ImageView avatarImage = (ImageView)mDrawerLayout.findViewById(R.id.drawer_avatar);
+        ImageView avatarImage = (ImageView) mDrawerLayout.findViewById(R.id.drawer_avatar);
         setAvatarDrawableFromEmail(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, ""), avatarImage);
 
         // Setup RecyclerView inside drawer
@@ -779,36 +755,33 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
         TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
 
-        if(AppUtil.getInstance(this).isLegacyOrNotUpgraded()) {
+        if (AppUtil.getInstance(this).isLegacyOrNotUpgraded()) {
             drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
             drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_lame);
         }
 
         for (int i = 0; i < drawerTitles.length; i++) {
 
-            if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+            if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
 
                 backupWalletDrawerIndex = i;
 
-                int lastBackup  = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+                int lastBackup = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
 
-                if(lastBackup==0) {
+                if (lastBackup == 0) {
                     //Not backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-                }else{
+                } else {
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
                 }
 
                 continue;
-            }
-            else if(drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))){
+            } else if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
                 continue;//No backup for legacy wallets
-            }
-            else if(!AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())){
+            } else if (!AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
                 continue;//Wallet has been upgraded
-            }
-            else if(AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet))){
+            } else if (AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet))) {
                 continue;//Wallet has been upgraded
             }
 
@@ -820,11 +793,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         recyclerViewDrawer.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
+                    @Override
+                    public void onItemClick(View view, int position) {
 
-                        if(AppUtil.getInstance(MainActivity.this).isLegacyOrNotUpgraded()){
+                        if (AppUtil.getInstance(MainActivity.this).isLegacyOrNotUpgraded()) {
                             selectDrawerItemLegacy(position);
-                        }else{
+                        } else {
                             selectDrawerItemHd(position);
                         }
 
@@ -889,12 +863,12 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     public void setNavigationDrawerToggleEnabled(boolean enabled) {
-        for(int i = 0; i < toolbar.getChildCount(); i++){
+        for (int i = 0; i < toolbar.getChildCount(); i++) {
             toolbar.getChildAt(i).setEnabled(enabled);
             toolbar.getChildAt(i).setClickable(enabled);
         }
 
-        if(enabled)
+        if (enabled)
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         else
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -923,9 +897,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             @Override
             public void onClick(View v) {
 
-                EditText pass = (EditText)dialogView.findViewById(R.id.password_confirm);
+                EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
 
-                if(pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+                if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
 
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
@@ -936,7 +910,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     finish();
 
                     alertDialog.dismiss();
-                }else{
+                } else {
                     pass.setText("");
                     ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
@@ -946,7 +920,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         alertDialog.show();
     }
 
-    private void doUnpairWallet(){
+    private void doUnpairWallet() {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -971,7 +945,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 AppUtil.getInstance(MainActivity.this).clearUserInteractionTime();
 
-                if(OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+                if (OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
@@ -993,55 +967,53 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     }
 
-    private void doMerchantDirectory()	{
+    private void doMerchantDirectory() {
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         if (!enabled) {
             EnableGeo.displayGPSPrompt(this);
-        }
-        else {
+        } else {
             Intent intent = new Intent(MainActivity.this, info.blockchain.merchant.directory.MapActivity.class);
             startActivityForResult(intent, MERCHANT_ACTIVITY);
         }
     }
 
-    private void doMyAccounts(){
+    private void doMyAccounts() {
 
         Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
         startActivity(intent);
     }
 
-    private void doSupport(){
+    private void doSupport() {
 
         Intent intent = new Intent(MainActivity.this, SupportActivity.class);
         startActivity(intent);
     }
 
-    private void doBackupWallet(){
+    private void doBackupWallet() {
 
         Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
         startActivityForResult(intent, REQUEST_BACKUP);
     }
 
-    private void doUpgrade(){
+    private void doUpgrade() {
 
-        if(AppUtil.getInstance(MainActivity.this).isLegacy())    {
+        if (AppUtil.getInstance(MainActivity.this).isLegacy()) {
             AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
             PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
             PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
             AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
             AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
-        }
-        else    {
+        } else {
             Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
             startActivity(intent);
         }
 
     }
 
-    public void setAvatarDrawableFromEmail(String email, ImageView avatarImage){
+    public void setAvatarDrawableFromEmail(String email, ImageView avatarImage) {
 
         String hash = null;
         try {
@@ -1049,7 +1021,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             byte[] arr = md.digest(email.getBytes());
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < arr.length; ++i)
-                sb.append(Integer.toHexString((arr[i] & 0xFF) | 0x100).substring(1,3));
+                sb.append(Integer.toHexString((arr[i] & 0xFF) | 0x100).substring(1, 3));
 
             hash = sb.toString();
         } catch (NoSuchAlgorithmException e) {
@@ -1065,7 +1037,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 .into(avatarImage);
     }
 
-    private void setSessionId(){
+    private void setSessionId() {
 
         new Thread(new Runnable() {
             @Override
@@ -1073,17 +1045,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 Looper.prepare();
 
                 String sid = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SESSION_ID, null);
-                if(sid.isEmpty())sid=null;
+                if (sid.isEmpty()) sid = null;
 
-                if(sid==null){
+                if (sid == null) {
                     //Get new SID
-                    String guid = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID,"");
+                    String guid = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "");
                     try {
-                        sid = WebUtil.getInstance().getCookie(WebUtil.PAYLOAD_URL + "/" + guid + "?format=json&resend_code=false","SID");
+                        sid = WebUtil.getInstance().getCookie(WebUtil.PAYLOAD_URL + "/" + guid + "?format=json&resend_code=false", "SID");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    if(sid!=null && !sid.isEmpty())PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SESSION_ID,sid);
+                    if (sid != null && !sid.isEmpty())
+                        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SESSION_ID, sid);
                 }
 
                 Looper.loop();

@@ -3,10 +3,14 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
+import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.payload.PayloadFactory;
 
 import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -14,36 +18,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
-
-import info.blockchain.wallet.HDPayloadBridge;
-import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
-//import android.util.Log;
-
 import piuk.blockchain.android.R;
+
+//import android.util.Log;
 
 public class BackupWalletUtil {
 
     private static BackupWalletUtil instance = null;
     private static Context context = null;
 
-    private BackupWalletUtil() { ; }
+    private BackupWalletUtil() {
+        ;
+    }
 
     /**
      * Return instance for BackupWalletUtil.
      *
-     * @param  Context ctx app context
-     *
+     * @param Context ctx app context
      * @return BackupWalletUtil
-     *
      */
     public static BackupWalletUtil getInstance(Context ctx) {
 
         context = ctx;
 
-        if(instance == null) {
+        if (instance == null) {
             instance = new BackupWalletUtil();
         }
 
@@ -54,26 +52,24 @@ public class BackupWalletUtil {
      * Return ordered list of integer, string pairs which can be used to confirm mnemonic.
      *
      * @return List<Pair<Integer,String>>
-     *
      */
-    public List<Pair<Integer,String>> getConfirmSequence() {
+    public List<Pair<Integer, String>> getConfirmSequence() {
 
-        List<Pair<Integer,String>> toBeConfirmed = new ArrayList<Pair<Integer,String>>();
+        List<Pair<Integer, String>> toBeConfirmed = new ArrayList<Pair<Integer, String>>();
         String[] s = getMnemonic();
         SecureRandom random = new SecureRandom();
         List<Integer> seen = new ArrayList<Integer>();
 
         int sel = 0;
         int i = 0;
-        while(i < 3) {
-            if(i == 3) {
+        while (i < 3) {
+            if (i == 3) {
                 break;
             }
             sel = random.nextInt(s.length);
-            if(seen.contains(sel)) {
+            if (seen.contains(sel)) {
                 continue;
-            }
-            else {
+            } else {
                 seen.add(sel);
                 i++;
             }
@@ -81,7 +77,7 @@ public class BackupWalletUtil {
 
         Collections.sort(seen);
 
-        for(int ii = 0; ii < 3; ii++) {
+        for (int ii = 0; ii < 3; ii++) {
             toBeConfirmed.add(new Pair<Integer, String>(seen.get(ii), s[seen.get(ii)]));
         }
 
@@ -92,7 +88,6 @@ public class BackupWalletUtil {
      * Return mnemonic in the form of a string array. Make sure double encryption access is activated before calling.
      *
      * @return String[]
-     *
      */
     public String[] getMnemonic() {
         // Wallet is not double encrypted
@@ -128,7 +123,7 @@ public class BackupWalletUtil {
 
         // Try to create a using the decrypted seed hex
         try {
-            Wallet hdw =WalletFactory.getInstance().get();
+            Wallet hdw = WalletFactory.getInstance().get();
             WalletFactory.getInstance().restoreWallet(decrypted_hex, "", 1);
 
             mnemonic = WalletFactory.getInstance().get().getMnemonic();
