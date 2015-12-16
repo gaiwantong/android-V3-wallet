@@ -116,7 +116,7 @@ public class SendFactory {
             if (isHD) {
                 ret = getUnspentOutputPoints(true, new String[]{xpub}, amount.add(fee));
             } else {
-                if (AppUtil.getInstance(context).isLegacyOrNotUpgraded()) {
+                if (AppUtil.getInstance(context).isNotUpgraded()) {
                     List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
                     from = addrs.toArray(new String[addrs.size()]);
                 }
@@ -215,7 +215,7 @@ public class SendFactory {
 
                     }
 
-                    if (AppUtil.getInstance(context).isLegacyOrNotUpgraded()) {
+                    if (AppUtil.getInstance(context).isNotUpgraded()) {
                         wallet = new Wallet(MainNetParams.get());
                         List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
                         for (LegacyAddress addr : addrs) {

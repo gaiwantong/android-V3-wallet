@@ -140,7 +140,7 @@ public class MyAccountsActivity extends Activity {
         ACCOUNT_HEADER = getResources().getString(R.string.accounts);
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
             HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
         else
             HEADERS = new String[0];
@@ -160,7 +160,7 @@ public class MyAccountsActivity extends Activity {
 
                 String[] list = new String[]{getResources().getString(R.string.import_address)};
 
-                if (AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+                if (AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
                     list = new String[]{getResources().getString(R.string.import_address), getResources().getString(R.string.create_new_address)};
 
                 ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this, R.layout.spinner_dropdown, list);
@@ -284,7 +284,7 @@ public class MyAccountsActivity extends Activity {
 
         myAccountsHeader = (TextView) findViewById(R.id.my_accounts_heading);
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
             myAccountsHeader.setText(getString(R.string.my_accounts));
         else
             myAccountsHeader.setText(getString(R.string.my_addresses));
@@ -316,7 +316,7 @@ public class MyAccountsActivity extends Activity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded())
+                        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         try {
@@ -516,7 +516,7 @@ public class MyAccountsActivity extends Activity {
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
         accountIndexResover = new HashMap<>();
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
             //First Header Position - HD
             headerPositions.add(0);
             accountList.add(new MyAccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
@@ -556,7 +556,7 @@ public class MyAccountsActivity extends Activity {
         }
         if (iAccount != null) {
 
-            if (!AppUtil.getInstance(MyAccountsActivity.this).isLegacyOrNotUpgraded()) {
+            if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountList.size());
                 accountList.add(new MyAccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));

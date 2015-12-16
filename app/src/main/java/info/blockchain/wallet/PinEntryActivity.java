@@ -19,8 +19,6 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
@@ -33,10 +31,7 @@ import info.blockchain.wallet.util.TypefaceUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.MnemonicException;
-import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,11 +41,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 import piuk.blockchain.android.R;
 
@@ -180,77 +172,25 @@ public class PinEntryActivity extends Activity {
 
                 Looper.prepare();
 
-                if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
+                try {
+                    // create wallet
+                    // restart
+
                     AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
 
-                    String guid = UUID.randomUUID().toString();
-                    String sharedKey = UUID.randomUUID().toString();
+                    HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
 
-                    Payload payload = new Payload();
-                    payload.setGuid(guid);
-                    payload.setSharedKey(sharedKey);
-
-                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_GUID, guid);
-                    AppUtil.getInstance(PinEntryActivity.this).setSharedKey(sharedKey);
-
-                    ECKey ecKey = PayloadBridge.getInstance(PinEntryActivity.this).newLegacyAddress();
-                    if (ecKey == null) {
-                        ToastCustom.makeText(PinEntryActivity.this, PinEntryActivity.this.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
-                        return;
-                    }
-                    String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
-
-                    LegacyAddress legacyAddress = new LegacyAddress();
-                    legacyAddress.setEncryptedKey(encryptedKey);
-                    legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
-                    legacyAddress.setLabel(PinEntryActivity.this.getString(R.string.my_address));
-                    legacyAddress.setCreatedDeviceName("android");
-                    legacyAddress.setCreated(System.currentTimeMillis());
-                    legacyAddress.setCreatedDeviceVersion(PinEntryActivity.this.getString(R.string.version_name));
-                    List<LegacyAddress> legacyAddresses = new ArrayList<LegacyAddress>();
-                    legacyAddresses.add(legacyAddress);
-
-                    payload.setLegacyAddresses(legacyAddresses);
-
-                    PayloadFactory.getInstance().set(payload);
-                    PayloadFactory.getInstance().setNew(true);
+                    PayloadFactory.getInstance().get().setUpgraded(true);
 
                     PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
 
-                    if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
-                        ;
-                    } else {
-                        whitelistGuid("alpha");// <-- remove after beta invite system
-                        whitelistGuid("dev");// <-- remove after beta invite system
-                    }
-//            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
-                } else {
-                    try {
-                        // create wallet
-                        // restart
-
-                        AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
-
-                        HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
-
-                        PayloadFactory.getInstance().get().setUpgraded(true);
-
-                        PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
-
-                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
-                            ;
-                        } else {
-                            whitelistGuid("alpha");// <-- remove after beta invite system
-                            whitelistGuid("dev");// <-- remove after beta invite system
-                        }
+                    whitelistGuid("alpha");// <-- remove after beta invite system
+                    whitelistGuid("dev");// <-- remove after beta invite system
 //            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
 
-                    } catch (IOException | MnemonicException.MnemonicLengthException e) {
-                        ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
-                    }
-
+                } catch (IOException | MnemonicException.MnemonicLengthException e) {
+                    ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
                 }
 
                 Looper.loop();
@@ -423,13 +363,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
-
-                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy() && PayloadFactory.getInstance().getVersion() >= 3.0) {
-                            ToastCustom.makeText(PinEntryActivity.this, getString(R.string.lame_mode_hd_pair_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
-                            return;
-                        }
-
                         PayloadFactory.getInstance().setTempPassword(pw);
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
                         AppUtil.getInstance(PinEntryActivity.this).initUserInteraction();
@@ -454,18 +387,9 @@ public class PinEntryActivity extends Activity {
                                 } else {
 
                                     if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
-
-                                        if (AppUtil.getInstance(PinEntryActivity.this).isLegacy()) {
-                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
-                                            AccessFactory.getInstance(PinEntryActivity.this).setIsLoggedIn(true);
-                                            AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                        } else {
-                                            Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                        }
-
+                                        Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
                                     } else if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false) || PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
                                         AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
                                     } else {

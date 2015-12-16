@@ -172,7 +172,7 @@ public class BalanceFragment extends Fragment {
                         }
 
                         //Update xpub multiaddr
-                        if (!AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded()) {
+                        if (!AppUtil.getInstance(getActivity()).isNotUpgraded()) {
                             try {
                                 HDPayloadBridge.getInstance(getActivity()).getBalances();
                             } catch (Exception e) {
@@ -410,7 +410,7 @@ public class BalanceFragment extends Fragment {
             else
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
         } else {
-            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
+            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
 
             if (xpub != null) {
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
@@ -674,7 +674,7 @@ public class BalanceFragment extends Fragment {
                             else
                                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
                         } else {
-                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
+                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
 
                             if (xpub != null) {
                                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
@@ -682,7 +682,7 @@ public class BalanceFragment extends Fragment {
                                 } else
                                     txs = new ArrayList<Tx>();
                             } else {
-                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() ? selectedAccount + 1 : selectedAccount);
+                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
                                 if (hda instanceof ImportedAccount) {
 
                                     if (PayloadFactory.getInstance().get().isUpgraded())
@@ -1041,7 +1041,7 @@ public class BalanceFragment extends Fragment {
 
                                 for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
 
-                                    if (AppUtil.getInstance(getActivity()).isLegacyOrNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey())) {
+                                    if (AppUtil.getInstance(getActivity()).isNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey())) {
                                         continue;
                                     }
 

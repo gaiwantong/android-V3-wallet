@@ -217,7 +217,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // Legacy app has not been prompted for upgrade
             //
-            else if (isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !AppUtil.getInstance(MainActivity.this).isLegacy()) {
+            else if (isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
 
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
                 Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
@@ -755,7 +755,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
         TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
 
-        if (AppUtil.getInstance(this).isLegacyOrNotUpgraded()) {
+        if (AppUtil.getInstance(this).isNotUpgraded()) {
             drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
             drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_lame);
         }
@@ -779,9 +779,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 continue;
             } else if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
                 continue;//No backup for legacy wallets
-            } else if (!AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
-                continue;//Wallet has been upgraded
-            } else if (AppUtil.getInstance(MainActivity.this).isLegacy() && drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet))) {
+            } else if (drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
                 continue;//Wallet has been upgraded
             }
 
@@ -796,7 +794,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     @Override
                     public void onItemClick(View view, int position) {
 
-                        if (AppUtil.getInstance(MainActivity.this).isLegacyOrNotUpgraded()) {
+                        if (AppUtil.getInstance(MainActivity.this).isNotUpgraded()) {
                             selectDrawerItemLegacy(position);
                         } else {
                             selectDrawerItemHd(position);
@@ -999,18 +997,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doUpgrade() {
-
-        if (AppUtil.getInstance(MainActivity.this).isLegacy()) {
-            AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
-            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
-            AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
-            AppUtil.getInstance(MainActivity.this).restartApp("verified", true);
-        } else {
-            Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
-            startActivity(intent);
-        }
-
+        Intent intent = new Intent(MainActivity.this, UpgradeWalletActivity.class);
+        startActivity(intent);
     }
 
     public void setAvatarDrawableFromEmail(String email, ImageView avatarImage) {

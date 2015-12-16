@@ -88,7 +88,7 @@ public class HDPayloadBridge {
         //
         // create HD wallet and sync w/ payload
         //
-        if (!AppUtil.getInstance(context).isLegacy() && (PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0)) {
+        if (PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
 
             AppUtil.getInstance(context).applyPRNGFixes();
 
@@ -129,15 +129,14 @@ public class HDPayloadBridge {
 
         getBalances();
 
-        if (!AppUtil.getInstance(context).isLegacy()) {
-            // update highest idxs here, they were just updated above in getBalances();
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-            for (Account a : accounts) {
-                a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
-                a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
-            }
-            PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
+        // update highest idxs here, they were just updated above in getBalances();
+        List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+        for (Account a : accounts) {
+            a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
+            a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
         }
+        PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
+
 
         PayloadFactory.getInstance().cache();
 
