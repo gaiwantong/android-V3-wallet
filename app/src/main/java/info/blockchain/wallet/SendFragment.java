@@ -144,8 +144,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
-        rootView.setFilterTouchesWhenObscured(true);
-
         locale = Locale.getDefault();
 
         ((ActionBarActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);

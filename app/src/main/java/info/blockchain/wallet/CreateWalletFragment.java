@@ -50,8 +50,6 @@ public class CreateWalletFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_create_wallet, container, false);
 
-        rootView.setFilterTouchesWhenObscured(true);
-
         getActivity().setTitle(getResources().getString(R.string.new_wallet));
 
         ((TextView) rootView.findViewById(R.id.tos)).setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
