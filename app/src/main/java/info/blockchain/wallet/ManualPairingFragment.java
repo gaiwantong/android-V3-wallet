@@ -45,8 +45,6 @@ public class ManualPairingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
 
-        rootView.setFilterTouchesWhenObscured(true);
-
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
 
         edGuid = (EditText) rootView.findViewById(R.id.wallet_id);

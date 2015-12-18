@@ -588,8 +588,6 @@ public class BalanceFragment extends Fragment {
 
     private void setupViews(View rootView) {
 
-        rootView.setFilterTouchesWhenObscured(true);
-
         initFab(rootView);
 
         noTxMessage = (LinearLayout) rootView.findViewById(R.id.no_tx_message);

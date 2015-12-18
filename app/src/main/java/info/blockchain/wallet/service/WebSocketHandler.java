@@ -125,10 +125,14 @@ public class WebSocketHandler {
             @Override
             public void run() {
                 if (mConnection != null) {
-
-                    pingPongSuccess = false;
-                    mConnection.sendPing();
-                    startPongTimer();
+                    if (mConnection.isOpen()) {
+                        pingPongSuccess = false;
+                        mConnection.sendPing();
+                        startPongTimer();
+                    }
+                    else {
+                        start();
+                    }
                 }
             }
         }, pingInterval, pingInterval);

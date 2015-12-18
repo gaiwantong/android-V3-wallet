@@ -79,8 +79,6 @@ public class PinEntryActivity extends Activity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        getWindow().getDecorView().findViewById(android.R.id.content).setFilterTouchesWhenObscured(true);
-
         //Coming from CreateWalletFragment
         getBundleData();
         if (strPassword != null && strEmail != null) {

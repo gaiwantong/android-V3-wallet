@@ -115,8 +115,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
         this.rootView = rootView;
 
-        rootView.setFilterTouchesWhenObscured(true);
-
         locale = Locale.getDefault();
 
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
