@@ -64,8 +64,12 @@ public class HDPayloadBridge	{
                 AppUtil.getInstance(context).getSharedKey(),
                 password);
 
-        if(PayloadFactory.getInstance().get() == null) {
-            ToastCustom.makeText(context, context.getString(R.string.cannot_create_wallet), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+        if(PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().stepNumber != 9) {
+            String error = context.getString(R.string.cannot_create_wallet);
+            if (PayloadFactory.getInstance().get() != null) {
+                error = error + " Failed at step: " + PayloadFactory.getInstance().get().stepNumber ;
+            }
+            ToastCustom.makeText(context, error, ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             return false;
         }
 
