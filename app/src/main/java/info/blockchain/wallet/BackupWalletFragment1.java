@@ -44,8 +44,8 @@ public class BackupWalletFragment1 extends Fragment {
             @Override
             public void onClick(View v) {
 
-                // Wallet is double encrypted AND User has not already entered double-encryption password
-                if (PayloadFactory.getInstance().get().isDoubleEncrypted() && !DoubleEncryptionFactory.getInstance().isActivated()) {
+                // Wallet is double encrypted
+                if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                     final EditText double_encrypt_password = new EditText(getActivity());
                     double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -59,7 +59,14 @@ public class BackupWalletFragment1 extends Fragment {
 
                                     final String pw = double_encrypt_password.getText().toString();
 
-                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                            PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                            PayloadFactory.getInstance().get().getSharedKey(),
+                                            new CharSequenceX(pw),
+                                            PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+
+                                        // TODO need to reset when done - that may be hard
+                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                         getFragmentManager().beginTransaction()
                                                 .replace(R.id.content_frame, new BackupWalletFragment2())

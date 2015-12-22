@@ -411,9 +411,7 @@ public class PinEntryActivity extends Activity {
 
                     Looper.loop();
 
-                } catch (JSONException | IOException | DecoderException | AddressFormatException
-                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
-                        | MnemonicException.MnemonicChecksumException e) {
+                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
                     e.printStackTrace();
                 } finally {
                     if (progress != null && progress.isShowing()) {
@@ -627,9 +625,7 @@ public class PinEntryActivity extends Activity {
 
                     Looper.loop();
 
-                } catch (JSONException | IOException | DecoderException | AddressFormatException
-                        | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException
-                        | MnemonicException.MnemonicChecksumException e) {
+                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
                     e.printStackTrace();
                 } finally {
                     if (progress != null && progress.isShowing()) {

@@ -95,7 +95,7 @@ public class BackupWalletUtil {
             return getHDSeedAsMnemonic(true);
         }
         // User has already entered double-encryption password
-        else if (DoubleEncryptionFactory.getInstance().isActivated()) {
+        else if (PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString().length() > 0) {
             return getMnemonicForDoubleEncryptedWallet();
         }
         // access must be established before calling this function
@@ -107,7 +107,7 @@ public class BackupWalletUtil {
 
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
-        if (!DoubleEncryptionFactory.getInstance().isActivated()) {
+        if (PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString().length() == 0) {
             ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return null;
         }

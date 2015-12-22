@@ -13,11 +13,13 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
@@ -61,7 +63,9 @@ public class HDPayloadBridge {
         return instance;
     }
 
-    public boolean init(CharSequenceX password) throws JSONException, IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
+    // TODO check if it actually throws any of these exceptions
+    public boolean init(CharSequenceX password) throws JSONException, IOException, DecoderException,
+            AddressFormatException {
 
         PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, ""),
                 AppUtil.getInstance(context).getSharedKey(),
@@ -80,22 +84,44 @@ public class HDPayloadBridge {
         }
 
         if (PayloadFactory.getInstance().get().getJSON() == null) {
-            ToastCustom.makeText(context, context.getString(R.string.please_repair), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(context, context.getString(R.string.please_repair),
+                    ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             return false;
         }
 
-        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false) == true) {
+        return true;
+    }
+
+    public boolean update(CharSequenceX password, CharSequenceX secondPassword) throws IOException, JSONException,
+            DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException,
+            MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
+
+        // TODO this should be checked in calling code, not here
+        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false)) {
             return true;
         }
 
-        if (!PayloadFactory.getInstance().get().isUpgraded() && PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
+        if (!PayloadFactory.getInstance().get().isUpgraded() &&
+                PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
             return true;
         }
 
+        if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (StringUtils.isEmpty(secondPassword) || !DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                    PayloadFactory.getInstance().get().getSharedKey(),
+                    new CharSequenceX(secondPassword),
+                    PayloadFactory.getInstance().get().getOptions().getIterations())) {
+                ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error),
+                        ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                return false;
+            }
+        }
         //
         // create HD wallet and sync w/ payload
         //
-        if (PayloadFactory.getInstance().get().getHdWallets() == null || PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
+        if (PayloadFactory.getInstance().get().getHdWallets() == null ||
+                PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
 
             AppUtil.getInstance(context).applyPRNGFixes();
 
@@ -109,19 +135,37 @@ public class HDPayloadBridge {
 
                 WalletFactory.getInstance().newWallet(12, "", 1);
                 HDWallet hdw = new HDWallet();
-                hdw.setSeedHex(WalletFactory.getInstance().get().getSeedHex());
+                String seedHex = WalletFactory.getInstance().get().getSeedHex();
+                if (!StringUtils.isEmpty(secondPassword)) {
+                    seedHex = DoubleEncryptionFactory.getInstance().encrypt(
+                            seedHex,
+                            PayloadFactory.getInstance().get().getSharedKey(),
+                            secondPassword.toString(),
+                            PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
+                }
+
+                hdw.setSeedHex(seedHex);
                 List<Account> accounts = new ArrayList<Account>();
                 xpub = WalletFactory.getInstance().get().getAccount(0).xpubstr();
                 if (AppUtil.getInstance(context).isNewlyCreated()) {
                     accounts.add(new Account());
                     accounts.get(0).setXpub(xpub);
-                    accounts.get(0).setXpriv(WalletFactory.getInstance().get().getAccount(0).xprvstr());
+                    String xpriv = WalletFactory.getInstance().get().getAccount(0).xprvstr();
+                    if (!StringUtils.isEmpty(secondPassword)) {
+                        xpriv = DoubleEncryptionFactory.getInstance().encrypt(
+                                xpriv,
+                                PayloadFactory.getInstance().get().getSharedKey(),
+                                secondPassword.toString(),
+                                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
+                    }
+                    accounts.get(0).setXpriv(xpriv);
                 }
                 hdw.setAccounts(accounts);
                 PayloadFactory.getInstance().get().setHdWallets(hdw);
                 PayloadFactory.getInstance().get().setUpgraded(true);
 
-                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(context.getResources().getString(R.string.default_wallet_name));
+                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(
+                        context.getResources().getString(R.string.default_wallet_name));
 
                 no_tx = (MultiAddrFactory.getInstance().nbTxXPUB(xpub) == 0L);
 
@@ -139,18 +183,21 @@ public class HDPayloadBridge {
         // update highest idxs here, they were just updated above in getBalances();
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         for (Account a : accounts) {
-            a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ? MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
-            a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ? MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
+            a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ?
+                    MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
+            a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ?
+                    MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
         }
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
-
 
         PayloadFactory.getInstance().cache();
 
         if (OSUtil.getInstance(context.getApplicationContext()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-            context.getApplicationContext().stopService(new Intent(context.getApplicationContext(), info.blockchain.wallet.service.WebSocketService.class));
+            context.getApplicationContext().stopService(new Intent(context.getApplicationContext(),
+                    info.blockchain.wallet.service.WebSocketService.class));
         }
-        context.getApplicationContext().startService(new Intent(context.getApplicationContext(), info.blockchain.wallet.service.WebSocketService.class));
+        context.getApplicationContext().startService(new Intent(context.getApplicationContext(),
+                info.blockchain.wallet.service.WebSocketService.class));
 
         return true;
     }

@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
@@ -194,45 +197,123 @@ public class UpgradeWalletActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, true);
-                PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+                // TODO clean up - lots of redundant code
+                if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                    final EditText double_encrypt_password = new EditText(UpgradeWalletActivity.this);
+                    double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-                onUpgradeStart();
+                    new AlertDialog.Builder(UpgradeWalletActivity.this)
+                            .setTitle(R.string.app_name)
+                            .setMessage(R.string.enter_double_encryption_pw)
+                            .setView(double_encrypt_password)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Looper.prepare();
-                        try {
+                                    final String pw = double_encrypt_password.getText().toString();
 
-                            if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
-                                AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
+                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                            PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                            PayloadFactory.getInstance().get().getSharedKey(),
+                                            new CharSequenceX(pw),
+                                            PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
 
-                                PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
-                                AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
-                                HDPayloadBridge.getInstance(getApplicationContext()).init(PayloadFactory.getInstance().getTempPassword());
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                            } else {
+                                        // XXX this is important!
+                                        // TODO need to reset when done - that may be hard
+                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+
+                                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, true);
+                                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+
+                                        onUpgradeStart();
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Looper.prepare();
+                                                try {
+
+                                                    if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
+                                                        AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
+
+                                                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
+                                                        AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
+                                                        // TODO get second password if needed and pass to update instead of init here
+                                                        HDPayloadBridge.getInstance(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), new CharSequenceX(pw));
+                                                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                                    } else {
+                                                        AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
+                                                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                                        onUpgradeFail();
+                                                        Looper.loop();
+                                                        return;
+                                                    }
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                    AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
+                                                    PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                                    onUpgradeFail();
+                                                    Looper.loop();
+                                                }
+
+                                                onUpgradeCompleted();
+                                                PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                                Looper.loop();
+                                            }
+                                        }).start();
+                                    } else {
+                                        ToastCustom.makeText(getApplicationContext(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                    }
+                                }
+                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            ;
+                        }
+                    }).show();
+                } else {
+                    PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, true);
+                    PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+
+                    onUpgradeStart();
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            try {
+
+                                if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
+                                    AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
+
+                                    PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, System.currentTimeMillis());
+                                    AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
+                                    // TODO get second password if needed and pass to update instead of init here
+                                    HDPayloadBridge.getInstance(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), new CharSequenceX(""));
+                                    PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                } else {
+                                    AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
+                                    PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                    onUpgradeFail();
+                                    Looper.loop();
+                                    return;
+                                }
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
                                 AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
                                 PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
                                 onUpgradeFail();
                                 Looper.loop();
-                                return;
                             }
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
+                            onUpgradeCompleted();
                             PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
-                            onUpgradeFail();
                             Looper.loop();
                         }
-
-                        onUpgradeCompleted();
-                        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
-                        Looper.loop();
-                    }
-                }).start();
+                    }).start();
+                }
             }
         });
 
