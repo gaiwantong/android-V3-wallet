@@ -16,12 +16,9 @@ gen/
 .gradle/
 build/
 
-# User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dictionaries
-.idea/libraries
-.idea/codeStyleSettings.xml
+# Android Studio
+.idea/
+*.iml
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -31,9 +28,6 @@ proguard/
 
 # Log Files
 *.log
-
-# Eclipse Metadata
-.metadata/
 
 # Mac OS X clutter
 *.DS_Store
