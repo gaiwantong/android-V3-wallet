@@ -1,10 +1,5 @@
 package info.blockchain.wallet;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
-
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -48,18 +43,11 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.util.AccountsUtil;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -80,6 +68,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
@@ -201,6 +199,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         edAmount1.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
+                String input = s.toString();
+
                 edAmount1.removeTextChangedListener(this);
 
                 int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
@@ -221,14 +221,12 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 btcFormat.setMinimumFractionDigits(0);
 
                 try {
-                    double d = Double.parseDouble(s.toString());
-                    String s1 = btcFormat.format(d);
-                    if (s1.indexOf(defaultSeperator) != -1) {
-                        String dec = s1.substring(s1.indexOf(defaultSeperator));
+                    if (input.indexOf(defaultSeperator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeperator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount1.setText(s1.substring(0, s1.length() - 1));
+                                edAmount1.setText(input.substring(0, input.length() - 1));
                                 edAmount1.setSelection(edAmount1.getText().length());
                                 s = edAmount1.getEditableText();
                             }
@@ -272,6 +270,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
             public void afterTextChanged(Editable s) {
 
+                String input = s.toString();
+
                 edAmount2.removeTextChangedListener(this);
 
                 int max_len = 2;
@@ -280,14 +280,12 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 fiatFormat.setMinimumFractionDigits(0);
 
                 try {
-                    double d = Double.parseDouble(s.toString());
-                    String s1 = fiatFormat.format(d);
-                    if (s1.indexOf(defaultSeperator) != -1) {
-                        String dec = s1.substring(s1.indexOf(defaultSeperator));
+                    if (input.indexOf(defaultSeperator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeperator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount2.setText(s1.substring(0, s1.length() - 1));
+                                edAmount2.setText(input.substring(0, input.length() - 1));
                                 edAmount2.setSelection(edAmount2.getText().length());
                                 s = edAmount2.getEditableText();
                             }
@@ -853,7 +851,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 pad = v.getTag().toString().substring(0, 1);
                 break;
             case R.id.button10:
-                pad = ".";
+                pad = defaultSeperator;
                 break;
             case R.id.button0:
                 pad = v.getTag().toString().substring(0, 1);

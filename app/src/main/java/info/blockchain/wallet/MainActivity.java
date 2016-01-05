@@ -1,7 +1,5 @@
 package info.blockchain.wallet;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -46,7 +44,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
+
+import org.bitcoinj.core.bip44.WalletFactory;
+
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.drawer.DrawerAdapter;
@@ -69,17 +77,6 @@ import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
-
-import org.bitcoinj.core.bip44.WalletFactory;
-
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
 import piuk.blockchain.android.R;
 
 //import android.nfc.Tag;
@@ -135,8 +132,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
 
         AppUtil.getInstance(MainActivity.this).applyPRNGFixes();
-
-        Locale.setDefault(Locale.US);
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
