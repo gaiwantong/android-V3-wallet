@@ -109,6 +109,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private ArrayList<DrawerItem> drawerItems;
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;
+    private AlertDialog rootedAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +118,10 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-        if (RootUtil.getInstance().isDeviceRooted()) {
+        if (RootUtil.getInstance().isDeviceRooted() && rootedAlertDialog == null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-            final String message = getString(R.string.device_rooted);
-
-            builder.setMessage(message)
+            builder.setMessage(getString(R.string.device_rooted))
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue,
                             new DialogInterface.OnClickListener() {
@@ -131,7 +130,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                 }
                             });
 
-            builder.create().show();
+            rootedAlertDialog = builder.create();
+            rootedAlertDialog.show();
         }
 
         AppUtil.getInstance(MainActivity.this).applyPRNGFixes();
@@ -370,14 +370,18 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
+
+        if (rootedAlertDialog != null) {
+            rootedAlertDialog.dismiss();
+            rootedAlertDialog = null;
+        }
 
         if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
             stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
         }
 
         AppUtil.getInstance(MainActivity.this).deleteQR();
-
-        super.onDestroy();
     }
 
     @Override
