@@ -4,6 +4,7 @@ import android.content.Context;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
@@ -21,8 +22,8 @@ public class MonetaryUtil {
     private static Context context = null;
     private static CharSequence[] btcUnits = {"BTC", "mBTC", "bits"};
     private static MonetaryUtil instance = null;
-    private static NumberFormat btcFormat = null;
-    private static NumberFormat fiatFormat = null;
+    private static DecimalFormat btcFormat = null;
+    private static DecimalFormat fiatFormat = null;
 
     private MonetaryUtil() {
         ;
@@ -31,13 +32,19 @@ public class MonetaryUtil {
     public static MonetaryUtil getInstance() {
 
         if (instance == null) {
-            fiatFormat = NumberFormat.getInstance(Locale.getDefault());
+            fiatFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
             fiatFormat.setMaximumFractionDigits(2);
             fiatFormat.setMinimumFractionDigits(2);
+            DecimalFormatSymbols symbolsF = fiatFormat.getDecimalFormatSymbols();
+            symbolsF.setGroupingSeparator(' ');
+            fiatFormat.setDecimalFormatSymbols(symbolsF);
 
-            btcFormat = NumberFormat.getInstance(Locale.getDefault());
+            btcFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
             btcFormat.setMaximumFractionDigits(8);
             btcFormat.setMinimumFractionDigits(1);
+            DecimalFormatSymbols symbolsB = btcFormat.getDecimalFormatSymbols();
+            symbolsB.setGroupingSeparator(' ');
+            btcFormat.setDecimalFormatSymbols(symbolsB);
 
             instance = new MonetaryUtil();
         }
@@ -49,19 +56,7 @@ public class MonetaryUtil {
 
         context = ctx;
 
-        if (instance == null) {
-            fiatFormat = NumberFormat.getInstance(Locale.getDefault());
-            fiatFormat.setMaximumFractionDigits(2);
-            fiatFormat.setMinimumFractionDigits(2);
-
-            btcFormat = NumberFormat.getInstance(Locale.getDefault());
-            btcFormat.setMaximumFractionDigits(8);
-            btcFormat.setMinimumFractionDigits(1);
-
-            instance = new MonetaryUtil();
-        }
-
-        return instance;
+        return getInstance();
     }
 
     public NumberFormat getBTCFormat() {

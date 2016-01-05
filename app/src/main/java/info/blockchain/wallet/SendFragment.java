@@ -38,6 +38,23 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -62,24 +79,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ReselectSpinner;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
-
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.crypto.MnemonicException;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -204,6 +203,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         btcTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
+                String input = s.toString();
+
                 long lamount = 0L;
                 try {
                     //Long is safe to use, but double can lead to ugly rounding issues..
@@ -241,14 +242,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 btcFormat.setMinimumFractionDigits(0);
 
                 try {
-                    double d = Double.parseDouble(s.toString());
-                    String s1 = btcFormat.format(d);
-                    if (s1.indexOf(defaultSeparator) != -1) {
-                        String dec = s1.substring(s1.indexOf(defaultSeparator));
+                    if (input.indexOf(defaultSeparator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeparator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount1.setText(s1.substring(0, s1.length() - 1));
+                                edAmount1.setText(input.substring(0, input.length() - 1));
                                 edAmount1.setSelection(edAmount1.getText().length());
                                 s = edAmount1.getEditableText();
                             }
@@ -296,6 +295,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         fiatTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
+                String input = s.toString();
+
                 edAmount2.removeTextChangedListener(this);
 
                 int max_len = 2;
@@ -304,14 +305,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 fiatFormat.setMinimumFractionDigits(0);
 
                 try {
-                    double d = Double.parseDouble(s.toString());
-                    String s1 = fiatFormat.format(d);
-                    if (s1.indexOf(defaultSeparator) != -1) {
-                        String dec = s1.substring(s1.indexOf(defaultSeparator));
+                    if (input.indexOf(defaultSeparator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeparator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount2.setText(s1.substring(0, s1.length() - 1));
+                                edAmount2.setText(input.substring(0, input.length() - 1));
                                 edAmount2.setSelection(edAmount2.getText().length());
                                 s = edAmount2.getEditableText();
                             }
@@ -1399,7 +1398,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 pad = v.getTag().toString().substring(0, 1);
                 break;
             case R.id.button10:
-                pad = ".";
+                pad = defaultSeparator;
                 break;
             case R.id.button0:
                 pad = v.getTag().toString().substring(0, 1);
