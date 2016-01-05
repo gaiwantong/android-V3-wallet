@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Back-up portofel este uşor şi asigură nu veţi pierde accesul la fondurile tale, chiar dacă serviciul nostru devine indisponibilă.</string>
   <string name="BACKUP_WALLET">REZERVĂ PORTOFEL</string>
   <string name="backup_how_to">Cum de a restabili portofel</string>
-  <string name="backup_step_1">Du-te la blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Du-te la blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Introduceţi fraza de rezervă dumneavoastră 12 cuvântul</string>
   <string name="backup_step_3">Portofel va fi restaurat şi fondurile tale în siguranţă</string>
   <string name="START">ÎNCEPE</string>

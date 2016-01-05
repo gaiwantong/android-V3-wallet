@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Zálohování peněženku je snadné a zajišťuje, že neztratíte přístup k fondům, i v případě, že naše služba přestane být k dispozici.</string>
   <string name="BACKUP_WALLET">ZÁLOHOVÁNÍ PENĚŽENKA</string>
   <string name="backup_how_to">Jak obnovit vaši peněženku</string>
-  <string name="backup_step_1">Přejít na blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Přejít na blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Zadejte své záložní 12 slovo fráze</string>
   <string name="backup_step_3">Vaše peněženka bude obnoven a vaše prostředky bezpečné</string>
   <string name="START">ZAČÁTEK</string>

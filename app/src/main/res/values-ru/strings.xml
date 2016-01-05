@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Резервное ваш кошелек легко и гарантирует, что вы не потеряете доступ к вашим средствам, даже если наш сервис становится недоступным.</string>
   <string name="BACKUP_WALLET">РЕЗЕРВНОЕ КОПИРОВАНИЕ БУМАЖНИК</string>
   <string name="backup_how_to">Как восстановить ваш кошелек</string>
-  <string name="backup_step_1">Перейти к blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Перейти к blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Введите ваши 12 слово фразу резервного копирования</string>
   <string name="backup_step_3">Ваш кошелек будет восстановлен и ваши средства безопасности</string>
   <string name="START">НАЧАЛО</string>

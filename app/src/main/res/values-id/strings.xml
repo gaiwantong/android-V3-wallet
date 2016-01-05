@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Back up dompet Anda mudah dan memastikan Anda tidak akan kehilangan akses ke dana Anda, bahkan jika pelayanan menjadi tidak tersedia.</string>
   <string name="BACKUP_WALLET">CADANGAN DOMPET</string>
   <string name="backup_how_to">Bagaimana mengembalikan dompet Anda</string>
-  <string name="backup_step_1">Pergi ke blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Pergi ke blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Masukkan frase cadangan 12 kata Anda</string>
   <string name="backup_step_3">Dompet Anda akan dipulihkan dan dana Anda aman</string>
   <string name="START">MULAI</string>

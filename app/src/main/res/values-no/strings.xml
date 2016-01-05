@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Sikkerhetskopiere lommeboken er lett og sikrer du ikke vil miste tilgang til midler, selv om tjenesten blir utilgjengelig.</string>
   <string name="BACKUP_WALLET">BACKUP LOMMEBOK</string>
   <string name="backup_how_to">Gjenopprette lommeboken</string>
-  <string name="backup_step_1">Gå til blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Gå til blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Angi søkestrengen for 12 word-sikkerhetskopi</string>
   <string name="backup_step_3">Lommeboken gjenopprettes og midlene trygt</string>
   <string name="START">START</string>

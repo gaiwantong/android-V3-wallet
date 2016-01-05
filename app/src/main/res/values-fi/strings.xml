@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Tuki jalkeilla sinun lompakko on helppo ja varmistaa et enää käyttää rahat, vaikka palvelu ei ole käytettävissä.</string>
   <string name="BACKUP_WALLET">VARMUUSKOPIO LOMPAKKO</string>
   <string name="backup_how_to">Kuinka jotta palauttaa sinun lompakko</string>
-  <string name="backup_step_1">Siirry blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Siirry blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Kirjoita 12 sana taaksepäin lause</string>
   <string name="backup_step_3">Palautetaan lompakon ja rahat turvallinen</string>
   <string name="START">KÄYNNISTÄ</string>

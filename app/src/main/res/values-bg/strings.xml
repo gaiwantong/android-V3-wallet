@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Архивиране на вашия портфейл е лесно и осигурява няма да загубите достъпа до вашите средства, дори ако нашите услуги става недостъпна.</string>
   <string name="BACKUP_WALLET">АРХИВИРАНЕ ПОРТФЕЙЛ</string>
   <string name="backup_how_to">Как да възстановите вашия портфейл</string>
-  <string name="backup_step_1">Отидете на blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Отидете на blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Въведете фраза за архивиране вашия 12 дума</string>
   <string name="backup_step_3">Портфейла ще бъде възстановена и си фондове Сейф</string>
   <string name="START">СТАРТ</string>

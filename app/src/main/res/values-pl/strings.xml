@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Poparcie w górze twój portfel jest łatwe i zapewnia, że nie stracisz dostęp do funduszy, nawet jeśli nasz serwis staje się niedostępny.</string>
   <string name="BACKUP_WALLET">KOPIA ZAPASOWA PORTFEL</string>
   <string name="backup_how_to">Jak przywrócić swój portfel</string>
-  <string name="backup_step_1">Przejdź do blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Przejdź do blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Wprowadź wyrażenie kopii zapasowej 12 słowo</string>
   <string name="backup_step_3">Portfelu zostanie przywrócony i bezpieczne fundusze</string>
   <string name="START">START</string>

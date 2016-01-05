@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Backup portafoglio è facile e garantisce che non perderai l\'accesso ai tuoi fondi, anche se il nostro servizio non è più disponibile.</string>
   <string name="BACKUP_WALLET">BACKUP PORTAFOGLIO</string>
   <string name="backup_how_to">Come ripristinare il tuo portafoglio</string>
-  <string name="backup_step_1">Vai a blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Vai a blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Inserisci la tua frase backup 12 parola</string>
   <string name="backup_step_3">Il portafoglio verrà ripristinato e i fondi di sicuri</string>
   <string name="START">INIZIO</string>

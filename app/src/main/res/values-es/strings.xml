@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Respaldando su billetera es fácil y asegura que no perderá acceso a sus fondos, incluso si nuestro servicio no está disponible.</string>
   <string name="BACKUP_WALLET">CARTERA DE COPIA DE SEGURIDAD</string>
   <string name="backup_how_to">Cómo restaurar tu billetera</string>
-  <string name="backup_step_1">Ir a blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Ir a blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Ingrese su frase backup 12 palabra</string>
   <string name="backup_step_3">Se restaurará la cartera y los fondos de seguros</string>
   <string name="START">INICIO</string>

@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Säkerhetskopiera din plånbok är lätt och säkerställer du inte kommer förlora tillgången till dina pengar, även om vår tjänst blir otillgänglig.</string>
   <string name="BACKUP_WALLET">BACKUP PLÅNBOK</string>
   <string name="backup_how_to">Hur du återställer din plånbok</string>
-  <string name="backup_step_1">Gå till blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Gå till blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Ange din backup 12 ord fras</string>
   <string name="backup_step_3">Din plånbok kommer att återställas och dina pengar säkra</string>
   <string name="START">START</string>

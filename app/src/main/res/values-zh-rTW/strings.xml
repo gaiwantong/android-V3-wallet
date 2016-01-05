@@ -227,7 +227,7 @@
   <string name="backup_1_subheading">備份你的錢包很容易，可以確保你不會失去訪問到您的資金，即使我們的服務變得不可用。</string>
   <string name="BACKUP_WALLET">備份的錢包</string>
   <string name="backup_how_to">如何還原你的錢包</string>
-  <string name="backup_step_1">去 blockchain.info/restorewallet</string>
+  <string name="backup_step_1">去 blockchain.info/wallet/restore</string>
   <string name="backup_step_2">輸入您備份 12 單詞或短語</string>
   <string name="backup_step_3">將恢復你的錢包和您的資金安全</string>
   <string name="START">開始</string>

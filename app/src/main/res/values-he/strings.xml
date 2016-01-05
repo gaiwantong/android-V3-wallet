@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">מגבה את הארנק שלך היא קלה ומבטיחה שלא תאבד גישה כספים שלך, גם אם השירות שלנו הופך ללא זמין.</string>
   <string name="BACKUP_WALLET">הארנק גיבוי</string>
   <string name="backup_how_to">כיצד לשחזר את הארנק שלך</string>
-  <string name="backup_step_1">ללכת blockchain.info/restorewallet</string>
+  <string name="backup_step_1">ללכת blockchain.info/wallet/restore</string>
   <string name="backup_step_2">הזן את 12 מילים גיבוי</string>
   <string name="backup_step_3">הארנק שלך תשוחזר וקרנות שלך בטוח</string>
   <string name="START">התחל</string>

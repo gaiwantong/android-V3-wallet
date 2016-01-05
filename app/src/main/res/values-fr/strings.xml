@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Sauvegarde de votre portefeuille est facile et assure que vous ne perdrez pas d\'accès à vos fonds, même si notre service n\'est plus disponible.</string>
   <string name="BACKUP_WALLET">SAUVEGARDE WALLET</string>
   <string name="backup_how_to">Comment restaurer votre portefeuille</string>
-  <string name="backup_step_1">Aller à blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Aller à blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Entrez votre phrase sauvegarde 12 mot</string>
   <string name="backup_step_3">Votre portefeuille sera restauré et vos fonds en toute sécurités</string>
   <string name="START">DÉBUT</string>

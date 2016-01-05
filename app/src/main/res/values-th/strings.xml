@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">สำรองกระเป๋าสตางค์ของคุณเป็นเรื่องง่าย และให้แน่ใจว่า คุณจะไม่สูญเสียการเข้าการเงิน แม้ว่าบริการของเราจะไม่</string>
   <string name="BACKUP_WALLET">กระเป๋าสำรอง</string>
   <string name="backup_how_to">วิธีการคืนค่ากระเป๋าสตางค์ของคุณ</string>
-  <string name="backup_step_1">ไปที่ blockchain.info/restorewallet</string>
+  <string name="backup_step_1">ไปที่ blockchain.info/wallet/restore</string>
   <string name="backup_step_2">ป้อนวลีของคุณสำรองคำ 12</string>
   <string name="backup_step_3">กระเป๋าสตางค์ของคุณจะถูกคืนค่า และเซฟเงิน</string>
   <string name="START">เริ่มต้น</string>

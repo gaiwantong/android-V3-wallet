@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Recolzar la seva cartera és fàcil i assegura que no perdrà accés als seus fons, fins i tot si el nostre servei no està disponible.</string>
   <string name="BACKUP_WALLET">CARTERA DE CÒPIA DE SEGURETAT</string>
   <string name="backup_how_to">Com restaurar la seva cartera</string>
-  <string name="backup_step_1">Anar a blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Anar a blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Introdueixi la seva frase reserva 12 paraula</string>
   <string name="backup_step_3">Seva cartera es restauraran i el seu fons segurs</string>
   <string name="START">INICI</string>

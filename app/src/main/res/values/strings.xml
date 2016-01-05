@@ -300,7 +300,7 @@
     <string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
     <string name="BACKUP_WALLET">BACKUP WALLET</string>
     <string name="backup_how_to">How to restore your wallet</string>
-    <string name="backup_step_1">Go to blockchain.info/restorewallet</string>
+    <string name="backup_step_1">Go to blockchain.info/wallet/restore</string>
     <string name="backup_step_2">Enter your 12 word backup phrase</string>
     <string name="backup_step_3">Your wallet will be restored and your funds safe</string>
     <string name="START">START</string>

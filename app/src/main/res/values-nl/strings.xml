@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Back-up van uw portemonnee is eenvoudig en zorgt ervoor dat verliest u geen toegang tot uw geld, zelfs als onze service niet meer beschikbaar is.</string>
   <string name="BACKUP_WALLET">BACK-PORTEMONNEE</string>
   <string name="backup_how_to">Hoe om te herstellen van uw portemonnee</string>
-  <string name="backup_step_1">Ga naar blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Ga naar blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Voer uw 12 woord back-uitdrukking</string>
   <string name="backup_step_3">Uw portefeuille zal worden hersteld en uw geld veilig</string>
   <string name="START">START</string>

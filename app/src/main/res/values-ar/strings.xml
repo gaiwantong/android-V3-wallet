@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">النسخ الاحتياطي للمحفظة الخاصة بك من السهل ويضمن لن تفقد الوصول إلى الأموال الخاصة بك، حتى لو كان لدينا خدمة يصبح غير متوفر.</string>
   <string name="BACKUP_WALLET">محفظة احتياطية</string>
   <string name="backup_how_to">كيفية استعادة المحفظة الخاصة بك</string>
-  <string name="backup_step_1">اذهب إلى blockchain.info/restorewallet</string>
+  <string name="backup_step_1">اذهب إلى blockchain.info/wallet/restore</string>
   <string name="backup_step_2">أدخل العبارة النسخ الاحتياطي الخاصة بك كلمة 12</string>
   <string name="backup_step_3">وستعاد محفظتك والأموال الخاصة بك آمنة</string>
   <string name="START">بدء تشغيل</string>

@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Varnostno kopiranje vaše denarnice je enostavno in zagotavlja, ne boste izgubili dostop do vaših sredstev, tudi če storitev ni na voljo.</string>
   <string name="BACKUP_WALLET">VARNOSTNO DENARNICE</string>
   <string name="backup_how_to">Kako obnoviti vaše denarnice</string>
-  <string name="backup_step_1">Pojdi na blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Pojdi na blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Vnesite vaš 12 beseda prislon fraza</string>
   <string name="backup_step_3">Obnovljeni vaše denarnice in varno sredstva</string>
   <string name="START">ZAČETEK</string>

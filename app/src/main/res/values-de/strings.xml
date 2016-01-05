@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Sichern Ihrer Brieftasche ist einfach und stellt sicher, dass Sie nicht den Zugriff auf Ihr Geld verlieren, auch wenn unser Service nicht mehr verfügbar ist.</string>
   <string name="BACKUP_WALLET">BACKUP BRIEFTASCHE</string>
   <string name="backup_how_to">Wie Sie Ihren Geldbeutel wiederherstellen</string>
-  <string name="backup_step_1">Gehe zu blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Gehe zu blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Geben Sie Ihr backup 12 Wort-Satz</string>
   <string name="backup_step_3">Ihre Brieftasche wird wiederhergestellt und Ihr Geld sicher</string>
   <string name="START">START</string>

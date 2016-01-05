@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Hátlap megjelöl a tárcáját könnyű, és biztosítja, hogy nem fogja elveszíteni a hozzáférést az alap, még akkor is, ha a szolgáltatás elérhetetlenné válik.</string>
   <string name="BACKUP_WALLET">HÁT PÉNZTÁRCA</string>
   <string name="backup_how_to">Hogyan viselkedni visszaad a pénztárca</string>
-  <string name="backup_step_1">Megy blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Megy blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Adja meg a 12 word biztonságimásolat-készítő mondat</string>
   <string name="backup_step_3">Visszaáll a pénztárca és a biztonságos források</string>
   <string name="START">START</string>

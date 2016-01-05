@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Backup de sua carteira é fácil e garante que não perderá o acesso aos seus fundos, mesmo que nosso serviço fique indisponível.</string>
   <string name="BACKUP_WALLET">CARTEIRA DE BACKUP</string>
   <string name="backup_how_to">Como restaurar sua carteira</string>
-  <string name="backup_step_1">Ir para blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Ir para blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Digite sua frase de backup 12 palavra</string>
   <string name="backup_step_3">Sua carteira será restaurada e seus fundos de seguros</string>
   <string name="START">INÍCIO</string>

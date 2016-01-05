@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Sao lưu chi tiêu của bạn là dễ dàng và đảm bảo bạn sẽ không mất quyền truy cập để tiền của bạn, ngay cả khi dịch vụ của chúng tôi trở nên không có sẵn.</string>
   <string name="BACKUP_WALLET">SAO LƯU WALLET</string>
   <string name="backup_how_to">Làm thế nào để khôi phục lại ví của bạn</string>
-  <string name="backup_step_1">Đi đến blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Đi đến blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Nhập cụm từ 12 sao lưu của bạn</string>
   <string name="backup_step_3">Ví của bạn sẽ được phục hồi và khoản tiền của bạn an toàn</string>
   <string name="START">BẮT ĐẦU</string>

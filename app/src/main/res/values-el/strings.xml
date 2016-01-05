@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Αντιγράφων ασφαλείας πορτοφόλι σας είναι εύκολο και εξασφαλίζει δεν θα χάσετε την πρόσβαση στα χρήματά σας, ακόμα κι αν μας υπηρεσία γίνεται διαθέσιμη.</string>
   <string name="BACKUP_WALLET">ΑΝΤΙΓΡΆΦΩΝ ΑΣΦΑΛΕΊΑΣ ΠΟΡΤΟΦΌΛΙ</string>
   <string name="backup_how_to">Πώς να επαναφέρετε το πορτοφόλι σας</string>
-  <string name="backup_step_1">Πηγαίνετε στο blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Πηγαίνετε στο blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Εισάγετε σας 12 λέξη φράση αντιγράφων ασφαλείας</string>
   <string name="backup_step_3">Το πορτοφόλι σας θα αποκατασταθεί και τα χρήματά σας ασφαλή</string>
   <string name="START">ΈΝΑΡΞΗ</string>

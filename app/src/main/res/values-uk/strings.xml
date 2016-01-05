@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Резервне копіювання ваш гаманець легко і гарантує, що не втратите доступ до своїх коштів, навіть якщо наш сервіс стає недоступним.</string>
   <string name="BACKUP_WALLET">РЕЗЕРВНЕ КОПІЮВАННЯ ГАМАНЕЦЬ</string>
   <string name="backup_how_to">Як відновити ваш гаманець</string>
-  <string name="backup_step_1">Перейти до blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Перейти до blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Введіть ваш 12 слово резервного копіювання фразу</string>
   <string name="backup_step_3">Ваш гаманець будуть відновлені і безпеці ваших коштів</string>
   <string name="START">ПОЧАТИ</string>

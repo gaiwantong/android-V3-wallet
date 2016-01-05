@@ -226,7 +226,7 @@
   <string name="backup_1_subheading">Sikkerhedskopiering af din tegnebog er let og sikrer du ikke mister adgang til dine midler, selv om vores service bliver utilgængelig.</string>
   <string name="BACKUP_WALLET">BACKUP TEGNEBOG</string>
   <string name="backup_how_to">Sådan gendannes din tegnebog</string>
-  <string name="backup_step_1">Gå til blockchain.info/restorewallet</string>
+  <string name="backup_step_1">Gå til blockchain.info/wallet/restore</string>
   <string name="backup_step_2">Indtast din 12 ord backup sætning</string>
   <string name="backup_step_3">Din tegnebog vil blive genoprettet og dine penge sikker</string>
   <string name="START">START</string>
