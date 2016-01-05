@@ -33,6 +33,7 @@ public class PairWalletFragment extends Fragment {
             public void onClick(View v) {
                 if (!AppUtil.getInstance(getActivity()).isCameraOpen()) {
                     Intent intent = new Intent(getActivity(), CaptureActivity.class);
+                    intent.putExtra("SCAN_FORMATS", "QR_CODE");
                     getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);
                 } else {
                     ToastCustom.makeText(getActivity(), getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
