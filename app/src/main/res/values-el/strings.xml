@@ -4,21 +4,21 @@
   <string name="backup_wallet">Αντιγράφων ασφαλείας πορτοφόλι</string>
   <string name="upgrade_wallet">Αναβάθμιση πορτοφόλι</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Ρυθμίσεις</item>
+    <item>Αλλαγή κωδικού PIN</item>
     <item>Διευθύνσεις μου</item>
     <item>Ειδήσεις, χάρτες των τιμών του &amp;</item>
-    <item>Ρυθμίσεις</item>
     <item>Υποστήριξη</item>
-    <item>Αλλαγή κωδικού PIN</item>
     <item>Unpair πορτοφόλι</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Ρυθμίσεις</item>
+    <item>Αλλαγή κωδικού PIN</item>
     <item>Τους λογαριασμούς μου</item>
     <item>Ειδήσεις, χάρτες των τιμών του &amp;</item>
-    <item>Ρυθμίσεις</item>
     <item>Υποστήριξη</item>
-    <item>Αλλαγή κωδικού PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Unpair πορτοφόλι</item>
   </string-array>
   <string name="app_name">Blockchain</string>

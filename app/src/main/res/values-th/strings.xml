@@ -4,21 +4,21 @@
   <string name="backup_wallet">กระเป๋าสำรอง</string>
   <string name="upgrade_wallet">กระเป๋าสตางค์เกรด</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>การตั้งค่า</item>
+    <item>เปลี่ยนรหัส PIN</item>
     <item>ที่อยู่ของฉัน</item>
     <item>ข่าว แผนภูมิราคา &amp;</item>
-    <item>การตั้งค่า</item>
     <item>สนับสนุน</item>
-    <item>เปลี่ยนรหัส PIN</item>
     <item>กระเป๋า unpair</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>การตั้งค่า</item>
+    <item>เปลี่ยนรหัส PIN</item>
     <item>บัญชีของฉัน</item>
     <item>ข่าว แผนภูมิราคา &amp;</item>
-    <item>การตั้งค่า</item>
     <item>สนับสนุน</item>
-    <item>เปลี่ยนรหัส PIN</item>
-    <item>@string/backup_wallet</item>
     <item>กระเป๋า unpair</item>
   </string-array>
   <string name="app_name">Blockchain</string>

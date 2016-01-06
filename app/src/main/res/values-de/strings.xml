@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup Brieftasche</string>
   <string name="upgrade_wallet">Upgrade-Brieftasche</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Einstellungen</item>
+    <item>PIN-Code ändern</item>
     <item>Meine Adressen</item>
     <item>Nachrichten, &amp; Preischarts</item>
-    <item>Einstellungen</item>
     <item>Unterstützung</item>
-    <item>PIN-Code ändern</item>
     <item>Trennen der Brieftasche</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Einstellungen</item>
+    <item>PIN-Code ändern</item>
     <item>Meine Konten</item>
     <item>Nachrichten, &amp; Preischarts</item>
-    <item>Einstellungen</item>
     <item>Unterstützung</item>
-    <item>PIN-Code ändern</item>
-    <item>@string/backup_wallet</item>
     <item>Trennen der Brieftasche</item>
   </string-array>
   <string name="app_name">Blockchain</string>

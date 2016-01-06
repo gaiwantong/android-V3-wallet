@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup Wallet</string>
   <string name="upgrade_wallet">財布をアップグレードします。</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>設定</item>
+    <item>PIN コードの変更</item>
     <item>私のアドレス</item>
     <item>ニュースでは、&amp; の価格のグラフ</item>
-    <item>設定</item>
     <item>サポート</item>
-    <item>PIN コードの変更</item>
     <item>財布を開いた</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>設定</item>
+    <item>PIN コードの変更</item>
     <item>私のアカウント</item>
     <item>ニュースでは、&amp; の価格のグラフ</item>
-    <item>設定</item>
     <item>サポート</item>
-    <item>PIN コードの変更</item>
-    <item>@string/backup_wallet</item>
     <item>財布を開いた</item>
   </string-array>
   <string name="app_name">Blockchain</string>

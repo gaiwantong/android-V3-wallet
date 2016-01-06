@@ -4,21 +4,21 @@
   <string name="backup_wallet">Yedek cüzdan</string>
   <string name="upgrade_wallet">M-cüzdan yükseltme</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Ayarlar</item>
+    <item>PIN kodunu değiştir</item>
     <item>Benim adres yazmak</item>
     <item>Haberler, fiyat &amp; grafikler</item>
-    <item>Ayarlar</item>
     <item>Destek</item>
-    <item>PIN kodunu değiştir</item>
     <item>M-cüzdan kullanmadığınızda</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Ayarlar</item>
+    <item>PIN kodunu değiştir</item>
     <item>Benim hesapları</item>
     <item>Haberler, fiyat &amp; grafikler</item>
-    <item>Ayarlar</item>
     <item>Destek</item>
-    <item>PIN kodunu değiştir</item>
-    <item>@string/backup_wallet</item>
     <item>M-cüzdan kullanmadığınızda</item>
   </string-array>
   <string name="app_name">Blockchain</string>

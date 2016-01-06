@@ -4,21 +4,21 @@
   <string name="backup_wallet">Cadangan dompet</string>
   <string name="upgrade_wallet">Meng-upgrade dompet</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Pengaturan</item>
+    <item>Perubahan kode PIN</item>
     <item>Alamat saya</item>
     <item>Berita, grafik harga &amp;</item>
-    <item>Pengaturan</item>
     <item>Dukungan</item>
-    <item>Perubahan kode PIN</item>
     <item>Tidak berpasangan dompet</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Pengaturan</item>
+    <item>Perubahan kode PIN</item>
     <item>Account saya</item>
     <item>Berita, grafik harga &amp;</item>
-    <item>Pengaturan</item>
     <item>Dukungan</item>
-    <item>Perubahan kode PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Tidak berpasangan dompet</item>
   </string-array>
   <string name="app_name">Blockchain</string>

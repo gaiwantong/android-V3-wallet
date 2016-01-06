@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup tegnebog</string>
   <string name="upgrade_wallet">Opgradere tegnebog</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Indstillinger</item>
+    <item>Skift PIN-kode</item>
     <item>Mine adresser</item>
     <item>Nyheder, pris &amp; diagrammer</item>
-    <item>Indstillinger</item>
     <item>Support</item>
-    <item>Skift PIN-kode</item>
     <item>Fjerne parringen tegnebog</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Indstillinger</item>
+    <item>Skift PIN-kode</item>
     <item>Mine konti</item>
     <item>Nyheder, pris &amp; diagrammer</item>
-    <item>Indstillinger</item>
     <item>Support</item>
-    <item>Skift PIN-kode</item>
-    <item>@string/backup_wallet</item>
     <item>Fjerne parringen tegnebog</item>
   </string-array>
   <string name="app_name">Blockchain</string>

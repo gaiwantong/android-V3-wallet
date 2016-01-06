@@ -4,21 +4,21 @@
   <string name="backup_wallet">지갑 백업</string>
   <string name="upgrade_wallet">업그레이드 지갑</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>설정</item>
+    <item>핀 코드를 변경</item>
     <item>내 주소</item>
     <item>뉴스, 가격 &amp; 차트</item>
-    <item>설정</item>
     <item>지원</item>
-    <item>핀 코드를 변경</item>
     <item>페어링을 지갑</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>설정</item>
+    <item>핀 코드를 변경</item>
     <item>내 계정</item>
     <item>뉴스, 가격 &amp; 차트</item>
-    <item>설정</item>
     <item>지원</item>
-    <item>핀 코드를 변경</item>
-    <item>@string/backup_wallet</item>
     <item>페어링을 지갑</item>
   </string-array>
   <string name="app_name">Blockchain</string>

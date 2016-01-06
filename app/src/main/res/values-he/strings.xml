@@ -4,21 +4,21 @@
   <string name="backup_wallet">הארנק גיבוי</string>
   <string name="upgrade_wallet">לשדרג את הארנק</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>הגדרות</item>
+    <item>שינוי קוד PIN</item>
     <item>כתובות שלי</item>
     <item>חדשות, תרשימי &amp; מחיר</item>
-    <item>הגדרות</item>
     <item>תמיכה</item>
-    <item>שינוי קוד PIN</item>
     <item>שיוך הארנק</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>הגדרות</item>
+    <item>שינוי קוד PIN</item>
     <item>החשבונות שלי</item>
     <item>חדשות, תרשימי &amp; מחיר</item>
-    <item>הגדרות</item>
     <item>תמיכה</item>
-    <item>שינוי קוד PIN</item>
-    <item>@string/backup_wallet</item>
     <item>שיוך הארנק</item>
   </string-array>
   <string name="app_name">Blockchain</string>

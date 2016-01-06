@@ -4,21 +4,21 @@
   <string name="backup_wallet">Rezervă portofel</string>
   <string name="upgrade_wallet">Upgrade-ul de portofel</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Setări</item>
+    <item>Modificare cod PIN</item>
     <item>Adresele mele</item>
     <item>Ştiri, grafice de &amp; Pret</item>
-    <item>Setări</item>
     <item>Suport</item>
-    <item>Modificare cod PIN</item>
     <item>Desperechea portofel</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Setări</item>
+    <item>Modificare cod PIN</item>
     <item>Conturile mele</item>
     <item>Ştiri, grafice de &amp; Pret</item>
-    <item>Setări</item>
     <item>Suport</item>
-    <item>Modificare cod PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Desperechea portofel</item>
   </string-array>
   <string name="app_name">Blockchain</string>

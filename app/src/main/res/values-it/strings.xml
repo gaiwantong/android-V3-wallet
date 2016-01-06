@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup portafoglio</string>
   <string name="upgrade_wallet">Aggiornamento portafoglio</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Impostazioni</item>
+    <item>Cambiare il codice PIN</item>
     <item>I miei indirizzi</item>
     <item>Notizie, grafici dei prezzi &amp;</item>
-    <item>Impostazioni</item>
     <item>Supporto</item>
-    <item>Cambiare il codice PIN</item>
     <item>Annullare l\'abbinamento di portafoglio</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Impostazioni</item>
+    <item>Cambiare il codice PIN</item>
     <item>Il mio account</item>
     <item>Notizie, grafici dei prezzi &amp;</item>
-    <item>Impostazioni</item>
     <item>Supporto</item>
-    <item>Cambiare il codice PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Annullare l\'abbinamento di portafoglio</item>
   </string-array>
   <string name="app_name">Blockchain</string>
