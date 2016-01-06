@@ -346,7 +346,7 @@ public class BalanceFragment extends Fragment {
         if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
             //All accounts / funds
             if (PayloadFactory.getInstance().get().isUpgraded())
-                btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance());
+                btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
             else
 //                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
                 btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
