@@ -4,21 +4,21 @@
   <string name="backup_wallet">Varnostno denarnice</string>
   <string name="upgrade_wallet">Nadgradnjo denarnice</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Nastavitve</item>
+    <item>Sprememba kode PIN</item>
     <item>Moje naslovov</item>
     <item>Novice, cena karte za &amp;</item>
-    <item>Nastavitve</item>
     <item>Podpora</item>
-    <item>Sprememba kode PIN</item>
     <item>Unpair Denarnica</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Nastavitve</item>
+    <item>Sprememba kode PIN</item>
     <item>Moji kupci</item>
     <item>Novice, cena karte za &amp;</item>
-    <item>Nastavitve</item>
     <item>Podpora</item>
-    <item>Sprememba kode PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Unpair Denarnica</item>
   </string-array>
   <string name="app_name">Blockchain</string>

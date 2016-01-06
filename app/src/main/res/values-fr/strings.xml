@@ -4,21 +4,21 @@
   <string name="backup_wallet">Sauvegarde Wallet</string>
   <string name="upgrade_wallet">Mise à jour de portefeuille</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Paramètres</item>
+    <item>Modifier le Code PIN</item>
     <item>Mes adresses</item>
     <item>Actualités, prix &amp; graphiques</item>
-    <item>Paramètres</item>
     <item>Prise en charge</item>
-    <item>Modifier le Code PIN</item>
     <item>Désactiver le jumelage Wallet</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Paramètres</item>
+    <item>Modifier le Code PIN</item>
     <item>Mes comptes</item>
     <item>Actualités, prix &amp; graphiques</item>
-    <item>Paramètres</item>
     <item>Prise en charge</item>
-    <item>Modifier le Code PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Désactiver le jumelage Wallet</item>
   </string-array>
   <string name="app_name">Blockchain</string>

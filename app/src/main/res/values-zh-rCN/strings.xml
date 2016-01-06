@@ -5,21 +5,21 @@
   <string name="backup_wallet">备份钱包</string>
   <string name="upgrade_wallet">升级的钱包</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>设置</item>
+    <item>更改 PIN 码</item>
     <item>我的地址</item>
     <item>新闻，价格 &amp; 图</item>
-    <item>设置</item>
     <item>支持</item>
-    <item>更改 PIN 码</item>
     <item>Unpair 钱包</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>设置</item>
+    <item>更改 PIN 码</item>
     <item>我的账户</item>
     <item>新闻，价格 &amp; 图</item>
-    <item>设置</item>
     <item>支持</item>
-    <item>更改 PIN 码</item>
-    <item>@string/backup_wallet</item>
     <item>Unpair 钱包</item>
   </string-array>
   <string name="app_name">Blockchain</string>

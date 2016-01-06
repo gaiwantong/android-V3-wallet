@@ -4,21 +4,21 @@
   <string name="backup_wallet">Hát pénztárca</string>
   <string name="upgrade_wallet">Frissítési pénztárca</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Beállítások</item>
+    <item>PIN-kód módosítása</item>
     <item>Az én-m címek</item>
     <item>Hírek, árak &amp; diagramok</item>
-    <item>Beállítások</item>
     <item>Támogatás</item>
-    <item>PIN-kód módosítása</item>
     <item>Párosítás pénztárca</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Beállítások</item>
+    <item>PIN-kód módosítása</item>
     <item>Az én-m számlák</item>
     <item>Hírek, árak &amp; diagramok</item>
-    <item>Beállítások</item>
     <item>Támogatás</item>
-    <item>PIN-kód módosítása</item>
-    <item>@string/backup_wallet</item>
     <item>Párosítás pénztárca</item>
   </string-array>
   <string name="app_name">Blockchain</string>

@@ -3,43 +3,43 @@
 
     <string name="version_name">6.0.1</string>
 
-    <string name="backup_wallet">Backup Wallet</string>
-    <string name="upgrade_wallet">Upgrade Wallet</string>
+    <string name="backup_wallet">Backup funds</string>
+    <string name="upgrade_wallet">Upgrade to V3</string>
     <string-array name="navigation_drawer_items_lame">
-        <item>My Addresses</item>
-        <item>News, Price &amp; Charts</item>
-        <item>Settings</item>
-        <item>Support</item>
-        <item>Change PIN</item>
-        <item>Unpair Wallet</item>
         <item>@string/upgrade_wallet</item>
+        <item>Settings</item>
+        <item>Change PIN</item>
+        <item>Addresses</item>
+        <item>News, Price &amp; Charts</item>
+        <item>Support</item>
+        <item>Logout</item>
     </string-array>
     <string-array name="navigation_drawer_items_hd">
-        <item>My Accounts</item>
-        <item>News, Price &amp; Charts</item>
-        <item>Settings</item>
-        <item>Support</item>
-        <item>Change PIN</item>
         <item>@string/backup_wallet</item>
-        <item>Unpair Wallet</item>
+        <item>Settings</item>
+        <item>Change PIN</item>
+        <item>Addresses</item>
+        <item>News, Price &amp; Charts</item>
+        <item>Support</item>
+        <item>Logout</item>
     </string-array>
 
     <array name="navigation_drawer_icons_lame">
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_logout</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
     <array name="navigation_drawer_icons_hd">
+        <item>@drawable/bad_backup</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
     </array>
 
@@ -49,7 +49,7 @@
     <string name="app_name">Blockchain</string>
     <string name="action_settings">Settings</string>
 
-    <string name="all_accounts">All Accounts</string>
+    <string name="all_accounts">All</string>
 
     <string name="please_wait">Please wait</string>
 
@@ -262,9 +262,9 @@
         <item>Suggest a merchant</item>
     </string-array>
 
-    <string name="my_accounts">My Accounts</string>
-    <string name="my_addresses">My Addresses</string>
-    <string name="accounts">Accounts</string>
+    <string name="my_accounts">Addresses</string>
+    <string name="my_addresses">Addresses</string>
+    <string name="accounts">Addresses</string>
     <string name="addresses">Addresses</string>
     <string name="create_new_account">Create New Account</string>
     <string name="import_address">Import Address</string>

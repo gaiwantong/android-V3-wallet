@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup plånbok</string>
   <string name="upgrade_wallet">Uppgradera plånbok</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Inställningar</item>
+    <item>Ändra PIN-kod</item>
     <item>Mina adresser</item>
     <item>Nyheter, &amp; prislistorna</item>
-    <item>Inställningar</item>
     <item>Stöd</item>
-    <item>Ändra PIN-kod</item>
     <item>Koppla plånbok</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Inställningar</item>
+    <item>Ändra PIN-kod</item>
     <item>Mina konton</item>
     <item>Nyheter, &amp; prislistorna</item>
-    <item>Inställningar</item>
     <item>Stöd</item>
-    <item>Ändra PIN-kod</item>
-    <item>@string/backup_wallet</item>
     <item>Koppla plånbok</item>
   </string-array>
   <string name="app_name">Blockchain</string>
