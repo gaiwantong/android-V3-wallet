@@ -1,5 +1,7 @@
 package info.blockchain.wallet;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -44,17 +46,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
-
-import org.bitcoinj.core.bip44.WalletFactory;
-
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.drawer.DrawerAdapter;
@@ -77,6 +69,16 @@ import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+
+import org.bitcoinj.core.bip44.WalletFactory;
+
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import piuk.blockchain.android.R;
 
 //import android.nfc.Tag;
@@ -227,58 +229,43 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 this.setSessionId();
 
-                if (PayloadFactory.getInstance().get().isUpgraded()) {
+                final ProgressDialog progress = new ProgressDialog(this);
+                progress.setCancelable(false);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getString(R.string.please_wait));
+                progress.show();
 
-                    AccountsUtil.getInstance(this).initAccountMaps();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                    if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0) {
-                        String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
-                        PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
-                        doScanInput(strUri);
-                    } else {
-                        Fragment fragment = new BalanceFragment();
-                        FragmentManager fragmentManager = getFragmentManager();
-                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                    }
+                        Looper.prepare();
 
-                } else {
-
-                    final ProgressDialog progress = new ProgressDialog(this);
-                    progress.setCancelable(false);
-                    progress.setTitle(R.string.app_name);
-                    progress.setMessage(getString(R.string.please_wait));
-                    progress.show();
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Looper.prepare();
-
-                            List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                            MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-
-                            AccountsUtil.getInstance(MainActivity.this).initAccountMaps();
-
-                            if (progress != null && progress.isShowing()) {
-                                progress.dismiss();
-                            }
-
-                            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0) {
-                                String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
-                                PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
-                                doScanInput(strUri);
-                            } else {
-                                Fragment fragment = new BalanceFragment();
-                                FragmentManager fragmentManager = getFragmentManager();
-                                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-                            }
-
-                            Looper.loop();
+                        try {
+                            HDPayloadBridge.getInstance(getApplicationContext()).updateBalancesAndTransactions();
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }).start();
-                }
 
+                        AccountsUtil.getInstance(MainActivity.this).initAccountMaps();
+
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                        }
+
+                        if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "").length() > 0) {
+                            String strUri = PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_SCHEME_URL, "");
+                            PrefsUtil.getInstance(MainActivity.this).setValue(PrefsUtil.KEY_SCHEME_URL, "");
+                            doScanInput(strUri);
+                        } else {
+                            Fragment fragment = new BalanceFragment();
+                            FragmentManager fragmentManager = getFragmentManager();
+                            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                        }
+
+                        Looper.loop();
+                    }
+                }).start();
             } else {
                 Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

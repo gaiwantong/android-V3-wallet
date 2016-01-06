@@ -12,6 +12,7 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
+import info.blockchain.wallet.BalanceFragment;
 import info.blockchain.wallet.HDPayloadBridge;
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -19,9 +20,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,8 +127,7 @@ public class WebSocketHandler {
                         pingPongSuccess = false;
                         mConnection.sendPing();
                         startPongTimer();
-                    }
-                    else {
+                    } else {
                         start();
                     }
                 }
@@ -167,16 +164,7 @@ public class WebSocketHandler {
 
                 Looper.prepare();
 
-                try {
-                    HDPayloadBridge.getInstance().getBalances();
-                } catch (JSONException | IOException | DecoderException | AddressFormatException
-                        | MnemonicException.MnemonicChecksumException
-                        | MnemonicException.MnemonicLengthException
-                        | MnemonicException.MnemonicWordException e) {
-                    e.printStackTrace();
-                }
-
-                Intent intent = new Intent("info.blockchain.wallet.BalanceFragment.REFRESH");
+                Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                 Looper.loop();

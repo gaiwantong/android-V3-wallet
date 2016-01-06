@@ -142,7 +142,7 @@ public class BalanceFragment extends Fragment {
     private SwipeRefreshLayout swipeLayout = null;
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, final Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
 
@@ -162,35 +162,23 @@ public class BalanceFragment extends Fragment {
                     @Override
                     protected Void doInBackground(Void... params) {
 
-                        //Update legacy multiaddr
+                        // Update internal balance and transaction data
                         try {
-                            List<String> legacyAddrs = PayloadFactory.getInstance().get().getLegacyAddressStrings(PayloadFactory.NORMAL_ADDRESS);
-                            String[] addrs = legacyAddrs.toArray(new String[legacyAddrs.size()]);
-                            MultiAddrFactory.getInstance().getLegacy(addrs, false);
+                            HDPayloadBridge.getInstance(getActivity()).updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
-                        //Update xpub multiaddr
-                        if (!AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                            try {
-                                HDPayloadBridge.getInstance(getActivity()).getBalances();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        AccountsUtil.getInstance(context).initAccountMaps();
 
-                        AccountsUtil.getInstance(getActivity()).initAccountMaps();
-
+                        // Update balance and transactions in the UI
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 displayBalance();
                                 accountsAdapter.notifyDataSetChanged();
                                 updateTx(intent);
                                 txAdapter.notifyDataSetChanged();
-
                             }
                         });
 
@@ -314,6 +302,7 @@ public class BalanceFragment extends Fragment {
 
         updateTx(null);
         displayBalance();
+
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);

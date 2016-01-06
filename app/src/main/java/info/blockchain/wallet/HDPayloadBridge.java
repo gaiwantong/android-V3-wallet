@@ -6,7 +6,6 @@ import android.content.Intent;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
-import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -24,7 +23,6 @@ import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -178,9 +176,9 @@ public class HDPayloadBridge {
             }
         }
 
-        getBalances();
+        updateBalancesAndTransactions();
 
-        // update highest idxs here, they were just updated above in getBalances();
+        // update highest idxs here, they were just updated above in updateBalancesAndTransactions();
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         for (Account a : accounts) {
             a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ?
@@ -202,21 +200,25 @@ public class HDPayloadBridge {
         return true;
     }
 
-    public void getBalances() throws JSONException, IOException, DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
+    public void updateBalancesAndTransactions() throws JSONException, IOException, DecoderException, AddressFormatException,
+            MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException,
+            MnemonicException.MnemonicWordException {
+        // TODO unify legacy and HD call to one API call
 
-        String[] _xpubs = null;
-        String[] addr = null;
-
+        // Balance for legacy addresses
         if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-            addr = getLegacyAddresses();
-            MultiAddrFactory.getInstance().getLegacy(addr, false);
+            List<String> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+            String[] addresses = legacyAddresses.toArray(new String[legacyAddresses.size()]);
+            MultiAddrFactory.getInstance().getLegacy(addresses, false);
         }
 
-        _xpubs = getXPUBs(false);
-        if (_xpubs.length > 0) {
-            JSONObject xpubObj = MultiAddrFactory.getInstance().getXPUB(_xpubs);
+        // xPub balance
+        if (!AppUtil.getInstance(context).isNotUpgraded()) {
+            String[] xpubs = getXPUBs(false);
+            if (xpubs.length > 0) {
+                MultiAddrFactory.getInstance().getXPUB(xpubs);
+            }
         }
-
     }
 
     public String getHDSeed() throws IOException, MnemonicException.MnemonicLengthException {
@@ -294,16 +296,4 @@ public class HDPayloadBridge {
 
         return xpubs.toArray(new String[xpubs.size()]);
     }
-
-    private String[] getLegacyAddresses() {
-        ArrayList<String> addresses = new ArrayList<String>();
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
-        for (LegacyAddress legacyAddr : legacyAddresses) {
-            if (legacyAddr.getTag() == 0L) {
-                addresses.add(legacyAddr.getAddress());
-            }
-        }
-        return addresses.toArray(new String[addresses.size()]);
-    }
-
 }
