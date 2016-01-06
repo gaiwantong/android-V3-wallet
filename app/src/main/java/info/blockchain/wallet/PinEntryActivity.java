@@ -17,17 +17,6 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
@@ -44,6 +33,16 @@ import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
 
 //import libsrc.org.apache.commons.io.IOUtils;
@@ -654,9 +653,14 @@ public class PinEntryActivity extends Activity {
             // Throw error on '0000' to avoid server-side type issue
             if (userEnteredPIN.equals("0000")) {
                 ToastCustom.makeText(PinEntryActivity.this, getString(R.string.zero_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                clearPinBoxes();
-                userEnteredPIN = "";
-                userEnteredPINConfirm = null;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        clearPinBoxes();
+                        userEnteredPIN = "";
+                        userEnteredPINConfirm = null;
+                    }
+                },200);
                 return;
             }
 
@@ -690,10 +694,15 @@ public class PinEntryActivity extends Activity {
 
                 //End of Confirm - Pin Mismatch
                 ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                clearPinBoxes();
-                userEnteredPIN = "";
-                userEnteredPINConfirm = null;
-                titleView.setText(R.string.create_pin);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        clearPinBoxes();
+                        userEnteredPIN = "";
+                        userEnteredPINConfirm = null;
+                        titleView.setText(R.string.create_pin);
+                    }
+                },200);
             }
         }
     }
