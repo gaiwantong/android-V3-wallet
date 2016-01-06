@@ -116,6 +116,7 @@ final class CameraConfigurationManager {
     parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
 
     android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+    // This hard-codes to the back-facing camera, which is the one we use
     android.hardware.Camera.getCameraInfo(0, info);
 
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -129,13 +130,7 @@ final class CameraConfigurationManager {
       case Surface.ROTATION_270: degrees = 270; break;
     }
 
-    int result;
-    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-      result = (info.orientation + degrees) % 360;
-      result = (360 - result) % 360;  // compensate the mirror
-    } else {  // back-facing
-      result = (info.orientation- degrees + 360) % 360;
-    }
+    int result = (info.orientation- degrees + 360) % 360;
     camera.setDisplayOrientation(result);
 
     camera.setParameters(parameters);
