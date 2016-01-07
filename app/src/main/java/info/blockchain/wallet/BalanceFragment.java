@@ -440,7 +440,6 @@ public class BalanceFragment extends Fragment {
     private String account2Xpub(int accountIndex) {
 
         LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
-        if (accountIndex > (accountMap.size() - 1)) accountIndex = 0;
         Account hda = accountMap.get(accountIndex);
         String xpub = null;
         if (hda instanceof ImportedAccount) {

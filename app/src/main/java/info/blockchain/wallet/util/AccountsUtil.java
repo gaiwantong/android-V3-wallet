@@ -122,7 +122,7 @@ public class AccountsUtil {
             }
         }
 
-        for (Account item : accounts) {
+        for (Account item : accountsTemp) {
 
             if (!item.isArchived()) {
 
