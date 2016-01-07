@@ -1,14 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
-    // Update code to use HttpURLConnection
-    // See: http://developer.android.com/about/versions/marshmallow/android-6.0-changes.html#behavior-apache-http-client
-    useLibrary 'org.apache.http.legacy'
-
-    // Introduced to prevent crash during DEXing step since SDK 23
+    // Introduced to prevent crash during DEXing step since SDK 23, but also speeds up DEXing in general
     dexOptions {
         javaMaxHeapSize "2g"
     }
@@ -16,7 +12,7 @@ android {
     defaultConfig {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 183
         versionName "6.0.1"
         multiDexEnabled true
@@ -51,8 +47,8 @@ dependencies {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
     compile 'com.sothree.slidinguppanel:library:3.0.0'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:recyclerview-v7:22.1.1'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
