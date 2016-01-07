@@ -1,13 +1,22 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.0"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    // Update code to use HttpURLConnection
+    // See: http://developer.android.com/about/versions/marshmallow/android-6.0-changes.html#behavior-apache-http-client
+    useLibrary 'org.apache.http.legacy'
+
+    // Introduced to prevent crash during DEXing step since SDK 23
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
 
     defaultConfig {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 183
         versionName "6.0.1"
         multiDexEnabled true
@@ -34,19 +43,21 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile 'org.slf4j:slf4j-api:1.7.13'
-    compile 'org.bitcoinj:bitcoinj-core:0.13.3'
+    compile 'org.bitcoinj:bitcoinj-core:0.13.4'
     compile 'commons-io:commons-io:2.4'
-    compile 'commons-codec:commons-codec:1.1'
+    compile 'commons-codec:commons-codec:1.10'
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.googlecode.json-simple:json-simple:1.1'
+    compile('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
     compile 'com.sothree.slidinguppanel:library:3.0.0'
-    compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.android.support:recyclerview-v7:22.0.0'
-    compile 'com.google.android.gms:play-services-maps:7.0.0'
-    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.google.android.gms:play-services-maps:8.4.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
-    compile 'com.neovisionaries:nv-websocket-client:1.9'
+    compile 'com.neovisionaries:nv-websocket-client:1.19'
     compile('com.google.zxing:core:3.2.1') { transitive = true }
 
     androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
