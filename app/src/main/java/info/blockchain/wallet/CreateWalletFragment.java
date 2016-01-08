@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -170,6 +172,7 @@ public class CreateWalletFragment extends Fragment {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
+                            hideKeyboard();
                             Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                             intent.putExtra("_email", em);
                             intent.putExtra("_pw", pw1);
@@ -179,6 +182,7 @@ public class CreateWalletFragment extends Fragment {
                 } else {
                     AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
 
+                    hideKeyboard();
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                     intent.putExtra("_email", em);
                     intent.putExtra("_pw", pw1);
@@ -193,7 +197,8 @@ public class CreateWalletFragment extends Fragment {
         String text2 = getString(R.string.blockchain_tos);
 
         Spannable spannable = new SpannableString(text + text2);
-        spannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.blockchain_blue)), text.length(), text.length() + text2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.blockchain_blue)),
+                text.length(), text.length() + text2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tos.setText(spannable, TextView.BufferType.SPANNABLE);
 
         tos.setOnClickListener(new View.OnClickListener() {
@@ -209,8 +214,15 @@ public class CreateWalletFragment extends Fragment {
         return rootView;
     }
 
-    private void setEntropyMeterVisible(final int visible) {
+    private void hideKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
 
+    private void setEntropyMeterVisible(final int visible) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
