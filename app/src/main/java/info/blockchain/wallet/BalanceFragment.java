@@ -52,6 +52,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
@@ -89,7 +90,7 @@ public class BalanceFragment extends Fragment {
     private final static int SHOW_BTC = 1;
     private final static int SHOW_FIAT = 2;
     private final static int SHOW_HIDE = 3;
-    private static int selectedAccount = 0;
+    private static int selectedAccountIndex = 0;
     private static int nbConfirmations = 3;
     private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
     private static boolean isBottomSheetOpen = false;
@@ -175,10 +176,7 @@ public class BalanceFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                displayBalance();
-                                accountsAdapter.notifyDataSetChanged();
-                                updateTx(intent);
-                                txAdapter.notifyDataSetChanged();
+                                updateBalanceAndTransactionList(intent);
                             }
                         });
 
@@ -265,10 +263,7 @@ public class BalanceFragment extends Fragment {
 
         if (isVisibleToUser) {
             isBottomSheetOpen = false;
-            displayBalance();
-            accountsAdapter.notifyDataSetChanged();
-            txAdapter.notifyDataSetChanged();
-            updateTx(null);
+            updateBalanceAndTransactionList(null);
         } else {
             ;
         }
@@ -300,8 +295,7 @@ public class BalanceFragment extends Fragment {
 
         accountList = setAccountSpinner();
 
-        updateTx(null);
-        displayBalance();
+        updateBalanceAndTransactionList(null);
 
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
@@ -318,44 +312,91 @@ public class BalanceFragment extends Fragment {
         LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
     }
 
-    private void displayBalance() {
+    private String getDisplayUnits() {
 
-        if (txs != null && txs.size() > 0) {
-            txList.setVisibility(View.VISIBLE);
-            noTxMessage.setVisibility(View.GONE);
-        } else {
-            txList.setVisibility(View.GONE);
-            noTxMessage.setVisibility(View.VISIBLE);
-        }
+        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
+    }
 
-        Account hda = null;
-        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
+    private void updateBalanceAndTransactionList(Intent intent) {
+
+        txMap = MultiAddrFactory.getInstance().getXpubTxs();
+
+        if (selectedAccountIndex < 0) {
             //All accounts / funds
-            if (PayloadFactory.getInstance().get().isUpgraded())
+            if (PayloadFactory.getInstance().get().isUpgraded()) {
+                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-            else
-//                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+            }else {
+                txs = MultiAddrFactory.getInstance().getLegacyTxs();
                 btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+            }
         } else {
             //Individual account / address
-            hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount);
-            if (hda instanceof ImportedAccount) {
-                if (PayloadFactory.getInstance().get().isUpgraded())
-//                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
-                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-                else
-                    btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount - AccountsUtil.getLastHDIndex()).getAddress());
-
+            String xpub = account2Xpub(selectedAccountIndex);
+            if (xpub != null) {
+                //V3 account selected
+                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
+                    txs = txMap.get(xpub);
+                    HashMap<String, Long> xpubAmounts = MultiAddrFactory.getInstance().getXpubAmounts();
+                    Long bal = (xpubAmounts.get(xpub) == null ? 0l : xpubAmounts.get(xpub));
+                    btc_balance = ((double) (bal));
+                }
             } else {
-                HashMap<String, Long> meh = MultiAddrFactory.getInstance().getXpubAmounts();
-                String xpub = account2Xpub(selectedAccount);
-                Long bal = (meh.get(xpub) == null ? 0l : meh.get(xpub));
-                btc_balance = ((double) (bal));
+                //V2 address or V3 "Imported Addresses" selected
+                Account account = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccountIndex);
+                if (account instanceof ImportedAccount) {
+
+                    //V2
+                    if (PayloadFactory.getInstance().get().isUpgraded()) {
+                        txs = MultiAddrFactory.getInstance().getLegacyTxs();//V3 get all address' txs and balance
+                        btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+                    }else {
+
+                        int LegacyIndex = selectedAccountIndex - AccountsUtil.getLastHDIndex();
+                        LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(LegacyIndex);
+
+                        if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                            accountSpinner.setSelection(0);
+                            ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                            return;
+                        } else if (legacyAddress.isWatchOnly()) {
+                            accountSpinner.setSelection(0);
+                            ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                            return;
+                        } else {
+                            txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());//V2 get single address' txs
+                            btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+                        }
+                    }
+                }
             }
         }
+
+        //After sending btc we create a "placeholder" tx until websocket handler refreshes list
+        if (intent != null && intent.getExtras() != null) {
+            long amount = intent.getLongExtra("queued_bamount", 0);
+            String strNote = intent.getStringExtra("queued_strNote");
+            String direction = intent.getStringExtra("queued_direction");
+            long time = intent.getLongExtra("queued_time", System.currentTimeMillis() / 1000);
+
+            Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer, String>());
+            txs.add(0, tx);
+        } else if (txs != null && txs.size() > 0) {
+            if (txs.get(0).getHash().isEmpty()) txs.remove(0);
+        }
+
+        //Sort txs as server does not return sorted txs
+        if (txs != null) {
+            List<Tx> _txs = new ArrayList<Tx>();
+            _txs.addAll(txs);
+            Collections.sort(_txs, new TxDateComparator());
+            txs = _txs;
+        }
+
+        //Update Balance
+        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
 
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
@@ -376,71 +417,24 @@ public class BalanceFragment extends Fragment {
             span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvBalance1.setText(span1);
         }
-    }
 
-    private String getDisplayUnits() {
+        //Notify adapters of change
+        accountsAdapter.notifyDataSetChanged();
+        txAdapter.notifyDataSetChanged();
 
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
-
-    }
-
-    private void updateTx(Intent intent) {
-
-        txMap = MultiAddrFactory.getInstance().getXpubTxs();
-
-        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
-            return;
-        }
-
-        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-            //All accounts / funds
-            if (PayloadFactory.getInstance().get().isUpgraded())
-                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-            else
-                txs = MultiAddrFactory.getInstance().getLegacyTxs();
+        //Display help text to user if no txs on selected account/address
+        if (txs != null && txs.size() > 0) {
+            txList.setVisibility(View.VISIBLE);
+            noTxMessage.setVisibility(View.GONE);
         } else {
-            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
-
-            if (xpub != null) {
-                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                    txs = txMap.get(xpub);
-                }
-            } else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccount + 1);
-                if (hda instanceof ImportedAccount) {
-                    if (PayloadFactory.getInstance().get().isUpgraded())
-                        txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                    else
-                        txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
-                }
-            }
+            txList.setVisibility(View.GONE);
+            noTxMessage.setVisibility(View.VISIBLE);
         }
-
-        if (intent != null && intent.getExtras() != null) {
-            long amount = intent.getLongExtra("queued_bamount", 0);
-            String strNote = intent.getStringExtra("queued_strNote");
-            String direction = intent.getStringExtra("queued_direction");
-            long time = intent.getLongExtra("queued_time", System.currentTimeMillis() / 1000);
-
-            Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer, String>());
-            txs.add(0, tx);
-        } else if (txs != null && txs.size() > 0) {
-            if (txs.get(0).getHash().isEmpty()) txs.remove(0);
-        }
-
-        if (txs != null) {
-            List<Tx> _txs = new ArrayList<Tx>();
-            _txs.addAll(txs);
-            Collections.sort(_txs, new TxDateComparator());
-            txs = _txs;
-        }
-
     }
 
     private String account2Xpub(int accountIndex) {
 
         LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
-        if (accountIndex > (accountMap.size() - 1)) accountIndex = 0;
         Account hda = accountMap.get(accountIndex);
         String xpub = null;
         if (hda instanceof ImportedAccount) {
@@ -613,9 +607,7 @@ public class BalanceFragment extends Fragment {
                 }
                 PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
 
-                displayBalance();
-                accountsAdapter.notifyDataSetChanged();
-                txAdapter.notifyDataSetChanged();
+                updateBalanceAndTransactionList(null);
                 return false;
             }
         });
@@ -642,68 +634,13 @@ public class BalanceFragment extends Fragment {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                         int position = accountSpinner.getSelectedItemPosition();
+
+                        //Set current selected account/address
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
+                        selectedAccountIndex = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position);
 
-                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
-                            selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
-                            if (selectedAccount < 0) selectedAccount = 0;
-                        } else
-                            selectedAccount = 0;
-
-                        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
-                            return;
-                        }
-
-                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
-                            //All accounts / funds
-                            if (PayloadFactory.getInstance().get().isUpgraded())
-                                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
-                            else
-                                txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                        } else {
-                            String xpub = account2Xpub(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
-
-                            if (xpub != null) {
-                                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                                    txs = txMap.get(xpub);
-                                } else
-                                    txs = new ArrayList<Tx>();
-                            } else {
-                                Account hda = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(AppUtil.getInstance(getActivity()).isNotUpgraded() ? selectedAccount + 1 : selectedAccount);
-                                if (hda instanceof ImportedAccount) {
-
-                                    if (PayloadFactory.getInstance().get().isUpgraded())
-                                        txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                                    else {
-                                        if (AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                                            accountSpinner.setSelection(0);
-                                            ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                            return;
-                                        } else if (AccountsUtil.getLegacyAddress(selectedAccount).isWatchOnly()) {
-                                            accountSpinner.setSelection(0);
-                                            ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                            return;
-                                        } else {
-                                            txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(AccountsUtil.getInstance(getActivity()).getLegacyAddress(selectedAccount).getAddress());
-                                        }
-                                    }
-                                } else
-                                    txs = new ArrayList<Tx>();
-                            }
-
-                        }
-
-                        if (txs != null) {
-                            List<Tx> _txs = new ArrayList<Tx>();
-                            _txs.addAll(txs);
-                            Collections.sort(_txs, new TxDateComparator());
-                            txs = _txs;
-                        }
-
-                        displayBalance();
-
-                        txList.setAdapter(txAdapter);
-                        txAdapter.notifyDataSetChanged();
+                        //Refresh balance header and tx list
+                        updateBalanceAndTransactionList(null);
                     }
 
                     @Override
@@ -738,7 +675,9 @@ public class BalanceFragment extends Fragment {
                 }
             });
 
-        updateTx(null);
+        //Reset spinner index
+        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
+        selectedAccountIndex = 0;
 
         // drawerTitle account now that wallet has been created
         if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
@@ -928,9 +867,7 @@ public class BalanceFragment extends Fragment {
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
                             isBTC = (isBTC) ? false : true;
-                            displayBalance();
-                            accountsAdapter.notifyDataSetChanged();
-                            txAdapter.notifyDataSetChanged();
+                            updateBalanceAndTransactionList(null);
                         }
                         return true;
                     }
@@ -1252,9 +1189,7 @@ public class BalanceFragment extends Fragment {
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
                             isBTC = (isBTC) ? false : true;
-                            displayBalance();
-                            accountsAdapter.notifyDataSetChanged();
-                            txAdapter.notifyDataSetChanged();
+                            updateBalanceAndTransactionList(null);
                         }
                         return true;
                     }
