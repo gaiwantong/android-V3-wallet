@@ -1,7 +1,6 @@
 package info.blockchain.wallet.util;
 
 import android.content.Context;
-import android.util.Log;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -121,6 +120,7 @@ public class AccountsUtil {
                 balanceAccountMap.put(accountIndex, iAccount);
                 balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
                 spinnerIndex++;
+                accountIndex++;
             }
         } else {
 
@@ -148,6 +148,7 @@ public class AccountsUtil {
                     balanceAccountMap.put(accountIndex, importedAddresses);
                     balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
                     spinnerIndex++;
+                    accountIndex++;
                 }
             }
         }
@@ -223,7 +224,7 @@ public class AccountsUtil {
     }
 
     public static LegacyAddress getLegacyAddress(int position) {
-        return legacyAddresses.get(position);
+        return legacyAddresses.get(Math.max(position,0));
     }
 
     public static List<LegacyAddress> getLegacyAddresses() {
