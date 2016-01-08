@@ -284,21 +284,13 @@ public class PinEntryActivity extends Activity {
                             public void run() {
                                 dismissProgressView();
 
-                                if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false)) {
+                                if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
+                                    Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                                else {
                                     AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                } else {
-                                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
-                                        Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    } else if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFIED, false) ||
-                                            PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
-                                        AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                    } else {
-                                        Intent intent = new Intent(PinEntryActivity.this, ConfirmationCodeActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    }
                                 }
                             }
                         });
