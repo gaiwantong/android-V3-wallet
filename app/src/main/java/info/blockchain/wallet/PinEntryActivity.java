@@ -378,7 +378,7 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 Looper.prepare();
 
-                CharSequenceX password = null;
+                CharSequenceX password;
 
                 try {
                     password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
@@ -447,8 +447,6 @@ public class PinEntryActivity extends Activity {
     }
 
     private void validatePasswordThread(final CharSequenceX pw) {
-        final Handler handler = new Handler();
-
         dismissProgressView();
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
@@ -568,9 +566,9 @@ public class PinEntryActivity extends Activity {
 
     private void clearPinBoxes() {
         if (userEnteredPIN.length() > 0) {
-            for (int i = 0; i < pinBoxArray.length; i++) {
+            for (TextView pinBox : pinBoxArray) {
                 // Reset PIN buttons to blank
-                pinBoxArray[i].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+                pinBox.setBackgroundResource(R.drawable.rounded_view_blue_white_border);
             }
         }
     }
