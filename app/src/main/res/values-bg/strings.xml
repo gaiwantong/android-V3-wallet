@@ -4,21 +4,21 @@
   <string name="backup_wallet">Архивиране портфейл</string>
   <string name="upgrade_wallet">Надграждане на портфейла</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Настройки</item>
+    <item>Промяна на ПИН код</item>
     <item>Моите адреси</item>
     <item>Новини, диаграми цена &amp;</item>
-    <item>Настройки</item>
     <item>Поддръжка</item>
-    <item>Промяна на ПИН код</item>
     <item>Изключвайте портфейл</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Настройки</item>
+    <item>Промяна на ПИН код</item>
     <item>Моите сметки</item>
     <item>Новини, диаграми цена &amp;</item>
-    <item>Настройки</item>
     <item>Поддръжка</item>
-    <item>Промяна на ПИН код</item>
-    <item>@string/backup_wallet</item>
     <item>Изключвайте портфейл</item>
   </string-array>
   <string name="app_name">Blockchain</string>

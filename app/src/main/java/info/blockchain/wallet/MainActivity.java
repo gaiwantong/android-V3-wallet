@@ -796,25 +796,25 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private void selectDrawerItemLegacy(int position) {
         switch (position) {
             case 0:
-                doMyAccounts();
+                doUpgrade();
                 break;
             case 1:
-                doExchangeRates();
-                break;
-            case 2:
                 doSettings();
                 break;
-            case 3:
-                doSupport();
-                break;
-            case 4:
+            case 2:
                 doChangePin();
                 break;
+            case 3:
+                doMyAccounts();
+                break;
+            case 4:
+                doExchangeRates();
+                break;
             case 5:
-                doUnpairWallet();
+                doSupport();
                 break;
             case 6:
-                doUpgrade();
+                doUnpairWallet();
                 break;
         }
     }
@@ -822,22 +822,22 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private void selectDrawerItemHd(int position) {
         switch (position) {
             case 0:
-                doMyAccounts();
+                doBackupWallet();
                 break;
             case 1:
-                doExchangeRates();
-                break;
-            case 2:
                 doSettings();
                 break;
-            case 3:
-                doSupport();
-                break;
-            case 4:
+            case 2:
                 doChangePin();
                 break;
+            case 3:
+                doMyAccounts();
+                break;
+            case 4:
+                doExchangeRates();
+                break;
             case 5:
-                doBackupWallet();
+                doSupport();
                 break;
             case 6:
                 doUnpairWallet();

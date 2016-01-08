@@ -4,21 +4,21 @@
   <string name="backup_wallet">Резервное копирование бумажник</string>
   <string name="upgrade_wallet">Обновление бумажник</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Параметры</item>
+    <item>Изменение PIN-кода</item>
     <item>Мои адреса</item>
     <item>Новости, Цена &amp; графики</item>
-    <item>Параметры</item>
     <item>Поддержка</item>
-    <item>Изменение PIN-кода</item>
     <item>Отменить сопряжение бумажник</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Параметры</item>
+    <item>Изменение PIN-кода</item>
     <item>Мои счета</item>
     <item>Новости, Цена &amp; графики</item>
-    <item>Параметры</item>
     <item>Поддержка</item>
-    <item>Изменение PIN-кода</item>
-    <item>@string/backup_wallet</item>
     <item>Отменить сопряжение бумажник</item>
   </string-array>
   <string name="app_name">Blockchain</string>

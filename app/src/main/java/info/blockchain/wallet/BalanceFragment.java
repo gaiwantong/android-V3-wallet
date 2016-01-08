@@ -443,6 +443,7 @@ public class BalanceFragment extends Fragment {
     private String account2Xpub(int accountIndex) {
 
         LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
+        if (accountIndex > (accountMap.size() - 1)) accountIndex = 0;
         Account hda = accountMap.get(accountIndex);
         String xpub = null;
         if (hda instanceof ImportedAccount) {
@@ -646,14 +647,17 @@ public class BalanceFragment extends Fragment {
                         int position = accountSpinner.getSelectedItemPosition();
                         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
 
-                        selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position);
+                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() > 0) {
+                            selectedAccount = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() - 1);
+                            if (selectedAccount < 0) selectedAccount = 0;
+                        } else
+                            selectedAccount = 0;
 
                         if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap() == null || AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() < 1) {
                             return;
                         }
 
-                        //selectedAccount -1 is "All Accounts" or "Total Funds"
-                        if (selectedAccount < 0) {
+                        if (AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex() == 0) {
                             //All accounts / funds
                             if (PayloadFactory.getInstance().get().isUpgraded())
                                 txs = MultiAddrFactory.getInstance().getAllXpubTxs();

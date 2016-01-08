@@ -4,21 +4,21 @@
   <string name="backup_wallet">Back-portemonnee</string>
   <string name="upgrade_wallet">Upgrade portemonnee</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Instellingen</item>
+    <item>Pincode veranderen</item>
     <item>Mijn adressen</item>
     <item>Nieuws, prijs &amp; grafieken</item>
-    <item>Instellingen</item>
     <item>Ondersteuning</item>
-    <item>Pincode veranderen</item>
     <item>Ontkoppelen portemonnee</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Instellingen</item>
+    <item>Pincode veranderen</item>
     <item>Mijn Accounts</item>
     <item>Nieuws, prijs &amp; grafieken</item>
-    <item>Instellingen</item>
     <item>Ondersteuning</item>
-    <item>Pincode veranderen</item>
-    <item>@string/backup_wallet</item>
     <item>Ontkoppelen portemonnee</item>
   </string-array>
   <string name="app_name">Blockchain</string>

@@ -4,21 +4,21 @@
   <string name="backup_wallet">बैकअप बटुआ</string>
   <string name="upgrade_wallet">बटुए का उन्नयन</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>सेटिंग्स</item>
+    <item>परिवर्तन पिन कोड</item>
     <item>मेरे पते</item>
     <item>समाचार, मूल्य &amp; चार्ट्स</item>
-    <item>सेटिंग्स</item>
     <item>समर्थन</item>
-    <item>परिवर्तन पिन कोड</item>
     <item>बटुआ unpair</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>सेटिंग्स</item>
+    <item>परिवर्तन पिन कोड</item>
     <item>मेरे खाते</item>
     <item>समाचार, मूल्य &amp; चार्ट्स</item>
-    <item>सेटिंग्स</item>
     <item>समर्थन</item>
-    <item>परिवर्तन पिन कोड</item>
-    <item>@string/backup_wallet</item>
     <item>बटुआ unpair</item>
   </string-array>
   <string name="app_name">Blockchain</string>

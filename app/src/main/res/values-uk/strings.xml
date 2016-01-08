@@ -4,21 +4,21 @@
   <string name="backup_wallet">Резервне копіювання гаманець</string>
   <string name="upgrade_wallet">Оновити гаманець</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Параметри</item>
+    <item>Зміна ПІН-коду</item>
     <item>Мої адреси</item>
     <item>Новини, &amp; графіки цін</item>
-    <item>Параметри</item>
     <item>Підтримка</item>
-    <item>Зміна ПІН-коду</item>
     <item>Unpair гаманець</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Параметри</item>
+    <item>Зміна ПІН-коду</item>
     <item>Мої бізнес-партнери</item>
     <item>Новини, &amp; графіки цін</item>
-    <item>Параметри</item>
     <item>Підтримка</item>
-    <item>Зміна ПІН-коду</item>
-    <item>@string/backup_wallet</item>
     <item>Unpair гаманець</item>
   </string-array>
   <string name="app_name">Blockchain</string>

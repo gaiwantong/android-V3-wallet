@@ -4,21 +4,21 @@
   <string name="backup_wallet">Kopia zapasowa portfel</string>
   <string name="upgrade_wallet">Uaktualnić portfel</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Ustawienia</item>
+    <item>Zmiana kodu PIN</item>
     <item>Moje adresy</item>
     <item>Aktualności, Cena &amp; wykresy</item>
-    <item>Ustawienia</item>
     <item>Wsparcie techniczne</item>
-    <item>Zmiana kodu PIN</item>
     <item>Wyłączyć powiązanie portfel</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Ustawienia</item>
+    <item>Zmiana kodu PIN</item>
     <item>Moje konta</item>
     <item>Aktualności, Cena &amp; wykresy</item>
-    <item>Ustawienia</item>
     <item>Wsparcie techniczne</item>
-    <item>Zmiana kodu PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Wyłączyć powiązanie portfel</item>
   </string-array>
   <string name="app_name">Blockchain</string>

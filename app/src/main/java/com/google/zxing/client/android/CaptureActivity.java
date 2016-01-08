@@ -16,6 +16,12 @@
 
 package com.google.zxing.client.android;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,24 +41,20 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.camera.CameraManager;
+import info.blockchain.wallet.PinEntryActivity;
+import info.blockchain.wallet.util.AppUtil;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import info.blockchain.wallet.PinEntryActivity;
-import info.blockchain.wallet.util.AppUtil;
 import piuk.blockchain.android.R;
 
 /**
@@ -111,9 +113,20 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(getCurrentOrientation());
 
         hasFlashLight = this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+
+    private int getCurrentOrientation() {
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+            case Surface.ROTATION_270:
+                return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            default:
+                return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;//reverse-mounted cameras on devices like the Nexus 5X
+        }
     }
 
     @Override

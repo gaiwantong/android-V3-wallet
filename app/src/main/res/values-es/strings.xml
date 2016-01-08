@@ -4,21 +4,21 @@
   <string name="backup_wallet">Cartera de copia de seguridad</string>
   <string name="upgrade_wallet">Actualización de la cartera</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Configuración</item>
+    <item>Cambiar código PIN</item>
     <item>Mis direcciones de</item>
     <item>Noticias, cartas de &amp; de precio</item>
-    <item>Configuración</item>
     <item>Apoyo</item>
-    <item>Cambiar código PIN</item>
     <item>Eliminar el enlace cartera</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Configuración</item>
+    <item>Cambiar código PIN</item>
     <item>Mis cuentas</item>
     <item>Noticias, cartas de &amp; de precio</item>
-    <item>Configuración</item>
     <item>Apoyo</item>
-    <item>Cambiar código PIN</item>
-    <item>@string/backup_wallet</item>
     <item>Eliminar el enlace cartera</item>
   </string-array>
   <string name="app_name">Blockchain</string>

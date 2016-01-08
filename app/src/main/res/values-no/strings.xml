@@ -4,21 +4,21 @@
   <string name="backup_wallet">Backup lommebok</string>
   <string name="upgrade_wallet">Oppgradere lommebok</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Innstillinger</item>
+    <item>Endre PIN-kode</item>
     <item>Min adresser</item>
     <item>Nyheter, pris &amp; diagrammer</item>
-    <item>Innstillinger</item>
     <item>Støtte</item>
-    <item>Endre PIN-kode</item>
     <item>Koble fra lommeboken</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Innstillinger</item>
+    <item>Endre PIN-kode</item>
     <item>Mine kontoer</item>
     <item>Nyheter, pris &amp; diagrammer</item>
-    <item>Innstillinger</item>
     <item>Støtte</item>
-    <item>Endre PIN-kode</item>
-    <item>@string/backup_wallet</item>
     <item>Koble fra lommeboken</item>
   </string-array>
   <string name="app_name">Blockchain</string>

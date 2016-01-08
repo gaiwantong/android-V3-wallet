@@ -4,21 +4,21 @@
   <string name="backup_wallet">Varmuuskopio lompakko</string>
   <string name="upgrade_wallet">Päivittää lompakko</string>
   <string-array name="navigation_drawer_items_lame">
+    <item>@string/upgrade_wallet</item>
+    <item>Asetukset</item>
+    <item>PIN-koodin</item>
     <item>Omat osoitteet</item>
     <item>Uutiset, hinta &amp; kartat</item>
-    <item>Asetukset</item>
     <item>Tuki</item>
-    <item>PIN-koodin</item>
     <item>Poista pari lompakko</item>
-    <item>@string/upgrade_wallet</item>
   </string-array>
   <string-array name="navigation_drawer_items_hd">
+    <item>@string/backup_wallet</item>
+    <item>Asetukset</item>
+    <item>PIN-koodin</item>
     <item>Omat tilit</item>
     <item>Uutiset, hinta &amp; kartat</item>
-    <item>Asetukset</item>
     <item>Tuki</item>
-    <item>PIN-koodin</item>
-    <item>@string/backup_wallet</item>
     <item>Poista pari lompakko</item>
   </string-array>
   <string name="app_name">Blockchain</string>
