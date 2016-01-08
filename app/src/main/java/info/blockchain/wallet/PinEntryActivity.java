@@ -28,18 +28,11 @@ import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -175,13 +168,9 @@ public class PinEntryActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-
                 Looper.prepare();
 
                 try {
-                    // create wallet
-                    // restart
-
                     AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
 
                     HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
@@ -192,11 +181,6 @@ public class PinEntryActivity extends Activity {
                         ToastCustom.makeText(getApplicationContext(), getApplicationContext().getString(R.string.remote_save_ko),
                                 ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-
-                    whitelistGuid("alpha");// <-- remove after beta invite system
-                    whitelistGuid("dev");// <-- remove after beta invite system
-//            AppUtil.getInstance(this).restartApp();// <-- put back after beta invite system
-
                 } catch (IOException | MnemonicException.MnemonicLengthException e) {
                     ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
@@ -208,86 +192,8 @@ public class PinEntryActivity extends Activity {
                 }
 
                 Looper.loop();
-
             }
         }).start();
-
-    }
-
-    private void whitelistGuid(final String domain) {
-
-        if (progress != null && progress.isShowing()) {
-            progress.dismiss();
-            progress = null;
-        }
-        progress = new ProgressDialog(PinEntryActivity.this);
-        progress.setCancelable(false);
-        progress.setTitle(R.string.app_name);
-        progress.setMessage("Registering for ALPHA...");
-        progress.show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                InputStream is = null;
-                OutputStream os = null;
-
-                URL url = null;
-                try {
-
-                    url = new URL("https://" + domain + ".blockchain.info/whitelist_guid/");
-                    JSONObject json = new JSONObject();
-                    json.put("secret", "HvWJeR1WdybHvq0316i");
-                    json.put("guid", PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_GUID, ""));
-                    json.put("email", PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_EMAIL, ""));
-                    String message = json.toString();
-
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-                    try {
-                        conn.setReadTimeout(60000);
-                        conn.setConnectTimeout(60000);
-                        conn.setRequestMethod("POST");
-                        conn.setDoInput(true);
-                        conn.setDoOutput(true);
-                        conn.setFixedLengthStreamingMode(message.getBytes().length);
-                        conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                        conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-                        conn.connect();
-
-                        os = new BufferedOutputStream(conn.getOutputStream());
-                        os.write(message.getBytes());
-                        os.flush();
-
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                            progress = null;
-                        }
-
-                        if (conn.getResponseCode() == 200) {
-                            ToastCustom.makeText(getApplicationContext(), "Successfully registered", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
-                        } else {
-                            ToastCustom.makeText(getApplicationContext(), "Error: " + IOUtils.toString(conn.getErrorStream(), "UTF-8"), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        }
-                    } finally {
-                        if (os != null) os.close();
-                        if (is != null) is.close();
-                        conn.disconnect();
-
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                            progress = null;
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Looper.loop();
-            }
-        }
-        ).start();
     }
 
     private void getBundleData() {
