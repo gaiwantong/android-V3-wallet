@@ -100,6 +100,8 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        setRequestedOrientation(getCurrentOrientation());
+
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan);
@@ -113,7 +115,6 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
-        setRequestedOrientation(getCurrentOrientation());
 
         hasFlashLight = this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
     }
