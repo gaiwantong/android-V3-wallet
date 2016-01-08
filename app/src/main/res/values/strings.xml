@@ -296,13 +296,12 @@
     <string name="next">Next</string>
     <string name="address_lookup_fail">Could not retrieve address. Please enter address manually.</string>
 
-    <string name="backup_1_heading">You have not backed up your wallet yet</string>
-    <string name="backup_1_subheading">Backing up your wallet is easy and ensures you will not lose access to your funds, even if our service becomes unavailable.</string>
+    <string name="backup_1_heading">You have not backed up your funds yet.</string>
+    <string name="backup_1_subheading">Backing up your funds ensures that you will not lose access to your Bitcoin (except imported addresses), even if you forget your password or if our service becomes unavailable. Write down your Recovery Phrase and keep it somewhere very safe and secure. Remember that anyone who knows your Recovery Phrase has access to your Bitcoin.</string>
     <string name="BACKUP_WALLET">BACKUP WALLET</string>
-    <string name="backup_how_to">How to restore your wallet</string>
-    <string name="backup_step_1">Go to blockchain.info/wallet/restore</string>
-    <string name="backup_step_2">Enter your 12 word backup phrase</string>
-    <string name="backup_step_3">Your wallet will be restored and your funds safe</string>
+    <string name="backup_how_to">Instructions below:</string>
+    <string name="backup_step_1">Go to https://blockchain.info/wallet/recover</string>
+    <string name="backup_step_2">Enter your 12 word recovery phrase</string>
     <string name="START">START</string>
     <string name="backup_write_down_words">Write the words down in the exact order they appear on a sheet of paper.</string>
     <string name="NEXT_WORD">NEXT WORD</string>
