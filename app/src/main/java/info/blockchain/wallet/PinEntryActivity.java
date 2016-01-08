@@ -17,6 +17,16 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.TypefaceUtil;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.IOUtils;
 import org.bitcoinj.core.AddressFormatException;
@@ -33,16 +43,6 @@ import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
 import piuk.blockchain.android.R;
 
 //import libsrc.org.apache.commons.io.IOUtils;
@@ -162,6 +162,15 @@ public class PinEntryActivity extends Activity {
     }
 
     private void createWallet() {
+        if (progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
+        }
+        progress = new ProgressDialog(PinEntryActivity.this);
+        progress.setCancelable(false);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(getText(R.string.create_wallet) + "...");
+        progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -179,7 +188,10 @@ public class PinEntryActivity extends Activity {
 
                     PayloadFactory.getInstance().get().setUpgraded(true);
 
-                    PayloadBridge.getInstance(PinEntryActivity.this).remoteSaveThread();
+                    if (!PayloadFactory.getInstance().put()) {
+                        ToastCustom.makeText(getApplicationContext(), getApplicationContext().getString(R.string.remote_save_ko),
+                                ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
 
                     whitelistGuid("alpha");// <-- remove after beta invite system
                     whitelistGuid("dev");// <-- remove after beta invite system
@@ -188,6 +200,11 @@ public class PinEntryActivity extends Activity {
                 } catch (IOException | MnemonicException.MnemonicLengthException e) {
                     ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                } finally {
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
                 }
 
                 Looper.loop();
@@ -660,7 +677,7 @@ public class PinEntryActivity extends Activity {
                         userEnteredPIN = "";
                         userEnteredPINConfirm = null;
                     }
-                },200);
+                }, 200);
                 return;
             }
 
@@ -702,7 +719,7 @@ public class PinEntryActivity extends Activity {
                         userEnteredPINConfirm = null;
                         titleView.setText(R.string.create_pin);
                     }
-                },200);
+                }, 200);
             }
         }
     }
