@@ -79,7 +79,7 @@ public class UpgradeWalletActivity extends Activity {
         });
         pageHeader.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in));
         pageHeader.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_out));
-        pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
+        pageHeader.setText(getResources().getString(R.string.upgrade_page_2));
 
         mCustomPagerAdapter = new CustomPagerAdapter(this);
         mViewPager.setAdapter(mCustomPagerAdapter);
@@ -396,15 +396,15 @@ public class UpgradeWalletActivity extends Activity {
 
         switch (position) {
             case 0:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_2));
                 pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
             case 1:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_2));
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
                 pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
             case 2:
-                pageHeader.setText(getResources().getString(R.string.upgrade_page_3));
+                pageHeader.setText(getResources().getString(R.string.upgrade_page_1));
                 pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
         }
@@ -460,9 +460,9 @@ public class UpgradeWalletActivity extends Activity {
         Context mContext;
         LayoutInflater mLayoutInflater;
         int[] mResources = {
-                R.drawable.upgrade_myaccounts_hilite,
                 R.drawable.upgrade_backup_hilite,
-                R.drawable.upgrade_tx_list_hilite
+                R.drawable.upgrade_tx_list_hilite,
+                R.drawable.upgrade_myaccounts_hilite
         };
 
         public CustomPagerAdapter(Context context) {
