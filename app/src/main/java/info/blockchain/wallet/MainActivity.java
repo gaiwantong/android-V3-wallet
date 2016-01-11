@@ -465,10 +465,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                 if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
                     backupWalletDrawerIndex = i;
 
-                    int lastBackup = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
-
-                    if (lastBackup == 0) {
-                        //Not backed up
+                    if (!PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
+                        //Not backed up0
                         drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
                     } else {
                         //Backed up
@@ -752,9 +750,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 backupWalletDrawerIndex = i;
 
-                int lastBackup = PrefsUtil.getInstance(this).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
-
-                if (lastBackup == 0) {
+                if (!PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
                     //Not backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
                 } else {
