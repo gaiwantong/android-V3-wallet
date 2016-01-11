@@ -194,7 +194,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
                 tvDesc.setText(b.desc);
 
                 tvName.setText(b.name);
-                switch (Integer.parseInt(b.hc)) {
+                int category;
+                try{
+                    category = Integer.parseInt(b.hc);
+                }catch(Exception e){
+                    category = 0;
+                }
+                switch (category) {
                     case BTCBusiness.HEADING_CAFE:
                         tvName.setTextColor(color_cafe_selected);
                         break;
