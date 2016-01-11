@@ -38,23 +38,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.crypto.MnemonicException;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -79,6 +62,24 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ReselectSpinner;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
+
+import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.MnemonicException;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
@@ -738,19 +739,19 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if (isBTC) {
-            pendingSpend.amount = edAmount1.getText().toString();
+            pendingSpend.amount = edAmount1.getText().toString().replace(defaultSeparator, ".");
         } else {
-            pendingSpend.amount = edAmount2.getText().toString();
+            pendingSpend.amount = edAmount2.getText().toString().replace(defaultSeparator, ".");
         }
         long lamount = 0L;
         try {
             //Long is safe to use, but double can lead to ugly rounding issues..
-            lamount = (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
+            lamount = (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString().replace(defaultSeparator, ".")))).multiply(BigDecimal.valueOf(100000000)).longValue());
 
             pendingSpend.bamount = BigInteger.valueOf(lamount);
             if (pendingSpend.bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
                 ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                edAmount1.setText("0.0");
+                edAmount1.setText("0");
                 pendingSpend.bamount = BigInteger.ZERO;
                 return;
             }
