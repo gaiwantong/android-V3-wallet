@@ -100,13 +100,6 @@ public class AppUtil {
         context.startActivity(intent);
     }
 
-    public void closeApp() {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("EXIT_APP", true);
-        context.startActivity(intent);
-    }
-
     public boolean isDEBUG() {
         return DEBUG;
     }
