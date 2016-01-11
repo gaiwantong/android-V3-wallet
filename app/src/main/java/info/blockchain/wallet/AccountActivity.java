@@ -38,7 +38,6 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.service.WebSocketService;
 import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AddressInfo;
@@ -67,7 +66,7 @@ import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class MyAccountsActivity extends AppCompatActivity {
+public class AccountActivity extends AppCompatActivity {
 
     public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
     private static final int IMPORT_PRIVATE_KEY = 2006;
@@ -82,10 +81,10 @@ public class MyAccountsActivity extends AppCompatActivity {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
 
-                MyAccountsActivity.this.runOnUiThread(new Runnable() {
+                AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyAccountsActivity.this.recreate();
+                        AccountActivity.this.recreate();
                     }
                 });
 
@@ -94,7 +93,7 @@ public class MyAccountsActivity extends AppCompatActivity {
     };
     private LinearLayoutManager layoutManager = null;
     private RecyclerView mRecyclerView = null;
-    private List<MyAccountItem> accountsAndImportedList = null;
+    private List<AccountItem> accountsAndImportedList = null;
     private ArrayList<Integer> headerPositions;
     private int hdAccountsIdx;
     private List<LegacyAddress> legacy = null;
@@ -108,7 +107,7 @@ public class MyAccountsActivity extends AppCompatActivity {
 
         context = this;
 
-        setContentView(R.layout.activity_my_accounts);
+        setContentView(R.layout.activity_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         initToolbar();
@@ -117,7 +116,7 @@ public class MyAccountsActivity extends AppCompatActivity {
         ACCOUNT_HEADER = "";
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
+        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded())
             HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
         else
             HEADERS = new String[0];
@@ -126,14 +125,14 @@ public class MyAccountsActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        ArrayList<MyAccountItem> accountItems = new ArrayList<>();
+        ArrayList<AccountItem> accountItems = new ArrayList<>();
         accountsAndImportedList = getAccounts();
 
-        for (MyAccountItem item : accountsAndImportedList) {
+        for (AccountItem item : accountsAndImportedList) {
             accountItems.add(item);
         }
 
-        MyAccountsAdapter accountsAdapter = new MyAccountsAdapter(accountItems);
+        AccountAdapter accountsAdapter = new AccountAdapter(accountItems);
         mRecyclerView.setAdapter(accountsAdapter);
 
         mRecyclerView.addOnItemTouchListener(
@@ -142,7 +141,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
+                        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         onRowClick(position);
@@ -154,7 +153,7 @@ public class MyAccountsActivity extends AppCompatActivity {
     private void initToolbar(){
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
             toolbar.setTitle(getResources().getString(R.string.my_accounts));
         } else {
             toolbar.setTitle(getResources().getString(R.string.my_addresses));
@@ -170,42 +169,25 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     private void onRowClick(int position){
 
-        String currentSelectedAddress = null;
-
         if (position - HEADERS.length >= hdAccountsIdx) {//2 headers before imported
 
-            LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
-
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                return;
-            } else if (legacyAddress.isWatchOnly()) {
-                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                return;
-            } else {
-                currentSelectedAddress = legacyAddress.getAddress();
-            }
-
+            Intent intent = new Intent(this, AccountManagerActivity.class);
+            intent.putExtra("address_index", position - HEADERS.length - hdAccountsIdx);
+            startActivity(intent);
 
         } else {
-            ReceiveAddress currentSelectedReceiveAddress = null;
-            try {
-                currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
-                currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Intent intent = new Intent(this, AccountManagerActivity.class);
+            intent.putExtra("account_index",accountIndexResover.get(position));
+            startActivity(intent);
+            finish();
         }
-
-        //TODO - Go to rename
-        ToastCustom.makeText(MyAccountsActivity.this, currentSelectedAddress, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
             inflater.inflate(R.menu.v3_myaccounts_activity_actions, menu);
         }else {
             inflater.inflate(R.menu.v2_myaccounts_activity_actions, menu);
@@ -233,18 +215,18 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     private void importAddress(){
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen()) {
+        if (!AppUtil.getInstance(AccountActivity.this).isCameraOpen()) {
 
             if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+                Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
                 intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
                 intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
                 startActivityForResult(intent, IMPORT_PRIVATE_KEY);
             } else {
-                final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+                final EditText double_encrypt_password = new EditText(AccountActivity.this);
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-                new AlertDialog.Builder(MyAccountsActivity.this)
+                new AlertDialog.Builder(AccountActivity.this)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.enter_double_encryption_pw)
                         .setView(double_encrypt_password)
@@ -263,13 +245,13 @@ public class MyAccountsActivity extends AppCompatActivity {
 
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
-                                    Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+                                    Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
                                     intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
                                     intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
                                     startActivityForResult(intent, IMPORT_PRIVATE_KEY);
 
                                 } else {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
 
@@ -282,7 +264,7 @@ public class MyAccountsActivity extends AppCompatActivity {
             }
 
         } else {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
     }
 
@@ -292,18 +274,18 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     private void createNewAddress(){
 
-        if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        if (!ConnectivityStatus.hasConnectivity(AccountActivity.this)) {
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else {
 
             if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                 addAddress();
             } else {
 
-                final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+                final EditText double_encrypt_password = new EditText(AccountActivity.this);
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-                new AlertDialog.Builder(MyAccountsActivity.this)
+                new AlertDialog.Builder(AccountActivity.this)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.enter_double_encryption_pw)
                         .setView(double_encrypt_password)
@@ -325,7 +307,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                                     addAddress();
 
                                 } else {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
 
@@ -342,18 +324,17 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     }
 
-
-    private List<MyAccountItem> getAccounts() {
+    private List<AccountItem> getAccounts() {
 
         headerPositions = new ArrayList<Integer>();
 
-        List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
+        List<AccountItem> accountList = new ArrayList<AccountItem>();
         accountIndexResover = new HashMap<>();
 
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
             //First Header Position - HD
             headerPositions.add(0);
-            accountList.add(new MyAccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+            accountList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
         }
 
         int i = 0;
@@ -377,7 +358,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                 if (!accountClone.get(i).isArchived()) {
                     accountIndexResover.put(j, i);
                     j++;
-                    accountList.add(new MyAccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+                    accountList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
                 } else
                     archivedCount++;
             }
@@ -390,10 +371,10 @@ public class MyAccountsActivity extends AppCompatActivity {
         }
         if (iAccount != null) {
 
-            if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+            if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountList.size());
-                accountList.add(new MyAccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+                accountList.add(new AccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
             }
 
             legacy = iAccount.getLegacyAddresses();
@@ -408,7 +389,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                     label = context.getString(R.string.archived_label) + " " + label;
                 }
 
-                accountList.add(new MyAccountItem(label, getAddressBalance(j), getResources().getDrawable(R.drawable.icon_imported)));
+                accountList.add(new AccountItem(label, getAddressBalance(j), getResources().getDrawable(R.drawable.icon_imported)));
             }
         }
 
@@ -423,7 +404,7 @@ public class MyAccountsActivity extends AppCompatActivity {
 
         String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-        return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
+        return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
     }
 
     private String getAddressBalance(int index) {
@@ -433,7 +414,7 @@ public class MyAccountsActivity extends AppCompatActivity {
         if (amount == null) amount = 0l;
         String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-        return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
+        return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
     }
 
     @Override
@@ -441,7 +422,7 @@ public class MyAccountsActivity extends AppCompatActivity {
         super.onResume();
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
-        LocalBroadcastManager.getInstance(MyAccountsActivity.this).registerReceiver(receiver, filter);
+        LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
         AppUtil.getInstance(this).stopLockTimer();
 
@@ -454,7 +435,7 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        LocalBroadcastManager.getInstance(MyAccountsActivity.this).unregisterReceiver(receiver);
+        LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
         AppUtil.getInstance(this).startLockTimer();
         super.onPause();
     }
@@ -474,10 +455,10 @@ public class MyAccountsActivity extends AppCompatActivity {
                         importBIP38Address(strResult);
                     }
                 } else {
-                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    ToastCustom.makeText(AccountActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
             } catch (Exception e) {
-                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                ToastCustom.makeText(AccountActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY) {
             ;
@@ -506,9 +487,9 @@ public class MyAccountsActivity extends AppCompatActivity {
                             progress.dismiss();
                             progress = null;
                         }
-                        progress = new ProgressDialog(MyAccountsActivity.this);
+                        progress = new ProgressDialog(AccountActivity.this);
                         progress.setTitle(R.string.app_name);
-                        progress.setMessage(MyAccountsActivity.this.getResources().getString(R.string.please_wait));
+                        progress.setMessage(AccountActivity.this.getResources().getString(R.string.please_wait));
                         progress.show();
 
                         new Thread(new Runnable() {
@@ -534,10 +515,10 @@ public class MyAccountsActivity extends AppCompatActivity {
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
-                                        final EditText address_label = new EditText(MyAccountsActivity.this);
+                                        final EditText address_label = new EditText(AccountActivity.this);
                                         address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
-                                        new AlertDialog.Builder(MyAccountsActivity.this)
+                                        new AlertDialog.Builder(AccountActivity.this)
                                                 .setTitle(R.string.app_name)
                                                 .setMessage(R.string.label_address)
                                                 .setView(address_label)
@@ -566,7 +547,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                                         ToastCustom.makeText(getApplicationContext(), getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     }
                                 } catch (Exception e) {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    ToastCustom.makeText(AccountActivity.this, getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 } finally {
                                     if (progress != null && progress.isShowing()) {
                                         progress.dismiss();
@@ -590,13 +571,13 @@ public class MyAccountsActivity extends AppCompatActivity {
         try {
             key = PrivateKeyFactory.getInstance().getKey(format, data);
         } catch (Exception e) {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             e.printStackTrace();
             return;
         }
 
         if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
             final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
@@ -613,7 +594,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
-            final EditText address_label = new EditText(MyAccountsActivity.this);
+            final EditText address_label = new EditText(AccountActivity.this);
             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
             final ECKey scannedKey = key;
@@ -623,7 +604,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                 public void run() {
                     Looper.prepare();
 
-                    new AlertDialog.Builder(MyAccountsActivity.this)
+                    new AlertDialog.Builder(AccountActivity.this)
                             .setTitle(R.string.app_name)
                             .setMessage(R.string.label_address)
                             .setView(address_label)
@@ -655,7 +636,7 @@ public class MyAccountsActivity extends AppCompatActivity {
             }).start();
 
         } else {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
     }
@@ -678,12 +659,12 @@ public class MyAccountsActivity extends AppCompatActivity {
 
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() + balance);
-                AccountsUtil.getInstance(MyAccountsActivity.this).setCurrentSpinnerIndex(0);
+                AccountsUtil.getInstance(AccountActivity.this).setCurrentSpinnerIndex(0);
 
-                MyAccountsActivity.this.runOnUiThread(new Runnable() {
+                AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyAccountsActivity.this.recreate();
+                        AccountActivity.this.recreate();
                     }
                 });
 
@@ -697,7 +678,7 @@ public class MyAccountsActivity extends AppCompatActivity {
 
         final Handler mHandler = new Handler();
 
-        final ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
+        final ProgressDialog progress = new ProgressDialog(AccountActivity.this);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.please_wait));
         progress.setCancelable(false);
@@ -713,7 +694,7 @@ public class MyAccountsActivity extends AppCompatActivity {
             @Override
             protected ECKey doInBackground(Void... params) {
 
-                ECKey ecKey = PayloadBridge.getInstance(MyAccountsActivity.this).newLegacyAddress();
+                ECKey ecKey = PayloadBridge.getInstance(AccountActivity.this).newLegacyAddress();
                 if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     return null;
@@ -734,7 +715,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                 legacyAddress.setAddress(ecKey.toAddress(MainNetParams.get()).toString());
                 legacyAddress.setCreatedDeviceName("android");
                 legacyAddress.setCreated(System.currentTimeMillis());
-                legacyAddress.setCreatedDeviceVersion(MyAccountsActivity.this.getString(R.string.version_name));
+                legacyAddress.setCreatedDeviceVersion(AccountActivity.this.getString(R.string.version_name));
 
                 progress.dismiss();
 
@@ -746,10 +727,10 @@ public class MyAccountsActivity extends AppCompatActivity {
 
                                 @Override
                                 public void run() {
-                                    final EditText address_label = new EditText(MyAccountsActivity.this);
+                                    final EditText address_label = new EditText(AccountActivity.this);
                                     address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
-                                    new AlertDialog.Builder(MyAccountsActivity.this)
+                                    new AlertDialog.Builder(AccountActivity.this)
                                             .setTitle(R.string.app_name)
                                             .setMessage(R.string.label_address2)
                                             .setView(address_label)
@@ -788,12 +769,12 @@ public class MyAccountsActivity extends AppCompatActivity {
 
     private void remoteSaveNewAddress(final LegacyAddress legacy) {
 
-        if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
-            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        if (!ConnectivityStatus.hasConnectivity(AccountActivity.this)) {
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
-        final ProgressDialog progress = new ProgressDialog(MyAccountsActivity.this);
+        final ProgressDialog progress = new ProgressDialog(AccountActivity.this);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.saving_address));
         progress.setCancelable(false);
@@ -813,7 +794,7 @@ public class MyAccountsActivity extends AppCompatActivity {
                     PayloadFactory.getInstance().set(updatedPayload);
 
                     if (PayloadFactory.getInstance().put()) {
-                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         ToastCustom.makeText(getApplicationContext(), legacy.getAddress(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
@@ -828,15 +809,15 @@ public class MyAccountsActivity extends AppCompatActivity {
 
                         updateAndRecreate(legacy);
                     } else {
-                        ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(MyAccountsActivity.this).timeOut();
-                        AppUtil.getInstance(MyAccountsActivity.this).restartApp();
+                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        AppUtil.getInstance(AccountActivity.this).timeOut();
+                        AppUtil.getInstance(AccountActivity.this).restartApp();
                     }
                 } else {
 //                    ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(MyAccountsActivity.this).timeOut();
-                    AppUtil.getInstance(MyAccountsActivity.this).restartApp();
+                    ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    AppUtil.getInstance(AccountActivity.this).timeOut();
+                    AppUtil.getInstance(AccountActivity.this).restartApp();
                 }
 
                 progress.dismiss();
