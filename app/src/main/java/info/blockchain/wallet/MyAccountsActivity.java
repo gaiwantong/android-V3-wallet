@@ -1,13 +1,9 @@
 package info.blockchain.wallet;
 
 import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.Intents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -17,31 +13,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListPopupWindow;
-import android.widget.TextView;
 
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -63,7 +50,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
 
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
@@ -81,17 +67,15 @@ import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class MyAccountsActivity extends Activity {
+public class MyAccountsActivity extends AppCompatActivity {
 
-    public static final String ACTION_INTENT = "info.blockchain.wallet.MyAccountsActivity.REFRESH";
+    public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
     private static final int IMPORT_PRIVATE_KEY = 2006;
-    private static final int ADDRESS_IMPORT = 0;
-    private static final int ADDRESS_ADD = 1;
     public static String ACCOUNT_HEADER;
     public static String IMPORTED_HEADER;
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
     private static String[] HEADERS;
-    public int toolbarHeight;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -111,16 +95,6 @@ public class MyAccountsActivity extends Activity {
     private LinearLayoutManager layoutManager = null;
     private RecyclerView mRecyclerView = null;
     private List<MyAccountItem> accountsAndImportedList = null;
-    private TextView myAccountsHeader;
-    private float originalHeaderTextSize;
-    private ValueAnimator headerResizeAnimator;
-    private int originalHeight = 0;
-    private int newHeight = 0;
-    private int expandDuration = 200;
-    private boolean mIsViewExpanded = false;
-    private ImageView backNav;
-    private ImageView menuImport;
-    private HashMap<View, Boolean> rowViewState;
     private ArrayList<Integer> headerPositions;
     private int hdAccountsIdx;
     private List<LegacyAddress> legacy = null;
@@ -137,6 +111,8 @@ public class MyAccountsActivity extends Activity {
         setContentView(R.layout.activity_my_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        initToolbar();
+
         // Empty header for accounts for now
         ACCOUNT_HEADER = "";
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
@@ -146,162 +122,12 @@ public class MyAccountsActivity extends Activity {
         else
             HEADERS = new String[0];
 
-        backNav = (ImageView) findViewById(R.id.back_nav);
-        backNav.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        menuImport = (ImageView) findViewById(R.id.menu_import);
-        menuImport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String[] list = new String[]{getResources().getString(R.string.import_address)};
-
-                if (AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
-                    list = new String[]{getResources().getString(R.string.import_address), getResources().getString(R.string.create_new_address)};
-
-                ArrayAdapter<String> popupAdapter = new ArrayAdapter<String>(MyAccountsActivity.this, R.layout.spinner_dropdown, list);
-
-                final ListPopupWindow menuPopup = new ListPopupWindow(MyAccountsActivity.this, null);
-                menuPopup.setAnchorView(menuImport);
-                menuPopup.setAdapter(popupAdapter);
-                menuPopup.setVerticalOffset((int) -(getResources().getDimension(R.dimen.action_bar_height) / 1.5));
-                menuPopup.setModal(true);
-                menuPopup.setAnimationStyle(R.anim.slide_down1);
-                menuPopup.setContentWidth(measureContentWidth(popupAdapter));//always size to max width item
-                menuPopup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        switch (position) {
-                            case ADDRESS_IMPORT:
-                                if (!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen()) {
-                                    scanPrivateKey();
-                                } else {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
-                                break;
-                            case ADDRESS_ADD:
-
-                                if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
-                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                } else {
-
-                                    if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                        addAddress();
-                                    } else {
-
-                                        final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
-                                        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                                        new AlertDialog.Builder(MyAccountsActivity.this)
-                                                .setTitle(R.string.app_name)
-                                                .setMessage(R.string.enter_double_encryption_pw)
-                                                .setView(double_encrypt_password)
-                                                .setCancelable(false)
-                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                                                        String pw2 = double_encrypt_password.getText().toString();
-
-                                                        if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                                                PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                                                PayloadFactory.getInstance().get().getSharedKey(),
-                                                                new CharSequenceX(pw2),
-                                                                PayloadFactory.getInstance().get().getOptions().getIterations()
-                                                        )) {
-
-                                                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-                                                            addAddress();
-
-                                                        } else {
-                                                            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                                        }
-
-                                                    }
-                                                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                ;
-                                            }
-                                        }).show();
-
-                                    }
-
-                                }
-
-                                break;
-                        }
-
-                        if (menuPopup.isShowing()) {
-                            menuPopup.dismiss();
-                        }
-
-                    }
-                });
-
-                menuPopup.show();
-            }
-
-            private int measureContentWidth(ListAdapter listAdapter) {
-                ViewGroup mMeasureParent = null;
-                int maxWidth = 0;
-                View itemView = null;
-                int itemType = 0;
-
-                final ListAdapter adapter = listAdapter;
-                final int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                final int count = adapter.getCount();
-                for (int i = 0; i < count; i++) {
-                    final int positionType = adapter.getItemViewType(i);
-                    if (positionType != itemType) {
-                        itemType = positionType;
-                        itemView = null;
-                    }
-
-                    if (mMeasureParent == null) {
-                        mMeasureParent = new FrameLayout(MyAccountsActivity.this);
-                    }
-
-                    itemView = adapter.getView(i, itemView, mMeasureParent);
-                    itemView.measure(widthMeasureSpec, heightMeasureSpec);
-
-                    final int itemWidth = itemView.getMeasuredWidth();
-
-                    if (itemWidth > maxWidth) {
-                        maxWidth = itemWidth;
-                    }
-                }
-
-                return maxWidth;
-            }
-
-        });
-
-        myAccountsHeader = (TextView) findViewById(R.id.my_accounts_heading);
-
-        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
-            myAccountsHeader.setText(getString(R.string.my_accounts));
-        else
-            myAccountsHeader.setText(getString(R.string.my_addresses));
-
-        myAccountsHeader.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
-        originalHeaderTextSize = myAccountsHeader.getTextSize();
-
         mRecyclerView = (RecyclerView) findViewById(R.id.accountsList);
         layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        headerPositions = new ArrayList<Integer>();
-
         ArrayList<MyAccountItem> accountItems = new ArrayList<>();
         accountsAndImportedList = getAccounts();
-        toolbarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
         for (MyAccountItem item : accountsAndImportedList) {
             accountItems.add(item);
@@ -310,7 +136,6 @@ public class MyAccountsActivity extends Activity {
         MyAccountsAdapter accountsAdapter = new MyAccountsAdapter(accountItems);
         mRecyclerView.setAdapter(accountsAdapter);
 
-        rowViewState = new HashMap<View, Boolean>();
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
 
@@ -320,41 +145,30 @@ public class MyAccountsActivity extends Activity {
                         if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
-                        try {
-                            mIsViewExpanded = rowViewState.get(view);
-                        } catch (Exception e) {
-                            mIsViewExpanded = false;
-                        }
-
-                        if (!mIsViewExpanded) {
-                            expandView(view, position);
-                        } else {
-                            collapseView(view);
-                        }
-
-                        rowViewState.put(view, mIsViewExpanded);
+                        onRowClick(position);
                     }
                 })
         );
-
-        mRecyclerView.setOnScrollListener(new CollapseActionbarScrollListener() {
-            @Override
-            public void onMoved(int distance, float scaleFactor) {
-
-                myAccountsHeader.setTranslationY(-distance);
-
-                if (scaleFactor >= 0.7 && scaleFactor <= 1) {
-                    float mm = (originalHeaderTextSize * scaleFactor);
-                    myAccountsHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, mm);
-                }
-            }
-        });
     }
 
-    private void expandView(View view, int position) {
+    private void initToolbar(){
 
-        final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
-        final TextView addressView = (TextView) view.findViewById(R.id.my_account_row_address);
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+            toolbar.setTitle(getResources().getString(R.string.my_accounts));
+        } else {
+            toolbar.setTitle(getResources().getString(R.string.my_addresses));
+        }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        setSupportActionBar(toolbar);
+    }
+
+    private void onRowClick(int position){
 
         String currentSelectedAddress = null;
 
@@ -372,6 +186,7 @@ public class MyAccountsActivity extends Activity {
                 currentSelectedAddress = legacyAddress.getAddress();
             }
 
+
         } else {
             ReceiveAddress currentSelectedReceiveAddress = null;
             try {
@@ -381,138 +196,156 @@ public class MyAccountsActivity extends Activity {
                 e.printStackTrace();
             }
         }
-        addressView.setText(currentSelectedAddress);
 
-        //Receiving QR
-        qrTest.setImageBitmap(generateQRCode("bitcoin:" + currentSelectedAddress));
+        //TODO - Go to rename
+        ToastCustom.makeText(MyAccountsActivity.this, currentSelectedAddress, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+    }
 
-        if (originalHeight == 0) {
-            originalHeight = view.getHeight();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded()) {
+            inflater.inflate(R.menu.v3_myaccounts_activity_actions, menu);
+        }else {
+            inflater.inflate(R.menu.v2_myaccounts_activity_actions, menu);
         }
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        newHeight = originalHeight + qrTest.getHeight() + (addressView.getHeight() * 2) + (24 * 2);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_import_address:
+                importAddress();
+                return true;
+            case R.id.action_create_new:
+                createNewAccount();
+                return true;
+            case R.id.action_create_new_address:
+                createNewAddress();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-        final String finalCurrentSelectedAddress = currentSelectedAddress;
-        qrTest.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+    private void importAddress(){
+
+        if (!AppUtil.getInstance(MyAccountsActivity.this).isCameraOpen()) {
+
+            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+                intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
+                intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
+                startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+            } else {
+                final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+                double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
                 new AlertDialog.Builder(MyAccountsActivity.this)
                         .setTitle(R.string.app_name)
-                        .setMessage(R.string.receive_address_to_clipboard)
+                        .setMessage(R.string.enter_double_encryption_pw)
+                        .setView(double_encrypt_password)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
 
-                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) MyAccountsActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                                android.content.ClipData clip = null;
-                                clip = android.content.ClipData.newPlainText("Send address", finalCurrentSelectedAddress);
-                                clipboard.setPrimaryClip(clip);
+                                String pw2 = double_encrypt_password.getText().toString();
 
-                                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        new CharSequenceX(pw2),
+                                        PayloadFactory.getInstance().get().getOptions().getIterations()
+                                )) {
+
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+
+                                    Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
+                                    intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
+                                    intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+                                    startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+
+                                } else {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                }
 
                             }
+                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        ;
+                    }
+                }).show();
+            }
 
-                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+        } else {
+            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+    }
 
+    private void createNewAccount(){
+        //TODO - Go to create
+    }
+
+    private void createNewAddress(){
+
+        if (!ConnectivityStatus.hasConnectivity(MyAccountsActivity.this)) {
+            ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        } else {
+
+            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                addAddress();
+            } else {
+
+                final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
+                double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                new AlertDialog.Builder(MyAccountsActivity.this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.enter_double_encryption_pw)
+                        .setView(double_encrypt_password)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                String pw2 = double_encrypt_password.getText().toString();
+
+                                if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        new CharSequenceX(pw2),
+                                        PayloadFactory.getInstance().get().getOptions().getIterations()
+                                )) {
+
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+
+                                    addAddress();
+
+                                } else {
+                                    ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                }
+
+                            }
+                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         ;
                     }
                 }).show();
 
-                return false;
             }
-        });
 
-        view.setBackgroundColor(getResources().getColor(R.color.white));
+        }
 
-        //Fade QR in - expansion of row will create slide down effect
-        qrTest.setVisibility(View.VISIBLE);
-        qrTest.setAnimation(AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in));
-        qrTest.setEnabled(true);
-
-        addressView.setVisibility(View.VISIBLE);
-        Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_in);
-        aanim.setDuration(expandDuration);
-        addressView.setAnimation(aanim);
-        addressView.setEnabled(true);
-
-        mIsViewExpanded = !mIsViewExpanded;
-        view.findViewById(R.id.bottom_seperator).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.top_seperator).setVisibility(View.VISIBLE);
-        headerResizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
-
-        startAnim(view);
     }
 
-    private void collapseView(View view) {
-
-        final ImageView qrTest = (ImageView) view.findViewById(R.id.qrr);
-        final TextView addressView = (TextView) view.findViewById(R.id.my_account_row_address);
-
-        TypedValue outValue = new TypedValue();
-        MyAccountsActivity.this.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-        view.setBackgroundResource(outValue.resourceId);
-
-        view.findViewById(R.id.bottom_seperator).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.top_seperator).setVisibility(View.INVISIBLE);
-        mIsViewExpanded = !mIsViewExpanded;
-        headerResizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
-
-        //Slide QR away
-        qrTest.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down));
-        Animation aanim = AnimationUtils.loadAnimation(MyAccountsActivity.this, R.anim.abc_fade_out);
-        aanim.setDuration(expandDuration / 2);
-        addressView.setAnimation(aanim);
-
-        //Fade QR and hide when done
-        Animation anim = new AlphaAnimation(1.00f, 0.00f);
-        anim.setDuration(expandDuration / 2);
-        // Set a listener to the animation and configure onAnimationEnd
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                qrTest.setVisibility(View.INVISIBLE);
-                qrTest.setEnabled(false);
-
-                addressView.setVisibility(View.INVISIBLE);
-                addressView.setEnabled(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        qrTest.startAnimation(anim);
-        addressView.startAnimation(anim);
-
-        startAnim(view);
-    }
-
-    private void startAnim(final View view) {
-        //Set and start row collapse/expand
-        headerResizeAnimator.setDuration(expandDuration);
-        headerResizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        headerResizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            public void onAnimationUpdate(ValueAnimator animation) {
-                Integer value = (Integer) animation.getAnimatedValue();
-                view.getLayoutParams().height = value.intValue();
-                view.requestLayout();
-            }
-        });
-
-        headerResizeAnimator.start();
-    }
 
     private List<MyAccountItem> getAccounts() {
+
+        headerPositions = new ArrayList<Integer>();
 
         List<MyAccountItem> accountList = new ArrayList<MyAccountItem>();
         accountIndexResover = new HashMap<>();
@@ -544,7 +377,7 @@ public class MyAccountsActivity extends Activity {
                 if (!accountClone.get(i).isArchived()) {
                     accountIndexResover.put(j, i);
                     j++;
-                    accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+                    accountList.add(new MyAccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
                 } else
                     archivedCount++;
             }
@@ -575,14 +408,14 @@ public class MyAccountsActivity extends Activity {
                     label = context.getString(R.string.archived_label) + " " + label;
                 }
 
-                accountList.add(new MyAccountItem(label, displayBalanceImported(j), getResources().getDrawable(R.drawable.icon_imported)));
+                accountList.add(new MyAccountItem(label, getAddressBalance(j), getResources().getDrawable(R.drawable.icon_imported)));
             }
         }
 
         return accountList;
     }
 
-    private String displayBalance(int index) {
+    private String getAccountBalance(int index) {
 
         String address = HDPayloadBridge.getInstance(this).account2Xpub(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
@@ -593,7 +426,7 @@ public class MyAccountsActivity extends Activity {
         return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
     }
 
-    private String displayBalanceImported(int index) {
+    private String getAddressBalance(int index) {
 
         String address = legacy.get(index).getAddress();
         Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
@@ -601,22 +434,6 @@ public class MyAccountsActivity extends Activity {
         String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
         return MonetaryUtil.getInstance(MyAccountsActivity.this).getDisplayAmount(amount) + " " + unit;
-    }
-
-    private Bitmap generateQRCode(String uri) {
-
-        Bitmap bitmap = null;
-        int qrCodeDimension = 260;
-
-        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
-
-        try {
-            bitmap = qrCodeEncoder.encodeAsBitmap();
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-
-        return bitmap;
     }
 
     @Override
@@ -664,56 +481,6 @@ public class MyAccountsActivity extends Activity {
             }
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY) {
             ;
-        }
-
-    }
-
-    private void scanPrivateKey() {
-
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-            Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
-            intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
-            intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
-            startActivityForResult(intent, IMPORT_PRIVATE_KEY);
-        } else {
-            final EditText double_encrypt_password = new EditText(MyAccountsActivity.this);
-            double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            new AlertDialog.Builder(MyAccountsActivity.this)
-                    .setTitle(R.string.app_name)
-                    .setMessage(R.string.enter_double_encryption_pw)
-                    .setView(double_encrypt_password)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                            String pw2 = double_encrypt_password.getText().toString();
-
-                            if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                    PayloadFactory.getInstance().get().getSharedKey(),
-                                    new CharSequenceX(pw2),
-                                    PayloadFactory.getInstance().get().getOptions().getIterations()
-                            )) {
-
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-                                Intent intent = new Intent(MyAccountsActivity.this, CaptureActivity.class);
-                                intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
-                                intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-                                startActivityForResult(intent, IMPORT_PRIVATE_KEY);
-
-                            } else {
-                                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                            }
-
-                        }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    ;
-                }
-            }).show();
         }
 
     }
@@ -1088,43 +855,6 @@ public class MyAccountsActivity extends Activity {
     @Override
     public void onUserLeaveHint() {
         AppUtil.getInstance(this).setInBackground(true);
-    }
-
-    public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {
-
-        private int mToolbarOffset = 0;
-        private float scaleFactor = 1;
-
-        public CollapseActionbarScrollListener() {
-        }
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-
-            //Only bring heading back down after 2nd item visible (0 = heading)
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() <= HEADERS.length) {
-
-                if ((mToolbarOffset < toolbarHeight && dy > 0) || (mToolbarOffset > 0 && dy < 0)) {
-                    mToolbarOffset += dy;
-                    scaleFactor = (float) ((toolbarHeight * 2) - mToolbarOffset) / (float) (toolbarHeight * 2);
-                }
-
-                clipToolbarOffset();
-                onMoved(mToolbarOffset, scaleFactor);
-            }
-        }
-
-        private void clipToolbarOffset() {
-            if (mToolbarOffset > toolbarHeight) {
-                mToolbarOffset = toolbarHeight;
-            } else if (mToolbarOffset < 0) {
-                mToolbarOffset = 0;
-                scaleFactor = 0.7f;
-            }
-        }
-
-        public abstract void onMoved(int distance, float scaleFactor);
     }
 
 }

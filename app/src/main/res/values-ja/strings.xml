@@ -198,7 +198,7 @@
   <string name="my_addresses">私のアドレス</string>
   <string name="accounts">アカウント</string>
   <string name="addresses">アドレス</string>
-  <string name="create_new_account">新しいアカウントを作成します。</string>
+  <string name="create_new">新しいアカウントを作成します。</string>
   <string name="import_address">アドレスをインポートします。</string>
   <string name="save_name">名前を保存します。</string>
   <string name="receive_address_to_clipboard">この受信アドレスをクリップボードにコピーですか？もしそうなら、他のアプリケーションはこの情報を見ることができることをご承知。</string>

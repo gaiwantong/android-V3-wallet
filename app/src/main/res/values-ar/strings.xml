@@ -198,7 +198,7 @@
   <string name="my_addresses">بلدي عناوين</string>
   <string name="accounts">حسابات</string>
   <string name="addresses">عناوين</string>
-  <string name="create_new_account">إنشاء حساب جديد</string>
+  <string name="create_new">إنشاء حساب جديد</string>
   <string name="import_address">استيراد العناوين</string>
   <string name="save_name">حفظ الاسم</string>
   <string name="receive_address_to_clipboard">انسخ هذا العنوان التلقي إلى الحافظة؟ إذا كان الأمر كذلك، يكون نصح أن التطبيقات الأخرى قد تكون قادرة على إلقاء نظرة على هذه المعلومات.</string>

@@ -198,7 +198,7 @@
   <string name="my_addresses">Min adresser</string>
   <string name="accounts">Kontoer</string>
   <string name="addresses">Adresser</string>
-  <string name="create_new_account">Opprette ny konto</string>
+  <string name="create_new">Opprette ny konto</string>
   <string name="import_address">Importere adresse</string>
   <string name="save_name">Lagre navn</string>
   <string name="receive_address_to_clipboard">Kopier denne motta adressen til utklippstavlen? Så, Vær oppmerksom på at andre programmer kan kunne se denne informasjonen.</string>

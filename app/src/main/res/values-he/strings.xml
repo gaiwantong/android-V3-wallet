@@ -198,7 +198,7 @@
   <string name="my_addresses">כתובות שלי</string>
   <string name="accounts">חשבונות</string>
   <string name="addresses">כתובות</string>
-  <string name="create_new_account">יצירת חשבון חדש</string>
+  <string name="create_new">יצירת חשבון חדש</string>
   <string name="import_address">ייבוא כתובות</string>
   <string name="save_name">שמור שם</string>
   <string name="receive_address_to_clipboard">העתק כתובת זו קבלה ללוח? אם כן, שימו לב כי יישומים אחרים עשוי להיות מסוגל להסתכל על מידע זה.</string>

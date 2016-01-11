@@ -198,7 +198,7 @@
   <string name="my_addresses">Моите адреси</string>
   <string name="accounts">Сметки</string>
   <string name="addresses">Адреси</string>
-  <string name="create_new_account">Създаване на нов акаунт</string>
+  <string name="create_new">Създаване на нов акаунт</string>
   <string name="import_address">Импортиране на адрес</string>
   <string name="save_name">Запиши името</string>
   <string name="receive_address_to_clipboard">Копирайте този адрес, получаване в клипборда? Ако е така, имайте предвид, че други приложения могат да бъдат в състояние да погледнете тази информация.</string>

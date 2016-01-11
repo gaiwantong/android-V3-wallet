@@ -198,7 +198,7 @@
   <string name="my_addresses">Мои адреса</string>
   <string name="accounts">Учетные записи</string>
   <string name="addresses">Адреса</string>
-  <string name="create_new_account">Создание новой учетной записи</string>
+  <string name="create_new">Создание новой учетной записи</string>
   <string name="import_address">Импорт адресов</string>
   <string name="save_name">Сохранить имя</string>
   <string name="receive_address_to_clipboard">Скопируйте этот адрес получения в буфер обмена? Если это так, внимание, что другие приложения могут иметь возможность взглянуть на эту информацию.</string>

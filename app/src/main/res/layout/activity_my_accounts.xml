@@ -1,60 +1,17 @@
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/accountsList"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@color/blockchain_pearl_white"
-		android:paddingTop="@dimen/extended_bar_height"
-		android:clipToPadding="false"
-		android:clickable="true"/>
+    <include layout="@layout/toolbar_general"/>
 
-	<FrameLayout
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/extended_bar_height">
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/accountsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_pearl_white"
+            android:clipToPadding="false"
+            android:clickable="true"/>
 
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/action_bar_height"
-			android:layout_gravity="top"
-			android:background="@drawable/selector_b_blue"/>
-
-		<TextView
-			android:id="@+id/my_accounts_heading"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="@color/blockchain_blue"
-			android:gravity="left|bottom"
-			android:paddingLeft="72dp"
-			android:text="@string/my_accounts"
-			android:textColor="@color/white"
-			android:paddingBottom="10dp"
-			android:textSize="28sp"
-			/>
-
-		<ImageView
-			android:id="@+id/back_nav"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/action_bar_height"
-			android:layout_gravity="start"
-			android:paddingLeft="16dp"
-			android:paddingRight="16dp"
-			android:background="@drawable/selector_b_blue"
-			android:src="@drawable/ic_arrow_back_white_24dp"/>
-
-		<ImageView
-			android:id="@+id/menu_import"
-			android:layout_width="wrap_content"
-			android:layout_height="@dimen/action_bar_height"
-			android:layout_gravity="end"
-			android:paddingRight="16dp"
-			android:paddingLeft="16dp"
-			android:background="@drawable/selector_b_blue"
-			android:src="@drawable/ic_more_vert_white_24dp"/>
-
-	</FrameLayout>
-
-</FrameLayout>
+</LinearLayout>

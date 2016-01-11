@@ -198,7 +198,7 @@
   <string name="my_addresses">Mijn adressen</string>
   <string name="accounts">Rekeningen</string>
   <string name="addresses">Adressen</string>
-  <string name="create_new_account">Nieuwe Account aanmaken</string>
+  <string name="create_new">Nieuwe Account aanmaken</string>
   <string name="import_address">Adres importeren</string>
   <string name="save_name">Naam opslaan</string>
   <string name="receive_address_to_clipboard">Dit ontvangen adres naar het Klembord kopiëren? Zo ja, worden geadviseerd dat andere toepassingen kunnen mogelijk om te kijken naar deze informatie.</string>

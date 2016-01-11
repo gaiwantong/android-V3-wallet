@@ -198,7 +198,7 @@
   <string name="my_addresses">Διευθύνσεις μου</string>
   <string name="accounts">Λογαριασμοί</string>
   <string name="addresses">Διευθύνσεις</string>
-  <string name="create_new_account">Δημιουργία νέου λογαριασμού</string>
+  <string name="create_new">Δημιουργία νέου λογαριασμού</string>
   <string name="import_address">Διεύθυνση εισαγωγών</string>
   <string name="save_name">Αποθήκευση όνομα</string>
   <string name="receive_address_to_clipboard">Αντιγράψετε αυτή τη διεύθυνση παραλαβής στο Πρόχειρο; Αν ναι, να λάβετε υπόψη ότι άλλες εφαρμογές μπορεί να είναι σε θέση να εξετάσουμε αυτές τις πληροφορίες.</string>

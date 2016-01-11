@@ -198,7 +198,7 @@
   <string name="my_addresses">Adresele mele</string>
   <string name="accounts">Conturi</string>
   <string name="addresses">Adrese</string>
-  <string name="create_new_account">Creare cont nou</string>
+  <string name="create_new">Creare cont nou</string>
   <string name="import_address">Adresa de import</string>
   <string name="save_name">Salva numele</string>
   <string name="receive_address_to_clipboard">Copiază această adresă de primire în clipboard? Dacă este aşa, informăm că alte aplicaţii ar putea să se uite la aceste informaţii.</string>

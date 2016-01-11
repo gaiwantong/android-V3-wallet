@@ -198,7 +198,7 @@
   <string name="my_addresses">Moje naslovov</string>
   <string name="accounts">Računov</string>
   <string name="addresses">Naslovi</string>
-  <string name="create_new_account">Ustvarite nov račun</string>
+  <string name="create_new">Ustvarite nov račun</string>
   <string name="import_address">Uvozite naslov</string>
   <string name="save_name">Shrani ime</string>
   <string name="receive_address_to_clipboard">Ta naslov za prejemanje kopirati v odložišče? Če je tako, obveščen, da lahko druge aplikacije pogled na te informacije.</string>

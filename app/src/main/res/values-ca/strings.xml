@@ -198,7 +198,7 @@
   <string name="my_addresses">Meves adreces</string>
   <string name="accounts">Comptes</string>
   <string name="addresses">Adreces</string>
-  <string name="create_new_account">Crear compte nou</string>
+  <string name="create_new">Crear compte nou</string>
   <string name="import_address">Importar adreces</string>
   <string name="save_name">Salvar el nom</string>
   <string name="receive_address_to_clipboard">Copieu aquesta adreça rebre al porta-retalls? Si és així, es recomana que altres aplicacions poden ser capaços de veure aquesta informació.</string>

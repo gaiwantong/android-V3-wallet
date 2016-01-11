@@ -198,7 +198,7 @@
   <string name="my_addresses">Benim adres yazmak</string>
   <string name="accounts">Hesapları</string>
   <string name="addresses">Adresleri</string>
-  <string name="create_new_account">Yeni hesap yarat</string>
+  <string name="create_new">Yeni hesap yarat</string>
   <string name="import_address">Adres alma</string>
   <string name="save_name">Adı Kaydet</string>
   <string name="receive_address_to_clipboard">Bu alma adresi panoya kopyalayın. Eğer öyleyse, diğer uygulamalar bu bilgilere bakmak olabilir dikkatli olun.</string>

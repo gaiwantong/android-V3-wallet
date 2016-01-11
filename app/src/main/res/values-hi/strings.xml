@@ -198,7 +198,7 @@
   <string name="my_addresses">मेरे पते</string>
   <string name="accounts">गूगल खात</string>
   <string name="addresses">पते</string>
-  <string name="create_new_account">नया खाता बनाएँ</string>
+  <string name="create_new">नया खाता बनाएँ</string>
   <string name="import_address">पते आयात करें</string>
   <string name="save_name">नाम सहेजें</string>
   <string name="receive_address_to_clipboard">इस प्राप्त करें पते की क्लिपबोर्ड पर प्रतिलिपि बनाएँ? यदि ऐसा है, कि अन्य अनुप्रयोगों के लिए इस जानकारी को देखने में सक्षम हो सकता सलाह दी हो।</string>

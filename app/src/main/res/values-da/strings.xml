@@ -198,7 +198,7 @@
   <string name="my_addresses">Mine adresser</string>
   <string name="accounts">Konti</string>
   <string name="addresses">Adresser</string>
-  <string name="create_new_account">Opret ny konto</string>
+  <string name="create_new">Opret ny konto</string>
   <string name="import_address">Importere adresse</string>
   <string name="save_name">Gemme navn</string>
   <string name="receive_address_to_clipboard">Kopiere denne Modtag adresse til Udklipsholder? Hvis ja, opmærksom på, at andre programmer kan være i stand til at se på disse oplysninger.</string>

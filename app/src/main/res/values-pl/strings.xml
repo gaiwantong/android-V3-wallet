@@ -198,7 +198,7 @@
   <string name="my_addresses">Moje adresy</string>
   <string name="accounts">Konta</string>
   <string name="addresses">Adresy</string>
-  <string name="create_new_account">Utwórz nowe konto</string>
+  <string name="create_new">Utwórz nowe konto</string>
   <string name="import_address">Importowanie adresów</string>
   <string name="save_name">Zapisz nazwę</string>
   <string name="receive_address_to_clipboard">Skopiuj ten adres odbioru do schowka? Jeśli tak, należy pamiętać, że inne aplikacje można patrzeć na te informacje.</string>

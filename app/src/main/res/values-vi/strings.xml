@@ -198,7 +198,7 @@
   <string name="my_addresses">Địa chỉ của tôi</string>
   <string name="accounts">Tài khoản</string>
   <string name="addresses">Địa chỉ</string>
-  <string name="create_new_account">Tạo tài khoản mới</string>
+  <string name="create_new">Tạo tài khoản mới</string>
   <string name="import_address">Nhập địa chỉ</string>
   <string name="save_name">Lưu tên</string>
   <string name="receive_address_to_clipboard">Sao chép địa chỉ nhận này vào clipboard? Nếu vậy, được tư vấn ứng dụng khác có thể xem xét thông tin này.</string>

@@ -198,7 +198,7 @@
   <string name="my_addresses">Mé adresy</string>
   <string name="accounts">Účty</string>
   <string name="addresses">Adresy</string>
-  <string name="create_new_account">Vytvořit nový účet</string>
+  <string name="create_new">Vytvořit nový účet</string>
   <string name="import_address">Importovat adresy</string>
   <string name="save_name">Uložit jméno</string>
   <string name="receive_address_to_clipboard">Kopírovat adresu tento příjem do schránky? Pokud ano, na vědomí, že jiné aplikace může být schopen podívat se na tyto informace.</string>

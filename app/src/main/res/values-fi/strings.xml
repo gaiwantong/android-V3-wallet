@@ -198,7 +198,7 @@
   <string name="my_addresses">Omat osoitteet</string>
   <string name="accounts">Tilit</string>
   <string name="addresses">Osoitteet</string>
-  <string name="create_new_account">Luo uusi tili</string>
+  <string name="create_new">Luo uusi tili</string>
   <string name="import_address">Tuo osoite</string>
   <string name="save_name">Tallenna nimi</string>
   <string name="receive_address_to_clipboard">Vastaanota osoite Leikepöydälle? Tällöin kehotettava muita sovelluksia voidaan tarkastella näitä tietoja.</string>

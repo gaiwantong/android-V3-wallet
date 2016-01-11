@@ -199,7 +199,7 @@
   <string name="my_addresses">我的地址</string>
   <string name="accounts">帐户</string>
   <string name="addresses">地址</string>
-  <string name="create_new_account">创建新帐户</string>
+  <string name="create_new">创建新帐户</string>
   <string name="import_address">导入地址</string>
   <string name="save_name">保存名称</string>
   <string name="receive_address_to_clipboard">将此接收地址复制到剪贴板吗？如果是这样，建议其他应用程序可能能够看着这一信息。</string>

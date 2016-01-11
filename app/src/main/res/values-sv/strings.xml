@@ -198,7 +198,7 @@
   <string name="my_addresses">Mina adresser</string>
   <string name="accounts">Konton</string>
   <string name="addresses">Adresser</string>
-  <string name="create_new_account">Skapa nytt konto</string>
+  <string name="create_new">Skapa nytt konto</string>
   <string name="import_address">Importera adress</string>
   <string name="save_name">Spara namn</string>
   <string name="receive_address_to_clipboard">Kopiera denna ta emot adress till Urklipp? Om så är fallet, rådas att andra program kanske på denna information.</string>

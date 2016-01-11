@@ -198,7 +198,7 @@
   <string name="my_addresses">ที่อยู่ของฉัน</string>
   <string name="accounts">บัญชี</string>
   <string name="addresses">ที่อยู่</string>
-  <string name="create_new_account">สร้างบัญชีใหม่</string>
+  <string name="create_new">สร้างบัญชีใหม่</string>
   <string name="import_address">นำเข้าที่อยู่</string>
   <string name="save_name">บันทึกชื่อ</string>
   <string name="receive_address_to_clipboard">คัดลอกที่อยู่นี้ได้รับไปยังคลิปบอร์ด ถ้าเป็นเช่นนั้น ทราบว่า โปรแกรมประยุกต์อื่นอาจจะสามารถดูข้อมูลนี้</string>

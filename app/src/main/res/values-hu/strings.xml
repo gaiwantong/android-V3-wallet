@@ -198,7 +198,7 @@
   <string name="my_addresses">Az én-m címek</string>
   <string name="accounts">Számlák</string>
   <string name="addresses">Címek</string>
-  <string name="create_new_account">Hozzon létre új fiókot</string>
+  <string name="create_new">Hozzon létre új fiókot</string>
   <string name="import_address">Importálja a cím</string>
   <string name="save_name">Menteni a neve</string>
   <string name="receive_address_to_clipboard">Ez a fogadás cím másolása a vágólapra? Ha igen, figyelembe, hogy más alkalmazások lehet nézni ezt az információt.</string>

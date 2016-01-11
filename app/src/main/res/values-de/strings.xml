@@ -198,7 +198,7 @@
   <string name="my_addresses">Meine Adressen</string>
   <string name="accounts">Konten</string>
   <string name="addresses">Adressen</string>
-  <string name="create_new_account">Neues Konto erstellen</string>
+  <string name="create_new">Neues Konto erstellen</string>
   <string name="import_address">Adresse importieren</string>
   <string name="save_name">Speichern Sie Namen</string>
   <string name="receive_address_to_clipboard">Kopieren diese empfangen-Adresse in die Zwischenablage? Wenn dies der Fall ist, beachten Sie, dass andere Anwendungen möglicherweise in der Lage, diese Informationen anzusehen.</string>

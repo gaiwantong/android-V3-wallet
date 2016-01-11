@@ -198,7 +198,7 @@
   <string name="my_addresses">I miei indirizzi</string>
   <string name="accounts">Conti</string>
   <string name="addresses">Indirizzi</string>
-  <string name="create_new_account">Creare nuovo Account</string>
+  <string name="create_new">Creare nuovo Account</string>
   <string name="import_address">Indirizzo di importazione</string>
   <string name="save_name">Salva nome</string>
   <string name="receive_address_to_clipboard">Copiare l\'indirizzo di ricezione negli Appunti? Se è così, di essere informati che altre applicazioni possono essere in grado di guardare a queste informazioni.</string>

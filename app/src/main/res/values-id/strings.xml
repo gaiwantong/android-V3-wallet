@@ -198,7 +198,7 @@
   <string name="my_addresses">Alamat saya</string>
   <string name="accounts">Akun</string>
   <string name="addresses">Alamat</string>
-  <string name="create_new_account">Buat akun baru</string>
+  <string name="create_new">Buat akun baru</string>
   <string name="import_address">Mengimpor alamat</string>
   <string name="save_name">Menyimpan nama</string>
   <string name="receive_address_to_clipboard">Menyalin alamat menerima ini ke clipboard? Jika demikian, disarankan bahwa aplikasi lain mungkin dapat melihat informasi ini.</string>

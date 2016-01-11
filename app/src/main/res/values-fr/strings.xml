@@ -198,7 +198,7 @@
   <string name="my_addresses">Mes adresses</string>
   <string name="accounts">Comptes</string>
   <string name="addresses">Adresses</string>
-  <string name="create_new_account">Créer un nouveau compte</string>
+  <string name="create_new">Créer un nouveau compte</string>
   <string name="import_address">Importer des adresses</string>
   <string name="save_name">Enregistrez le nom</string>
   <string name="receive_address_to_clipboard">Copiez cette adresse de réception dans le presse-papiers ? Dans l\'affirmative, sachez que les autres applications peuvent être capables de regarder ces informations.</string>

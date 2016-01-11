@@ -198,7 +198,7 @@
   <string name="my_addresses">Meus endereços</string>
   <string name="accounts">Contas</string>
   <string name="addresses">Endereços</string>
-  <string name="create_new_account">Criar nova conta</string>
+  <string name="create_new">Criar nova conta</string>
   <string name="import_address">Importar endereço</string>
   <string name="save_name">Salvar nome</string>
   <string name="receive_address_to_clipboard">Copie este endereço de recebimento para a área de transferência? Em caso afirmativo, avisamos que outras aplicações podem ser capazes de olhar para esta informação.</string>
