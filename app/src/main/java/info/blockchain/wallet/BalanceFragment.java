@@ -325,10 +325,18 @@ public class BalanceFragment extends Fragment {
         if (selectedAccountIndex < 0) {
             //All accounts / funds
             if (PayloadFactory.getInstance().get().isUpgraded()) {
-                txs = MultiAddrFactory.getInstance().getAllXpubTxs();
+
+                //Add all xpub and legacy transactions
+                txs = new ArrayList<Tx>();
+                txs.addAll(MultiAddrFactory.getInstance().getAllXpubTxs());
+                txs.addAll(MultiAddrFactory.getInstance().getLegacyTxs());
+
+                //Balance = all xpubs + all legacy address balances
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
             }else {
+                //Add all legacy transactions
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
+                //Balance = all legacy address balances
                 btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
             }
         } else {
@@ -677,7 +685,13 @@ public class BalanceFragment extends Fragment {
 
         //Reset spinner index
         AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
-        selectedAccountIndex = 0;
+        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
+            //Multiple accounts/addresses - show "All"
+            selectedAccountIndex = -1;
+        } else {
+            //Single account/address
+            selectedAccountIndex = 0;
+        }
 
         // drawerTitle account now that wallet has been created
         if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
