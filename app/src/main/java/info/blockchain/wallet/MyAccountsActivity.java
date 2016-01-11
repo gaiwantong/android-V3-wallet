@@ -137,7 +137,8 @@ public class MyAccountsActivity extends Activity {
         setContentView(R.layout.activity_my_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        ACCOUNT_HEADER = getResources().getString(R.string.accounts);
+        // Empty header for accounts for now
+        ACCOUNT_HEADER = "";
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
         if (!AppUtil.getInstance(MyAccountsActivity.this).isNotUpgraded())
