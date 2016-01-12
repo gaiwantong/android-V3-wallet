@@ -306,13 +306,7 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
+        AppUtil.getInstance(this).stopLogoutTimer();
 
         PreferenceScreen scr = getPreferenceScreen();
         Preference verifyEmail = (Preference) findPreference("verify_email");
@@ -321,19 +315,8 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 }
