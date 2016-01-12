@@ -116,11 +116,8 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         // Log out if started with the logout intent
         if (getIntent().getAction() != null && AppUtil.LOGOUT_ACTION.equals(getIntent().getAction())) {
-            System.out.println("Logging out...");
-
             finish();
             System.exit(0);
-
             return;
         }
 

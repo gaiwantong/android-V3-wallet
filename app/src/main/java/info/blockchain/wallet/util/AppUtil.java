@@ -156,7 +156,6 @@ public class AppUtil {
      * Called from all activities' onPause
      */
     public void startLogoutTimer() {
-        System.out.println("Starting logout timer...");
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT, logoutPendingIntent);
     }
@@ -165,7 +164,6 @@ public class AppUtil {
      * Called from all activities' onResume
      */
     public void stopLogoutTimer() {
-        System.out.println("Stopping logout timer...");
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(logoutPendingIntent);
     }

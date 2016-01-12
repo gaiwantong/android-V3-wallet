@@ -216,11 +216,6 @@ public class ListActivity extends ActionBarActivity {
             ((TextView) view.findViewById(R.id.txt4)).setText(b.desc);
 
             ImageView ivHeading = (ImageView) view.findViewById(R.id.heading);
-            System.out.println("HERE");
-            System.out.println(b.id);
-            System.out.println(b.name);
-            System.out.println(position);
-            System.out.println(b.hc);
 
             // default
             ivHeading.setImageResource(b.flag.equals("1") ? R.drawable.marker_spend_featured : R.drawable.marker_spend);
