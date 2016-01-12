@@ -123,6 +123,8 @@ public class PinEntryActivity extends Activity {
         if (fails >= maxAttempts) {
             ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_4_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
+            PayloadFactory.getInstance().get().stepNumber = 0;
+
             new AlertDialog.Builder(PinEntryActivity.this)
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.password_or_wipe)
