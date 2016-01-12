@@ -299,8 +299,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     Looper.loop();
-                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
-                    e.printStackTrace();
                 } finally {
                     dismissProgressView();
                 }
@@ -469,8 +467,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     Looper.loop();
-                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
-                    e.printStackTrace();
                 } finally {
                     if (progress != null && progress.isShowing()) {
                         progress.dismiss();
