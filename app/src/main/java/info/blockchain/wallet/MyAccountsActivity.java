@@ -626,19 +626,13 @@ public class MyAccountsActivity extends Activity {
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(MyAccountsActivity.this).registerReceiver(receiver, filter);
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(MyAccountsActivity.this).unregisterReceiver(receiver);
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -1062,13 +1056,11 @@ public class MyAccountsActivity extends Activity {
                         updateAndRecreate(legacy);
                     } else {
                         ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(MyAccountsActivity.this).timeOut();
                         AppUtil.getInstance(MyAccountsActivity.this).restartApp();
                     }
                 } else {
 //                    ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(MyAccountsActivity.this).timeOut();
                     AppUtil.getInstance(MyAccountsActivity.this).restartApp();
                 }
 
@@ -1077,17 +1069,6 @@ public class MyAccountsActivity extends Activity {
                 return null;
             }
         }.execute();
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 
     public abstract class CollapseActionbarScrollListener extends RecyclerView.OnScrollListener {

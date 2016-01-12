@@ -113,24 +113,12 @@ public class ListActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if (AppUtil.getInstance(ListActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(ListActivity.this, info.blockchain.wallet.PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -173,11 +161,6 @@ public class ListActivity extends ActionBarActivity {
     private void doSuggest() {
         Intent intent = new Intent(ListActivity.this, SuggestMerchant.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 
     private class BTCBusinessAdapter extends BaseAdapter {

@@ -1,81 +1,57 @@
 package info.blockchain.wallet.util;
 
-import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.os.SystemClock;
 
 import info.blockchain.wallet.MainActivity;
-import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.io.File;
 import java.security.Security;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
 
 public class AppUtil {
 
-    private static String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    private static final String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
     private static AppUtil instance = null;
     private static Context context = null;
 
     private static boolean DEBUG = false;
 
-    private static long TIMEOUT_DELAY = 1000L * 60L * 2L;
-    private static long lastUserInteraction = 0L;
-    private static Timer timer;
-    private static boolean inBackground = false;
-    private static boolean isLocked = true;
+    private static final long LOGOUT_TIMEOUT = 1000L * 30L; // 30 seconds in milliseconds
+    public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
+    private static PendingIntent logoutPendingIntent;
 
     private static String strReceiveQRFilename = null;
 
-    private static long UPGRADE_REMINDER_DELAY = 1000L * 60L * 60L * 24L * 14L;
     private static boolean newlyCreated = false;
-    private static boolean allowLockTimer = true;
 
     private AppUtil() {
-        ;
+        // Singleton
     }
 
     public static AppUtil getInstance(Context ctx) {
-
         context = ctx;
 
         if (instance == null) {
             strReceiveQRFilename = context.getExternalCacheDir() + File.separator + "qr.png";
             instance = new AppUtil();
+
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setAction(LOGOUT_ACTION);
+            logoutPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         }
 
         return instance;
-    }
-
-    public static void setInBackground(boolean inBackground) {
-        AppUtil.inBackground = inBackground;
-    }
-
-    public static boolean isLocked() {
-        return isLocked;
-    }
-
-    public static void setIsLocked(boolean isLocked) {
-        AppUtil.isLocked = isLocked;
-        if (timer != null) {
-            timer.cancel();
-        }
-    }
-
-    /*
-    Only disable the lock timer when app navigates to web browser,zeroblock or any qr sharing app.
-    This will allow the blockchain app to not go to pin screen immediately
-     */
-    public static void setAllowLockTimer(boolean allowLockTimer) {
-        AppUtil.allowLockTimer = allowLockTimer;
     }
 
     public void clearCredentialsAndRestart() {
@@ -100,50 +76,12 @@ public class AppUtil {
         context.startActivity(intent);
     }
 
-    public void closeApp() {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("EXIT_APP", true);
-        context.startActivity(intent);
-    }
-
     public boolean isDEBUG() {
         return DEBUG;
     }
 
     public void setDEBUG(boolean debug) {
         DEBUG = debug;
-    }
-
-    public void initUserInteraction() {
-        lastUserInteraction = System.currentTimeMillis();
-    }
-
-    public void updateUserInteractionTime() {
-
-        if (AppUtil.getInstance(context).isTimedOut()) {
-
-            if (!AppUtil.getInstance(context).isLocked()) {
-                Intent i = new Intent(context, PinEntryActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
-            }
-        } else
-            lastUserInteraction = System.currentTimeMillis();
-    }
-
-    public void clearUserInteractionTime() {
-        lastUserInteraction = 0L;
-    }
-
-    public boolean isTimedOut() {
-
-        boolean result = (System.currentTimeMillis() - lastUserInteraction) > TIMEOUT_DELAY;
-        return result;
-    }
-
-    public void timeOut() {
-        lastUserInteraction = 0L;
     }
 
     public String getReceiveQRFilename() {
@@ -155,16 +93,6 @@ public class AppUtil {
         if (file.exists()) {
             file.delete();
         }
-    }
-
-    public boolean isTimeForUpgradeReminder() {
-        long lastReminder = 0L;
-        try {
-            lastReminder = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
-        } catch (NumberFormatException nfe) {
-            lastReminder = 0L;
-        }
-        return (System.currentTimeMillis() - lastReminder) > UPGRADE_REMINDER_DELAY;
     }
 
     public void setUpgradeReminder(long ts) {
@@ -180,7 +108,6 @@ public class AppUtil {
     }
 
     public boolean isSane() {
-
         String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
 
         if (!guid.matches(REGEX_UUID)) {
@@ -198,7 +125,6 @@ public class AppUtil {
     }
 
     public boolean isCameraOpen() {
-
         Camera camera = null;
 
         try {
@@ -221,55 +147,34 @@ public class AppUtil {
     public void setSharedKey(String sharedKey) {
         PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
-    
+
     public boolean isNotUpgraded() {
         return PayloadFactory.getInstance().get() != null && !PayloadFactory.getInstance().get().isUpgraded();
     }
 
-    /*
-    Called from all activities' onPause
+    /**
+     * Called from all activities' onPause
      */
-    public void startLockTimer() {
-
-        if (AppUtil.getInstance(context).isTimedOut() || AppUtil.getInstance(context).isLocked()) return;
-
-        if (timer != null) {
-            timer.cancel();
-        }
-
-        if (allowLockTimer) {
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (context != null && !isLocked) {
-
-                        clearUserInteractionTime();
-
-                        if (inBackground) {
-                            ((Activity) context).finish();
-                        } else {
-                            Intent i = new Intent(context, PinEntryActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(i);
-                        }
-                    }
-                }
-            }, 2000);
-        }
+    public void startLogoutTimer() {
+        System.out.println("Starting logout timer...");
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT, logoutPendingIntent);
     }
 
-    /*
-    Called from all activities' onResume
+    /**
+     * Called from all activities' onResume
      */
-    public void stopLockTimer() {
+    public void stopLogoutTimer() {
+        System.out.println("Stopping logout timer...");
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(logoutPendingIntent);
+    }
 
-        inBackground = false;
-
-        //App is not backgrounded - interrupt thread
-        if (timer != null) {
-            timer.cancel();
-        }
+    public static void logout() {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setAction(LOGOUT_ACTION);
+        context.startActivity(intent);
     }
 
     public void applyPRNGFixes() {
@@ -285,7 +190,7 @@ public class AppUtil {
                 PRNGFixes.apply();
             } catch (Exception e1) {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                System.exit(0);
+                AppUtil.logout();
             }
         }
     }
