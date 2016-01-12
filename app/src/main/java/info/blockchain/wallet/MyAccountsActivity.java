@@ -373,6 +373,10 @@ public class MyAccountsActivity extends Activity {
             }
 
         } else {
+            if (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIndexResover.get(position)).isArchived()) {
+                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                return;
+            }
             ReceiveAddress currentSelectedReceiveAddress = null;
             try {
                 currentSelectedReceiveAddress = HDPayloadBridge.getInstance(MyAccountsActivity.this).getReceiveAddress(accountIndexResover.get(position));//1 header before accounts
@@ -540,13 +544,11 @@ public class MyAccountsActivity extends Activity {
 
                 String label = accountClone.get(i).getLabel();
                 if (label == null || label.length() == 0) label = "Account: " + (i + 1);
+                if (accountClone.get(i).isArchived()) label = context.getString(R.string.archived_label) + " " + label;
+                accountIndexResover.put(j, i);
+                j++;
+                accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
 
-                if (!accountClone.get(i).isArchived()) {
-                    accountIndexResover.put(j, i);
-                    j++;
-                    accountList.add(new MyAccountItem(label, displayBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
-                } else
-                    archivedCount++;
             }
             hdAccountsIdx = accountClone.size() - archivedCount;
         }
