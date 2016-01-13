@@ -12,6 +12,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
 
 import piuk.blockchain.android.R;
@@ -78,5 +79,11 @@ public class LandingActivity extends Activity {
             builder.create().show();
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 }

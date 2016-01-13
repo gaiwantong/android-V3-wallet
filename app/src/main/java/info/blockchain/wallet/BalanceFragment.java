@@ -275,8 +275,6 @@ public class BalanceFragment extends Fragment {
 
         AccountsUtil.getInstance(getActivity()).initAccountMaps();
 
-        AppUtil.getInstance(getActivity()).setAllowLockTimer(true);
-
         MainActivity.currentFragment = this;
 
         comm.resetNavigationDrawer();
@@ -852,7 +850,6 @@ public class BalanceFragment extends Fragment {
 
                         if (event.getAction() == MotionEvent.ACTION_UP && !strTx.isEmpty()) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-                            AppUtil.getInstance(getActivity()).setAllowLockTimer(false);
                             startActivity(browserIntent);
                         }
                         return true;

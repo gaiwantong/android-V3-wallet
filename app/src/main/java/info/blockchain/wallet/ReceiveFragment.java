@@ -509,8 +509,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     public void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(getActivity()).setAllowLockTimer(true);
-
         MainActivity.currentFragment = this;
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
@@ -933,7 +931,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             rowView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AppUtil.getInstance(getActivity()).setAllowLockTimer(false);
                     startActivity(repoDataArrayList.get(position).getIntent());
                 }
             });

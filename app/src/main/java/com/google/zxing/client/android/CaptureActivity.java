@@ -48,7 +48,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.PinEntryActivity;
 import info.blockchain.wallet.util.AppUtil;
 
 import java.io.IOException;
@@ -58,9 +57,9 @@ import java.util.Map;
 import piuk.blockchain.android.R;
 
 /**
- * This activity opens the camera and does the actual scanning on a background thread. It draws a
- * viewfinder to help the user place the barcode correctly, shows feedback as the image processing
- * is happening, and then overlays the results when a scan is successful.
+ * This activity opens the camera and does the actual scanning on a background thread. It draws a viewfinder to help the
+ * user place the barcode correctly, shows feedback as the image processing is happening, and then overlays the results
+ * when a scan is successful.
  *
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
@@ -145,13 +144,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if(AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
+        AppUtil.getInstance(this).stopLogoutTimer();
 
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
@@ -215,7 +208,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     @Override
     protected void onPause() {
 
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
 
         if (handler != null) {
             handler.quitSynchronously();
@@ -405,7 +398,10 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_flash_light:
-                try{toggleTorch();}catch (Exception e){}
+                try {
+                    toggleTorch();
+                } catch (Exception e) {
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -415,26 +411,15 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
-        if(hasFlashLight) {
+        if (hasFlashLight) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.scan_actions, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void toggleTorch(){
+    private void toggleTorch() {
         flashStatus = !flashStatus;
         cameraManager.setTorch(flashStatus);
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 }

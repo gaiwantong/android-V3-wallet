@@ -148,8 +148,8 @@ public class PinEntryActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).setIsLocked(true);
         cancelClicked(null);
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
@@ -157,8 +157,7 @@ public class PinEntryActivity extends Activity {
         if (allowExit) {
             exitClickCount++;
             if (exitClickCount == 2) {
-                AppUtil.getInstance(this).clearUserInteractionTime();
-                finish();
+                AppUtil.getInstance(this).logout();
             } else
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
@@ -274,7 +273,6 @@ public class PinEntryActivity extends Activity {
                     if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
                         PayloadFactory.getInstance().setTempPassword(pw);
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
-                        AppUtil.getInstance(PinEntryActivity.this).initUserInteraction();
 
                         if (AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
                                 (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
@@ -290,8 +288,7 @@ public class PinEntryActivity extends Activity {
                                     Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
-                                }
-                                else {
+                                } else {
                                     AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
                                 }
                             }
@@ -302,8 +299,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     Looper.loop();
-                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
-                    e.printStackTrace();
                 } finally {
                     dismissProgressView();
                 }
@@ -390,7 +385,6 @@ public class PinEntryActivity extends Activity {
                     dismissProgressView();
 
                     PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                    AppUtil.getInstance(PinEntryActivity.this).setIsLocked(false);
                     updatePayloadThread(password);
                 } else {
                     dismissProgressView();
@@ -473,8 +467,6 @@ public class PinEntryActivity extends Activity {
                     }
 
                     Looper.loop();
-                } catch (JSONException | IOException | DecoderException | AddressFormatException e) {
-                    e.printStackTrace();
                 } finally {
                     if (progress != null && progress.isShowing()) {
                         progress.dismiss();

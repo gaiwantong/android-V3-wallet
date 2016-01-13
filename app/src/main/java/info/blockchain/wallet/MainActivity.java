@@ -112,8 +112,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+
+        // Log out if started with the logout intent
+        if (getIntent().getAction() != null && AppUtil.LOGOUT_ACTION.equals(getIntent().getAction())) {
+            finish();
+            System.exit(0);
+            return;
+        }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
@@ -152,9 +158,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                                     } else {
                                         c = PinEntryActivity.class;
                                     }
-                                    Intent intent = new Intent(MainActivity.this, c);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
+                                    startSingleActivity(c);
                                 }
                             });
 
@@ -182,17 +186,13 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             if (PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                 PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                Intent intent = new Intent(MainActivity.this, LandingActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                startSingleActivity(LandingActivity.class);
             }
             //
             // No PIN ID? Treat as installed app without confirmed PIN
             //
             else if (PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
-                Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                startSingleActivity(PinEntryActivity.class);
             }
             //
             // Installed app, check sanity
@@ -224,7 +224,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             //
             // App has been PIN validated
             //
-            else if (isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn() && !AppUtil.getInstance(MainActivity.this).isTimedOut())) {
+            else if (isPinValidated || (AccessFactory.getInstance(MainActivity.this).isLoggedIn())) {
                 AccessFactory.getInstance(MainActivity.this).setIsLoggedIn(true);
 
                 this.setSessionId();
@@ -267,9 +267,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     }
                 }).start();
             } else {
-                Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                startSingleActivity(PinEntryActivity.class);
             }
         }
 
@@ -302,27 +300,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(MainActivity.this).stopLockTimer();
+        AppUtil.getInstance(MainActivity.this).stopLogoutTimer();
         AppUtil.getInstance(MainActivity.this).deleteQR();
 
-        AppUtil.getInstance(this).setAllowLockTimer(true);
-
-        if (AppUtil.getInstance(MainActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Class c = null;
-            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
-                c = LandingActivity.class;
-            } else {
-                c = PinEntryActivity.class;
-            }
-
-            Intent i = new Intent(MainActivity.this, c);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        } else {
-
-            if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
-                startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
-            }
+        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
+            startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
         }
 
         sendFragmentBitcoinAmountStorage = 0;
@@ -341,7 +323,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             }
         }
-
     }
 
     @Override
@@ -373,7 +354,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
-
         if (Build.VERSION.SDK_INT < 16) {
             return;
         }
@@ -495,15 +475,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
             exitClickCount++;
             if (exitClickCount == 2) {
-                AppUtil.getInstance(this).clearUserInteractionTime();
-
                 if (OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
 
-                finish();
-            } else
+                AppUtil.getInstance(this).logout();
+            } else {
                 ToastCustom.makeText(MainActivity.this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+            }
 
             new Thread(new Runnable() {
                 @Override
@@ -576,9 +555,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doExchangeRates() {
-
-        AppUtil.getInstance(this).setAllowLockTimer(false);
-
         if (hasZeroBlock()) {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
             startActivity(intent);
@@ -599,9 +575,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void scanURI() {
-
-        AppUtil.getInstance(this).setAllowLockTimer(false);
-
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intent, SCAN_URI);
     }
@@ -884,9 +857,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
                     PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-                    Intent intent = new Intent(MainActivity.this, PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    startSingleActivity(PinEntryActivity.class);
                     finish();
 
                     alertDialog.dismiss();
@@ -923,8 +894,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             @Override
             public void onClick(View v) {
 
-                AppUtil.getInstance(MainActivity.this).clearUserInteractionTime();
-
                 if (OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
                     stopService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
                 }
@@ -936,7 +905,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.service.WebSocketService.class));
 
-                AppUtil.getInstance(MainActivity.this).setIsLocked(true);
                 AppUtil.getInstance(MainActivity.this).restartApp();
 
                 alertDialog.dismiss();
@@ -961,19 +929,16 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doMyAccounts() {
-
         Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
         startActivity(intent);
     }
 
     private void doSupport() {
-
         Intent intent = new Intent(MainActivity.this, SupportActivity.class);
         startActivity(intent);
     }
 
     private void doBackupWallet() {
-
         Intent intent = new Intent(MainActivity.this, BackupWalletActivity.class);
         startActivityForResult(intent, REQUEST_BACKUP);
     }
@@ -1036,19 +1001,14 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
+    private void startSingleActivity(Class clazz) {
+        Intent intent = new Intent(MainActivity.this, clazz);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

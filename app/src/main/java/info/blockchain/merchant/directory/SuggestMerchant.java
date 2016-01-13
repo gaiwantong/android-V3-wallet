@@ -8,7 +8,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.location.Address;
 import android.location.Geocoder;
@@ -238,24 +237,12 @@ public class SuggestMerchant extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, info.blockchain.wallet.PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -346,11 +333,6 @@ public class SuggestMerchant extends ActionBarActivity {
             Log.e("", "", e);
             ToastCustom.makeText(SuggestMerchant.this, getString(R.string.address_lookup_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
     }
 
     private class MyLocationListener implements LocationListener {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -65,6 +66,7 @@ public class BackupWalletFragment3 extends Fragment {
                     getFragmentManager().popBackStack();
                     getFragmentManager().popBackStack();
 
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                 } else
                     ToastCustom.makeText(getActivity(), getString(R.string.backup_word_mismatch), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 

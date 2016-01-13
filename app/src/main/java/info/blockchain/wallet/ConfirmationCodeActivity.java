@@ -251,7 +251,6 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     }
 
     public void forgetClicked(View view) {
-        AppUtil.getInstance(this).setIsLocked(true);
         AppUtil.getInstance(this).clearCredentialsAndRestart();
     }
 
@@ -278,25 +277,14 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     }
 
     @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-
-        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
-            AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-
-        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
-            AppUtil.getInstance(this).stopLockTimer();
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
-            AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }
