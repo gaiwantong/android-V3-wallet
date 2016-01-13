@@ -482,7 +482,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                             }
                                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        edDestination.setText("");;
+                                        edDestination.setText("");
                                     }
                                 }).show();
 
