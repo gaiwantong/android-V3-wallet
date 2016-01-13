@@ -385,6 +385,9 @@
 
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
+    <string name="watchonly_address_spend_warning">This address is a watch only. You can spend from it via the Blockchain web wallet.</string>
+    <string name="watchonly_address_receive_warning">You are about to receive to a watch only address. You can only spend these funds if you have access to the private key. Continue?</string>
+
     <string name="PENDING">PENDING</string>
     <string name="COMPLETE">COMPLETE</string>
 
