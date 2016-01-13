@@ -143,12 +143,15 @@ public class AccountsUtil {
                     }
 
                     //Consolidate legacy addresses into instance of Account (Imported Addresses) and add to dropdown list
-                    ImportedAccount importedAddresses = new ImportedAccount(legacyAddress.getLabel(), new ArrayList<>(Arrays.asList(legacyAddress)), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress()));
-                    importedAddresses.setLabel(labelOrAddress);
-                    balanceAccountMap.put(accountIndex, importedAddresses);
-                    balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
-                    spinnerIndex++;
-                    accountIndex++;
+                    if (legacyAddress.getTag() != PayloadFactory.ARCHIVED_ADDRESS) {
+                        ImportedAccount importedAddresses = new ImportedAccount(legacyAddress.getLabel(), new ArrayList<>(Arrays.asList(legacyAddress)), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress()));
+                        importedAddresses.setLabel(labelOrAddress);
+                        balanceAccountMap.put(accountIndex, importedAddresses);
+                        balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
+                        spinnerIndex++;
+                        accountIndex++;
+                    }
+
                 }
             }
         }
