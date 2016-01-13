@@ -61,9 +61,7 @@ public class HDPayloadBridge {
         return instance;
     }
 
-    // TODO check if it actually throws any of these exceptions
-    public boolean init(CharSequenceX password) throws JSONException, IOException, DecoderException,
-            AddressFormatException {
+    public boolean init(CharSequenceX password) {
 
         PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, ""),
                 AppUtil.getInstance(context).getSharedKey(),
@@ -94,7 +92,6 @@ public class HDPayloadBridge {
             DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException,
             MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
 
-        // TODO this should be checked in calling code, not here
         if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false)) {
             return true;
         }

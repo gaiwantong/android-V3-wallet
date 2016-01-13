@@ -179,7 +179,6 @@ public class AccountActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AccountManagerActivity.class);
             intent.putExtra("account_index",accountIndexResover.get(position));
             startActivity(intent);
-            finish();
         }
     }
 
@@ -354,13 +353,12 @@ public class AccountActivity extends AppCompatActivity {
 
                 String label = accountClone.get(i).getLabel();
                 if (label == null || label.length() == 0) label = "Account: " + (i + 1);
+                if (accountClone.get(i).isArchived())
+                    label = context.getString(R.string.archived_label) + " " + label;
 
-                if (!accountClone.get(i).isArchived()) {
-                    accountIndexResover.put(j, i);
-                    j++;
-                    accountList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
-                } else
-                    archivedCount++;
+                accountIndexResover.put(j, i);
+                j++;
+                accountList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
             }
             hdAccountsIdx = accountClone.size() - archivedCount;
         }
@@ -424,19 +422,13 @@ public class AccountActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        AppUtil.getInstance(this).stopLockTimer();
-
-        if (AppUtil.getInstance(this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(this, PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
+        AppUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -810,13 +802,11 @@ public class AccountActivity extends AppCompatActivity {
                         updateAndRecreate(legacy);
                     } else {
                         ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(AccountActivity.this).timeOut();
                         AppUtil.getInstance(AccountActivity.this).restartApp();
                     }
                 } else {
-//                    ToastCustom.makeText(MyAccountsActivity.this, MyAccountsActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+//                    ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(AccountActivity.this).timeOut();
                     AppUtil.getInstance(AccountActivity.this).restartApp();
                 }
 
@@ -826,16 +816,4 @@ public class AccountActivity extends AppCompatActivity {
             }
         }.execute();
     }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
-    }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
-    }
-
 }

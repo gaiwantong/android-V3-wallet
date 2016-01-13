@@ -65,7 +65,6 @@ public class BackupWalletFragment1 extends Fragment {
                                             new CharSequenceX(pw),
                                             PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
 
-                                        // TODO need to reset when done - that may be hard
                                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                         getFragmentManager().beginTransaction()

@@ -143,12 +143,15 @@ public class AccountsUtil {
                     }
 
                     //Consolidate legacy addresses into instance of Account (Imported Addresses) and add to dropdown list
-                    ImportedAccount importedAddresses = new ImportedAccount(legacyAddress.getLabel(), new ArrayList<>(Arrays.asList(legacyAddress)), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress()));
-                    importedAddresses.setLabel(labelOrAddress);
-                    balanceAccountMap.put(accountIndex, importedAddresses);
-                    balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
-                    spinnerIndex++;
-                    accountIndex++;
+                    if (legacyAddress.getTag() != PayloadFactory.ARCHIVED_ADDRESS) {
+                        ImportedAccount importedAddresses = new ImportedAccount(legacyAddress.getLabel(), new ArrayList<>(Arrays.asList(legacyAddress)), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress()));
+                        importedAddresses.setLabel(labelOrAddress);
+                        balanceAccountMap.put(accountIndex, importedAddresses);
+                        balanceAccountIndexResolver.put(spinnerIndex, accountIndex);
+                        spinnerIndex++;
+                        accountIndex++;
+                    }
+
                 }
             }
         }
@@ -188,8 +191,18 @@ public class AccountsUtil {
 
         //Add individual legacy addresses
         ImportedAccount iAccount = null;
-        if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-            iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+
+        List<LegacyAddress> legAddList = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legAddListFiltered = new ArrayList<LegacyAddress>();
+
+        for (LegacyAddress ad : legAddList) {
+            if (ad.getTag() != PayloadFactory.ARCHIVED_ADDRESS) {
+                legAddListFiltered.add(ad);
+            }
+        }
+
+        if (legAddListFiltered.size() > 0) {
+            iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), legAddListFiltered, new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
         if (iAccount != null) {
             legacyAddresses = iAccount.getLegacyAddresses();
@@ -198,16 +211,14 @@ public class AccountsUtil {
                 String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
                 if (legacyAddress.isWatchOnly()) {
                     labelOrAddress = context.getString(R.string.watch_only_label) + " " + labelOrAddress;
-                } else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                    labelOrAddress = context.getString(R.string.archived_label) + " " + labelOrAddress;
                 }
                 sendReceiveAccountList.add(labelOrAddress);
             }
-        } else if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-            sendReceiveAccountList.add((PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel() == null)
-                    || (PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel().length() == 0)
-                    ? PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getAddress()
-                    : PayloadFactory.getInstance().get().getLegacyAddresses().get(0).getLabel());
+        } else if (legAddListFiltered.size() > 0) {
+            sendReceiveAccountList.add((legAddListFiltered.get(0).getLabel() == null)
+                    || (legAddListFiltered.get(0).getLabel().length() == 0)
+                    ? legAddListFiltered.get(0).getAddress()
+                    : legAddListFiltered.get(0).getLabel());
         }
     }
 

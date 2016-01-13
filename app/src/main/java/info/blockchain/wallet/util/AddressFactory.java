@@ -70,11 +70,6 @@ public class AddressFactory {
             } else {
                 addr = double_encryption_wallet.getAccount(accountIdx).getChain(AddressFactory.RECEIVE_CHAIN).getAddressAt(idx);
             }
-            if (((idx - MultiAddrFactory.getInstance().getHighestTxReceiveIdx(PayloadFactory.getInstance().get().getAccount2Xpub().get(accountIdx))) < (LOOKAHEAD_GAP - 1))) {
-//                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incReceive();
-                PayloadBridge.getInstance(context).remoteSaveThread();
-            }
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
             ToastCustom.makeText(context, context.getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);

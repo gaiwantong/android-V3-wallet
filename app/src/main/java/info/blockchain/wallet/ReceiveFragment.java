@@ -1,5 +1,10 @@
 package info.blockchain.wallet;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -43,11 +48,18 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.util.AccountsUtil;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -68,16 +80,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.util.AccountsUtil;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
 import piuk.blockchain.android.R;
 
 public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
@@ -509,8 +511,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     public void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(getActivity()).setAllowLockTimer(true);
-
         MainActivity.currentFragment = this;
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
@@ -542,14 +542,28 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
             //Legacy addresses
 
-            LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+            final LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
 
             if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                 spAccounts.setSelection(0);
                 ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
             } else if (legacyAddress.isWatchOnly()) {
-                spAccounts.setSelection(0);
-                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.app_name)
+                        .setCancelable(false)
+                        .setMessage(R.string.watchonly_address_receive_warning)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                currentSelectedAddress = legacyAddress.getAddress();
+                                displayQRCode();
+                            }
+                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        spAccounts.setSelection(0);
+                    }
+                }).show();
+
             } else {
                 currentSelectedAddress = legacyAddress.getAddress();
                 displayQRCode();
@@ -933,7 +947,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             rowView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AppUtil.getInstance(getActivity()).setAllowLockTimer(false);
                     startActivity(repoDataArrayList.get(position).getIntent());
                 }
             });

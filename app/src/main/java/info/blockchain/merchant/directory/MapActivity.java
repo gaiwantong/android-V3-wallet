@@ -194,7 +194,13 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
                 tvDesc.setText(b.desc);
 
                 tvName.setText(b.name);
-                switch (Integer.parseInt(b.hc)) {
+                int category;
+                try {
+                    category = Integer.parseInt(b.hc);
+                } catch (Exception e) {
+                    category = 0;
+                }
+                switch (category) {
                     case BTCBusiness.HEADING_CAFE:
                         tvName.setTextColor(color_cafe_selected);
                         break;
@@ -375,26 +381,14 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLockTimer();
+        AppUtil.getInstance(this).stopLogoutTimer();
 
         launchedList = false;
-
-        if (AppUtil.getInstance(MapActivity.this).isTimedOut() && !AppUtil.getInstance(this).isLocked()) {
-            Intent i = new Intent(MapActivity.this, info.blockchain.wallet.PinEntryActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        AppUtil.getInstance(this).updateUserInteractionTime();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLockTimer();
+        AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -665,10 +659,4 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
         intent.putExtra("ULON", currLocation.getLongitude());
         startActivity(intent);
     }
-
-    @Override
-    public void onUserLeaveHint() {
-        AppUtil.getInstance(this).setInBackground(true);
-    }
-
 }
