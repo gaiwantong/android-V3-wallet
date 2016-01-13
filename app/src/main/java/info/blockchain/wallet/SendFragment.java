@@ -397,7 +397,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 if (legacyAddress.isWatchOnly()) {
                                     spAccounts.setSelection(0);
-                                    ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                    ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address_spend_warning), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     return;
                                 } else if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                                     spAccounts.setSelection(0);
@@ -1503,10 +1503,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
             if (position >= hdAccountsIdx) {
                 LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx);
+                if(legacyAddress.isWatchOnly())labelText = getActivity().getString(R.string.watch_only_label);
                 if (legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
-                    labelText = legacyAddress.getLabel();
+                    labelText += legacyAddress.getLabel();
                 } else {
-                    labelText = legacyAddress.getAddress();
+                    labelText += legacyAddress.getAddress();
                 }
             } else {
                 Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
