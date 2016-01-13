@@ -59,7 +59,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 
 import piuk.blockchain.android.R;
@@ -70,10 +69,11 @@ public class AccountActivity extends AppCompatActivity {
 
     public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
     private static final int IMPORT_PRIVATE_KEY = 2006;
-    public static String ACCOUNT_HEADER;
-    public static String IMPORTED_HEADER;
+
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
+
     private static String[] HEADERS;
+    public static String IMPORTED_HEADER;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -98,7 +98,6 @@ public class AccountActivity extends AppCompatActivity {
     private int hdAccountsIdx;
     private List<LegacyAddress> legacy = null;
     private ProgressDialog progress = null;
-    private HashMap<Integer, Integer> accountIndexResover;
     private Context context = null;
 
     @Override
@@ -112,12 +111,10 @@ public class AccountActivity extends AppCompatActivity {
 
         initToolbar();
 
-        // Empty header for accounts for now
-        ACCOUNT_HEADER = "";
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
         if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded())
-            HEADERS = new String[]{ACCOUNT_HEADER, IMPORTED_HEADER};
+            HEADERS = new String[]{IMPORTED_HEADER};
         else
             HEADERS = new String[0];
 
@@ -158,28 +155,18 @@ public class AccountActivity extends AppCompatActivity {
         } else {
             toolbar.setTitle(getResources().getString(R.string.my_addresses));
         }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
         setSupportActionBar(toolbar);
     }
 
     private void onRowClick(int position){
 
+        Intent intent = new Intent(this, AccountManagerActivity.class);
         if (position - HEADERS.length >= hdAccountsIdx) {//2 headers before imported
-
-            Intent intent = new Intent(this, AccountManagerActivity.class);
             intent.putExtra("address_index", position - HEADERS.length - hdAccountsIdx);
-            startActivity(intent);
-
         } else {
-            Intent intent = new Intent(this, AccountManagerActivity.class);
-            intent.putExtra("account_index",accountIndexResover.get(position));
-            startActivity(intent);
+            intent.putExtra("account_index", position);
         }
+        startActivity(intent);
     }
 
     @Override
@@ -198,6 +185,9 @@ public class AccountActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
             case R.id.action_import_address:
                 importAddress();
                 return true;
@@ -328,13 +318,6 @@ public class AccountActivity extends AppCompatActivity {
         headerPositions = new ArrayList<Integer>();
 
         List<AccountItem> accountList = new ArrayList<AccountItem>();
-        accountIndexResover = new HashMap<>();
-
-        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
-            //First Header Position - HD
-            headerPositions.add(0);
-            accountList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
-        }
 
         int i = 0;
         if (PayloadFactory.getInstance().get().isUpgraded()) {
@@ -356,7 +339,6 @@ public class AccountActivity extends AppCompatActivity {
                 if (accountClone.get(i).isArchived())
                     label = context.getString(R.string.archived_label) + " " + label;
 
-                accountIndexResover.put(j, i);
                 j++;
                 accountList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
             }
@@ -372,7 +354,7 @@ public class AccountActivity extends AppCompatActivity {
             if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountList.size());
-                accountList.add(new AccountItem(HEADERS[1], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+                accountList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
             }
 
             legacy = iAccount.getLegacyAddresses();

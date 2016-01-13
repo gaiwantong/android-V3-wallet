@@ -433,5 +433,9 @@
     <string name="support_guide">Please describe in detail the issue you are experiencing, along with any steps we can take to reproduce it.</string>
     <string name="label">Label</string>
     <string name="rename_address">Rename Address</string>
+    <string name="edit">Edit</string>
+    <string name="enter_label">enter label</string>
+    <string name="label_cant_be_empty">Label can\'t be blank.</string>
+    <string name="saving_changes">Saving changes...</string>
 
 </resources>

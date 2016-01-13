@@ -4,15 +4,32 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
+import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.ToastCustom;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import piuk.blockchain.android.R;
 
 public class AccountManagerActivity extends AppCompatActivity {
 
+    private EditText etLabel = null;
     private TextView tvSave = null;
     private TextView tvCancel = null;
+
+    private Account account = null;
+    private LegacyAddress legacyAddress = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,13 +39,23 @@ public class AccountManagerActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         initToolbar();
+        getIntentData();
+        setupViews();
+    }
+
+    private void setupViews() {
+        etLabel = (EditText) findViewById(R.id.account_name);
+
+        if (account != null)
+            etLabel.setText(account.getLabel());
+        else if (legacyAddress != null)
+            etLabel.setText(legacyAddress.getLabel());
 
         tvSave = (TextView) findViewById(R.id.confirm_save);
         tvSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveChanges();
-                finish();
             }
         });
 
@@ -40,45 +67,81 @@ public class AccountManagerActivity extends AppCompatActivity {
             }
         });
 
-        //TODO catch intent
-        getIntent().getIntExtra("address_index", -1);
-        getIntent().getIntExtra("account_index",-1);
+    }
+
+    private void getIntentData() {
+
+        int accountIndex = getIntent().getIntExtra("account_index", -1);
+        int addressIndex = getIntent().getIntExtra("address_index", -1);
+
+        if (accountIndex >= 0) {
+
+            //V3
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+
+            //Remove "All"
+            List<Account> accountClone = new ArrayList<Account>(accounts.size());
+            accountClone.addAll(accounts);
+
+            if (accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
+                accountClone.remove(accountClone.size() - 1);
+            }
+
+            account = accountClone.get(accountIndex);
+
+        } else if (addressIndex >= 0) {
+
+            //V2
+            ImportedAccount iAccount = null;
+            if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+                iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+            }
+            if (iAccount != null) {
+
+                List<LegacyAddress> legacy = iAccount.getLegacyAddresses();
+                legacyAddress = legacy.get(addressIndex);
+            }
+        }
     }
 
     private void initToolbar() {
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        toolbar.setTitle(getResources().getString(R.string.rename_address));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        toolbar.setTitle(getResources().getString(R.string.edit));
         setSupportActionBar(toolbar);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void saveChanges() {
 
-//        LegacyAddress legacyAddress = legacy.get(position - HEADERS.length - hdAccountsIdx);
-//
-//            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-//                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-//                return;
-//            } else if (legacyAddress.isWatchOnly()) {
-//                ToastCustom.makeText(MyAccountsActivity.this, getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-//                return;
-//            } else {
-//                currentSelectedAddress = legacyAddress.getAddress();
-//            }
-//        legacyAddress.setLabel("");
+        String newLabel = etLabel.getText().toString();
 
+        if (newLabel.isEmpty()) {
 
-        //OR
+            ToastCustom.makeText(this,getString(R.string.label_cant_be_empty),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_ERROR);
 
+        } else {
+            if (legacyAddress != null) {
+                legacyAddress.setLabel(newLabel);
+            } else if (account != null) {
+                account.setLabel(newLabel);
+            }
 
-//        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIndexResover.get(position)).setLabel("Hello 1");
-//        PayloadBridge.getInstance(context).remoteSaveThread();
+            ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);
+            PayloadBridge.getInstance(this).remoteSaveThread();
+            finish();
 
+            //TODO - after this AccountActivity needs to refresh
+        }
     }
 }

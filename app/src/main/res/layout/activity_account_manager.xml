@@ -26,11 +26,10 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:singleLine="true"
-                android:password="true"
                 android:gravity="center_vertical"
-                android:textCursorDrawable="@null"
-                android:textColor="@color/blockchain_grey">
-            <requestFocus />
+                android:hint="@string/enter_label"
+                android:textCursorDrawable="@null">
+            <requestFocus/>
         </EditText>
 
     </LinearLayout>
