@@ -551,6 +551,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.app_name)
+                        .setCancelable(false)
                         .setMessage(R.string.watchonly_address_receive_warning)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {

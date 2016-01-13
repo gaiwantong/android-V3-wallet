@@ -475,6 +475,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 new AlertDialog.Builder(getActivity())
                                         .setTitle(R.string.app_name)
+                                        .setCancelable(false)
                                         .setMessage(R.string.watchonly_address_receive_warning)
                                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
