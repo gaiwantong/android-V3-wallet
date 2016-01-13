@@ -465,15 +465,27 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
                             //Legacy addresses
-                            LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+                            final LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
 
                             if (account.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
                                 edDestination.setText("");
                                 ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                 return;
                             } else if (account.isWatchOnly()) {
-                                edDestination.setText("");
-                                ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle(R.string.app_name)
+                                        .setMessage(R.string.watchonly_address_receive_warning)
+                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                edDestination.setText(account.getAddress());
+                                            }
+                                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        edDestination.setText("");;
+                                    }
+                                }).show();
+
                                 return;
                             } else {
                                 currentSelectedToAddress = account.getAddress();
