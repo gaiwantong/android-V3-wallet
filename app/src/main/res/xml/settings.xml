@@ -35,4 +35,9 @@
         android:summary="@string/verify_email2"
         android:key="verify_email"
         />
+    <CheckBoxPreference
+        android:title="@string/disable_root_warning"
+        android:summary="@string/disable_root_warning2"
+        android:key="disable_root_warning"
+        />
 </PreferenceScreen>
