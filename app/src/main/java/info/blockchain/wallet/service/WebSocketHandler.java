@@ -158,11 +158,18 @@ public class WebSocketHandler {
         new ConnectionTask().execute();
     }
 
-    private void updateBalance() {
+    private void updateBalancesAndTransactions() {
+
         new Thread() {
             public void run() {
 
                 Looper.prepare();
+
+                try {
+                    HDPayloadBridge.getInstance().updateBalancesAndTransactions();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
@@ -288,7 +295,7 @@ public class WebSocketHandler {
                                             NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
                                         }
 
-                                        updateBalance();
+                                        updateBalancesAndTransactions();
 
                                     } else if (op.equals("on_change")) {
 
@@ -305,10 +312,7 @@ public class WebSocketHandler {
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                updateBalance();
-
-                                                Intent intent = new Intent("info.blockchain.wallet.MyAccountsActivity.REFRESH");
-                                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                                updateBalancesAndTransactions();
                                             }
 
                                             onChangeHashSet.add(message);
