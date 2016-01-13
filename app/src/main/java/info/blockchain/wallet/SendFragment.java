@@ -141,10 +141,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
 
-                //Default to 'Total Funds' for lame mode
-                if (AppUtil.getInstance(getActivity()).isNotUpgraded())
-                    AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
-
                 Fragment fragment = new BalanceFragment();
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -447,11 +443,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
 
                 spDestination.setDropDownWidth(spAccounts.getWidth());
-
-                if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                    LinearLayout fromRow = (LinearLayout) rootView.findViewById(R.id.from_row);
-                    fromRow.setVisibility(View.GONE);
-                }
             }
         });
 
@@ -794,12 +785,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
             }
         } else {
-            long _lamount = 0L;
-            if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                _lamount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
-            } else {
-                _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
-            }
+            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
 
             if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendCoins.bFee.longValue()) > _lamount) {
                 if (showMessages) {
@@ -842,11 +828,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         long amount = 0L;
         int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
         if (position >= hdAccountsIdx) {
-            if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                amount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
-            } else {
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx).getAddress());
-            }
         } else {
             String xpub = account2Xpub(position);
             if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
@@ -1316,11 +1298,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if (sendSuccess) {
-            //Default to 'Total Funds' for lame mode
-            if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
-            }
-
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -1364,11 +1341,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         } else {
             long _lamount = 0L;
-            if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                _lamount = MultiAddrFactory.getInstance().getLegacyActiveBalance();
-            } else {
                 _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
-            }
 
             if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendCoins.bFee.longValue()) > _lamount) {
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
