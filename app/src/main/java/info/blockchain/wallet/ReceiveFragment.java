@@ -550,10 +550,10 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             } else if (legacyAddress.isWatchOnly()) {
 
                 new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.app_name)
+                        .setTitle(R.string.warning)
                         .setCancelable(false)
                         .setMessage(R.string.watchonly_address_receive_warning)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 currentSelectedAddress = legacyAddress.getAddress();
                                 displayQRCode();

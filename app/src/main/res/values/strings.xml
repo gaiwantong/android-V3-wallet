@@ -433,5 +433,6 @@
 
     <string name="cannot_launch_app">Blockchain Wallet cannot be run on this device.</string>
     <string name="support_guide">Please describe in detail the issue you are experiencing, along with any steps we can take to reproduce it.</string>
+    <string name="warning">Warning</string>
 
 </resources>
