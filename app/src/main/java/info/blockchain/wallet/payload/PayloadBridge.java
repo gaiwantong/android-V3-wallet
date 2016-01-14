@@ -81,7 +81,7 @@ public class PayloadBridge {
         List<org.bitcoinj.core.bip44.Account> hdAccounts = hdw.getAccounts();
         List<info.blockchain.wallet.payload.Account> payloadAccounts = new ArrayList<info.blockchain.wallet.payload.Account>();
         for (int i = 0; i < hdAccounts.size(); i++) {
-            info.blockchain.wallet.payload.Account account = new info.blockchain.wallet.payload.Account();
+            info.blockchain.wallet.payload.Account account = new info.blockchain.wallet.payload.Account(context.getString(R.string.default_wallet_name));
             try {
                 String xpub = WalletFactory.getInstance().get().getAccounts().get(i).xpubstr();
                 account.setXpub(xpub);

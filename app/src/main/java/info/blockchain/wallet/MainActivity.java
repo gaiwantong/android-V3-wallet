@@ -123,7 +123,9 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-        if (RootUtil.getInstance().isDeviceRooted() && rootedAlertDialog == null) {
+        if (RootUtil.getInstance().isDeviceRooted() &&
+                !PrefsUtil.getInstance(this).getValue("disable_root_warning", false)
+                && rootedAlertDialog == null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setMessage(getString(R.string.device_rooted))

@@ -25,6 +25,7 @@ import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
@@ -310,8 +311,17 @@ public class SettingsActivity extends PreferenceActivity {
 
         PreferenceScreen scr = getPreferenceScreen();
         Preference verifyEmail = (Preference) findPreference("verify_email");
-        if (scr != null && verifyEmail != null && !PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false))
+        if (scr != null && verifyEmail != null &&
+                !PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
             scr.removePreference(verifyEmail);
+        }
+
+        // Only show the disable rooted phone warning setting if the phone is rooted
+        Preference disableRootWarning = (Preference) findPreference("disable_root_warning");
+        if (scr != null && disableRootWarning != null &&
+                !RootUtil.getInstance().isDeviceRooted()) {
+            scr.removePreference(disableRootWarning);
+        }
     }
 
     @Override

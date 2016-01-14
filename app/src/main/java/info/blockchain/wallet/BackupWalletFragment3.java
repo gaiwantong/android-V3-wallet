@@ -65,8 +65,6 @@ public class BackupWalletFragment3 extends Fragment {
                     getActivity().setResult(Activity.RESULT_OK);
                     getFragmentManager().popBackStack();
                     getFragmentManager().popBackStack();
-
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                 } else
                     ToastCustom.makeText(getActivity(), getString(R.string.backup_word_mismatch), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
