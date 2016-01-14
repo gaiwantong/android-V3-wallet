@@ -11,7 +11,7 @@ import java.util.HashMap;
 //import android.util.Log;
 
 /**
- * This class obtains info on the currencies communicated via http://blockchain.info/ticker.
+ * This class obtains info on the currencies communicated via https://blockchain.info/ticker
  */
 public class ExchangeRateFactory {
 
@@ -25,7 +25,7 @@ public class ExchangeRateFactory {
     private static ExchangeRateFactory instance = null;
 
     /**
-     * Currencies handles by http://blockchain.info/ticker
+     * Currencies handles by https://blockchain.info/ticker
      */
     private static String[] currencies = {
             "AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "DKK", "EUR", "GBP", "HKD",
