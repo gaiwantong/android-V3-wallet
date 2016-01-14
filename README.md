@@ -22,8 +22,6 @@ to `~/Library/Preferences/AndroidStudio1.5/codestyles/` (on Mac OS X).
 
 ### Notes
 
-Bitcoinj version used is 0.13.2 . Compiled from repo source.
-
 HD classes extending Bitcoinj for BIP44 supplied using https://github.com/blockchain/bitcoinj-bip44-extension : full BIP39/BIP44 support, including passphrases. Fully tested for compatibility with known BIP44 wallets: Mycelium, Wallet32, Coinomi, Trezor (hardware), Ledger (hardware) Includes support for initializing accounts using XPUB values.
 
 info.blockchain.wallet.payload: Up-to-date with latest changes from Sjors (as of 9 April 2015).
