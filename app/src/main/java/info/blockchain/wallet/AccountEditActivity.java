@@ -15,6 +15,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ToastCustom;
 
 import java.util.ArrayList;
@@ -152,5 +153,17 @@ public class AccountEditActivity extends AppCompatActivity {
             setResult(RESULT_OK);
             finish();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).stopLogoutTimer();
+    }
+
+    @Override
+    public void onPause() {
+        AppUtil.getInstance(this).startLogoutTimer();
+        super.onPause();
     }
 }
