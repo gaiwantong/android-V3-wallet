@@ -221,6 +221,10 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
             surfaceHolder.removeCallback(this);
         }
+
+        // Close scanner when going to background
+        finish();
+
         super.onPause();
     }
 
