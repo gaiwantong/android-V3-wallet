@@ -50,6 +50,12 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        AppUtil.getInstance(this).stopLogoutTimer();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
