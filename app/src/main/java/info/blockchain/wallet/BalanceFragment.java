@@ -176,6 +176,7 @@ public class BalanceFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                updateAccountSpinner();
                                 updateBalanceAndTransactionList(intent);
                             }
                         });
@@ -240,7 +241,9 @@ public class BalanceFragment extends Fragment {
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.VISIBLE);
             int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-            if (currentSelected < 0) currentSelected = 0;
+            if (currentSelected < 0 || currentSelected >= accountList.size()) {
+                currentSelected = 0;
+            }
             accountSpinner.setSelection(currentSelected);
         } else {
             //Single account - no spinner
@@ -291,16 +294,8 @@ public class BalanceFragment extends Fragment {
             thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.service.WebSocketService.class));
         }
 
-        accountList = setAccountSpinner();
-
         updateBalanceAndTransactionList(null);
-
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
-        accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
-        accountSpinner.setAdapter(accountsAdapter);
-        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
-        accountsAdapter.notifyDataSetChanged();
-        txAdapter.notifyDataSetChanged();
+        updateAccountSpinner();
     }
 
     @Override
@@ -331,7 +326,7 @@ public class BalanceFragment extends Fragment {
 
                 //Balance = all xpubs + all legacy address balances
                 btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-            }else {
+            } else {
                 //Add all legacy transactions
                 txs = MultiAddrFactory.getInstance().getLegacyTxs();
                 //Balance = all legacy address balances
@@ -357,7 +352,7 @@ public class BalanceFragment extends Fragment {
                     if (PayloadFactory.getInstance().get().isUpgraded()) {
                         txs = MultiAddrFactory.getInstance().getLegacyTxs();//V3 get all address' txs and balance
                         btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-                    }else {
+                    } else {
 
                         int LegacyIndex = selectedAccountIndex - AccountsUtil.getLastHDIndex();
                         LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(LegacyIndex);
@@ -438,12 +433,21 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-    private String account2Xpub(int accountIndex) {
+    private void updateAccountSpinner() {
+        accountList = setAccountSpinner();
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+        accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
+        accountSpinner.setAdapter(accountsAdapter);
+        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
+        accountsAdapter.notifyDataSetChanged();
+        txAdapter.notifyDataSetChanged();
+    }
 
+    private String account2Xpub(int accountIndex) {
         LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
         Account hda = accountMap.get(accountIndex);
         String xpub = null;
-        if (hda instanceof ImportedAccount) {
+        if (!PayloadFactory.getInstance().get().isUpgraded() || hda instanceof ImportedAccount) {
             xpub = null;
         } else {
             xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
