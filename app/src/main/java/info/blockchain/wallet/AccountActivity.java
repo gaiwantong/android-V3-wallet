@@ -94,7 +94,8 @@ public class AccountActivity extends AppCompatActivity {
     };
     private LinearLayoutManager layoutManager = null;
     private RecyclerView mRecyclerView = null;
-    private List<AccountItem> accountsAndImportedList = null;
+    private ArrayList<AccountItem> accountsAndImportedList = null;
+    private AccountAdapter accountsAdapter = null;
     private ArrayList<Integer> headerPositions;
     private int hdAccountsIdx;
     private List<LegacyAddress> legacy = null;
@@ -123,14 +124,9 @@ public class AccountActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        ArrayList<AccountItem> accountItems = new ArrayList<>();
-        accountsAndImportedList = getAccounts();
-
-        for (AccountItem item : accountsAndImportedList) {
-            accountItems.add(item);
-        }
-
-        AccountAdapter accountsAdapter = new AccountAdapter(accountItems);
+        accountsAndImportedList = new ArrayList<>();
+        updateAccountsList();
+        accountsAdapter = new AccountAdapter(accountsAndImportedList);
         mRecyclerView.setAdapter(accountsAdapter);
 
         mRecyclerView.addOnItemTouchListener(
@@ -314,11 +310,12 @@ public class AccountActivity extends AppCompatActivity {
 
     }
 
-    private List<AccountItem> getAccounts() {
+    private void updateAccountsList() {
 
         headerPositions = new ArrayList<Integer>();
 
-        List<AccountItem> accountList = new ArrayList<AccountItem>();
+        //accountsAndImportedList is linked to AccountAdapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        accountsAndImportedList.clear();
 
         int i = 0;
         if (PayloadFactory.getInstance().get().isUpgraded()) {
@@ -341,7 +338,7 @@ public class AccountActivity extends AppCompatActivity {
                     label = context.getString(R.string.archived_label) + " " + label;
 
                 j++;
-                accountList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
+                accountsAndImportedList.add(new AccountItem(label, getAccountBalance(i), getResources().getDrawable(R.drawable.icon_accounthd)));
             }
             hdAccountsIdx = accountClone.size() - archivedCount;
         }
@@ -354,8 +351,8 @@ public class AccountActivity extends AppCompatActivity {
 
             if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
                 //Imported Header Position
-                headerPositions.add(accountList.size());
-                accountList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
+                headerPositions.add(accountsAndImportedList.size());
+                accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd)));
             }
 
             legacy = iAccount.getLegacyAddresses();
@@ -370,11 +367,16 @@ public class AccountActivity extends AppCompatActivity {
                     label = context.getString(R.string.archived_label) + " " + label;
                 }
 
-                accountList.add(new AccountItem(label, getAddressBalance(j), getResources().getDrawable(R.drawable.icon_imported)));
+                accountsAndImportedList.add(new AccountItem(label, getAddressBalance(j), getResources().getDrawable(R.drawable.icon_imported)));
             }
         }
 
-        return accountList;
+        AccountActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(accountsAdapter != null)accountsAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private String getAccountBalance(int index) {
@@ -439,7 +441,7 @@ public class AccountActivity extends AppCompatActivity {
             ;
         } else if (resultCode == Activity.RESULT_OK && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
 
-            AccountActivity.this.recreate();
+            updateAccountsList();
 
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
 
@@ -621,7 +623,7 @@ public class AccountActivity extends AppCompatActivity {
 
     }
 
-    private void updateAndRecreate(final LegacyAddress legacyAddress) {
+    private void addAddressAndUpdateList(final LegacyAddress legacyAddress) {
 
         new Thread(new Runnable() {
             @Override
@@ -641,12 +643,7 @@ public class AccountActivity extends AppCompatActivity {
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() + balance);
                 AccountsUtil.getInstance(AccountActivity.this).setCurrentSpinnerIndex(0);
 
-                AccountActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        AccountActivity.this.recreate();
-                    }
-                });
+                updateAccountsList();
 
                 Looper.loop();
 
@@ -787,7 +784,7 @@ public class AccountActivity extends AppCompatActivity {
                         intent.putExtra("address", legacy.getAddress());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
-                        updateAndRecreate(legacy);
+                        addAddressAndUpdateList(legacy);
                     } else {
                         ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         AppUtil.getInstance(AccountActivity.this).restartApp();
