@@ -314,6 +314,8 @@ public class SendFactory {
         if (outputsRoot == null) {
             return null;
         }
+
+        BigInteger totalAvailableBalance = 	BigInteger.ZERO;
         for (Map<String, Object> outDict : outputsRoot) {
 
             byte[] hashBytes = Hex.decode((String) outDict.get("tx_hash"));
@@ -324,6 +326,7 @@ public class SendFactory {
 
             int txOutputN = ((Number) outDict.get("tx_output_n")).intValue();
             BigInteger value = BigInteger.valueOf(((Number) outDict.get("value")).longValue());
+            totalAvailableBalance = totalAvailableBalance.add(value);
             byte[] scriptBytes = Hex.decode((String) outDict.get("script"));
             int confirmations = ((Number) outDict.get("confirmations")).intValue();
 
@@ -362,6 +365,12 @@ public class SendFactory {
             }
 
         }
+
+        if (totalAvailableBalance.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(1, 1))) > 0) {
+            // throw exception?
+            //ToastCustom.makeText(context, getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+
 
         // select the minimum number of outputs necessary
         Collections.sort(outputs, new UnspentOutputAmountComparator());
