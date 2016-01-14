@@ -18,10 +18,6 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -596,16 +592,12 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             }
             if (!bamount.equals(BigInteger.ZERO)) {
                 generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
-                write2NFC(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
             } else {
                 generateQRCode("bitcoin:" + currentSelectedAddress);
-                write2NFC("bitcoin:" + currentSelectedAddress);
             }
         } catch (NumberFormatException | ParseException e) {
             generateQRCode("bitcoin:" + currentSelectedAddress);
-            write2NFC("bitcoin:" + currentSelectedAddress);
         }
-
     }
 
     private void generateQRCode(final String uri) {
@@ -685,25 +677,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         }
         double btc_amount = fiat_amount / btc_fx;
         edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
-    }
-
-    private void write2NFC(final String uri) {
-
-        if (Build.VERSION.SDK_INT < 16) {
-            return;
-        }
-
-        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(getActivity());
-        if (nfc != null && nfc.isNdefPushEnabled()) {
-            nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
-                @Override
-                public NdefMessage createNdefMessage(NfcEvent event) {
-                    NdefRecord uriRecord = NdefRecord.createUri(uri);
-                    return new NdefMessage(new NdefRecord[]{uriRecord});
-                }
-            }, getActivity());
-        }
-
     }
 
     @Override

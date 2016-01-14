@@ -17,17 +17,9 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
-import android.nfc.NfcEvent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -68,16 +60,13 @@ import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import piuk.blockchain.android.R;
 
-//import android.nfc.Tag;
-
-public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback, BalanceFragment.Communicator {
+public class MainActivity extends ActionBarActivity implements BalanceFragment.Communicator {
 
     public static final String MIME_TEXT_PLAIN = "text/plain";
     private static final int SCAN_URI = 2007;
@@ -98,7 +87,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     private Toolbar toolbar = null;
     private boolean wasPaused = false;
     private ProgressDialog progress = null;
-    private NfcAdapter mNfcAdapter = null;
     private ArrayList<DrawerItem> drawerItems;
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;
@@ -274,23 +262,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         setToolbar();
         setNavigationDrawer();
-
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (mNfcAdapter == null) {
-//            Toast.makeText(MainActivity.this, "nfcAdapter == null, no NFC adapter exists", Toast.LENGTH_SHORT).show();
-        } else {
-//            Toast.makeText(MainActivity.this, "Set NFC Callback(s)", Toast.LENGTH_SHORT).show();
-            mNfcAdapter.setNdefPushMessageCallback(this, this);
-            mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
-        }
-
-        if (savedInstanceState == null) {
-//			selectItem(0);
-        }
-
     }
-
-    /* start NFC specific */
 
     @Override
     protected void onResume() {
@@ -304,21 +276,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         }
 
         sendFragmentBitcoinAmountStorage = 0;
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            Intent intent = getIntent();
-            String action = intent.getAction();
-            if (mNfcAdapter != null && action != null && action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-                Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-                NdefMessage inNdefMessage = (NdefMessage) parcelables[0];
-                NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
-                NdefRecord NdefRecord_0 = inNdefRecords[0];
-                String inMsg = new String(NdefRecord_0.getPayload(), 1, NdefRecord_0.getPayload().length - 1, Charset.forName("US-ASCII"));
-//            Toast.makeText(MainActivity.this, inMsg, Toast.LENGTH_SHORT).show();
-                doScanInput(inMsg);
-
-            }
-        }
     }
 
     @Override
@@ -347,38 +304,6 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
     }
-
-    @Override
-    public void onNdefPushComplete(NfcEvent event) {
-        if (Build.VERSION.SDK_INT < 16) {
-            return;
-        }
-
-        /*
-        final String eventString = "onNdefPushComplete\n" + event.toString();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), eventString, Toast.LENGTH_SHORT).show();
-            }
-        });
-        */
-
-    }
-
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
-
-        if (Build.VERSION.SDK_INT < 16) {
-            return null;
-        }
-
-        NdefRecord rtdUriRecord = NdefRecord.createUri("market://details?id=piuk.blockchain.android");
-        NdefMessage ndefMessageout = new NdefMessage(rtdUriRecord);
-        return ndefMessageout;
-    }
-
-    /* end NFC specific */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -424,15 +349,11 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
             doScanInput(strResult);
-        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == SCAN_URI) {
-            ;
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
-
             drawerItems = new ArrayList<>();
             final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
             final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
@@ -457,10 +378,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
             drawerIcons.recycle();
             adapterDrawer = new DrawerAdapter(drawerItems);
             recyclerViewDrawer.setAdapter(adapterDrawer);
-        } else {
-            ;
         }
-
     }
 
     @Override
