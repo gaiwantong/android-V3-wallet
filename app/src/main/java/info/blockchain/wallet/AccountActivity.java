@@ -508,7 +508,7 @@ public class AccountActivity extends AppCompatActivity {
                                                 .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int whichButton) {
                                                         String label = address_label.getText().toString();
-                                                        if (label != null && label.length() > 0) {
+                                                        if (label != null && label.trim().length() > 0) {
                                                             legacyAddress.setLabel(label);
                                                         } else {
                                                             legacyAddress.setLabel(legacyAddress.getAddress());
@@ -595,7 +595,7 @@ public class AccountActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
                                     String label = address_label.getText().toString();
-                                    if (label != null && label.length() > 0) {
+                                    if (label != null && label.trim().length() > 0) {
                                         legacyAddress.setLabel(label);
                                     } else {
                                         legacyAddress.setLabel(legacyAddress.getAddress());
@@ -715,7 +715,7 @@ public class AccountActivity extends AppCompatActivity {
                                             .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int whichButton) {
                                                     String label = address_label.getText().toString();
-                                                    if (label != null && label.length() > 0) {
+                                                    if (label != null && label.trim().length() > 0) {
                                                         ;
                                                     } else {
                                                         label = legacyAddress.getAddress();
