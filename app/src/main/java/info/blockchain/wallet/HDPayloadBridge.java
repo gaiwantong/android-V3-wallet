@@ -174,17 +174,8 @@ public class HDPayloadBridge {
         }
 
         updateBalancesAndTransactions();
-
-        // update highest idxs here, they were just updated above in updateBalancesAndTransactions();
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-        for (Account a : accounts) {
-            a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ?
-                    MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
-            a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ?
-                    MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
-        }
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
-
         PayloadFactory.getInstance().cache();
 
         if (OSUtil.getInstance(context.getApplicationContext()).isServiceRunning(info.blockchain.wallet.service.WebSocketService.class)) {
@@ -214,6 +205,13 @@ public class HDPayloadBridge {
             String[] xpubs = getXPUBs(false);
             if (xpubs.length > 0) {
                 MultiAddrFactory.getInstance().getXPUB(xpubs);
+            }
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for (Account a : accounts) {
+                a.setIdxReceiveAddresses(MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) > a.getIdxReceiveAddresses() ?
+                        MultiAddrFactory.getInstance().getHighestTxReceiveIdx(a.getXpub()) : a.getIdxReceiveAddresses());
+                a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ?
+                        MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
             }
         }
     }
