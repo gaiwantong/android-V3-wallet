@@ -24,6 +24,7 @@ import piuk.blockchain.android.R;
 
 public class AccountEditActivity extends AppCompatActivity {
 
+    private TextView tvLabel = null;
     private EditText etLabel = null;
     private TextView tvSave = null;
     private TextView tvCancel = null;
@@ -44,6 +45,14 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
+
+        tvLabel = (TextView) findViewById(R.id.tv_label);
+        if(account != null){
+            tvLabel.setText(getString(R.string.name));//V3
+        }else{
+            tvLabel.setText(getString(R.string.label));//V2
+        }
+
         etLabel = (EditText) findViewById(R.id.account_name);
 
         if (account != null)

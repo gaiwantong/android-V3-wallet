@@ -436,7 +436,6 @@
     <string name="label">Label</string>
     <string name="rename_address">Rename Address</string>
     <string name="edit">Edit</string>
-    <string name="enter_label">enter label</string>
     <string name="label_cant_be_empty">Label can\'t be blank.</string>
     <string name="saving_changes">Saving changes...</string>
 
