@@ -99,8 +99,6 @@
     <string name="invalid_guid">Invalid Wallet ID</string>
     <string name="password_mismatch_error">Passwords do not match</string>
 
-    <string name="no_NFC_support">This device doesn\'t support NFC.</string>
-    <string name="NFC_disabled">NFC is disabled.</string>
     <string name="no_private_key">Cannot produce private key.</string>
     <string name="pin_4_strikes">4 failed PIN attempts. Please provide password.</string>
     <string name="pin_4_strikes_password_accepted">Password accepted. Please define new PIN.</string>
