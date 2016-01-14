@@ -127,7 +127,7 @@ public class SendFactory {
             return null;
         }
 
-        if (ret.getOutputs() == null) {
+        if (ret == null || ret.getOutputs() == null) {
             return null;
         }
 
@@ -366,9 +366,9 @@ public class SendFactory {
 
         }
 
-        if (totalAvailableBalance.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(1, 1))) > 0) {
-            // throw exception?
-            //ToastCustom.makeText(context, getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        if (totalAvailableBalance.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(1, 1))) < 0) {
+            ToastCustom.makeText(context, context.getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return null;
         }
 
 
