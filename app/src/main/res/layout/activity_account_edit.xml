@@ -8,28 +8,33 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:background="@color/white"
+            android:orientation="vertical">
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="20dp"
-                android:gravity="center"
-                android:text="@string/label"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/blockchain_grey"
+                android:duplicateParentState="true">
+        </TextView>
 
         <EditText
                 android:id="@+id/account_name"
-                android:layout_width="0dp"
-                android:layout_weight="70"
-                android:layout_height="match_parent"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:singleLine="true"
-                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textColor="@color/primary_text_default_material_light"
                 android:hint="@string/enter_label"
+                android:singleLine="true"
                 android:textCursorDrawable="@null">
-            <requestFocus/>
         </EditText>
 
     </LinearLayout>

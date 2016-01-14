@@ -68,7 +68,8 @@ import piuk.blockchain.android.R;
 public class AccountActivity extends AppCompatActivity {
 
     public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
-    private static final int IMPORT_PRIVATE_KEY = 2006;
+    private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
+    private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
 
     private static int ADDRESS_LABEL_MAX_LENGTH = 32;
 
@@ -160,13 +161,13 @@ public class AccountActivity extends AppCompatActivity {
 
     private void onRowClick(int position){
 
-        Intent intent = new Intent(this, AccountManagerActivity.class);
+        Intent intent = new Intent(this, AccountEditActivity.class);
         if (position - HEADERS.length >= hdAccountsIdx) {//2 headers before imported
             intent.putExtra("address_index", position - HEADERS.length - hdAccountsIdx);
         } else {
             intent.putExtra("account_index", position);
         }
-        startActivity(intent);
+        startActivityForResult(intent, EDIT_ACTIVITY_REQUEST_CODE);
     }
 
     @Override
@@ -210,7 +211,7 @@ public class AccountActivity extends AppCompatActivity {
                 Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
                 intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
                 intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
-                startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+                startActivityForResult(intent, IMPORT_PRIVATE_REQUEST_CODE);
             } else {
                 final EditText double_encrypt_password = new EditText(AccountActivity.this);
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -237,7 +238,7 @@ public class AccountActivity extends AppCompatActivity {
                                     Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
                                     intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
                                     intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-                                    startActivityForResult(intent, IMPORT_PRIVATE_KEY);
+                                    startActivityForResult(intent, IMPORT_PRIVATE_REQUEST_CODE);
 
                                 } else {
                                     ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -417,7 +418,7 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_KEY
+        if (resultCode == Activity.RESULT_OK && requestCode == IMPORT_PRIVATE_REQUEST_CODE
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             try {
                 final String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
@@ -434,10 +435,15 @@ public class AccountActivity extends AppCompatActivity {
             } catch (Exception e) {
                 ToastCustom.makeText(AccountActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
-        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_KEY) {
+        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == IMPORT_PRIVATE_REQUEST_CODE) {
             ;
-        }
+        } else if (resultCode == Activity.RESULT_OK && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
 
+            AccountActivity.this.recreate();
+
+        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
+
+        }
     }
 
     private void importBIP38Address(final String data) {

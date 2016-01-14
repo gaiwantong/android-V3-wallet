@@ -22,7 +22,7 @@ import java.util.List;
 
 import piuk.blockchain.android.R;
 
-public class AccountManagerActivity extends AppCompatActivity {
+public class AccountEditActivity extends AppCompatActivity {
 
     private EditText etLabel = null;
     private TextView tvSave = null;
@@ -35,7 +35,7 @@ public class AccountManagerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_account_manager);
+        setContentView(R.layout.activity_account_edit);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         initToolbar();
@@ -63,6 +63,7 @@ public class AccountManagerActivity extends AppCompatActivity {
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(RESULT_CANCELED);
                 finish();
             }
         });
@@ -139,9 +140,8 @@ public class AccountManagerActivity extends AppCompatActivity {
 
             ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);
             PayloadBridge.getInstance(this).remoteSaveThread();
+            setResult(RESULT_OK);
             finish();
-
-            //TODO - after this AccountActivity needs to refresh
         }
     }
 }
