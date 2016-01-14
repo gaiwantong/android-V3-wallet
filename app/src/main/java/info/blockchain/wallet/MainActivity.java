@@ -931,7 +931,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
     }
 
     private void doMyAccounts() {
-        Intent intent = new Intent(MainActivity.this, MyAccountsActivity.class);
+        Intent intent = new Intent(MainActivity.this, AccountActivity.class);
         startActivity(intent);
     }
 
