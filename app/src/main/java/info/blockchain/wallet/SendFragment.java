@@ -1052,7 +1052,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         Looper.prepare();
 
                         final UnspentOutputsBundle unspents = SendFactory.getInstance(getActivity()).prepareSend(isHd ? currentAcc : -1, pendingSpend.destination, pendingSpend.bamount, legacyAddress == null ? null : legacyAddress, BigInteger.ZERO, null);
-
+                        if (unspents == null) { return; }
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                         LayoutInflater inflater = getActivity().getLayoutInflater();
                         View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
