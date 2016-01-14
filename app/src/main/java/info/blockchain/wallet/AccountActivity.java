@@ -148,7 +148,7 @@ public class AccountActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
-            toolbar.setTitle(getResources().getString(R.string.my_accounts));
+            toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
         } else {
             toolbar.setTitle(getResources().getString(R.string.my_addresses));
         }
