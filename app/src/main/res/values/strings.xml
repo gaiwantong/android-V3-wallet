@@ -355,7 +355,7 @@
     <string name="click">Click</string>
     <string name="to_start_sending_and_receiving_btc">to start sending and receiving bitcoin.</string>
 
-    <string name="watch_only_label">(watch only)</string>
+    <string name="watch_only_label">(watch-only)</string>
     <string name="archived_label">(archived)</string>
 
     <string name="dust_change">Transaction returns dust amount as change.</string>
@@ -384,9 +384,9 @@
     <string name="not_sane_error">Your Blockchain Wallet installation is incomplete. Please re-pair your wallet or create a new one.</string>
 
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
-    <string name="watchonly_address">This address is a watch only. You can manage it via the Blockchain web wallet.</string>
-    <string name="watchonly_address_spend_warning">This address is a watch only. You can spend from it via the Blockchain web wallet.</string>
-    <string name="watchonly_address_receive_warning">You are about to receive to a watch only address. You can only spend these funds if you have access to the private key. Continue?</string>
+    <string name="watchonly_address">This address is a watch-only. You can manage it via the Blockchain web wallet.</string>
+    <string name="watchonly_address_spend_warning">This address is a watch-only. You can spend from it via the Blockchain web wallet.</string>
+    <string name="watchonly_address_receive_warning">You are about to receive to a watch-only address. You can only spend these funds if you have access to the private key. Continue?</string>
 
     <string name="PENDING">PENDING</string>
     <string name="COMPLETE">COMPLETE</string>
@@ -438,5 +438,6 @@
     <string name="edit">Edit</string>
     <string name="label_cant_be_empty">Label can\'t be blank.</string>
     <string name="saving_changes">Saving changes...</string>
+    <string name="warning">Warning</string>
 
 </resources>
