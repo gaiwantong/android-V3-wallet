@@ -85,7 +85,7 @@ public class AccountActivity extends AppCompatActivity {
                 AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        AccountActivity.this.recreate();
+                        updateAccountsList();
                     }
                 });
 
