@@ -68,25 +68,19 @@ import piuk.blockchain.android.R;
 
 public class MainActivity extends ActionBarActivity implements BalanceFragment.Communicator {
 
-    public static final String MIME_TEXT_PLAIN = "text/plain";
     private static final int SCAN_URI = 2007;
     private static final int REQUEST_BACKUP = 2225;
-    private static final int MESSAGE_SENT = 1;
     public static boolean drawerIsOpen = false;
     public static Fragment currentFragment;
     private static int MERCHANT_ACTIVITY = 1;
     public long sendFragmentBitcoinAmountStorage = 0;
     RecyclerView recyclerViewDrawer;
-    RecyclerView.Adapter mAdapter;
-    RecyclerView.LayoutManager mLayoutManager;
     DrawerLayout mDrawerLayout;
     ActionBarDrawerToggle mDrawerToggle;
     int exitClickCount = 0;
     int exitClickCooldown = 2;//seconds
     // toolbar
     private Toolbar toolbar = null;
-    private boolean wasPaused = false;
-    private ProgressDialog progress = null;
     private ArrayList<DrawerItem> drawerItems;
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;

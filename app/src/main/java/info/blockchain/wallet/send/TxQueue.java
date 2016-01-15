@@ -21,7 +21,6 @@ import piuk.blockchain.android.R;
 
 public class TxQueue {
 
-    private final static long QUEUE_TIMEOUT = 60 * 15;
     private static Timer timer = null;
     private static Handler handler = null;
     private static Context context = null;

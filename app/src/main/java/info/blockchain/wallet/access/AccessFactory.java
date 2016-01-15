@@ -115,18 +115,6 @@ public class AccessFactory {
         }
     }
 
-    public boolean writeAccess() {
-        return true;
-    }
-
-    public String getKey() {
-        return _key;
-    }
-
-    public String getValue() {
-        return _value;
-    }
-
     public String getPIN() {
         return _pin;
     }

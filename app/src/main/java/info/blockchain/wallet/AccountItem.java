@@ -8,12 +8,6 @@ public class AccountItem {
     Drawable icon;
     String amount;
 
-    public AccountItem(String title, Drawable icon, String amount) {
-        this.title = title;
-        this.icon = icon;
-        this.amount = amount;
-    }
-
     public AccountItem(String title, String amount, Drawable icon) {
         this.title = title;
         this.amount = amount;

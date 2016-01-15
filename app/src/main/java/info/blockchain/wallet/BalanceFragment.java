@@ -79,7 +79,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import piuk.blockchain.android.R;
@@ -94,7 +93,6 @@ public class BalanceFragment extends Fragment {
     private static int nbConfirmations = 3;
     private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
     private static boolean isBottomSheetOpen = false;
-    private final String strBTC = "BTC";
     public int balanceBarHeight;
     ArrayAdapter<String> accountsAdapter = null;
     LinearLayoutManager layoutManager;
@@ -105,7 +103,6 @@ public class BalanceFragment extends Fragment {
     ValueAnimator movingFabDown;
     float fabTopY;
     float fabBottomY;
-    private Locale locale = null;
     //
     // main balance display
     //
@@ -209,7 +206,6 @@ public class BalanceFragment extends Fragment {
 
         rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
 
-        locale = Locale.getDefault();
         thisActivity = getActivity();
         setHasOptionsMenu(true);
 

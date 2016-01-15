@@ -99,7 +99,6 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     private boolean eatSelected = true;
     private boolean spendSelected = true;
     private boolean atmSelected = true;
-    private ProgressDialog progress = null;
     private HashMap<String, BTCBusiness> markerValues = null;
     private LatLngBounds bounds = null;
     private String strJSONData = null;
