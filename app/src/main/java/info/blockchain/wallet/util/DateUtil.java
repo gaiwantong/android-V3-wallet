@@ -12,7 +12,6 @@ import piuk.blockchain.android.R;
 public class DateUtil {
 
     private static DateUtil instance = null;
-    private static Date now = null;
     private static Context context = null;
 
     private DateUtil() {
@@ -20,8 +19,6 @@ public class DateUtil {
     }
 
     public static DateUtil getInstance(Context ctx) {
-
-        now = new Date();
         context = ctx;
 
         if (instance == null) {

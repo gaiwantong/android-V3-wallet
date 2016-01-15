@@ -24,8 +24,6 @@ public class AppUtil {
     private static AppUtil instance = null;
     private static Context context = null;
 
-    private static boolean DEBUG = false;
-
     private static final long LOGOUT_TIMEOUT = 1000L * 30L; // 30 seconds in milliseconds
     public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
     private static PendingIntent logoutPendingIntent;
@@ -74,14 +72,6 @@ public class AppUtil {
             intent.putExtra(name, value);
         }
         context.startActivity(intent);
-    }
-
-    public boolean isDEBUG() {
-        return DEBUG;
-    }
-
-    public void setDEBUG(boolean debug) {
-        DEBUG = debug;
     }
 
     public String getReceiveQRFilename() {

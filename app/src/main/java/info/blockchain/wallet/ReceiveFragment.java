@@ -99,7 +99,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     private SlidingUpPanelLayout mLayout;
     private ListView sendPaymentCodeAppListlist;
     private View rootView;
-    private LinearLayout mainContent;
     private LinearLayout mainContentShadow;
     private boolean textChangeAllowed = true;
     private String defaultSeperator;
@@ -134,7 +133,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             }
         });
 
-        mainContent = (LinearLayout) rootView.findViewById(R.id.receive_main_content);
         mainContentShadow = (LinearLayout) rootView.findViewById(R.id.receive_main_content_shadow);
         mainContentShadow.setOnClickListener(new OnClickListener() {
             @Override
