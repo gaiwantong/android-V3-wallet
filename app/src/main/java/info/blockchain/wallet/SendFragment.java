@@ -103,9 +103,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private ProgressDialog progress = null;
 
-    private String currentSelectedFromAddress = null;
-    private String currentSelectedToAddress = null;
-
     private String strBTC = "BTC";
     private String strFiat = null;
     private boolean isBTC = true;
@@ -222,7 +219,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             List<LegacyAddress> legacy = PayloadFactory.getInstance().get().getLegacyAddresses();
                             for (int i = 0; i < legacy.size(); i++) {
                                 if (legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS) {
-                                    currentSelectedFromAddress = legacy.get(i).getAddress();
+                                    pendingSpend.sending_from = legacy.get(i).getAddress();
                                     break;
                                 }
                             }
@@ -241,7 +238,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                     return;
                                 } else {
-                                    currentSelectedFromAddress = legacyAddress.getAddress();
+                                    pendingSpend.sending_from = legacyAddress.getAddress();
                                 }
 
                             }
@@ -289,6 +286,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                         int position = spinnerReceiveTo.getSelectedItemPosition();
                         spinnerReceiveTo.getSelectedItem().toString();
+                        String receiveAddress = null;
 
                         if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
                             //Legacy addresses
@@ -316,7 +314,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                                 return;
                             } else {
-                                currentSelectedToAddress = account.getAddress();
+                                receiveAddress = account.getAddress();
                             }
 
                         } else {
@@ -324,7 +322,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             Integer currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
                             try {
                                 ReceiveAddress currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
-                                currentSelectedToAddress = currentSelectedReceiveAddress.getAddress();
+                                receiveAddress = currentSelectedReceiveAddress.getAddress();
 
                             } catch (IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
                                     | MnemonicException.MnemonicWordException | AddressFormatException
@@ -333,8 +331,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             }
                         }
 
-//                        edReceiveTo.setText(label);//future use
-                        edReceiveTo.setText(currentSelectedToAddress);
+                        edReceiveTo.setText(receiveAddress);
                         spDestinationSelected = true;
                     }
 
@@ -374,7 +371,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             public void afterTextChanged(Editable s) {
 
                 if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-                    currentSelectedToAddress = edReceiveTo.getText().toString();
                     validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
                 }
 
@@ -527,7 +523,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     updateFiatTextField(s.toString());
 
                     if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-                        currentSelectedToAddress = edReceiveTo.getText().toString();
                         validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
@@ -587,7 +582,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     updateBtcTextField(s.toString());
 
                     if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-                        currentSelectedToAddress = edReceiveTo.getText().toString();
                         validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
                     }
                     textChangeAllowed = true;
@@ -757,7 +751,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         if (edAmount2.getText() == null || edAmount2.getText().toString().isEmpty()) return;
 
         pendingSpend.amount = null;
-        pendingSpend.destination = null;
+        pendingSpend.destination = edReceiveTo.getText().toString().trim();
         pendingSpend.bamount = BigInteger.ZERO;
         pendingSpend.bfee = BigInteger.valueOf(PayloadFactory.getInstance().get().getOptions().getFeePerKB());
         pendingSpend.isHD = true;
@@ -769,7 +763,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         //Legacy addresses
         if (position >= hdAccountsIdx) {
             LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx);
-            currentSelectedFromAddress = legacyAddress.getAddress();
             if (legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
                 pendingSpend.sending_from = legacyAddress.getLabel();
             } else {
@@ -784,7 +777,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             pendingSpend.isHD = true;
         }
 
-        pendingSpend.destination = currentSelectedToAddress;
         if (!FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)) {
             if (showMessages) {
                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -835,7 +827,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 }
             }
         } else {
-            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+            long _lamount = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.sending_from);
 
             if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendCoins.bFee.longValue()) > _lamount) {
                 if (showMessages) {
@@ -1032,7 +1024,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             LegacyAddress addr = null;
             List<LegacyAddress> legacy = AccountsUtil.getInstance(getActivity()).getLegacyAddresses();
             for (int i = 0; i < legacy.size(); i++) {
-                if (legacy.get(i).getAddress().equals(currentSelectedFromAddress)) {
+                if (legacy.get(i).getAddress().equals(pendingSpend.sending_from)) {
                     addr = legacy.get(i);
                     break;
                 }
@@ -1391,7 +1383,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         } else {
             long _lamount = 0L;
-                _lamount = MultiAddrFactory.getInstance().getLegacyBalance(currentSelectedFromAddress);
+                _lamount = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.sending_from);
 
             if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount).longValue() + SendCoins.bFee.longValue()) > _lamount) {
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
