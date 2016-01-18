@@ -114,7 +114,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private String defaultSeparator;//Decimal separator based on locale
     private boolean spendInProgress = false;
     private boolean spDestinationSelected = false;
-    
+
     private PendingSpend pendingSpend = new PendingSpend();
 
     @Override
