@@ -52,10 +52,14 @@ public class AppUtil {
         return instance;
     }
 
-    public void clearCredentialsAndRestart() {
+    public void clearCredentials() {
         WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
         PrefsUtil.getInstance(context).clear();
+    }
+
+    public void clearCredentialsAndRestart() {
+        clearCredentials();
         restartApp();
     }
 

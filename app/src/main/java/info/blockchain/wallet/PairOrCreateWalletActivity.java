@@ -95,7 +95,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
 
         if (resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR) {
             if (data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
-                AppUtil.getInstance(this).clearCredentialsAndRestart();
+                AppUtil.getInstance(this).clearCredentials();
                 String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
                 pairingThreadQR(strResult);
             }
@@ -120,7 +120,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
                     PrefsUtil.getInstance(PairOrCreateWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 //                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
                     Intent intent = new Intent(PairOrCreateWalletActivity.this, PinEntryActivity.class);
-                    intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
                     ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
