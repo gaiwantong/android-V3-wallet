@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
-import info.blockchain.wallet.pairing.PairingFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -27,10 +26,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -239,9 +235,6 @@ public class PinEntryActivity extends Activity {
         if (extras != null && extras.containsKey("_pw")) {
             strPassword = extras.getString("_pw");
         }
-
-        if (extras != null && extras.containsKey(PairingFactory.KEY_EXTRA_IS_PAIRING))
-            AppUtil.getInstance(this).restartApp(); // ?
     }
 
     private void updatePayloadThread(final CharSequenceX pw) {

@@ -160,7 +160,7 @@ public class ManualPairingFragment extends Fragment {
                                     PayloadFactory.getInstance().setTempPassword(password);
 //                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                    intent.putExtra(PairingFactory.KEY_EXTRA_IS_PAIRING, true);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     getActivity().startActivity(intent);
                                 } else {
                                     getActivity().runOnUiThread(new Runnable() {
