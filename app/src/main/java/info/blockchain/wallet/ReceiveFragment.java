@@ -81,28 +81,35 @@ import piuk.blockchain.android.R;
 public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
 
     public static boolean isKeypadVisible = false;
-    private Locale locale = null;
+    private View rootView;
+
     private ImageView ivReceivingQR = null;
     private TextView edReceivingAddress = null;
-    private String currentSelectedAddress = null;
-    private ReceiveAddress currentSelectedReceiveAddress = null;
     private EditText edAmount1 = null;
     private EditText edAmount2 = null;
-    private Spinner spAccounts = null;
     private TextView tvCurrency1 = null;
     private TextView tvFiat2 = null;
+
+    private Spinner spinnerReceiveTo = null;
+    private List<String> accountList = null;
+
+    //Custom keypad
+    private TableLayout numpad;
+
+    //Sharing payment code views
+    private ListView sendPaymentCodeAppListlist;
+    private LinearLayout mainContentShadow;
+    private SlidingUpPanelLayout mLayout;
+
+    private String currentSelectedAddress = null;
+    private ReceiveAddress currentSelectedReceiveAddress = null;
     private int currentSelectedAccount = 0;
     private String strBTC = "BTC";
     private String strFiat = null;
     private boolean isBTC = true;
     private double btc_fx = 319.13;
-    private SlidingUpPanelLayout mLayout;
-    private ListView sendPaymentCodeAppListlist;
-    private View rootView;
-    private LinearLayout mainContentShadow;
     private boolean textChangeAllowed = true;
-    private String defaultSeperator;
-    private TableLayout numpad;
+    private String defaultSeparator;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -110,7 +117,25 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
         this.rootView = rootView;
 
-        locale = Locale.getDefault();
+        setupToolbar();
+
+        setupViews();
+
+        defaultSeparator = getDefaultDecimalSeparator();
+
+        initVars();
+
+        //accountList is linked to Adapters - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        accountList = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
+
+        setReceiveToDropDown();
+
+        decimalCompatCheck(rootView);
+
+        return rootView;
+    }
+
+    private void setupToolbar(){
 
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
         ((ActionBarActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
@@ -132,8 +157,33 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
             }
         });
+    }
+
+    private void setupViews(){
+
+        spinnerReceiveTo = (Spinner) rootView.findViewById(R.id.accounts);
+
+        edAmount1 = (EditText) rootView.findViewById(R.id.amount1);
+        edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
+
+        tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
+        tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
+        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 
         mainContentShadow = (LinearLayout) rootView.findViewById(R.id.receive_main_content_shadow);
+
+        ivReceivingQR = (ImageView) rootView.findViewById(R.id.qr);
+        edReceivingAddress = (TextView) rootView.findViewById(R.id.receiving_address);
+    }
+
+    private String getDefaultDecimalSeparator(){
+        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
+        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+        return Character.toString(symbols.getDecimalSeparator());
+    }
+
+    private void initVars(){
+
         mainContentShadow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,7 +193,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             }
         });
 
-        ivReceivingQR = (ImageView) rootView.findViewById(R.id.qr);
         ivReceivingQR.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,180 +231,13 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             }
         });
 
-        tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
-        tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
+        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+        edAmount1.setHint("0" + defaultSeparator + "00");
+        edAmount1.addTextChangedListener(getFiatTextWatcher());
 
-        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
-        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
-        defaultSeperator = Character.toString(symbols.getDecimalSeparator());
-
-        edAmount1 = (EditText) rootView.findViewById(R.id.amount1);
-        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-        edAmount1.setHint("0" + defaultSeperator + "00");
-        edAmount1.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-
-                String input = s.toString();
-
-                edAmount1.removeTextChangedListener(this);
-
-                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-                int max_len = 8;
-                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-                switch (unit) {
-                    case MonetaryUtil.MICRO_BTC:
-                        max_len = 2;
-                        break;
-                    case MonetaryUtil.MILLI_BTC:
-                        max_len = 4;
-                        break;
-                    default:
-                        max_len = 8;
-                        break;
-                }
-                btcFormat.setMaximumFractionDigits(max_len + 1);
-                btcFormat.setMinimumFractionDigits(0);
-
-                try {
-                    if (input.indexOf(defaultSeperator) != -1) {
-                        String dec = input.substring(input.indexOf(defaultSeperator));
-                        if (dec.length() > 0) {
-                            dec = dec.substring(1);
-                            if (dec.length() > max_len) {
-                                edAmount1.setText(input.substring(0, input.length() - 1));
-                                edAmount1.setSelection(edAmount1.getText().length());
-                                s = edAmount1.getEditableText();
-                            }
-                        }
-                    }
-                } catch (NumberFormatException nfe) {
-                    ;
-                }
-
-                edAmount1.addTextChangedListener(this);
-
-                if (textChangeAllowed) {
-                    textChangeAllowed = false;
-                    updateFiatTextField(s.toString());
-
-                    if (currentSelectedAddress != null) {
-                        displayQRCode();
-                    }
-                    textChangeAllowed = true;
-                }
-
-                if (s.toString().contains(defaultSeperator))
-                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-                else
-                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                ;
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ;
-            }
-        });
-
-        edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
-        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-        edAmount2.setHint("0" + defaultSeperator + "00");
-        edAmount2.addTextChangedListener(new TextWatcher() {
-
-            public void afterTextChanged(Editable s) {
-
-                String input = s.toString();
-
-                edAmount2.removeTextChangedListener(this);
-
-                int max_len = 2;
-                NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
-                fiatFormat.setMaximumFractionDigits(max_len + 1);
-                fiatFormat.setMinimumFractionDigits(0);
-
-                try {
-                    if (input.indexOf(defaultSeperator) != -1) {
-                        String dec = input.substring(input.indexOf(defaultSeperator));
-                        if (dec.length() > 0) {
-                            dec = dec.substring(1);
-                            if (dec.length() > max_len) {
-                                edAmount2.setText(input.substring(0, input.length() - 1));
-                                edAmount2.setSelection(edAmount2.getText().length());
-                                s = edAmount2.getEditableText();
-                            }
-                        }
-                    }
-                } catch (NumberFormatException nfe) {
-                    ;
-                }
-
-                edAmount2.addTextChangedListener(this);
-
-                if (textChangeAllowed) {
-                    textChangeAllowed = false;
-                    updateBtcTextField(s.toString());
-
-                    if (currentSelectedAddress != null) {
-                        displayQRCode();
-                    }
-                    textChangeAllowed = true;
-                }
-
-                if (s.toString().contains(defaultSeperator))
-                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-                else
-                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                ;
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ;
-            }
-        });
-
-        spAccounts = (Spinner) rootView.findViewById(R.id.accounts);
-        final List<String> _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
-
-        if (_accounts.size() == 1) rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
-
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, _accounts);
-        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
-        spAccounts.setAdapter(dataAdapter);
-        spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-            @Override
-            public void onGlobalLayout() {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    spAccounts.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                } else {
-                    spAccounts.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                }
-
-                spAccounts.setDropDownWidth(spAccounts.getWidth());
-            }
-        });
-        spAccounts.post(new Runnable() {
-            public void run() {
-                spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        int position = spAccounts.getSelectedItemPosition();
-                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
-                        selectAccount(position);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        ;
-                    }
-                });
-            }
-        });
+        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+        edAmount2.setHint("0" + defaultSeparator + "00");
+        edAmount2.addTextChangedListener(getBtcTextWatcher());
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -370,9 +252,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(0).getAddress();
         }
 
-        edReceivingAddress = (TextView) rootView.findViewById(R.id.receiving_address);
-
-        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         mLayout.setTouchEnabled(false);
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -398,12 +277,176 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             public void onPanelHidden(View panel) {
             }
         });
-
-        decimalCompatCheck(rootView);
-
-        return rootView;
     }
 
+    private TextWatcher getBtcTextWatcher(){
+
+        return new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+
+                String input = s.toString();
+
+                edAmount2.removeTextChangedListener(this);
+
+                int max_len = 2;
+                NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
+                fiatFormat.setMaximumFractionDigits(max_len + 1);
+                fiatFormat.setMinimumFractionDigits(0);
+
+                try {
+                    if (input.indexOf(defaultSeparator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeparator));
+                        if (dec.length() > 0) {
+                            dec = dec.substring(1);
+                            if (dec.length() > max_len) {
+                                edAmount2.setText(input.substring(0, input.length() - 1));
+                                edAmount2.setSelection(edAmount2.getText().length());
+                                s = edAmount2.getEditableText();
+                            }
+                        }
+                    }
+                } catch (NumberFormatException nfe) {
+                    ;
+                }
+
+                edAmount2.addTextChangedListener(this);
+
+                if (textChangeAllowed) {
+                    textChangeAllowed = false;
+                    updateBtcTextField(s.toString());
+
+                    if (currentSelectedAddress != null) {
+                        displayQRCode();
+                    }
+                    textChangeAllowed = true;
+                }
+
+                if (s.toString().contains(defaultSeparator))
+                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                else
+                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                ;
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ;
+            }
+        };
+    }
+
+    private TextWatcher getFiatTextWatcher(){
+
+        return new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+
+                String input = s.toString();
+
+                edAmount1.removeTextChangedListener(this);
+
+                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int max_len = 8;
+                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
+                switch (unit) {
+                    case MonetaryUtil.MICRO_BTC:
+                        max_len = 2;
+                        break;
+                    case MonetaryUtil.MILLI_BTC:
+                        max_len = 4;
+                        break;
+                    default:
+                        max_len = 8;
+                        break;
+                }
+                btcFormat.setMaximumFractionDigits(max_len + 1);
+                btcFormat.setMinimumFractionDigits(0);
+
+                try {
+                    if (input.indexOf(defaultSeparator) != -1) {
+                        String dec = input.substring(input.indexOf(defaultSeparator));
+                        if (dec.length() > 0) {
+                            dec = dec.substring(1);
+                            if (dec.length() > max_len) {
+                                edAmount1.setText(input.substring(0, input.length() - 1));
+                                edAmount1.setSelection(edAmount1.getText().length());
+                                s = edAmount1.getEditableText();
+                            }
+                        }
+                    }
+                } catch (NumberFormatException nfe) {
+                    ;
+                }
+
+                edAmount1.addTextChangedListener(this);
+
+                if (textChangeAllowed) {
+                    textChangeAllowed = false;
+                    updateFiatTextField(s.toString());
+
+                    if (currentSelectedAddress != null) {
+                        displayQRCode();
+                    }
+                    textChangeAllowed = true;
+                }
+
+                if (s.toString().contains(defaultSeparator))
+                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                else
+                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                ;
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ;
+            }
+        };
+    }
+
+    private void setReceiveToDropDown(){
+
+        if (accountList.size() == 1) rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, accountList);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
+        spinnerReceiveTo.setAdapter(dataAdapter);
+        spinnerReceiveTo.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    spinnerReceiveTo.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    spinnerReceiveTo.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                spinnerReceiveTo.setDropDownWidth(spinnerReceiveTo.getWidth());
+            }
+        });
+        spinnerReceiveTo.post(new Runnable() {
+            public void run() {
+                spinnerReceiveTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                        int position = spinnerReceiveTo.getSelectedItemPosition();
+                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
+                        selectAccount(position);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+                        ;
+                    }
+                });
+            }
+        });
+
+    }
 
     /*
     Custom keypad implementation
@@ -513,11 +556,11 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);
 
-        if (spAccounts != null) {
+        if (spinnerReceiveTo != null) {
 
             int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
             if (currentSelected != 0) currentSelected--;//exclude 'all account'
-            spAccounts.setSelection(currentSelected);
+            spinnerReceiveTo.setSelection(currentSelected);
             selectAccount(currentSelected);
         }
     }
@@ -539,7 +582,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             final LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
 
             if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                spAccounts.setSelection(0);
+                spinnerReceiveTo.setSelection(0);
                 ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
             } else if (legacyAddress.isWatchOnly()) {
 
@@ -554,7 +597,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                             }
                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        spAccounts.setSelection(0);
+                        spinnerReceiveTo.setSelection(0);
                     }
                 }).show();
 
@@ -579,9 +622,9 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         try {
             long lamount = 0L;
             if (isBTC) {
-                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
+                lamount = (long) (Math.round(NumberFormat.getInstance(Locale.getDefault()).parse(edAmount1.getText().toString()).doubleValue() * 1e8));
             } else {
-                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(edAmount2.getText().toString()).doubleValue() * 1e8));
+                lamount = (long) (Math.round(NumberFormat.getInstance(Locale.getDefault()).parse(edAmount2.getText().toString()).doubleValue() * 1e8));
             }
             bamount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(lamount);
             if (bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
@@ -657,7 +700,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     private void updateFiatTextField(String cBtc) {
         double btc_amount = 0.0;
         try {
-            btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
+            btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
         } catch (NumberFormatException | ParseException e) {
             btc_amount = 0.0;
         }
@@ -669,7 +712,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
         double fiat_amount = 0.0;
         try {
-            fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
+            fiat_amount = NumberFormat.getInstance(Locale.getDefault()).parse(cfiat).doubleValue();
         } catch (NumberFormatException | ParseException e) {
             fiat_amount = 0.0;
         }
@@ -836,7 +879,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 pad = v.getTag().toString().substring(0, 1);
                 break;
             case R.id.button10:
-                pad = defaultSeperator;
+                pad = defaultSeparator;
                 break;
             case R.id.button0:
                 pad = v.getTag().toString().substring(0, 1);
