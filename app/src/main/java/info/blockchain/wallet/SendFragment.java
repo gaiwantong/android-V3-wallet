@@ -220,6 +220,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             for (int i = 0; i < legacy.size(); i++) {
                                 if (legacy.get(i).getTag() == PayloadFactory.NORMAL_ADDRESS) {
                                     pendingSpend.sending_from = legacy.get(i).getAddress();
+                                    pendingSpend.isHD = false;
                                     break;
                                 }
                             }
@@ -239,8 +240,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     return;
                                 } else {
                                     pendingSpend.sending_from = legacyAddress.getAddress();
+                                    pendingSpend.isHD = false;
                                 }
 
+                            }
+                            else {
+                                pendingSpend.isHD = true;
                             }
                         }
 
