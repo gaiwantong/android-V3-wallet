@@ -19,14 +19,12 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,7 +32,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -335,46 +332,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         edAmount2.setHint("0" + defaultSeparator + "00");
         edAmount2.addTextChangedListener(fiatTextWatcher);
 
-        edReceiveTo.setOnEditorActionListener(new OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    validateSpend(true, spinnerSendFrom.getSelectedItemPosition());
-                }
-
-                return false;
-            }
-        });
-        edReceiveTo.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-
-                if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-//                    validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
-                }
-
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                ;
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ;
-            }
-        });
-
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
         edAmount1.setHint("0" + defaultSeparator + "00");
-        edAmount1.setOnEditorActionListener(new OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    validateSpend(true, spinnerSendFrom.getSelectedItemPosition());
-                }
-
-                return false;
-            }
-        });
 
         strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -489,10 +448,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
-
-//                    if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-//                        validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
-//                    }
                     textChangeAllowed = true;
                 }
 
@@ -548,10 +503,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
-
-//                    if (edAmount1 != null && edReceiveTo != null && edAmount2 != null && spinnerSendFrom != null) {
-//                        validateSpend(false, spinnerSendFrom.getSelectedItemPosition());
-//                    }
                     textChangeAllowed = true;
                 }
 
@@ -839,11 +790,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         if (!PayloadFactory.getInstance().get().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
             confirmPayment(pendingSpend);
         } else {
-            alertDoubleEncryptedV3(pendingSpend);
+            alertDoubleEncrypted(pendingSpend);
         }
     }
 
-    private void alertDoubleEncryptedV3(final PendingSpend pendingSpend){
+    private void alertDoubleEncrypted(final PendingSpend pendingSpend){
         final EditText password = new EditText(getActivity());
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
