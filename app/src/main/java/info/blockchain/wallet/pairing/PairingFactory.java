@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 public class PairingFactory {
 
-    public static String KEY_EXTRA_IS_PAIRING = "is_pairing";
     public static String KEY_AUTH_REQUIRED = "Authorization Required";
     private static Context context = null;
     private static PairingFactory instance = null;
