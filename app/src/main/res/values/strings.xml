@@ -438,4 +438,7 @@
     <string name="saving_changes">Saving changes...</string>
     <string name="warning">Warning</string>
 
+    <string name="ssl_no_connection">We are unable to connect to the host to verify the SSL certificate. Please verify your network connection and device before continuing.</string>
+    <string name="retry">Retry</string>
+    <string name="exit">Exit</string>
 </resources>
