@@ -19,6 +19,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -1004,16 +1005,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public void onFailPermanently() {
 
-                if (pendingSpend.isHD) {
-
-                    if (getActivity() != null)
-                        ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                } else {
+                //Reset double encrypt for V2
+                if (!pendingSpend.isHD) {
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                    if (getActivity() != null)
-                        ToastCustom.makeText(getActivity().getApplicationContext(), getActivity().getApplicationContext().getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-
                 }
+
+                if (getActivity() != null)
+                    ToastCustom.makeText(getActivity().getApplicationContext(), getActivity().getApplicationContext().getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
                 closeDialog(alertDialog, false);
             }
@@ -1152,10 +1150,18 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private boolean isValidAmount(BigInteger bAmount){
 
+        //Test that amount is more than dust
+        if (bAmount.compareTo(SendCoins.bDust) == -1) {
+            return false;
+        }
+
+        //Test that amount does not exceed btc limit
         if (bAmount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
             edAmount1.setText("0");
             return false;
         }
+
+        //Test that amount is not zero
         if (!(bAmount.compareTo(BigInteger.ZERO) >= 0)) {
             return false;
         }
