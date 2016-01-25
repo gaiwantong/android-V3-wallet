@@ -441,4 +441,9 @@
     <string name="ssl_no_connection">We are unable to connect to the host to verify the SSL certificate. Please verify your network connection and device before continuing.</string>
     <string name="retry">Retry</string>
     <string name="exit">Exit</string>
+    <string name="screen_overlay_warning">Screen overlay detected!</string>
+    <string name="screen_overlay_note">Apps that use screen overlays have the ability to trick you
+        into tapping on unseen objects and potentially steal funds. If you are confident that there
+        is no threat you may continue.
+    </string>
 </resources>

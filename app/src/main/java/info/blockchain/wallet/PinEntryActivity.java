@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
@@ -138,6 +139,17 @@ public class PinEntryActivity extends Activity {
 
                 }
             }).show();
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+
+        //Test for screen overlays before user enters PIN
+        if(AppUtil.getInstance(this).detectObscuredWindow(event)){
+            return true;//consume event
+        }else{
+            return super.dispatchTouchEvent(event);
         }
     }
 
