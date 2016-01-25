@@ -940,8 +940,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 playAudio();
 
-                PayloadBridge.getInstance(context).remoteSaveThread();
-
                 if (pendingSpend.isHD) {
 
                     //Update v3 balance immediately after spend - until refresh from server
@@ -958,6 +956,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
+                PayloadBridge.getInstance(context).remoteSaveThread();
                 closeDialog(alertDialog, true);
             }
 
