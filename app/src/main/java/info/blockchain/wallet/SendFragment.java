@@ -19,7 +19,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -1143,8 +1142,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private long getLongValue(String amountToSendString){
 
-        String amountToSend = amountToSendString.replace(defaultSeparator, ".");
-        //Long is safe to use, but double can lead to ugly rounding issues..
+        String amountToSend = amountToSendString.replace(" ","").replace(defaultSeparator, ".");
         return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(amountToSend))).multiply(BigDecimal.valueOf(100000000)).longValue());
     }
 
