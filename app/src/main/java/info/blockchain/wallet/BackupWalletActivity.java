@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.WindowManager;
 
 import info.blockchain.wallet.util.AppUtil;
 
@@ -19,6 +20,8 @@ public class BackupWalletActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_backup_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.backup_wallet));

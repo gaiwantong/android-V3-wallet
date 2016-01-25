@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
@@ -110,6 +111,8 @@ public class AccountActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         initToolbar();
 
