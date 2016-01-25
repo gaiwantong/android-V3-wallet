@@ -976,7 +976,7 @@ public class BalanceFragment extends Fragment {
 
                                 for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
 
-                                    if (AppUtil.getInstance(getActivity()).isNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey())) {
+                                    if ((getActivity() == null) || (AppUtil.getInstance(getActivity()).isNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey()))) {
                                         continue;
                                     }
 
