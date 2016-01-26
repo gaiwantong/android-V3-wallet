@@ -1,14 +1,23 @@
 package info.blockchain.wallet;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+
+import android.app.AlertDialog;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -32,6 +41,9 @@ public class AccountEditActivity extends AppCompatActivity {
     private EditText etLabel = null;
     private TextView tvSave = null;
     private TextView tvCancel = null;
+
+    private TextView tvXpub = null;
+    private ImageView ivQr = null;
 
     private TextView tvArchiveHeading = null;
     private TextView tvArchiveDescription = null;
@@ -65,6 +77,15 @@ public class AccountEditActivity extends AppCompatActivity {
 
         etLabel = (EditText) findViewById(R.id.account_name);
 
+        tvXpub = (TextView)findViewById(R.id.tv_xpub);
+        ivQr = (ImageView)findViewById(R.id.iv_qr);
+        ivQr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddressDetials();
+            }
+        });
+
         tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
         tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
         switchArchive = (Switch)findViewById(R.id.switch_archive);
@@ -78,11 +99,13 @@ public class AccountEditActivity extends AppCompatActivity {
         if (account != null) {
 
             etLabel.setText(account.getLabel());
+            tvXpub.setText(R.string.extended_public_key);
             setArchive(account.isArchived());
 
         }else if (legacyAddress != null){
 
             etLabel.setText(legacyAddress.getLabel());
+            tvXpub.setText(R.string.address);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
         }
 
@@ -157,6 +180,75 @@ public class AccountEditActivity extends AppCompatActivity {
             tvArchiveDescription.setText(R.string.not_archived_description);
             switchArchive.setChecked(false);
         }
+    }
+
+    private void showAddressDetials(){
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.alert_show_extended_public_key, null);
+        dialogBuilder.setView(dialogView);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
+        TextView tvHeading = (TextView)dialogView.findViewById(R.id.tv_warning_heading);
+        TextView tvXpubNote = (TextView)dialogView.findViewById(R.id.tv_xpub_note);
+        final TextView tvXpub = (TextView)dialogView.findViewById(R.id.tv_extended_xpub);
+        ImageView ivQr = (ImageView)dialogView.findViewById(R.id.iv_qr);
+
+        String qrString = null;
+
+        if (account != null) {
+
+            tvHeading.setText(R.string.extended_public_key);
+            tvXpubNote.setText(R.string.scan_this_code);
+            tvXpub.setText(R.string.copy_xpub);
+            tvXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
+            qrString = account.getXpub();
+
+        }else if (legacyAddress != null){
+
+            tvHeading.setText(R.string.address);
+            tvXpubNote.setVisibility(View.GONE);
+            tvXpub.setText(legacyAddress.getAddress());
+            tvXpub.setTextIsSelectable(true);
+            qrString = legacyAddress.getAddress();
+        }
+
+        final String finalQrString = qrString;
+        tvXpub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) AccountEditActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = null;
+                clip = android.content.ClipData.newPlainText("Send address", finalQrString);
+                ToastCustom.makeText(AccountEditActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                clipboard.setPrimaryClip(clip);
+            }
+        });
+
+        Bitmap bitmap = null;
+        int qrCodeDimension = 260;
+        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrString, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
+        try {
+            bitmap = qrCodeEncoder.encodeAsBitmap();
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        ivQr.setImageBitmap(bitmap);
+
+        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null && alertDialog.isShowing()) {
+                    alertDialog.cancel();
+                }
+            }
+        });
+
+        alertDialog.show();
     }
 
     @Override
