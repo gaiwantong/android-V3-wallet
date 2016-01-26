@@ -6,6 +6,7 @@ import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -82,7 +83,11 @@ public class AccountEditActivity extends AppCompatActivity {
         ivQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddressDetials();
+                if (account != null) {
+                    showXpubSharingWarning();
+                }else{
+                    showAddressDetials();
+                }
             }
         });
 
@@ -180,6 +185,26 @@ public class AccountEditActivity extends AppCompatActivity {
             tvArchiveDescription.setText(R.string.not_archived_description);
             switchArchive.setChecked(false);
         }
+    }
+
+    private void showXpubSharingWarning(){
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.warning)
+                .setMessage(R.string.xpub_sharing_warning)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        showAddressDetials();
+                    }
+
+                }).setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ;
+            }
+        }).show();
     }
 
     private void showAddressDetials(){

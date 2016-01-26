@@ -461,4 +461,8 @@
     <string name="scan_this_code">Scan this code or copy it into your Blockchain Merchant app to
         securely receive Bitcoin.
     </string>
+    <string name="xpub_sharing_warning">You should only give this xPub to those you trust. With this
+        information, they may be able to keep track of your payments, and may be able to disrupt
+        your access to your wallet.
+    </string>
 </resources>
