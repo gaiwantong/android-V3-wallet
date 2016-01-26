@@ -7,7 +7,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -30,6 +32,10 @@ public class AccountEditActivity extends AppCompatActivity {
     private EditText etLabel = null;
     private TextView tvSave = null;
     private TextView tvCancel = null;
+
+    private TextView tvArchiveHeading = null;
+    private TextView tvArchiveDescription = null;
+    private Switch switchArchive = null;
 
     private Account account = null;
     private LegacyAddress legacyAddress = null;
@@ -59,10 +65,26 @@ public class AccountEditActivity extends AppCompatActivity {
 
         etLabel = (EditText) findViewById(R.id.account_name);
 
-        if (account != null)
+        tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
+        tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
+        switchArchive = (Switch)findViewById(R.id.switch_archive);
+        switchArchive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setArchive(isChecked);
+            }
+        });
+
+        if (account != null) {
+
             etLabel.setText(account.getLabel());
-        else if (legacyAddress != null)
+            setArchive(account.isArchived());
+
+        }else if (legacyAddress != null){
+
             etLabel.setText(legacyAddress.getLabel());
+            setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
+        }
 
         tvSave = (TextView) findViewById(R.id.confirm_save);
         tvSave.setOnClickListener(new View.OnClickListener() {
@@ -80,7 +102,6 @@ public class AccountEditActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     private void getIntentData() {
@@ -125,6 +146,19 @@ public class AccountEditActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    private void setArchive(boolean isArchived){
+
+        if(isArchived){
+            tvArchiveHeading.setText(R.string.Archived);
+            tvArchiveDescription.setText(R.string.archived_description);
+            switchArchive.setChecked(true);
+        }else{
+            tvArchiveHeading.setText(R.string.Not_Archived);
+            tvArchiveDescription.setText(R.string.not_archived_description);
+            switchArchive.setChecked(false);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -147,8 +181,15 @@ public class AccountEditActivity extends AppCompatActivity {
         } else {
             if (legacyAddress != null) {
                 legacyAddress.setLabel(newLabel);
+
+                if(switchArchive.isChecked()){
+                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
+                }else{
+                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
+                }
             } else if (account != null) {
                 account.setLabel(newLabel);
+                account.setArchived(switchArchive.isChecked());
             }
 
             ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);

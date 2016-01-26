@@ -41,6 +41,47 @@
 
     <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/tv_archive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Archive"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/blockchain_grey"
+                android:duplicateParentState="true">
+        </TextView>
+
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content">
+                    <TextView
+                            android:id="@+id/tv_archive_description"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:textSize="14sp"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:textColor="@color/primary_text_default_material_light">
+                    </TextView>
+                    <Switch
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:padding="16dp"
+                            android:id="@+id/switch_archive"/>
+
+            </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="48dp"
             android:orientation="horizontal"
             android:gravity="center_vertical|right">

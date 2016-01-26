@@ -446,4 +446,13 @@
         into tapping on unseen objects and potentially steal funds. If you are confident that there
         is no threat you may continue.
     </string>
+    <string name="Archived">Archived</string>
+    <string name="Not_Archived">Not Archived</string>
+    <string name="archived_description">This item is archived. You can\'t access it or send funds
+        from it. Your funds are safe and you can unarchive at any time.
+    </string>
+    <string name="not_archived_description">This item is not archived. If you archive this item you
+        won\'t be able to access it or send from it. Your funds will be safe and you can unarchive
+        at any time.
+    </string>
 </resources>
