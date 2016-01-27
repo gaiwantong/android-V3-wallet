@@ -4,44 +4,44 @@
     <string name="backup_wallet">备份钱包</string>
     <string name="upgrade_wallet">升级钱包</string>
     <string-array name="navigation_drawer_items_lame">
+        <item>@string/upgrade_wallet</item>
+        <item>设置</item>
+        <item>更改 PIN</item>
         <item>我的地址</item>
         <item>新闻、价格与图表</item>
-        <item>设置</item>
         <item>支持</item>
-        <item>更改 PIN</item>
         <item>取消配对钱包</item>
-        <item>@string/upgrade_wallet</item>
     </string-array>
     <string-array name="navigation_drawer_items_hd">
-        <item>我的账户</item>
-        <item>新闻、价格与图表</item>
-        <item>设置</item>
-        <item>支持</item>
-        <item>更改 PIN</item>
         <item>@string/backup_wallet</item>
+        <item>设置</item>
+        <item>更改 PIN</item>
+        <item>我的地址</item>
+        <item>新闻、价格与图表</item>
+        <item>支持</item>
         <item>取消配对钱包</item>
     </string-array>
 
     <array name="navigation_drawer_icons_lame">
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_logout</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
     <array name="navigation_drawer_icons_hd">
+        <item>@drawable/bad_backup</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
-    </array><!--
-    <string name="app_name">Blockchain HD</string>
-    --><string name="app_name">Blockchain</string>
+    </array>
+
+    <string name="app_name">Blockchain</string>
     <string name="action_settings">设置</string>
 
     <string name="all_accounts">所有账户</string>

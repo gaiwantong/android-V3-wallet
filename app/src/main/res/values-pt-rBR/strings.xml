@@ -4,40 +4,40 @@
     <string name="backup_wallet">Proteger carteira</string>
     <string name="upgrade_wallet">Atualizar carteira</string>
     <string-array name="navigation_drawer_items_lame">
+        <item>@string/upgrade_wallet</item>
+        <item>Configurações</item>
+        <item>Alterar PIN</item>
         <item>Meus endereços</item>
         <item>Notícias, preços e gráficos</item>
-        <item>Configurações</item>
         <item>Suporte</item>
-        <item>Alterar PIN</item>
         <item>Cancelar pareamento da carteira</item>
-        <item>@string/upgrade_wallet</item>
     </string-array>
     <string-array name="navigation_drawer_items_hd">
-        <item>Minhas contas</item>
-        <item>Notícias, preços e gráficos</item>
-        <item>Configurações</item>
-        <item>Suporte</item>
-        <item>Alterar PIN</item>
         <item>@string/backup_wallet</item>
+        <item>Configurações</item>
+        <item>Alterar PIN</item>
+        <item>Meus endereços</item>
+        <item>Notícias, preços e gráficos</item>
+        <item>Suporte</item>
         <item>Cancelar pareamento da carteira</item>
     </string-array>
 
     <array name="navigation_drawer_icons_lame">
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_logout</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
     <array name="navigation_drawer_icons_hd">
+        <item>@drawable/bad_backup</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
     </array>
 

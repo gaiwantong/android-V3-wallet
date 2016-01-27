@@ -4,44 +4,44 @@
     <string name="backup_wallet">Резервный кошелек</string>
     <string name="upgrade_wallet">Обновить кошелек</string>
     <string-array name="navigation_drawer_items_lame">
+        <item>@string/upgrade_wallet</item>
+        <item>Настройки</item>
+        <item>Изменить PIN</item>
         <item>Мои адреса</item>
         <item>Новости, цены и графики</item>
-        <item>Настройки</item>
         <item>Поддержка</item>
-        <item>Изменить PIN</item>
         <item>Отменить сопряжение кошелька</item>
-        <item>@string/upgrade_wallet</item>
     </string-array>
     <string-array name="navigation_drawer_items_hd">
-        <item>Мои учетные записи</item>
-        <item>Новости, цены и графики</item>
-        <item>Настройки</item>
-        <item>Поддержка</item>
-        <item>Изменить PIN</item>
         <item>@string/backup_wallet</item>
+        <item>Настройки</item>
+        <item>Изменить PIN</item>
+        <item>Мои адреса</item>
+        <item>Новости, цены и графики</item>
+        <item>Поддержка</item>
         <item>Отменить сопряжение кошелька</item>
     </string-array>
 
     <array name="navigation_drawer_icons_lame">
+        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_logout</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
     </array>
     <array name="navigation_drawer_icons_hd">
+        <item>@drawable/bad_backup</item>
+        <item>@drawable/icon_settings</item>
+        <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
         <item>@drawable/icon_news</item>
-        <item>@drawable/icon_settings</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/bad_backup</item>
         <item>@drawable/icon_logout</item>
-    </array><!--
-    <string name="app_name">Blockchain HD</string>
-    --><string name="app_name">Blockchain</string>
+    </array>
+
+    <string name="app_name">Blockchain</string>
     <string name="action_settings">Настройки</string>
 
     <string name="all_accounts">Все учетные записи</string>
