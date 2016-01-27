@@ -53,6 +53,8 @@ import info.blockchain.wallet.util.ToastCustom;
 
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
@@ -257,8 +259,112 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private void createNewAccount(){
-        //TODO - Go to create
+    private void createNewAccount() {
+
+        final EditText etLabel = new EditText(this);
+        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.label)
+                .setMessage(R.string.assign_display_name)
+                .setView(etLabel)
+                .setCancelable(false)
+                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
+                            addAccount(etLabel.getText().toString().trim());
+                        } else {
+                            ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        }
+                    }
+                }).setNegativeButton(R.string.cancel, null).show();
+    }
+
+    private void addAccount(final String accountLabel) {
+
+        if (!ConnectivityStatus.hasConnectivity(AccountActivity.this)) {
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        } else {
+
+            new AsyncTask<Void, Void, Void>() {
+
+                ProgressDialog progress;
+
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+                    progress = new ProgressDialog(AccountActivity.this);
+                    progress.setTitle(R.string.app_name);
+                    progress.setMessage(AccountActivity.this.getResources().getString(R.string.please_wait));
+                    progress.show();
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    if (progress != null && progress.isShowing()) {
+                        progress.dismiss();
+                        progress = null;
+                    }
+                }
+
+                @Override
+                protected Void doInBackground(Void... params) {
+
+                    try {
+                        //Add new account (only label)
+                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().add(new Account(accountLabel));
+
+
+                        //Set walletFactory to look at new account index
+                        Wallet walletFactory = WalletFactory.getInstance().get();
+                        walletFactory.addAccount();
+
+                        //set xpub and xpriv
+                        int newAccountIndex = walletFactory.getAccounts().size() - 1;
+
+                        String xpub = walletFactory.getAccount(newAccountIndex).xpubstr();
+                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpub(xpub);
+
+                        String xpriv = walletFactory.getAccount(newAccountIndex).xprvstr();
+                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpriv(xpriv);
+
+                        //Save payload
+                        if (PayloadBridge.getInstance(AccountActivity.this).remoteSaveThreadLocked()) {
+
+                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                            AccountsUtil.getInstance(context).initAccountMaps();
+
+                            //Subscribe to new xpub only if successfully created
+                            Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+                            intent.putExtra("xpub", xpub);
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+                            //Reset current selected
+                            AccountsUtil.getInstance(AccountActivity.this).setCurrentSpinnerIndex(0);
+
+                            //Update adapter list
+                            updateAccountsList();
+
+                        } else {
+                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+
+                    return null;
+                }
+            }.execute();
+        }
     }
 
     private void createNewAddress(){

@@ -465,4 +465,5 @@
         information, they may be able to keep track of your payments, and may be able to disrupt
         your access to your wallet.
     </string>
+    <string name="assign_display_name">Assign a friendly display name.</string>
 </resources>

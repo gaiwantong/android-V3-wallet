@@ -5,7 +5,6 @@
     <!-- Hide create account for now-->
     <item android:id="@+id/action_create_new"
 		  auto:showAsAction="never"
-          android:visible="false"
           android:title="@string/create_new"/>
 
     <item android:id="@+id/action_import_address"
