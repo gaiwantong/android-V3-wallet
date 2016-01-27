@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -51,6 +52,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.bip44.Wallet;
@@ -261,9 +263,68 @@ public class AccountActivity extends AppCompatActivity {
 
     private void createNewAccount() {
 
+        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            promptForAccountLabel(null);
+        } else {
+
+            promptForSecondPassword(new OpSimpleCallback() {
+                @Override
+                public void onSuccess(String validatedSecondPassword) {
+
+                    promptForAccountLabel(validatedSecondPassword);
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                }
+
+                @Override
+                public void onFail() {
+                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                }
+            });
+        }
+    }
+
+    private void promptForSecondPassword(final OpSimpleCallback callback){
+
+        final EditText double_encrypt_password = new EditText(AccountActivity.this);
+        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(AccountActivity.this)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.enter_double_encryption_pw)
+                .setView(double_encrypt_password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String secondPassword = double_encrypt_password.getText().toString();
+
+                        if (secondPassword != null &&
+                                secondPassword.length() > 0 &&
+                                DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        new CharSequenceX(secondPassword), PayloadFactory.getInstance().get().getOptions().getIterations()) &&
+                                !StringUtils.isEmpty(secondPassword)) {
+
+                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
+                            callback.onSuccess(secondPassword);
+
+                        } else {
+                            callback.onFail();
+                        }
+
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ;
+            }
+        }).show();
+    }
+
+    private void promptForAccountLabel(final String validatedSecondPassword){
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
-
         new AlertDialog.Builder(this)
                 .setTitle(R.string.label)
                 .setMessage(R.string.assign_display_name)
@@ -273,7 +334,7 @@ public class AccountActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
-                            addAccount(etLabel.getText().toString().trim());
+                            addAccount(etLabel.getText().toString().trim(), validatedSecondPassword);
                         } else {
                             ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
@@ -281,7 +342,7 @@ public class AccountActivity extends AppCompatActivity {
                 }).setNegativeButton(R.string.cancel, null).show();
     }
 
-    private void addAccount(final String accountLabel) {
+    private void addAccount(final String accountLabel, final String secondPassword) {
 
         if (!ConnectivityStatus.hasConnectivity(AccountActivity.this)) {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -333,6 +394,17 @@ public class AccountActivity extends AppCompatActivity {
                         PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpub(xpub);
 
                         String xpriv = walletFactory.getAccount(newAccountIndex).xprvstr();
+
+                        //Respect second password
+                        if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+
+                            xpriv = DoubleEncryptionFactory.getInstance().encrypt(
+                                    xpriv,
+                                    PayloadFactory.getInstance().get().getSharedKey(),
+                                    secondPassword.toString(),
+                                    PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
+                        }
+
                         PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpriv(xpriv);
 
                         //Save payload
