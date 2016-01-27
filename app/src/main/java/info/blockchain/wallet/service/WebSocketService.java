@@ -24,6 +24,7 @@ public class WebSocketService extends android.app.Service {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
                 webSocketHandler.subscribeToAddress(intent.getStringExtra("address"));
+                webSocketHandler.subscribeToXpub(intent.getStringExtra("xpub"));
             }
         }
     };

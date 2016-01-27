@@ -1,11 +1,15 @@
 package info.blockchain.wallet.util;
 
+import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.SystemClock;
+import android.view.MotionEvent;
 
 import info.blockchain.wallet.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -31,6 +35,8 @@ public class AppUtil {
     private static String strReceiveQRFilename = null;
 
     private static boolean newlyCreated = false;
+
+    private AlertDialog alertDialog = null;
 
     private AppUtil() {
         // Singleton
@@ -184,6 +190,35 @@ public class AppUtil {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                 AppUtil.logout();
             }
+        }
+    }
+
+    public boolean detectObscuredWindow(MotionEvent event){
+        //Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
+        if ((!PrefsUtil.getInstance(context).getValue("OVERLAY_TRUSTED",false)) && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
+
+            //Prevent multiple popups
+            if(alertDialog != null)
+                alertDialog.dismiss();
+
+            alertDialog = new AlertDialog.Builder(context)
+                    .setTitle(R.string.screen_overlay_warning)
+                    .setMessage(R.string.screen_overlay_note)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            PrefsUtil.getInstance(context).setValue("OVERLAY_TRUSTED", true);
+                            dialog.dismiss();
+                        }
+                    }).setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                            ((Activity) context).finish();
+                        }
+                    }).show();
+                return true;//consume event
+        }else {
+            return false;
         }
     }
 }
