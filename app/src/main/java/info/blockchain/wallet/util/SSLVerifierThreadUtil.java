@@ -13,8 +13,8 @@ public class SSLVerifierThreadUtil {
 
     private static SSLVerifierThreadUtil instance = null;
     private static Context context = null;
-    private int strikeCount = 0;
-    private int strikeLimit = 5;
+
+    private AlertDialog alertDialog = null;
 
     private SSLVerifierThreadUtil() {
         ;
@@ -42,61 +42,23 @@ public class SSLVerifierThreadUtil {
 
                 if (ConnectivityStatus.hasConnectivity(context)) {
 
-                    if (!SSLVerifierUtil.getInstance(context).isValidHostname()) {
-
-                        strikeCount++;
-                        if (strikeCount < strikeLimit) {
-
-                            //Possible connection issue, retry  ssl verify
-                            try {
-                                Thread.sleep(1000);
-                            } catch (Exception e) {
-                            }
-                            validateSSLThread();
-                            return;
-
-                        } else {
-
-                            //ssl verify failed 5 time - something is wrong, warn user
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                            final String message = context.getString(R.string.ssl_hostname_invalid);
-
-                            if (!((Activity) context).isFinishing()) {
-                                builder.setMessage(message)
-                                        .setCancelable(false)
-                                        .setPositiveButton(R.string.dialog_continue,
-                                                new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface d, int id) {
-                                                        d.dismiss();
-                                                    }
-                                                });
-
-                                builder.create().show();
-                            }
-                        }
+                    //Pin SSL certificate
+                    switch (SSLVerifierUtil.getInstance(context).certificatePinned()) {
+                        case SSLVerifierUtil.STATUS_POTENTIAL_SERVER_DOWN:
+                            //On connection issue: 2 choices - retry or exit
+                            showAlertDialog(context.getString(R.string.ssl_no_connection), false);
+                            break;
+                        case SSLVerifierUtil.STATUS_PINNING_FAIL:
+                            //On fail: only choice is to exit app
+                            showAlertDialog(context.getString(R.string.ssl_pinning_invalid), true);
+                            break;
+                        case SSLVerifierUtil.STATUS_PINNING_SUCCESS:
+                            //Certificate pinning successful: safe to continue
+                            break;
                     }
-
-                    if (!SSLVerifierUtil.getInstance(context).certificatePinned()) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                        final String message = context.getString(R.string.ssl_pinning_invalid);
-
-                        if (!((Activity) context).isFinishing()) {
-                            builder.setMessage(message)
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.dialog_continue,
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface d, int id) {
-                                                    d.dismiss();
-                                                }
-                                            });
-
-                            builder.create().show();
-                        }
-                    }
-
-                    strikeCount = 0;
+                } else {
+                    //On connection issue: 2 choices - retry or exit
+                    showAlertDialog(context.getString(R.string.ssl_no_connection), false);
                 }
 
                 handler.post(new Runnable() {
@@ -112,4 +74,37 @@ public class SSLVerifierThreadUtil {
         }).start();
     }
 
+    private void showAlertDialog(final String message, final boolean forceExit){
+
+        if (!((Activity) context).isFinishing()) {
+
+            if(alertDialog != null)alertDialog.dismiss();
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage(message);
+            builder.setCancelable(false);
+
+            if(!forceExit) {
+                builder.setPositiveButton(R.string.retry,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int id) {
+                                d.dismiss();
+                                //Retry
+                                validateSSLThread();
+                            }
+                        });
+            }
+
+            builder.setNegativeButton(R.string.exit,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface d, int id) {
+                            d.dismiss();
+                            ((Activity) context).finish();
+                        }
+                    });
+
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
+    }
 }

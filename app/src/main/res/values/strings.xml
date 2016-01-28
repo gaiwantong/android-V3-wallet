@@ -430,4 +430,32 @@
     <string name="saving_changes">Saving changes...</string>
     <string name="warning">Warning</string>
 
+    <string name="ssl_no_connection">We are unable to connect to the host to verify the SSL certificate. Please verify your network connection and device before continuing.</string>
+    <string name="retry">Retry</string>
+    <string name="exit">Exit</string>
+    <string name="screen_overlay_warning">Screen overlay detected!</string>
+    <string name="screen_overlay_note">Apps that use screen overlays have the ability to trick you
+        into tapping on unseen objects and potentially steal funds. If you are confident that there
+        is no threat you may continue.
+    </string>
+    <string name="Archived">Archived</string>
+    <string name="Not_Archived">Not Archived</string>
+    <string name="archived_description">This item is archived. You can\'t access it or send funds
+        from it. Your funds are safe and you can unarchive at any time.
+    </string>
+    <string name="not_archived_description">This item is not archived. If you archive this item you
+        won\'t be able to access it or send from it. Your funds will be safe and you can unarchive
+        at any time.
+    </string>
+    <string name="extended_public_key">Extended Public Key</string>
+    <string name="address">Address</string>
+    <string name="copy_xpub">Copy xPub</string>
+    <string name="scan_this_code">Scan this code or copy it into your Blockchain Merchant app to
+        securely receive Bitcoin.
+    </string>
+    <string name="xpub_sharing_warning">You should only give this xPub to those you trust. With this
+        information, they may be able to keep track of your payments, and may be able to disrupt
+        your access to your wallet.
+    </string>
+    <string name="assign_display_name">Assign a friendly display name.</string>
 </resources>

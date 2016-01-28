@@ -10,6 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
+            android:paddingBottom="4dp"
             android:background="@color/white"
             android:orientation="vertical">
 
@@ -38,6 +39,101 @@
         </EditText>
 
     </LinearLayout>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="1dp"
+            android:background="@color/blockchain_grey"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:gravity="center_vertical"
+                      android:orientation="horizontal">
+
+            <TextView
+                    android:id="@+id/tv_xpub"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="Extended public key"
+                    android:textSize="14sp"
+                    android:paddingLeft="16dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/blockchain_grey"
+                    android:duplicateParentState="true">
+            </TextView>
+
+            <ImageView
+                    android:id="@+id/iv_qr"
+                    android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:tint="@color/black"
+                       android:paddingRight="16dp"
+                       android:paddingTop="8dp"
+                       android:paddingBottom="8dp"
+                       android:paddingLeft="4dp"
+                       android:gravity="center_vertical"
+                       android:src="@drawable/icon_qrcode"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/blockchain_grey"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/tv_archive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Archive"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/blockchain_grey"
+                android:duplicateParentState="true">
+        </TextView>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+            <TextView
+                    android:id="@+id/tv_archive_description"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:textSize="14sp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:textColor="@color/primary_text_default_material_light">
+            </TextView>
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:id="@+id/switch_archive"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/blockchain_grey"/>
 
     <LinearLayout
             android:layout_width="match_parent"

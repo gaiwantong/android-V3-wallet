@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,6 +30,8 @@ public class SupportActivity extends Activity {
 
         setContentView(R.layout.activity_support);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.contact_support));

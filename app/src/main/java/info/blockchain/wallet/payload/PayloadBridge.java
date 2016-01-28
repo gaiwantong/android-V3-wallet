@@ -1,6 +1,7 @@
 package info.blockchain.wallet.payload;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -101,6 +102,18 @@ public class PayloadBridge {
         PayloadFactory.getInstance().setNew(true);
 
         return true;
+    }
+
+    /**
+     * Remote save of payload to server - no thread.
+     */
+    public boolean remoteSaveThreadLocked()  {
+
+        if (PayloadFactory.getInstance().get() != null) {
+            return PayloadFactory.getInstance().put();
+        }else{
+            return false;
+        }
     }
 
     /**

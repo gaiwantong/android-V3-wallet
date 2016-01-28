@@ -86,4 +86,15 @@ public class LandingActivity extends Activity {
         super.onResume();
         AppUtil.getInstance(this).stopLogoutTimer();
     }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+
+        //Test for screen overlays before user creates a new wallet or enters confidential information
+        if(AppUtil.getInstance(this).detectObscuredWindow(event)){
+            return true;//consume event
+        }else{
+            return super.dispatchTouchEvent(event);
+        }
+    }
 }

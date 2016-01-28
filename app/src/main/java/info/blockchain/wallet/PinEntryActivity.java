@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
@@ -142,6 +143,17 @@ public class PinEntryActivity extends Activity {
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+
+        //Test for screen overlays before user enters PIN
+        if(AppUtil.getInstance(this).detectObscuredWindow(event)){
+            return true;//consume event
+        }else{
+            return super.dispatchTouchEvent(event);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         cancelClicked(null);
@@ -253,15 +265,6 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 try {
                     Looper.prepare();
-
-                    //V3 Upgrade Sanity check
-                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_UPGRADE_INTERRUPTED, false)) {
-
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.upgrade_interrupted), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        dismissProgressView();
-                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
-                        return;
-                    }
 
                     if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
                         PayloadFactory.getInstance().setTempPassword(pw);

@@ -92,8 +92,15 @@ public class WebSocketHandler {
         }
     }
 
+    public synchronized void subscribeToXpub(String xpub) {
+        if(xpub!= null && !xpub.isEmpty()) {
+            send("{\"op\":\"xpub_sub\", \"xpub\":\"" + xpub + "\"}");
+        }
+    }
+
     public synchronized void subscribeToAddress(String address) {
-        send("{\"op\":\"addr_sub\", \"addr\":\"" + address + "\"}");
+        if(address!= null && !address.isEmpty())
+            send("{\"op\":\"addr_sub\", \"addr\":\"" + address + "\"}");
     }
 
     public void stop() {
