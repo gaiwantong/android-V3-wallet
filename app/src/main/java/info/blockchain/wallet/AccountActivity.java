@@ -25,11 +25,13 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
@@ -107,6 +109,7 @@ public class AccountActivity extends AppCompatActivity {
     private List<LegacyAddress> legacy = null;
     private ProgressDialog progress = null;
     private Context context = null;
+    private FloatingActionsMenu menuMultipleActions = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +123,24 @@ public class AccountActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         initToolbar();
+
+        setupViews();
+
+        setFab();
+    }
+
+    private void initToolbar(){
+
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
+        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
+            toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
+        } else {
+            toolbar.setTitle(getResources().getString(R.string.my_addresses));
+        }
+        setSupportActionBar(toolbar);
+    }
+
+    private void setupViews(){
 
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
@@ -152,15 +173,56 @@ public class AccountActivity extends AppCompatActivity {
         );
     }
 
-    private void initToolbar(){
+    private void setFab(){
 
-        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
+        //First icon when fab expands
+        FloatingActionButton actionA = new FloatingActionButton(getBaseContext());
+        actionA.setColorNormal(getResources().getColor(R.color.blockchain_transfer_blue));
+        actionA.setSize(FloatingActionButton.SIZE_MINI);
+        actionA.setIconDrawable(getResources().getDrawable(R.drawable.icon_accounthd));
+        actionA.setColorPressed(getResources().getColor(R.color.blockchain_dark_blue));
+
         if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
-            toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
-        } else {
-            toolbar.setTitle(getResources().getString(R.string.my_addresses));
+            //V3
+            actionA.setTitle(getResources().getString(R.string.create_new));
+            actionA.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createNewAccount();
+                    if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+                }
+            });
+        }else {
+            //V2
+            actionA.setTitle(getResources().getString(R.string.create_new_address));
+            actionA.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createNewAddress();
+                    if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+                }
+            });
         }
-        setSupportActionBar(toolbar);
+
+        //Second icon when fab expands
+        FloatingActionButton actionB = new FloatingActionButton(getBaseContext());
+        actionB.setColorNormal(getResources().getColor(R.color.blockchain_transfer_blue));
+        actionB.setSize(FloatingActionButton.SIZE_MINI);
+        actionB.setIconDrawable(getResources().getDrawable(R.drawable.icon_imported));
+        actionB.setColorPressed(getResources().getColor(R.color.blockchain_dark_blue));
+        actionB.setTitle(getResources().getString(R.string.import_address));
+        actionB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                importAddress();
+                if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+            }
+        });
+
+        //Add buttons to expanding fab
+        menuMultipleActions = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
+        menuMultipleActions.addButton(actionA);
+        menuMultipleActions.addButton(actionB);
     }
 
     private void onRowClick(int position){
@@ -176,31 +238,14 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
-            inflater.inflate(R.menu.v3_myaccounts_activity_actions, menu);
-        }else {
-            inflater.inflate(R.menu.v2_myaccounts_activity_actions, menu);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return true;
-            case R.id.action_import_address:
-                importAddress();
-                return true;
-            case R.id.action_create_new:
-                createNewAccount();
-                return true;
-            case R.id.action_create_new_address:
-                createNewAddress();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
