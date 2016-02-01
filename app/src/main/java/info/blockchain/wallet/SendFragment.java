@@ -760,12 +760,28 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 ;
             }
 
-        //TODO select default
+        selectDefaultAccount();
 
         displayMaxAvailable();
 
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+    }
+
+    private void selectDefaultAccount() {
+
+        if (sendFromSpinner != null) {
+
+            if (PayloadFactory.getInstance().get().isUpgraded()) {
+                int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+                Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+                int defaultSpinnerIndex = sendFromBiMap.get(defaultAccount);
+                sendFromSpinner.setSelection(defaultSpinnerIndex);
+            } else {
+                //V2
+                sendFromSpinner.setSelection(0);
+            }
+        }
     }
 
     @Override
