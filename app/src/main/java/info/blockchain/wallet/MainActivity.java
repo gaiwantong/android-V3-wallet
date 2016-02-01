@@ -43,7 +43,6 @@ import info.blockchain.wallet.drawer.DrawerItem;
 import info.blockchain.wallet.listeners.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
@@ -224,8 +223,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
-                        AccountsUtil.getInstance(MainActivity.this).initAccountMaps();
 
                         if (progress != null && progress.isShowing()) {
                             progress.dismiss();
