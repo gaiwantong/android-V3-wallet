@@ -32,6 +32,19 @@
 		</LinearLayout>
 
 		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/from"
+				android:layout_marginTop="16dp"
+				android:textColor="@color/blockchain_grey"/>
+
+		<TextView
+				android:id="@+id/confirm_from"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textColor="@color/primary_text_default_material_light"/>
+
+		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/to"

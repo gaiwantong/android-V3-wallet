@@ -1,12 +1,16 @@
 package info.blockchain.wallet;
 
+import com.google.common.collect.HashBiMap;
+
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -37,7 +41,6 @@ import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -45,7 +48,6 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
@@ -91,9 +93,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private TextView tvMax = null;
     private TableLayout numpad;
 
-    private Spinner spinnerSendFrom = null;
-    private ReselectSpinner spinnerReceiveTo = null;
-    private List<String> accountList = null;
+    private Spinner sendFromSpinner = null;
+    private List<String> sendFromList = null;
+    private HashBiMap<Object, Integer> sendFromBiMap = null;
+    private SendFromAdapter sendFromAdapter = null;
+
+    private ReselectSpinner receiveToSpinner = null;
+    private List<String> receiveToList = null;
+    private HashBiMap<Object, Integer> receiveToBiMap = null;
+    private ReceiveToAdapter receiveToAdapter = null;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
@@ -108,11 +116,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private boolean spendInProgress = false;//Used to avoid double clicking on spend and opening confirm dialog twice
     private boolean spDestinationSelected = false;//When a destination is selected from dropdown, mark spend as 'Moved'
 
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+
+            if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
+                updateSendFromSpinnerList();
+                updateReceiveToSpinnerList();
+            }
+        }
+    };
+
     private class PendingSpend {
 
         boolean isHD;
         int fromXpubIndex;
         LegacyAddress fromLegacyAddress;
+        Account fromAccount;
         String note;
         String destination;
         BigInteger bigIntFee;
@@ -134,11 +154,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         setFiatTextWatcher();
 
-        //accountList is linked to Adapters - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
-        accountList = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
+        sendFromList = new ArrayList<>();
+        sendFromBiMap = HashBiMap.create();
+        receiveToList = new ArrayList<>();
+        receiveToBiMap = HashBiMap.create();
+
+        updateSendFromSpinnerList();
+        updateReceiveToSpinnerList();
 
         setSendFromDropDown();
-
         setReceiveToDropDown();
 
         initVars();
@@ -178,8 +202,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private void setupViews(){
 
-        spinnerSendFrom = (Spinner) rootView.findViewById(R.id.accounts);
-        spinnerReceiveTo = (ReselectSpinner) rootView.findViewById(R.id.sp_destination);
+        sendFromSpinner = (Spinner) rootView.findViewById(R.id.accounts);
+        receiveToSpinner = (ReselectSpinner) rootView.findViewById(R.id.sp_destination);
         edReceiveTo = ((EditText) rootView.findViewById(R.id.destination));
 
         edAmount1 = ((EditText) rootView.findViewById(R.id.amount1));
@@ -193,33 +217,30 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private void setSendFromDropDown(){
 
-        if (accountList.size() == 1) rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+        if (sendFromList.size() == 1) rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
-        SendFromAdapter dataAdapter = new SendFromAdapter(getActivity(), R.layout.spinner_item, accountList);
-        spinnerSendFrom.setAdapter(dataAdapter);
-        spinnerSendFrom.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        sendFromAdapter = new SendFromAdapter(getActivity(), R.layout.spinner_item, sendFromList);
+        sendFromSpinner.setAdapter(sendFromAdapter);
+        sendFromSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
             public void onGlobalLayout() {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    spinnerSendFrom.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    sendFromSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
-                    spinnerSendFrom.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    sendFromSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                spinnerSendFrom.setDropDownWidth(spinnerSendFrom.getWidth());
+                sendFromSpinner.setDropDownWidth(sendFromSpinner.getWidth());
             }
         });
 
-        spinnerSendFrom.setOnItemSelectedListener(
+        sendFromSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
-                        //Retain selected account/address for Balance and Receive fragment
-                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(spinnerSendFrom.getSelectedItemPosition() + 1);//all account included
-
-                        displayMaxAvailable(spinnerSendFrom.getSelectedItemPosition());
+                        displayMaxAvailable();
                     }
 
                     @Override
@@ -231,47 +252,141 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     }
 
+    private void updateSendFromSpinnerList() {
+        //sendFromList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        sendFromList.clear();
+        sendFromBiMap.clear();
+
+        int spinnerIndex = 0;
+
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
+
+            //V3
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for (Account item : accounts) {
+
+                if (item.isArchived())
+                    continue;//skip archived account
+
+                //no xpub watch only yet
+
+                sendFromList.add(item.getLabel());
+                sendFromBiMap.put(item, spinnerIndex);
+                spinnerIndex++;
+            }
+        }
+
+        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
+        for (LegacyAddress legacyAddress : legacyAddresses) {
+
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS || legacyAddress.isWatchOnly())
+                continue;//skip archived and watch only address
+
+            //If address has no label, we'll display address
+            String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+
+            sendFromList.add(labelOrAddress);
+            sendFromBiMap.put(legacyAddress, spinnerIndex);
+            spinnerIndex++;
+        }
+
+        //Notify adapter of list update
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (sendFromAdapter != null) sendFromAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void updateReceiveToSpinnerList() {
+        //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        receiveToList.clear();
+        receiveToBiMap.clear();
+
+        int spinnerIndex = 0;
+
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
+
+            //V3
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for (Account item : accounts) {
+
+                if (item.isArchived())
+                    continue;//skip archived account
+
+                //no xpub watch only yet
+
+                receiveToList.add(item.getLabel());
+                receiveToBiMap.put(item, spinnerIndex);
+                spinnerIndex++;
+            }
+        }
+
+        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
+        for (LegacyAddress legacyAddress : legacyAddresses) {
+
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+                continue;//skip archived address
+
+            //If address has no label, we'll display address
+            String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+
+            //Prefix "watch-only"
+            if (legacyAddress.isWatchOnly()) {
+                labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
+            }
+
+            receiveToList.add(labelOrAddress);
+            receiveToBiMap.put(legacyAddress, spinnerIndex);
+            spinnerIndex++;
+        }
+
+        //Notify adapter of list update
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (receiveToAdapter != null) receiveToAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
     private void setReceiveToDropDown(){
 
-        ReceiveToAdapter receiveToAdapter = new ReceiveToAdapter(getActivity(), R.layout.spinner_item, accountList);
+        receiveToAdapter = new ReceiveToAdapter(getActivity(), R.layout.spinner_item, receiveToList);
         receiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
 
         //If there is only 1 account/address - hide drop down
-        if (accountList.size() <= 1)spinnerReceiveTo.setVisibility(View.GONE);
+        if (receiveToList.size() <= 1) receiveToSpinner.setVisibility(View.GONE);
 
-        spinnerReceiveTo.setAdapter(receiveToAdapter);
-        spinnerReceiveTo.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        receiveToSpinner.setAdapter(receiveToAdapter);
+        receiveToSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
             public void onGlobalLayout() {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    spinnerReceiveTo.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    receiveToSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
-                    spinnerReceiveTo.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    receiveToSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                spinnerReceiveTo.setDropDownWidth(spinnerSendFrom.getWidth());
+                receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
             }
         });
 
-        spinnerReceiveTo.setOnItemSelectedEvenIfUnchangedListener(
+        receiveToSpinner.setOnItemSelectedEvenIfUnchangedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
-                        int position = spinnerReceiveTo.getSelectedItemPosition();
-                        spinnerReceiveTo.getSelectedItem().toString();
-                        String receiveAddress = null;
+                        final Object object = receiveToBiMap.inverse().get(receiveToSpinner.getSelectedItemPosition());
 
-                        if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
-                            //Legacy addresses
-                            final LegacyAddress account = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+                        if (object instanceof LegacyAddress) {
 
-                            if (account.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                                edReceiveTo.setText("");
-                                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                return;
-                            } else if (account.isWatchOnly()) {
+                            //V2
+                            if (((LegacyAddress) object).isWatchOnly()) {
 
                                 new AlertDialog.Builder(getActivity())
                                         .setTitle(R.string.warning)
@@ -279,34 +394,22 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         .setMessage(R.string.watchonly_address_receive_warning)
                                         .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
-                                                edReceiveTo.setText(account.getAddress());
+                                                edReceiveTo.setText(((LegacyAddress) object).getAddress());
                                             }
                                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         edReceiveTo.setText("");
                                     }
                                 }).show();
-
-                                return;
                             } else {
-                                receiveAddress = account.getAddress();
+                                edReceiveTo.setText(((LegacyAddress) object).getAddress());
                             }
-
                         } else {
-                            //hd accounts
-                            Integer currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
-                            try {
-                                ReceiveAddress currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
-                                receiveAddress = currentSelectedReceiveAddress.getAddress();
-
-                            } catch (IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
-                                    | MnemonicException.MnemonicWordException | AddressFormatException
-                                    | DecoderException e) {
-                                e.printStackTrace();
-                            }
+                            //V3
+                            //TODO - V3 no watch only yet
+                            edReceiveTo.setText(getV3ReceiveAddress((Account) object));
                         }
 
-                        edReceiveTo.setText(receiveAddress);
                         spDestinationSelected = true;
                     }
 
@@ -315,7 +418,20 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
                 }
         );
+    }
 
+    private String getV3ReceiveAddress(Account account) {
+
+        try {
+            int accountIndex = receiveToBiMap.get(account);
+            ReceiveAddress receiveAddress = null;
+            receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
+            return receiveAddress.getAddress();
+
+        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String getDefaultDecimalSeparator(){
@@ -621,7 +737,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(strBTC);
             tvFiat2.setText(strFiat);
-            displayMaxAvailable(spinnerSendFrom.getSelectedItemPosition());
+            displayMaxAvailable();
         } else {
             ;
         }
@@ -644,18 +760,17 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 ;
             }
 
-        if (spinnerSendFrom != null) {
+        //TODO select default
 
-            int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-            if (currentSelected != 0) currentSelected--;//exclude 'all account'
-            spinnerSendFrom.setSelection(currentSelected);
-        }
+        displayMaxAvailable();
 
-        displayMaxAvailable(spinnerSendFrom.getSelectedItemPosition());
+        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
     }
 
     @Override
     public void onPause() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
         super.onPause();
     }
 
@@ -689,12 +804,26 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
     }
 
-    private void displayMaxAvailable(int position) {
+    private void displayMaxAvailable() {
 
-        long amountAvailable = getMaxAvailable(position);
+        Object object = sendFromBiMap.inverse().get(sendFromSpinner.getSelectedItemPosition());//the current selected item in from dropdown (Account or Legacy Address)
 
-        if (amountAvailable > 0L) {
-            double btc_balance = (((double) amountAvailable) / 1e8);
+        long balance = 0L;
+        if(object instanceof Account) {
+            //V3
+            if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(((Account) object).getXpub())) {
+                balance = MultiAddrFactory.getInstance().getXpubAmounts().get(((Account) object).getXpub());
+            }
+        }else{
+            //V2
+            balance = MultiAddrFactory.getInstance().getLegacyBalance(((LegacyAddress)object).getAddress());
+        }
+
+        //Subtract fee
+        long balanceAfterFee = (balance - SendCoins.bFee.longValue());
+
+        if (balanceAfterFee > 0L) {
+            double btc_balance = (((double) balanceAfterFee) / 1e8);
             tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
         } else {
             if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
@@ -703,38 +832,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 tvMax.setText(R.string.no_funds_available);
             }
         }
-
-    }
-
-    private long getMaxAvailable(int position){
-
-        long amount = 0L;
-        int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
-        if (position >= hdAccountsIdx) {
-            amount = MultiAddrFactory.getInstance().getLegacyBalance(AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx).getAddress());
-        } else {
-            String xpub = account2Xpub(position);
-            if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-            } else {
-                amount = 0L;
-            }
-        }
-
-        return (amount - SendCoins.bFee.longValue());
-    }
-
-    public String account2Xpub(int sel) {
-
-        Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
-        String xpub = null;
-        if (hda instanceof ImportedAccount) {
-            xpub = null;
-        } else {
-            xpub = HDPayloadBridge.getInstance(getActivity()).account2Xpub(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(sel));
-        }
-
-        return xpub;
     }
 
     @Override
@@ -861,6 +958,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 final AlertDialog alertDialog = dialogBuilder.create();
                 alertDialog.setCanceledOnTouchOutside(false);
+
+                TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from);
+
+                if(pendingSpend.isHD) {
+                    confirmFrom.setText(pendingSpend.fromAccount.getLabel());
+                }else{
+                    confirmFrom.setText(pendingSpend.fromLegacyAddress.getLabel());
+                }
 
                 TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to);
                 confirmDestination.setText(pendingSpend.destination);
@@ -1070,25 +1175,19 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //is V3?
-        int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();//will be 0 if V2
-        if (spinnerSendFrom.getSelectedItemPosition() >= hdAccountsIdx) {
-            pendingSpend.isHD = false;
-        }else{
-            pendingSpend.isHD = true;
-        }
+        Object object = sendFromBiMap.inverse().get(sendFromSpinner.getSelectedItemPosition());
 
-        if(pendingSpend.isHD){
-            //V3
-            //Account index if V3, legacy address must be null
-            pendingSpend.fromXpubIndex = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spinnerSendFrom.getSelectedItemPosition());
-            pendingSpend.fromLegacyAddress = null;
-        }else{
+        if(object instanceof LegacyAddress){
             //V2
-            //Legacy address if V2, xpub index must be -1
-            int legacyIndex = spinnerSendFrom.getSelectedItemPosition() - hdAccountsIdx;
-            LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(legacyIndex);
-            pendingSpend.fromLegacyAddress = legacyAddress;
-            pendingSpend.fromXpubIndex = -1;
+            pendingSpend.isHD = false;
+            pendingSpend.fromLegacyAddress = (LegacyAddress) object;
+            pendingSpend.fromXpubIndex = -1;//V2, xpub index must be -1
+        }else{
+            //V3
+            pendingSpend.isHD = true;
+            pendingSpend.fromAccount = (Account) object;
+            pendingSpend.fromXpubIndex = sendFromBiMap.get(object);//TODO - get rid of this xpub index
+            pendingSpend.fromLegacyAddress = null;//V3, legacy address must be null
         }
 
         //Amount to send
@@ -1118,7 +1217,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         //Validate sufficient funds
         long amountToSendIncludingFee = pendingSpend.bigIntAmount.longValue() + SendCoins.bFee.longValue();
         if(pendingSpend.isHD){
-            String xpub = HDPayloadBridge.getInstance().account2Xpub(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(spinnerSendFrom.getSelectedItemPosition()));
+            String xpub = pendingSpend.fromAccount.getXpub();
             if(!hasSufficientFunds(xpub, null, amountToSendIncludingFee)){
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 return false;
@@ -1309,30 +1408,28 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             String labelText = "";
             long amount = 0L;
-            int hdAccountsIdx = AccountsUtil.getInstance(getActivity()).getLastHDIndex();
-            if (position >= hdAccountsIdx) {
-                LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx);
+
+            Object object = sendFromBiMap.inverse().get(position);
+
+            if(object instanceof LegacyAddress){
+                //V2
+                LegacyAddress legacyAddress = ((LegacyAddress) object);
                 if(legacyAddress.isWatchOnly())labelText = getActivity().getString(R.string.watch_only_label);
                 if (legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
                     labelText += legacyAddress.getLabel();
                 } else {
                     labelText += legacyAddress.getAddress();
                 }
-            } else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
-                labelText = hda.getLabel();
-            }
 
-            if (position >= hdAccountsIdx) {
-                LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - hdAccountsIdx);
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-            } else {
-                Account hda = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountMap().get(AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position));
-                String xpub = account2Xpub(position);
-                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                    amount = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-                } else {
-                    amount = 0L;
+
+            }else{
+                //V3
+                Account account = ((Account)object);
+                labelText = account.getLabel();
+
+                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(account.getXpub())) {
+                    amount = MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub());
                 }
             }
 
