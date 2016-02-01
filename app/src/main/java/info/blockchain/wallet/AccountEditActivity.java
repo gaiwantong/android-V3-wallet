@@ -6,12 +6,15 @@ import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +32,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.ToastCustom;
 
 import java.util.ArrayList;
@@ -38,10 +42,8 @@ import piuk.blockchain.android.R;
 
 public class AccountEditActivity extends AppCompatActivity {
 
+    private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
-    private EditText etLabel = null;
-    private TextView tvSave = null;
-    private TextView tvCancel = null;
 
     private TextView tvXpub = null;
     private ImageView ivQr = null;
@@ -69,14 +71,14 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void setupViews() {
 
-        tvLabel = (TextView) findViewById(R.id.tv_label);
+        tvLabelTitle = (TextView) findViewById(R.id.tv_label);
         if(account != null){
-            tvLabel.setText(getString(R.string.name));//V3
+            tvLabelTitle.setText(getString(R.string.name));//V3
         }else{
-            tvLabel.setText(getString(R.string.label));//V2
+            tvLabelTitle.setText(getString(R.string.label));//V2
         }
 
-        etLabel = (EditText) findViewById(R.id.account_name);
+        tvLabel = (TextView) findViewById(R.id.account_name);
 
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
         ivQr = (ImageView)findViewById(R.id.iv_qr);
@@ -103,33 +105,16 @@ public class AccountEditActivity extends AppCompatActivity {
 
         if (account != null) {
 
-            etLabel.setText(account.getLabel());
+            tvLabel.setText(account.getLabel());
             tvXpub.setText(R.string.extended_public_key);
             setArchive(account.isArchived());
 
         }else if (legacyAddress != null){
 
-            etLabel.setText(legacyAddress.getLabel());
+            tvLabel.setText(legacyAddress.getLabel());
             tvXpub.setText(R.string.address);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
         }
-
-        tvSave = (TextView) findViewById(R.id.confirm_save);
-        tvSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveChanges();
-            }
-        });
-
-        tvCancel = (TextView) findViewById(R.id.confirm_cancel);
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-        });
     }
 
     private void getIntentData() {
@@ -289,31 +274,31 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void saveChanges() {
 
-        String newLabel = etLabel.getText().toString();
-
-        if (newLabel.isEmpty()) {
-
-            ToastCustom.makeText(this,getString(R.string.label_cant_be_empty),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_ERROR);
-
-        } else {
-            if (legacyAddress != null) {
-                legacyAddress.setLabel(newLabel);
-
-                if(switchArchive.isChecked()){
-                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
-                }else{
-                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
-                }
-            } else if (account != null) {
-                account.setLabel(newLabel);
-                account.setArchived(switchArchive.isChecked());
-            }
-
-            ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);
-            PayloadBridge.getInstance(this).remoteSaveThread();
-            setResult(RESULT_OK);
-            finish();
-        }
+//        String newLabel = etLabel.getText().toString();
+//
+//        if (newLabel.isEmpty()) {
+//
+//            ToastCustom.makeText(this,getString(R.string.label_cant_be_empty),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_ERROR);
+//
+//        } else {
+//            if (legacyAddress != null) {
+//                legacyAddress.setLabel(newLabel);
+//
+//                if(switchArchive.isChecked()){
+//                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
+//                }else{
+//                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
+//                }
+//            } else if (account != null) {
+//                account.setLabel(newLabel);
+//                account.setArchived(switchArchive.isChecked());
+//            }
+//
+//            ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);
+//            PayloadBridge.getInstance(this).remoteSaveThread();
+//            setResult(RESULT_OK);
+//            finish();
+//        }
     }
 
     @Override
@@ -326,5 +311,80 @@ public class AccountEditActivity extends AppCompatActivity {
     public void onPause() {
         AppUtil.getInstance(this).startLogoutTimer();
         super.onPause();
+    }
+
+    public void changeLabelClicked(View view) {
+
+        final EditText etLabel = new EditText(this);
+        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        etLabel.setPadding(46, 16, 46, 16);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.name)
+                .setMessage(R.string.assign_display_name)
+                .setView(etLabel)
+                .setCancelable(false)
+                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                if (!ConnectivityStatus.hasConnectivity(AccountEditActivity.this)) {
+                                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                } else {
+                                    if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
+
+                                        String newLabel = etLabel.getText().toString().trim();
+
+                                        new AsyncTask<String, Void, Void>() {
+
+                                            ProgressDialog progress;
+
+                                            @Override
+                                            protected void onPreExecute() {
+                                                super.onPreExecute();
+                                                progress = new ProgressDialog(AccountEditActivity.this);
+                                                progress.setTitle(R.string.app_name);
+                                                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                                                progress.show();
+                                            }
+
+                                            @Override
+                                            protected void onPostExecute(Void aVoid) {
+                                                super.onPostExecute(aVoid);
+                                                if (progress != null && progress.isShowing()) {
+                                                    progress.dismiss();
+                                                    progress = null;
+                                                }
+                                            }
+
+                                            @Override
+                                            protected Void doInBackground(final String... params) {
+                                                String revertLabel = account.getLabel();
+                                                account.setLabel(params[0]);
+                                                if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            tvLabel.setText(params[0]);
+                                                            setResult(RESULT_OK);
+                                                        }
+                                                    });
+                                                } else {
+                                                    account.setLabel(revertLabel);//Remote save not successful - revert
+                                                }
+                                                return null;
+                                            }
+                                        }.execute(newLabel);
+
+
+                                    } else {
+                                        ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+                                }
+                            }
+                        }
+                ).
+                setNegativeButton(R.string.cancel, null)
+                .show();
+
     }
 }
