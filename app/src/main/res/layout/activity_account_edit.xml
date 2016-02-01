@@ -52,6 +52,7 @@
             android:layout_height="72dp"
             android:paddingBottom="4dp"
             android:background="@color/white"
+            android:onClick="revealExtendedXPub"
             android:orientation="vertical">
 
         <LinearLayout android:layout_width="match_parent"
@@ -73,16 +74,16 @@
             </TextView>
 
             <ImageView
-                    android:id="@+id/iv_qr"
                     android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:tint="@color/black"
-                       android:paddingRight="16dp"
-                       android:paddingTop="8dp"
-                       android:paddingBottom="8dp"
-                       android:paddingLeft="4dp"
-                       android:gravity="center_vertical"
-                       android:src="@drawable/icon_qrcode"/>
+                    android:layout_height="wrap_content"
+                    android:tint="@color/black"
+                    android:paddingRight="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="4dp"
+                    android:gravity="center_vertical"
+                    android:duplicateParentState="true"
+                    android:src="@drawable/icon_qrcode"/>
 
         </LinearLayout>
 

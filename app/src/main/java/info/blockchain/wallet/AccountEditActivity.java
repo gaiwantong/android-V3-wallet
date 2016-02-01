@@ -46,7 +46,6 @@ public class AccountEditActivity extends AppCompatActivity {
     private TextView tvLabel = null;
 
     private TextView tvXpub = null;
-    private ImageView ivQr = null;
 
     private TextView tvArchiveHeading = null;
     private TextView tvArchiveDescription = null;
@@ -81,17 +80,6 @@ public class AccountEditActivity extends AppCompatActivity {
         tvLabel = (TextView) findViewById(R.id.account_name);
 
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
-        ivQr = (ImageView)findViewById(R.id.iv_qr);
-        ivQr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (account != null) {
-                    showXpubSharingWarning();
-                }else{
-                    showAddressDetials();
-                }
-            }
-        });
 
         tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
         tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
@@ -220,9 +208,9 @@ public class AccountEditActivity extends AppCompatActivity {
         }else if (legacyAddress != null){
 
             tvHeading.setText(R.string.address);
-            tvXpubNote.setVisibility(View.GONE);
-            tvXpub.setText(legacyAddress.getAddress());
-            tvXpub.setTextIsSelectable(true);
+            tvXpubNote.setText(legacyAddress.getAddress());
+            tvXpub.setText(R.string.copy_address);
+            tvXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
             qrString = legacyAddress.getAddress();
         }
 
@@ -386,5 +374,13 @@ public class AccountEditActivity extends AppCompatActivity {
                 setNegativeButton(R.string.cancel, null)
                 .show();
 
+    }
+
+    public void revealExtendedXPub(View view) {
+        if (account != null) {
+            showXpubSharingWarning();
+        } else {
+            showAddressDetials();
+        }
     }
 }

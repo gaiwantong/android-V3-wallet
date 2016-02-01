@@ -449,7 +449,7 @@
     </string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>
-    <string name="copy_xpub">Copy xPub</string>
+    <string name="copy_xpub">Copy xpub</string>
     <string name="scan_this_code">Scan this code or copy it into your Blockchain Merchant app to
         securely receive Bitcoin.
     </string>
@@ -458,4 +458,5 @@
         your access to your wallet.
     </string>
     <string name="assign_display_name">Assign a friendly display name.</string>
+    <string name="copy_address">Copy address</string>
 </resources>
