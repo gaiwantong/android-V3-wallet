@@ -1,5 +1,7 @@
 package info.blockchain.wallet;
 
+import com.google.common.collect.HashBiMap;
+
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Fragment;
@@ -57,7 +59,6 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -66,7 +67,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
-import info.blockchain.wallet.util.ToastCustom;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -74,10 +74,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +89,6 @@ public class BalanceFragment extends Fragment {
     private final static int SHOW_BTC = 1;
     private final static int SHOW_FIAT = 2;
     private final static int SHOW_HIDE = 3;
-    private static int selectedAccountIndex = 0;
     private static int nbConfirmations = 3;
     private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
     private static boolean isBottomSheetOpen = false;
@@ -107,8 +106,6 @@ public class BalanceFragment extends Fragment {
     // main balance display
     //
     private TextView tvBalance1 = null;
-    private double btc_balance = 0.0;
-    private double fiat_balance = 0.0;
     private double btc_fx = 319.13;
     private Spannable span1 = null;
     private String strFiat = null;
@@ -117,14 +114,16 @@ public class BalanceFragment extends Fragment {
     // accounts list
     //
     private Spinner accountSpinner = null;
-    private ArrayList<String> accountList = null;
+    private ArrayList<String> activeAccountAndAddressList = null;
+    private HashBiMap<Object, Integer> activeAccountAndAddressBiMap = null;
     //
     // tx list
     //
-    private HashMap<String, List<Tx>> txMap = null;
-    private List<Tx> txs = new ArrayList<Tx>();
-    private RecyclerView txList = null;
-    private TxAdapter txAdapter = null;
+    private final String TAG_ALL = "TAG_ALL";
+    private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
+    private List<Tx> transactionList = new ArrayList<Tx>();
+    private RecyclerView transactionRecyclerView = null;
+    private TxAdapter transactionAdapter = null;
     private LinearLayout noTxMessage = null;
     private SlidingUpPanelLayout mLayout;
     private LinearLayout bottomSel1 = null;
@@ -167,13 +166,11 @@ public class BalanceFragment extends Fragment {
                             e.printStackTrace();
                         }
 
-                        AccountsUtil.getInstance(context).initAccountMaps();
-
                         // Update balance and transactions in the UI
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                updateAccountSpinner();
+                                updateAccountList();
                                 updateBalanceAndTransactionList(intent);
                             }
                         });
@@ -216,6 +213,10 @@ public class BalanceFragment extends Fragment {
             isBTC = false;
         }
 
+        activeAccountAndAddressList = new ArrayList<>();
+        activeAccountAndAddressBiMap = HashBiMap.create();
+        transactionList = new ArrayList<>();
+
         setupViews(rootView);
 
         SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
@@ -223,37 +224,125 @@ public class BalanceFragment extends Fragment {
         return rootView;
     }
 
-    private ArrayList<String> setAccountSpinner() {
+    private void updateAccountList(){
 
-        //Account names
-        ArrayList<String> accountList = new ArrayList<String>();
-        for (Account item : AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().values()) {
-            accountList.add(item.getLabel());
+        //activeAccountAndAddressList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        activeAccountAndAddressList.clear();
+        activeAccountAndAddressBiMap.clear();
+
+        int spinnerIndex = 0;
+
+        //All accounts/addresses
+        List<Account> allAccounts = null;
+        List<LegacyAddress> allLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
+        //Only active accounts/addresses (exclude archived)
+        List<Account> activeAccounts = new ArrayList<>();
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
+
+            allAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();//V3
+
+            for (Account item : allAccounts) {
+                if (!item.isArchived()) {
+                    activeAccounts.add(item);
+                }
+            }
+        }
+        List<LegacyAddress> activeLegacyAddresses = new ArrayList<>();
+        for (LegacyAddress item : allLegacyAddresses) {
+            if (item.getTag() != PayloadFactory.ARCHIVED_ADDRESS){
+                activeLegacyAddresses.add(item);
+            }
         }
 
-        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
-            //Multiple accounts - Show spinner
+        //"All" - total balance
+        if (activeAccounts != null && activeAccounts.size() > 1 || activeLegacyAddresses.size() > 0) {
+
+            if (PayloadFactory.getInstance().get().isUpgraded()) {
+
+                //Only V3 will display "All"
+                Account all = new Account();
+                all.setLabel(getActivity().getResources().getString(R.string.all_accounts));
+                all.setTags(Arrays.asList(TAG_ALL));
+                activeAccountAndAddressList.add(all.getLabel());
+                activeAccountAndAddressBiMap.put(all, spinnerIndex);
+                spinnerIndex++;
+
+            } else if (activeLegacyAddresses.size() > 1) {
+
+                //V2 "All" at top of accounts spinner if wallet contains multiple legacy addresses
+                ImportedAccount iAccount = new ImportedAccount(getActivity().getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+                iAccount.setTags(Arrays.asList(TAG_ALL));
+                activeAccountAndAddressList.add(iAccount.getLabel());
+                activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
+                spinnerIndex++;
+            }
+        }
+
+        //Add accounts to map
+        int accountIndex = 0;
+        for (Account item : activeAccounts) {
+
+            if (item.getLabel().trim().length() == 0)item.setLabel("Account: " + accountIndex);//Give unlabeled account a label
+
+            activeAccountAndAddressList.add(item.getLabel());
+            activeAccountAndAddressBiMap.put(item, spinnerIndex);
+            spinnerIndex++;
+            accountIndex++;
+        }
+
+        //Add "Imported Addresses" or "Total Funds" to map
+        if (PayloadFactory.getInstance().get().isUpgraded() && activeLegacyAddresses.size() > 0) {
+
+            //Only V3 - Consolidate and add Legacy addresses to "Imported Addresses" at bottom of accounts spinner
+            ImportedAccount iAccount = new ImportedAccount(getActivity().getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+            iAccount.setTags(Arrays.asList(TAG_IMPORTED_ADDRESSES));
+            activeAccountAndAddressList.add(iAccount.getLabel());
+            activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
+            spinnerIndex++;
+
+        }else{
+            for (LegacyAddress legacyAddress : activeLegacyAddresses) {
+
+                //If address has no label, we'll display address
+                String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().trim().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+
+                //Prefix "watch-only"
+                if (legacyAddress.isWatchOnly()) {
+                    labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
+                }
+
+                activeAccountAndAddressList.add(labelOrAddress);
+                activeAccountAndAddressBiMap.put(legacyAddress, spinnerIndex);
+                spinnerIndex++;
+            }
+        }
+
+        //If we have multiple accounts/addresses we will show dropdown in toolbar, otherwise we will only display a static text
+        if(activeAccountAndAddressList.size() > 1){
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.VISIBLE);
-            int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-            if (currentSelected < 0 || currentSelected >= accountList.size()) {
-                currentSelected = 0;
-            }
-            accountSpinner.setSelection(currentSelected);
-        } else {
-            //Single account - no spinner
-            AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
+        }else{
+            accountSpinner.setSelection(0);
+
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-            Account acc = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(0);
+            Account acc = (Account)activeAccountAndAddressBiMap.inverse().get(0);
             if (acc != null && acc.getLabel() != null) {
                 ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
             }
+
             accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.GONE);
         }
 
-        return accountList;
+        //Notify adapter of list update
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -272,8 +361,6 @@ public class BalanceFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        AccountsUtil.getInstance(getActivity()).initAccountMaps();
-
         MainActivity.currentFragment = this;
 
         comm.resetNavigationDrawer();
@@ -291,7 +378,7 @@ public class BalanceFragment extends Fragment {
         }
 
         updateBalanceAndTransactionList(null);
-        updateAccountSpinner();
+        updateAccountList();
     }
 
     @Override
@@ -309,67 +396,64 @@ public class BalanceFragment extends Fragment {
 
     private void updateBalanceAndTransactionList(Intent intent) {
 
-        txMap = MultiAddrFactory.getInstance().getXpubTxs();
+        ArrayList<Tx> unsortedTransactionList = new ArrayList<>();//We will sort this list by date shortly
+        double btc_balance = 0.0;
+        double fiat_balance = 0.0;
 
-        if (selectedAccountIndex < 0) {
-            //All accounts / funds
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
+        Object object = activeAccountAndAddressBiMap.inverse().get(accountSpinner.getSelectedItemPosition());//the current selected item in dropdown (Account or Legacy Address)
 
-                //Add all xpub and legacy transactions
-                txs = new ArrayList<Tx>();
-                txs.addAll(MultiAddrFactory.getInstance().getAllXpubTxs());
-                txs.addAll(MultiAddrFactory.getInstance().getLegacyTxs());
+        if(object instanceof Account){
+            //V3
+            Account account = ((Account) object);
 
-                //Balance = all xpubs + all legacy address balances
-                btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-            } else {
-                //Add all legacy transactions
-                txs = MultiAddrFactory.getInstance().getLegacyTxs();
-                //Balance = all legacy address balances
+            //V3 - All
+            if(account.getTags().contains(TAG_ALL)){
+                if (PayloadFactory.getInstance().get().isUpgraded()) {
+                    //Total for accounts
+                    List<Tx> allXpubTransactions = MultiAddrFactory.getInstance().getAllXpubTxs();
+                    List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
+                    if(allXpubTransactions != null)unsortedTransactionList.addAll(allXpubTransactions);
+                    if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
+
+                    //Balance = all xpubs + all legacy address balances
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+
+                }else{
+                    //Total for legacyAddresses
+                    List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
+                    if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
+                    //Balance = all legacy address balances
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
+                }
+            }else if(account.getTags().contains(TAG_IMPORTED_ADDRESSES)){
+                //V3 - Imported Addresses
+                List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
+                if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
                 btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-            }
-        } else {
-            //Individual account / address
-            String xpub = account2Xpub(selectedAccountIndex);
-            if (xpub != null) {
-                //V3 account selected
+
+            }else{
+                //V3 - Individual
+                String xpub = account.getXpub();
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
-                    txs = txMap.get(xpub);
+                    List<Tx> xpubTransactions = MultiAddrFactory.getInstance().getXpubTxs().get(xpub);
+                    if(xpubTransactions != null)unsortedTransactionList.addAll(xpubTransactions);
                     HashMap<String, Long> xpubAmounts = MultiAddrFactory.getInstance().getXpubAmounts();
                     Long bal = (xpubAmounts.get(xpub) == null ? 0l : xpubAmounts.get(xpub));
                     btc_balance = ((double) (bal));
                 }
-            } else {
-                //V2 address or V3 "Imported Addresses" selected
-                Account account = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().get(selectedAccountIndex);
-                if (account instanceof ImportedAccount) {
-
-                    //V2
-                    if (PayloadFactory.getInstance().get().isUpgraded()) {
-                        txs = MultiAddrFactory.getInstance().getLegacyTxs();//V3 get all address' txs and balance
-                        btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
-                    } else {
-
-                        int LegacyIndex = selectedAccountIndex - AccountsUtil.getLastHDIndex();
-                        LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(LegacyIndex);
-
-                        if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                            accountSpinner.setSelection(0);
-                            ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            return;
-                        } else if (legacyAddress.isWatchOnly()) {
-                            accountSpinner.setSelection(0);
-                            ToastCustom.makeText(getActivity(), getString(R.string.watchonly_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                            return;
-                        } else {
-                            txs = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());//V2 get single address' txs
-                            btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-                        }
-                    }
-                }
             }
+
+        }else{
+            //V2
+            LegacyAddress legacyAddress = ((LegacyAddress) object);
+            List<Tx> legacyTransactions = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());
+            if(legacyTransactions != null)unsortedTransactionList.addAll(legacyTransactions);//V2 get single address' transactionList
+            btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+
+            //if (legacyAddress.isWatchOnly()TODO- exclude?
         }
 
+        //Returning from SendFragment the following will happen
         //After sending btc we create a "placeholder" tx until websocket handler refreshes list
         if (intent != null && intent.getExtras() != null) {
             long amount = intent.getLongExtra("queued_bamount", 0);
@@ -378,23 +462,19 @@ public class BalanceFragment extends Fragment {
             long time = intent.getLongExtra("queued_time", System.currentTimeMillis() / 1000);
 
             Tx tx = new Tx("", strNote, direction, amount, time, new HashMap<Integer, String>());
-            txs.add(0, tx);
-        } else if (txs != null && txs.size() > 0) {
-            if (txs.get(0).getHash().isEmpty()) txs.remove(0);
+            unsortedTransactionList.add(0, tx);
+        } else if (unsortedTransactionList != null && unsortedTransactionList.size() > 0) {
+            if (unsortedTransactionList.get(0).getHash().isEmpty()) unsortedTransactionList.remove(0);
         }
 
-        //Sort txs as server does not return sorted txs
-        if (txs != null) {
-            List<Tx> _txs = new ArrayList<Tx>();
-            _txs.addAll(txs);
-            Collections.sort(_txs, new TxDateComparator());
-            txs = _txs;
-        }
+        //Sort transactionList as server does not return sorted transactionList
+        transactionList.clear();
+        Collections.sort(unsortedTransactionList, new TxDateComparator());
+        transactionList.addAll(unsortedTransactionList);
 
         //Update Balance
         strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
-
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";
@@ -405,7 +485,6 @@ public class BalanceFragment extends Fragment {
         }
 
         span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
-
         span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         if (BALANCE_DISPLAY_STATE != SHOW_HIDE) {
             tvBalance1.setText(span1);
@@ -417,39 +496,16 @@ public class BalanceFragment extends Fragment {
 
         //Notify adapters of change
         accountsAdapter.notifyDataSetChanged();
-        txAdapter.notifyDataSetChanged();
+        transactionAdapter.notifyDataSetChanged();
 
-        //Display help text to user if no txs on selected account/address
-        if (txs != null && txs.size() > 0) {
-            txList.setVisibility(View.VISIBLE);
+        //Display help text to user if no transactionList on selected account/address
+        if (transactionList.size() > 0) {
+            transactionRecyclerView.setVisibility(View.VISIBLE);
             noTxMessage.setVisibility(View.GONE);
         } else {
-            txList.setVisibility(View.GONE);
+            transactionRecyclerView.setVisibility(View.GONE);
             noTxMessage.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void updateAccountSpinner() {
-        accountList = setAccountSpinner();
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
-        accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
-        accountSpinner.setAdapter(accountsAdapter);
-        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
-        accountsAdapter.notifyDataSetChanged();
-        txAdapter.notifyDataSetChanged();
-    }
-
-    private String account2Xpub(int accountIndex) {
-        LinkedHashMap<Integer, Account> accountMap = AccountsUtil.getInstance(getActivity()).getBalanceAccountMap();
-        Account hda = accountMap.get(accountIndex);
-        String xpub = null;
-        if (!PayloadFactory.getInstance().get().isUpgraded() || hda instanceof ImportedAccount) {
-            xpub = null;
-        } else {
-            xpub = HDPayloadBridge.getInstance(thisActivity).account2Xpub(accountIndex);
-        }
-
-        return xpub;
     }
 
     @Override
@@ -618,8 +674,8 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-        accountList = setAccountSpinner();
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, accountList.toArray(new String[0]));
+        updateAccountList();
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);
         accountSpinner.setOnTouchListener(new OnTouchListener() {
@@ -639,12 +695,6 @@ public class BalanceFragment extends Fragment {
                 accountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        int position = accountSpinner.getSelectedItemPosition();
-
-                        //Set current selected account/address
-                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position);
-                        selectedAccountIndex = AccountsUtil.getInstance(getActivity()).getBalanceAccountIndexResolver().get(position);
-
                         //Refresh balance header and tx list
                         updateBalanceAndTransactionList(null);
                     }
@@ -656,16 +706,15 @@ public class BalanceFragment extends Fragment {
                 });
             }
         });
-        accountSpinner.setSelection(AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex());
 
-        txList = (RecyclerView) rootView.findViewById(R.id.txList2);
-        txAdapter = new TxAdapter();
+        transactionRecyclerView = (RecyclerView) rootView.findViewById(R.id.txList2);
+        transactionAdapter = new TxAdapter();
         layoutManager = new LinearLayoutManager(thisActivity);
-        txList.setLayoutManager(layoutManager);
-        txList.setAdapter(txAdapter);
+        transactionRecyclerView.setLayoutManager(layoutManager);
+        transactionRecyclerView.setAdapter(transactionAdapter);
 
         if (!getResources().getBoolean(R.bool.isDualPane))
-            txList.setOnScrollListener(new CollapseActionbarScrollListener() {
+            transactionRecyclerView.setOnScrollListener(new CollapseActionbarScrollListener() {
                 @Override
                 public void onMoved(int distance) {
 
@@ -673,23 +722,13 @@ public class BalanceFragment extends Fragment {
                 }
             });
         else
-            txList.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            transactionRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
                     swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
                 }
             });
-
-        //Reset spinner index
-        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(0);
-        if (AccountsUtil.getInstance(getActivity()).getBalanceAccountMap().size() > 1) {
-            //Multiple accounts/addresses - show "All"
-            selectedAccountIndex = -1;
-        } else {
-            //Single account/address
-            selectedAccountIndex = 0;
-        }
 
         // drawerTitle account now that wallet has been created
         if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
@@ -794,8 +833,8 @@ public class BalanceFragment extends Fragment {
 
     private void onRowClick(final View view, final int position) {
 
-        if (txs != null) {
-            final Tx tx = txs.get(position);
+        if (transactionList != null) {
+            final Tx tx = transactionList.get(position);
             final String strTx = tx.getHash();
             final String strConfirmations = Long.toString(tx.getConfirmations());
 
@@ -824,7 +863,7 @@ public class BalanceFragment extends Fragment {
             final View feeSeparator = detailsView.findViewById(R.id.tx_fee_separator);
 
             if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
-                if (prevRowClicked != null && prevRowClicked == txList.getLayoutManager().getChildAt(position)) {
+                if (prevRowClicked != null && prevRowClicked == transactionRecyclerView.getLayoutManager().getChildAt(position)) {
                     txsDetails.setVisibility(View.INVISIBLE);
                     prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
                     prevRowClicked = null;
@@ -1145,8 +1184,8 @@ public class BalanceFragment extends Fragment {
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-            if (txs != null) {
-                final Tx tx = txs.get(position);
+            if (transactionList != null) {
+                final Tx tx = transactionList.get(position);
                 double _btc_balance = tx.getAmount() / 1e8;
                 double _fiat_balance = btc_fx * _btc_balance;
 
@@ -1225,8 +1264,8 @@ public class BalanceFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            if (txs == null) return 0;
-            return txs.size();
+            if (transactionList == null) return 0;
+            return transactionList.size();
         }
 
         @Override
