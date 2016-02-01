@@ -7,11 +7,13 @@
     <include layout="@layout/toolbar_general"/>
 
     <LinearLayout
+            android:id="@+id/label_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="16dp"
+            android:layout_height="72dp"
             android:paddingBottom="4dp"
             android:background="@color/white"
+            android:onClick="changeLabelClicked"
+            android:gravity="center_vertical"
             android:orientation="vertical">
 
         <TextView
@@ -19,14 +21,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/label"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:paddingLeft="16dp"
-                android:paddingBottom="8dp"
-                android:textColor="@color/blockchain_grey"
+                android:textColor="@color/primary_text_default_material_light"
                 android:duplicateParentState="true">
         </TextView>
 
-        <EditText
+        <TextView
                 android:id="@+id/account_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -34,21 +35,26 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textColor="@color/primary_text_default_material_light"
-                android:singleLine="true"
-                android:textCursorDrawable="@null">
-        </EditText>
+                android:alpha="0.7"
+                android:duplicateParentState="true">
+        </TextView>
 
     </LinearLayout>
 
     <View android:layout_width="match_parent"
           android:layout_height="1dp"
-            android:background="@color/blockchain_grey"/>
+          android:alpha="0.5"
+          android:layout_marginLeft="8dp"
+          android:layout_marginRight="8dp"
+          android:background="@color/blockchain_grey"/>
 
     <LinearLayout
+            android:id="@+id/xpub_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="72dp"
             android:paddingBottom="4dp"
             android:background="@color/white"
+            android:onClick="revealExtendedXPub"
             android:orientation="vertical">
 
         <LinearLayout android:layout_width="match_parent"
@@ -62,24 +68,24 @@
                     android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:text="Extended public key"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:paddingLeft="16dp"
                     android:gravity="center_vertical"
-                    android:textColor="@color/blockchain_grey"
+                    android:textColor="@color/primary_text_default_material_light"
                     android:duplicateParentState="true">
             </TextView>
 
             <ImageView
-                    android:id="@+id/iv_qr"
                     android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:tint="@color/black"
-                       android:paddingRight="16dp"
-                       android:paddingTop="8dp"
-                       android:paddingBottom="8dp"
-                       android:paddingLeft="4dp"
-                       android:gravity="center_vertical"
-                       android:src="@drawable/icon_qrcode"/>
+                    android:layout_height="wrap_content"
+                    android:tint="@color/black"
+                    android:paddingRight="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="4dp"
+                    android:gravity="center_vertical"
+                    android:duplicateParentState="true"
+                    android:src="@drawable/icon_qrcode"/>
 
         </LinearLayout>
 
@@ -87,14 +93,20 @@
 
     <View android:layout_width="match_parent"
           android:layout_height="1dp"
+          android:alpha="0.5"
+          android:layout_marginLeft="8dp"
+          android:layout_marginRight="8dp"
           android:background="@color/blockchain_grey"/>
 
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="72dp"
             android:paddingTop="16dp"
             android:paddingBottom="4dp"
             android:background="@color/white"
+            android:gravity="center_vertical"
+            android:onClick="archiveClicked"
             android:orientation="vertical">
 
         <TextView
@@ -102,67 +114,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Archive"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:paddingLeft="16dp"
                 android:paddingBottom="8dp"
-                android:textColor="@color/blockchain_grey"
+                android:textColor="@color/primary_text_default_material_light"
                 android:duplicateParentState="true">
         </TextView>
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content">
-            <TextView
-                    android:id="@+id/tv_archive_description"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:textSize="14sp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:textColor="@color/primary_text_default_material_light">
-            </TextView>
-            <Switch
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:id="@+id/switch_archive"/>
-
-        </LinearLayout>
+        <TextView
+                android:id="@+id/tv_archive_description"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:alpha="0.7"
+                android:textColor="@color/primary_text_default_material_light"
+                android:duplicateParentState="true">
+        </TextView>
 
     </LinearLayout>
 
     <View android:layout_width="match_parent"
           android:layout_height="1dp"
+          android:alpha="0.5"
+          android:layout_marginLeft="8dp"
+          android:layout_marginRight="8dp"
           android:background="@color/blockchain_grey"/>
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical|right">
-
-        <TextView
-                android:id="@+id/confirm_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/cancel"
-                android:gravity="center"
-                android:layout_marginRight="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:id="@+id/confirm_save"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/save"
-                android:gravity="center"
-                android:layout_marginRight="16dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/blockchain_blue"/>
-
-    </LinearLayout>
 
 </LinearLayout>

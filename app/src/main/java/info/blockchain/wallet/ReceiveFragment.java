@@ -1,5 +1,6 @@
 package info.blockchain.wallet;
 
+import com.google.common.collect.HashBiMap;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
@@ -50,10 +51,10 @@ import android.widget.TextView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -83,40 +84,48 @@ import piuk.blockchain.android.R;
 
 public class ReceiveFragment extends Fragment implements OnClickListener, CustomKeypadCallback {
 
-    public static boolean isKeypadVisible = false;
     private Locale locale = null;
+    public static boolean isKeypadVisible = false;
+
     private ImageView ivReceivingQR = null;
     private TextView edReceivingAddress = null;
-    private String currentSelectedAddress = null;
-    private ReceiveAddress currentSelectedReceiveAddress = null;
+
     private EditText edAmount1 = null;
     private EditText edAmount2 = null;
     private Spinner spAccounts = null;
     private TextView tvCurrency1 = null;
     private TextView tvFiat2 = null;
-    private int currentSelectedAccount = 0;
-    private String strBTC = "BTC";
-    private String strFiat = null;
-    private boolean isBTC = true;
-    private double btc_fx = 319.13;
+
     private SlidingUpPanelLayout mLayout;
     private ListView sendPaymentCodeAppListlist;
     private View rootView;
     private LinearLayout mainContentShadow;
+
+    //Drop down
+    private ArrayAdapter<String> receiveToAdapter = null;
+    private List<String> receiveToList = null;
+    private HashBiMap<Object, Integer> accountBiMap = null;
+    private List<Object> watchOnlyList = null;
+
+    //text
     private boolean textChangeAllowed = true;
     private String defaultSeperator;
     private TableLayout numpad;
+    private String strBTC = "BTC";
+    private String strFiat = null;
+    private boolean isBTC = true;
+    private double btc_fx = 319.13;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
 
-        if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
-                assignHDReceiveAddress();
-                displayQRCode();
+            if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
+                if (PayloadFactory.getInstance().get().isUpgraded()) {
+                    updateSpinnerList();
+                    displayQRCode(spAccounts.getSelectedItemPosition());
+                }
             }
-        }
         }
     };
 
@@ -173,7 +182,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                                 android.content.ClipData clip = null;
-                                clip = android.content.ClipData.newPlainText("Send address", currentSelectedAddress);
+                                clip = android.content.ClipData.newPlainText("Send address", edReceivingAddress.getText().toString());
                                 ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_GENERAL);
                                 clipboard.setPrimaryClip(clip);
 
@@ -254,9 +263,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
 
-                    if (currentSelectedAddress != null) {
-                        displayQRCode();
-                    }
+                    displayQRCode(spAccounts.getSelectedItemPosition());
                     textChangeAllowed = true;
                 }
 
@@ -313,9 +320,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
 
-                    if (currentSelectedAddress != null) {
-                        displayQRCode();
-                    }
+                    displayQRCode(spAccounts.getSelectedItemPosition());
                     textChangeAllowed = true;
                 }
 
@@ -335,13 +340,17 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         });
 
         spAccounts = (Spinner) rootView.findViewById(R.id.accounts);
-        final List<String> _accounts = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountList();
+        receiveToList = new ArrayList<>();
+        accountBiMap = HashBiMap.create();
+        watchOnlyList = new ArrayList<>();
+        updateSpinnerList();
 
-        if (_accounts.size() == 1) rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+        if (receiveToList.size() == 1)
+            rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
 
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, _accounts);
-        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
-        spAccounts.setAdapter(dataAdapter);
+        receiveToAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, receiveToList);
+        receiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
+        spAccounts.setAdapter(receiveToAdapter);
         spAccounts.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
@@ -360,9 +369,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        int position = spAccounts.getSelectedItemPosition();
-                        AccountsUtil.getInstance(getActivity()).setCurrentSpinnerIndex(position + 1);//all account included
-                        selectAccount(position);
+                        displayQRCode(spAccounts.getSelectedItemPosition());
                     }
 
                     @Override
@@ -379,12 +386,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
         tvCurrency1.setText(strBTC);
         tvFiat2.setText(strFiat);
-
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
-            assignHDReceiveAddress();
-        } else {
-            currentSelectedAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(0).getAddress();
-        }
 
         edReceivingAddress = (TextView) rootView.findViewById(R.id.receiving_address);
 
@@ -420,6 +421,60 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         return rootView;
     }
 
+    private void updateSpinnerList() {
+        //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
+        receiveToList.clear();
+        accountBiMap.clear();
+        watchOnlyList.clear();
+
+        int spinnerIndex = 0;
+
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
+
+            //V3
+            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            for (Account item : accounts) {
+
+                if (item.isArchived())
+                    continue;//skip archived account
+
+                //no xpub watch only yet
+
+                receiveToList.add(item.getLabel());
+                accountBiMap.put(item, spinnerIndex);
+                spinnerIndex++;
+            }
+        }
+
+        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+
+        for (LegacyAddress legacyAddress : legacyAddresses) {
+
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+                continue;//skip archived address
+
+            //If address has no label, we'll display address
+            String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+
+            //Prefix "watch-only"
+            if (legacyAddress.isWatchOnly()) {
+                labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
+                watchOnlyList.add(legacyAddress);
+            }
+
+            receiveToList.add(labelOrAddress);
+            accountBiMap.put(legacyAddress, spinnerIndex);
+            spinnerIndex++;
+        }
+
+        //Notify adapter of list update
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (receiveToAdapter != null) receiveToAdapter.notifyDataSetChanged();
+            }
+        });
+    }
 
     /*
     Custom keypad implementation
@@ -529,16 +584,28 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);
 
-        if (spAccounts != null) {
+        selectDefaultAccount();
 
-            int currentSelected = AccountsUtil.getInstance(getActivity()).getCurrentSpinnerIndex();
-            if (currentSelected != 0) currentSelected--;//exclude 'all account'
-            spAccounts.setSelection(currentSelected);
-            selectAccount(currentSelected);
-        }
+        updateSpinnerList();
 
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+    }
+
+    private void selectDefaultAccount() {
+
+        if (spAccounts != null) {
+
+            if (PayloadFactory.getInstance().get().isUpgraded()) {
+                int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+                Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+                int defaultSpinnerIndex = accountBiMap.get(defaultAccount);
+                displayQRCode(defaultSpinnerIndex);
+            } else {
+                //V2
+                displayQRCode(0);//default to 0
+            }
+        }
     }
 
     @Override
@@ -547,21 +614,19 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         super.onPause();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
+    private void displayQRCode(int spinnerIndex) {
 
-    private void selectAccount(int position) {
-        if (position >= AccountsUtil.getInstance(getActivity()).getLastHDIndex()) {
-            //Legacy addresses
+        spAccounts.setSelection(spinnerIndex);
+        String receiveAddress = null;
 
-            final LegacyAddress legacyAddress = AccountsUtil.getInstance(getActivity()).getLegacyAddress(position - AccountsUtil.getInstance(getActivity()).getLastHDIndex());
+        Object object = accountBiMap.inverse().get(spinnerIndex);
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                spAccounts.setSelection(0);
-                ToastCustom.makeText(getActivity(), getString(R.string.archived_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-            } else if (legacyAddress.isWatchOnly()) {
+        if (object instanceof LegacyAddress) {
+
+            //V2
+            receiveAddress = ((LegacyAddress) object).getAddress();
+
+            if (watchOnlyList.contains(object)) {
 
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.warning)
@@ -569,31 +634,21 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                         .setMessage(R.string.watchonly_address_receive_warning)
                         .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                currentSelectedAddress = legacyAddress.getAddress();
-                                displayQRCode();
+                                ;
                             }
                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        spAccounts.setSelection(0);
+                        spAccounts.setSelection(0, true);
                     }
                 }).show();
-
-            } else {
-                currentSelectedAddress = legacyAddress.getAddress();
-                displayQRCode();
             }
 
         } else {
-            //hd accounts
-            currentSelectedAccount = AccountsUtil.getInstance(getActivity()).getSendReceiveAccountIndexResolver().get(position);
-            assignHDReceiveAddress();
-            displayQRCode();
+            //V3
+            receiveAddress = getV3ReceiveAddress((Account) object);
         }
-    }
 
-    private void displayQRCode() {
-
-        edReceivingAddress.setText(currentSelectedAddress);
+        edReceivingAddress.setText(receiveAddress);
 
         BigInteger bamount = null;
         try {
@@ -608,13 +663,14 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                 return;
             }
+
             if (!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(currentSelectedAddress, Coin.valueOf(bamount.longValue()), "", ""));
+                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""));
             } else {
-                generateQRCode("bitcoin:" + currentSelectedAddress);
+                generateQRCode("bitcoin:" + receiveAddress);
             }
         } catch (NumberFormatException | ParseException e) {
-            generateQRCode("bitcoin:" + currentSelectedAddress);
+            generateQRCode("bitcoin:" + receiveAddress);
         }
     }
 
@@ -661,17 +717,18 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         }.execute();
     }
 
-    private void assignHDReceiveAddress() {
+    private String getV3ReceiveAddress(Account account) {
 
         try {
-            currentSelectedReceiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(currentSelectedAccount);
-            currentSelectedAddress = currentSelectedReceiveAddress.getAddress();
-        } catch (IOException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicChecksumException
-                | MnemonicException.MnemonicWordException | AddressFormatException
-                | DecoderException e) {
-            e.printStackTrace();
-        }
+            int accountIndex = accountBiMap.get(account);
+            ReceiveAddress receiveAddress = null;
+            receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
+            return receiveAddress.getAddress();
 
+        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void updateFiatTextField(String cBtc) {

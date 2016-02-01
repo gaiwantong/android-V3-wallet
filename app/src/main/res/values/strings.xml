@@ -438,8 +438,6 @@
         into tapping on unseen objects and potentially steal funds. Note that this warning will also be triggered by screen dimming apps. If you are confident that there
         is no threat you may continue.
     </string>
-    <string name="Archived">Archived</string>
-    <string name="Not_Archived">Not Archived</string>
     <string name="archived_description">This item is archived. You can\'t access it or send funds
         from it. Your funds are safe and you can unarchive at any time.
     </string>
@@ -449,7 +447,7 @@
     </string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>
-    <string name="copy_xpub">Copy xPub</string>
+    <string name="copy_xpub">Copy xpub</string>
     <string name="scan_this_code">Scan this code or copy it into your Blockchain Merchant app to
         securely receive Bitcoin.
     </string>
@@ -458,4 +456,9 @@
         your access to your wallet.
     </string>
     <string name="assign_display_name">Assign a friendly display name.</string>
+    <string name="copy_address">Copy address</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="archive_are_you_sure">Are you sure you want to archive this item?</string>
+    <string name="unarchive_are_you_sure">Are you sure you want to unarchive this item?</string>
 </resources>

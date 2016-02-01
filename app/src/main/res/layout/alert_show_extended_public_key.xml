@@ -29,7 +29,6 @@
             android:id="@+id/iv_qr"
             android:layout_width="260dp"
             android:layout_height="260dp"
-            android:layout_margin="16dp"
             android:gravity="center"
             />
 
@@ -40,7 +39,6 @@
             android:gravity="center"
             android:textColor="@color/blockchain_grey"
             android:text="xpub here"
-            android:padding="8dp"
             android:textSize="14sp"
             />
 
@@ -51,6 +49,7 @@
             android:text="@string/CLOSE"
             android:gravity="center"
             android:padding="16dp"
+            android:layout_marginTop="8dp"
             android:textColor="@color/primary_text_default_material_light"/>
 
 </LinearLayout>
