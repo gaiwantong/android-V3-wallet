@@ -105,7 +105,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     private ArrayAdapter<String> receiveToAdapter = null;
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> accountBiMap = null;
-    private List<Object> watchOnlyList = null;
 
     //text
     private boolean textChangeAllowed = true;
@@ -137,6 +136,19 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
         locale = Locale.getDefault();
 
+        setupToolbar();
+
+        defaultSeperator = getDefaultDecimalSeparator();
+
+        setupViews();
+
+        decimalCompatCheck(rootView);
+
+        return rootView;
+    }
+
+    private void setupToolbar(){
+
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
         ((ActionBarActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
         ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
@@ -157,6 +169,15 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
             }
         });
+    }
+
+    private String getDefaultDecimalSeparator(){
+        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
+        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+        return Character.toString(symbols.getDecimalSeparator());
+    }
+
+    private void setupViews(){
 
         mainContentShadow = (LinearLayout) rootView.findViewById(R.id.receive_main_content_shadow);
         mainContentShadow.setOnClickListener(new OnClickListener() {
@@ -209,10 +230,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
         tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
         tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
-
-        DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
-        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
-        defaultSeperator = Character.toString(symbols.getDecimalSeparator());
 
         edAmount1 = (EditText) rootView.findViewById(R.id.amount1);
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
@@ -342,7 +359,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         spAccounts = (Spinner) rootView.findViewById(R.id.accounts);
         receiveToList = new ArrayList<>();
         accountBiMap = HashBiMap.create();
-        watchOnlyList = new ArrayList<>();
         updateSpinnerList();
 
         if (receiveToList.size() == 1)
@@ -415,17 +431,12 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             public void onPanelHidden(View panel) {
             }
         });
-
-        decimalCompatCheck(rootView);
-
-        return rootView;
     }
 
     private void updateSpinnerList() {
         //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         receiveToList.clear();
         accountBiMap.clear();
-        watchOnlyList.clear();
 
         int spinnerIndex = 0;
 
@@ -459,7 +470,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             //Prefix "watch-only"
             if (legacyAddress.isWatchOnly()) {
                 labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
-                watchOnlyList.add(legacyAddress);
             }
 
             receiveToList.add(labelOrAddress);
@@ -626,7 +636,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             //V2
             receiveAddress = ((LegacyAddress) object).getAddress();
 
-            if (watchOnlyList.contains(object)) {
+            if (((LegacyAddress) object).isWatchOnly()) {
 
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.warning)
