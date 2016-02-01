@@ -7,6 +7,7 @@
     <include layout="@layout/toolbar_general"/>
 
     <LinearLayout
+            android:id="@+id/label_container"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:paddingBottom="4dp"
@@ -48,6 +49,7 @@
           android:background="@color/blockchain_grey"/>
 
     <LinearLayout
+            android:id="@+id/xpub_container"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:paddingBottom="4dp"
@@ -99,9 +101,12 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="72dp"
             android:paddingTop="16dp"
             android:paddingBottom="4dp"
             android:background="@color/white"
+            android:gravity="center_vertical"
+            android:onClick="archiveClicked"
             android:orientation="vertical">
 
         <TextView
@@ -116,26 +121,19 @@
                 android:duplicateParentState="true">
         </TextView>
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content">
-            <TextView
-                    android:id="@+id/tv_archive_description"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:textSize="14sp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:alpha="0.7"
-                    android:textColor="@color/primary_text_default_material_light">
-            </TextView>
-            <Switch
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:id="@+id/switch_archive"/>
-
-        </LinearLayout>
+        <TextView
+                android:id="@+id/tv_archive_description"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:textSize="14sp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:alpha="0.7"
+                android:textColor="@color/primary_text_default_material_light"
+                android:duplicateParentState="true">
+        </TextView>
 
     </LinearLayout>
 

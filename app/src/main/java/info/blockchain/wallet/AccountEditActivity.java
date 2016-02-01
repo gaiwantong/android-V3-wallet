@@ -19,10 +19,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -49,7 +47,6 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private TextView tvArchiveHeading = null;
     private TextView tvArchiveDescription = null;
-    private Switch switchArchive = null;
 
     private Account account = null;
     private LegacyAddress legacyAddress = null;
@@ -83,13 +80,6 @@ public class AccountEditActivity extends AppCompatActivity {
 
         tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
         tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
-        switchArchive = (Switch)findViewById(R.id.switch_archive);
-        switchArchive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setArchive(isChecked);
-            }
-        });
 
         if (account != null) {
 
@@ -150,13 +140,21 @@ public class AccountEditActivity extends AppCompatActivity {
     private void setArchive(boolean isArchived){
 
         if(isArchived){
-            tvArchiveHeading.setText(R.string.Archived);
+            tvArchiveHeading.setText(R.string.unarchive);
             tvArchiveDescription.setText(R.string.archived_description);
-            switchArchive.setChecked(true);
+
+            findViewById(R.id.label_container).setAlpha(0.5f);
+            findViewById(R.id.label_container).setClickable(false);
+            findViewById(R.id.xpub_container).setAlpha(0.5f);
+            findViewById(R.id.xpub_container).setClickable(false);
         }else{
-            tvArchiveHeading.setText(R.string.Not_Archived);
+            tvArchiveHeading.setText(R.string.archive);
             tvArchiveDescription.setText(R.string.not_archived_description);
-            switchArchive.setChecked(false);
+
+            findViewById(R.id.label_container).setAlpha(1.0f);
+            findViewById(R.id.label_container).setClickable(true);
+            findViewById(R.id.xpub_container).setAlpha(1.0f);
+            findViewById(R.id.xpub_container).setClickable(true);
         }
     }
 
@@ -169,7 +167,7 @@ public class AccountEditActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        showAddressDetials();
+                        showAddressDetails();
                     }
 
                 }).setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
@@ -180,7 +178,7 @@ public class AccountEditActivity extends AppCompatActivity {
         }).show();
     }
 
-    private void showAddressDetials(){
+    private void showAddressDetails(){
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -258,35 +256,6 @@ public class AccountEditActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void saveChanges() {
-
-//        String newLabel = etLabel.getText().toString();
-//
-//        if (newLabel.isEmpty()) {
-//
-//            ToastCustom.makeText(this,getString(R.string.label_cant_be_empty),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_ERROR);
-//
-//        } else {
-//            if (legacyAddress != null) {
-//                legacyAddress.setLabel(newLabel);
-//
-//                if(switchArchive.isChecked()){
-//                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
-//                }else{
-//                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
-//                }
-//            } else if (account != null) {
-//                account.setLabel(newLabel);
-//                account.setArchived(switchArchive.isChecked());
-//            }
-//
-//            ToastCustom.makeText(this,getString(R.string.saving_changes),ToastCustom.LENGTH_LONG,ToastCustom.TYPE_OK);
-//            PayloadBridge.getInstance(this).remoteSaveThread();
-//            setResult(RESULT_OK);
-//            finish();
-//        }
     }
 
     @Override
@@ -380,7 +349,94 @@ public class AccountEditActivity extends AppCompatActivity {
         if (account != null) {
             showXpubSharingWarning();
         } else {
-            showAddressDetials();
+            showAddressDetails();
         }
+    }
+
+    public void archiveClicked(View view) {
+
+        String title = getResources().getString(R.string.archive);
+        String subTitle = getResources().getString(R.string.archive_are_you_sure);
+
+        if ((account != null && account.isArchived()) || (legacyAddress != null && legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)) {
+            title = getResources().getString(R.string.unarchive);
+            subTitle = getResources().getString(R.string.unarchive_are_you_sure);
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(subTitle)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                if (!ConnectivityStatus.hasConnectivity(AccountEditActivity.this)) {
+                                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                } else {
+
+                                    new AsyncTask<Void, Void, Void>() {
+
+                                        ProgressDialog progress;
+
+                                        @Override
+                                        protected void onPreExecute() {
+                                            super.onPreExecute();
+                                            progress = new ProgressDialog(AccountEditActivity.this);
+                                            progress.setTitle(R.string.app_name);
+                                            progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                                            progress.show();
+                                        }
+
+                                        @Override
+                                        protected void onPostExecute(Void aVoid) {
+                                            super.onPostExecute(aVoid);
+                                            if (progress != null && progress.isShowing()) {
+                                                progress.dismiss();
+                                                progress = null;
+                                            }
+                                        }
+
+                                        @Override
+                                        protected Void doInBackground(final Void... params) {
+
+                                            if (account != null) {
+                                                if (account.isArchived()) {
+                                                    account.setArchived(false);
+                                                } else {
+                                                    account.setArchived(true);
+                                                }
+                                            } else {
+                                                if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                                                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
+                                                } else {
+                                                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
+                                                }
+                                            }
+
+                                            if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+
+                                                        if ((account != null && account.isArchived()) || (legacyAddress != null && legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)) {
+                                                            setArchive(true);
+                                                        } else {
+                                                            setArchive(false);
+                                                        }
+
+                                                        setResult(RESULT_OK);
+                                                    }
+                                                });
+                                            }
+                                            return null;
+                                        }
+                                    }.execute();
+                                }
+                            }
+                        }
+                ).
+                setNegativeButton(R.string.no, null)
+                .show();
     }
 }
