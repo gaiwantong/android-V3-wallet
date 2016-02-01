@@ -43,7 +43,6 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.service.WebSocketService;
-import info.blockchain.wallet.util.AccountsUtil;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -458,15 +457,10 @@ public class AccountActivity extends AppCompatActivity {
 
                             ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
-                            AccountsUtil.getInstance(context).initAccountMaps();
-
                             //Subscribe to new xpub only if successfully created
                             Intent intent = new Intent(WebSocketService.ACTION_INTENT);
                             intent.putExtra("xpub", xpub);
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-                            //Reset current selected
-                            AccountsUtil.getInstance(AccountActivity.this).setCurrentSpinnerIndex(0);
 
                             //Update adapter list
                             updateAccountsList();
@@ -868,7 +862,6 @@ public class AccountActivity extends AppCompatActivity {
 
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() + balance);
-                AccountsUtil.getInstance(AccountActivity.this).setCurrentSpinnerIndex(0);
 
                 updateAccountsList();
 
@@ -1004,7 +997,6 @@ public class AccountActivity extends AppCompatActivity {
                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                         List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
                         MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-                        AccountsUtil.getInstance(context).initAccountMaps();
 
                         //Subscribe to new address only if successfully created
                         Intent intent = new Intent(WebSocketService.ACTION_INTENT);
