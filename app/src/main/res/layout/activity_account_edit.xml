@@ -99,6 +99,7 @@
           android:background="@color/blockchain_grey"/>
 
     <LinearLayout
+            android:id="@+id/archive_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="72dp"

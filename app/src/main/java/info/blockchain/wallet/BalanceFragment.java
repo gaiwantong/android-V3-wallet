@@ -80,6 +80,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import piuk.blockchain.android.R;
 
@@ -319,22 +320,8 @@ public class BalanceFragment extends Fragment {
         }
 
         //If we have multiple accounts/addresses we will show dropdown in toolbar, otherwise we will only display a static text
-        if(activeAccountAndAddressList.size() > 1){
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
-            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
-            accountSpinner.setVisibility(View.VISIBLE);
-        }else{
-            accountSpinner.setSelection(0);
-
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-            Account acc = (Account)activeAccountAndAddressBiMap.inverse().get(0);
-            if (acc != null && acc.getLabel() != null) {
-                ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
-            }
-
-            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
-            accountSpinner.setVisibility(View.GONE);
-        }
+        if(accountSpinner != null)
+            setAccountSpinner();
 
         //Notify adapter of list update
         getActivity().runOnUiThread(new Runnable() {
@@ -343,6 +330,18 @@ public class BalanceFragment extends Fragment {
                 if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private void setAccountSpinner(){
+        if(activeAccountAndAddressList.size() > 1){
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            accountSpinner.setVisibility(View.VISIBLE);
+        }else{
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
+            accountSpinner.setSelection(0);
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
+            accountSpinner.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -674,8 +673,9 @@ public class BalanceFragment extends Fragment {
             }
         });
 
+        accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
         updateAccountList();
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList.toArray(new String[0]));
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList);
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);
         accountSpinner.setOnTouchListener(new OnTouchListener() {
@@ -1321,13 +1321,11 @@ public class BalanceFragment extends Fragment {
 
         Context context;
         int layoutResourceId;
-        String data[] = null;
 
-        public AccountAdapter(Context context, int layoutResourceId, String[] data) {
+        public AccountAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
             super(context, layoutResourceId, data);
             this.layoutResourceId = layoutResourceId;
             this.context = context;
-            this.data = data;
         }
 
         @Override
