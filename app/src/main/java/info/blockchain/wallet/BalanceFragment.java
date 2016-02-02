@@ -319,9 +319,21 @@ public class BalanceFragment extends Fragment {
         }
 
         //If we have multiple accounts/addresses we will show dropdown in toolbar, otherwise we will only display a static text
+        if(accountSpinner != null)
+            setAccountSpinner();
+
+        //Notify adapter of list update
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void setAccountSpinner(){
         if(activeAccountAndAddressList.size() > 1){
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
-            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.VISIBLE);
         }else{
             accountSpinner.setSelection(0);
@@ -332,17 +344,8 @@ public class BalanceFragment extends Fragment {
                 ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
             }
 
-            accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
             accountSpinner.setVisibility(View.GONE);
         }
-
-        //Notify adapter of list update
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
-            }
-        });
     }
 
     @Override
@@ -674,6 +677,7 @@ public class BalanceFragment extends Fragment {
             }
         });
 
+        accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
         updateAccountList();
         accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList.toArray(new String[0]));
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
