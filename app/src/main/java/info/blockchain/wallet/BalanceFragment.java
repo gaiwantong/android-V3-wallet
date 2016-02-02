@@ -675,7 +675,7 @@ public class BalanceFragment extends Fragment {
 
         accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
         updateAccountList();
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList.toArray(new String[0]));
+        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList);
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);
         accountSpinner.setOnTouchListener(new OnTouchListener() {
@@ -1321,13 +1321,11 @@ public class BalanceFragment extends Fragment {
 
         Context context;
         int layoutResourceId;
-        String data[] = null;
 
-        public AccountAdapter(Context context, int layoutResourceId, String[] data) {
+        public AccountAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
             super(context, layoutResourceId, data);
             this.layoutResourceId = layoutResourceId;
             this.context = context;
-            this.data = data;
         }
 
         @Override
