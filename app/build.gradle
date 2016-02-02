@@ -13,8 +13,8 @@ android {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 188
-        versionName "6.0.6"
+        versionCode 190
+        versionName "6.0.8"
         multiDexEnabled true
     }
     buildTypes {
@@ -32,6 +32,10 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+    }
+    // Include native .so libs
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/resources/lib'
     }
 }
 
