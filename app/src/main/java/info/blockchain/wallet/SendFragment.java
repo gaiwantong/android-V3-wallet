@@ -1251,6 +1251,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             return false;
         }
 
+        //Validate send and receive not same addresses
+        if((pendingSpend.isHD && getV3ReceiveAddress(pendingSpend.fromAccount).equals(pendingSpend.destination)) ||
+                (!pendingSpend.isHD && pendingSpend.fromLegacyAddress.getAddress().equals(pendingSpend.destination))){
+            ToastCustom.makeText(getActivity(), getString(R.string.send_to_same_address_warning), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return false;
+        }
+
         return true;
     }
 
