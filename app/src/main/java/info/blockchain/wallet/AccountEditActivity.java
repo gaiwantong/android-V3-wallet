@@ -148,6 +148,16 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.xpub_container).setAlpha(0.5f);
             findViewById(R.id.xpub_container).setClickable(false);
         }else{
+
+            //Don't allow archiving of default account
+            if(isArchivable()){
+                findViewById(R.id.archive_container).setAlpha(1.0f);
+                findViewById(R.id.archive_container).setClickable(true);
+            }else{
+                findViewById(R.id.archive_container).setAlpha(0.5f);
+                findViewById(R.id.archive_container).setClickable(false);
+            }
+
             tvArchiveHeading.setText(R.string.archive);
             tvArchiveDescription.setText(R.string.not_archived_description);
 
@@ -156,6 +166,24 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.xpub_container).setAlpha(1.0f);
             findViewById(R.id.xpub_container).setClickable(true);
         }
+    }
+    
+    private boolean isArchivable(){
+
+        if (PayloadFactory.getInstance().get().isUpgraded()) {
+            //V3 - can't archive default account
+            int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+            Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+
+            if(defaultAccount == account)
+                return false;
+        }else{
+            //V2 - must have a single unarchived address
+            List<LegacyAddress> allActiveLegacyAddresses = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
+            return (allActiveLegacyAddresses.size() > 1);
+        }
+
+        return true;
     }
 
     private void showXpubSharingWarning(){
