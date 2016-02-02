@@ -80,6 +80,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import piuk.blockchain.android.R;
 
@@ -336,14 +337,9 @@ public class BalanceFragment extends Fragment {
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
         }else{
-            accountSpinner.setSelection(0);
-
             ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
-            Account acc = (Account)activeAccountAndAddressBiMap.inverse().get(0);
-            if (acc != null && acc.getLabel() != null) {
-                ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(acc.getLabel());
-            }
-
+            accountSpinner.setSelection(0);
+            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
             accountSpinner.setVisibility(View.GONE);
         }
     }

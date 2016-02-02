@@ -342,8 +342,15 @@ public class AccountEditActivity extends AppCompatActivity {
 
                                             @Override
                                             protected Void doInBackground(final String... params) {
-                                                String revertLabel = account.getLabel();
-                                                account.setLabel(params[0]);
+                                                String revertLabel = null;
+                                                if (account != null) {
+                                                    revertLabel = account.getLabel();
+                                                    account.setLabel(params[0]);
+                                                } else {
+                                                    revertLabel = legacyAddress.getLabel();
+                                                    legacyAddress.setLabel(params[0]);
+                                                }
+
                                                 if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
 
                                                     runOnUiThread(new Runnable() {
@@ -354,7 +361,12 @@ public class AccountEditActivity extends AppCompatActivity {
                                                         }
                                                     });
                                                 } else {
-                                                    account.setLabel(revertLabel);//Remote save not successful - revert
+                                                    //Remote save not successful - revert
+                                                    if (account != null) {
+                                                        account.setLabel(revertLabel);
+                                                    } else {
+                                                        legacyAddress.setLabel(revertLabel);
+                                                    }
                                                 }
                                                 return null;
                                             }
