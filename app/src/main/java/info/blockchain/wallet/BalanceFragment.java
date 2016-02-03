@@ -401,6 +401,12 @@ public class BalanceFragment extends Fragment {
 
         Object object = activeAccountAndAddressBiMap.inverse().get(accountSpinner.getSelectedItemPosition());//the current selected item in dropdown (Account or Legacy Address)
 
+        //If current selected item gets edited by another platform object might become null
+        if(object == null){
+            accountSpinner.setSelection(0);
+            object = activeAccountAndAddressBiMap.inverse().get(accountSpinner.getSelectedItemPosition());
+        }
+        
         if(object instanceof Account){
             //V3
             Account account = ((Account) object);
