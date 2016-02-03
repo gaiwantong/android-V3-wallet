@@ -445,6 +445,7 @@
         won\'t be able to access it or send from it. Your funds will be safe and you can unarchive
         at any time.
     </string>
+    <string name="default_account_description">This item is set as your default and can\'t be archived.</string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>
     <string name="copy_xpub">Copy xpub</string>
