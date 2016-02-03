@@ -118,7 +118,7 @@
                 android:textSize="16sp"
                 android:paddingLeft="16dp"
                 android:paddingBottom="8dp"
-                android:textColor="@color/primary_text_default_material_light"
+                android:textColor="@color/blockchain_send_red"
                 android:duplicateParentState="true">
         </TextView>
 
