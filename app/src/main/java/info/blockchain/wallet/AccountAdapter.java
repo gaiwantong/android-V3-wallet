@@ -44,9 +44,25 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
         TextView title = (TextView) holder.itemView.findViewById(R.id.my_account_row_label);
         ImageView icon = (ImageView) holder.itemView.findViewById(R.id.my_account_row_icon);
         TextView amount = (TextView) holder.itemView.findViewById(R.id.my_account_row_amount);
+        TextView archived = (TextView) holder.itemView.findViewById(R.id.my_account_row_archived);
+        TextView watchOnly = (TextView) holder.itemView.findViewById(R.id.my_account_row_watch_only);
 
         title.setText(items.get(position).getTitle());
         amount.setText(items.get(position).getAmount());
+
+        if(items.get(position).isArchived()){
+            archived.setVisibility(View.VISIBLE);
+            amount.setVisibility(View.GONE);
+        }else{
+            archived.setVisibility(View.GONE);
+            amount.setVisibility(View.VISIBLE);
+        }
+
+        if(items.get(position).isWatchOnly()){
+            watchOnly.setVisibility(View.VISIBLE);
+        }else{
+            watchOnly.setVisibility(View.GONE);
+        }
 
         Drawable drawable = items.get(position).getIcon();
         if (drawable != null)

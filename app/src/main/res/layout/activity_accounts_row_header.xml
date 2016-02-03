@@ -1,32 +1,19 @@
 <RelativeLayout
-	style="?android:attr/borderlessButtonStyle"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="48dp"
-	android:background="?attr/selectableItemBackground"
-	android:gravity="start">
-
-	<FrameLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		style="?android:attr/borderlessButtonStyle"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="?selectableItemBackground"
-		android:clickable="true">
+		android:layout_height="72dp"
+		android:background="@color/blockchain_pearl_white"
+		android:gravity="start">
 
-		<TextView
+	<TextView
 			android:id="@+id/my_account_row_header"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="16dp"
-			android:layout_marginLeft="72dp"
-			android:layout_marginRight="16dp"
-			android:layout_marginStart="72dp"
-			android:layout_marginTop="5dp"
-			android:fontFamily="sans-serif"
-			android:singleLine="true"
-			android:textColor="@color/blockchain_grey"
-			android:textSize="14sp"/>
-
-	</FrameLayout>
+			android:layout_alignParentBottom="true"
+			android:padding="16dp"
+			android:textColor="@color/blockchain_blue"
+			android:text="Imported"
+			android:textSize="16sp"/>
 
 </RelativeLayout>

@@ -153,13 +153,14 @@ public class AccountEditActivity extends AppCompatActivity {
             if(isArchivable()){
                 findViewById(R.id.archive_container).setAlpha(1.0f);
                 findViewById(R.id.archive_container).setClickable(true);
+                tvArchiveDescription.setText(R.string.not_archived_description);
             }else{
                 findViewById(R.id.archive_container).setAlpha(0.5f);
                 findViewById(R.id.archive_container).setClickable(false);
+                tvArchiveDescription.setText(getString(R.string.default_account_description));
             }
 
             tvArchiveHeading.setText(R.string.archive);
-            tvArchiveDescription.setText(R.string.not_archived_description);
 
             findViewById(R.id.label_container).setAlpha(1.0f);
             findViewById(R.id.label_container).setClickable(true);
