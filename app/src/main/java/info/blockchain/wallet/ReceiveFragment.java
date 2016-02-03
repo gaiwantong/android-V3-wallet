@@ -120,10 +120,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         public void onReceive(final Context context, final Intent intent) {
 
             if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
-                if (PayloadFactory.getInstance().get().isUpgraded()) {
-                    updateSpinnerList();
-                    displayQRCode(spAccounts.getSelectedItemPosition());
-                }
+                updateSpinnerList();
+                displayQRCode(spAccounts.getSelectedItemPosition());
             }
         }
     };
