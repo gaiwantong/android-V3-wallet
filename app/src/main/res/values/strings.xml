@@ -2,7 +2,7 @@
 <resources>
 
     <string name="backup_wallet">Backup funds</string>
-    <string name="upgrade_wallet">Upgrade to V3</string>
+    <string name="upgrade_wallet">Upgrade</string>
     <string-array name="navigation_drawer_items_lame">
         <item>@string/upgrade_wallet</item>
         <item>Settings</item>
@@ -353,14 +353,14 @@
     <string name="logging_out_automatically">Logging out automatically</string>
     <string name="transaction_submitted">Transaction complete</string>
     <string name="transaction_failed">Transaction failed</string>
-    <string name="UPGRADE_YOUR_WALLET">Learn More</string>
+    <string name="UPGRADE_YOUR_WALLET">Upgrade</string>
     <string name="ASK_ME_LATER">Ask Me Later</string>
     <string name="upgrade_page_1">Customize the way you organize your Bitcoin in your Blockchain Wallet.</string>
     <string name="upgrade_page_2">Easy one time wallet backup keeps you in control of your funds.</string>
     <string name="upgrade_page_3">Everything you need to receive, spend, and store your Bitcoin.</string>
     <string name="CONFIRM">UPGRADE NOW</string>
     <string name="confirm_upgrade">Confirm Upgrade</string>
-    <string name="confirm_upgrade_info">Welcome to the new version of the Blockchain Wallet!\n\nThe upgrade takes just a second and your Bitcoin and history will be safe. Here is what’s better:\n\n✓ Completely updated design and user experience\n✓ Robust security center\n✓ Enhanced Privacy\n✓ Simplified backup and recovery\n✓ Customized fund management\n\nTwo advanced transaction types (Spending from watch-only addresses and Shared Coin) are not supported in the new version at this time.</string>
+    <string name="confirm_upgrade_info">The upgrade takes just a second and your Bitcoin and history will be safe. Here is what’s better:\n\n✓ Completely updated design and user experience\n✓ Robust security center\n✓ Enhanced Privacy\n✓ Simplified backup and recovery\n✓ Customized fund management\n\nTwo advanced transaction types (Spending from watch-only addresses and Shared Coin) are not supported in the new version at this time.</string>
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
