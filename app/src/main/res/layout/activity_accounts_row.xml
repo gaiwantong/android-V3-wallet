@@ -15,8 +15,9 @@
 			card_view:contentPadding="16dp">
 
 		<RelativeLayout
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent">
+				android:layout_width="match_parent"
+				android:layout_height="72dp"
+				android:layout_gravity="center_vertical">
 
 			<RelativeLayout
 					android:id="@+id/icon_layout"
