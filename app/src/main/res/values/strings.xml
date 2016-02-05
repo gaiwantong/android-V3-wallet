@@ -463,4 +463,6 @@
     <string name="archive_are_you_sure">Are you sure you want to archive this item?</string>
     <string name="unarchive_are_you_sure">Are you sure you want to unarchive this item?</string>
     <string name="send_to_same_address_warning">Can\'t send to the same address.</string>
+    <string name="default_label">Default</string>
+    <string name="make_default">Make default</string>
 </resources>

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -43,6 +44,7 @@ public class AccountEditActivity extends AppCompatActivity {
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
 
+    private TextView tvDefault = null;
     private TextView tvXpub = null;
 
     private TextView tvArchiveHeading = null;
@@ -50,6 +52,8 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private Account account = null;
     private LegacyAddress legacyAddress = null;
+
+    private int accountIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,8 @@ public class AccountEditActivity extends AppCompatActivity {
 
         tvLabel = (TextView) findViewById(R.id.account_name);
 
+        tvDefault = (TextView) findViewById(R.id.tv_default);
+
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
 
         tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
@@ -87,12 +93,48 @@ public class AccountEditActivity extends AppCompatActivity {
             tvXpub.setText(R.string.extended_public_key);
             setArchive(account.isArchived());
 
+            LinearLayout defaultContainer = (LinearLayout)findViewById(R.id.default_container);
+            defaultContainer.setVisibility(View.VISIBLE);
+
+            if(isDefault(account)){
+                tvDefault.setText(R.string.default_label);
+                defaultContainer.setClickable(false);
+            }else{
+                tvDefault.setText(R.string.make_default);
+                defaultContainer.setClickable(true);
+            }
+
         }else if (legacyAddress != null){
 
             tvLabel.setText(legacyAddress.getLabel());
             tvXpub.setText(R.string.address);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
+            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
         }
+    }
+
+    private boolean isDefault(Account account){
+
+        //TODO account.getRealIdx() always returns -1
+//        if(account.getRealIdx() == PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex())
+
+        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+        List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+
+        int accountIndex = 0;
+        for(Account acc : accounts){
+
+            if(acc.getXpub().equals(account.getXpub())){
+                this.accountIndex = accountIndex;//sets this account index
+
+                if(accountIndex == defaultIndex){//this is current default already
+                    return true;
+                }
+            }
+
+            accountIndex++;
+        }
+        return false;
     }
 
     private void getIntentData() {
@@ -479,5 +521,57 @@ public class AccountEditActivity extends AppCompatActivity {
                 ).
                 setNegativeButton(R.string.no, null)
                 .show();
+    }
+
+    public void defaultClicked(View view) {
+
+        new AsyncTask<String, Void, Void>() {
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(AccountEditActivity.this);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+            }
+
+            @Override
+            protected Void doInBackground(final String... params) {
+
+                final int revertDefault = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+                PayloadFactory.getInstance().get().getHdWallet().setDefaultIndex(accountIndex);
+
+                if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            tvDefault.setText(R.string.default_label);
+                            findViewById(R.id.default_container).setClickable(false);
+
+                            setResult(RESULT_OK);
+                        }
+                    });
+                } else {
+                    //Remote save not successful - revert
+                    PayloadFactory.getInstance().get().getHdWallet().setDefaultIndex(revertDefault);
+                }
+                return null;
+            }
+        }.execute();
+
     }
 }
