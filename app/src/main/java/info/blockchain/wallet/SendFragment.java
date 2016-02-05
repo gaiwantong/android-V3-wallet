@@ -1468,11 +1468,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     class ReceiveToAdapter extends ArrayAdapter<String> {
 
-        private ArrayList<String> items;
-
         public ReceiveToAdapter(Context context, int resource, List<String> items) {
             super(context, resource, items);
-            this.items = new ArrayList<String>(items);
         }
 
         @Override
@@ -1494,7 +1491,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 int layoutRes = R.layout.fragment_send_account_row_dropdown;
                 row = inflater.inflate(layoutRes, parent, false);
                 TextView label = (TextView) row.findViewById(R.id.receive_account_label);
-                label.setText(items.get(position));
+                label.setText(receiveToList.get(position));
             } else {
                 int layoutRes = R.layout.spinner_item;
                 row = inflater.inflate(layoutRes, parent, false);
