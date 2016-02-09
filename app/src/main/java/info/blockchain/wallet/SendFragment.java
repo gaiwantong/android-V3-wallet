@@ -922,9 +922,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.privx_required)
-                .setMessage(R.string.watch_only_spend_instructions)
+                .setMessage(getString(R.string.watch_only_spend_instructions).replace("[--address--]",pendingSpend.fromLegacyAddress.getAddress()))
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         watchOnlyPendingSpend = pendingSpend;
