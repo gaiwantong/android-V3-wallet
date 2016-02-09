@@ -48,6 +48,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -640,13 +641,15 @@ public class AccountActivity extends AppCompatActivity {
                 final String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
                 String format = PrivateKeyFactory.getInstance().getFormat(strResult);
                 if (format != null) {
+                    //Private key scanned
                     if (!format.equals(PrivateKeyFactory.BIP38)) {
                         importNonBIP38Address(format, strResult);
                     } else {
                         importBIP38Address(strResult);
                     }
                 } else {
-                    ToastCustom.makeText(AccountActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    //Watch-only address scanned
+                    importWatchOnly(strResult);
                 }
             } catch (Exception e) {
                 ToastCustom.makeText(AccountActivity.this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -835,6 +838,74 @@ public class AccountActivity extends AppCompatActivity {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
 
+    }
+
+    private void importWatchOnly(final String address){
+
+        if(!FormatsUtil.getInstance().isValidBitcoinAddress(address)){
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }else if (PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(address)) {
+            ToastCustom.makeText(AccountActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        } else {
+
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.warning)
+                    .setCancelable(false)
+                    .setMessage(getString(R.string.watch_only_import_warning))
+                    .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            final LegacyAddress legacyAddress = new LegacyAddress();
+                            legacyAddress.setAddress(address);
+                            legacyAddress.setCreatedDeviceName("android");
+                            legacyAddress.setCreated(System.currentTimeMillis());
+                            legacyAddress.setCreatedDeviceVersion(BuildConfig.VERSION_NAME);
+                            legacyAddress.setWatchOnly(true);
+
+                            final EditText address_label = new EditText(AccountActivity.this);
+                            address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Looper.prepare();
+
+                                    new AlertDialog.Builder(AccountActivity.this)
+                                            .setTitle(R.string.app_name)
+                                            .setMessage(R.string.label_address)
+                                            .setView(address_label)
+                                            .setCancelable(false)
+                                            .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
+
+                                                    String label = address_label.getText().toString();
+                                                    if (label != null && label.trim().length() > 0) {
+                                                        legacyAddress.setLabel(label);
+                                                    } else {
+                                                        legacyAddress.setLabel(legacyAddress.getAddress());
+                                                    }
+
+                                                    remoteSaveNewAddress(legacyAddress);
+
+                                                }
+                                            }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                                            legacyAddress.setLabel(legacyAddress.getAddress());
+                                            remoteSaveNewAddress(legacyAddress);
+
+                                        }
+                                    }).show();
+
+                                    Looper.loop();
+                                }
+                            }).start();
+                        }
+                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            }).show();
+        }
     }
 
     private void addAddressAndUpdateList(final LegacyAddress legacyAddress) {
