@@ -1,7 +1,9 @@
 package info.blockchain.wallet;
 
 import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -58,14 +60,18 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ReselectSpinner;
 import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.bip44.Wallet;
 import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.params.MainNetParams;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -82,6 +88,7 @@ import piuk.blockchain.android.R;
 
 public class SendFragment extends Fragment implements View.OnClickListener, CustomKeypadCallback {
 
+    private final int SCAN_PRIVX = 301;
     public static boolean isKeypadVisible = false;
     private static Context context = null;
     private View rootView;
@@ -117,6 +124,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private String defaultSeparator;//Decimal separator based on locale
     private boolean spendInProgress = false;//Used to avoid double clicking on spend and opening confirm dialog twice
     private boolean spDestinationSelected = false;//When a destination is selected from dropdown, mark spend as 'Moved'
+
+    private PendingSpend watchOnlyPendingSpend;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -282,11 +291,16 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS || legacyAddress.isWatchOnly())
-                continue;//skip archived and watch only address
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+                continue;//skip archived
 
             //If address has no label, we'll display address
             String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+
+            //Append watch-only with a label - we'll asl for xpriv scan when spending from
+            if(legacyAddress.isWatchOnly()){
+                labelOrAddress = getResources().getString(R.string.watch_only_label)+" "+labelOrAddress;
+            }
 
             sendFromList.add(labelOrAddress);
             sendFromBiMap.put(legacyAddress, spinnerIndex);
@@ -909,7 +923,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             final PendingSpend pendingSpend = getPendingSpendFromUIFields();
             if(pendingSpend != null){
                 if(isValidSpend(pendingSpend)){
-                    checkDoubleEncrypt(pendingSpend);
+
+                    //Currently only v2 has watch-only
+                    if(!pendingSpend.isHD && pendingSpend.fromLegacyAddress.isWatchOnly()){
+                        promptWatchOnlySpend(pendingSpend);
+                    }else{
+                        checkDoubleEncrypt(pendingSpend);
+                    }
                 }
             }
 
@@ -917,6 +937,149 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         }
+    }
+
+    private void promptWatchOnlySpend(final PendingSpend pendingSpend){
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.privx_required)
+                .setMessage(getString(R.string.watch_only_spend_instructions).replace("[--address--]",pendingSpend.fromLegacyAddress.getAddress()))
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        watchOnlyPendingSpend = pendingSpend;
+
+                        Intent intent = new Intent(getActivity(), CaptureActivity.class);
+                        startActivityForResult(intent, SCAN_PRIVX);
+
+                    }
+                }).setNegativeButton(R.string.cancel, null).show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
+            String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
+
+            try {
+                String format = PrivateKeyFactory.getInstance().getFormat(scanData);
+                if (format != null) {
+                    if (!format.equals(PrivateKeyFactory.BIP38)) {
+                        spendFromWatchOnlyNonBIP38(format, scanData);
+                    } else {
+                        spendFromWatchOnlyBIP38(scanData);
+                    }
+                } else {
+                    ToastCustom.makeText(getActivity(), getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void spendFromWatchOnlyNonBIP38(final String format, final String scanData){
+        ECKey key = null;
+
+        try {
+            key = PrivateKeyFactory.getInstance().getKey(format, scanData);
+        } catch (Exception e) {
+            ToastCustom.makeText(getActivity(), getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            e.printStackTrace();
+            return;
+        }
+
+        if (key != null && key.hasPrivKey() && watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
+
+            //Create copy, otherwise pass by ref will override
+            LegacyAddress tempLegacyAddress = new LegacyAddress();
+            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+
+            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
+            confirmPayment(watchOnlyPendingSpend);
+        } else {
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+    }
+
+    private void spendFromWatchOnlyBIP38(final String scanData){
+
+        final EditText password = new EditText(getActivity());
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.bip38_password_entry)
+                .setView(password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        final String pw = password.getText().toString();
+
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                            progress = null;
+                        }
+                        progress = new ProgressDialog(getActivity());
+                        progress.setTitle(R.string.app_name);
+                        progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                        progress.show();
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                Looper.prepare();
+
+                                try {
+                                    BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), scanData);
+                                    final ECKey key = bip38.decrypt(pw);
+
+                                    if (key != null && key.hasPrivKey()) {
+
+                                        if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
+                                            //Create copy, otherwise pass by ref will override
+                                            LegacyAddress tempLegacyAddress = new LegacyAddress();
+                                            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+                                            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+
+                                            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
+                                            confirmPayment(watchOnlyPendingSpend);
+                                        }else{
+                                            ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        }
+
+                                    } else {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+
+                                } catch (Exception e) {
+                                    ToastCustom.makeText(getActivity(), getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                } finally {
+                                    if (progress != null && progress.isShowing()) {
+                                        progress.dismiss();
+                                        progress = null;
+                                    }
+                                }
+
+                                Looper.loop();
+
+                            }
+                        }).start();
+
+                    }
+                }).setNegativeButton(R.string.cancel, null).show();
+
     }
 
     private void checkDoubleEncrypt(final PendingSpend pendingSpend){
