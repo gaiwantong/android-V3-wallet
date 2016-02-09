@@ -465,4 +465,9 @@
     <string name="send_to_same_address_warning">Can\'t send to the same address.</string>
     <string name="default_label">Default</string>
     <string name="make_default">Make default</string>
+    <string name="privx_required">Private key required</string>
+    <string name="watch_only_spend_instructions">To spend from this address please scan
+        the private key to continue.
+    </string>
+    <string name="invalid_private_key">Invalid private key</string>
 </resources>
