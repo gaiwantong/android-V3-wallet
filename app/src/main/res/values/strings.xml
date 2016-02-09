@@ -466,7 +466,11 @@
     <string name="default_label">Default</string>
     <string name="make_default">Make default</string>
     <string name="privx_required">Private Key Needed</string>
-    <string name="watch_only_spend_instructions">This action requires the private key for the Bitcoin address [--address--]. Please scan the code.
-    </string>
+    <string name="watch_only_spend_instructions">This action requires the private key for the Bitcoin address [--address--]. Please scan the code.</string>
     <string name="invalid_private_key">Invalid private key</string>
+    <string name="watch_only_import_warning">You are about to import a watch-only address. That
+        means you can only access these funds if you have the private key stored elsewhere.
+        If you do not have a paper wallet or other backup you should not instruct anyone to send
+        you coins to this address.\n\nThis is recommended for advanced users only. Continue?
+    </string>
 </resources>

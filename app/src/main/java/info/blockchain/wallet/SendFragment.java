@@ -25,6 +25,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.AddressBookEntry;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -358,6 +360,20 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             spinnerIndex++;
         }
 
+        //Address Book
+        List<AddressBookEntry> addressBookEntries = PayloadFactory.getInstance().get().getAddressBookEntries();
+
+        for(AddressBookEntry addressBookEntry : addressBookEntries){
+
+            //If address has no label, we'll display address
+            String labelOrAddress = addressBookEntry.getLabel() == null || addressBookEntry.getLabel().length() == 0 ? addressBookEntry.getAddress() : addressBookEntry.getLabel();
+
+            receiveToList.add(labelOrAddress);
+            receiveToBiMap.put(addressBookEntry, spinnerIndex);
+            spinnerIndex++;
+
+        }
+
         //Notify adapter of list update
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -386,7 +402,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     receiveToSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                if(sendFromSpinner.getWidth() > 0)
+                    receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
             }
         });
 
@@ -418,10 +435,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             } else {
                                 edReceiveTo.setText(((LegacyAddress) object).getAddress());
                             }
-                        } else {
+                        } else if(object instanceof Account){
                             //V3
                             //TODO - V3 no watch only yet
                             edReceiveTo.setText(getV3ReceiveAddress((Account) object));
+
+                        } else if (object instanceof AddressBookEntry){
+                            //Address book
+                            edReceiveTo.setText(((AddressBookEntry) object).getAddress());
                         }
 
                         spDestinationSelected = true;
