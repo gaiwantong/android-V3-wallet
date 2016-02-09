@@ -2,12 +2,15 @@ package info.blockchain.wallet;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -32,7 +35,14 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +50,9 @@ import java.util.List;
 import piuk.blockchain.android.R;
 
 public class AccountEditActivity extends AppCompatActivity {
+
+    private final int SCAN_PRIVX = 302;
+    private final int ADDRESS_LABEL_MAX_LENGTH = 32;
 
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
@@ -104,12 +117,20 @@ public class AccountEditActivity extends AppCompatActivity {
                 defaultContainer.setClickable(true);
             }
 
+            //TODO no xpub watch only yet
+
         }else if (legacyAddress != null){
 
             tvLabel.setText(legacyAddress.getLabel());
             tvXpub.setText(R.string.address);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
             findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
+
+            if(legacyAddress.isWatchOnly()){
+                findViewById(R.id.privx_container).setVisibility(View.VISIBLE);
+            }else{
+                findViewById(R.id.privx_container).setVisibility(View.GONE);
+            }
         }
     }
 
@@ -189,6 +210,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.label_container).setClickable(false);
             findViewById(R.id.xpub_container).setAlpha(0.5f);
             findViewById(R.id.xpub_container).setClickable(false);
+            findViewById(R.id.privx_container).setAlpha(0.5f);
+            findViewById(R.id.privx_container).setClickable(false);
         }else{
 
             //Don't allow archiving of default account
@@ -208,6 +231,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.label_container).setClickable(true);
             findViewById(R.id.xpub_container).setAlpha(1.0f);
             findViewById(R.id.xpub_container).setClickable(true);
+            findViewById(R.id.privx_container).setAlpha(1.0f);
+            findViewById(R.id.privx_container).setClickable(true);
         }
     }
     
@@ -574,4 +599,205 @@ public class AccountEditActivity extends AppCompatActivity {
         }.execute();
 
     }
+
+    public void scanXPrivClicked(View view) {
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.privx_required)
+                .setMessage(getString(R.string.watch_only_spend_instructions).replace("[--address--]",legacyAddress.getAddress()))
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        Intent intent = new Intent(AccountEditActivity.this, CaptureActivity.class);
+                        startActivityForResult(intent, SCAN_PRIVX);
+                    }
+                }).setNegativeButton(R.string.cancel, null).show();
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
+            String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
+
+            try {
+                String format = PrivateKeyFactory.getInstance().getFormat(scanData);
+                if (format != null) {
+                    if (!format.equals(PrivateKeyFactory.BIP38)) {
+                        importNonBIP38Address(format, scanData);
+                    } else {
+                        importBIP38Address(scanData);
+                    }
+                } else {
+                    ToastCustom.makeText(this, getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void importBIP38Address(final String data) {
+
+        final EditText password = new EditText(this);
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.bip38_password_entry)
+                .setView(password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        final String pw = password.getText().toString();
+
+                        new AsyncTask<Void, Void, Void>(){
+
+                            ProgressDialog progress;
+
+                            @Override
+                            protected void onPreExecute() {
+                                super.onPreExecute();
+                                progress = new ProgressDialog(AccountEditActivity.this);
+                                progress.setTitle(R.string.app_name);
+                                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                                progress.show();
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                super.onPostExecute(aVoid);
+                                if (progress != null && progress.isShowing()) {
+                                    progress.dismiss();
+                                    progress = null;
+                                }
+                            }
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+
+                                try {
+                                    BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), data);
+                                    final ECKey key = bip38.decrypt(pw);
+
+                                    if (key != null && key.hasPrivKey() && legacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
+
+                                        /*
+                                         * if double encrypted, save encrypted in payload
+                                         */
+                                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            legacyAddress.setWatchOnly(false);
+                                        } else {
+                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                                            legacyAddress.setEncryptedKey(encrypted2);
+                                            legacyAddress.setWatchOnly(false);
+                                        }
+
+                                        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    findViewById(R.id.privx_container).setVisibility(View.GONE);
+                                                    setResult(RESULT_OK);
+                                                }
+                                            });
+
+                                            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                        }
+
+                                    } else {
+                                        //TODO wrong private key - import anyway
+                                        ToastCustom.makeText(AccountEditActivity.this, getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+                                } catch (Exception e) {
+                                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.bip38_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+
+                                return null;
+                            }
+                        }.execute();
+                    }
+                }).setNegativeButton(R.string.cancel, null).show();
+    }
+
+    private void importNonBIP38Address(final String format, final String data) {
+
+        new AsyncTask<Void, Void, Void>(){
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(AccountEditActivity.this);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                ECKey key = null;
+
+                try {
+                    key = PrivateKeyFactory.getInstance().getKey(format, data);
+                    if (key != null && key.hasPrivKey() && legacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
+                    /*
+                     * if double encrypted, save encrypted in payload
+                     */
+                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                            legacyAddress.setWatchOnly(false);
+                        } else {
+                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                            legacyAddress.setEncryptedKey(encrypted2);
+                            legacyAddress.setWatchOnly(false);
+                        }
+
+                        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    findViewById(R.id.privx_container).setVisibility(View.GONE);
+                                    setResult(RESULT_OK);
+                                }
+                            });
+
+                            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                        }
+
+                    } else {
+                        //TODO wrong private key - import anyway
+                        ToastCustom.makeText(AccountEditActivity.this, getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+
+                } catch (Exception e) {
+                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+        }.execute();
+    }
+
 }
