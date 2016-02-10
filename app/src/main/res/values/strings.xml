@@ -475,4 +475,6 @@
     </string>
     <string name="scan_private_key">Scan private key</string>
     <string name="private_key_successfully_imported">Private key successfully imported.</string>
+    <string name="private_key_not_matching_address">This private key does not match address [--address--].\n\nWould you like to continue importing scanned private key and address [--new_address--]?
+    </string>
 </resources>

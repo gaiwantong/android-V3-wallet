@@ -15,8 +15,10 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,9 +33,12 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.service.WebSocketService;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -685,36 +690,35 @@ public class AccountEditActivity extends AppCompatActivity {
                                     BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), data);
                                     final ECKey key = bip38.decrypt(pw);
 
-                                    if (key != null && key.hasPrivKey() && legacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
+                                    if (key != null && key.hasPrivKey()) {
 
-                                        /*
-                                         * if double encrypted, save encrypted in payload
-                                         */
-                                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-                                            legacyAddress.setWatchOnly(false);
-                                        } else {
-                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
-                                            legacyAddress.setEncryptedKey(encrypted2);
-                                            legacyAddress.setWatchOnly(false);
-                                        }
-
-                                        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                                        final String keyAddress = key.toAddress(MainNetParams.get()).toString();
+                                        if(legacyAddress.getAddress().equals(keyAddress)) {
+                                            importAddressPrivateKey(key);
+                                        }else{
 
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    findViewById(R.id.privx_container).setVisibility(View.GONE);
-                                                    setResult(RESULT_OK);
+                                                    new AlertDialog.Builder(AccountEditActivity.this)
+                                                            .setTitle(R.string.warning)
+                                                            .setMessage(getString(R.string.private_key_not_matching_address).replace("[--address--]",legacyAddress.getAddress()).replace("[--new_address--]",keyAddress))
+                                                            .setCancelable(false)
+                                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                                public void onClick(DialogInterface dialog, int whichButton) {
+                                                                    runOnUiThread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            importUnmatchedPrivateKey(key);
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }).setNegativeButton(R.string.cancel, null).show();
                                                 }
                                             });
-
-                                            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                         }
 
                                     } else {
-                                        //TODO wrong private key - import anyway
                                         ToastCustom.makeText(AccountEditActivity.this, getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                     }
                                 } catch (Exception e) {
@@ -755,38 +759,35 @@ public class AccountEditActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... params) {
 
-                ECKey key = null;
-
                 try {
-                    key = PrivateKeyFactory.getInstance().getKey(format, data);
-                    if (key != null && key.hasPrivKey() && legacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
-                    /*
-                     * if double encrypted, save encrypted in payload
-                     */
-                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-                            legacyAddress.setWatchOnly(false);
-                        } else {
-                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
-                            legacyAddress.setEncryptedKey(encrypted2);
-                            legacyAddress.setWatchOnly(false);
-                        }
+                    final ECKey key = PrivateKeyFactory.getInstance().getKey(format, data);
+                    if (key != null && key.hasPrivKey()) {
 
-                        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                        final String keyAddress = key.toAddress(MainNetParams.get()).toString();
+                        if (legacyAddress.getAddress().equals(keyAddress)) {
+                            importAddressPrivateKey(key);
+                        } else {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    findViewById(R.id.privx_container).setVisibility(View.GONE);
-                                    setResult(RESULT_OK);
+                                    new AlertDialog.Builder(AccountEditActivity.this)
+                                            .setTitle(R.string.warning)
+                                            .setMessage(getString(R.string.private_key_not_matching_address).replace("[--address--]",legacyAddress.getAddress()).replace("[--new_address--]",keyAddress))
+                                            .setCancelable(false)
+                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int whichButton) {
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            importUnmatchedPrivateKey(key);
+                                                        }
+                                                    });
+                                                }
+                                            }).setNegativeButton(R.string.cancel, null).show();
                                 }
                             });
-
-                            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         }
-
                     } else {
-                        //TODO wrong private key - import anyway
                         ToastCustom.makeText(AccountEditActivity.this, getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
 
@@ -800,4 +801,131 @@ public class AccountEditActivity extends AppCompatActivity {
         }.execute();
     }
 
+    private void importAddressPrivateKey(ECKey key){
+
+        //if double encrypted, save encrypted in payload
+        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            legacyAddress.setWatchOnly(false);
+        } else {
+            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+            legacyAddress.setEncryptedKey(encrypted2);
+            legacyAddress.setWatchOnly(false);
+        }
+
+        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.privx_container).setVisibility(View.GONE);
+                    setResult(RESULT_OK);
+                }
+            });
+
+            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+        }
+    }
+
+    private void importUnmatchedPrivateKey(ECKey key){
+
+        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+            /*
+             * if double encrypted, save encrypted in payload
+             */
+        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+        } else {
+            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+            legacyAddress.setEncryptedKey(encrypted2);
+        }
+
+        final EditText address_label = new EditText(AccountEditActivity.this);
+        address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+
+        new AlertDialog.Builder(AccountEditActivity.this)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.label_address)
+                .setView(address_label)
+                .setCancelable(false)
+                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String label = address_label.getText().toString();
+                        if (label != null && label.trim().length() > 0) {
+                            legacyAddress.setLabel(label);
+                        } else {
+                            legacyAddress.setLabel(legacyAddress.getAddress());
+                        }
+                        remoteSaveUnmatchedPrivateKey(legacyAddress);
+
+                    }
+                }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                legacyAddress.setLabel(legacyAddress.getAddress());
+                remoteSaveUnmatchedPrivateKey(legacyAddress);
+
+            }
+        }).show();
+    }
+
+    private void remoteSaveUnmatchedPrivateKey(final LegacyAddress legacyAddress){
+
+        new AsyncTask<Void, Void, Void>(){
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(AccountEditActivity.this);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                Payload updatedPayload = PayloadFactory.getInstance().get();
+                List<LegacyAddress> updatedLegacyAddresses = updatedPayload.getLegacyAddresses();
+                updatedLegacyAddresses.add(legacyAddress);
+                updatedPayload.setLegacyAddresses(updatedLegacyAddresses);
+                PayloadFactory.getInstance().set(updatedPayload);
+
+                if (PayloadFactory.getInstance().put()) {
+                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                    ToastCustom.makeText(getApplicationContext(), legacyAddress.getAddress(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                    MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+
+                    //Subscribe to new address only if successfully created
+                    Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+                    intent.putExtra("address", legacyAddress.getAddress());
+                    LocalBroadcastManager.getInstance(AccountEditActivity.this).sendBroadcast(intent);
+
+                    setResult(RESULT_OK);
+                    finish();
+
+                } else {
+                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+                return null;
+            }
+        }.execute();
+    }
 }
