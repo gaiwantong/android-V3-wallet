@@ -840,7 +840,16 @@ public class AccountActivity extends AppCompatActivity {
 
     }
 
-    private void importWatchOnly(final String address){
+    private void importWatchOnly(String address){
+
+        // check for poorly formed BIP21 URIs
+        if (address.startsWith("bitcoin://") && address.length() > 10) {
+            address = "bitcoin:" + address.substring(10);
+        }
+
+        if (FormatsUtil.getInstance().isBitcoinUri(address)) {
+            address = FormatsUtil.getInstance().getBitcoinAddress(address);
+        }
 
         if(!FormatsUtil.getInstance().isValidBitcoinAddress(address)){
             ToastCustom.makeText(AccountActivity.this, getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -848,6 +857,7 @@ public class AccountActivity extends AppCompatActivity {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else {
 
+            final String finalAddress = address;
             new AlertDialog.Builder(this)
                     .setTitle(R.string.warning)
                     .setCancelable(false)
@@ -856,7 +866,7 @@ public class AccountActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
                             final LegacyAddress legacyAddress = new LegacyAddress();
-                            legacyAddress.setAddress(address);
+                            legacyAddress.setAddress(finalAddress);
                             legacyAddress.setCreatedDeviceName("android");
                             legacyAddress.setCreated(System.currentTimeMillis());
                             legacyAddress.setCreatedDeviceVersion(BuildConfig.VERSION_NAME);
