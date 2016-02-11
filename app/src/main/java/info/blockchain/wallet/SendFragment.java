@@ -42,6 +42,7 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
+import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
@@ -65,7 +66,9 @@ import info.blockchain.wallet.util.ReselectSpinner;
 import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.bip44.Wallet;
 import org.bitcoinj.core.bip44.WalletFactory;
@@ -962,16 +965,37 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
-            String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
+            final String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
             try {
-                String format = PrivateKeyFactory.getInstance().getFormat(scanData);
+                final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
                 if (format != null) {
-                    if (!format.equals(PrivateKeyFactory.BIP38)) {
-                        spendFromWatchOnlyNonBIP38(format, scanData);
-                    } else {
-                        spendFromWatchOnlyBIP38(scanData);
+
+                    if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                        promptForSecondPassword(new OpSimpleCallback() {
+                            @Override
+                            public void onSuccess(String string) {
+                                if (!format.equals(PrivateKeyFactory.BIP38)) {
+                                    spendFromWatchOnlyNonBIP38(format, scanData);
+                                } else {
+                                    spendFromWatchOnlyBIP38(scanData);
+                                }
+                            }
+
+                            @Override
+                            public void onFail() {
+                                ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                            }
+                        });
+                    }else{
+                        if (!format.equals(PrivateKeyFactory.BIP38)) {
+                            spendFromWatchOnlyNonBIP38(format, scanData);
+                        } else {
+                            spendFromWatchOnlyBIP38(scanData);
+                        }
                     }
+
                 } else {
                     ToastCustom.makeText(getActivity(), getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
@@ -980,6 +1004,44 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 e.printStackTrace();
             }
         }
+    }
+
+    private void promptForSecondPassword(final OpSimpleCallback callback){
+
+        final EditText double_encrypt_password = new EditText(getActivity());
+        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.enter_double_encryption_pw)
+                .setView(double_encrypt_password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String secondPassword = double_encrypt_password.getText().toString();
+
+                        if (secondPassword != null &&
+                                secondPassword.length() > 0 &&
+                                DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        new CharSequenceX(secondPassword), PayloadFactory.getInstance().get().getOptions().getIterations()) &&
+                                !StringUtils.isEmpty(secondPassword)) {
+
+                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
+                            callback.onSuccess(secondPassword);
+
+                        } else {
+                            callback.onFail();
+                        }
+
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ;
+            }
+        }).show();
     }
 
     private void spendFromWatchOnlyNonBIP38(final String format, final String scanData){
@@ -997,7 +1059,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             //Create copy, otherwise pass by ref will override
             LegacyAddress tempLegacyAddress = new LegacyAddress();
-            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                tempLegacyAddress.setEncryptedKey(encrypted2);
+            }else{
+                tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            }
             tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
             tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
 
@@ -1048,7 +1116,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
                                             //Create copy, otherwise pass by ref will override
                                             LegacyAddress tempLegacyAddress = new LegacyAddress();
-                                            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                                                tempLegacyAddress.setEncryptedKey(encrypted2);
+                                            }else{
+                                                tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            }
                                             tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
                                             tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
 
