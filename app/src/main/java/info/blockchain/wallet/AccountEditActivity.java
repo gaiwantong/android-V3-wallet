@@ -217,6 +217,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.xpub_container).setClickable(false);
             findViewById(R.id.privx_container).setAlpha(0.5f);
             findViewById(R.id.privx_container).setClickable(false);
+            findViewById(R.id.default_container).setAlpha(0.5f);
+            findViewById(R.id.default_container).setClickable(false);
         }else{
 
             //Don't allow archiving of default account
