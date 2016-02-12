@@ -426,8 +426,8 @@ public class AccountActivity extends AppCompatActivity {
 
                     try {
                         //Add new account (only label)
-                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().add(new Account(accountLabel));
-
+                        List<Account> accountList = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+                        accountList.add(new Account(accountLabel));
 
                         //Set walletFactory to look at new account index
                         Wallet walletFactory = WalletFactory.getInstance().get();
@@ -437,9 +437,12 @@ public class AccountActivity extends AppCompatActivity {
                         int newAccountIndex = walletFactory.getAccounts().size() - 1;
 
                         String xpub = walletFactory.getAccount(newAccountIndex).xpubstr();
-                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpub(xpub);
-
                         String xpriv = walletFactory.getAccount(newAccountIndex).xprvstr();
+
+                        if(xpub.isEmpty() || xpriv.isEmpty()){
+                            accountList.remove(accountList.size()-1);//If something went wrong remove newly added account before it can be saved to payload
+                            throw new Exception("Xpub and Xpriv cannot be empty!");
+                        }
 
                         //Respect second password
                         if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
@@ -451,7 +454,8 @@ public class AccountActivity extends AppCompatActivity {
                                     PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
                         }
 
-                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(newAccountIndex).setXpriv(xpriv);
+                        accountList.get(accountList.size()-1).setXpriv(xpriv);
+                        accountList.get(accountList.size()-1).setXpub(xpub);
 
                         //Save payload
                         if (PayloadBridge.getInstance(AccountActivity.this).remoteSaveThreadLocked()) {
