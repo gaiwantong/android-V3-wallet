@@ -15,6 +15,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -62,8 +63,8 @@ public class AccountEditActivity extends AppCompatActivity {
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
 
-    private TextView tvDefault = null;
     private TextView tvXpub = null;
+    private TextView tvExtendedXpubDescription = null;
 
     private TextView tvArchiveHeading = null;
     private TextView tvArchiveDescription = null;
@@ -98,9 +99,8 @@ public class AccountEditActivity extends AppCompatActivity {
 
         tvLabel = (TextView) findViewById(R.id.account_name);
 
-        tvDefault = (TextView) findViewById(R.id.tv_default);
-
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
+        tvExtendedXpubDescription = (TextView)findViewById(R.id.tv_extended_xpub_description);
 
         tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
         tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
@@ -115,19 +115,18 @@ public class AccountEditActivity extends AppCompatActivity {
             defaultContainer.setVisibility(View.VISIBLE);
 
             if(isDefault(account)){
-                tvDefault.setText(R.string.default_label);
-                defaultContainer.setClickable(false);
+                defaultContainer.setVisibility(View.GONE);
             }else{
-                tvDefault.setText(R.string.make_default);
-                defaultContainer.setClickable(true);
+                defaultContainer.setVisibility(View.VISIBLE);
             }
 
-            //TODO no xpub watch only yet
+            findViewById(R.id.privx_container).setVisibility(View.GONE);
 
         }else if (legacyAddress != null){
 
             tvLabel.setText(legacyAddress.getLabel());
             tvXpub.setText(R.string.address);
+            tvExtendedXpubDescription.setVisibility(View.GONE);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
             findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
 
@@ -591,8 +590,7 @@ public class AccountEditActivity extends AppCompatActivity {
                         @Override
                         public void run() {
 
-                            tvDefault.setText(R.string.default_label);
-                            findViewById(R.id.default_container).setClickable(false);
+                            findViewById(R.id.default_container).setVisibility(View.GONE);
 
                             setResult(RESULT_OK);
                         }
@@ -706,7 +704,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                                             .setTitle(R.string.warning)
                                                             .setMessage(getString(R.string.private_key_not_matching_address).replace("[--address--]",legacyAddress.getAddress()).replace("[--new_address--]",keyAddress))
                                                             .setCancelable(false)
-                                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                            .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                                                                 public void onClick(DialogInterface dialog, int whichButton) {
                                                                     runOnUiThread(new Runnable() {
                                                                         @Override
@@ -825,7 +823,21 @@ public class AccountEditActivity extends AppCompatActivity {
                 }
             });
 
-            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    new AlertDialog.Builder(AccountEditActivity.this)
+                            .setTitle(R.string.success)
+                            .setMessage(R.string.private_key_successfully_imported)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            }).show();
+                    Looper.loop();
+
+                }
+            }).start();
         }
     }
 
