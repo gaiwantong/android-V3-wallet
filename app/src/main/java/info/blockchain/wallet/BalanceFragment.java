@@ -1233,6 +1233,13 @@ public class BalanceFragment extends Fragment {
                     tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
                 }
 
+                TextView tvWatchOnly = (TextView) holder.itemView.findViewById(R.id.watch_only);
+                if(tx.isWatchOnly()){
+                    tvWatchOnly.setVisibility(View.VISIBLE);
+                }else{
+                    tvWatchOnly.setVisibility(View.GONE);
+                }
+
                 tvResult.setText(span1);
 
                 tvResult.setOnTouchListener(new OnTouchListener() {
