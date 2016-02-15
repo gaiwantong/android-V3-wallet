@@ -469,6 +469,7 @@
     <string name="scan_private_key">Scan private key</string>
     <string name="private_key_successfully_imported">Private key successfully imported.</string>
     <string name="private_key_not_matching_address">This private key does not match address [--address--].\n\nWould you like to continue importing scanned private key and address [--new_address--]?</string>
+    <string name="watch_only">watch-only</string>
     <string name="extended_public_key_description">If you are a merchant, show your xPub and use the
         Blockchain Merchant app to receive funds safely and privately.\n\nKeep your xPub private.
         Someone with access to your xPub will be able to see all your funds and transactions.
