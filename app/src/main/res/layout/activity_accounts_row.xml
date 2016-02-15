@@ -72,7 +72,7 @@
 							android:text="0.0 BTC"
 							android:singleLine="true"
 							android:paddingRight="8dp"
-							android:textColor="@color/blockchain_grey"
+							android:textColor="@color/blockchain_receive_green"
 							android:textSize="12sp"/>
 
 					<TextView

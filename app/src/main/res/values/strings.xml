@@ -376,7 +376,7 @@
     <string name="archived_address">This address is archived. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address">This address is a watch-only. You can manage it via the Blockchain web wallet.</string>
     <string name="watchonly_address_spend_warning">This address is a watch-only. You can spend from it via the Blockchain web wallet.</string>
-    <string name="watchonly_address_receive_warning">You are about to receive to a watch-only address. You can only spend these funds if you have access to the private key. Continue?</string>
+    <string name="watchonly_address_receive_warning">You are about to receive bitcoin to a watch-only address. You can only spend these funds if you have access to the private key. Continue?</string>
 
     <string name="PENDING">PENDING</string>
     <string name="COMPLETE">COMPLETE</string>
@@ -438,13 +438,8 @@
         into tapping on unseen objects and potentially steal funds. Note that this warning will also be triggered by screen dimming apps. If you are confident that there
         is no threat you may continue.
     </string>
-    <string name="archived_description">This item is archived. You can\'t access it or send funds
-        from it. Your funds are safe and you can unarchive at any time.
-    </string>
-    <string name="not_archived_description">This item is not archived. If you archive this item you
-        won\'t be able to access it or send from it. Your funds will be safe and you can unarchive
-        at any time.
-    </string>
+    <string name="archived_description">This item has been archived, and is unaccessible in the mobile app experience. Though you cannot send funds from this item, any funds will remain safe. Simply unarchive this item to start using it again.</string>
+    <string name="not_archived_description">This item is not archived. Archive this item if you do NOT want to use it anymore. Your funds will remain safe, and you can unarchive it at anytime.</string>
     <string name="default_account_description">This item is set as your default and can\'t be archived.</string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>
@@ -452,10 +447,7 @@
     <string name="scan_this_code">Scan this code or copy it into your Blockchain Merchant app to
         securely receive Bitcoin.
     </string>
-    <string name="xpub_sharing_warning">You should only give this xPub to those you trust. With this
-        information, they may be able to keep track of your payments, and may be able to disrupt
-        your access to your wallet.
-    </string>
+    <string name="xpub_sharing_warning">Sharing your xPub authorizes others to track your transaction history. As authorized persons may be able to disrupt you from accessing your wallet, only share your xPub with people you trust.</string>
     <string name="assign_display_name">Assign a friendly display name.</string>
     <string name="copy_address">Copy address</string>
     <string name="archive">Archive</string>
@@ -463,18 +455,27 @@
     <string name="archive_are_you_sure">Are you sure you want to archive this item?</string>
     <string name="unarchive_are_you_sure">Are you sure you want to unarchive this item?</string>
     <string name="send_to_same_address_warning">Can\'t send to the same address.</string>
-    <string name="default_label">Default</string>
     <string name="make_default">Make default</string>
     <string name="privx_required">Private Key Needed</string>
-    <string name="watch_only_spend_instructions">This action requires the private key for the Bitcoin address [--address--]. Please scan the code.</string>
+    <string name="watch_only_spend_instructions">This action requires the private key for the Bitcoin address [--address--]. Please scan the QR code.</string>
     <string name="invalid_private_key">Invalid private key</string>
-    <string name="watch_only_import_warning">You are about to import a watch-only address. That
-        means you can only access these funds if you have the private key stored elsewhere.
-        If you do not have a paper wallet or other backup you should not instruct anyone to send
-        you coins to this address.\n\nThis is recommended for advanced users only. Continue?
+    <string name="watch_only_import_warning">You are about to import a watch-only address, an address (or public key script)
+        stored in the wallet without the corresponding private key. You cannot spend bitcoin from a watch-only
+        address directly, but you can get the balance, or export a transaction to be signed externally. This
+        means that the funds can be spent ONLY if you have the private key stored elsewhere. If you do
+        not have the private key stored, do NOT instruct anyone to send you bitcoin to the watch-only
+        address.\n\nThese options are recommended for advanced users only. Continue?
     </string>
     <string name="scan_private_key">Scan private key</string>
     <string name="private_key_successfully_imported">Private key successfully imported.</string>
     <string name="private_key_not_matching_address">This private key does not match address [--address--].\n\nWould you like to continue importing scanned private key and address [--new_address--]?</string>
     <string name="watch_only">watch-only</string>
+    <string name="extended_public_key_description">If you are a merchant, show your xPub and use the
+        Blockchain Merchant app to receive funds safely and privately.\n\nKeep your xPub private.
+        Someone with access to your xPub will be able to see all your funds and transactions.
+    </string>
+    <string name="watch_only_description">This is a watch-only address. To spend your funds from
+        this wallet, please scan your private key.
+    </string>
+    <string name="success">Success</string>
 </resources>

@@ -6,219 +6,288 @@
 
     <include layout="@layout/toolbar_general"/>
 
-    <LinearLayout
-            android:id="@+id/label_container"
+    <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingBottom="4dp"
-            android:background="@color/white"
-            android:onClick="changeLabelClicked"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:id="@+id/scrollView">
 
-        <TextView
-                android:id="@+id/tv_label"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/label"
-                android:textSize="16sp"
-                android:paddingLeft="16dp"
-                android:textColor="@color/primary_text_default_material_light"
-                android:duplicateParentState="true">
-        </TextView>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        <TextView
-                android:id="@+id/account_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:textColor="@color/primary_text_default_material_light"
-                android:alpha="0.7"
-                android:duplicateParentState="true">
-        </TextView>
-
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/default_container"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingBottom="4dp"
-            android:background="@color/white"
-            android:onClick="defaultClicked"
-            android:orientation="vertical">
-
-        <View android:layout_width="match_parent"
-              android:layout_height="1dp"
-              android:alpha="0.5"
-              android:layout_marginLeft="8dp"
-              android:layout_marginRight="8dp"
-              android:background="@color/blockchain_grey"/>
-
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:gravity="center_vertical"
-                      android:orientation="horizontal">
-
-            <TextView
-                    android:id="@+id/tv_default"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="Make default"
-                    android:textSize="16sp"
-                    android:paddingLeft="16dp"
+            <LinearLayout
+                    android:id="@+id/label_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:paddingBottom="4dp"
+                    android:background="@color/white"
+                    android:onClick="changeLabelClicked"
                     android:gravity="center_vertical"
-                    android:textColor="@color/primary_text_default_material_light"
-                    android:duplicateParentState="true">
-            </TextView>
+                    android:orientation="vertical">
 
-        </LinearLayout>
+                <TextView
+                        android:id="@+id/tv_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label"
+                        android:textSize="16sp"
+                        android:paddingLeft="16dp"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:duplicateParentState="true">
+                </TextView>
 
-    </LinearLayout>
+                <TextView
+                        android:id="@+id/account_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:alpha="0.7"
+                        android:duplicateParentState="true">
+                </TextView>
 
-    <LinearLayout
-            android:id="@+id/privx_container"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingBottom="4dp"
-            android:background="@color/white"
-            android:onClick="scanXPrivClicked"
-            android:visibility="gone"
-            android:orientation="vertical">
+            </LinearLayout>
 
-        <View android:layout_width="match_parent"
-              android:layout_height="1dp"
-              android:alpha="0.5"
-              android:layout_marginLeft="8dp"
-              android:layout_marginRight="8dp"
-              android:background="@color/blockchain_grey"/>
+            <LinearLayout
+                    android:id="@+id/default_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:paddingBottom="4dp"
+                    android:background="@color/white"
+                    android:onClick="defaultClicked"
+                    android:orientation="vertical">
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:gravity="center_vertical"
-                      android:orientation="horizontal">
+                <View android:layout_width="match_parent"
+                      android:layout_height="1dp"
+                      android:alpha="0.5"
+                      android:layout_marginLeft="8dp"
+                      android:layout_marginRight="8dp"
+                      android:background="@color/blockchain_grey"/>
 
-            <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="@string/scan_private_key"
-                    android:textSize="16sp"
-                    android:paddingLeft="16dp"
-                    android:gravity="center_vertical"
-                    android:textColor="@color/primary_text_default_material_light"
-                    android:duplicateParentState="true">
-            </TextView>
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:gravity="center_vertical"
+                              android:orientation="horizontal">
 
-        </LinearLayout>
+                    <TextView
+                            android:id="@+id/tv_default"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:text="@string/make_default"
+                            android:textSize="16sp"
+                            android:paddingLeft="16dp"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/primary_text_default_material_light"
+                            android:duplicateParentState="true">
+                    </TextView>
 
-    </LinearLayout>
+                </LinearLayout>
 
-    <View android:layout_width="match_parent"
-          android:layout_height="1dp"
-          android:alpha="0.5"
-          android:layout_marginLeft="8dp"
-          android:layout_marginRight="8dp"
-          android:background="@color/blockchain_grey"/>
+            </LinearLayout>
 
-    <LinearLayout
-            android:id="@+id/xpub_container"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingBottom="4dp"
-            android:background="@color/white"
-            android:onClick="revealExtendedXPub"
-            android:orientation="vertical">
-
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:gravity="center_vertical"
-                      android:orientation="horizontal">
-
-            <TextView
-                    android:id="@+id/tv_xpub"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:text="Extended public key"
-                    android:textSize="16sp"
-                    android:paddingLeft="16dp"
-                    android:gravity="center_vertical"
-                    android:textColor="@color/primary_text_default_material_light"
-                    android:duplicateParentState="true">
-            </TextView>
-
-            <ImageView
-                    android:layout_width="wrap_content"
+            <LinearLayout
+                    android:id="@+id/privx_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:tint="@color/black"
-                    android:paddingRight="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="4dp"
+                    android:minHeight="72dp"
+                    android:paddingBottom="4dp"
+                    android:background="@color/white"
+                    android:onClick="scanXPrivClicked"
+                    android:orientation="vertical">
+
+                <View android:layout_width="match_parent"
+                      android:layout_height="1dp"
+                      android:alpha="0.5"
+                      android:layout_marginLeft="8dp"
+                      android:layout_marginRight="8dp"
+                      android:background="@color/blockchain_grey"/>
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:gravity="center_vertical"
+                              android:orientation="vertical">
+
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="match_parent"
+                                  android:gravity="center_vertical"
+                                  android:orientation="horizontal">
+
+                        <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:text="@string/scan_private_key"
+                                android:textSize="16sp"
+                                android:paddingLeft="16dp"
+                                android:gravity="center_vertical"
+                                android:textColor="@color/primary_text_default_material_light"
+                                android:duplicateParentState="true">
+                        </TextView>
+
+                        <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tint="@color/black"
+                                android:paddingRight="16dp"
+                                android:paddingTop="8dp"
+                                android:paddingBottom="8dp"
+                                android:paddingLeft="4dp"
+                                android:gravity="center_vertical"
+                                android:duplicateParentState="true"
+                                android:src="@drawable/icon_qrcode"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@string/watch_only_description"
+                            android:textSize="14sp"
+                            android:alpha="0.7"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/primary_text_default_material_light"
+                            android:duplicateParentState="true">
+                    </TextView>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View android:layout_width="match_parent"
+                  android:layout_height="1dp"
+                  android:alpha="0.5"
+                  android:layout_marginLeft="8dp"
+                  android:layout_marginRight="8dp"
+                  android:background="@color/blockchain_grey"/>
+
+            <LinearLayout
+                    android:id="@+id/xpub_container"
+                    android:layout_width="match_parent"
+                    android:minHeight="72dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="4dp"
+                    android:background="@color/white"
+                    android:onClick="revealExtendedXPub"
+                    android:orientation="vertical">
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:gravity="center_vertical"
+                              android:orientation="horizontal">
+
+                    <TextView
+                            android:id="@+id/tv_xpub"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:text="@string/extended_public_key"
+                            android:textSize="16sp"
+                            android:paddingLeft="16dp"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/primary_text_default_material_light"
+                            android:duplicateParentState="true">
+                    </TextView>
+
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tint="@color/black"
+                            android:paddingRight="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:paddingLeft="4dp"
+                            android:gravity="center_vertical"
+                            android:duplicateParentState="true"
+                            android:src="@drawable/icon_qrcode"/>
+
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:gravity="center_vertical"
+                              android:orientation="horizontal">
+
+                    <TextView
+                            android:id="@+id/tv_extended_xpub_description"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:text="@string/extended_public_key_description"
+                            android:textSize="14sp"
+                            android:alpha="0.7"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/primary_text_default_material_light"
+                            android:duplicateParentState="true">
+                    </TextView>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View android:layout_width="match_parent"
+                  android:layout_height="1dp"
+                  android:alpha="0.5"
+                  android:layout_marginLeft="8dp"
+                  android:layout_marginRight="8dp"
+                  android:background="@color/blockchain_grey"/>
+
+            <LinearLayout
+                    android:id="@+id/archive_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="72dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="4dp"
+                    android:background="@color/white"
                     android:gravity="center_vertical"
-                    android:duplicateParentState="true"
-                    android:src="@drawable/icon_qrcode"/>
+                    android:onClick="archiveClicked"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/tv_archive"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/archive"
+                        android:textSize="16sp"
+                        android:paddingLeft="16dp"
+                        android:paddingBottom="8dp"
+                        android:textColor="@color/blockchain_send_red"
+                        android:duplicateParentState="true">
+                </TextView>
+
+                <TextView
+                        android:id="@+id/tv_archive_description"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:textSize="14sp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:paddingBottom="16dp"
+                        android:alpha="0.7"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:duplicateParentState="true">
+                </TextView>
+
+            </LinearLayout>
+
+            <View android:layout_width="match_parent"
+                  android:layout_height="1dp"
+                  android:alpha="0.5"
+                  android:layout_marginLeft="8dp"
+                  android:layout_marginRight="8dp"
+                  android:background="@color/blockchain_grey"/>
 
         </LinearLayout>
-
-    </LinearLayout>
-
-    <View android:layout_width="match_parent"
-          android:layout_height="1dp"
-          android:alpha="0.5"
-          android:layout_marginLeft="8dp"
-          android:layout_marginRight="8dp"
-          android:background="@color/blockchain_grey"/>
-
-    <LinearLayout
-            android:id="@+id/archive_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="72dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="4dp"
-            android:background="@color/white"
-            android:gravity="center_vertical"
-            android:onClick="archiveClicked"
-            android:orientation="vertical">
-
-        <TextView
-                android:id="@+id/tv_archive"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Archive"
-                android:textSize="16sp"
-                android:paddingLeft="16dp"
-                android:paddingBottom="8dp"
-                android:textColor="@color/blockchain_send_red"
-                android:duplicateParentState="true">
-        </TextView>
-
-        <TextView
-                android:id="@+id/tv_archive_description"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="0dp"
-                android:textSize="14sp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingBottom="16dp"
-                android:alpha="0.7"
-                android:textColor="@color/primary_text_default_material_light"
-                android:duplicateParentState="true">
-        </TextView>
-
-    </LinearLayout>
-
-    <View android:layout_width="match_parent"
-          android:layout_height="1dp"
-          android:alpha="0.5"
-          android:layout_marginLeft="8dp"
-          android:layout_marginRight="8dp"
-          android:background="@color/blockchain_grey"/>
-
+    </ScrollView>
 </LinearLayout>
