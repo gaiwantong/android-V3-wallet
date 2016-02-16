@@ -468,7 +468,7 @@
     </string>
     <string name="scan_private_key">Scan private key</string>
     <string name="private_key_successfully_imported">Private key successfully imported.</string>
-    <string name="private_key_not_matching_address">This private key does not match address [--address--].\n\nWould you like to continue importing scanned private key and address [--new_address--]?</string>
+    <string name="private_key_not_matching_address">NOTE: The scanned private key does not correspond to your watch-only address. To spend your funds from this address, please scan the correct private key.</string>
     <string name="watch_only">watch-only</string>
     <string name="extended_public_key_description">If you are a merchant, show your xPub and use the
         Blockchain Merchant app to receive funds safely and privately.\n\nKeep your xPub private.
@@ -478,4 +478,6 @@
         this wallet, please scan your private key.
     </string>
     <string name="success">Success</string>
+    <string name="default_label">Default</string>
+    <string name="try_again">Try Again</string>
 </resources>

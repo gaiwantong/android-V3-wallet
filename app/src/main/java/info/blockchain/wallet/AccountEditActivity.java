@@ -19,7 +19,6 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,7 +26,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -63,6 +61,8 @@ public class AccountEditActivity extends AppCompatActivity {
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
 
+    private TextView tvDefault = null;
+
     private TextView tvXpub = null;
     private TextView tvExtendedXpubDescription = null;
 
@@ -86,6 +86,8 @@ public class AccountEditActivity extends AppCompatActivity {
         initToolbar();
         getIntentData();
         setupViews();
+
+        updateAllFields();
     }
 
     private void setupViews() {
@@ -98,6 +100,7 @@ public class AccountEditActivity extends AppCompatActivity {
         }
 
         tvLabel = (TextView) findViewById(R.id.account_name);
+        tvDefault = (TextView) findViewById(R.id.tv_default);
 
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
         tvExtendedXpubDescription = (TextView)findViewById(R.id.tv_extended_xpub_description);
@@ -107,34 +110,67 @@ public class AccountEditActivity extends AppCompatActivity {
 
         if (account != null) {
 
-            tvLabel.setText(account.getLabel());
-            tvXpub.setText(R.string.extended_public_key);
-            setArchive(account.isArchived());
-
-            LinearLayout defaultContainer = (LinearLayout)findViewById(R.id.default_container);
-            defaultContainer.setVisibility(View.VISIBLE);
-
-            if(isDefault(account)){
-                defaultContainer.setVisibility(View.GONE);
-            }else{
-                defaultContainer.setVisibility(View.VISIBLE);
-            }
-
             findViewById(R.id.privx_container).setVisibility(View.GONE);
 
         }else if (legacyAddress != null){
-
-            tvLabel.setText(legacyAddress.getLabel());
-            tvXpub.setText(R.string.address);
-            tvExtendedXpubDescription.setVisibility(View.GONE);
-            setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
-            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
 
             if(legacyAddress.isWatchOnly()){
                 findViewById(R.id.privx_container).setVisibility(View.VISIBLE);
             }else{
                 findViewById(R.id.privx_container).setVisibility(View.GONE);
             }
+        }
+    }
+
+    private void updateAllFields(){
+        updateLabelField();
+        updateDefaultField();
+        updateArchivedField();
+        updateXpubField();
+    }
+
+    private void updateLabelField(){
+        if (account != null) {
+            tvLabel.setText(account.getLabel());
+        }else if (legacyAddress != null){
+            tvLabel.setText(legacyAddress.getLabel());
+        }
+    }
+
+    private void updateDefaultField(){
+        if (account != null) {
+            if(isDefault(account)){
+                tvDefault.setText(getString(R.string.default_label));
+                tvDefault.setTextColor(getResources().getColor(R.color.primary_dark_material_dark));
+                findViewById(R.id.default_container).setClickable(false);
+            }else{
+                tvDefault.setText(getString(R.string.make_default));
+                tvDefault.setTextColor(getResources().getColor(R.color.blockchain_blue));
+                findViewById(R.id.default_container).setClickable(true);
+            }
+
+        }else if (legacyAddress != null){
+            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
+        }
+    }
+
+    private void updateArchivedField(){
+
+        if (account != null) {
+            setArchive(account.isArchived());
+        }else if (legacyAddress != null){
+            setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
+        }
+    }
+
+    private void updateXpubField(){
+        if (account != null) {
+
+            tvXpub.setText(R.string.extended_public_key);
+        }else if (legacyAddress != null){
+
+            tvXpub.setText(R.string.address);
+            tvExtendedXpubDescription.setVisibility(View.GONE);
         }
     }
 
@@ -160,6 +196,18 @@ public class AccountEditActivity extends AppCompatActivity {
             accountIndex++;
         }
         return false;
+    }
+
+    private void toggleArchived(){
+        if (account != null) {
+                account.setArchived(!account.isArchived());
+        } else {
+            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
+                legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
+            } else {
+                legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
+            }
+        }
     }
 
     private void getIntentData() {
@@ -239,6 +287,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.xpub_container).setClickable(true);
             findViewById(R.id.privx_container).setAlpha(1.0f);
             findViewById(R.id.privx_container).setClickable(true);
+            findViewById(R.id.default_container).setAlpha(1.0f);
+            findViewById(R.id.default_container).setClickable(true);
         }
     }
     
@@ -430,7 +480,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            tvLabel.setText(params[0]);
+                                                            updateLabelField();
                                                             setResult(RESULT_OK);
                                                         }
                                                     });
@@ -459,7 +509,7 @@ public class AccountEditActivity extends AppCompatActivity {
 
     }
 
-    public void revealExtendedXPub(View view) {
+    public void extendedXPubClicked(View view) {
         if (account != null) {
             showXpubSharingWarning();
         } else {
@@ -513,19 +563,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                         @Override
                                         protected Void doInBackground(final Void... params) {
 
-                                            if (account != null) {
-                                                if (account.isArchived()) {
-                                                    account.setArchived(false);
-                                                } else {
-                                                    account.setArchived(true);
-                                                }
-                                            } else {
-                                                if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS) {
-                                                    legacyAddress.setTag(PayloadFactory.NORMAL_ADDRESS);
-                                                } else {
-                                                    legacyAddress.setTag(PayloadFactory.ARCHIVED_ADDRESS);
-                                                }
-                                            }
+                                            toggleArchived();
 
                                             if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
 
@@ -533,12 +571,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                                     @Override
                                                     public void run() {
 
-                                                        if ((account != null && account.isArchived()) || (legacyAddress != null && legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)) {
-                                                            setArchive(true);
-                                                        } else {
-                                                            setArchive(false);
-                                                        }
-
+                                                        updateAllFields();
                                                         setResult(RESULT_OK);
                                                     }
                                                 });
@@ -590,8 +623,7 @@ public class AccountEditActivity extends AppCompatActivity {
                         @Override
                         public void run() {
 
-                            findViewById(R.id.default_container).setVisibility(View.GONE);
-
+                            updateAllFields();
                             setResult(RESULT_OK);
                         }
                     });
@@ -693,29 +725,11 @@ public class AccountEditActivity extends AppCompatActivity {
                                     if (key != null && key.hasPrivKey()) {
 
                                         final String keyAddress = key.toAddress(MainNetParams.get()).toString();
-                                        if(legacyAddress.getAddress().equals(keyAddress)) {
-                                            importAddressPrivateKey(key);
+                                        if (!legacyAddress.getAddress().equals(keyAddress)) {
+                                            //Private key does not match this address - warn user but import nevertheless
+                                            importUnmatchedPrivateKey(key);
                                         }else{
-
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    new AlertDialog.Builder(AccountEditActivity.this)
-                                                            .setTitle(R.string.warning)
-                                                            .setMessage(getString(R.string.private_key_not_matching_address).replace("[--address--]",legacyAddress.getAddress()).replace("[--new_address--]",keyAddress))
-                                                            .setCancelable(false)
-                                                            .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
-                                                                public void onClick(DialogInterface dialog, int whichButton) {
-                                                                    runOnUiThread(new Runnable() {
-                                                                        @Override
-                                                                        public void run() {
-                                                                            importUnmatchedPrivateKey(key);
-                                                                        }
-                                                                    });
-                                                                }
-                                                            }).setNegativeButton(R.string.cancel, null).show();
-                                                }
-                                            });
+                                            importAddressPrivateKey(key);
                                         }
 
                                     } else {
@@ -764,29 +778,13 @@ public class AccountEditActivity extends AppCompatActivity {
                     if (key != null && key.hasPrivKey()) {
 
                         final String keyAddress = key.toAddress(MainNetParams.get()).toString();
-                        if (legacyAddress.getAddress().equals(keyAddress)) {
+                        if (!legacyAddress.getAddress().equals(keyAddress)) {
+                            //Private key does not match this address - warn user but import nevertheless
+                            importUnmatchedPrivateKey(key);
+                        }else{
                             importAddressPrivateKey(key);
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    new AlertDialog.Builder(AccountEditActivity.this)
-                                            .setTitle(R.string.warning)
-                                            .setMessage(getString(R.string.private_key_not_matching_address).replace("[--address--]",legacyAddress.getAddress()).replace("[--new_address--]",keyAddress))
-                                            .setCancelable(false)
-                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int whichButton) {
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            importUnmatchedPrivateKey(key);
-                                                        }
-                                                    });
-                                                }
-                                            }).setNegativeButton(R.string.cancel, null).show();
-                                }
-                            });
                         }
+
                     } else {
                         ToastCustom.makeText(AccountEditActivity.this, getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
@@ -843,103 +841,90 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void importUnmatchedPrivateKey(ECKey key){
 
-        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+        if (PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+            //Wallet already contains private key - silently avoid duplicating
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+
+                    AlertDialog.Builder alert = new AlertDialog.Builder(AccountEditActivity.this);
+                    alert.setTitle(getString(R.string.warning));
+                    alert.setMessage(getString(R.string.private_key_successfully_imported)+"\n\n"+getString(R.string.private_key_not_matching_address));
+                    alert.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            scanXPrivClicked(null);
+                        }
+                    });
+                    alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    });
+                    alert.show();
+                    Looper.loop();
+
+                }
+            }).start();
+        }else{
+            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
             /*
              * if double encrypted, save encrypted in payload
              */
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-        } else {
-            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
-            legacyAddress.setEncryptedKey(encrypted2);
-        }
-
-        final EditText address_label = new EditText(AccountEditActivity.this);
-        address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
-
-        new AlertDialog.Builder(AccountEditActivity.this)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.label_address)
-                .setView(address_label)
-                .setCancelable(false)
-                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        String label = address_label.getText().toString();
-                        if (label != null && label.trim().length() > 0) {
-                            legacyAddress.setLabel(label);
-                        } else {
-                            legacyAddress.setLabel(legacyAddress.getAddress());
-                        }
-                        remoteSaveUnmatchedPrivateKey(legacyAddress);
-
-                    }
-                }).setNegativeButton(R.string.polite_no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-                legacyAddress.setLabel(legacyAddress.getAddress());
-                remoteSaveUnmatchedPrivateKey(legacyAddress);
-
+            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            } else {
+                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                legacyAddress.setEncryptedKey(encrypted2);
             }
-        }).show();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    AlertDialog.Builder alert = new AlertDialog.Builder(AccountEditActivity.this);
+                    alert.setTitle(getString(R.string.warning));
+                    alert.setMessage(getString(R.string.private_key_successfully_imported)+"\n\n"+getString(R.string.private_key_not_matching_address));
+                    alert.setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            scanXPrivClicked(null);
+                        }
+                    });
+                    alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    });
+                    alert.show();
+                    Looper.loop();
+
+                }
+            }).start();
+
+            remoteSaveUnmatchedPrivateKey(legacyAddress);
+        }
     }
 
     private void remoteSaveUnmatchedPrivateKey(final LegacyAddress legacyAddress){
 
-        new AsyncTask<Void, Void, Void>(){
+        Payload updatedPayload = PayloadFactory.getInstance().get();
+        List<LegacyAddress> updatedLegacyAddresses = updatedPayload.getLegacyAddresses();
+        updatedLegacyAddresses.add(legacyAddress);
+        updatedPayload.setLegacyAddresses(updatedLegacyAddresses);
+        PayloadFactory.getInstance().set(updatedPayload);
 
-            ProgressDialog progress;
+        if (PayloadFactory.getInstance().put()) {
 
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(AccountEditActivity.this);
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
-                progress.show();
-            }
+            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+            List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+            MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-
-                Payload updatedPayload = PayloadFactory.getInstance().get();
-                List<LegacyAddress> updatedLegacyAddresses = updatedPayload.getLegacyAddresses();
-                updatedLegacyAddresses.add(legacyAddress);
-                updatedPayload.setLegacyAddresses(updatedLegacyAddresses);
-                PayloadFactory.getInstance().set(updatedPayload);
-
-                if (PayloadFactory.getInstance().put()) {
-                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    ToastCustom.makeText(getApplicationContext(), legacyAddress.getAddress(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                    List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                    MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
-
-                    //Subscribe to new address only if successfully created
-                    Intent intent = new Intent(WebSocketService.ACTION_INTENT);
-                    intent.putExtra("address", legacyAddress.getAddress());
-                    LocalBroadcastManager.getInstance(AccountEditActivity.this).sendBroadcast(intent);
-
-                    setResult(RESULT_OK);
-                    finish();
-
-                } else {
-                    ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-
-                return null;
-            }
-        }.execute();
+            //Subscribe to new address only if successfully created
+            Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+            intent.putExtra("address", legacyAddress.getAddress());
+            LocalBroadcastManager.getInstance(AccountEditActivity.this).sendBroadcast(intent);
+            setResult(RESULT_OK);
+        } else {
+            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
     }
 }
