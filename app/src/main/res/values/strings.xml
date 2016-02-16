@@ -478,4 +478,5 @@
         this wallet, please scan your private key.
     </string>
     <string name="success">Success</string>
+    <string name="default_label">Default</string>
 </resources>

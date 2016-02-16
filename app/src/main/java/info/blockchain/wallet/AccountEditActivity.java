@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -63,6 +62,8 @@ public class AccountEditActivity extends AppCompatActivity {
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
 
+    private TextView tvDefault = null;
+
     private TextView tvXpub = null;
     private TextView tvExtendedXpubDescription = null;
 
@@ -86,6 +87,8 @@ public class AccountEditActivity extends AppCompatActivity {
         initToolbar();
         getIntentData();
         setupViews();
+
+        updateDefaultView();
     }
 
     private void setupViews() {
@@ -98,6 +101,7 @@ public class AccountEditActivity extends AppCompatActivity {
         }
 
         tvLabel = (TextView) findViewById(R.id.account_name);
+        tvDefault = (TextView) findViewById(R.id.tv_default);
 
         tvXpub = (TextView)findViewById(R.id.tv_xpub);
         tvExtendedXpubDescription = (TextView)findViewById(R.id.tv_extended_xpub_description);
@@ -111,15 +115,6 @@ public class AccountEditActivity extends AppCompatActivity {
             tvXpub.setText(R.string.extended_public_key);
             setArchive(account.isArchived());
 
-            LinearLayout defaultContainer = (LinearLayout)findViewById(R.id.default_container);
-            defaultContainer.setVisibility(View.VISIBLE);
-
-            if(isDefault(account)){
-                defaultContainer.setVisibility(View.GONE);
-            }else{
-                defaultContainer.setVisibility(View.VISIBLE);
-            }
-
             findViewById(R.id.privx_container).setVisibility(View.GONE);
 
         }else if (legacyAddress != null){
@@ -128,13 +123,29 @@ public class AccountEditActivity extends AppCompatActivity {
             tvXpub.setText(R.string.address);
             tvExtendedXpubDescription.setVisibility(View.GONE);
             setArchive(legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS);
-            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
 
             if(legacyAddress.isWatchOnly()){
                 findViewById(R.id.privx_container).setVisibility(View.VISIBLE);
             }else{
                 findViewById(R.id.privx_container).setVisibility(View.GONE);
             }
+        }
+    }
+
+    private void updateDefaultView(){
+        if (account != null) {
+            if(isDefault(account)){
+                tvDefault.setText(getString(R.string.default_label));
+                tvDefault.setTextColor(getResources().getColor(R.color.primary_dark_material_dark));
+                findViewById(R.id.default_container).setClickable(false);
+            }else{
+                tvDefault.setText(getString(R.string.make_default));
+                tvDefault.setTextColor(getResources().getColor(R.color.blockchain_blue));
+                findViewById(R.id.default_container).setClickable(true);
+            }
+
+        }else if (legacyAddress != null){
+            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
         }
     }
 
@@ -590,7 +601,7 @@ public class AccountEditActivity extends AppCompatActivity {
                         @Override
                         public void run() {
 
-                            findViewById(R.id.default_container).setVisibility(View.GONE);
+                            updateDefaultView();
 
                             setResult(RESULT_OK);
                         }
