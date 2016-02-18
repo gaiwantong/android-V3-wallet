@@ -548,6 +548,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                             progress = new ProgressDialog(AccountEditActivity.this);
                                             progress.setTitle(R.string.app_name);
                                             progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+                                            progress.setCancelable(false);
                                             progress.show();
                                         }
 
@@ -566,6 +567,12 @@ public class AccountEditActivity extends AppCompatActivity {
                                             toggleArchived();
 
                                             if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+
+                                                try {
+                                                    HDPayloadBridge.getInstance().updateBalancesAndTransactions();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
 
                                                 runOnUiThread(new Runnable() {
                                                     @Override
