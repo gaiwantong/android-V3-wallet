@@ -43,6 +43,7 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.service.WebSocketService;
+import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -425,7 +426,7 @@ public class AccountActivity extends AppCompatActivity {
 
                     Account account = null;
 
-                    //If double encrypted set WatchOnlyWallet - Bill working on improvement
+                    //If double encrypted set WatchOnlyWallet
                     if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                         CharSequenceX tempPassword = PayloadFactory.getInstance().getTempDoubleEncryptPassword();
                         String tempPasswordS = "";
@@ -440,7 +441,7 @@ public class AccountActivity extends AppCompatActivity {
                         try {
                             Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
                             WalletFactory.getInstance().setWatchOnlyWallet(hdw);
-
+                            AddressFactory.getInstance(AccountActivity.this, null).updateDoubleEncryptionWallet();
                         } catch (Exception e) {
                             e.printStackTrace();
                             ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
