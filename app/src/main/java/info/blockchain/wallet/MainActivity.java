@@ -890,3 +890,32 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         startActivity(intent);
     }
 }
+
+/*
+    private void payloadSanityCheck(){
+
+        List<Account> accountList = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+        List<org.bitcoinj.core.bip44.Account> walletFactory = null;
+        try {
+            walletFactory = WalletFactory.getInstance().get().getAccounts();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MnemonicException.MnemonicLengthException e) {
+            e.printStackTrace();
+        }
+
+        int fixCount = 0;
+        for(int i = 0; i < accountList.size(); i++){
+
+            if(!accountList.get(i).getXpriv().equals(walletFactory.get(i).xprvstr())){
+                accountList.get(i).setXpriv(walletFactory.get(i).xprvstr());
+                fixCount++;
+            }
+            if(!accountList.get(i).getXpub().equals(walletFactory.get(i).xpubstr())){
+                accountList.get(i).setXpub(walletFactory.get(i).xpubstr());
+                fixCount++;
+            }
+        }
+        Log.v(this.getClass().getSimpleName(),fixCount+ " issues fixed.");
+    }
+ */

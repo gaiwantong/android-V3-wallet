@@ -318,7 +318,6 @@ public class AccountActivity extends AppCompatActivity {
                 public void onSuccess(String validatedSecondPassword) {
 
                     promptForAccountLabel(validatedSecondPassword);
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 @Override
@@ -424,59 +423,56 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 protected Void doInBackground(Void... params) {
 
+                    Account account = null;
+
+                    //If double encrypted set WatchOnlyWallet - Bill working on improvement
+                    if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                        CharSequenceX tempPassword = PayloadFactory.getInstance().getTempDoubleEncryptPassword();
+                        String tempPasswordS = "";
+                        if (tempPassword != null) tempPasswordS = tempPassword.toString();
+
+                        String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
+                                PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
+                                PayloadFactory.getInstance().get().getSharedKey(),
+                                tempPasswordS,
+                                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
+
+                        try {
+                            Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
+                            WalletFactory.getInstance().setWatchOnlyWallet(hdw);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        }
+                    }
+
+                    //Add account
                     try {
-                        //Add new account (only label)
-                        List<Account> accountList = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
-                        accountList.add(new Account(accountLabel));
-
-                        //Set walletFactory to look at new account index
-                        Wallet walletFactory = WalletFactory.getInstance().get();
-                        walletFactory.addAccount();
-
-                        //set xpub and xpriv
-                        int newAccountIndex = walletFactory.getAccounts().size() - 1;
-
-                        String xpub = walletFactory.getAccount(newAccountIndex).xpubstr();
-                        String xpriv = walletFactory.getAccount(newAccountIndex).xprvstr();
-
-                        if(xpub.isEmpty() || xpriv.isEmpty()){
-                            accountList.remove(accountList.size()-1);//If something went wrong remove newly added account before it can be saved to payload
-                            throw new Exception("Xpub and Xpriv cannot be empty!");
-                        }
-
-                        //Respect second password
-                        if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-
-                            xpriv = DoubleEncryptionFactory.getInstance().encrypt(
-                                    xpriv,
-                                    PayloadFactory.getInstance().get().getSharedKey(),
-                                    secondPassword.toString(),
-                                    PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
-                        }
-
-                        accountList.get(accountList.size()-1).setXpriv(xpriv);
-                        accountList.get(accountList.size()-1).setXpub(xpub);
-
-                        //Save payload
-                        if (PayloadBridge.getInstance(AccountActivity.this).remoteSaveThreadLocked()) {
-
-                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-
-                            //Subscribe to new xpub only if successfully created
-                            Intent intent = new Intent(WebSocketService.ACTION_INTENT);
-                            intent.putExtra("xpub", xpub);
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-                            //Update adapter list
-                            updateAccountsList();
-
-                        } else {
-                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
+                        account = HDPayloadBridge.getInstance().addAccount(accountLabel);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
+
+                    //Save payload
+                    if (PayloadBridge.getInstance(AccountActivity.this).remoteSaveThreadLocked()) {
+
+                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                        //Subscribe to new xpub only if successfully created
+                        Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+                        intent.putExtra("xpub", account.getXpub());
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+                        //Update adapter list
+                        updateAccountsList();
+
+                    } else {
+                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+
+                    //Reset 2nd pwd
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                     return null;
                 }

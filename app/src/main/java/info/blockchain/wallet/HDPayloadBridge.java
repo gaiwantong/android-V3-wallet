@@ -6,9 +6,11 @@ import android.content.Intent;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
+import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.AddressFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -291,5 +293,59 @@ public class HDPayloadBridge {
         }
 
         return xpubs.toArray(new String[xpubs.size()]);
+    }
+
+    public Account addAccount(String label) throws IOException, MnemonicException.MnemonicLengthException {
+
+        String xpub = null;
+        String xpriv = null;
+
+        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            int before = WalletFactory.getInstance().get().getAccounts().size();
+            WalletFactory.getInstance().get().addAccount();
+            int after = WalletFactory.getInstance().get().getAccounts().size();
+
+            xpub = WalletFactory.getInstance().get().getAccounts().get(WalletFactory.getInstance().get().getAccounts().size() - 1).xpubstr();
+            xpriv = WalletFactory.getInstance().get().getAccounts().get(WalletFactory.getInstance().get().getAccounts().size() - 1).xprvstr();
+        }
+        else {
+            int before = WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().size();
+            WalletFactory.getInstance().getWatchOnlyWallet().addAccount();
+            int after = WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().size();
+
+            xpub = WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().get(WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().size() - 1).xpubstr();
+            xpriv = WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().get(WalletFactory.getInstance().getWatchOnlyWallet().getAccounts().size() - 1).xprvstr();
+        }
+
+        List<Tx> txs = new ArrayList<Tx>();
+        MultiAddrFactory.getInstance().getXpubTxs().put(xpub, txs);
+        MultiAddrFactory.getInstance().getXpubAmounts().put(xpub, 0L);
+
+        List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+        Account account = new Account(label);
+
+        account.setXpub(xpub);
+        if(!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            account.setXpriv(xpriv);
+        }
+        else {
+            String encrypted_xpriv = DoubleEncryptionFactory.getInstance().encrypt(
+                    xpriv,
+                    PayloadFactory.getInstance().get().getSharedKey(),
+                    PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
+                    PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
+            account.setXpriv(encrypted_xpriv);
+        }
+
+        if(accounts.get(accounts.size() - 1) instanceof ImportedAccount) {
+            accounts.add(accounts.size() - 1, account);
+        }
+        else {
+            accounts.add(account);
+        }
+
+        PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
+
+        return account;
     }
 }
