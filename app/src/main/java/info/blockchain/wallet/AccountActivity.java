@@ -56,6 +56,7 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.bip44.Wallet;
@@ -426,7 +427,8 @@ public class AccountActivity extends AppCompatActivity {
 
                     Account account = null;
 
-                    //If double encrypted set WatchOnlyWallet
+                    //If double encrypted
+                    //Ensure watch-only wallet (no private keys) is in sync with hd wallet before adding account
                     if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
                         CharSequenceX tempPassword = PayloadFactory.getInstance().getTempDoubleEncryptPassword();
                         String tempPasswordS = "";
@@ -439,9 +441,9 @@ public class AccountActivity extends AppCompatActivity {
                                 PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
 
                         try {
+
                             Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
                             WalletFactory.getInstance().setWatchOnlyWallet(hdw);
-                            AddressFactory.getInstance(AccountActivity.this, null).updateDoubleEncryptionWallet();
                         } catch (Exception e) {
                             e.printStackTrace();
                             ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -452,6 +454,13 @@ public class AccountActivity extends AppCompatActivity {
                     try {
                         account = HDPayloadBridge.getInstance().addAccount(accountLabel);
                     } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //Update double encryption wallet - to be used when getting new receive address
+                    try {
+                        AddressFactory.getInstance(AccountActivity.this, null).updateDoubleEncryptionWallet();
+                    } catch (AddressFormatException e) {
                         e.printStackTrace();
                     }
 
