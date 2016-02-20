@@ -84,6 +84,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -114,6 +115,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> receiveToBiMap = null;
     private ReceiveToAdapter receiveToAdapter = null;
+    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
@@ -172,6 +174,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         sendFromBiMap = HashBiMap.create();
         receiveToList = new ArrayList<>();
         receiveToBiMap = HashBiMap.create();
+        spinnerIndexAccountIndexMap = new HashMap<>();
 
         updateSendFromSpinnerList();
         updateReceiveToSpinnerList();
@@ -323,6 +326,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         receiveToList.clear();
         receiveToBiMap.clear();
+        spinnerIndexAccountIndexMap.clear();
 
         int spinnerIndex = 0;
 
@@ -330,7 +334,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             //V3
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            int accountIndex = 0;
             for (Account item : accounts) {
+
+                spinnerIndexAccountIndexMap.put(spinnerIndex, accountIndex);
+                accountIndex++;
 
                 if (item.isArchived())
                     continue;//skip archived account
@@ -461,7 +469,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private String getV3ReceiveAddress(Account account) {
 
         try {
-            int accountIndex = receiveToBiMap.get(account);
+            int spinnerIndex = receiveToBiMap.get(account);
+            int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
+
             ReceiveAddress receiveAddress = null;
             receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();

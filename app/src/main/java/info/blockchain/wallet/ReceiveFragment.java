@@ -30,6 +30,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,6 +78,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,6 +107,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     private ArrayAdapter<String> receiveToAdapter = null;
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> accountBiMap = null;
+    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
 
     //text
     private boolean textChangeAllowed = true;
@@ -357,6 +360,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         spAccounts = (Spinner) rootView.findViewById(R.id.accounts);
         receiveToList = new ArrayList<>();
         accountBiMap = HashBiMap.create();
+        spinnerIndexAccountIndexMap = new HashMap<>();
         updateSpinnerList();
 
         if (receiveToList.size() == 1)
@@ -435,6 +439,7 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
         //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         receiveToList.clear();
         accountBiMap.clear();
+        spinnerIndexAccountIndexMap.clear();
 
         int spinnerIndex = 0;
 
@@ -442,7 +447,11 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
             //V3
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            int accountIndex = 0;
             for (Account item : accounts) {
+
+                spinnerIndexAccountIndexMap.put(spinnerIndex, accountIndex);
+                accountIndex++;
 
                 if (item.isArchived())
                     continue;//skip archived account
@@ -728,7 +737,8 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
     private String getV3ReceiveAddress(Account account) {
 
         try {
-            int accountIndex = accountBiMap.get(account);
+            int spinnerIndex = accountBiMap.get(account);
+            int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
             ReceiveAddress receiveAddress = null;
             receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
