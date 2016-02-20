@@ -480,4 +480,10 @@
     <string name="success">Success</string>
     <string name="default_label">Default</string>
     <string name="try_again">Try Again</string>
+    <string name="transfer">Transfer</string>
+    <string name="transfer_funds">Transfer Funds</string>
+    <string name="transfer_recommend">For your safety, we recommend you to transfer any balances in your imported addresses into your Blockchain wallet.</string>
+    <string name="transfer_funds_safe">Your transferred funds will be safe and secure, and you’ll benefit from increased privacy and convenient backup and recovery features.</string>
+    <string name="spendable_addresses">spendable addresses</string>
+    <string name="total_fees">Total fees</string>
 </resources>
