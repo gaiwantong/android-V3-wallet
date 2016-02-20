@@ -430,4 +430,45 @@
     <string name="saving_changes">Enregistrement des modifications...</string>
     <string name="warning">Attention</string>
 
+    <string name="ssl_no_connection">Nous ne pouvons pas vous connecter à l\'hôte pour vérifier le certificat SSL. Veuillez vérifier votre connexion réseau et le périphérique avant de continuer.</string>
+    <string name="retry">Nouvelle tentative</string>
+    <string name="exit">Sortie</string>
+    <string name="screen_overlay_warning">Superposition d\'écran détectée !</string>
+    <string name="screen_overlay_note">Les applications qui utilisent des superpositions d\'écran ont la possibilité de vous tromper en tapant sur des objets invisibles et potentiellement voler des fonds. Notez que cet avertissement sera également déclenché par des applications assombrissant l’écran. Si vous êtes sûr qu\'il n\'y a pas de menace, vous pouvez continuer.</string>
+    <string name="archived_description">Cet élément a été archivé et est inaccessible à l\'expérience de l\'application mobile. Même si vous ne pouvez pas envoyer des fonds depuis cet élément, tous les fonds resteront en sécurité. Il suffit de désarchiver cet élément pour commencer à l\'utiliser à nouveau.</string>
+    <string name="not_archived_description">Cet élément n\'est pas archivé. Archivez cet élément si vous NE souhaitez PLUS l\'utiliser. Vos fonds resteront en sécurité, et vous pouvez les désarchiver à tout moment.</string>
+    <string name="default_account_description">Cet élément est défini comme votre valeur par défaut et peut\ne peut pas être archivé.</string>
+    <string name="extended_public_key">Clé publique étendue</string>
+    <string name="address">Adresse</string>
+    <string name="copy_xpub">Copier xPub</string>
+    <string name="scan_this_code">Scannez ce code ou copiez-le dans votre application Blockchain Marchand pour recevoir des Bitcoin en sécurité.</string>
+    <string name="xpub_sharing_warning">Partager votre xPub autorise les autres à suivre l\'historique de vos transactions. Comme les personnes autorisées peuvent être en mesure de perturber votre accès à votre portefeuille, ne partagez votre xPub qu’avec des gens en qui vous avez confiance.</string>
+    <string name="assign_display_name">Attribuer un nom d\'affichage convivial.</string>
+    <string name="copy_address">Copier l’adresse</string>
+    <string name="archive">Archiver</string>
+    <string name="unarchive">Désarchiver</string>
+    <string name="archive_are_you_sure">Êtes-vous sûr de vouloir archiver cet élément ?</string>
+    <string name="unarchive_are_you_sure">Êtes-vous sûr de vouloir désarchiver cet élément ?</string>
+    <string name="send_to_same_address_warning">Peut\ ne peut pas envoyer à la même adresse.</string>
+    <string name="make_default">Faire défaut</string>
+    <string name="privx_required">Clé privée nécessaire</string>
+    <string name="watch_only_spend_instructions">Cette action nécessite la clé privée pour l\'adresse Bitcoin [--address--]. Veuillez scanner le code QR.</string>
+    <string name="invalid_private_key">Clé privée non valide</string>
+    <string name="watch_only_import_warning">Vous êtes sur le point d\'importer une adresse qui n’est que pour consultation, une adresse (ou le script de la clé publique) stockée dans le portefeuille sans la clé privée correspondante. Vous ne pouvez pas dépenser de bitcoin directement depuis une adresse qui n’est que pour consultation, mais vous pouvez obtenir le solde, ou exporter une transaction qui doit être signée à l\'extérieur. Cela signifie que les fonds pourront être utilisés UNIQUEMENT si vous avez la clé privée stockée ailleurs. Si vous n\'avez pas de clé privée stockée, NE PAS demander à quelqu’un de vous envoyer des bitcoin à l’adresse qui n’est que pour consultation.\n\n Ces options sont recommandées uniquement pour les utilisateurs avancés. Continuer ?</string>
+    <string name="scan_private_key">Scannez la clé privée</string>
+    <string name="private_key_successfully_imported">Clé privée importée avec succès.</string>
+    <string name="private_key_not_matching_address">NOTE : La clé privée scannée ne correspond pas à votre adresse qui n’est que pour consultation. Pour dépenser vos fonds depuis cette adresse, veuillez scanner la clé privée correcte.</string>
+    <string name="watch_only">pour consultation uniquement</string>
+    <string name="extended_public_key_description">Si vous êtes un commerçant, montrez votre xPub et utilisez l\'application Blockchain Marchand pour recevoir des fonds en toute sécurité et discrètement.\n\n Gardez votre xPub privé. Une personne ayant accès à votre xPub sera en mesure de voir tous vos fonds et transactions.</string>
+    <string name="watch_only_description">Cette adresse n’est que pour consultation. Pour dépenser vos fonds de ce portefeuille, veuillez scanner votre clé privée.</string>
+    <string name="success">Succès</string>
+    <string name="default_label">Défaut</string>
+    <string name="try_again">Réessayez</string>
+    <string name="transfer">Transférer</string>
+    <string name="transfer_funds">Transférer des fonds</string>
+    <string name="transfer_recommend">Pour votre sécurité, nous vous recommandons de transférer tous les soldes dans vos adresses importées dans votre portefeuille Blockchain.</string>
+    <string name="transfer_funds_safe">Vos fonds transférés seront protégés et en sécurité, et vous bénéficierez de plus de confidentialités et de fonctions pratiques de sauvegarde et de restauration.</string>
+    <string name="spendable_addresses">Adresses disponibles</string>
+    <string name="total_fees">Frais totaux</string>
+
 </resources>
