@@ -205,7 +205,7 @@ public class PinEntryActivity extends Activity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getText(R.string.create_wallet) + "...");
-        progress.show();
+        if(!isFinishing())progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -258,7 +258,7 @@ public class PinEntryActivity extends Activity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.decrypting_wallet));
-        progress.show();
+        if(!isFinishing())progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -310,7 +310,7 @@ public class PinEntryActivity extends Activity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.creating_pin));
-        progress.show();
+        if(!isFinishing())progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -356,7 +356,7 @@ public class PinEntryActivity extends Activity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.validating_pin));
-        progress.show();
+        if(!isFinishing())progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -436,7 +436,7 @@ public class PinEntryActivity extends Activity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.validating_password));
-        progress.show();
+        if(!isFinishing())progress.show();
 
         new Thread(new Runnable() {
             @Override
@@ -566,8 +566,14 @@ public class PinEntryActivity extends Activity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onPause() {
+        dismissProgressView();
+        super.onPause();
+    }
+
     private void dismissProgressView() {
-        if (progress != null && progress.isShowing()) {
+        if (progress != null) {
             progress.dismiss();
             progress = null;
         }
