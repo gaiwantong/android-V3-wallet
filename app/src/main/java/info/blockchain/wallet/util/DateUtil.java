@@ -3,6 +3,7 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.text.format.DateUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -40,26 +41,34 @@ public class DateUtil {
 
         Calendar calNow = Calendar.getInstance();
         calNow.setTime(new Date(now));
-        int nowDay = calNow.get(Calendar.DAY_OF_MONTH);
 
         Calendar calThen = Calendar.getInstance();
         calThen.setTime(new Date(date));
-        int thenYear = calThen.get(Calendar.YEAR);
         int thenDay = calThen.get(Calendar.DAY_OF_MONTH);
-        int thenMonth = calThen.get(Calendar.MONTH);
 
-        // within 24h
-        if (now - date < hours24) {
-            if (thenDay < nowDay) {
-                ret = context.getString(R.string.YESTERDAY);
-            } else {
-                ret = (String) DateUtils.getRelativeTimeSpanString(date, now, DateUtils.SECOND_IN_MILLIS, 0);
-            }
+        long yesterdayEnd = getDayEnd(now - hours24);
+        long yesterdayStart = getDayStart(now - hours24);
+//        long yearStart = getYearStart(now);//TODO
+
+        // today
+        if (date > yesterdayEnd) {
+            ret = (String) DateUtils.getRelativeTimeSpanString(date, now, DateUtils.SECOND_IN_MILLIS, 0);
         }
-        // within 48h
-        else if (now - date < (hours24 * 2)) {
+        // yesterday
+        else if (date < yesterdayEnd && date > yesterdayStart) {
             ret = context.getString(R.string.YESTERDAY);
-        } else {
+        }
+
+        //TODO - add year if in previous year - Below to be tested
+//        else if(date < yearStart){
+//            String year = calThen.getDisplayName(Calendar.YEAR, Calendar.LONG, Locale.getDefault());
+//            String month = calThen.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+//            String day = calThen.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
+//            ret = month + " " + thenDay+", "+year;
+//        }
+
+        // within current year
+        else{
             String month = calThen.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             String day = calThen.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
             ret = month + " " + thenDay;
@@ -68,4 +77,22 @@ public class DateUtil {
         return ret;
     }
 
+    private long parseDateTime(String time) {
+        try { return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(time).getTime(); } catch (Exception e){}; return 0;
+    }
+
+    private long getDayStart(long time)
+    {
+        return parseDateTime(new SimpleDateFormat("yyyy-MM-dd").format(new Date(time))+" 00:00:00");
+    }
+
+    private long getDayEnd(long time)
+    {
+        return parseDateTime(new SimpleDateFormat("yyyy-MM-dd").format(new Date(time))+" 23:59:59");
+    }
+
+    private long getYearStart(long time)
+    {
+        return parseDateTime(new SimpleDateFormat("yyyy").format(new Date(time))+"-01-01 00:00:00");
+    }
 }
