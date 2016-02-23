@@ -1468,9 +1468,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             pendingSpend.fromXpubIndex = -1;//V2, xpub index must be -1
         }else{
             //V3
+            int spinnerIndex = sendFromBiMap.get(object);
+            int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
+
             pendingSpend.isHD = true;
             pendingSpend.fromAccount = (Account) object;
-            pendingSpend.fromXpubIndex = sendFromBiMap.get(object);//TODO - get rid of this xpub index
+            pendingSpend.fromXpubIndex = accountIndex;//TODO - get rid of this xpub index
             pendingSpend.fromLegacyAddress = null;//V3, legacy address must be null
         }
 
