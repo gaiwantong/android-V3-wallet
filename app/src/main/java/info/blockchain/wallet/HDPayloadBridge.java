@@ -2,7 +2,6 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -197,13 +196,7 @@ public class HDPayloadBridge {
             MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException,
             MnemonicException.MnemonicWordException {
         // TODO unify legacy and HD call to one API call
-
-        // Balance for legacy addresses
-        if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-            List<String> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-            String[] addresses = legacyAddresses.toArray(new String[legacyAddresses.size()]);
-            MultiAddrFactory.getInstance().getLegacy(addresses, false);
-        }
+        // TODO getXpub must be called before getLegacy (unify should fix this)
 
         // xPub balance
         if (!AppUtil.getInstance(context).isNotUpgraded()) {
@@ -218,6 +211,13 @@ public class HDPayloadBridge {
                 a.setIdxChangeAddresses(MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) > a.getIdxChangeAddresses() ?
                         MultiAddrFactory.getInstance().getHighestTxChangeIdx(a.getXpub()) : a.getIdxChangeAddresses());
             }
+        }
+
+        // Balance for legacy addresses
+        if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
+            List<String> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+            String[] addresses = legacyAddresses.toArray(new String[legacyAddresses.size()]);
+            MultiAddrFactory.getInstance().getLegacy(addresses, false);
         }
     }
 
