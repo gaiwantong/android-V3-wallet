@@ -393,6 +393,32 @@ public class BalanceFragment extends Fragment {
 
     }
 
+    /*
+    TODO - this should be removed when doing jar refactor
+    Quick fix to remove duplicate txs from 'All' list:
+    Remove any duplicate transactions when the wallet requests a consolidated transaction list for the "All" account
+    This would be caused by any transfers from HD to Legacy or visa versa
+     */
+    public List<Tx> getAllXpubAndLegacyTxs(){
+
+        //Remove duplicate txs
+        HashMap<String, Tx> consolidatedTxsList = new HashMap<String, Tx>();
+
+        List<Tx> allXpubTransactions = MultiAddrFactory.getInstance().getAllXpubTxs();
+        for(Tx tx : allXpubTransactions){
+            if(!consolidatedTxsList.containsKey(tx.getHash()))
+                consolidatedTxsList.put(tx.getHash(), tx);
+        }
+
+        List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
+        for(Tx tx : allLegacyTransactions){
+            if(!consolidatedTxsList.containsKey(tx.getHash()))
+                consolidatedTxsList.put(tx.getHash(), tx);
+        }
+
+        return new ArrayList(consolidatedTxsList.values());
+    }
+
     private void updateBalanceAndTransactionList(Intent intent) {
 
         ArrayList<Tx> unsortedTransactionList = new ArrayList<>();//We will sort this list by date shortly
@@ -415,10 +441,8 @@ public class BalanceFragment extends Fragment {
             if(account.getTags().contains(TAG_ALL)){
                 if (PayloadFactory.getInstance().get().isUpgraded()) {
                     //Total for accounts
-                    List<Tx> allXpubTransactions = MultiAddrFactory.getInstance().getAllXpubTxs();
-                    List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
-                    if(allXpubTransactions != null)unsortedTransactionList.addAll(allXpubTransactions);
-                    if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
+                    List<Tx> allTransactions = getAllXpubAndLegacyTxs();
+                    if(allTransactions != null)unsortedTransactionList.addAll(allTransactions);
 
                     //Balance = all xpubs + all legacy address balances
                     btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
