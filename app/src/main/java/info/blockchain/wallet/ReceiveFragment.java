@@ -387,6 +387,26 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+                        spAccounts.setSelection(spAccounts.getSelectedItemPosition());
+                        Object object = accountBiMap.inverse().get(spAccounts.getSelectedItemPosition());
+                        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
+
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(R.string.warning)
+                                    .setCancelable(false)
+                                    .setMessage(R.string.watchonly_address_receive_warning)
+                                    .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            ;
+                                        }
+                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    spAccounts.setSelection(0, true);
+                                }
+                            }).show();
+                        }
+
                         displayQRCode(spAccounts.getSelectedItemPosition());
                     }
 
@@ -642,23 +662,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
             //V2
             receiveAddress = ((LegacyAddress) object).getAddress();
-
-            if (((LegacyAddress) object).isWatchOnly()) {
-
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.warning)
-                        .setCancelable(false)
-                        .setMessage(R.string.watchonly_address_receive_warning)
-                        .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                ;
-                            }
-                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        spAccounts.setSelection(0, true);
-                    }
-                }).show();
-            }
 
         } else {
             //V3
