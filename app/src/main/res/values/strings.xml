@@ -360,7 +360,7 @@
     <string name="upgrade_page_3">Everything you need to receive, spend, and store your Bitcoin.</string>
     <string name="CONFIRM">UPGRADE NOW</string>
     <string name="confirm_upgrade">Confirm Upgrade</string>
-    <string name="confirm_upgrade_info">The upgrade takes just a second and your Bitcoin and history will be safe. Here is what’s better:\n\n✓ Completely updated design and user experience\n✓ Robust security center\n✓ Enhanced Privacy\n✓ Simplified backup and recovery\n✓ Customized fund management\n\nTwo advanced transaction types (Spending from watch-only addresses and Shared Coin) are not supported in the new version at this time.</string>
+    <string name="confirm_upgrade_info">The upgrade takes just a second and your Bitcoin and history will be safe. Here is what’s better:\n\n✓ Completely updated design and user experience\n✓ Robust security center\n✓ Enhanced Privacy\n✓ Simplified backup and recovery\n✓ Customized fund management\n\nOne advanced transaction type (Shared Coin) is not supported in the new version at this time.</string>
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
     <string name="upgrade_success_heading">Your wallet has been upgraded!</string>
