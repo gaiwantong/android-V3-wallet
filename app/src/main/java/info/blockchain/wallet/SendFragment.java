@@ -35,6 +35,7 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -428,21 +429,10 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         if (object instanceof LegacyAddress) {
 
                             //V2
-                            if (((LegacyAddress) object).isWatchOnly()) {
+                            if (((LegacyAddress) object).isWatchOnly() && PrefsUtil.getInstance(getActivity()).getValue("WARN_WATCH_ONLY_SPEND", true)) {
 
-                                new AlertDialog.Builder(getActivity())
-                                        .setTitle(R.string.warning)
-                                        .setCancelable(false)
-                                        .setMessage(R.string.watchonly_address_receive_warning)
-                                        .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                edReceiveTo.setText(((LegacyAddress) object).getAddress());
-                                            }
-                                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        edReceiveTo.setText("");
-                                    }
-                                }).show();
+                                promptWatchOnlySpendWarning(object);
+
                             } else {
                                 edReceiveTo.setText(((LegacyAddress) object).getAddress());
                             }
@@ -464,6 +454,45 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
                 }
         );
+    }
+
+    private void promptWatchOnlySpendWarning(final Object object){
+
+        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.alert_watch_only_spend, null);
+            dialogBuilder.setView(dialogView);
+            dialogBuilder.setCancelable(false);
+
+            final AlertDialog alertDialog = dialogBuilder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+
+            final CheckBox confirmDismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
+
+            TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+            confirmCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    edReceiveTo.setText("");
+                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    alertDialog.dismiss();
+                }
+            });
+
+            TextView confirmContinue = (TextView) dialogView.findViewById(R.id.confirm_continue);
+            confirmContinue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    edReceiveTo.setText(((LegacyAddress) object).getAddress());
+                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    alertDialog.dismiss();
+                }
+            });
+
+            alertDialog.show();
+        }
     }
 
     private String getV3ReceiveAddress(Account account) {
