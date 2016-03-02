@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
@@ -35,19 +36,30 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.send.SendCoins;
+import info.blockchain.wallet.send.SendFactory;
+import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.service.WebSocketService;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
 
+import org.apache.commons.codec.DecoderException;
+import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,10 +135,32 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void updateAllFields(){
+        updateTransferField();
         updateLabelField();
         updateDefaultField();
         updateArchivedField();
         updateXpubField();
+    }
+
+    private void updateTransferField(){
+        if (account != null) {
+            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
+
+            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+            //Subtract fee
+            long balanceAfterFee = (balance - SendCoins.bFee.longValue());
+
+            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
+                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
+            }else{
+                //No need to show 'transfer' if funds are less than dust amount
+                findViewById(R.id.transfer_container).setVisibility(View.GONE);
+            }
+        }else{
+            //No transfer option for V2
+            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+        }
     }
 
     private void updateLabelField(){
@@ -266,6 +300,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.privx_container).setClickable(false);
             findViewById(R.id.default_container).setAlpha(0.5f);
             findViewById(R.id.default_container).setClickable(false);
+            findViewById(R.id.transfer_container).setAlpha(0.5f);
+            findViewById(R.id.transfer_container).setClickable(false);
         }else{
 
             //Don't allow archiving of default account
@@ -289,6 +325,8 @@ public class AccountEditActivity extends AppCompatActivity {
             findViewById(R.id.privx_container).setClickable(true);
             findViewById(R.id.default_container).setAlpha(1.0f);
             findViewById(R.id.default_container).setClickable(true);
+            findViewById(R.id.transfer_container).setAlpha(1.0f);
+            findViewById(R.id.transfer_container).setClickable(true);
         }
     }
     
@@ -933,5 +971,217 @@ public class AccountEditActivity extends AppCompatActivity {
         } else {
             ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
+    }
+
+    public void transferClicked(View view) {
+
+        //Only funded legacy address' will see this option
+        final PendingSpend pendingSpend = new PendingSpend();
+        pendingSpend.fromLegacyAddress = legacyAddress;
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.alert_transfer_funds, null);
+        dialogBuilder.setView(dialogView);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
+        //From
+        TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from);
+        String label = pendingSpend.fromLegacyAddress.getLabel();
+        if(label == null || label.isEmpty())label = pendingSpend.fromLegacyAddress.getAddress();
+        confirmFrom.setText(label);
+
+        //To default
+        TextView confirmTo = (TextView) dialogView.findViewById(R.id.confirm_to);
+
+        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+        Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+        pendingSpend.destination = getV3ReceiveAddress(defaultIndex);
+
+        String toLabel = defaultAccount.getLabel();
+        if(toLabel ==null || toLabel.isEmpty())toLabel = pendingSpend.destination;
+        confirmTo.setText(toLabel+" ("+getResources().getString(R.string.default_label)+")");
+
+        //Fee
+        TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
+        pendingSpend.bigIntFee = SendCoins.bFee;
+        confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
+
+        //Total
+        long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
+        long balanceAfterFee = (balance - SendCoins.bFee.longValue());
+        pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
+        TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
+        double btc_balance = (((double) balanceAfterFee) / 1e8);
+        confirmTotal.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(this).getDenominatedAmount(btc_balance)) + " " + " BTC");
+
+        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+        confirmSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)){
+                    if (!PayloadFactory.getInstance().get().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+                        sendPayment(pendingSpend);
+                    } else {
+                        alertDoubleEncrypted(pendingSpend);
+                    }
+                }else{
+                    //This should never happen
+                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private class PendingSpend {
+
+        LegacyAddress fromLegacyAddress;
+        String destination;
+        BigInteger bigIntFee;
+        BigInteger bigIntAmount;
+    }
+
+    private String getV3ReceiveAddress(int accountIndex) {
+
+        try {
+            ReceiveAddress receiveAddress = HDPayloadBridge.getInstance(this).getReceiveAddress(accountIndex);
+            return receiveAddress.getAddress();
+
+        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void alertDoubleEncrypted(final PendingSpend pendingSpend){
+        final EditText password = new EditText(this);
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.enter_double_encryption_pw)
+                .setView(password)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        final String pw = password.getText().toString();
+
+                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+
+                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+                            sendPayment(pendingSpend);
+
+                        } else {
+                            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        }
+
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ;
+            }
+        }).show();
+    }
+
+    private void sendPayment(final PendingSpend pendingSpend){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Looper.prepare();
+
+                final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountEditActivity.this).prepareSend(-1, pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO, null);
+
+                if (unspents != null) {
+                    executeSend(pendingSpend, unspents);
+                } else {
+
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+                Looper.loop();
+            }
+        }).start();
+    }
+
+    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents){
+
+        final ProgressDialog progress;
+        progress = new ProgressDialog(AccountEditActivity.this);
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(AccountEditActivity.this.getResources().getString(R.string.please_wait));
+        progress.setCancelable(false);
+        progress.show();
+
+        SendFactory.getInstance(this).execSend(-1, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, new OpCallback() {
+
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onSuccess(final String hash) {
+
+                ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                //Update v2 balance immediately after spend - until refresh from server
+                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThread();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.transfer_container).setVisibility(View.GONE);
+                    }
+                });
+
+                setResult(RESULT_OK);
+
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+            }
+
+            public void onFail() {
+
+                //Reset double encrypt for V2
+                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+            }
+
+            @Override
+            public void onFailPermanently() {
+
+                //Reset double encrypt for V2
+                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                }
+            }
+
+        });
     }
 }
