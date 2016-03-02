@@ -1054,16 +1054,6 @@ public class AccountEditActivity extends AppCompatActivity {
         String destination;
         BigInteger bigIntFee;
         BigInteger bigIntAmount;
-
-        @Override
-        public String toString() {
-            return "PendingSpend{" +
-                    "fromLegacyAddress=" + fromLegacyAddress +
-                    ", destination='" + destination + '\'' +
-                    ", bigIntFee=" + bigIntFee +
-                    ", bigIntAmount=" + bigIntAmount +
-                    '}';
-        }
     }
 
     private String getV3ReceiveAddress(int accountIndex) {

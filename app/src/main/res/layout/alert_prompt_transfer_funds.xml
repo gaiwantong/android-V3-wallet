@@ -32,64 +32,18 @@
         </LinearLayout>
 
         <TextView
-                android:id="@+id/tv_transfer_funds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/transfer_recommend"
                 android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_blue"/>
+                android:textColor="@color/primary_dark_material_dark"/>
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/from"
+                android:text="@string/transfer_funds_safe"
                 android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_from"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/to"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_to"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/fee"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_fee"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/total_to_send"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_total_to_send"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
+                android:textColor="@color/primary_dark_material_dark"/>
 
     </LinearLayout>
 
@@ -114,12 +68,32 @@
                 android:id="@+id/confirm_send"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="@string/transfer"
+                android:text="@string/ok"
                 android:gravity="center"
                 android:layout_marginRight="16dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:textColor="@color/blockchain_blue"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/checkbox_container"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+        <CheckBox
+                android:id="@+id/confirm_dont_ask_again"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/dont_ask_again"
+                android:gravity="center"
+                android:layout_marginRight="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:textColor="@color/primary_text_default_material_light"/>
 
     </LinearLayout>
 

@@ -486,4 +486,6 @@
     <string name="transfer_funds_safe">Your transferred funds will be safe and secure, and you’ll benefit from increased privacy and convenient backup and recovery features.</string>
     <string name="spendable_addresses">spendable addresses</string>
     <string name="total_fees">Total fees</string>
+
+    <string name="dont_ask_again">Don\'t ask me again.</string>
 </resources>
