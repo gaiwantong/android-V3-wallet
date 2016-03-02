@@ -258,7 +258,7 @@ public class AccountActivity extends AppCompatActivity {
         inflater.inflate(R.menu.account_activity_actions, menu);
         transferFundsMenuItem = menu.findItem(R.id.action_transfer_funds);
 
-        if(hasTransferableFunds()){
+        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
 
             transferFundsMenuItem.setVisible(true);
 
