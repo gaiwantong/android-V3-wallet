@@ -40,4 +40,5 @@
     <color name="barcode_result_view">#b0000000</color>
     <color name="barcode_result_points">#8085b45b</color>
 
+	<color name="alert_green">#00C853</color>
 </resources>
