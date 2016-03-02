@@ -25,7 +25,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -242,13 +241,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             @Override
             public void onGlobalLayout() {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     sendFromSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
                     sendFromSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                sendFromSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    sendFromSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                }
             }
         });
 
@@ -407,14 +408,16 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             @Override
             public void onGlobalLayout() {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     receiveToSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
                     receiveToSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
                 if(sendFromSpinner.getWidth() > 0)
-                    receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                    }
             }
         });
 
