@@ -711,7 +711,12 @@ public class AccountActivity extends AppCompatActivity {
                                     BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), data);
                                     final ECKey key = bip38.decrypt(pw);
 
-                                    if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+                                    if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+
+                                        //A private key to an existing address has been scanned
+                                        setPrivateKey(key);
+
+                                    } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
                                         final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
                                                     /*
                                                      * if double encrypted, save encrypted in payload
@@ -786,7 +791,10 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
-            ToastCustom.makeText(AccountActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+
+            //A private key to an existing address has been scanned
+            setPrivateKey(key);
+
         } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
             final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
@@ -847,6 +855,26 @@ public class AccountActivity extends AppCompatActivity {
         } else {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.no_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
+
+    }
+
+    private void setPrivateKey(ECKey key){
+
+        Payload payload = PayloadFactory.getInstance().get();
+        int index = payload.getLegacyAddressStrings().indexOf(key.toAddress(MainNetParams.get()).toString());
+        LegacyAddress legacyAddress = payload.getLegacyAddresses().get(index);
+        if (!payload.isDoubleEncrypted()) {
+            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+        } else {
+            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payload.getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), payload.getOptions().getIterations());
+            legacyAddress.setEncryptedKey(encrypted2);
+        }
+        legacyAddress.setWatchOnly(false);
+        PayloadFactory.getInstance().set(payload);
+        PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread();
+        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+        updateAccountsList();
 
     }
 
