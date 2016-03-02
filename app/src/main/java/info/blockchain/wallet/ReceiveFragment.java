@@ -40,6 +40,7 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -388,6 +389,14 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
                 spAccounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+                        spAccounts.setSelection(spAccounts.getSelectedItemPosition());
+                        Object object = accountBiMap.inverse().get(spAccounts.getSelectedItemPosition());
+
+                        if(PrefsUtil.getInstance(getActivity()).getValue("WARN_WATCH_ONLY_SPEND", true)){
+                            promptWatchOnlySpendWarning(object);
+                        }
+
                         displayQRCode(spAccounts.getSelectedItemPosition());
                     }
 
@@ -434,6 +443,44 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
             public void onPanelHidden(View panel) {
             }
         });
+    }
+
+    private void promptWatchOnlySpendWarning(Object object){
+
+        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.alert_watch_only_spend, null);
+            dialogBuilder.setView(dialogView);
+            dialogBuilder.setCancelable(false);
+
+            final AlertDialog alertDialog = dialogBuilder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+
+            final CheckBox confirmDismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
+
+            TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+            confirmCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    spAccounts.setSelection(0, true);
+                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    alertDialog.dismiss();
+                }
+            });
+
+            TextView confirmContinue = (TextView) dialogView.findViewById(R.id.confirm_continue);
+            confirmContinue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    alertDialog.dismiss();
+                }
+            });
+
+            alertDialog.show();
+        }
     }
 
     private void updateSpinnerList() {
@@ -643,23 +690,6 @@ public class ReceiveFragment extends Fragment implements OnClickListener, Custom
 
             //V2
             receiveAddress = ((LegacyAddress) object).getAddress();
-
-            if (((LegacyAddress) object).isWatchOnly()) {
-
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.warning)
-                        .setCancelable(false)
-                        .setMessage(R.string.watchonly_address_receive_warning)
-                        .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                ;
-                            }
-                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        spAccounts.setSelection(0, true);
-                    }
-                }).show();
-            }
 
         } else {
             //V3
