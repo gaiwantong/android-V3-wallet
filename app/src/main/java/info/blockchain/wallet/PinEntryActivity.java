@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -279,6 +281,20 @@ public class PinEntryActivity extends Activity {
                             @Override
                             public void run() {
                                 dismissProgressView();
+
+                                try {
+                                    int previousVersionCode = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
+                                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+
+                                    //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
+                                    if(previousVersionCode != packageInfo.versionCode) {
+                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
+                                    }
+
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
 
                                 if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
                                     Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
