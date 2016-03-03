@@ -1284,7 +1284,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //Total
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance) + " " + " BTC");
+        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance + (SendCoins.bFee.longValue() * pendingSpendList.size())) + " " + " BTC");
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {
