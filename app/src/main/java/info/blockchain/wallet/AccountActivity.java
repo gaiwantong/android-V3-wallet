@@ -1194,7 +1194,7 @@ public class AccountActivity extends AppCompatActivity {
         final CheckBox dismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
 
         if(!isPopup){
-            dialogView.findViewById(R.id.checkbox_container).setVisibility(View.GONE);
+            dialogView.findViewById(R.id.confirm_dont_ask_again).setVisibility(View.GONE);
         }
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
@@ -1284,7 +1284,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //Total
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance) + " " + " BTC");
+        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance + (SendCoins.bFee.longValue() * pendingSpendList.size())) + " " + " BTC");
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {
