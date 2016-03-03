@@ -49,51 +49,40 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:orientation="horizontal"
             android:gravity="center_vertical|right">
+
+        <CheckBox
+                android:id="@+id/confirm_dont_ask_again"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="120dp"
+                android:text="@string/dont_ask_again"
+                android:gravity="center|left"
+                android:textColor="@color/primary_text_default_material_light"/>
 
         <TextView
                 android:id="@+id/confirm_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
                 android:text="@string/cancel"
                 android:gravity="center"
                 android:layout_marginRight="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
+                android:padding="8dp"
                 android:textColor="@color/primary_text_default_material_light"/>
 
         <TextView
                 android:id="@+id/confirm_send"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/ok"
+                android:layout_height="wrap_content"
+                android:text="@string/ok_cap"
                 android:gravity="center"
-                android:layout_marginRight="16dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
+                android:padding="8dp"
                 android:textColor="@color/blockchain_blue"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/checkbox_container"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-        <CheckBox
-                android:id="@+id/confirm_dont_ask_again"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/dont_ask_again"
-                android:gravity="center"
-                android:layout_marginRight="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/primary_text_default_material_light"/>
 
     </LinearLayout>
 

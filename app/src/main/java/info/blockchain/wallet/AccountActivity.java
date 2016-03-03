@@ -1194,7 +1194,7 @@ public class AccountActivity extends AppCompatActivity {
         final CheckBox dismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
 
         if(!isPopup){
-            dialogView.findViewById(R.id.checkbox_container).setVisibility(View.GONE);
+            dialogView.findViewById(R.id.confirm_dont_ask_again).setVisibility(View.GONE);
         }
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
