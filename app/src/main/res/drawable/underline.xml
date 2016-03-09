@@ -4,7 +4,7 @@
      <item>
         <shape>
             <padding android:bottom="1dp" />
-            <solid android:color="@color/blockchain_grey" />
+            <solid android:color="@color/blockchain_light_grey" />
         </shape>
     </item>
 

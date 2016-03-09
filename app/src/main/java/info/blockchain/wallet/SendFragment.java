@@ -55,7 +55,6 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -105,6 +104,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private EditText edReceiveTo = null;
     private EditText edAmount1 = null;
     private TextView tvCurrency1 = null;
+    private TextView tvFeeUnits = null;
     private EditText edAmount2 = null;
     private TextView tvFiat2 = null;
     private MenuItem btSend;
@@ -239,6 +239,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
         tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
         tvMax = (TextView) rootView.findViewById(R.id.max);
+        tvFeeUnits = (TextView) rootView.findViewById(R.id.tv_fee_unit);
 
         etCustomFee = (EditText) rootView.findViewById(R.id.custom_fee);
         //As soon as the user customizes our suggested dynamic fee - hide (recommended)
@@ -257,6 +258,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             public void afterTextChanged(Editable s) {
                 rootView.findViewById(R.id.tv_recommended).setVisibility(View.GONE);
                 displayMaxAvailable();
+            }
+        });
+
+        ImageView ivFeeInfo = (ImageView)rootView.findViewById(R.id.iv_fee_info);
+        ivFeeInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertCustomSpend();
             }
         });
     }
@@ -565,6 +574,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvCurrency1.setText(strBTC);
+        tvFeeUnits.setText(strBTC);
         tvFiat2.setText(strFiat);
     }
 
@@ -602,6 +612,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 //                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
                 tvCurrency1.setText(strBTC);
+                tvFeeUnits.setText(strBTC);
                 tvFiat2.setText(strFiat);
 
                 edAmount1.addTextChangedListener(btcTextWatcher);
@@ -883,6 +894,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(strBTC);
+            tvFeeUnits.setText(strBTC);
             tvFiat2.setText(strFiat);
             displayMaxAvailable();
         } else {
@@ -900,6 +912,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(strBTC);
+        tvFeeUnits.setText(strBTC);
         tvFiat2.setText(strFiat);
 
         if (getArguments() != null)
@@ -996,11 +1009,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             double btc_balance = (((double) balanceAfterFee) / 1e8);
             tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_balance)) + " " + strBTC);
         } else {
-            if (AppUtil.getInstance(getActivity()).isNotUpgraded()) {
-                tvMax.setText(R.string.no_funds_available2);
-            } else {
-                tvMax.setText(R.string.no_funds_available);
-            }
+            tvMax.setText(getActivity().getResources().getText(R.string.max_available) + " 0 " + strBTC);
+
         }
     }
 
@@ -1696,12 +1706,18 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             String xpub = pendingSpend.fromAccount.getXpub();
             if(!hasSufficientFunds(xpub, null, amountToSendIncludingFee)){
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 return false;
+            }else{
+                tvMax.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
             }
         }else{
             if(!hasSufficientFunds(null, pendingSpend.fromLegacyAddress.getAddress(), amountToSendIncludingFee)){
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 return false;
+            }else{
+                tvMax.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
             }
         }
 
