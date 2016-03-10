@@ -492,4 +492,5 @@
     <string name="amount">Amount</string>
     <string name="recommended">(Recommended)</string>
     <string name="recommended_fee">Transaction fees impact how quickly the Bitcoin mining network will confirm your transactions, and depend on the current network conditions. We recommend the fee below for this transaction at this time.</string>
+    <string name="not_now">Not now</string>
 </resources>
