@@ -76,6 +76,19 @@
 							android:textSize="12sp"/>
 
 					<TextView
+							android:id="@+id/my_account_row_default"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_gravity="bottom"
+							android:fontFamily="sans-serif"
+							android:text="@string/default_label_brackets"
+							android:paddingRight="8dp"
+							android:singleLine="true"
+							android:alpha="0.8"
+							android:textColor="@color/primary_text_default_material_light"
+							android:textSize="12sp"/>
+
+					<TextView
 							android:id="@+id/my_account_row_archived"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"

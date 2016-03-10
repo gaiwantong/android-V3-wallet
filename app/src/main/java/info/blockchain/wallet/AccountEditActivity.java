@@ -174,10 +174,10 @@ public class AccountEditActivity extends AppCompatActivity {
     private void updateDefaultField(){
         if (account != null) {
             if(isDefault(account)){
-                tvDefault.setText(getString(R.string.default_label));
-                tvDefault.setTextColor(getResources().getColor(R.color.primary_dark_material_dark));
+                findViewById(R.id.default_container).setVisibility(View.GONE);
                 findViewById(R.id.default_container).setClickable(false);
             }else{
+                findViewById(R.id.default_container).setVisibility(View.VISIBLE);
                 tvDefault.setText(getString(R.string.make_default));
                 tvDefault.setTextColor(getResources().getColor(R.color.blockchain_blue));
                 findViewById(R.id.default_container).setClickable(true);

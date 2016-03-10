@@ -582,6 +582,9 @@ public class AccountActivity extends AppCompatActivity {
         //accountsAndImportedList is linked to AccountAdapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         accountsAndImportedList.clear();
 
+        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+        Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+
         int i = 0;
         if (PayloadFactory.getInstance().get().isUpgraded()) {
 
@@ -601,7 +604,7 @@ public class AccountActivity extends AppCompatActivity {
 
                 if (label == null || label.length() == 0) label = "Account: " + (i + 1);
 
-                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_accounthd), accountClone.get(i).isArchived(), false));
+                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_accounthd), accountClone.get(i).isArchived(), false, defaultAccount.getXpub().equals(accountClone.get(i).getXpub())));
             }
             hdAccountsIdx = accountClone.size() - archivedCount;
         }
@@ -615,7 +618,7 @@ public class AccountActivity extends AppCompatActivity {
             if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountsAndImportedList.size());
-                accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd), false, false));
+                accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd), false, false, false));
             }
 
             legacy = iAccount.getLegacyAddresses();
@@ -625,7 +628,7 @@ public class AccountActivity extends AppCompatActivity {
                 String balance = getAddressBalance(j);
                 if (label == null || label.length() == 0) label = legacy.get(j).getAddress();
 
-                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly()));
+                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly(), false));
             }
         }
 
