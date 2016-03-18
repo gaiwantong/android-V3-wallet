@@ -58,6 +58,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -1172,7 +1173,7 @@ public class AccountActivity extends AppCompatActivity {
 
             if(!legacyAddress.isWatchOnly()){
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-                if(balance - SendCoins.bFee.longValue() > SendCoins.bDust.longValue()) {
+                if(balance - FeeUtil.AVERAGE_FEE.longValue() > SendCoins.bDust.longValue()) {
                     return true;
                 }
             }
@@ -1236,11 +1237,11 @@ public class AccountActivity extends AppCompatActivity {
 
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 
-                if(balance - SendCoins.bFee.longValue() > (SendCoins.bDust.longValue())) {
+                if(balance - FeeUtil.AVERAGE_FEE.longValue() > (SendCoins.bDust.longValue())) {
                     final PendingSpend pendingSpend = new PendingSpend();
                     pendingSpend.fromLegacyAddress = legacyAddress;
-                    pendingSpend.bigIntFee = SendCoins.bFee;
-                    Long totalToSendAfterFee = (balance - SendCoins.bFee.longValue());
+                    pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
+                    Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
                     totalToSend += totalToSendAfterFee;
                     pendingSpend.bigIntAmount = BigInteger.valueOf(totalToSendAfterFee);
                     pendingSpend.destination = getV3ReceiveAddress(defaultIndex);//assign new receive address for each transfer
@@ -1280,11 +1281,11 @@ public class AccountActivity extends AppCompatActivity {
 
         //Fee
         TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-        confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(SendCoins.bFee.longValue() * pendingSpendList.size()) + " BTC");
+        confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
 
         //Total
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance + (SendCoins.bFee.longValue() * pendingSpendList.size())) + " " + " BTC");
+        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {
@@ -1373,16 +1374,16 @@ public class AccountActivity extends AppCompatActivity {
                 Looper.prepare();
 
                 int sendCount = 1;
-                for(PendingSpend pendingSpend : pendingSpendList){
-
-                    final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(-1, pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO, null);
-
-                    boolean isLastSpend = false;
-                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
-                    executeSend(pendingSpend, unspents, isLastSpend);
-
-                    sendCount++;
-                }
+//                for(PendingSpend pendingSpend : pendingSpendList){
+//
+//                    final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(-1, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO);
+//
+//                    boolean isLastSpend = false;
+//                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
+//                    executeSend(pendingSpend, unspents, isLastSpend);
+//
+//                    sendCount++;
+//                }
 
                 Looper.loop();
             }
@@ -1426,7 +1427,7 @@ public class AccountActivity extends AppCompatActivity {
                 }
             }
 
-            public void onFail() {
+            public void onFail(String error) {
 
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
@@ -1434,8 +1435,11 @@ public class AccountActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailPermanently() {
+            public void onFailPermanently(String error) {
 
+                //Reset double encrypt for V2
+                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
                 }
