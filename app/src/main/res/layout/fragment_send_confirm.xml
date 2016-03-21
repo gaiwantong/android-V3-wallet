@@ -155,7 +155,6 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="8dp"
                         android:textColor="@color/blockchain_blue"
-                        android:visibility="gone"
                         android:text="@string/customize"/>
 
             </LinearLayout>

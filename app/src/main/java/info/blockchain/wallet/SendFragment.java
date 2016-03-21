@@ -27,7 +27,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -93,7 +92,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
 
 import piuk.blockchain.android.R;
 
@@ -143,12 +141,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     long balanceAvailable = 0L;//balance from multi_address
 
-    private Pair<String, String> unspentApiResponse;//current selected from address unspent api response
+    private Pair<String, String> unspentApiResponse;//current selected <from address, unspent api response> - so we don't need to call api repeatedly
     private SuggestedFee suggestedFeeBundle;
     private UnspentOutputsBundle unspentsCoinsBundle;
     private BigInteger absoluteFeeSuggested = FeeUtil.AVERAGE_FEE;//Will default to if not set
     private BigInteger absoluteFeeUsed = FeeUtil.AVERAGE_FEE;
-    private Timer unspentApiResponseTimer = null;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -284,7 +281,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             public void afterTextChanged(Editable s) {
                 rootView.findViewById(R.id.tv_recommended).setVisibility(View.GONE);
                 unspentsCoinsBundle = getCoins();
-                setSweepAmount();
+                long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+
+                if(balanceAfterFee < 0) {
+                    tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                }else{
+                    tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                }
+
+                displaySweepAmount();
             }
         });
 
@@ -297,6 +302,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         });
     }
 
+    private BigInteger getCustomFee(){
+
+        long amountL = 0L;
+        if(!etCustomFee.getText().toString().isEmpty())
+            amountL = getLongValue(etCustomFee.getText().toString());
+
+        return BigInteger.valueOf(amountL);
+    }
+
     @Override
     public void onFeeSuggested(SuggestedFee suggestedFee) {
 
@@ -305,7 +319,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         if(unspentApiResponse != null){
             unspentsCoinsBundle = getCoins();
-            setSweepAmount();
+            displaySweepAmount();
         }
     }
 
@@ -369,7 +383,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                     unspentApiResponse = null;
                                 }
                                 unspentsCoinsBundle = getCoins();
-                                setSweepAmount();
+                                displaySweepAmount();
 
                                 return null;
                             }
@@ -771,7 +785,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 if (unspentApiResponse != null) {
                     unspentsCoinsBundle = getCoins();
-                    setSweepAmount();
+                    displaySweepAmount();
                 }
             }
 
@@ -831,7 +845,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 if (unspentApiResponse != null) {
                     unspentsCoinsBundle = getCoins();
-                    setSweepAmount();
+                    displaySweepAmount();
                 }
             }
 
@@ -991,7 +1005,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
-        if(unspentApiResponseTimer != null)unspentApiResponseTimer.cancel();
         super.onPause();
     }
 
@@ -1044,7 +1057,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         String fromAddress = unspentApiResponse.first;
         String unspentApiString = unspentApiResponse.second;
 
-        final BigInteger spendAmount = getSpendAmount();
+        BigInteger spendAmount = getSpendAmount();
 
         //Check should we use dynamic or customized fee?
         boolean useCustomFee = !etCustomFee.getText().toString().isEmpty();
@@ -1052,25 +1065,29 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         BigInteger absoluteFee = BigInteger.ZERO;
 
         if (useCustomFee){
-            //User customized fee
-            absoluteFee = BigInteger.valueOf(getLongValue(etCustomFee.getText().toString()));
-            Log.v("vos","---------------Use Custom Absolute Fee-----------------");
+            //User customized fee. if absolute fee used, we need to add to spendAmount for coin selection
+//            Log.v("vos","---------------Use Custom Absolute Fee-----------------");
+            absoluteFee = getCustomFee();
+            spendAmount = spendAmount.add(absoluteFee);
+
         } else if(suggestedFeeBundle != null && suggestedFeeBundle.suggestSuccess) {
             //Dynamic fee fetching successful
+//            Log.v("vos","---------------Calculate Dynamic Fee from per kb-----------------");
             feePerKb = suggestedFeeBundle.feePerKb;
-            Log.v("vos","---------------Calculate Dynamic Fee from per kb-----------------");
+
         }else{
-            //If dynamic failed we'll use default
+            //If dynamic failed we'll use default. if absolute fee used, we need to add to spendAmount for coin selection
+//            Log.v("vos","---------------Use default Absolute -----------------");
             absoluteFee = FeeUtil.AVERAGE_FEE;
-            Log.v("vos","---------------Use default Absolute -----------------");
+            spendAmount = spendAmount.add(absoluteFee);
         }
 
         UnspentOutputsBundle unspentsBundle = null;
         if(balanceAvailable > 0) {
 
-            Log.v("vos","fromAddress: "+fromAddress);
-            Log.v("vos","feePerKb: "+feePerKb+" absoluteFee: "+absoluteFee);
-            Log.v("vos","spendAmount: "+spendAmount);
+//            Log.v("vos","fromAddress: "+fromAddress);
+//            Log.v("vos","feePerKb: "+feePerKb+" absoluteFee: "+absoluteFee);
+//            Log.v("vos","spendAmount: "+spendAmount);
 
             try {
                 unspentsBundle = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
@@ -1091,25 +1108,24 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         }
 
-        if(spendAmount.longValue() > balanceAvailable){
-            Log.v("vos","---Not enough funds---");
-        }
-
         return unspentsBundle;
     }
 
-    private void setSweepAmount(){
-
-        long sweepAm = balanceAvailable;
+    private long getSweepAmount(){
+        long sweepAmount = balanceAvailable;
         if(unspentsCoinsBundle != null) {
-            sweepAm = unspentsCoinsBundle.getSweepAmount().longValue();
+            sweepAmount = unspentsCoinsBundle.getSweepAmount().longValue();
         }
 
-        long balanceAfterFee = (sweepAm - absoluteFeeUsed.longValue());
-        final double sweepBalance = Math.max(((double) balanceAfterFee) / 1e8, 0.0);
+        return sweepAmount - absoluteFeeUsed.longValue();
+    }
 
-        Log.v("vos", "balanceAvailable: " + balanceAvailable);
-        Log.v("vos", "sweepBalance: " + sweepBalance);
+    private void displaySweepAmount(){
+
+        final double sweepBalance = Math.max(((double) getSweepAmount()) / 1e8, 0.0);
+
+//        Log.v("vos", "balanceAvailable: " + balanceAvailable);
+//        Log.v("vos", "sweepBalance: " + sweepBalance);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -1121,9 +1137,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
         });
 
-        if(unspentsCoinsBundle != null)Log.v("vos", unspentsCoinsBundle.getOutputs().size()+" selected Coins amount: " + unspentsCoinsBundle.getTotalAmount());
-        Log.v("vos","absoluteFeeUsed: "+ absoluteFeeUsed.longValue());
-        Log.v("vos","-------------------------------------------------");
+//        if(unspentsCoinsBundle != null)Log.v("vos", unspentsCoinsBundle.getOutputs().size()+" selected Coins amount: " + unspentsCoinsBundle.getTotalAmount());
+//        Log.v("vos","absoluteFeeUsed: "+ absoluteFeeUsed.longValue());
+//        Log.v("vos","-------------------------------------------------");
     }
 
     @Override
@@ -1795,7 +1811,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     private boolean isValidSpend(PendingSpend pendingSpend) {
 
-        Log.v("vos","pendingSpend: "+pendingSpend);
+//        Log.v("vos","pendingSpend: "+pendingSpend);
 
         //Validate amount
         if(!isValidAmount(pendingSpend.bigIntAmount)){
@@ -1854,6 +1870,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if(unspentsCoinsBundle.getOutputs().size() == 0){
+            ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return false;
+        }
+
+        //Check after user edits fee (fee could bring balance into negative)
+        long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+        if(balanceAfterFee < 0){
             ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return false;
         }

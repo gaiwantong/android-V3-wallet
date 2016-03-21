@@ -160,17 +160,13 @@ public class SendFactory {
                     } else {
                         changeAddr = legacyAddress.getAddress();
                     }
-                    Log.v("vos","-------------------------------------------------");
-                    Log.v("vos","unspent: "+unspent.toString()+" receivers: "+receivers+" fee: "+fee+" changeAddr: "+changeAddr);
                     pair = SendCoins.getInstance().makeTransaction(true, unspent, receivers, fee, changeAddr);
 
                     // Transaction cancelled
                     if (pair == null) {
                         opc.onFail("Transaction cancelled");
-                        Log.v("vos","---------------------Transaction cancelled----------------------------");
                         return;
                     }
-                    Log.v("vos","-------------------------------------------------");
                     Transaction tx = pair.getLeft();
                     Long priority = pair.getRight();
 
@@ -315,8 +311,8 @@ public class SendFactory {
             sweepAmount += ((Number) outDict.get("value")).longValue();
             coins.add(BigInteger.valueOf(((Number) outDict.get("value")).longValue()));//Debug
         }
-        Log.v("vos","Coins: "+coins.toString());
-        Log.v("vos","Coins (sweepAmount): "+sweepAmount);
+//        Log.v("vos","Coins: "+coins.toString());
+//        Log.v("vos","Coins (sweepAmount): "+sweepAmount);
         ret.setSweepAmount(BigInteger.valueOf(sweepAmount));
 
         BigInteger totalAvailableBalance = 	BigInteger.ZERO;
@@ -361,7 +357,7 @@ public class SendFactory {
                 return ret;
 
             }
-            // Single output has been found that higher than the amount we want to spend - no need to continue looking - return this coin
+            // Single output has been found that is higher than the amount we want to spend - no need to continue looking - return this coin
             //estimate fee with change (outputs = 2)
             else if (outPoint.getValue().compareTo(totalAmount.add(FeeUtil.estimatedFee(1, 2, feePerKb))) >= 0) {
                 outputs.clear();
