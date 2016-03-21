@@ -1668,40 +1668,43 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
             public void onFail(String error) {
                 ToastCustom.makeText(context, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-//                ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-//
-//                //Initial send failed - Put send in queue for reattempt
-//                String direction = MultiAddrFactory.SENT;
-//                if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
-//
-//                SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, pendingSpend.note, true, this);
-//
-//                //Refresh BalanceFragment with the following - "placeholder" tx until websocket refreshes list
-//                final Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
-//                Bundle bundle = new Bundle();
-//                bundle.putLong("queued_bamount", (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-//                bundle.putString("queued_strNote", pendingSpend.note);
-//                bundle.putString("queued_direction", direction);
-//                bundle.putLong("queued_time", System.currentTimeMillis() / 1000);
-//                intent.putExtras(bundle);
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Looper.prepare();
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (Exception e) {
-//                        }//wait for broadcast receiver to register
-//                        LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
-//                        Looper.loop();
-//                    }
-//                }).start();
-//
-//                //Reset double encrypt for V2
-//                if (!pendingSpend.isHD) {
-//                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-//                }
+
+                if(!ConnectivityStatus.hasConnectivity(getActivity())) {
+                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+
+                    //Initial send failed - Put send in queue for reattempt
+                    String direction = MultiAddrFactory.SENT;
+                    if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
+
+                    SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, pendingSpend.note, true, this);
+
+                    //Refresh BalanceFragment with the following - "placeholder" tx until websocket refreshes list
+                    final Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
+                    Bundle bundle = new Bundle();
+                    bundle.putLong("queued_bamount", (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                    bundle.putString("queued_strNote", pendingSpend.note);
+                    bundle.putString("queued_direction", direction);
+                    bundle.putLong("queued_time", System.currentTimeMillis() / 1000);
+                    intent.putExtras(bundle);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                            }//wait for broadcast receiver to register
+                            LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                            Looper.loop();
+                        }
+                    }).start();
+                }
+
+                //Reset double encrypt for V2
+                if (!pendingSpend.isHD) {
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                }
 
                 closeDialog(alertDialog, true);
             }
