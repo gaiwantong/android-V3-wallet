@@ -37,7 +37,6 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.service.WebSocketService;
@@ -144,24 +143,24 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void updateTransferField(){
-        if (account != null) {
-            findViewById(R.id.transfer_container).setVisibility(View.GONE);
-        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
-
-            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-            //Subtract fee
-            long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
-
-            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
-                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
-            }else{
-                //No need to show 'transfer' if funds are less than dust amount
-                findViewById(R.id.transfer_container).setVisibility(View.GONE);
-            }
-        }else{
+//        if (account != null) {
+//            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+//        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
+//
+//            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+//            //Subtract fee
+//            long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+//
+//            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
+//                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
+//            }else{
+//                //No need to show 'transfer' if funds are less than dust amount
+//                findViewById(R.id.transfer_container).setVisibility(View.GONE);
+//            }
+//        }else{
             //No transfer option for V2
             findViewById(R.id.transfer_container).setVisibility(View.GONE);
-        }
+//        }
     }
 
     private void updateLabelField(){

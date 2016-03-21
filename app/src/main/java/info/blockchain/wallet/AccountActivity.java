@@ -259,17 +259,17 @@ public class AccountActivity extends AppCompatActivity {
         inflater.inflate(R.menu.account_activity_actions, menu);
         transferFundsMenuItem = menu.findItem(R.id.action_transfer_funds);
 
-        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
-
-            transferFundsMenuItem.setVisible(true);
-
-            if(PrefsUtil.getInstance(AccountActivity.this).getValue("WARN_TRANSFER_ALL", true)){
-                promptToTransferFunds(true);
-            }
-
-        }else{
+//        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
+//
+//            transferFundsMenuItem.setVisible(true);
+//
+//            if(PrefsUtil.getInstance(AccountActivity.this).getValue("WARN_TRANSFER_ALL", true)){
+//                promptToTransferFunds(true);
+//            }
+//
+//        }else{
             transferFundsMenuItem.setVisible(false);
-        }
+//        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -1373,10 +1373,10 @@ public class AccountActivity extends AppCompatActivity {
 
                 Looper.prepare();
 
-                int sendCount = 1;
+//                int sendCount = 1;
 //                for(PendingSpend pendingSpend : pendingSpendList){
 //
-//                    final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(-1, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO);
+//                    final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress, pendingSpend.bigIntAmount, BigInteger.ZERO, unspentApiString);
 //
 //                    boolean isLastSpend = false;
 //                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
