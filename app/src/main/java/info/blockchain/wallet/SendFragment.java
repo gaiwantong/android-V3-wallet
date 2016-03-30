@@ -1613,10 +1613,30 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 alertDialog.show();
 
+                //If custom fee set to more than 1.5 times the necessary fee
+                if (absoluteFeeUsed.doubleValue() > (absoluteFeeSuggested.doubleValue() * 1.5)) {
+                    promptHighFee(absoluteFeeUsed, absoluteFeeSuggested, alertDialog);
+                }
+
                 Looper.loop();
 
             }
         }).start();
+    }
+
+    private void promptHighFee(BigInteger customFee, BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getResources().getString(R.string.high_fee_not_necessary))
+                .setMessage(getResources().getString(R.string.high_fee_not_necessary_info)
+                        .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
+                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_continue, null).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (alertDialog.isShowing()) alertDialog.cancel();
+            }
+        }).show();
     }
 
     private void alertCustomSpend(BigInteger fee){
