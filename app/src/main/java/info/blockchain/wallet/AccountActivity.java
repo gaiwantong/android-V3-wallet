@@ -996,7 +996,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Looper.prepare();
-                JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress());
+                JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress(), "&limit=0");//limit 0 tx, since we only want final balance
 
                 long balance = 0l;
                 if (info != null)
