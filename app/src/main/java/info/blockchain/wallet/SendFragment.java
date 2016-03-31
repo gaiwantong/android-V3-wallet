@@ -265,6 +265,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         tvFeeUnits = (TextView) rootView.findViewById(R.id.tv_fee_unit);
 
         etCustomFee = (EditText) rootView.findViewById(R.id.custom_fee);
+        etCustomFee.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
         //As soon as the user customizes our suggested dynamic fee - hide (recommended)
         etCustomFee.addTextChangedListener(new TextWatcher() {
             @Override
@@ -1910,7 +1911,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private long getLongValue(String amountToSendString){
 
         String amountToSend = amountToSendString.replace(" ","").replace(defaultSeparator, ".");
-        return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(amountToSend))).multiply(BigDecimal.valueOf(100000000)).longValue());
+
+        double amount;
+        try{
+            amount = Double.parseDouble(amountToSend);
+        }catch (NumberFormatException nfe){
+            amount = 0.0;
+        }
+
+        return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
     }
 
     private boolean isValidAmount(BigInteger bAmount){
