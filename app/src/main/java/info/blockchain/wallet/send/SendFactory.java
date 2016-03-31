@@ -3,7 +3,6 @@ package info.blockchain.wallet.send;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Looper;
-import android.util.Log;
 
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -394,7 +393,7 @@ public class SendFactory {
         } else if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb))) >= 0) {
             ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb));
         }else{
-            ret.setRecommendedFee(FeeUtil.AVERAGE_FEE);
+            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), from.length, feePerKb));
         }
 
         return ret;
