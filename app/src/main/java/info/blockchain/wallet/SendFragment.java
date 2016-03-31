@@ -221,6 +221,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         sendFromSpinner.setSelection(0);
 
+        selectDefaultAccount();
+
         return rootView;
     }
 
@@ -980,8 +982,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             if (getArguments().getBoolean("incoming_from_scan", false)) {
                 ;
             }
-
-        selectDefaultAccount();
 
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
