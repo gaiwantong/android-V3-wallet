@@ -1,8 +1,8 @@
 package info.blockchain.wallet.send;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Looper;
-import android.util.Log;
 
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -11,10 +11,9 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.FeeUtil;
+import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.Hash;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bitcoinj.core.AddressFormatException;
@@ -26,6 +25,7 @@ import org.bitcoinj.core.Wallet;
 import org.bitcoinj.core.bip44.Address;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.spongycastle.util.encoders.Hex;
@@ -40,17 +40,15 @@ import java.util.Map;
 
 import piuk.blockchain.android.R;
 
-//import android.util.Log;
-
 /**
- * SendFactory.java : singleton class for spending from Blockchain Android HD wallet
+ * SendFactory.java : singleton class for spending fromAddresses Blockchain Android HD wallet
  */
 public class SendFactory {
 
     private static SendFactory instance = null;
     private static Context context = null;
-    private String[] from = null;
-    private HashMap<String, String> froms = null;
+    private String[] fromAddresses = null;
+    private HashMap<String, String> fromAddressPathMap = null;
     private boolean sentChange = false;
 
     private SendFactory() {
@@ -69,30 +67,24 @@ public class SendFactory {
     }
 
     /**
-     * Initial preparation for sending coins from this wallet. <p> Collects sending addresses for HD or legacy spend
-     * Collects unspent outputs from sending addresses <p> After calling this method alternate fee amounts may be
+     * Initial preparation for sending coins fromAddresses this wallet. <p> Collects sending addresses for HD or legacy spend
+     * Collects unspent outputs fromAddresses sending addresses <p> After calling this method alternate fee amounts may be
      * calculated based on the number of inputs.
      *
-     * @param int           accountIdx HD account index, -1 if legacy spend
-     * @param String        toAddress Receiving public address
-     * @param BigInteger    amount Spending amount (not including fee)
-     * @param LegacyAddress legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
-     * @param BigInteger    fee Miner's fee
-     * @param String        note Note to be attached to this tx
+     * @param address xpub or legacyAddress
+     * @param amount Spending amount (not including fee)
+     * @param feePerKb Miner's fee
      * @return UnspentOutputsBundle
      */
-    public UnspentOutputsBundle prepareSend(final int accountIdx, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note) {
+    public UnspentOutputsBundle prepareSend(final String address, final BigInteger amount, final BigInteger feePerKb, String unspentsApiResponse) throws Exception{
 
-        final boolean isHD = accountIdx == -1 ? false : true;
+        boolean isXpub = FormatsUtil.getInstance().isValidXpub(address);
 
-        final String xpub;
-
-        if (isHD) {
-            xpub = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getXpub();
+        if (isXpub) {
 
             HashMap<String, List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
-            List<String> data = unspentOutputs.get(xpub);
-            froms = new HashMap<String, String>();
+            List<String> data = unspentOutputs.get(address);
+            fromAddressPathMap = new HashMap<String, String>();
             if (data == null) {
                 return null;
             }
@@ -100,33 +92,27 @@ public class SendFactory {
                 if (f != null) {
                     String[] s = f.split(",");
                     // get path info which will be used to calculate private key
-                    froms.put(s[1], s[0]);
+                    fromAddressPathMap.put(s[1], s[0]);
                 }
             }
 
-            from = froms.keySet().toArray(new String[froms.keySet().size()]);
+            fromAddresses = fromAddressPathMap.keySet().toArray(new String[fromAddressPathMap.keySet().size()]);
         } else {
-            xpub = null;
-
-            froms = new HashMap<String, String>();
-            from = new String[1];
-            from[0] = legacyAddress.getAddress();
+            fromAddressPathMap = new HashMap<String, String>();
+            fromAddresses = new String[1];
+            fromAddresses[0] = address;
         }
 
         UnspentOutputsBundle ret;
-        try {
-            if (isHD) {
-                ret = getUnspentOutputPoints(true, new String[]{xpub}, amount.add(fee), fee);
-            } else {
-                if (AppUtil.getInstance(context).isNotUpgraded()) {
-                    List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
-                    from = addrs.toArray(new String[addrs.size()]);
-                }
-
-                ret = getUnspentOutputPoints(false, from, amount.add(fee), fee);
+        if (isXpub) {
+            ret = getUnspentOutputPoints(true, new String[]{address}, amount, feePerKb, unspentsApiResponse);
+        } else {
+            if (AppUtil.getInstance(context).isNotUpgraded()) {
+                List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
+                fromAddresses = addrs.toArray(new String[addrs.size()]);
             }
-        } catch (Exception e) {
-            return null;
+
+            ret = getUnspentOutputPoints(false, fromAddresses, amount, feePerKb, unspentsApiResponse);
         }
 
         if (ret == null || ret.getOutputs() == null) {
@@ -137,16 +123,16 @@ public class SendFactory {
     }
 
     /**
-     * Send coins from this wallet. <p> Creates transaction Assigns change address Signs tx
+     * Send coins fromAddresses this wallet. <p> Creates transaction Assigns change address Signs tx
      *
-     * @param int                         accountIdx HD account index, -1 if legacy spend
-     * @param List<MyTransactionOutPoint> unspent List of unspent outpoints
-     * @param String                      toAddress Receiving public address
-     * @param BigInteger                  amount Spending amount (not including fee)
-     * @param LegacyAddress               legacyAddress If legacy spend, spend from this LegacyAddress, otherwise null
-     * @param BigInteger                  fee Miner's fee
-     * @param String                      note Note to be attached to this tx
-     * @param OpCallback                  opc
+     * @param accountIdx HD account index, -1 if legacy spend
+     * @param unspent List of unspent outpoints
+     * @param toAddress Receiving public address
+     * @param amount Spending amount (not including fee)
+     * @param legacyAddress If legacy spend, spend fromAddresses this LegacyAddress, otherwise null
+     * @param fee Miner's fee
+     * @param note Note to be attached to this tx
+     * @param opc
      */
     public void execSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
 
@@ -174,9 +160,10 @@ public class SendFactory {
                         changeAddr = legacyAddress.getAddress();
                     }
                     pair = SendCoins.getInstance().makeTransaction(true, unspent, receivers, fee, changeAddr);
+
                     // Transaction cancelled
                     if (pair == null) {
-                        opc.onFail();
+                        opc.onFail("Transaction cancelled");
                         return;
                     }
                     Transaction tx = pair.getLeft();
@@ -190,7 +177,7 @@ public class SendFactory {
                         try {
                             String privStr = null;
                             if (isHD) {
-                                String path = froms.get(address);
+                                String path = fromAddressPathMap.get(address);
                                 String[] s = path.split("/");
                                 Address hd_address = null;
                                 if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
@@ -212,7 +199,7 @@ public class SendFactory {
                         if (walletKey != null) {
                             wallet.addKey(walletKey);
                         } else {
-                            opc.onFail();
+                            opc.onFail("walletKey null");
                         }
 
                     }
@@ -230,7 +217,7 @@ public class SendFactory {
                     SendCoins.getInstance().signTx(tx, wallet);
                     String hexString = SendCoins.getInstance().encodeHex(tx);
                     if (hexString.length() > (100 * 1024)) {
-                        opc.onFail();
+                        opc.onFail(context.getString(R.string.tx_length_error));
                         throw new Exception(context.getString(R.string.tx_length_error));
                     }
 
@@ -253,12 +240,10 @@ public class SendFactory {
                                 }
 
                             } else {
-                                ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                opc.onFail();
+                                opc.onFail(response);
                             }
                         } else {
-                            ToastCustom.makeText(context, context.getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                            opc.onFailPermanently();
+                            opc.onFailPermanently(context.getString(R.string.check_connectivity_exit));
                         }
                     } else {
                         // Queue tx
@@ -272,7 +257,7 @@ public class SendFactory {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    opc.onFailPermanently();
+                    opc.onFailPermanently(e.getMessage());
                 }
             }
         }).start();
@@ -282,12 +267,13 @@ public class SendFactory {
      * Collect unspent outputs for this spend. <p> Collects all unspent outputs for spending addresses, randomizes them,
      * and then selects outputs until amount of selected outputs >= totalAmount
      *
-     * @param boolean    isHD true == HD account spend, false == legacy address spend
-     * @param String[]   Sending addresses (contains 1 XPUB if HD spend, public address(es) if legacy spend
-     * @param BigInteger totalAmount Amount including fee
+     * @param isHD true == HD account spend, false == legacy address spend
+     * @param from (contains 1 XPUB if HD spend, public address(es) if legacy spend
+     * @param totalAmount Amount including fee
+     * @param feePerKb Fee per kb
      * @return UnspentOutputsBundle
      */
-    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount, BigInteger fee) throws Exception {
+    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount, BigInteger feePerKb, String unspentsApiResponse) throws Exception {
 
         UnspentOutputsBundle ret = new UnspentOutputsBundle();
 
@@ -306,16 +292,27 @@ public class SendFactory {
             args = buffer.toString();
         }
 
-        String response = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + args);
-//		Log.i("Unspent outputs", response);
-
         List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
 
-        Map<String, Object> root = (Map<String, Object>) JSONValue.parse(response);
+        Map<String, Object> root = (Map<String, Object>) JSONValue.parse(unspentsApiResponse);
         List<Map<String, Object>> outputsRoot = (List<Map<String, Object>>) root.get("unspent_outputs");
-        if (outputsRoot == null) {
-            return null;
+        if (outputsRoot == null || outputsRoot.size() == 0) {
+            throw new Exception("Unable to find confirmed funds.");
         }
+
+        if(root.containsKey("notice")) {
+            ret.setNotice(root.get("notice").toString());
+        }
+
+        long sweepAmount = 0;
+        ArrayList<BigInteger> coins = new ArrayList<>();
+        for (Map<String, Object> outDict : outputsRoot) {
+            sweepAmount += ((Number) outDict.get("value")).longValue();
+            coins.add(BigInteger.valueOf(((Number) outDict.get("value")).longValue()));//Debug
+        }
+//        Log.v("vos","Coins: "+coins.toString());
+//        Log.v("vos","Coins (sweepAmount): "+sweepAmount);
+        ret.setSweepAmount(BigInteger.valueOf(sweepAmount));
 
         BigInteger totalAvailableBalance = 	BigInteger.ZERO;
         for (Map<String, Object> outDict : outputsRoot) {
@@ -339,7 +336,7 @@ public class SendFactory {
                     JSONObject obj = (JSONObject) outDict.get("xpub");
                     if (obj.containsKey("path")) {
                         path = (String) obj.get("path");
-                        froms.put(address, path);
+                        fromAddressPathMap.put(address, path);
                     }
                 }
             }
@@ -347,32 +344,33 @@ public class SendFactory {
             // Construct the output
             MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
             outPoint.setConfirmations(confirmations);
-            // return single output >= totalValue, otherwise save for randomization
-            if (outPoint.getValue().compareTo(totalAmount) == 0) {
+
+            // Single output has been found that is exactly the amount we want to spend - no need to continue looking - return this coin
+            //estimate fee with no change (outputs = 1)
+            if (outPoint.getValue().compareTo(totalAmount.add(FeeUtil.estimatedFee(1, 1, feePerKb))) == 0) {
                 outputs.clear();
                 outputs.add(outPoint);
                 ret.setTotalAmount(outPoint.getValue());
                 ret.setOutputs(outputs);
-                ret.setRecommendedFee(totalAmount);
+                ret.setRecommendedFee(FeeUtil.estimatedFee(outputs.size(), 1, feePerKb));
                 return ret;
-            } else if (outPoint.getValue().compareTo(totalAmount.add(SendCoins.bDust)) >= 0) {
+
+            }
+            // Single output has been found that is higher than the amount we want to spend - no need to continue looking - return this coin
+            //estimate fee with change (outputs = 2)
+            else if (outPoint.getValue().compareTo(totalAmount.add(FeeUtil.estimatedFee(1, 2, feePerKb))) >= 0) {
                 outputs.clear();
                 outputs.add(outPoint);
                 ret.setTotalAmount(outPoint.getValue());
                 ret.setOutputs(outputs);
-                ret.setRecommendedFee(totalAmount);
+                ret.setRecommendedFee(FeeUtil.estimatedFee(outputs.size(), 2, feePerKb));
                 return ret;
+
             } else {
                 outputs.add(outPoint);
             }
 
         }
-
-        if (totalAvailableBalance.compareTo(totalAmount) < 0) {
-            ToastCustom.makeText(context, context.getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            return null;
-        }
-
 
         // select the minimum number of outputs necessary
         Collections.sort(outputs, new UnspentOutputAmountComparator());
@@ -381,23 +379,21 @@ public class SendFactory {
         for (MyTransactionOutPoint output : outputs) {
             totalValue = totalValue.add(output.getValue());
             _outputs.add(output);
-            if (totalValue.compareTo(totalAmount) == 0) {
+            if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb))) == 0) {
                 break;
-            } else if (totalValue.compareTo(totalAmount.add(SendCoins.bDust)) >= 0) {
+            } else if (totalValue.compareTo(totalAmount.add(SendCoins.bDust).add(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb))) >= 0) {
                 break;
-            } else {
-                ;
             }
         }
 
         ret.setTotalAmount(totalValue);
         ret.setOutputs(_outputs);
-
-        //TODO - We never use the below recommended fee
-        if (totalValue.compareTo(totalAmount.add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 1))) == 0) {
-            ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 1));
-        } else if (totalValue.compareTo(totalAmount.add(SendCoins.bDust).add(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2))) >= 0) {
-            ret.setRecommendedFee(FeeUtil.getInstance().getRecommendedFee(_outputs.size(), 2));
+        if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb))) == 0) {
+            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb));
+        } else if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb))) >= 0) {
+            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb));
+        }else{
+            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), from.length, feePerKb));
         }
 
         return ret;
@@ -446,4 +442,46 @@ public class SendFactory {
 
     }
 
+    public interface OnFeeSuggestListener{
+        void onFeeSuggested(SuggestedFee suggestedFee);
+    }
+
+    public void getSuggestedFee(final OnFeeSuggestListener onFeeSuggestListener){
+
+        new AsyncTask<Void, Void, SuggestedFee>() {
+
+            @Override
+            protected SuggestedFee doInBackground(Void... params) {
+
+                SuggestedFee suggestedFee = new SuggestedFee();
+
+                try {
+                    org.json.JSONObject dynamicFeeJson = FeeUtil.getDynamicFee();
+                    if(dynamicFeeJson != null){
+
+                        suggestedFee.feePerKb = BigInteger.valueOf(dynamicFeeJson.getLong("fee"));
+                        suggestedFee.isSuggestionAbnormallyHigh = dynamicFeeJson.getBoolean("surge");//We'll use this later to warn the user if the dynamic fee is too high
+                        suggestedFee.suggestSuccess = true;
+                    }else{
+                        suggestedFee.feePerKb = FeeUtil.AVERAGE_FEE;
+                        suggestedFee.suggestSuccess = false;
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    suggestedFee.feePerKb = FeeUtil.AVERAGE_FEE;
+                    suggestedFee.suggestSuccess = false;
+                }
+                return suggestedFee;
+            }
+
+            @Override
+            protected void onPostExecute(SuggestedFee suggestedFee) {
+
+                onFeeSuggestListener.onFeeSuggested(suggestedFee);
+                super.onPostExecute(suggestedFee);
+            }
+
+        }.execute();
+    }
 }

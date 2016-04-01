@@ -37,7 +37,6 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
-import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.service.WebSocketService;
@@ -45,6 +44,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -143,24 +143,24 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void updateTransferField(){
-        if (account != null) {
-            findViewById(R.id.transfer_container).setVisibility(View.GONE);
-        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
-
-            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-            //Subtract fee
-            long balanceAfterFee = (balance - SendCoins.bFee.longValue());
-
-            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
-                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
-            }else{
-                //No need to show 'transfer' if funds are less than dust amount
-                findViewById(R.id.transfer_container).setVisibility(View.GONE);
-            }
-        }else{
+//        if (account != null) {
+//            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+//        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
+//
+//            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+//            //Subtract fee
+//            long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+//
+//            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
+//                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
+//            }else{
+//                //No need to show 'transfer' if funds are less than dust amount
+//                findViewById(R.id.transfer_container).setVisibility(View.GONE);
+//            }
+//        }else{
             //No transfer option for V2
             findViewById(R.id.transfer_container).setVisibility(View.GONE);
-        }
+//        }
     }
 
     private void updateLabelField(){
@@ -1042,12 +1042,12 @@ public class AccountEditActivity extends AppCompatActivity {
 
         //Fee
         TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-        pendingSpend.bigIntFee = SendCoins.bFee;
+        pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
         confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
 
         //Total
         long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
-        long balanceAfterFee = (balance - SendCoins.bFee.longValue());
+        long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
         pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
         double btc_balance = (((double) balanceAfterFee) / 1e8);
@@ -1143,15 +1143,15 @@ public class AccountEditActivity extends AppCompatActivity {
 
                 Looper.prepare();
 
-                final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountEditActivity.this).prepareSend(-1, pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO, null);
-
-                if (unspents != null) {
-                    executeSend(pendingSpend, unspents);
-                } else {
-
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
+//                final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountEditActivity.this).prepareSend(-1, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO);
+//
+//                if (unspents != null) {
+//                    executeSend(pendingSpend, unspents);
+//                } else {
+//
+//                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+//                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+//                }
                 Looper.loop();
             }
         }).start();
@@ -1195,7 +1195,7 @@ public class AccountEditActivity extends AppCompatActivity {
                 }
             }
 
-            public void onFail() {
+            public void onFail(String error) {
 
                 //Reset double encrypt for V2
                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
@@ -1207,11 +1207,11 @@ public class AccountEditActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailPermanently() {
+            public void onFailPermanently(String error) {
 
                 //Reset double encrypt for V2
                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.send_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                ToastCustom.makeText(AccountEditActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
