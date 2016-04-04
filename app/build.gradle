@@ -50,9 +50,6 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'commons-codec:commons-codec:1.10'
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile('com.googlecode.json-simple:json-simple:1.1.1') {
-        exclude group: 'org.hamcrest', module: 'hamcrest-core'
-    }
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:recyclerview-v7:22.1.1'

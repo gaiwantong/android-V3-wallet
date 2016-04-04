@@ -25,9 +25,9 @@ import org.bitcoinj.core.Wallet;
 import org.bitcoinj.core.bip44.Address;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.params.MainNetParams;
+import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -294,47 +294,52 @@ public class SendFactory {
 
         List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
 
-        Map<String, Object> root = (Map<String, Object>) JSONValue.parse(unspentsApiResponse);
-        List<Map<String, Object>> outputsRoot = (List<Map<String, Object>>) root.get("unspent_outputs");
-        if (outputsRoot == null || outputsRoot.size() == 0) {
+        JSONObject root = new JSONObject(unspentsApiResponse);
+        JSONArray unspentsJsonArray = root.getJSONArray("unspent_outputs");
+        if (unspentsJsonArray == null || unspentsJsonArray.length() == 0) {
             throw new Exception("Unable to find confirmed funds.");
         }
 
-        if(root.containsKey("notice")) {
+        if(root.has("notice")) {
             ret.setNotice(root.get("notice").toString());
         }
 
         long sweepAmount = 0;
         ArrayList<BigInteger> coins = new ArrayList<>();
-        for (Map<String, Object> outDict : outputsRoot) {
-            sweepAmount += ((Number) outDict.get("value")).longValue();
-            coins.add(BigInteger.valueOf(((Number) outDict.get("value")).longValue()));//Debug
+        for (int i = 0; i < unspentsJsonArray.length(); i++) {
+
+            JSONObject unspentJson = unspentsJsonArray.getJSONObject(i);
+
+            sweepAmount += unspentJson.getLong("value");
+            coins.add(BigInteger.valueOf(unspentJson.getLong("value")));//Debug
         }
 //        Log.v("vos","Coins: "+coins.toString());
 //        Log.v("vos","Coins (sweepAmount): "+sweepAmount);
         ret.setSweepAmount(BigInteger.valueOf(sweepAmount));
 
         BigInteger totalAvailableBalance = 	BigInteger.ZERO;
-        for (Map<String, Object> outDict : outputsRoot) {
+        for (int i = 0; i < unspentsJsonArray.length(); i++) {
 
-            byte[] hashBytes = Hex.decode((String) outDict.get("tx_hash"));
+            JSONObject unspentJson = unspentsJsonArray.getJSONObject(i);
+
+            byte[] hashBytes = Hex.decode(unspentJson.getString("tx_hash"));
 
             Hash hash = new Hash(hashBytes);
             hash.reverse();
             Sha256Hash txHash = new Sha256Hash(hash.getBytes());
 
-            int txOutputN = ((Number) outDict.get("tx_output_n")).intValue();
-            BigInteger value = BigInteger.valueOf(((Number) outDict.get("value")).longValue());
+            int txOutputN = unspentJson.getInt("tx_output_n");
+            BigInteger value = BigInteger.valueOf(unspentJson.getLong("value"));
             totalAvailableBalance = totalAvailableBalance.add(value);
-            byte[] scriptBytes = Hex.decode((String) outDict.get("script"));
-            int confirmations = ((Number) outDict.get("confirmations")).intValue();
+            byte[] scriptBytes = Hex.decode(unspentJson.getString("script"));
+            int confirmations = unspentJson.getInt("confirmations");
 
             if (isHD) {
                 String address = new BitcoinScript(scriptBytes).getAddress().toString();
                 String path = null;
-                if (outDict.containsKey("xpub")) {
-                    JSONObject obj = (JSONObject) outDict.get("xpub");
-                    if (obj.containsKey("path")) {
+                if (unspentJson.has("xpub")) {
+                    JSONObject obj = (JSONObject) unspentJson.getJSONObject("xpub");
+                    if (obj.has("path")) {
                         path = (String) obj.get("path");
                         fromAddressPathMap.put(address, path);
                     }
