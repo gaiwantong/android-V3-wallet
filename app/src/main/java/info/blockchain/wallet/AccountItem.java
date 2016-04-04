@@ -9,13 +9,15 @@ public class AccountItem {
     String amount;
     boolean isArchived;
     boolean isWatchOnly;
+    boolean isDefault;
 
-    public AccountItem(String title, String amount, Drawable icon, boolean isArchived, boolean isWatchOnly) {
+    public AccountItem(String title, String amount, Drawable icon, boolean isArchived, boolean isWatchOnly, boolean isDefault) {
         this.title = title;
         this.amount = amount;
         this.icon = icon;
         this.isArchived = isArchived;
         this.isWatchOnly = isWatchOnly;
+        this.isDefault = isDefault;
     }
 
     public String getTitle() {
@@ -44,5 +46,13 @@ public class AccountItem {
 
     public void setIsWatchOnly(boolean isWatchOnly) {
         this.isWatchOnly = isWatchOnly;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }
