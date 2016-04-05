@@ -1054,6 +1054,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
      */
     private UnspentOutputsBundle getCoins(){
 
+        if(unspentApiResponse == null)return null;
+
         //Get from address(xpub or legacy) and unspent_api response
         String fromAddress = unspentApiResponse.first;
         String unspentApiString = unspentApiResponse.second;
