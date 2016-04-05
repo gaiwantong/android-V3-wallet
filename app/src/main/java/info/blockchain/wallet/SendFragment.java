@@ -1884,7 +1884,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if(unspentsCoinsBundle == null){
-            ToastCustom.makeText(getActivity(), "No confirmed funds to spend.", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(getActivity(), getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             return false;
         }
 
