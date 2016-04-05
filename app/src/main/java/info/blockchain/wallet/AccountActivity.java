@@ -583,9 +583,6 @@ public class AccountActivity extends AppCompatActivity {
         //accountsAndImportedList is linked to AccountAdapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         accountsAndImportedList.clear();
 
-        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-        Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
-
         int i = 0;
         if (PayloadFactory.getInstance().get().isUpgraded()) {
 
@@ -596,6 +593,9 @@ public class AccountActivity extends AppCompatActivity {
             if (accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
                 accountClone.remove(accountClone.size() - 1);
             }
+
+            int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+            Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
 
             int archivedCount = 0;
             for (; i < accountClone.size(); i++) {
