@@ -284,7 +284,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             public void afterTextChanged(Editable s) {
                 rootView.findViewById(R.id.tv_recommended).setVisibility(View.GONE);
                 unspentsCoinsBundle = getCoins();
-                long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+                long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
                 if(balanceAfterFee < 0) {
                     tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
@@ -1120,7 +1120,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             sweepAmount = unspentsCoinsBundle.getSweepAmount().longValue();
         }
 
-        return sweepAmount - absoluteFeeUsed.longValue();
+        //Check customized fee
+        if(!etCustomFee.getText().toString().isEmpty())
+            sweepAmount -= getCustomFee().longValue();
+
+        return sweepAmount;
     }
 
     private void displaySweepAmount(){
@@ -1901,7 +1905,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //Check after user edits fee (fee could bring balance into negative)
-        long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+        long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
         if(balanceAfterFee < 0){
             ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return false;
