@@ -212,15 +212,6 @@
                             android:maxLength="17"
                     />
 
-                    <TextView
-                            android:id="@+id/tv_recommended"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingRight="16dp"
-                            android:text="@string/recommended"
-                            android:alpha="0.7"
-                            android:textColor="@color/primary_text_default_material_light"/>
-
                 </LinearLayout>
 
             </LinearLayout>

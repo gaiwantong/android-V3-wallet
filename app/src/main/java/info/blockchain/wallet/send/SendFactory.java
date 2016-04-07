@@ -458,24 +458,32 @@ public class SendFactory {
             @Override
             protected SuggestedFee doInBackground(Void... params) {
 
-                SuggestedFee suggestedFee = new SuggestedFee();
+                SuggestedFee suggestedFee = null;
 
                 try {
-                    org.json.JSONObject dynamicFeeJson = FeeUtil.getDynamicFee();
+                    JSONObject dynamicFeeJson = FeeUtil.getDynamicFee();
                     if(dynamicFeeJson != null){
 
-                        suggestedFee.feePerKb = BigInteger.valueOf(dynamicFeeJson.getLong("fee"));
-                        suggestedFee.isSuggestionAbnormallyHigh = dynamicFeeJson.getBoolean("surge");//We'll use this later to warn the user if the dynamic fee is too high
-                        suggestedFee.suggestSuccess = true;
-                    }else{
-                        suggestedFee.feePerKb = FeeUtil.AVERAGE_FEE;
-                        suggestedFee.suggestSuccess = false;
+                        suggestedFee = new SuggestedFee();
+                        JSONObject defaultJson = dynamicFeeJson.getJSONObject("default");
+                        suggestedFee.defaultFeePerKb = BigInteger.valueOf(defaultJson.getLong("fee"));
+
+                        JSONArray estimateArray = dynamicFeeJson.getJSONArray("estimate");
+                        suggestedFee.estimateList = new ArrayList<SuggestedFee.Estimates>();
+                        for(int i = 0; i < estimateArray.length(); i++){
+
+                            JSONObject estimateJson = estimateArray.getJSONObject(i);
+
+                            BigInteger fee = BigInteger.valueOf(estimateJson.getLong("fee"));
+                            boolean surge = estimateJson.getBoolean("surge");
+                            boolean ok = estimateJson.getBoolean("ok");
+
+                            suggestedFee.estimateList.add(new SuggestedFee.Estimates(fee, surge, ok));
+                        }
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    suggestedFee.feePerKb = FeeUtil.AVERAGE_FEE;
-                    suggestedFee.suggestSuccess = false;
                 }
                 return suggestedFee;
             }
