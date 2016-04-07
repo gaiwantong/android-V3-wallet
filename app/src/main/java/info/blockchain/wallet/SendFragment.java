@@ -1933,6 +1933,10 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //Validate sufficient funds
+        if(unspentsCoinsBundle == null || unspentsCoinsBundle.getOutputs() == null){
+            ToastCustom.makeText(getActivity(), getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            return false;
+        }
         long amountToSendIncludingFee = pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue();
         if(pendingSpend.isHD){
             String xpub = pendingSpend.fromAccount.getXpub();
