@@ -505,4 +505,6 @@
     <string name="lower_to">Lower to [--dynamic_fee--]</string>
 
     <string name="no_confirmed_funds">No confirmed funds to spend.</string>
+    <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>
+    <string name="fee_too_low_no_confirm">Your fee is so small that your transaction may never be confirmed.</string>
 </resources>

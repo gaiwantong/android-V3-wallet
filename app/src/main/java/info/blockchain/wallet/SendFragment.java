@@ -55,6 +55,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
+import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -111,6 +112,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private MenuItem btSend;
     private TextView tvMax = null;
     private EditText etCustomFee = null;
+    private TextView tvEstimateConfirm = null;
     private TableLayout numpad;
 
     private Spinner sendFromSpinner = null;
@@ -147,8 +149,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private BigInteger absoluteFeeSuggested = FeeUtil.AVERAGE_FEE;//Will default to if not set
     private BigInteger absoluteFeeUsed = FeeUtil.AVERAGE_FEE;
 
-    private BigInteger absoluteFeeSuggestedFirstBlock = null;
-    private BigInteger absoluteFeeSuggestedLastSuggestedBlock = null;
+    private BigInteger[] absoluteFeeSuggestedEstimates = null;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -269,6 +270,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         tvMax = (TextView) rootView.findViewById(R.id.max);
         tvFeeUnits = (TextView) rootView.findViewById(R.id.tv_fee_unit);
 
+        tvEstimateConfirm = (TextView) rootView.findViewById(R.id.tv_estimate);
         etCustomFee = (EditText) rootView.findViewById(R.id.custom_fee);
         etCustomFee.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
         //As soon as the user customizes our suggested dynamic fee - hide (recommended)
@@ -284,7 +286,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(Editable customizedFee) {
                 unspentsCoinsBundle = getCoins();
                 long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
@@ -292,6 +294,19 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 }else{
                     tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                }
+
+                String likelyToConfirmMessage = getText(R.string.estimate_confirm_block_count).toString();
+                String unlikelyToConfirmMessage = getText(R.string.fee_too_low_no_confirm).toString();
+
+                // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
+                String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
+                tvEstimateConfirm.setText(estimateText);
+
+                if(estimateText.equals(unlikelyToConfirmMessage)){
+                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                }else{
+                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_blue));
                 }
 
                 displaySweepAmount();
@@ -1091,26 +1106,10 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         if(balanceAvailable > 0) {
 
             try {
-                if(suggestedFeeBundle != null){
-
-                    //Note! prepareSend() sets a global var, so unspents that will be used for tx needs to be called last.
-                    //This should be called just before tx confirmation but not possible with prepareSend()'s current state - TODO prepareSend() needs refactor
-
-                    BigInteger feePerKbFirstBlock = suggestedFeeBundle.estimateList.get(0).fee;
-                    BigInteger feePerKbLastSuggestedBlock = suggestedFeeBundle.estimateList.get(suggestedFeeBundle.estimateList.size()-1).fee;
-
-                    //Get first block absolute fee
-                    UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKbFirstBlock, unspentApiString);
-                    if(unspentsBundleFirstBlock != null){
-                        absoluteFeeSuggestedFirstBlock = unspentsBundleFirstBlock.getRecommendedFee();
-                    }
-
-                    //Get 6th block absolute fee
-                    UnspentOutputsBundle unspentsBundleLastSuggestedBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKbLastSuggestedBlock, unspentApiString);
-                    if(unspentsBundleLastSuggestedBlock != null){
-                        absoluteFeeSuggestedLastSuggestedBlock = unspentsBundleLastSuggestedBlock.getRecommendedFee();
-                    }
-                }
+                //Temporary fix
+                //Note! prepareSend() sets a global var, so unspents that will be used for tx needs to be called last.
+                //This should be called just before tx confirmation but not possible with prepareSend()'s current state - TODO prepareSend() needs refactor
+                setEstimatedBlocks(fromAddress, unspentApiString);
 
                 unspentsBundle = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
                 if(unspentsBundle != null) {
@@ -1131,6 +1130,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         return unspentsBundle;
+    }
+
+    private void setEstimatedBlocks(final String fromAddress, final String unspentApiString) throws Exception {
+        if(suggestedFeeBundle != null){
+
+            absoluteFeeSuggestedEstimates = new BigInteger[suggestedFeeBundle.estimateList.size()];
+
+            for(int i = 0; i < absoluteFeeSuggestedEstimates.length; i++){
+
+                BigInteger feePerKb = suggestedFeeBundle.estimateList.get(i).fee;
+
+                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
+                if(unspentsBundleFirstBlock != null){
+                    absoluteFeeSuggestedEstimates[i] = unspentsBundleFirstBlock.getRecommendedFee();
+                }
+            }
+        }
     }
 
     private long getSweepAmount(){
@@ -1632,14 +1648,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 alertDialog.show();
 
                 //If custom fee set to more than 1.5 times the necessary fee
-                if(suggestedFeeBundle !=null){
+                if(suggestedFeeBundle !=null && absoluteFeeSuggestedEstimates != null){
 
-                    if (absoluteFeeSuggestedFirstBlock != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedFirstBlock) > 0) {
-                        promptHighFee(absoluteFeeUsed, absoluteFeeSuggestedFirstBlock, alertDialog);
+                    if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[0]) > 0) {
+                        promptHighFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], alertDialog);
                     }
 
-                    if (absoluteFeeSuggestedLastSuggestedBlock != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedLastSuggestedBlock) < 0) {
-                        promptLowFee(absoluteFeeUsed, absoluteFeeSuggestedLastSuggestedBlock, alertDialog);
+                    if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
+                        promptLowFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], alertDialog);
                     }
                 }
 
