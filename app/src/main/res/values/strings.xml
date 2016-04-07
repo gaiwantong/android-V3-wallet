@@ -498,12 +498,14 @@
     <string name="high_fee_not_necessary_info">You specified an unusually high transaction fee of [--custom_fee--].\n\nEven if you lower the fee to [--dynamic_fee--], you can expect the transaction to confirm within the next ~10 minutes (1 block).</string>
 
     <string name="low_fee_not_recommended">Low Custom Fee Not Recommended</string>
-    <string name="low_fee_suggestion">You specified an exceptionally small transaction fee of [--custom_fee--]. Your transaction may become stuck and possibly never confirm. To increase the likelihood for your transaction to confirm within approximately one hour (6 blocks) we strongly recommend a fee of no less than [--dynamic_fee--].</string>
-    <string name="go_back">Go Back</string>
-    <string name="raise_to">Raise fee</string>
-    <string name="lower_to">Lower fee</string>
+    <string name="low_fee_suggestion">You specified an exceptionally small transaction fee of [--custom_fee--].\n\nYour transaction may become stuck and possibly never confirm. To increase the likelihood for your transaction to confirm within approximately one hour (6 blocks) we strongly recommend a fee of no less than [--dynamic_fee--].</string>
+    <string name="raise_fee">Raise fee</string>
+    <string name="lower_fee">Lower fee</string>
+    <string name="keep_high_fee">Keep high fee</string>
+    <string name="keep_low_fee">Keep low fee</string>
 
     <string name="no_confirmed_funds">No confirmed funds to spend.</string>
     <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>
     <string name="fee_too_low_no_confirm">Your fee is so small that your transaction may never be confirmed.</string>
+    <string name="transaction_surge">The Bitcoin mining network is currently experiencing a high volume of activity, resulting in recommended fees that are higher than usual.</string>
 </resources>
