@@ -499,10 +499,9 @@
 
     <string name="low_fee_not_recommended">Low Custom Fee Not Recommended</string>
     <string name="low_fee_suggestion">You specified an exceptionally small transaction fee of [--custom_fee--]. Your transaction may become stuck and possibly never confirm. To increase the likelihood for your transaction to confirm within approximately one hour (6 blocks) we strongly recommend a fee of no less than [--dynamic_fee--].</string>
-    <string name="continue_with_current_fee">Continue with current fee</string>
     <string name="go_back">Go Back</string>
-    <string name="raise_to">Raise to [--dynamic_fee--]</string>
-    <string name="lower_to">Lower to [--dynamic_fee--]</string>
+    <string name="raise_to">Raise fee</string>
+    <string name="lower_to">Lower fee</string>
 
     <string name="no_confirmed_funds">No confirmed funds to spend.</string>
     <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>

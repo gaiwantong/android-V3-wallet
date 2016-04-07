@@ -1673,10 +1673,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
                 .setCancelable(false)
 
-                .setNeutralButton(R.string.continue_with_current_fee, null)
+                .setPositiveButton(R.string.dialog_continue, null)
 
-                .setPositiveButton(getResources().getString(R.string.lower_to)
-                                .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC)
+                .setNegativeButton(getResources().getString(R.string.lower_to)
                         , new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -1689,7 +1688,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                             }
                         })
 
-                .setNegativeButton(R.string.go_back, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.go_back, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (alertDialog.isShowing()) alertDialog.cancel();
@@ -1705,10 +1704,9 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                         .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
                 .setCancelable(false)
 
-                .setNeutralButton(R.string.continue_with_current_fee, null)
+                .setPositiveButton(R.string.dialog_continue, null)
 
-                .setPositiveButton(getResources().getString(R.string.raise_to)
-                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC)
+                .setNegativeButton(getResources().getString(R.string.raise_to)
                         , new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1721,7 +1719,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
                 })
 
-                .setNegativeButton(R.string.go_back, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.go_back, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (alertDialog.isShowing()) alertDialog.cancel();
