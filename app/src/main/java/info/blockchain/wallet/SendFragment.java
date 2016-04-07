@@ -1651,11 +1651,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 if(suggestedFeeBundle !=null && absoluteFeeSuggestedEstimates != null){
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[0]) > 0) {
-                        promptHighFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.high_fee_not_necessary_info, R.string.lower_fee, alertDialog);
                     }
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
-                        promptLowFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.low_fee_suggestion, R.string.raise_fee, alertDialog);
                     }
                 }
 
@@ -1665,66 +1665,53 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }).start();
     }
 
-    private void promptHighFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
-        new AlertDialog.Builder(getActivity())
-                .setTitle(getResources().getString(R.string.high_fee_not_necessary))
-                .setMessage(getResources().getString(R.string.high_fee_not_necessary_info)
-                        .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
-                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
-                .setCancelable(false)
+    private void promptAlterFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int action, final AlertDialog confirmDialog) {
 
-                .setPositiveButton(R.string.dialog_continue, null)
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.alert_generic_warning, null);
+        dialogBuilder.setView(dialogView);
 
-                .setNegativeButton(getResources().getString(R.string.lower_to)
-                        , new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (alertDialog.isShowing()) alertDialog.cancel();
+        final AlertDialog alertDialogFee = dialogBuilder.create();
+        alertDialogFee.setCanceledOnTouchOutside(false);
 
-                                PendingSpend pendingSpend = getPendingSpendFromUIFields();
-                                pendingSpend.bigIntFee = absoluteFeeSuggested;
-                                absoluteFeeUsed = absoluteFeeSuggested;
-                                confirmPayment(pendingSpend);
-                            }
-                        })
+        TextView tvMessageBody = (TextView) dialogView.findViewById(R.id.tv_body);
+        tvMessageBody.setText(getResources().getString(body)
+                .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
+                .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC));
 
-                .setNeutralButton(R.string.go_back, new DialogInterface.OnClickListener() {
+        ImageView confirmBack = (ImageView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (alertDialog.isShowing()) alertDialog.cancel();
+            public void onClick(View v) {
+                if (alertDialogFee.isShowing()) alertDialogFee.cancel();
             }
-        }).show();
-    }
+        });
 
-    private void promptLowFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
-        new AlertDialog.Builder(getActivity())
-                .setTitle(getResources().getString(R.string.low_fee_not_recommended))
-                .setMessage(getResources().getString(R.string.low_fee_suggestion)
-                        .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
-                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
-                .setCancelable(false)
-
-                .setPositiveButton(R.string.dialog_continue, null)
-
-                .setNegativeButton(getResources().getString(R.string.raise_to)
-                        , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (alertDialog.isShowing()) alertDialog.cancel();
-
-                        PendingSpend pendingSpend = getPendingSpendFromUIFields();
-                        pendingSpend.bigIntFee = absoluteFeeSuggested;
-                        absoluteFeeUsed = absoluteFeeSuggested;
-                        confirmPayment(pendingSpend);
-                    }
-                })
-
-                .setNeutralButton(R.string.go_back, new DialogInterface.OnClickListener() {
+        TextView confirmKeep = (TextView) dialogView.findViewById(R.id.confirm_keep);
+        confirmKeep.setText(getResources().getString(R.string.keep_fee));
+        confirmKeep.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (alertDialog.isShowing()) alertDialog.cancel();
+            public void onClick(View v) {
+                if (alertDialogFee.isShowing()) alertDialogFee.cancel();
             }
-        }).show();
+        });
+
+        TextView confirmChange = (TextView) dialogView.findViewById(R.id.confirm_change);
+        confirmChange.setText(getResources().getString(action));
+        confirmChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialogFee.isShowing()) alertDialogFee.cancel();
+                if (confirmDialog.isShowing()) confirmDialog.cancel();
+
+                PendingSpend pendingSpend = getPendingSpendFromUIFields();
+                pendingSpend.bigIntFee = absoluteFeeSuggested;
+                absoluteFeeUsed = absoluteFeeSuggested;
+                confirmPayment(pendingSpend);
+            }
+        });
+        alertDialogFee.show();
     }
 
     private void alertCustomSpend(BigInteger fee){
