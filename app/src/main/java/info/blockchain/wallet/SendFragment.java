@@ -55,6 +55,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
+import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -111,6 +112,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private MenuItem btSend;
     private TextView tvMax = null;
     private EditText etCustomFee = null;
+    private TextView tvEstimateConfirm = null;
     private TableLayout numpad;
 
     private Spinner sendFromSpinner = null;
@@ -146,6 +148,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private UnspentOutputsBundle unspentsCoinsBundle;
     private BigInteger absoluteFeeSuggested = FeeUtil.AVERAGE_FEE;//Will default to if not set
     private BigInteger absoluteFeeUsed = FeeUtil.AVERAGE_FEE;
+
+    private BigInteger[] absoluteFeeSuggestedEstimates = null;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -266,6 +270,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         tvMax = (TextView) rootView.findViewById(R.id.max);
         tvFeeUnits = (TextView) rootView.findViewById(R.id.tv_fee_unit);
 
+        tvEstimateConfirm = (TextView) rootView.findViewById(R.id.tv_estimate);
         etCustomFee = (EditText) rootView.findViewById(R.id.custom_fee);
         etCustomFee.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
         //As soon as the user customizes our suggested dynamic fee - hide (recommended)
@@ -281,8 +286,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                rootView.findViewById(R.id.tv_recommended).setVisibility(View.GONE);
+            public void afterTextChanged(Editable customizedFee) {
                 unspentsCoinsBundle = getCoins();
                 long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
@@ -290,6 +294,19 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 }else{
                     tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                }
+
+                String likelyToConfirmMessage = getText(R.string.estimate_confirm_block_count).toString();
+                String unlikelyToConfirmMessage = getText(R.string.fee_too_low_no_confirm).toString();
+
+                // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
+                String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
+                tvEstimateConfirm.setText(estimateText);
+
+                if(estimateText.equals(unlikelyToConfirmMessage)){
+                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                }else{
+                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_blue));
                 }
 
                 displaySweepAmount();
@@ -1073,10 +1090,10 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             absoluteFee = getCustomFee();
             spendAmount = spendAmount.add(absoluteFee);
 
-        } else if(suggestedFeeBundle != null && suggestedFeeBundle.suggestSuccess) {
+        } else if(suggestedFeeBundle != null) {
             //Dynamic fee fetching successful
 //            Log.v("vos","---------------Calculate Dynamic Fee from per kb-----------------");
-            feePerKb = suggestedFeeBundle.feePerKb;
+            feePerKb = suggestedFeeBundle.defaultFeePerKb;
 
         }else{
             //If dynamic failed we'll use default. if absolute fee used, we need to add to spendAmount for coin selection
@@ -1088,11 +1105,12 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         UnspentOutputsBundle unspentsBundle = null;
         if(balanceAvailable > 0) {
 
-//            Log.v("vos","fromAddress: "+fromAddress);
-//            Log.v("vos","feePerKb: "+feePerKb+" absoluteFee: "+absoluteFee);
-//            Log.v("vos","spendAmount: "+spendAmount);
-
             try {
+                //Temporary fix
+                //Note! prepareSend() sets a global var, so unspents that will be used for tx needs to be called last.
+                //This should be called just before tx confirmation but not possible with prepareSend()'s current state - TODO prepareSend() needs refactor
+                setEstimatedBlocks(fromAddress, unspentApiString);
+
                 unspentsBundle = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
                 if(unspentsBundle != null) {
                     if (feePerKb.compareTo(BigInteger.ZERO) != 0) {
@@ -1112,6 +1130,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         return unspentsBundle;
+    }
+
+    private void setEstimatedBlocks(final String fromAddress, final String unspentApiString) throws Exception {
+        if(suggestedFeeBundle != null){
+
+            absoluteFeeSuggestedEstimates = new BigInteger[suggestedFeeBundle.estimateList.size()];
+
+            for(int i = 0; i < absoluteFeeSuggestedEstimates.length; i++){
+
+                BigInteger feePerKb = suggestedFeeBundle.estimateList.get(i).fee;
+
+                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
+                if(unspentsBundleFirstBlock != null){
+                    absoluteFeeSuggestedEstimates[i] = unspentsBundleFirstBlock.getRecommendedFee();
+                }
+            }
+        }
     }
 
     private long getSweepAmount(){
@@ -1516,8 +1551,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
                 //BTC Fee
                 final TextView tvFeeBtc = (TextView) dialogView.findViewById(R.id.confirm_fee_btc);
-                if(suggestedFeeBundle != null && suggestedFeeBundle.isSuggestionAbnormallyHigh)
-                    tvFeeBtc.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 tvFeeBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bigIntFee.longValue()));
 
                 TextView tvTotlaBtc = (TextView) dialogView.findViewById(R.id.confirm_total_btc);
@@ -1533,8 +1566,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 //Fiat Fee
                 TextView tvFeeFiat = (TextView) dialogView.findViewById(R.id.confirm_fee_fiat);
                 String feeFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
-                if(suggestedFeeBundle != null && suggestedFeeBundle.isSuggestionAbnormallyHigh)
-                    tvFeeFiat.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 tvFeeFiat.setText(feeFiat);
 
                 TextView tvTotalFiat = (TextView) dialogView.findViewById(R.id.confirm_total_fiat);
@@ -1562,10 +1593,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                                 etCustomFee.setHint(fee);
                                 etCustomFee.requestFocus();
                                 etCustomFee.setSelection(etCustomFee.getText().length());
-
-                                //If dynamic fee service is failing, don't display 'recommended'
-                                if(suggestedFeeBundle != null && !suggestedFeeBundle.suggestSuccess)
-                                    rootView.findViewById(R.id.tv_recommended).setVisibility(View.VISIBLE);
                             }
                         });
 
@@ -1621,8 +1648,15 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 alertDialog.show();
 
                 //If custom fee set to more than 1.5 times the necessary fee
-                if (absoluteFeeUsed.doubleValue() > (absoluteFeeSuggested.doubleValue() * 1.5)) {
-                    promptHighFee(absoluteFeeUsed, absoluteFeeSuggested, alertDialog);
+                if(suggestedFeeBundle !=null && absoluteFeeSuggestedEstimates != null){
+
+                    if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[0]) > 0) {
+                        promptHighFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], alertDialog);
+                    }
+
+                    if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
+                        promptLowFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], alertDialog);
+                    }
                 }
 
                 Looper.loop();
@@ -1631,14 +1665,63 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }).start();
     }
 
-    private void promptHighFee(BigInteger customFee, BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
+    private void promptHighFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
         new AlertDialog.Builder(getActivity())
                 .setTitle(getResources().getString(R.string.high_fee_not_necessary))
                 .setMessage(getResources().getString(R.string.high_fee_not_necessary_info)
                         .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
                         .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
                 .setCancelable(false)
-                .setPositiveButton(R.string.dialog_continue, null).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+
+                .setNeutralButton(R.string.continue_with_current_fee, null)
+
+                .setPositiveButton(getResources().getString(R.string.lower_to)
+                                .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC)
+                        , new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (alertDialog.isShowing()) alertDialog.cancel();
+
+                                PendingSpend pendingSpend = getPendingSpendFromUIFields();
+                                pendingSpend.bigIntFee = absoluteFeeSuggested;
+                                absoluteFeeUsed = absoluteFeeSuggested;
+                                confirmPayment(pendingSpend);
+                            }
+                        })
+
+                .setNegativeButton(R.string.go_back, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (alertDialog.isShowing()) alertDialog.cancel();
+            }
+        }).show();
+    }
+
+    private void promptLowFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, final AlertDialog alertDialog) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getResources().getString(R.string.low_fee_not_recommended))
+                .setMessage(getResources().getString(R.string.low_fee_suggestion)
+                        .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
+                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC))
+                .setCancelable(false)
+
+                .setNeutralButton(R.string.continue_with_current_fee, null)
+
+                .setPositiveButton(getResources().getString(R.string.raise_to)
+                        .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC)
+                        , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (alertDialog.isShowing()) alertDialog.cancel();
+
+                        PendingSpend pendingSpend = getPendingSpendFromUIFields();
+                        pendingSpend.bigIntFee = absoluteFeeSuggested;
+                        absoluteFeeUsed = absoluteFeeSuggested;
+                        confirmPayment(pendingSpend);
+                    }
+                })
+
+                .setNegativeButton(R.string.go_back, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (alertDialog.isShowing()) alertDialog.cancel();
@@ -1884,7 +1967,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //Validate sufficient fee TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
-        if(pendingSpend.bigIntFee.compareTo(SendCoins.bDust) <= 0){
+        if(pendingSpend.bigIntFee.longValue() < 1000){
             ToastCustom.makeText(getActivity(), getString(R.string.insufficient_fee), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return false;
         }
