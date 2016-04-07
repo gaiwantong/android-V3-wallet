@@ -286,7 +286,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public void afterTextChanged(Editable s) {
                 unspentsCoinsBundle = getCoins();
-                long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+                long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
                 if(balanceAfterFee < 0) {
                     tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
@@ -1056,6 +1056,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
      */
     private UnspentOutputsBundle getCoins(){
 
+        if(unspentApiResponse == null)return null;
+
         //Get from address(xpub or legacy) and unspent_api response
         String fromAddress = unspentApiResponse.first;
         String unspentApiString = unspentApiResponse.second;
@@ -1137,7 +1139,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             sweepAmount = unspentsCoinsBundle.getSweepAmount().longValue();
         }
 
-        return sweepAmount - absoluteFeeUsed.longValue();
+        //Check customized fee
+        if(!etCustomFee.getText().toString().isEmpty())
+            sweepAmount -= getCustomFee().longValue();
+
+        return sweepAmount;
     }
 
     private void displaySweepAmount(){
@@ -1951,7 +1957,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         if(unspentsCoinsBundle == null){
-            ToastCustom.makeText(getActivity(), "No confirmed funds to spend.", ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(getActivity(), getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
             return false;
         }
 
@@ -1966,7 +1972,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }
 
         //Check after user edits fee (fee could bring balance into negative)
-        long balanceAfterFee = (getSweepAmount() - absoluteFeeUsed.longValue());
+        long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
         if(balanceAfterFee < 0){
             ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return false;

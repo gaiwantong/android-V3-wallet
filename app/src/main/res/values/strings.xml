@@ -504,4 +504,5 @@
     <string name="raise_to">Raise to [--dynamic_fee--]</string>
     <string name="lower_to">Lower to [--dynamic_fee--]</string>
 
+    <string name="no_confirmed_funds">No confirmed funds to spend.</string>
 </resources>

@@ -64,6 +64,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.WebUtil;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -259,17 +260,17 @@ public class AccountActivity extends AppCompatActivity {
         inflater.inflate(R.menu.account_activity_actions, menu);
         transferFundsMenuItem = menu.findItem(R.id.action_transfer_funds);
 
-//        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
-//
-//            transferFundsMenuItem.setVisible(true);
-//
-//            if(PrefsUtil.getInstance(AccountActivity.this).getValue("WARN_TRANSFER_ALL", true)){
-//                promptToTransferFunds(true);
-//            }
-//
-//        }else{
+        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
+
+            transferFundsMenuItem.setVisible(true);
+
+            if(PrefsUtil.getInstance(AccountActivity.this).getValue("WARN_TRANSFER_ALL", true)){
+                promptToTransferFunds(true);
+            }
+
+        }else{
             transferFundsMenuItem.setVisible(false);
-//        }
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -583,9 +584,6 @@ public class AccountActivity extends AppCompatActivity {
         //accountsAndImportedList is linked to AccountAdapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
         accountsAndImportedList.clear();
 
-        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-        Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
-
         int i = 0;
         if (PayloadFactory.getInstance().get().isUpgraded()) {
 
@@ -596,6 +594,9 @@ public class AccountActivity extends AppCompatActivity {
             if (accountClone.get(accountClone.size() - 1) instanceof ImportedAccount) {
                 accountClone.remove(accountClone.size() - 1);
             }
+
+            int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+            Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
 
             int archivedCount = 0;
             for (; i < accountClone.size(); i++) {
@@ -1376,17 +1377,34 @@ public class AccountActivity extends AppCompatActivity {
 
                 Looper.prepare();
 
-//                int sendCount = 1;
-//                for(PendingSpend pendingSpend : pendingSpendList){
-//
-//                    final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress, pendingSpend.bigIntAmount, BigInteger.ZERO, unspentApiString);
-//
-//                    boolean isLastSpend = false;
-//                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
-//                    executeSend(pendingSpend, unspents, isLastSpend);
-//
-//                    sendCount++;
-//                }
+                int sendCount = 1;
+                for(PendingSpend pendingSpend : pendingSpendList){
+
+                    UnspentOutputsBundle unspents = null;
+                    try {
+                        String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
+                        unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    boolean isLastSpend = false;
+                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
+                    if(unspents != null){
+
+                        //Warn user of unconfirmed funds - but don't block payment
+                        if(unspents.getNotice() != null){
+                            ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        executeSend(pendingSpend, unspents, isLastSpend);
+
+                    } else {
+                        ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    }
+
+                    sendCount++;
+                }
 
                 Looper.loop();
             }

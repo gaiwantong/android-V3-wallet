@@ -269,30 +269,15 @@ public class SendFactory {
      *
      * @param isHD true == HD account spend, false == legacy address spend
      * @param from (contains 1 XPUB if HD spend, public address(es) if legacy spend
-     * @param totalAmount Amount including fee
+     * @param spendAmount Amount including fee
      * @param feePerKb Fee per kb
      * @return UnspentOutputsBundle
      */
-    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger totalAmount, BigInteger feePerKb, String unspentsApiResponse) throws Exception {
+    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger spendAmount, BigInteger feePerKb, String unspentsApiResponse) throws Exception {
 
         UnspentOutputsBundle ret = new UnspentOutputsBundle();
 
-        String args = null;
-        if (isHD) {
-            args = from[0];
-        } else {
-            StringBuffer buffer = new StringBuffer();
-            for (int i = 0; i < from.length; i++) {
-                buffer.append(from[i]);
-                if (i != (from.length - 1)) {
-                    buffer.append("|");
-                }
-            }
-
-            args = buffer.toString();
-        }
-
-        List<MyTransactionOutPoint> outputs = new ArrayList<MyTransactionOutPoint>();
+        List<MyTransactionOutPoint> unspentOutputsList = new ArrayList<MyTransactionOutPoint>();
 
         JSONObject root = new JSONObject(unspentsApiResponse);
         JSONArray unspentsJsonArray = root.getJSONArray("unspent_outputs");
@@ -305,19 +290,7 @@ public class SendFactory {
         }
 
         long sweepAmount = 0;
-        ArrayList<BigInteger> coins = new ArrayList<>();
-        for (int i = 0; i < unspentsJsonArray.length(); i++) {
 
-            JSONObject unspentJson = unspentsJsonArray.getJSONObject(i);
-
-            sweepAmount += unspentJson.getLong("value");
-            coins.add(BigInteger.valueOf(unspentJson.getLong("value")));//Debug
-        }
-//        Log.v("vos","Coins: "+coins.toString());
-//        Log.v("vos","Coins (sweepAmount): "+sweepAmount);
-        ret.setSweepAmount(BigInteger.valueOf(sweepAmount));
-
-        BigInteger totalAvailableBalance = 	BigInteger.ZERO;
         for (int i = 0; i < unspentsJsonArray.length(); i++) {
 
             JSONObject unspentJson = unspentsJsonArray.getJSONObject(i);
@@ -330,7 +303,8 @@ public class SendFactory {
 
             int txOutputN = unspentJson.getInt("tx_output_n");
             BigInteger value = BigInteger.valueOf(unspentJson.getLong("value"));
-            totalAvailableBalance = totalAvailableBalance.add(value);
+            sweepAmount += value.longValue();
+
             byte[] scriptBytes = Hex.decode(unspentJson.getString("script"));
             int confirmations = unspentJson.getInt("confirmations");
 
@@ -350,56 +324,29 @@ public class SendFactory {
             MyTransactionOutPoint outPoint = new MyTransactionOutPoint(txHash, txOutputN, value, scriptBytes);
             outPoint.setConfirmations(confirmations);
 
-            // Single output has been found that is exactly the amount we want to spend - no need to continue looking - return this coin
-            //estimate fee with no change (outputs = 1)
-            if (outPoint.getValue().compareTo(totalAmount.add(FeeUtil.estimatedFee(1, 1, feePerKb))) == 0) {
-                outputs.clear();
-                outputs.add(outPoint);
-                ret.setTotalAmount(outPoint.getValue());
-                ret.setOutputs(outputs);
-                ret.setRecommendedFee(FeeUtil.estimatedFee(outputs.size(), 1, feePerKb));
-                return ret;
-
-            }
-            // Single output has been found that is higher than the amount we want to spend - no need to continue looking - return this coin
-            //estimate fee with change (outputs = 2)
-            else if (outPoint.getValue().compareTo(totalAmount.add(FeeUtil.estimatedFee(1, 2, feePerKb))) >= 0) {
-                outputs.clear();
-                outputs.add(outPoint);
-                ret.setTotalAmount(outPoint.getValue());
-                ret.setOutputs(outputs);
-                ret.setRecommendedFee(FeeUtil.estimatedFee(outputs.size(), 2, feePerKb));
-                return ret;
-
-            } else {
-                outputs.add(outPoint);
-            }
-
+            unspentOutputsList.add(outPoint);
         }
 
         // select the minimum number of outputs necessary
-        Collections.sort(outputs, new UnspentOutputAmountComparator());
-        List<MyTransactionOutPoint> _outputs = new ArrayList<MyTransactionOutPoint>();
+        Collections.sort(unspentOutputsList, new UnspentOutputAmountComparator());
+        List<MyTransactionOutPoint> minimumUnspentOutputsList = new ArrayList<MyTransactionOutPoint>();
         BigInteger totalValue = BigInteger.ZERO;
-        for (MyTransactionOutPoint output : outputs) {
+        for (MyTransactionOutPoint output : unspentOutputsList) {
             totalValue = totalValue.add(output.getValue());
-            _outputs.add(output);
-            if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb))) == 0) {
+            minimumUnspentOutputsList.add(output);
+            if (totalValue.compareTo(spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 1, feePerKb))) == 0) {
                 break;
-            } else if (totalValue.compareTo(totalAmount.add(SendCoins.bDust).add(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb))) >= 0) {
+            } else if (totalValue.compareTo(spendAmount.add(SendCoins.bDust).add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb))) >= 0) {
                 break;
             }
         }
 
         ret.setTotalAmount(totalValue);
-        ret.setOutputs(_outputs);
-        if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb))) == 0) {
-            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), 1, feePerKb));
-        } else if (totalValue.compareTo(totalAmount.add(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb))) >= 0) {
-            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), 2, feePerKb));
-        }else{
-            ret.setRecommendedFee(FeeUtil.estimatedFee(_outputs.size(), from.length, feePerKb));
-        }
+        ret.setOutputs(minimumUnspentOutputsList);
+
+        //[multiple inputs, 2 outputs] - assume change
+        ret.setRecommendedFee(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb));
+        ret.setSweepAmount(BigInteger.valueOf(sweepAmount).subtract(FeeUtil.estimatedFee(unspentOutputsList.size(), 2, feePerKb)));
 
         return ret;
     }

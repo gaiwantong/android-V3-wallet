@@ -37,6 +37,7 @@ import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.service.WebSocketService;
@@ -49,6 +50,7 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.util.WebUtil;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -143,24 +145,24 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void updateTransferField(){
-//        if (account != null) {
-//            findViewById(R.id.transfer_container).setVisibility(View.GONE);
-//        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
-//
-//            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-//            //Subtract fee
-//            long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
-//
-//            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
-//                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
-//            }else{
-//                //No need to show 'transfer' if funds are less than dust amount
-//                findViewById(R.id.transfer_container).setVisibility(View.GONE);
-//            }
-//        }else{
+        if (account != null) {
+            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+        }else if (legacyAddress != null && PayloadFactory.getInstance().get().isUpgraded()){
+
+            long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+            //Subtract fee
+            long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+
+            if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
+                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
+            }else{
+                //No need to show 'transfer' if funds are less than dust amount
+                findViewById(R.id.transfer_container).setVisibility(View.GONE);
+            }
+        }else{
             //No transfer option for V2
             findViewById(R.id.transfer_container).setVisibility(View.GONE);
-//        }
+        }
     }
 
     private void updateLabelField(){
@@ -1143,15 +1145,31 @@ public class AccountEditActivity extends AppCompatActivity {
 
                 Looper.prepare();
 
-//                final UnspentOutputsBundle unspents = SendFactory.getInstance(AccountEditActivity.this).prepareSend(-1, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, BigInteger.ZERO);
-//
-//                if (unspents != null) {
-//                    executeSend(pendingSpend, unspents);
-//                } else {
-//
-//                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-//                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-//                }
+                UnspentOutputsBundle unspents = null;
+                try {
+
+                    String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
+                    unspents = SendFactory.getInstance(AccountEditActivity.this).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (unspents != null) {
+
+                    //Warn user of unconfirmed funds - but don't block payment
+                    if(unspents.getNotice() != null){
+                        ToastCustom.makeText(AccountEditActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    }
+
+                    executeSend(pendingSpend, unspents);
+
+                } else {
+
+                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    ToastCustom.makeText(AccountEditActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                }
+
                 Looper.loop();
             }
         }).start();
