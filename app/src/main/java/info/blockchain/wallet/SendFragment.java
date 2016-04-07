@@ -1568,6 +1568,23 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 String feeFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
                 tvFeeFiat.setText(feeFiat);
 
+                ImageView ivFeeInfo = (ImageView) dialogView.findViewById(R.id.iv_fee_info);
+                ivFeeInfo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.transaction_fee)
+                                .setMessage(getText(R.string.recommended_fee).toString()+"\n\n"+getText(R.string.transaction_surge).toString())
+                                .setPositiveButton(R.string.ok, null).show();
+                    }
+                });
+
+                if(suggestedFeeBundle != null && suggestedFeeBundle.isSurge){
+                    tvFeeBtc.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                    tvFeeFiat.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                    ivFeeInfo.setVisibility(View.VISIBLE);
+                }
+
                 TextView tvTotalFiat = (TextView) dialogView.findViewById(R.id.confirm_total_fiat);
                 BigInteger totalFiat = (pendingSpend.bigIntAmount.add(pendingSpend.bigIntFee));
                 String totalFiatS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (totalFiat.doubleValue() / 1e8)));
@@ -1651,11 +1668,11 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 if(suggestedFeeBundle !=null && absoluteFeeSuggestedEstimates != null){
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[0]) > 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.high_fee_not_necessary_info, R.string.lower_fee, alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.high_fee_not_necessary_info, R.string.lower_fee, R.string.keep_high_fee, alertDialog);
                     }
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.low_fee_suggestion, R.string.raise_fee, alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
                     }
                 }
 
@@ -1665,7 +1682,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         }).start();
     }
 
-    private void promptAlterFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int action, final AlertDialog confirmDialog) {
+    private void promptAlterFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int positiveAction, int negativeAction, final AlertDialog confirmDialog) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -1689,7 +1706,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         });
 
         TextView confirmKeep = (TextView) dialogView.findViewById(R.id.confirm_keep);
-        confirmKeep.setText(getResources().getString(R.string.keep_fee));
+        confirmKeep.setText(getResources().getString(negativeAction));
         confirmKeep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1698,7 +1715,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
         });
 
         TextView confirmChange = (TextView) dialogView.findViewById(R.id.confirm_change);
-        confirmChange.setText(getResources().getString(action));
+        confirmChange.setText(getResources().getString(positiveAction));
         confirmChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

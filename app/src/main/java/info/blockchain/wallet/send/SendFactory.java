@@ -414,6 +414,7 @@ public class SendFactory {
                         suggestedFee = new SuggestedFee();
                         JSONObject defaultJson = dynamicFeeJson.getJSONObject("default");
                         suggestedFee.defaultFeePerKb = BigInteger.valueOf(defaultJson.getLong("fee"));
+                        suggestedFee.isSurge = defaultJson.getBoolean("surge");
 
                         JSONArray estimateArray = dynamicFeeJson.getJSONArray("estimate");
                         suggestedFee.estimateList = new ArrayList<SuggestedFee.Estimates>();

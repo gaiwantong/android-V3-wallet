@@ -7,6 +7,7 @@ public class SuggestedFee {
 
     public BigInteger defaultFeePerKb;
     public ArrayList<Estimates> estimateList;
+    public boolean isSurge;
 
     @Override
     public String toString() {
