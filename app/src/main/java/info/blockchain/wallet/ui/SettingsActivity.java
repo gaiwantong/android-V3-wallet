@@ -217,7 +217,10 @@ public class SettingsActivity extends PreferenceActivity {
             root.addView(bar);
         }
 
+        //TODO - don't use NoActionBar in styles.xml (affects BalanceFragment, so don't just edit styles.xml)
         bar.setTitle(getResources().getString(R.string.action_settings));
+        bar.setTitleTextColor(getResources().getColor(R.color.white));
+        bar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
         bar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
