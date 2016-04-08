@@ -68,7 +68,6 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
-import info.blockchain.wallet.ui.helpers.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.json.JSONException;
@@ -668,7 +667,6 @@ public class BalanceFragment extends Fragment {
         noTxMessage.setVisibility(View.GONE);
 
         tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
-        tvBalance1.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
 
         //Elevation compat
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -1222,15 +1220,12 @@ public class BalanceFragment extends Fragment {
                 View txTouchView = holder.itemView.findViewById(R.id.tx_touch_view);
 
                 TextView tvResult = (TextView) holder.itemView.findViewById(R.id.result);
-                tvResult.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
                 tvResult.setTextColor(Color.WHITE);
 
                 TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-                tvTS.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
                 tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
 
                 TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
-                tvDirection.setTypeface(TypefaceUtil.getInstance(thisActivity).getRobotoTypeface());
                 String dirText = tx.getDirection();
                 if (dirText.equals(MultiAddrFactory.MOVED))
                     tvDirection.setText(getResources().getString(R.string.MOVED));

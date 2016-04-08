@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,15 +15,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.ui.helpers.TypefaceUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,10 +65,6 @@ public class ManualPairingFragment extends Fragment {
                 }
             }
         });
-
-        Typeface typeface = TypefaceUtil.getInstance(getActivity()).getRobotoTypeface();
-        edGuid.setTypeface(typeface);
-        edPassword.setTypeface(typeface);
 
         return rootView;
     }

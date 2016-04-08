@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,15 +19,14 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.ui.helpers.TypefaceUtil;
 
 import org.bitcoinj.crypto.MnemonicException;
 
@@ -78,9 +76,7 @@ public class PinEntryActivity extends Activity {
         }
 
         // Set title state
-        Typeface typeface = TypefaceUtil.getInstance(this).getRobotoTypeface();
         titleView = (TextView) findViewById(R.id.titleBox);
-        titleView.setTypeface(typeface);
         if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
 
             titleView.setText(R.string.create_pin);

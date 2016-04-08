@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.ui.helpers.TypefaceUtil;
 import info.blockchain.wallet.util.AppUtil;
 
 import piuk.blockchain.android.BuildConfig;
@@ -46,10 +45,8 @@ public class SupportActivity extends AppCompatActivity {
         });
 
         TextView header = (TextView) findViewById(R.id.my_wallet_id_header);
-        header.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         TextView walletId = (TextView) findViewById(R.id.wallet_id);
-        walletId.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         final String guid = PayloadFactory.getInstance().get().getGuid();
         walletId.setText(guid);
@@ -84,10 +81,8 @@ public class SupportActivity extends AppCompatActivity {
         });
 
         TextView newSupportRequest = (TextView) findViewById(R.id.new_support_request);
-        newSupportRequest.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         TextView emailAction = (TextView) findViewById(R.id.email_action);
-        emailAction.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         emailAction.setOnClickListener(new View.OnClickListener() {
             @Override
