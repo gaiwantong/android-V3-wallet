@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
+
 import piuk.blockchain.android.R;
 
 public class SSLVerifierThreadUtil {

@@ -3,8 +3,9 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import info.blockchain.wallet.HDPayloadBridge;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;

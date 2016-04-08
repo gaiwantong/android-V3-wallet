@@ -4,6 +4,8 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.robotium.solo.Solo;
 
+import info.blockchain.wallet.ui.MainActivity;
+
 public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo = null;

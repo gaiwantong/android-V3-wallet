@@ -28,7 +28,7 @@
             android:theme="@style/AppTheme">
 
         <activity
-                android:name="info.blockchain.wallet.MainActivity"
+                android:name="info.blockchain.wallet.ui.MainActivity"
                 android:label="@string/app_name"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:windowSoftInputMode="adjustPan">
@@ -47,24 +47,24 @@
 
         </activity>
 
-        <activity android:name="info.blockchain.wallet.SettingsActivity"
+        <activity android:name="info.blockchain.wallet.ui.SettingsActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.PinEntryActivity"
+        <activity android:name="info.blockchain.wallet.ui.PinEntryActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.LandingActivity"
+        <activity android:name="info.blockchain.wallet.ui.LandingActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.PairOrCreateWalletActivity"
+        <activity android:name="info.blockchain.wallet.ui.PairOrCreateWalletActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"
                   android:windowSoftInputMode="adjustResize"/>
 
-        <activity android:name="info.blockchain.wallet.AboutActivity"
+        <activity android:name="info.blockchain.wallet.ui.AboutActivity"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.Dialog"/>
 
@@ -77,27 +77,27 @@
         <activity android:name="info.blockchain.merchant.directory.SuggestMerchant"
                   android:label="@string/app_name"/>
 
-        <activity android:name="info.blockchain.wallet.AccountActivity"
+        <activity android:name="info.blockchain.wallet.ui.AccountActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.AccountEditActivity"
+        <activity android:name="info.blockchain.wallet.ui.AccountEditActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.SupportActivity"
+        <activity android:name="info.blockchain.wallet.ui.SupportActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.BackupWalletActivity"
+        <activity android:name="info.blockchain.wallet.ui.BackupWalletActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.ConfirmationCodeActivity"
+        <activity android:name="info.blockchain.wallet.ui.ConfirmationCodeActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.UpgradeWalletActivity"
+        <activity android:name="info.blockchain.wallet.ui.UpgradeWalletActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
@@ -105,7 +105,7 @@
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <activity android:name="info.blockchain.wallet.PolicyActivity"
+        <activity android:name="info.blockchain.wallet.ui.PolicyActivity"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.Dialog"/>
 
@@ -113,7 +113,7 @@
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
-        <service android:name="info.blockchain.wallet.service.WebSocketService"/>
+        <service android:name="info.blockchain.wallet.websocket.WebSocketService"/>
 
         <meta-data
                 android:name="com.google.android.maps.v2.API_KEY"
@@ -126,7 +126,7 @@
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version"/>
 
-        <receiver android:name="info.blockchain.wallet.NetworkStateReceiver">
+        <receiver android:name="info.blockchain.wallet.connectivity.NetworkStateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>

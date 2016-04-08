@@ -12,7 +12,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -37,10 +36,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import info.blockchain.wallet.listeners.OnSwipeTouchListener;
+import info.blockchain.wallet.ui.helpers.OnSwipeTouchListener;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.ui.helpers.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import java.text.NumberFormat;
