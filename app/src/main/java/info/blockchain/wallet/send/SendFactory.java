@@ -48,7 +48,7 @@ public class SendFactory {
     private static SendFactory instance = null;
     private static Context context = null;
     private String[] fromAddresses = null;
-    private HashMap<String, String> fromAddressPathMap = null;
+    public HashMap<String, String> fromAddressPathMap = null;
     private boolean sentChange = false;
 
     private SendFactory() {
@@ -273,7 +273,7 @@ public class SendFactory {
      * @param feePerKb Fee per kb
      * @return UnspentOutputsBundle
      */
-    private UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger spendAmount, BigInteger feePerKb, String unspentsApiResponse) throws Exception {
+    public UnspentOutputsBundle getUnspentOutputPoints(boolean isHD, String[] from, BigInteger spendAmount, BigInteger feePerKb, String unspentsApiResponse) throws Exception {
 
         UnspentOutputsBundle ret = new UnspentOutputsBundle();
 
@@ -331,12 +331,39 @@ public class SendFactory {
         Collections.sort(unspentOutputsList, new UnspentOutputAmountComparator());
         List<MyTransactionOutPoint> minimumUnspentOutputsList = new ArrayList<MyTransactionOutPoint>();
         BigInteger totalValue = BigInteger.ZERO;
+        int outputCount = 2;
         for (MyTransactionOutPoint output : unspentOutputsList) {
             totalValue = totalValue.add(output.getValue());
             minimumUnspentOutputsList.add(output);
-            if (totalValue.compareTo(spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 1, feePerKb))) == 0) {
+
+            /*
+            Dust inclusion removed to match up with js
+             */
+//            //No change = 1 output
+//            BigInteger spendAmountNoChange = spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 1, feePerKb));
+//            if (spendAmountNoChange.compareTo(totalValue) <= 0 && spendAmountNoChange.compareTo(totalValue.subtract(SendCoins.bDust)) >= 0) {
+//                outputCount = 1;
+//                break;
+//            }
+//
+//            //Expect change = 2 outputs
+//            BigInteger spendAmountWithChange = spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb));
+//            if (totalValue.subtract(SendCoins.bDust).compareTo(spendAmountWithChange) >= 0) {
+//                outputCount = 2;//[multiple inputs, 2 outputs] - assume change
+//                break;
+//            }
+
+            //No change = 1 output
+            BigInteger spendAmountNoChange = spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 1, feePerKb));
+            if (spendAmountNoChange.compareTo(totalValue) == 0) {
+                outputCount = 1;
                 break;
-            } else if (totalValue.compareTo(spendAmount.add(SendCoins.bDust).add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb))) >= 0) {
+            }
+
+            //Expect change = 2 outputs
+            BigInteger spendAmountWithChange = spendAmount.add(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb));
+            if (totalValue.compareTo(spendAmountWithChange) >= 0) {
+                outputCount = 2;//[multiple inputs, 2 outputs] - assume change
                 break;
             }
         }
@@ -344,9 +371,8 @@ public class SendFactory {
         ret.setTotalAmount(totalValue);
         ret.setOutputs(minimumUnspentOutputsList);
 
-        //[multiple inputs, 2 outputs] - assume change
-        ret.setRecommendedFee(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), 2, feePerKb));
-        ret.setSweepAmount(BigInteger.valueOf(sweepAmount).subtract(FeeUtil.estimatedFee(unspentOutputsList.size(), 2, feePerKb)));
+        ret.setRecommendedFee(FeeUtil.estimatedFee(minimumUnspentOutputsList.size(), outputCount, feePerKb));
+        ret.setSweepAmount(BigInteger.valueOf(sweepAmount).subtract(FeeUtil.estimatedFee(unspentOutputsList.size(), outputCount, feePerKb)));
 
         return ret;
     }

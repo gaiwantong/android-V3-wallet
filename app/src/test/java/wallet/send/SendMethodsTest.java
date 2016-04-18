@@ -2,7 +2,9 @@ package wallet.send;
 
 import android.content.Context;
 
+import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
+import info.blockchain.wallet.send.UnspentOutputsBundle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+
+import wallet.test_data.UnspentTestData;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -65,4 +70,88 @@ public class SendMethodsTest {
         assertThat(result, is("Estimated confirmation time: ~10 minutes (1 blocks)"));
     }
 
+    @Test
+    public void getUnspentOutputPointsTest(){
+
+        try {
+            SendFactory instance = SendFactory.getInstance(mMockContext);
+            instance.fromAddressPathMap = new HashMap<>();
+
+            UnspentOutputsBundle unspentOutputPoints = null;
+            BigInteger spendAmount = BigInteger.ZERO;
+            BigInteger feePerKb = BigInteger.valueOf(30000l);
+            BigInteger dust = BigInteger.valueOf(5460);
+            int inputs = 0;
+            int outputs = 0;
+
+            //First coin minus fee
+            inputs = 1;
+            outputs = 1;
+            spendAmount = BigInteger.valueOf(80000l - 5760l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            /*
+            Dust inclusion removed to match up with js
+             */
+//            //First coin minus fee, add dust to test if consumed
+//            inputs = 1;
+//            outputs = 1;
+//            spendAmount = BigInteger.valueOf(80000l - 5760l - dust.longValue());
+//            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+//            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+//            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+//
+//            //First coin minus fee, add a bit more than dust to push it to 2 expected outputs
+//            inputs = 1;
+//            outputs = 2;
+//            spendAmount = BigInteger.valueOf(80000l - 5760l - (dust.longValue()*2));
+//            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+//            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+//            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            //First coin should use 2 inputs and expect change because fee must still be included
+            inputs = 2;
+            outputs = 2;
+            spendAmount = BigInteger.valueOf(80000l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            //Two coins minus fee should be exactly 2 inputs and expect no change
+            inputs = 2;
+            outputs = 1;
+            spendAmount = BigInteger.valueOf(150000l - 10200l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            inputs = 3;
+            outputs = 2;
+            spendAmount = BigInteger.valueOf(150000l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            inputs = 5;
+            outputs = 2;
+            spendAmount = BigInteger.valueOf(260000l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+            //5 inputs, but fee of 24540l pushes to 6 inputs
+            inputs = 6;
+            outputs = 2;
+            spendAmount = BigInteger.valueOf(280000l);
+            unspentOutputPoints = instance.getUnspentOutputPoints(true, null, spendAmount, feePerKb, UnspentTestData.apiResponseString);
+            assertThat(unspentOutputPoints.getOutputs().size(), is(inputs));
+            assertThat(unspentOutputPoints.getRecommendedFee().longValue(), is(UnspentTestData.feeMap.get(outputs)[inputs]));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }
