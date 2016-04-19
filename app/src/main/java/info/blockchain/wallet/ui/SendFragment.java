@@ -289,28 +289,31 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             @Override
             public void afterTextChanged(Editable customizedFee) {
                 unspentsCoinsBundle = getCoins();
-                long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
-                if(balanceAfterFee < 0) {
-                    tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
-                }else{
-                    tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                if(unspentsCoinsBundle != null) {
+                    long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
+
+                    if (balanceAfterFee < 0) {
+                        tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                    } else {
+                        tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                    }
+
+                    String likelyToConfirmMessage = getText(R.string.estimate_confirm_block_count).toString();
+                    String unlikelyToConfirmMessage = getText(R.string.fee_too_low_no_confirm).toString();
+
+                    // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
+                    String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
+                    tvEstimateConfirm.setText(estimateText);
+
+                    if (estimateText.equals(unlikelyToConfirmMessage)) {
+                        tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                    } else {
+                        tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_blue));
+                    }
+
+                    displaySweepAmount();
                 }
-
-                String likelyToConfirmMessage = getText(R.string.estimate_confirm_block_count).toString();
-                String unlikelyToConfirmMessage = getText(R.string.fee_too_low_no_confirm).toString();
-
-                // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
-                String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
-                tvEstimateConfirm.setText(estimateText);
-
-                if(estimateText.equals(unlikelyToConfirmMessage)){
-                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_send_red));
-                }else{
-                    tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_blue));
-                }
-
-                displaySweepAmount();
             }
         });
 

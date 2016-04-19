@@ -497,6 +497,8 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
 
     private void doScanInput(String address) {
 
+        address = address.trim();
+
         String btc_address = null;
         String btc_amount = null;
 

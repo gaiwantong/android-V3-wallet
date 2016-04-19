@@ -13,8 +13,8 @@ android {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 206
-        versionName "6.1.15"
+        versionCode 207
+        versionName "6.1.16"
         multiDexEnabled true
     }
     buildTypes {
@@ -68,4 +68,8 @@ dependencies {
     androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
     testCompile 'org.mockito:mockito-all:2.0.2-beta'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
+
+    //Classes from the android framework won't work in local jvm unit tests. Added below for unit test purposes only
+    testCompile 'org.json:json:20140107'
+    testCompile 'org.slf4j:slf4j-simple:1.7.13'
 }
