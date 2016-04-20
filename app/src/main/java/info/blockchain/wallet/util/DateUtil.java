@@ -48,27 +48,24 @@ public class DateUtil {
 
         long yesterdayEnd = getDayEnd(now - hours24);
         long yesterdayStart = getDayStart(now - hours24);
-//        long yearStart = getYearStart(now);//TODO
+        long yearStart = getYearStart(now);
 
-        // today
         if (date > yesterdayEnd) {
+            //today
             ret = (String) DateUtils.getRelativeTimeSpanString(date, now, DateUtils.SECOND_IN_MILLIS, 0);
-        }
-        // yesterday
-        else if (date < yesterdayEnd && date > yesterdayStart) {
+
+        }else if (date <= yesterdayEnd && date >= yesterdayStart) {
+            //yesterday
             ret = context.getString(R.string.YESTERDAY);
-        }
 
-        //TODO - add year if in previous year - Below to be tested
-//        else if(date < yearStart){
-//            String year = calThen.getDisplayName(Calendar.YEAR, Calendar.LONG, Locale.getDefault());
-//            String month = calThen.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-//            String day = calThen.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
-//            ret = month + " " + thenDay+", "+year;
-//        }
+        }else if(date < yearStart){
+            //previous years
+            int year = calThen.get(Calendar.YEAR);
+            String month = calThen.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            ret = month + " " + thenDay+", "+year;
 
-        // within current year
-        else{
+        }else{
+            //this year
             String month = calThen.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             String day = calThen.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
             ret = month + " " + thenDay;
