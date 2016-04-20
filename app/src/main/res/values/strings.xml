@@ -508,4 +508,6 @@
     <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>
     <string name="fee_too_low_no_confirm">Your fee is so small that your transaction may never be confirmed.</string>
     <string name="transaction_surge">The Bitcoin mining network is currently experiencing a high volume of activity, resulting in recommended fees that are higher than usual.</string>
+    <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
+    <string name="logout">Logout</string>
 </resources>

@@ -269,39 +269,62 @@ public class PinEntryActivity extends Activity {
                         PayloadFactory.getInstance().setTempPassword(pw);
                         AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
 
-                        if (AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
-                                (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
-                                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
-                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                        double walletVersion = PayloadFactory.getInstance().getVersion();
 
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                dismissProgressView();
+                        if(walletVersion > PayloadFactory.SUPPORTED_ENCRYPTION_VERSION){
 
-                                try {
-                                    int previousVersionCode = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
-                                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                            new AlertDialog.Builder(PinEntryActivity.this)
+                                    .setTitle(R.string.warning)
+                                    .setMessage(getString(R.string.unsupported_encryption_version).replace("[--version--]",walletVersion+""))
+                                    .setCancelable(false)
+                                    .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            AppUtil.getInstance(PinEntryActivity.this).logout();
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                                            AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                                        }
+                                    }).show();
+                        }else {
 
-                                    //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
-                                    if(previousVersionCode != packageInfo.versionCode) {
-                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
-                                        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
+                            if (AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
+                                    (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
+                                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
+                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dismissProgressView();
+
+                                    try {
+                                        int previousVersionCode = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
+                                        PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+
+                                        //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
+                                        if (previousVersionCode != packageInfo.versionCode) {
+                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
+                                        }
+
+                                    } catch (PackageManager.NameNotFoundException e) {
+                                        e.printStackTrace();
                                     }
 
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    e.printStackTrace();
+                                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
+                                        Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
+                                    } else {
+                                        AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
+                                    }
                                 }
-
-                                if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
-                                    Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                } else {
-                                    AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
-                                }
-                            }
-                        });
+                            });
+                        }
                     } else {
                         dismissProgressView();
                         AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
