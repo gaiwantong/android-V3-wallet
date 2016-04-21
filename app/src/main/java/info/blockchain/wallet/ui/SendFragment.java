@@ -2048,14 +2048,14 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
             //HD
             if (xpub != null && MultiAddrFactory.getInstance().getXpubAmounts().containsKey(xpub)) {
                 long xpubBalance = MultiAddrFactory.getInstance().getXpubAmounts().get(xpub);
-                if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amountToSendIncludingFee).longValue()) > xpubBalance) {
+                if (amountToSendIncludingFee > xpubBalance) {
                     return false;
                 }
             }
         } else {
             //Legacy
             long legacyAddressBalance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress);
-            if ((MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amountToSendIncludingFee).longValue()) > legacyAddressBalance) {
+            if (amountToSendIncludingFee > legacyAddressBalance) {
                 return false;
             }
         }

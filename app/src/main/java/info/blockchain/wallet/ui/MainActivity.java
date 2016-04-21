@@ -514,7 +514,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
             btc_amount = FormatsUtil.getInstance().getBitcoinAmount(address);
         } else {
             ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            AppUtil.getInstance(MainActivity.this).restartApp();
             return;
         }
 
