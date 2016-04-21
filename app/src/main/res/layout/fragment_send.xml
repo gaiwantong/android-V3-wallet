@@ -93,7 +93,7 @@
                             android:textColor="@color/primary_text_default_material_light"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:hint="Paste or scan an address or select a destination"
+                            android:hint="@string/to_field_helper"
                     />
 
                     <info.blockchain.wallet.ui.helpers.ReselectSpinner
