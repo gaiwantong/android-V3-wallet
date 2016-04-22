@@ -43,13 +43,14 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -59,8 +60,10 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
+import info.blockchain.wallet.ui.helpers.CustomKeypad;
+import info.blockchain.wallet.ui.helpers.ReselectSpinner;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FeeUtil;
@@ -68,8 +71,6 @@ import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.ui.helpers.ReselectSpinner;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.apache.commons.codec.DecoderException;
@@ -97,10 +98,9 @@ import java.util.Locale;
 
 import piuk.blockchain.android.R;
 
-public class SendFragment extends Fragment implements View.OnClickListener, CustomKeypadCallback, SendFactory.OnFeeSuggestListener {
+public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener {
 
     private final int SCAN_PRIVX = 301;
-    public static boolean isKeypadVisible = false;
     private static Context context = null;
     private View rootView;
 
@@ -114,7 +114,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private TextView tvMax = null;
     private EditText etCustomFee = null;
     private TextView tvEstimateConfirm = null;
-    private TableLayout numpad;
+    public static CustomKeypad customKeypad;
 
     private Spinner sendFromSpinner = null;
     private List<String> sendFromList = null;
@@ -220,13 +220,13 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
         handleIncomingQRScan();
 
-        decimalCompatCheck(rootView);
-
         SendFactory.getInstance(getActivity()).getSuggestedFee(this);
 
         sendFromSpinner.setSelection(0);
 
         selectDefaultAccount();
+
+        setCustomKeypad();
 
         return rootView;
     }
@@ -324,6 +324,20 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                 alertCustomSpend(absoluteFeeSuggested);
             }
         });
+    }
+
+    private void setCustomKeypad(){
+
+        customKeypad = new CustomKeypad(getActivity(), ((TableLayout) rootView.findViewById(R.id.numericPad)));
+        customKeypad.setDecimalSeparator(defaultSeparator);
+
+        //Disable default keyboard from popping up when editing the following editTexts:
+        customKeypad.disableSoftInputOnView(edAmount1);
+        customKeypad.disableSoftInputOnView(edAmount2);
+        customKeypad.disableSoftInputOnView(etCustomFee);
+
+        edAmount1.setText("");
+        edAmount1.requestFocus();
     }
 
     private BigInteger getCustomFee(){
@@ -884,94 +898,6 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 
     }
 
-    /*
-    Custom keypad implementation
-    Numerous Samsung devices have keypad issues where decimal separators are absent.
-     */
-    private void decimalCompatCheck(View rootView) {
-
-        edAmount1.removeTextChangedListener(btcTextWatcher);
-        edAmount2.removeTextChangedListener(fiatTextWatcher);
-
-        numpad = ((TableLayout) rootView.findViewById(R.id.numericPad));
-
-        if (Build.MANUFACTURER.toLowerCase().contains("samsung")) {
-
-            numpad.setVisibility(View.GONE);
-            isKeypadVisible = false;
-            edAmount1.setTextIsSelectable(true);
-            edAmount1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (hasFocus) {
-                        View view = getActivity().getCurrentFocus();
-                        if (view != null) {
-                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                        numpad.setVisibility(View.VISIBLE);
-                        isKeypadVisible = true;
-                    } else {
-                        numpad.setVisibility(View.GONE);
-                        isKeypadVisible = false;
-                    }
-                }
-            });
-            edAmount1.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    numpad.setVisibility(View.VISIBLE);
-                    isKeypadVisible = true;
-                }
-            });
-
-            edAmount2.setTextIsSelectable(true);
-            edAmount2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-
-                    if (hasFocus) {
-                        View view = getActivity().getCurrentFocus();
-                        if (view != null) {
-                            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                        numpad.setVisibility(View.VISIBLE);
-                        isKeypadVisible = true;
-                    } else {
-                        numpad.setVisibility(View.GONE);
-                        isKeypadVisible = false;
-                    }
-                }
-            });
-            edAmount2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    numpad.setVisibility(View.VISIBLE);
-                    isKeypadVisible = true;
-                }
-            });
-
-            rootView.findViewById(R.id.button1).setOnClickListener(this);
-            rootView.findViewById(R.id.button2).setOnClickListener(this);
-            rootView.findViewById(R.id.button3).setOnClickListener(this);
-            rootView.findViewById(R.id.button4).setOnClickListener(this);
-            rootView.findViewById(R.id.button5).setOnClickListener(this);
-            rootView.findViewById(R.id.button6).setOnClickListener(this);
-            rootView.findViewById(R.id.button7).setOnClickListener(this);
-            rootView.findViewById(R.id.button8).setOnClickListener(this);
-            rootView.findViewById(R.id.button9).setOnClickListener(this);
-            rootView.findViewById(R.id.button10).setOnClickListener(this);
-            rootView.findViewById(R.id.button0).setOnClickListener(this);
-            rootView.findViewById(R.id.buttonDeleteBack).setOnClickListener(this);
-            rootView.findViewById(R.id.buttonDone).setOnClickListener(this);
-
-        }
-
-        edAmount1.addTextChangedListener(btcTextWatcher);
-        edAmount2.addTextChangedListener(fiatTextWatcher);
-    }
-
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -1213,6 +1139,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     private void sendClicked() {
 
         //Hide keyboard
+        customKeypad.setNumpadVisibility(View.GONE);
         View view = getActivity().getCurrentFocus();
         if (view != null) {
             InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -2064,90 +1991,8 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
     }
 
     @Override
-    public void onClick(View v) {
-
-        String pad = "";
-        switch (v.getId()) {
-            case R.id.button1:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button2:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button3:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button4:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button5:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button6:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button7:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button8:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button9:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.button10:
-                pad = defaultSeparator;
-                break;
-            case R.id.button0:
-                pad = v.getTag().toString().substring(0, 1);
-                break;
-            case R.id.buttonDeleteBack:
-                pad = null;
-                break;
-            case R.id.buttonDone:
-                numpad.setVisibility(View.GONE);
-                break;
-        }
-
-        if (pad != null) {
-            // Append tapped #
-            if (edAmount1.hasFocus()) {
-                edAmount1.append(pad);
-            } else if (edAmount2.hasFocus()) {
-                edAmount2.append(pad);
-            }
-        } else {
-            // Back clicked
-            if (edAmount1.hasFocus()) {
-                String e1 = edAmount1.getText().toString();
-                if (e1.length() > 0) edAmount1.setText(e1.substring(0, e1.length() - 1));
-            } else if (edAmount2.hasFocus()) {
-                String e2 = edAmount2.getText().toString();
-                if (e2.length() > 0) edAmount2.setText(e2.substring(0, e2.length() - 1));
-            }
-        }
-
-        if (edAmount1.hasFocus() && edAmount1.getText().length() > 0) {
-            edAmount1.post(new Runnable() {
-                @Override
-                public void run() {
-                    edAmount1.setSelection(edAmount1.getText().toString().length());
-                }
-            });
-        } else if (edAmount2.hasFocus() && edAmount2.getText().length() > 0) {
-            edAmount2.post(new Runnable() {
-                @Override
-                public void run() {
-                    edAmount2.setSelection(edAmount2.getText().toString().length());
-                }
-            });
-        }
-    }
-
-    @Override
     public void onKeypadClose() {
-        numpad.setVisibility(View.GONE);
-        isKeypadVisible = false;
+        customKeypad.setNumpadVisibility(View.GONE);
     }
 
     class SendFromAdapter extends ArrayAdapter<String> {

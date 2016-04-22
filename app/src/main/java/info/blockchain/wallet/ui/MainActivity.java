@@ -414,10 +414,10 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 }
             }).start();
 
-        } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).isKeypadVisible) {
+        } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).customKeypad.isVisible()) {
             ((ReceiveFragment) currentFragment).onKeypadClose();
 
-        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).isKeypadVisible) {
+        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).customKeypad.isVisible()) {
             ((SendFragment) currentFragment).onKeypadClose();
 
         } else {
