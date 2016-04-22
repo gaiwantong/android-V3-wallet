@@ -132,7 +132,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/selector_pearl_white"
                 android:gravity="center"
-                android:onClick="cancelClicked"
+                android:onClick="deleteClicked"
                 android:orientation="vertical"
                 android:padding="9dp"
                 >
@@ -402,7 +402,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/selector_pearl_white"
                 android:gravity="center"
-                android:onClick="cancelClicked"
+                android:onClick="deleteClicked"
                 android:orientation="vertical"
                 android:padding="9dp"
                 >

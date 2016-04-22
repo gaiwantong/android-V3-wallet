@@ -155,7 +155,8 @@ public class PinEntryActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        cancelClicked(null);
+        userEnteredPIN = "";
+        clearPinBoxes();
         AppUtil.getInstance(this).stopLogoutTimer();
     }
 
@@ -577,9 +578,15 @@ public class PinEntryActivity extends Activity {
         }
     }
 
-    public void cancelClicked(View view) {
-        clearPinBoxes();
-        userEnteredPIN = "";
+    public void deleteClicked(View view) {
+
+        if(userEnteredPIN.length() > 0) {
+            //Remove last char from pin string
+            userEnteredPIN = userEnteredPIN.substring(0, userEnteredPIN.length() - 1);
+
+            //Clear last box
+            pinBoxArray[userEnteredPIN.length()].setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+        }
     }
 
     private void clearPinBoxes() {
