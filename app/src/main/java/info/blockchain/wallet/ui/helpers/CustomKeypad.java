@@ -44,7 +44,7 @@ public class CustomKeypad implements View.OnClickListener{
         viewList = new ArrayList<>();
     }
 
-    public void disableSoftInputOnView(final EditText view){
+    public void enableOnView(final EditText view){
 
         if(!viewList.contains(view))viewList.add(view);
 

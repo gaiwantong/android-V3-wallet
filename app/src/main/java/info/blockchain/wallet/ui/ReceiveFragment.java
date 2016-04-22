@@ -451,9 +451,9 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         customKeypad = new CustomKeypad(getActivity(), ((TableLayout) rootView.findViewById(R.id.numericPad)));
         customKeypad.setDecimalSeparator(defaultSeperator);
 
-        //Disable default keyboard from popping up when editing the following editTexts:
-        customKeypad.disableSoftInputOnView(edAmount1);
-        customKeypad.disableSoftInputOnView(edAmount2);
+        //Enable custom keypad and disables default keyboard from popping up
+        customKeypad.enableOnView(edAmount1);
+        customKeypad.enableOnView(edAmount2);
 
         edAmount1.setText("");
         edAmount1.requestFocus();
