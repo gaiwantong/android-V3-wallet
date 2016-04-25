@@ -262,6 +262,15 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         sendFromSpinner = (Spinner) rootView.findViewById(R.id.accounts);
         receiveToSpinner = (ReselectSpinner) rootView.findViewById(R.id.sp_destination);
         edReceiveTo = ((EditText) rootView.findViewById(R.id.destination));
+        edReceiveTo.setHorizontallyScrolling(false);
+        edReceiveTo.setLines(3);
+        edReceiveTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus && customKeypad != null)
+                    customKeypad.setNumpadVisibility(View.GONE);
+            }
+        });
 
         edAmount1 = ((EditText) rootView.findViewById(R.id.amount1));
         edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
@@ -392,7 +401,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         unspentApiResponse = null;
                         tvMax.setVisibility(View.GONE);
                         rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.VISIBLE);
-                        btSend.setEnabled(false);
+                        if(btSend != null)btSend.setEnabled(false);
 
                         final String fromAddress;
 
@@ -1104,7 +1113,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             public void run() {
                 rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
                 tvMax.setVisibility(View.VISIBLE);
-                btSend.setEnabled(true);
+                if(btSend != null)btSend.setEnabled(true);
                 tvMax.setText(getResources().getString(R.string.max_available)+" "+MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance))+" " + strBTC);
             }
         });

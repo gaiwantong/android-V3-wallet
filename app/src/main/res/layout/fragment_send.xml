@@ -87,7 +87,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:background="@color/blockchain_pearl_white"
-                            android:inputType="textNoSuggestions|textMultiLine"
+                            android:inputType="textNoSuggestions"
                             android:focusable="true"
                             android:focusableInTouchMode="true"
                             android:textColor="@color/primary_text_default_material_light"
