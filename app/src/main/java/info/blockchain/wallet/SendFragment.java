@@ -1675,7 +1675,7 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
                     }
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
                     }
                 }
 
