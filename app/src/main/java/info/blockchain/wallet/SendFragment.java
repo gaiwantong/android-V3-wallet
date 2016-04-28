@@ -1172,15 +1172,17 @@ public class SendFragment extends Fragment implements View.OnClickListener, Cust
 //        Log.v("vos", "balanceAvailable: " + balanceAvailable);
 //        Log.v("vos", "sweepBalance: " + sweepBalance);
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
-                tvMax.setVisibility(View.VISIBLE);
-                btSend.setEnabled(true);
-                tvMax.setText(getResources().getString(R.string.max_available)+" "+MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance))+" " + strBTC);
-            }
-        });
+        if(getActivity() != null && !getActivity().isFinishing()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
+                    tvMax.setVisibility(View.VISIBLE);
+                    btSend.setEnabled(true);
+                    tvMax.setText(getResources().getString(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance)) + " " + strBTC);
+                }
+            });
+        }
 
 //        if(unspentsCoinsBundle != null)Log.v("vos", unspentsCoinsBundle.getOutputs().size()+" selected Coins amount: " + unspentsCoinsBundle.getTotalAmount());
 //        Log.v("vos","absoluteFeeUsed: "+ absoluteFeeUsed.longValue());
