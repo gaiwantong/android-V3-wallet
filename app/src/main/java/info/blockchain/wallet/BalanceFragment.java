@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -59,7 +60,7 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.tx_feed.TxFeedMethods;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FloatingActionButton;
@@ -70,6 +71,7 @@ import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.TypefaceUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -80,7 +82,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 
 import piuk.blockchain.android.R;
 
@@ -195,8 +197,10 @@ public class BalanceFragment extends Fragment {
         }
     };
 
+    private TxFeedMethods txFeedMethods;
+
     public BalanceFragment() {
-        ;
+        txFeedMethods = new TxFeedMethods();
     }
 
     @Override
@@ -864,9 +868,9 @@ public class BalanceFragment extends Fragment {
     private void onRowClick(final View view, final int position) {
 
         if (transactionList != null) {
-            final Tx tx = transactionList.get(position);
-            final String strTx = tx.getHash();
-            final String strConfirmations = Long.toString(tx.getConfirmations());
+            final Tx transactionSummary = transactionList.get(position);
+            final String strTx = transactionSummary.getHash();
+            final String strConfirmations = Long.toString(transactionSummary.getConfirmations());
 
             try {
                 mIsViewExpanded = rowViewState.get(view);
@@ -907,7 +911,7 @@ public class BalanceFragment extends Fragment {
                 tvStatus.setVisibility(View.INVISIBLE);
                 ivStatus.setVisibility(View.INVISIBLE);
 
-                if (tx.getDirection().equals(MultiAddrFactory.RECEIVED)) {
+                if (transactionSummary.getDirection().equals(MultiAddrFactory.RECEIVED)) {
                     feeContainer.setVisibility(View.GONE);
                     feeSeparator.setVisibility(View.GONE);
                 }
@@ -971,7 +975,7 @@ public class BalanceFragment extends Fragment {
                     });
 
                 //Get Details
-                if (tx.getHash().isEmpty()) {
+                if (transactionSummary.getHash().isEmpty()) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1008,46 +1012,47 @@ public class BalanceFragment extends Fragment {
                             super.onPostExecute(stringResult);
 
                             if (stringResult != null) {
-                                Transaction transaction = null;
+
+                                //Get transaction details
+                                Transaction transactionDetails = null;
                                 try {
 //                                    Log.v("", "stringResult: " + stringResult);
-                                    transaction = new Transaction(new JSONObject(stringResult));
+                                    transactionDetails = new Transaction(new JSONObject(stringResult));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                                 progressView.setVisibility(View.GONE);
 
-                                String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transaction.getFee() / 1e8)) + " " + strFiat);
+                                //Fee
+                                String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
                                 if (isBTC)
-                                    fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transaction.getFee()) + " " + getDisplayUnits());
+                                    fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + getDisplayUnits());
                                 tvFee.setText(fee);
 
-                                //From Address
-                                HashMap<String, Long> fromAddressValuePair = transaction.getFromLabelValuePair(tx.getDirection());
+                                //Filter non-change addresses
+                                Pair<HashMap<String, Long>, HashMap<String, Long>> pair = txFeedMethods.filterNonChangeAddresses(transactionDetails, transactionSummary);
 
-                                StringBuilder fromBuilder = new StringBuilder("");
-                                for (Map.Entry<String, Long> item : fromAddressValuePair.entrySet()) {
-                                    String label = item.getKey();
-                                    fromBuilder.append(label + "\n");
+                                //From
+                                HashMap<String,Long> inputMap = pair.first;
+
+                                //TODO start- Product team considering separate fields
+                                ArrayList<String> labelList = new ArrayList<String>();
+                                Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
+                                for(Map.Entry<String, Long> set : entrySet){
+                                    String label = txFeedMethods.addressToLabel(set.getKey());
+                                    if(!labelList.contains(label))
+                                        labelList.add(label);
                                 }
 
-                                String fromString = fromBuilder.toString();
-                                if (fromString.length() > 0)
-                                    fromString = fromString.substring(0, fromBuilder.toString().length() - 1);
-                                tvOutAddr.setText(fromString);
+                                String inputMapString = StringUtils.join(labelList.toArray(), "\n");
+                                tvOutAddr.setText(txFeedMethods.addressToLabel(inputMapString));
+                                //todo end
 
                                 //To Address
-                                HashMap<String, Long> toddressValuePair = transaction.getToLabelValuePair(tx.getDirection(), tx.getAmount());
-
+                                HashMap<String,Long> outputMap = pair.second;
                                 toAddressContainer.removeAllViews();
 
-                                List<String> ownLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-
-                                for (Map.Entry<String, Long> item : toddressValuePair.entrySet()) {
-
-                                    if ((getActivity() == null) || (AppUtil.getInstance(getActivity()).isNotUpgraded() && tx.getDirection().equals(MultiAddrFactory.RECEIVED) && !ownLegacyAddresses.contains(item.getKey()))) {
-                                        continue;
-                                    }
+                                for (Map.Entry<String, Long> item : outputMap.entrySet()) {
 
                                     View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
                                     TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
@@ -1055,7 +1060,7 @@ public class BalanceFragment extends Fragment {
                                     TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
                                     toAddressContainer.addView(v);
 
-                                    tvToAddr.setText(item.getKey());
+                                    tvToAddr.setText(txFeedMethods.addressToLabel(item.getKey()));
                                     long amount = item.getValue();
                                     String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
                                     if (isBTC)
@@ -1067,7 +1072,7 @@ public class BalanceFragment extends Fragment {
 
                                 tvStatus.setTag(strConfirmations);
 
-                                if (tx.getConfirmations() >= nbConfirmations) {
+                                if (transactionSummary.getConfirmations() >= nbConfirmations) {
                                     ivStatus.setImageResource(R.drawable.ic_done_grey600_24dp);
                                     tvStatus.setText(getString(R.string.COMPLETE));
                                 } else {
@@ -1079,7 +1084,7 @@ public class BalanceFragment extends Fragment {
                                 tvStatus.setVisibility(View.VISIBLE);
                                 ivStatus.setVisibility(View.VISIBLE);
 
-                                if (fromAddressValuePair.size() >= 2 || toddressValuePair.size() >= 2)//details view needs to be scrollable now
+                                if (inputMap.size() >= 2 || outputMap.size() >= 2)//details view needs to be scrollable now
                                     if (!getResources().getBoolean(R.bool.isDualPane))
                                         txsDetails.setOnTouchListener(new OnTouchListener() {
                                             @Override
