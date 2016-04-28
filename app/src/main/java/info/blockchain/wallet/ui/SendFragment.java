@@ -1108,15 +1108,17 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 //        Log.v("vos", "balanceAvailable: " + balanceAvailable);
 //        Log.v("vos", "sweepBalance: " + sweepBalance);
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
-                tvMax.setVisibility(View.VISIBLE);
-                if(btSend != null)btSend.setEnabled(true);
-                tvMax.setText(getResources().getString(R.string.max_available)+" "+MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance))+" " + strBTC);
-            }
-        });
+        if(getActivity() != null && !getActivity().isFinishing()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
+                    tvMax.setVisibility(View.VISIBLE);
+                    btSend.setEnabled(true);
+                    tvMax.setText(getResources().getString(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance)) + " " + strBTC);
+                }
+            });
+        }
 
 //        if(unspentsCoinsBundle != null)Log.v("vos", unspentsCoinsBundle.getOutputs().size()+" selected Coins amount: " + unspentsCoinsBundle.getTotalAmount());
 //        Log.v("vos","absoluteFeeUsed: "+ absoluteFeeUsed.longValue());
@@ -1612,7 +1614,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     }
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
+                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
                     }
                 }
 
