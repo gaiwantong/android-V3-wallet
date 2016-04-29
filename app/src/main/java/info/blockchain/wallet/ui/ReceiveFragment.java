@@ -236,6 +236,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         edAmount1 = (EditText) rootView.findViewById(R.id.amount1);
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         edAmount1.setHint("0" + defaultSeperator + "00");
+        edAmount1.setSelectAllOnFocus(true);
         edAmount1.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
 
@@ -278,7 +279,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 edAmount1.addTextChangedListener(this);
 
-                if (textChangeAllowed) {
+                if (textChangeAllowed &&  !s.toString().isEmpty()) {
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
 
@@ -304,6 +305,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
         edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         edAmount2.setHint("0" + defaultSeperator + "00");
+        edAmount2.setSelectAllOnFocus(true);
         edAmount2.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
@@ -335,7 +337,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 edAmount2.addTextChangedListener(this);
 
-                if (textChangeAllowed) {
+                if (textChangeAllowed && !s.toString().isEmpty()) {
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
 

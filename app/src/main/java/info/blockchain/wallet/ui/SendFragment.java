@@ -218,8 +218,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         initVars();
 
-        handleIncomingQRScan();
-
         SendFactory.getInstance(getActivity()).getSuggestedFee(this);
 
         sendFromSpinner.setSelection(0);
@@ -227,6 +225,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         selectDefaultAccount();
 
         setCustomKeypad();
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            String scanData = bundle.getString("scan_data", "");
+            handleIncomingQRScan(scanData);
+        }
 
         return rootView;
     }
@@ -699,10 +703,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private void initVars(){
 
         edAmount1.addTextChangedListener(btcTextWatcher);
+        edAmount1.setSelectAllOnFocus(true);
 
         edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
         edAmount2.setHint("0" + defaultSeparator + "00");
         edAmount2.addTextChangedListener(fiatTextWatcher);
+        edAmount2.setSelectAllOnFocus(true);
 
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
         edAmount1.setHint("0" + defaultSeparator + "00");
@@ -716,46 +722,69 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         tvFiat2.setText(strFiat);
     }
 
-    private void handleIncomingQRScan(){
+    private void handleIncomingQRScan(String scanData){
 
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            String address_arg = bundle.getString("btc_address", "");
-            String amount_arg = bundle.getString("btc_amount", "");
-            if (!address_arg.equals("")) {
-                edReceiveTo.setText(address_arg);
+        scanData = scanData.trim();
+
+        String btcAddress = null;
+        String btcAmount = null;
+
+        // check for poorly formed BIP21 URIs
+        if (scanData.startsWith("bitcoin://") && scanData.length() > 10) {
+            scanData = "bitcoin:" + scanData.substring(10);
+        }
+
+        if (FormatsUtil.getInstance().isValidBitcoinAddress(scanData)) {
+            btcAddress = scanData;
+        } else if (FormatsUtil.getInstance().isBitcoinUri(scanData)) {
+            btcAddress = FormatsUtil.getInstance().getBitcoinAddress(scanData);
+            btcAmount = FormatsUtil.getInstance().getBitcoinAmount(scanData);
+
+            //Convert to correct units
+            try {
+                btcAmount = MonetaryUtil.getInstance(getActivity()).getDisplayAmount(Long.parseLong(btcAmount));
+            }catch (Exception e){
+                btcAmount = null;
             }
-            if (!amount_arg.equals("")) {
-                edAmount1.removeTextChangedListener(btcTextWatcher);
-                edAmount2.removeTextChangedListener(fiatTextWatcher);
+        } else {
+            ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            return;
+        }
 
-                edAmount1.setText(amount_arg);
-                edAmount1.setSelection(edAmount1.getText().toString().length());
+        if (!btcAddress.equals("")) {
+            edReceiveTo.setText(btcAddress);
+        }
 
-                double btc_amount = 0.0;
-                try {
-                    btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
-                } catch (NumberFormatException e) {
-                    btc_amount = 0.0;
-                }
+        if (btcAmount != null && !btcAmount.equals("")) {
+            edAmount1.removeTextChangedListener(btcTextWatcher);
+            edAmount2.removeTextChangedListener(fiatTextWatcher);
 
-                // sanity check on strFiat, necessary if the result of a URI scan
-                if (strFiat == null) {
-                    strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-                }
-                btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            edAmount1.setText(btcAmount);
+            edAmount1.setSelection(edAmount1.getText().toString().length());
 
-                double fiat_amount = btc_fx * btc_amount;
-                edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+            double btc_amount = 0.0;
+            try {
+                btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
+            } catch (NumberFormatException e) {
+                btc_amount = 0.0;
+            }
+
+            // sanity check on strFiat, necessary if the result of a URI scan
+            if (strFiat == null) {
+                strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            }
+            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+
+            double fiat_amount = btc_fx * btc_amount;
+            edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
 //                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-                strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
-                tvCurrency1.setText(strBTC);
-                tvFeeUnits.setText(strBTC);
-                tvFiat2.setText(strFiat);
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
+            tvCurrency1.setText(strBTC);
+            tvFeeUnits.setText(strBTC);
+            tvFiat2.setText(strFiat);
 
-                edAmount1.addTextChangedListener(btcTextWatcher);
-                edAmount2.addTextChangedListener(fiatTextWatcher);
-            }
+            edAmount1.addTextChangedListener(btcTextWatcher);
+            edAmount2.addTextChangedListener(fiatTextWatcher);
         }
     }
 
@@ -819,7 +848,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount1.addTextChangedListener(this);
 
-                if (textChangeAllowed) {
+                if (textChangeAllowed && !s.toString().isEmpty()) {
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
                     textChangeAllowed = true;
@@ -879,7 +908,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount2.addTextChangedListener(this);
 
-                if (textChangeAllowed) {
+                if (textChangeAllowed && !s.toString().isEmpty()) {
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
                     textChangeAllowed = true;
@@ -1202,7 +1231,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
+        if (requestCode == MainActivity.SCAN_URI && resultCode == Activity.RESULT_OK
+                && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
+            String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
+            handleIncomingQRScan(strResult);
+
+        }else if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
             final String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
             try {

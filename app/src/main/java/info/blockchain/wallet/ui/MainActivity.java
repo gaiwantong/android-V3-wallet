@@ -37,25 +37,23 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.drawer.DrawerAdapter;
 import info.blockchain.wallet.drawer.DrawerItem;
-import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.EnableGeo;
+import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.bip44.WalletFactory;
@@ -68,7 +66,7 @@ import piuk.blockchain.android.R;
 
 public class MainActivity extends ActionBarActivity implements BalanceFragment.Communicator {
 
-    private static final int SCAN_URI = 2007;
+    public static final int SCAN_URI = 2007;
     private static final int REQUEST_BACKUP = 2225;
     public static boolean drawerIsOpen = false;
     public static Fragment currentFragment;
@@ -354,7 +352,13 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
-            doScanInput(strResult);
+
+            if(currentFragment instanceof SendFragment){
+                currentFragment.onActivityResult(requestCode, resultCode, data);
+            }else{
+                doScanInput(strResult);
+            }
+
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
             drawerItems = new ArrayList<>();
             final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
@@ -495,45 +499,14 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         startActivityForResult(intent, SCAN_URI);
     }
 
-    private void doScanInput(String address) {
-
-        address = address.trim();
-
-        String btc_address = null;
-        String btc_amount = null;
-
-        // check for poorly formed BIP21 URIs
-        if (address.startsWith("bitcoin://") && address.length() > 10) {
-            address = "bitcoin:" + address.substring(10);
-        }
-
-        if (FormatsUtil.getInstance().isValidBitcoinAddress(address)) {
-            btc_address = address;
-        } else if (FormatsUtil.getInstance().isBitcoinUri(address)) {
-            btc_address = FormatsUtil.getInstance().getBitcoinAddress(address);
-            btc_amount = FormatsUtil.getInstance().getBitcoinAmount(address);
-        } else {
-            ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            return;
-        }
+    private void doScanInput(String strResult) {
 
         Fragment fragment = new SendFragment();
         Bundle args = new Bundle();
-        args.putString("btc_address", btc_address);
-        args.putBoolean("incoming_from_scan", true);
-        if (btc_amount != null) {
-            try {
-                args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(Long.parseLong(btc_amount)));
-            } catch (NumberFormatException nfe) {
-                ;
-            }
-        } else if (sendFragmentBitcoinAmountStorage > 0) {
-            args.putString("btc_amount", MonetaryUtil.getInstance(this).getDisplayAmount(sendFragmentBitcoinAmountStorage));
-        }
+        args.putString("scan_data", strResult);
         fragment.setArguments(args);
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
     }
 
     public void setToolbar() {
