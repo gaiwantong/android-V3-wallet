@@ -470,4 +470,25 @@
     <string name="transfer_funds_safe">Переведенные средства будут в безопасности; к вашим услугам будет увеличение конфиденциальности, удобство резервного копирования и восстановления.</string>
     <string name="spendable_addresses">адреса для расходов</string>
     <string name="total_fees">Общая комиссия</string>
+    <string name="dont_ask_again">Не спрашивать снова.</string>
+    <string name="insufficient_fee">Комиссия слишком низкая.</string>
+    <string name="customize">настроить</string>
+    <string name="amount">Сумма</string>
+    <string name="recommended">(Рекомендуется)</string>
+    <string name="recommended_fee">Сумма комиссионных влияет на быстроту подтверждения транзакции в сети Bitcoin и зависит от текущих условий сети. Мы рекомендуем следующую сумму комиссии  для данной транзакции в настоящее время.</string>
+    <string name="default_label_brackets">(по умолчанию)</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="high_fee_not_necessary">Высокая плата не требуется.</string>
+    <string name="high_fee_not_necessary_info">Вы указали необычно высокую сумму комиссии в [--custom_fee--].\n\nДаже если вы снизите ее до [--dynamic_fee--], вы можете ожидать подтверждения транзакции в течение примерно 10 минут (1 блок).</string>
+    <string name="low_fee_not_recommended">Низкий таможенный сбор не рекомендуется</string>
+    <string name="low_fee_suggestion">Вы указали очень низкую сумму комиссии в [--custom_fee--].\n\nВаша транзакция может никогда не получить подтверждения. Для увеличения вероятности подтверждения транзакции в течение приблизительно одного часа (6 блоков) мы настоятельно рекомендуем указать сумму не менее  [--dynamic_fee--].</string>
+    <string name="raise_fee">Увеличить комиссию</string>
+    <string name="lower_fee">Снизить комиссию</string>
+    <string name="keep_high_fee">Сохранить высокую комиссию</string>
+    <string name="keep_low_fee">Сохранить низкую комиссию</string>
+    <string name="no_confirmed_funds">Нет подтвержденных средств.</string>
+    <string name="estimate_confirm_block_count">Примерное время подтверждения: ~[--minutes--] минут ([--block_count--] блоков)</string>
+    <string name="fee_too_low_no_confirm">Ваша комиссия  настолько мала, что ваша  транзакция может никогда не получить подтверждения.</string>
+    <string name="transaction_surge">Активность сети Bitcoin в настоящее время очень высока, поэтому рекомендуемые  значения комиссии выше, чем обычно.</string>
+
 </resources>

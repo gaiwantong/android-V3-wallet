@@ -470,5 +470,25 @@
     <string name="transfer_funds_safe">Vos fonds transférés seront protégés et en sécurité, et vous bénéficierez de plus de confidentialités et de fonctions pratiques de sauvegarde et de restauration.</string>
     <string name="spendable_addresses">Adresses disponibles</string>
     <string name="total_fees">Frais totaux</string>
+    <string name="dont_ask_again">Ne me demandez plus.</string>
+    <string name="insufficient_fee">Les frais de transaction sont trop faibles.</string>
+    <string name="customize">personnaliser</string>
+    <string name="amount">Montant</string>
+    <string name="recommended">(Recommandé)</string>
+    <string name="recommended_fee">Les frais de transaction impactent la vitesse à laquelle le réseau de minage de Bitcoin confirmera vos transactions et dépendent de l\'état actuel du réseau. Nous recommandons les frais ci-dessous pour cette transaction en ce moment.</string>
+    <string name="default_label_brackets">(par défaut)</string>
+    <string name="not_now">Pas maintenant</string>
+    <string name="high_fee_not_necessary">Frais élevés non nécessaires.</string>
+    <string name="high_fee_not_necessary_info">Vous avez spécifié des frais de transaction anormalement élevés de [--custom_fee--].\n\Même si vous diminuez les frais [--dynamic_fee--], vous pouvez vous attendre à la confirmation de l\’opération dans les ~ 10 prochaines minutes  ~ (1 bloc).</string>
+    <string name="low_fee_not_recommended">Faibles frais personnalisés non recommandés</string>
+    <string name="low_fee_suggestion">Vous avez spécifié des frais de transaction exceptionnellement faibles de [--custom_fee--].\n\nVotre transaction peut se retrouver bloquée et peut-être n\’être jamais confirmée. Pour augmenter les chances que votre transaction soit confirmée dans environ une heure (6 blocs), nous recommandons fortement des frais non inférieurs à [--dynamic_fee--].</string>
+    <string name="raise_fee">Augmenter les frais</string>
+    <string name="lower_fee">Abaisser les frais</string>
+    <string name="keep_high_fee">Garder les frais élevés</string>
+    <string name="keep_low_fee">Garder des frais modiques</string>
+    <string name="no_confirmed_funds">Pas de fonds confirmés à dépenser.</string>
+    <string name="estimate_confirm_block_count">Temps de confirmation estimé: ~[--minutes--] ([--block_count--] blocs)</string>
+    <string name="fee_too_low_no_confirm">Vos frais sont si petits que votre transaction peut ne jamais être confirmée.</string>
+    <string name="transaction_surge">Le réseau de minage Bitcoin connaît actuellement un fort volume d\'activité, ce qui entraîne des frais recommandés qui sont plus élevés que d\'habitude.</string>
 
 </resources>
