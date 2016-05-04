@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -23,7 +25,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,16 +33,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -49,11 +47,11 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
@@ -63,7 +61,6 @@ import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.ui.helpers.FloatingActionButton;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -97,11 +94,7 @@ public class BalanceFragment extends Fragment {
     LinearLayoutManager layoutManager;
     HashMap<View, Boolean> rowViewState = null;
     Communicator comm;
-    ImageButton fab;
-    ValueAnimator movingFabUp;
-    ValueAnimator movingFabDown;
-    float fabTopY;
-    float fabBottomY;
+    private FloatingActionsMenu menuMultipleActions = null;
     //
     // main balance display
     //
@@ -125,9 +118,6 @@ public class BalanceFragment extends Fragment {
     private RecyclerView transactionRecyclerView = null;
     private TxAdapter transactionAdapter = null;
     private LinearLayout noTxMessage = null;
-    private SlidingUpPanelLayout mLayout;
-    private LinearLayout bottomSel1 = null;
-    private LinearLayout bottomSel2 = null;
     private LinearLayout mainContentShadow;
     private Activity thisActivity = null;
     private int originalHeight = 0;
@@ -546,35 +536,6 @@ public class BalanceFragment extends Fragment {
         menu.findItem(R.id.action_share_receive).setVisible(false);
     }
 
-    private void onAddClicked() {
-
-        fab.bringToFront();
-
-        if (mLayout != null) {
-            if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
-
-                //Bottom sheet down
-                movingFabDown.start();
-
-                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-                mainContentShadow.setVisibility(View.GONE);
-                isBottomSheetOpen = false;
-
-                comm.setNavigationDrawerToggleEnabled(true);
-            } else {
-
-                //Bottom sheet up
-                movingFabUp.start();
-
-                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                mainContentShadow.setVisibility(View.VISIBLE);
-                isBottomSheetOpen = true;
-
-                comm.setNavigationDrawerToggleEnabled(false);
-            }
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -582,68 +543,77 @@ public class BalanceFragment extends Fragment {
         comm = (Communicator) activity;
     }
 
-    private void initFab(final View rootView) {
+    private void initFab(final View rootView){
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            fab = (ImageButton) rootView.findViewById(R.id.btActivateBottomSheet);
-        else
-            fab = (FloatingActionButton) rootView.findViewById(R.id.btActivateBottomSheet);
-
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    public void onGlobalLayout() {
-                        //Remove the listener before proceeding
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        } else {
-                            rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                        }
-
-                        DisplayMetrics displayMetrics = thisActivity.getResources().getDisplayMetrics();
-
-                        fabBottomY = fab.getY();
-                        //56 = fab height
-                        //48 = row height
-                        //16 = padding
-                        int padding = 26;
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-                            padding = 18;//shadow 4dp top and bottom - so 8dp here
-
-                        fabTopY = fabBottomY + (((56 / 2) + padding) * displayMetrics.density) - ((48 + 48 + 16) * displayMetrics.density);
-
-                        //Move up
-                        movingFabUp = ValueAnimator.ofFloat(fabBottomY, fabTopY);
-                        movingFabUp.setInterpolator(new AccelerateDecelerateInterpolator());
-                        movingFabUp.setDuration(200);
-                        movingFabUp.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                            public void onAnimationUpdate(ValueAnimator animation) {
-                                Float value = (Float) animation.getAnimatedValue();
-                                fab.setY(value.floatValue());
-                                fab.setRotation(45f);
-                            }
-                        });
-
-                        //move down
-                        movingFabDown = ValueAnimator.ofFloat(fabTopY, fabBottomY);
-                        movingFabDown.setInterpolator(new BounceInterpolator());
-                        movingFabDown.setDuration(500);
-                        movingFabDown.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                            public void onAnimationUpdate(ValueAnimator animation) {
-                                Float value = (Float) animation.getAnimatedValue();
-                                fab.setY(value.floatValue());
-                                fab.setRotation(0f);
-                            }
-                        });
-                    }
-                });
-
-        fab.setOnClickListener(new View.OnClickListener() {
+        //First icon when fab expands
+        com.getbase.floatingactionbutton.FloatingActionButton actionA = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
+        actionA.setColorNormal(getResources().getColor(R.color.blockchain_send_red));
+        actionA.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+        Drawable sendIcon = getActivity().getResources().getDrawable(R.drawable.icon_send);
+        sendIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        actionA.setIconDrawable(sendIcon);
+        actionA.setColorPressed(getResources().getColor(R.color.blockchain_red_50));
+        actionA.setTitle(getResources().getString(R.string.send_bitcoin));
+        actionA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                onAddClicked();
+                sendClicked();
             }
         });
+
+        //Second icon when fab expands
+        com.getbase.floatingactionbutton.FloatingActionButton actionB = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
+        actionB.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+        actionB.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+        Drawable receiveIcon = getActivity().getResources().getDrawable(R.drawable.icon_receive);
+        receiveIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        actionB.setIconDrawable(receiveIcon);
+        actionB.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+        actionB.setTitle(getResources().getString(R.string.receive_bitcoin));
+        actionB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                receiveClicked();
+            }
+        });
+
+        //Add buttons to expanding fab
+        menuMultipleActions = (FloatingActionsMenu) rootView.findViewById(R.id.multiple_actions);
+        menuMultipleActions.addButton(actionA);
+        menuMultipleActions.addButton(actionB);
+
+        menuMultipleActions.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+            @Override
+            public void onMenuExpanded() {
+                mainContentShadow.setVisibility(View.VISIBLE);
+                isBottomSheetOpen = true;
+                comm.setNavigationDrawerToggleEnabled(false);
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                menuMultipleActions.collapse();
+                mainContentShadow.setVisibility(View.GONE);
+                isBottomSheetOpen = false;
+                comm.setNavigationDrawerToggleEnabled(true);
+            }
+        });
+    }
+
+    private void sendClicked(){
+        SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
+
+        Fragment fragment = new SendFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+        comm.setNavigationDrawerToggleEnabled(true);
+    }
+
+    private void receiveClicked(){
+        Fragment fragment = new ReceiveFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+        comm.setNavigationDrawerToggleEnabled(true);
     }
 
     @Override
@@ -773,64 +743,11 @@ public class BalanceFragment extends Fragment {
             thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
         }
 
-        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
-        mLayout.setTouchEnabled(false);
-        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-            }
-
-            @Override
-            public void onPanelExpanded(View panel) {
-
-            }
-
-            @Override
-            public void onPanelCollapsed(View panel) {
-
-            }
-
-            @Override
-            public void onPanelAnchored(View panel) {
-            }
-
-            @Override
-            public void onPanelHidden(View panel) {
-            }
-        });
-        bottomSel1 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel1));
-        bottomSel1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
-
-                Fragment fragment = new SendFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-                comm.setNavigationDrawerToggleEnabled(true);
-
-            }
-        });
-        bottomSel2 = ((LinearLayout) rootView.findViewById(R.id.bottom_sel2));
-        bottomSel2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment fragment = new ReceiveFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-                comm.setNavigationDrawerToggleEnabled(true);
-            }
-        });
-
         mainContentShadow = (LinearLayout) rootView.findViewById(R.id.balance_main_content_shadow);
         mainContentShadow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
-                    onAddClicked();
-                }
+                menuMultipleActions.collapse();
             }
         });
 
@@ -840,7 +757,7 @@ public class BalanceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
-                fab.startAnimation(bounce);
+                menuMultipleActions.startAnimation(bounce);
             }
         });
 

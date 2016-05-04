@@ -68,7 +68,6 @@
                             android:fontFamily="sans-serif"
                             android:gravity="center_vertical"
                             android:marqueeRepeatLimit="marquee_forever"
-                            android:text="from_address"
                             android:textColor="@color/primary_text_default_material_light"
                             android:textSize="14sp"
                             />
@@ -90,7 +89,6 @@
                         android:alpha="0.6"
                         android:fontFamily="sans-serif"
                         android:gravity="center"
-                        android:text="status"
                         android:textColor="@color/primary_text_default_material_light"
                         android:textSize="12sp"
                         />
@@ -204,7 +202,6 @@
                 android:layout_height="match_parent"
                 android:fontFamily="sans-serif"
                 android:gravity="center_vertical"
-                android:text="some_tx_hash"
                 android:textColor="@color/blockchain_blue"
                 android:textSize="14sp"
                 />
