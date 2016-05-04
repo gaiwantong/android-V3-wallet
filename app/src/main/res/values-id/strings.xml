@@ -470,4 +470,25 @@
     <string name="transfer_funds_safe">Dana yang Anda transfer akan aman dan terjaga, dan Anda akan mendapatkan keuntungan dari peningkatan privasi dan fitur pencadangan dan pemulihan yang mudah digunakan.</string>
     <string name="spendable_addresses">alamat dapat dibelanjakan</string>
     <string name="total_fees">Total biaya</string>
+    <string name="dont_ask_again">Jangan bertanya lagi.</string>
+    <string name="insufficient_fee">Biaya transaksi terlalu rendah.</string>
+    <string name="customize">menyesuaikan</string>
+    <string name="amount">Jumlah</string>
+    <string name="recommended">(Disarankan)</string>
+    <string name="recommended_fee">Biaya transaksi memengaruhi seberapa cepat jaringan pertambangan Bitcoin akan mengkonfirmasi transaksi Anda, dan tergantung pada kondisi jaringan saat ini. Kami menyarankan biaya di bawah ini untuk transaksi ini saat ini.</string>
+    <string name="default_label_brackets">(default)</string>
+    <string name="not_now">Jangan sekarang</string>
+    <string name="high_fee_not_necessary">Biaya tinggi yang tidak diperlukan.</string>
+    <string name="high_fee_not_necessary_info">Anda menetapkan biaya transaksi luar biasa tinggi [--custom_fee--].\n\nBahkan jika Anda menurunkan biaya untuk [--dynamic_fee--], Anda dapat mengharapkan transaksi untuk mengkonfirmasi dalam waktu ~10 menit (1 blok).</string>
+    <string name="low_fee_not_recommended">Biaya Rendah Tersuai Tidak Disarankan</string>
+    <string name="low_fee_suggestion">Anda menetapkan biaya transaksi sangat kecil [--custom_fee--].\n\nTransaksi Anda mungkin menjadi macet dan mungkin tidak akan pernah memberi mengkonfirmasi. Untuk meningkatkan kemungkinan agar transaksi Anda memberi konfirmasi dalam waktu sekitar satu jam (6 blok) kami sangat menyarankan biaya tidak kurang dari [--dynamic_fee--].</string>
+    <string name="raise_fee">Menaikkan biaya</string>
+    <string name="lower_fee">Biaya lebih rendah</string>
+    <string name="keep_high_fee">Mempertahankan biaya tinggi</string>
+    <string name="keep_low_fee">Mempertahankan biaya rendah</string>
+    <string name="no_confirmed_funds">Tidak ada dana yang telah dikonfirmasi untuk dibelanjakan.</string>
+    <string name="estimate_confirm_block_count">Waktu perkiraan konfirmasi: ~[--minutes--] menit ([--block_count--] blok)</string>
+    <string name="fee_too_low_no_confirm">Biaya Anda begitu kecil sehingga transaksi Anda mungkin tidak pernah dikonfirmasi.</string>
+    <string name="transaction_surge">Jaringan pertambangan Bitcoin saat ini sedang mengalami volume aktivitas tinggi, mengakibatkan biaya yang direkomendasi lebih tinggi dari biasa.</string>
+
 </resources>

@@ -470,4 +470,25 @@
     <string name="transfer_funds_safe">Sus fondos transferidos estarán seguros y protegidos y usted se beneficiará de una mayor privacidad y características convenientes de respaldo y recuperación.</string>
     <string name="spendable_addresses">direcciones disponibles</string>
     <string name="total_fees">Total de tarifas</string>
+    <string name="dont_ask_again">No volver a preguntar.</string>
+    <string name="insufficient_fee">La tarifa por transacción es demasiado baja.</string>
+    <string name="customize">personalizar</string>
+    <string name="amount">Cantidad</string>
+    <string name="recommended">(Recomendado)</string>
+    <string name="recommended_fee">Las tarifas de transacción afectan la rapidez con la que la red de minería de Bitcoin confirmará sus transacciones y dependen de las condiciones actuales de la red. Recomendamos la tarifa a continuación para esta transacción en este momento.</string>
+    <string name="default_label_brackets">(por defecto)</string>
+    <string name="not_now">Ahora no</string>
+    <string name="high_fee_not_necessary">La tarifa alta no es necesaria.</string>
+    <string name="high_fee_not_necessary_info">Ha especificado una tarifa de transacción inusualmente alta de [--custom_fee--].\n\nIncluso si se reduce la cuota a [--dynamic_fee--], usted puede esperar la transacción para confirmar en los próximos ~ 10 minutos (1 bloque).</string>
+    <string name="low_fee_not_recommended">Tarifa personalizada que no se recomienda</string>
+    <string name="low_fee_suggestion">Ha especificado una tarifa de transacción excepcionalmente baja de [--custom_fee--].\n\nSu transacción puede atascarse y posiblemente nunca se confirme. Para aumentar la probabilidad de su transacción para confirmar dentro de aproximadamente una hora (6 bloques), recomendamos una tarifa inferior a [--dynamic_fee--].</string>
+    <string name="raise_fee">Aumentar la tarifa</string>
+    <string name="lower_fee">Disminuir la tarifa</string>
+    <string name="keep_high_fee">Mantener la tarifa alta</string>
+    <string name="keep_low_fee">Mantener la tarifa baja</string>
+    <string name="no_confirmed_funds">Sin fondos confirmados para gastar.</string>
+    <string name="estimate_confirm_block_count">Tiempo de confirmación estimado: ~[--minutes--] minutos ([--block_count--] bloques)</string>
+    <string name="fee_too_low_no_confirm">Su tarifa es tan pequeña que no se puede confirmar la transacción.</string>
+    <string name="transaction_surge">La red de minería de Bitcoin está experimentando un alto volumen de actividad, resultando en tarifas recomendadas que son mayores de lo habitual.</string>
+
 </resources>
