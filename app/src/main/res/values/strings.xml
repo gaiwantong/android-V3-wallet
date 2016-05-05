@@ -8,7 +8,6 @@
         <item>Settings</item>
         <item>Change PIN</item>
         <item>Addresses</item>
-        <item>News, Price &amp; Charts</item>
         <item>Support</item>
         <item>Logout</item>
     </string-array>
@@ -17,7 +16,6 @@
         <item>Settings</item>
         <item>Change PIN</item>
         <item>Addresses</item>
-        <item>News, Price &amp; Charts</item>
         <item>Support</item>
         <item>Logout</item>
     </string-array>
@@ -26,18 +24,16 @@
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/ic_person_grey600_24dp</item>
+        <item>@drawable/ic_help_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
     <array name="navigation_drawer_icons_hd">
         <item>@drawable/bad_backup</item>
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
+        <item>@drawable/ic_person_grey600_24dp</item>
+        <item>@drawable/ic_help_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
 
@@ -468,7 +464,7 @@
     <string name="scan_private_key">Scan private key</string>
     <string name="private_key_successfully_imported">Private key successfully imported.</string>
     <string name="private_key_not_matching_address">NOTE: The scanned private key does not correspond to your watch-only address. To spend your funds from this address, please scan the correct private key.</string>
-    <string name="watch_only">watch-only</string>
+    <string name="watch_only">Watch Only</string>
     <string name="extended_public_key_description">If you are a merchant, show your xPub and use the
         Blockchain Merchant app to receive funds safely and privately.\n\nKeep your xPub private.
         Someone with access to your xPub will be able to see all your funds and transactions.
@@ -508,4 +504,7 @@
     <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>
     <string name="fee_too_low_no_confirm">Your fee is so small that your transaction may never be confirmed.</string>
     <string name="transaction_surge">The Bitcoin mining network is currently experiencing a high volume of activity, resulting in recommended fees that are higher than usual.</string>
+    <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
+    <string name="logout">Logout</string>
+    <string name="to_field_helper">Paste or scan an address or select a destination</string>
 </resources>

@@ -12,7 +12,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -37,10 +36,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import info.blockchain.wallet.listeners.OnSwipeTouchListener;
+import info.blockchain.wallet.ui.helpers.OnSwipeTouchListener;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ToastCustom;
-import info.blockchain.wallet.util.TypefaceUtil;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import java.text.NumberFormat;
@@ -139,15 +137,10 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
         infoLayout.setVisibility(View.GONE);
 
         tvName = (TextView) findViewById(R.id.tv_name);
-        tvName.setTypeface(TypefaceUtil.getInstance(this).getRobotoLightTypeface());
         tvAddress = (TextView) findViewById(R.id.tv_address);
-        tvAddress.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
         tvTel = (TextView) findViewById(R.id.tv_tel);
-        tvTel.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
         tvWeb = (TextView) findViewById(R.id.tv_web);
-        tvWeb.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
         tvDesc = (TextView) findViewById(R.id.tv_desc);
-        tvDesc.setTypeface(TypefaceUtil.getInstance(this).getRobotoTypeface());
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);

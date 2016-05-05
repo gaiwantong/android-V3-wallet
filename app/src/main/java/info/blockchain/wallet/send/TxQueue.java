@@ -5,8 +5,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.ConnectivityStatus;
-import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.Transaction;

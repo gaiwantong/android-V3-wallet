@@ -8,7 +8,6 @@
         <item>Настройки</item>
         <item>Изменить PIN</item>
         <item>Мои адреса</item>
-        <item>Новости, цены и графики</item>
         <item>Поддержка</item>
         <item>Отменить сопряжение кошелька</item>
     </string-array>
@@ -17,7 +16,6 @@
         <item>Настройки</item>
         <item>Изменить PIN</item>
         <item>Мои адреса</item>
-        <item>Новости, цены и графики</item>
         <item>Поддержка</item>
         <item>Отменить сопряжение кошелька</item>
     </string-array>
@@ -27,7 +25,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -36,7 +33,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>

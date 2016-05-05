@@ -11,8 +11,9 @@ import android.hardware.Camera;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 
-import info.blockchain.wallet.MainActivity;
+import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.bitcoinj.core.bip44.WalletFactory;
 

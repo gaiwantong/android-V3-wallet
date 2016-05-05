@@ -8,6 +8,9 @@ import info.blockchain.wallet.util.CharSequenceX;
 
 import org.json.JSONObject;
 
+/*
+TODO move to unit tests for faster execution - //Won't work until shared prefs removed from pairingfactory
+ */
 public class PairingTest extends BlockchainTest {
 
     /**
@@ -95,7 +98,7 @@ public class PairingTest extends BlockchainTest {
 
         String decrypt = null;
         try {
-            decrypt = AESUtil.decrypt(encrypted, new CharSequenceX(password), AESUtil.PasswordPBKDF2Iterations);
+            decrypt = AESUtil.decrypt(encrypted, new CharSequenceX(password), AESUtil.PinPbkdf2Iterations);
         } catch (Exception e) {
             System.out.println("decrypt ko");
         }

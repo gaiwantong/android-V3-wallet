@@ -4,6 +4,8 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.robotium.solo.Solo;
 
+import info.blockchain.wallet.ui.MainActivity;
+
 public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo = null;
@@ -35,20 +37,8 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
 
     public void testAll() throws Exception {
 
-        AESTest aesTest = new AESTest("AESTest", getActivity());
-        aesTest.test();
-
-        CreateWalletTest createHDTest = new CreateWalletTest("CreateHDWalletTest", getActivity());
-        createHDTest.test();
-
-        RestoreHDWalletTest restoreHDTest = new RestoreHDWalletTest("RestoreHDWalletTest", getActivity());
-        restoreHDTest.test();
-
         PairingTest pairingTest = new PairingTest("PairingTest", getActivity());
         pairingTest.test();
-
-        DoubleEncryptionTest deTest = new DoubleEncryptionTest("DoubleEncryptionTest", getActivity());
-        deTest.test();
 
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
