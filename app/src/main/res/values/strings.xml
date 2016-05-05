@@ -8,7 +8,6 @@
         <item>Settings</item>
         <item>Change PIN</item>
         <item>Addresses</item>
-        <item>News, Price &amp; Charts</item>
         <item>Support</item>
         <item>Logout</item>
     </string-array>
@@ -17,7 +16,6 @@
         <item>Settings</item>
         <item>Change PIN</item>
         <item>Addresses</item>
-        <item>News, Price &amp; Charts</item>
         <item>Support</item>
         <item>Logout</item>
     </string-array>
@@ -27,7 +25,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/ic_person_grey600_24dp</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_help_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -36,7 +33,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/ic_person_grey600_24dp</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_help_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>

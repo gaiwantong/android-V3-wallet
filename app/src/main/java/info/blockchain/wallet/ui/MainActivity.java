@@ -11,12 +11,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,17 +34,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.drawer.DrawerAdapter;
 import info.blockchain.wallet.drawer.DrawerItem;
-import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.EnableGeo;
+import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -55,7 +53,6 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.bip44.WalletFactory;
@@ -470,25 +467,26 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         startActivity(intent);
     }
 
-    private void doExchangeRates() {
-        if (hasZeroBlock()) {
-            Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + "com.phlint.android.zeroblock"));
-            startActivity(intent);
-        }
-    }
-
-    private boolean hasZeroBlock() {
-        PackageManager pm = this.getPackageManager();
-        try {
-            pm.getPackageInfo("com.phlint.android.zeroblock", 0);
-            return true;
-        } catch (NameNotFoundException nnfe) {
-            return false;
-        }
-    }
+    //Zeroblock hidden from sidebar
+//    private void doExchangeRates() {
+//        if (hasZeroBlock()) {
+//            Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
+//            startActivity(intent);
+//        } else {
+//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + "com.phlint.android.zeroblock"));
+//            startActivity(intent);
+//        }
+//    }
+//
+//    private boolean hasZeroBlock() {
+//        PackageManager pm = this.getPackageManager();
+//        try {
+//            pm.getPackageInfo("com.phlint.android.zeroblock", 0);
+//            return true;
+//        } catch (NameNotFoundException nnfe) {
+//            return false;
+//        }
+//    }
 
     private void scanURI() {
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
@@ -691,12 +689,9 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 doMyAccounts();
                 break;
             case 4:
-                doExchangeRates();
-                break;
-            case 5:
                 doSupport();
                 break;
-            case 6:
+            case 5:
                 doUnpairWallet();
                 break;
         }
@@ -717,12 +712,9 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 doMyAccounts();
                 break;
             case 4:
-                doExchangeRates();
-                break;
-            case 5:
                 doSupport();
                 break;
-            case 6:
+            case 5:
                 doUnpairWallet();
                 break;
         }
