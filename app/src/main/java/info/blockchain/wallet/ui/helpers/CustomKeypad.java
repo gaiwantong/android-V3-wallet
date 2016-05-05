@@ -107,7 +107,14 @@ public class CustomKeypad implements View.OnClickListener{
 
             if (view.hasFocus()) {
 
-                view.append(pad);
+                int startSelection=view.getSelectionStart();
+                int endSelection=view.getSelectionEnd();
+                if(endSelection - startSelection > 0) {
+                    String selectedText = view.getText().toString().substring(startSelection, endSelection);
+                    view.setText(view.getText().toString().replace(selectedText, pad));
+                }else {
+                    view.append(pad);
+                }
 
                 if (view.getText().length() > 0) {
                     view.post(new Runnable() {
