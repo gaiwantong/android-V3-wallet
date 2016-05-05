@@ -8,7 +8,6 @@
         <item>Configurações</item>
         <item>Alterar PIN</item>
         <item>Meus endereços</item>
-        <item>Notícias, preços e gráficos</item>
         <item>Suporte</item>
         <item>Cancelar pareamento da carteira</item>
     </string-array>
@@ -17,7 +16,6 @@
         <item>Configurações</item>
         <item>Alterar PIN</item>
         <item>Meus endereços</item>
-        <item>Notícias, preços e gráficos</item>
         <item>Suporte</item>
         <item>Cancelar pareamento da carteira</item>
     </string-array>
@@ -27,7 +25,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -36,7 +33,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -470,4 +466,25 @@
     <string name="transfer_funds_safe">Seus fundos transferidos estarão são e salvos, e você se beneficiará de uma maior privacidade e de recursos de recuperação e proteção convenientes.</string>
     <string name="spendable_addresses">endereços passíveis de uso de bitcoins</string>
     <string name="total_fees">Total de taxas</string>
+    <string name="dont_ask_again">Não me pergunte novamente.</string>
+    <string name="insufficient_fee">A taxa de transação é muito baixa.</string>
+    <string name="customize">personalizar</string>
+    <string name="amount">Quantidade</string>
+    <string name="recommended">(Recomendado)</string>
+    <string name="recommended_fee">As taxas de transação impactam na rapidez com a qual a rede de mineração Bitcoin confirma as transações e depende das condições atuais de rede. Neste momento, recomendamos a taxa a seguir para esta transação.</string>
+    <string name="default_label_brackets">(padrão)</string>
+    <string name="not_now">Agora não</string>
+    <string name="high_fee_not_necessary">Não é necessário ter uma taxa alta.</string>
+    <string name="high_fee_not_necessary_info">Você especificou uma taxa de transação excepcionalmente alta de [--custom_fee--].\n\nMesmo se você baixar a taxa para [--dynamic_fee--], espere a transação se confirmar dentro de ~10 minutos (1 bloco).</string>
+    <string name="low_fee_not_recommended">Não se recomenda uma taxa personalizada baixa</string>
+    <string name="low_fee_suggestion">Você especificou uma taxa de transação excepcionalmente baixa de [--custom_fee--].\n\nSua transação pode ficar paralisada ou, possivelmente, nunca se confirmar. Para aumentar a probabilidade de confirmação de sua transação dentro de aproximadamente uma hora (6 blocos), recomendamos uma taxa de não menos do que [--dynamic_fee--].</string>
+    <string name="raise_fee">Aumentar a taxa</string>
+    <string name="lower_fee">Diminuir a taxa</string>
+    <string name="keep_high_fee">Manter a taxa alta</string>
+    <string name="keep_low_fee">Manter a taxa baixa</string>
+    <string name="no_confirmed_funds">Não há fundos confirmados para gastar.</string>
+    <string name="estimate_confirm_block_count">Tempo de confirmação estimado: ~[--minutes--] minutes ([--block_count--] blocks)</string>
+    <string name="fee_too_low_no_confirm">A taxa é tão pequena que sua transação pode nunca se confirmar.</string>
+    <string name="transaction_surge">Atualmente, a rede de mineração Bitcoin está experimentando um alto volume de atividades, resultando em taxas recomendadas mais altas do que o habitual.</string>
+
 </resources>

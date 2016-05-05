@@ -2,9 +2,11 @@ package wallet.send;
 
 import android.content.Context;
 
+import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
+import info.blockchain.wallet.util.FeeUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,8 +81,8 @@ public class SendMethodsTest {
 
             UnspentOutputsBundle unspentOutputPoints = null;
             BigInteger spendAmount = BigInteger.ZERO;
-            BigInteger feePerKb = BigInteger.valueOf(30000l);
-            BigInteger dust = BigInteger.valueOf(5460);
+            BigInteger feePerKb = FeeUtil.AVERAGE_FEE_PER_KB;
+            BigInteger dust = SendCoins.bDust;
             int inputs = 0;
             int outputs = 0;
 

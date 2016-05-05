@@ -7,7 +7,7 @@
                 android:paddingLeft="@dimen/padding_send_receive"
                 android:paddingRight="@dimen/padding_send_receive"
                 android:paddingTop="0dp"
-                tools:context="info.blockchain.wallet.MainActivity">
+                tools:context="info.blockchain.wallet.ui.MainActivity">
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -67,7 +67,8 @@
 
                 <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
@@ -75,14 +76,15 @@
 
                     <TextView
                             android:layout_width="50dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:text="@string/to"
+                            android:gravity="center|left"
                             android:textColor="@color/blockchain_grey"/>
 
                     <EditText
                             android:id="@+id/destination"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:background="@color/blockchain_pearl_white"
                             android:inputType="textNoSuggestions"
@@ -91,12 +93,13 @@
                             android:textColor="@color/primary_text_default_material_light"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
+                            android:hint="@string/to_field_helper"
                     />
 
-                    <info.blockchain.wallet.util.ReselectSpinner
+                    <info.blockchain.wallet.ui.helpers.ReselectSpinner
                             android:id="@+id/sp_destination"
                             android:layout_width="58dp"
-                            android:layout_height="48dp"
+                            android:layout_height="match_parent"
                             android:background="?android:selectableItemBackground"
                             android:divider="@null"
                             android:dropDownSelector="?android:selectableItemBackground"
@@ -239,9 +242,10 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"/>
 
-            <include layout="@layout/include_numeric_keyboard"/>
-
         </LinearLayout>
 
     </LinearLayout>
+
+    <include layout="@layout/include_numeric_keyboard"/>
+
 </RelativeLayout>

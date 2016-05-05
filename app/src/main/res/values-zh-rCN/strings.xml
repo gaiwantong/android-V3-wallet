@@ -8,7 +8,6 @@
         <item>设置</item>
         <item>更改 PIN</item>
         <item>我的地址</item>
-        <item>新闻、价格与图表</item>
         <item>支持</item>
         <item>取消配对钱包</item>
     </string-array>
@@ -17,7 +16,6 @@
         <item>设置</item>
         <item>更改 PIN</item>
         <item>我的地址</item>
-        <item>新闻、价格与图表</item>
         <item>支持</item>
         <item>取消配对钱包</item>
     </string-array>
@@ -27,7 +25,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -36,7 +33,6 @@
         <item>@drawable/icon_settings</item>
         <item>@drawable/icon_pincode</item>
         <item>@drawable/icon_accounts</item>
-        <item>@drawable/icon_news</item>
         <item>@drawable/ic_info_outline_grey600_24dp</item>
         <item>@drawable/icon_logout</item>
     </array>
@@ -470,4 +466,25 @@
     <string name="transfer_funds_safe">转移的资金将处于安全状态，并且您将从提升的隐私性和方便的备份与恢复功能中受益。</string>
     <string name="spendable_addresses">可使用的地址</string>
     <string name="total_fees">总费用</string>
+    <string name="dont_ask_again">不要再问我。</string>
+    <string name="insufficient_fee">交易费太低。</string>
+    <string name="customize">自定义</string>
+    <string name="amount">金额</string>
+    <string name="recommended">（推荐）</string>
+    <string name="recommended_fee">交易费影响比特币挖矿网络确认您的交易的速度，并取决于当前的网络状况。针对此时的此次交易，我们推荐以下交易费。</string>
+    <string name="default_label_brackets">（默认值）</string>
+    <string name="not_now">不是现在</string>
+    <string name="high_fee_not_necessary">不必要的高收费。</string>
+    <string name="high_fee_not_necessary_info">您指定了一个异常高的交易费 [--custom_fee--]。\n\n即便您将收费降低至 [--dynamic_fee--]，您可以预期交易将在接下来大约10分钟内（1 个区块）确认。</string>
+    <string name="low_fee_not_recommended">不推荐低自定义收费</string>
+    <string name="low_fee_suggestion">您指定了一个极低的交易费 [--custom_fee--]。\n\n您的交易可能会被卡住，可能永远不会确认。为了增加您的交易在大约一小时（6 个区块）内确认 的可能性，我们强烈建议收费不低于 [--dynamic_fee--]。</string>
+    <string name="raise_fee">提高收费</string>
+    <string name="lower_fee">降低收费</string>
+    <string name="keep_high_fee">保持高收费</string>
+    <string name="keep_low_fee">保持低收费</string>
+    <string name="no_confirmed_funds">没有确认的资金可花费。</string>
+    <string name="estimate_confirm_block_count">估计确认时间：大约[--minutes--] 分钟（[--block_count--] 个区块）</string>
+    <string name="fee_too_low_no_confirm">您的收费如此之低，可能永远不会确认您的交易。</string>
+    <string name="transaction_surge">比特币挖掘网络目前正遇到高交易量，导致推荐的收费也比平常高。</string>
+
 </resources>

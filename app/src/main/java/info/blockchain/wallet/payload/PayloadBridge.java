@@ -1,13 +1,12 @@
 package info.blockchain.wallet.payload;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.ToastCustom;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.Util;
 import info.blockchain.wallet.util.WebUtil;
 

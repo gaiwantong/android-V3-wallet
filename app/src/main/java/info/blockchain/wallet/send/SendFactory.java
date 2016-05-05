@@ -9,7 +9,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ConnectivityStatus;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.Hash;
