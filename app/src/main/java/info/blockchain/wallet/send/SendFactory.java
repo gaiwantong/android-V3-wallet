@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Looper;
 
+import info.blockchain.api.PushTx;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
@@ -45,6 +46,7 @@ import piuk.blockchain.android.R;
  */
 public class SendFactory {
 
+    private static PushTx pushTxApi;
     private static SendFactory instance = null;
     private static Context context = null;
     private String[] fromAddresses = null;
@@ -61,6 +63,7 @@ public class SendFactory {
 
         if (instance == null) {
             instance = new SendFactory();
+            pushTxApi = new PushTx();
         }
 
         return instance;
@@ -223,7 +226,7 @@ public class SendFactory {
 
                     if (!isQueueSend) {
                         if (ConnectivityStatus.hasConnectivity(context)) {
-                            String response = SendCoins.getInstance().pushTx(tx);
+                            String response = pushTxApi.submitTransaction(tx);
                             if (response.contains("Transaction Submitted")) {
 
                                 opc.onSuccess(tx.getHashAsString());
