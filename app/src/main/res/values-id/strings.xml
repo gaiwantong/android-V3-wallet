@@ -356,7 +356,14 @@
     <string name="upgrade_page_3">Segala hal yang Anda butuhkan untuk menerima, membelanjakan, dan menyimpan Bitcoin.</string>
     <string name="CONFIRM">KONFIRMASI:</string>
     <string name="confirm_upgrade">Konfirmasikan Peningkatan Versi</string>
-    <string name="confirm_upgrade_info">Dompet Anda akan ditingkatkan versinya ke format dompet terkini kami. Ini akan membuat Anda bisa memperoleh keuntungan privasi yang signifikan dan peningkatan keamanan. Perhatikan bahwa setelah Anda mengonfirmasi, proses peningkatan versi akan dimulai dan tidak bisa dibalikkan.</string>
+    <!--<string name="confirm_upgrade_info">Dompet Anda akan ditingkatkan versinya ke format dompet terkini kami. Ini akan membuat Anda bisa memperoleh keuntungan privasi yang signifikan dan peningkatan keamanan. Perhatikan bahwa setelah Anda mengonfirmasi, proses peningkatan versi akan dimulai dan tidak bisa dibalikkan.</string>-->
+    <string name="confirm_upgrade_info">Upgrade hanya butuh kedua dan Bitcoin dan riwayat akan aman . Berikut adalah apa yang lebih baik :\n\n
+        ✓Dompet Anda akan ditingkatkan versinya ke format dompet terkini kami.\n
+        ✓Ini akan membuat Anda bisa memperoleh keuntungan privasi yang signifikan dan peningkatan keamanan.\n
+        ✓Backup disederhanakan dan pemulihan.\n
+        ✓Perhatikan bahwa setelah Anda mengonfirmasi, proses peningkatan versi akan dimulai dan tidak bisa dibalikkan.\n\n
+        Shared Coin is not supported at this time.
+    </string>
     <string name="upgrading">Meningkatkan versi...</string>
     <string name="upgrading_started_info">Dompet Anda sedang ditingkatkan versinya, mohon sabar karena ini bisa membutuhkan waktu cukup lama sesuai dengan ukuran dan usia dompet Anda.</string>
     <string name="upgrade_success_heading">Dompet Anda sudah ditingkatkan versinya!</string>

@@ -356,7 +356,14 @@
     <string name="upgrade_page_3">Tudo o que você precisa para armazenar, usar e receber bitcoins.</string>
     <string name="CONFIRM">CONFIRMAR</string>
     <string name="confirm_upgrade">Confirmar atualização</string>
-    <string name="confirm_upgrade_info">Sua carteira será atualizada para o nosso formato de carteira mais recente. Isso permitirá que você aproveite as grandes melhorias na privacidade e na segurança. Observe que após confirmar, o processo de atualização iniciará e não poderá ser revertido.</string>
+    <!--<string name="confirm_upgrade_info">Sua carteira será atualizada para o nosso formato de carteira mais recente. Isso permitirá que você aproveite as grandes melhorias na privacidade e na segurança. Observe que após confirmar, o processo de atualização iniciará e não poderá ser revertido.</string>-->
+    <string name="confirm_upgrade_info">A atualização leva apenas um segundo e seu Bitcoin e história será segura. Aqui está o que é melhor:\n\n
+        ✓Sua carteira será atualizada para o nosso formato de carteira mais recente.\n
+        ✓Isso permitirá que você aproveite as grandes melhorias na privacidade e na segurança.\n
+        ✓Backup e recuperação simplificada.\n
+        ✓Observe que após confirmar, o processo de atualização iniciará e não poderá ser revertido.\n\n
+        Shared Coin não é suportado neste momento.
+    </string>
     <string name="upgrading">Atualizando...</string>
     <string name="upgrading_started_info">Sua carteira está atualizando, aguarde um momento. Isto pode levar alguns minutos dependendo do tamanho e tempo de existência da sua carteira.</string>
     <string name="upgrade_success_heading">Sua carteira foi atualizada!</string>

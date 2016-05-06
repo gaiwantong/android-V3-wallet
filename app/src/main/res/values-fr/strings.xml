@@ -356,7 +356,14 @@
     <string name="upgrade_page_3">Tout ce dont vous avez besoin pour recevoir, dépenser et stocker vos bitcoins</string>
     <string name="CONFIRM">CONFIRMER</string>
     <string name="confirm_upgrade">Confirmez la mise à niveau</string>
-    <string name="confirm_upgrade_info">Votre portefeuille sera mis à jour dans notre dernier format de portefeuille. Cela vous permettra de profiter d’importantes améliorations en matière de confidentialité et de sécurité. Veuillez noter qu\'une fois que vous confirmez, le processus de mise à niveau commence et ne peut pas être inversé.</string>
+    <!--<string name="confirm_upgrade_info">Votre portefeuille sera mis à jour dans notre dernier format de portefeuille. Cela vous permettra de profiter d’importantes améliorations en matière de confidentialité et de sécurité. Veuillez noter qu\'une fois que vous confirmez, le processus de mise à niveau commence et ne peut pas être inversé.</string>-->
+    <string name="confirm_upgrade_info">La mise à niveau prend juste une seconde et votre Bitcoin et de l'histoire sera en sécurité . Voici ce qui est mieux :\n\n
+        ✓Votre portefeuille sera mis à jour dans notre dernier format de portefeuille.\n
+        ✓Cela vous permettra de profiter d’importantes améliorations en matière de confidentialité et de sécurité.\n
+        ✓Sauvegarde simplifiée et la récupération.\n
+        ✓Veuillez noter qu\'une fois que vous confirmez, le processus de mise à niveau commence et ne peut pas être inversé.\n\n
+        Shared Coin est pas pris en charge à ce moment.
+    </string>
     <string name="upgrading">Mise à niveau...</string>
     <string name="upgrading_started_info">Votre portefeuille se met à niveau, veuillez patienter, cela peut prendre un certain temps selon la taille et l\'âge de votre portefeuille.</string>
     <string name="upgrade_success_heading">Votre portefeuille a été mis à niveau !</string>

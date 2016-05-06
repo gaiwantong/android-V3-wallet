@@ -356,7 +356,14 @@
     <string name="upgrade_page_3">Todo lo que necesita para almacenar, gastar y recibir sus Bitcoin</string>
     <string name="CONFIRM">CONFIRMAR:</string>
     <string name="confirm_upgrade">Confirmar actualización</string>
-    <string name="confirm_upgrade_info">Su monedero se actualizarán a nuestro formato más reciente de monedero. Esto le permitirá aprovechar las ventajas de privacidad y las mejoras en la seguridad. Tenga en cuenta que una vez que usted lo confirme el proceso de actualización se iniciará y no se podrá revertir.</string>
+    <!--<string name="confirm_upgrade_info">Su monedero se actualizarán a nuestro formato más reciente de monedero. Esto le permitirá aprovechar las ventajas de privacidad y las mejoras en la seguridad. Tenga en cuenta que una vez que usted lo confirme el proceso de actualización se iniciará y no se podrá revertir.</string>-->
+    <string name="confirm_upgrade_info">La actualización dura sólo un segundo y su Bitcoin y la historia estará a salvo . He aquí lo que es mejor :\n\n
+        ✓Su monedero se actualizarán a nuestro formato más reciente de monedero.\n
+        ✓Esto le permitirá aprovechar las ventajas de privacidad y las mejoras en la seguridad.\n
+        ✓Backup y recuperación simplificada.\n
+        ✓Tenga en cuenta que una vez que usted lo confirme el proceso de actualización se iniciará y no se podrá revertir\n\n
+        Shared Coin no se admite en este momento.
+    </string>
     <string name="upgrading">Actualizando...</string>
     <string name="upgrading_started_info">Su monedero está siendo actualizado, le pedimos tenga paciencia ya que esto puede tomar algún tiempo dependiendo del tamaño y la edad del monedero.</string>
     <string name="upgrade_success_heading">¡Su monedero ha sido actualizado!</string>
