@@ -55,7 +55,11 @@ public class SendTest extends BlockchainTest {
         } catch (Exception e) {
             ;
         }
-        MultiAddrFactory.getInstance().getXPUB(new String[]{PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub()});
+        try {
+            MultiAddrFactory.getInstance().refreshXPUBData(new String[]{PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub()});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         SendFactory sf = getFactoryInstance(context);
 
