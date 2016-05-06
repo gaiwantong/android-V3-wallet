@@ -1,5 +1,8 @@
 package info.blockchain.wallet.ui;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -40,32 +43,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.client.android.CaptureActivity;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.lang3.StringUtils;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
-import org.bitcoinj.params.MainNetParams;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
@@ -95,6 +72,30 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.bip44.Wallet;
+import org.bitcoinj.core.bip44.WalletFactory;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.crypto.MnemonicException;
+import org.bitcoinj.params.MainNetParams;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 
 public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener {
@@ -1995,6 +1996,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }catch (NumberFormatException nfe){
             amount = 0.0;
         }
+
+        if(getActivity() != null && getActivity().isFinishing())//activity has been destroyed
+            return 0l;
 
         return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
     }
