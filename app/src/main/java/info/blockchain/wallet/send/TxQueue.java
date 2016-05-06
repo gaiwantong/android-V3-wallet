@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.api.PushTx;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.Transaction;
 import org.spongycastle.util.encoders.Hex;
@@ -21,6 +21,7 @@ import piuk.blockchain.android.R;
 
 public class TxQueue {
 
+    private static PushTx pushTxApi;
     private static Timer timer = null;
     private static Handler handler = null;
     private static Context context = null;
@@ -40,6 +41,7 @@ public class TxQueue {
             queue = new ConcurrentLinkedQueue<Spendable>();
 
             instance = new TxQueue();
+            pushTxApi = new PushTx();
         }
 
         return instance;
@@ -104,7 +106,7 @@ public class TxQueue {
                                 if (sp != null) {
                                     try {
                                         String hexString = new String(Hex.encode(sp.getTx().bitcoinSerialize()));
-                                        String response = WebUtil.getInstance().postURL(WebUtil.SPEND_URL, "tx=" + hexString);
+                                        String response = pushTxApi.submitTransaction(hexString);
 //					Log.i("Send response", response);
                                         if (response.contains("Transaction Submitted")) {
 

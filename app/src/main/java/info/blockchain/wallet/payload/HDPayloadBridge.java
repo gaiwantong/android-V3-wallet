@@ -158,7 +158,11 @@ public class HDPayloadBridge {
                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(
                         context.getResources().getString(R.string.default_wallet_name));
 
-                no_tx = (MultiAddrFactory.getInstance().nbTxXPUB(xpub) == 0L);
+                try {
+                    no_tx = (MultiAddrFactory.getInstance().getXpubTransactionCount(xpub) == 0L);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } while (!no_tx && attempts < 3);
 
@@ -170,7 +174,11 @@ public class HDPayloadBridge {
             }
         }
 
-        updateBalancesAndTransactions();
+        try {
+            updateBalancesAndTransactions();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
         PayloadFactory.getInstance().cache();
@@ -185,9 +193,7 @@ public class HDPayloadBridge {
         return true;
     }
 
-    public void updateBalancesAndTransactions() throws JSONException, IOException, DecoderException, AddressFormatException,
-            MnemonicException.MnemonicLengthException, MnemonicException.MnemonicChecksumException,
-            MnemonicException.MnemonicWordException {
+    public void updateBalancesAndTransactions() throws Exception {
         // TODO unify legacy and HD call to one API call
         // TODO getXpub must be called before getLegacy (unify should fix this)
 
@@ -195,7 +201,7 @@ public class HDPayloadBridge {
         if (!AppUtil.getInstance(context).isNotUpgraded()) {
             String[] xpubs = getXPUBs(false);
             if (xpubs.length > 0) {
-                MultiAddrFactory.getInstance().getXPUB(xpubs);
+                MultiAddrFactory.getInstance().refreshXPUBData(xpubs);
             }
             List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
             for (Account a : accounts) {
@@ -210,7 +216,7 @@ public class HDPayloadBridge {
         if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
             List<String> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddressStrings();
             String[] addresses = legacyAddresses.toArray(new String[legacyAddresses.size()]);
-            MultiAddrFactory.getInstance().getLegacy(addresses, false);
+            MultiAddrFactory.getInstance().refreshLegacyAddressData(addresses, false);
         }
     }
 

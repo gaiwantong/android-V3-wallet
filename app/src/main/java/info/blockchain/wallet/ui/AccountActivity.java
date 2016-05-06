@@ -1149,7 +1149,11 @@ public class AccountActivity extends AppCompatActivity {
 
                         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                         List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
-                        MultiAddrFactory.getInstance().getLegacy(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                        try {
+                            MultiAddrFactory.getInstance().refreshLegacyAddressData(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         //Subscribe to new address only if successfully created
                         Intent intent = new Intent(WebSocketService.ACTION_INTENT);

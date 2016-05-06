@@ -3,6 +3,7 @@ package info.blockchain.wallet.access;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
@@ -24,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AccessFactory {
 
+    private static Access accessApi;
     private static String _key = null;
     private static String _value = null;
     private static String _pin = null;
@@ -44,6 +46,7 @@ public class AccessFactory {
 
         if (instance == null) {
             instance = new AccessFactory();
+            accessApi = new Access();
         }
 
         return instance;
@@ -69,7 +72,7 @@ public class AccessFactory {
             _value = new String(org.spongycastle.util.encoders.Hex.encode(bytes), "UTF-8");
 //            Log.i("AccessFactory", "_value:" + _value);
 
-            JSONObject json = apiStoreKey();
+            JSONObject json = accessApi.setAccess(_key, _value, _pin);
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
             if (json.get("success") != null) {
                 String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(_value), AESUtil.PinPbkdf2Iterations);
@@ -98,7 +101,7 @@ public class AccessFactory {
         String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
 
         try {
-            final JSONObject json = apiGetValue();
+            final JSONObject json = accessApi.validateAccess(_key, _pin);
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
             String decryptionKey = (String) json.get("success");
             password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
@@ -125,39 +128,6 @@ public class AccessFactory {
 
     public void setIsLoggedIn(boolean logged) {
         isLoggedIn = logged;
-    }
-
-    private JSONObject apiGetValue() throws Exception {
-
-        StringBuilder args = new StringBuilder();
-
-        args.append("key=" + _key);
-        args.append("&pin=" + _pin);
-        args.append("&method=get");
-
-        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString(), 1);
-
-        if (response == null || response.length() == 0)
-            throw new Exception("Invalid Server Response");
-
-        return new JSONObject(response);
-    }
-
-    private JSONObject apiStoreKey() throws Exception {
-
-        StringBuilder args = new StringBuilder();
-
-        args.append("key=" + _key);
-        args.append("&value=" + _value);
-        args.append("&pin=" + _pin);
-        args.append("&method=put");
-
-        String response = WebUtil.getInstance().postURL(WebUtil.ACCESS_URL, args.toString());
-
-        if (response == null || response.length() == 0)
-            throw new Exception("Invalid Server Response");
-
-        return new JSONObject(response);
     }
 
     public boolean resendEmailConfirmation(String email) {

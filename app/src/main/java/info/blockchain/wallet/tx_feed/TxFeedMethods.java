@@ -133,10 +133,16 @@ public class TxFeedMethods {
         if (MultiAddrFactory.getInstance().isOwnHDAddress(address)){
 
             if (accountList != null) {
-                int accIndex = xpubToAccountMap.get(addressToXpubMap.get(address));
-                String label =  accountList.get(accIndex).getLabel();
-                if (label != null && !label.isEmpty())
-                    return label;
+                String xpub = addressToXpubMap.get(address);
+                if(xpub != null) {
+                    //eventhough it looks like this shouldn't happen,
+                    //it sometimes happens with transfers if user clicks to view details immediately.
+                    //TODO - see if isOwnHDAddress could be updated to solve this
+                    int accIndex = xpubToAccountMap.get(xpub);
+                    String label = accountList.get(accIndex).getLabel();
+                    if (label != null && !label.isEmpty())
+                        return label;
+                }
             }
 
         //If address one of owned legacy addresses
