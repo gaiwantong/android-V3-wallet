@@ -17,7 +17,7 @@
                 android:gravity="center"
                 android:layout_centerInParent="true"
                 android:textColor="@color/primary_text_default_material_light"
-                android:textSize="24sp"/>
+                android:textSize="24dp"/>
 
         <ImageView
                 android:id="@+id/confirm_cancel"
@@ -102,6 +102,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/amount"
                     android:alpha="0.7"
+                    android:textSize="14dp"
                     android:gravity="left"/>
 
             <TextView
@@ -110,6 +111,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:alpha="0.7"
+                    android:textSize="14dp"
                     android:gravity="right"/>
 
             <TextView
@@ -119,6 +121,7 @@
                     android:layout_height="wrap_content"
                     android:paddingRight="8dp"
                     android:alpha="0.7"
+                    android:textSize="14dp"
                     android:gravity="right"/>
 
         </LinearLayout>
@@ -134,6 +137,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:alpha="0.7"
+                    android:textSize="14dp"
                     android:text="@string/fee"
                     android:gravity="left"/>
 
@@ -147,15 +151,16 @@
                         android:id="@+id/confirm_fee_btc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:alpha="0.7"/>
 
                 <TextView
                         android:id="@+id/tv_customize_fee"
                         android:layout_width="wrap_content"
-                        android:layout_height="24dp"
-                        android:paddingBottom="8dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|right"
                         android:textColor="@color/blockchain_blue"
+                        android:textSize="14dp"
                         android:text="@string/customize"/>
 
             </LinearLayout>
@@ -171,6 +176,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="8dp"
+                        android:textSize="14dp"
                         android:alpha="0.7"/>
 
                 <ImageView
@@ -205,6 +211,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="@string/total"
+                    android:textSize="14dp"
                     android:gravity="left"/>
 
             <TextView
@@ -212,6 +219,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:textSize="14dp"
                     android:gravity="right"/>
 
             <TextView
@@ -220,6 +228,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:paddingRight="8dp"
+                    android:textSize="14dp"
                     android:gravity="right"/>
 
         </LinearLayout>

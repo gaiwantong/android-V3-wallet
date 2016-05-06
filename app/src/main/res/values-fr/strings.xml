@@ -357,7 +357,7 @@
     <string name="CONFIRM">CONFIRMER</string>
     <string name="confirm_upgrade">Confirmez la mise à niveau</string>
     <!--<string name="confirm_upgrade_info">Votre portefeuille sera mis à jour dans notre dernier format de portefeuille. Cela vous permettra de profiter d’importantes améliorations en matière de confidentialité et de sécurité. Veuillez noter qu\'une fois que vous confirmez, le processus de mise à niveau commence et ne peut pas être inversé.</string>-->
-    <string name="confirm_upgrade_info">La mise à niveau prend juste une seconde et votre Bitcoin et de l'histoire sera en sécurité . Voici ce qui est mieux :\n\n
+    <string name="confirm_upgrade_info">La mise à niveau prend juste une seconde et votre Bitcoin et de l\'histoire sera en sécurité . Voici ce qui est mieux :\n\n
         ✓Votre portefeuille sera mis à jour dans notre dernier format de portefeuille.\n
         ✓Cela vous permettra de profiter d’importantes améliorations en matière de confidentialité et de sécurité.\n
         ✓Sauvegarde simplifiée et la récupération.\n

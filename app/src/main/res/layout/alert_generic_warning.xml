@@ -47,34 +47,37 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="72dp"
+            android:padding="16dp"
             android:orientation="horizontal"
             android:gravity="center_vertical|right">
 
         <TextView
                 android:id="@+id/confirm_keep"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_width="1dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
                 android:text="negative button"
                 android:gravity="center"
-                android:layout_marginRight="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:layout_margin="16dp"
+                android:textSize="14dp"
                 android:textColor="@color/primary_text_default_material_light"/>
 
-        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:layout_width="16dp" android:layout_height="match_parent"/>
 
         <TextView
                 android:id="@+id/confirm_change"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_width="1dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
                 android:text="possitive button"
                 android:gravity="center"
-                android:layout_marginRight="16dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:layout_margin="16dp"
+                android:textSize="14dp"
                 android:textColor="@color/blockchain_blue"/>
 
     </LinearLayout>
