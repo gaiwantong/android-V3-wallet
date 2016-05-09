@@ -807,6 +807,15 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
 
     private void doMerchantDirectory() {
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtil.requestLocationPermissionFromActivity(mLayout, this);
+        }else{
+            startMerchantActivity();
+        }
+    }
+
+    private void startMerchantActivity(){
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
@@ -883,6 +892,12 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startScanActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } if (requestCode == PermissionUtil.PERMISSION_REQUEST_LOCATION) {
+            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                startMerchantActivity();
             } else {
                 // Permission request was denied.
             }

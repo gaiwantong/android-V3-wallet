@@ -514,5 +514,6 @@
     <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
     <string name="logout">Logout</string>
     <string name="to_field_helper">Enter Bitcoin address or select</string>
-    <string name="request_camera_permission">Camera access is required to display the camera preview.</string>
+    <string name="request_camera_permission">Camera access is required.</string>
+    <string name="request_location_permission">Location access is required.</string>
 </resources>

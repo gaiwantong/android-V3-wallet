@@ -16,6 +16,7 @@ import piuk.blockchain.android.R;
  */
 public class PermissionUtil {
 
+    public static final int PERMISSION_REQUEST_LOCATION = 160;
     public static final int PERMISSION_REQUEST_CAMERA = 161;
 
     public static void requestCameraPermissionFromFragment(View parentView, Context context, final Fragment fragment) {
@@ -59,6 +60,28 @@ public class PermissionUtil {
             ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.CAMERA},
                     PERMISSION_REQUEST_CAMERA);
+        }
+    }
+
+    public static void requestLocationPermissionFromActivity(View parentView, final Activity activity) {
+        // Permission has not been granted and must be requested.
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            Snackbar.make(parentView, activity.getString(R.string.request_location_permission),
+                    Snackbar.LENGTH_INDEFINITE).setAction(activity.getString(R.string.ok_cap), new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Request the permission
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                            PERMISSION_REQUEST_LOCATION);
+                }
+            }).show();
+
+        } else {
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}
+                    , PERMISSION_REQUEST_LOCATION);
         }
     }
 }
