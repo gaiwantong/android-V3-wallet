@@ -2,6 +2,7 @@ package info.blockchain.wallet.ui;
 
 import com.google.zxing.client.android.CaptureActivity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -11,12 +12,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -48,6 +52,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
+import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
@@ -80,6 +85,7 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
     private int backupWalletDrawerIndex;
     private DrawerAdapter adapterDrawer;
     private AlertDialog rootedAlertDialog;
+    private View mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,6 +259,7 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         }
 
         setContentView(R.layout.activity_main);
+        mLayout = findViewById(R.id.main_layout);
 
         if (!getResources().getBoolean(R.bool.isRotatable))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -318,10 +325,10 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 doMerchantDirectory();
                 return true;
             case R.id.action_qr:
-                if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
-                    scanURI();
-                } else {
-                    ToastCustom.makeText(MainActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    PermissionUtil.requestCameraPermissionFromActivity(mLayout, this);
+                }else{
+                    startScanActivity();
                 }
                 return true;
             default:
@@ -492,9 +499,13 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
 //        }
 //    }
 
-    private void scanURI() {
-        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-        startActivityForResult(intent, SCAN_URI);
+    private void startScanActivity() {
+        if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
+            Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+            startActivityForResult(intent, SCAN_URI);
+        } else {
+            ToastCustom.makeText(MainActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
     }
 
     private void doScanInput(String strResult) {
@@ -796,6 +807,15 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
 
     private void doMerchantDirectory() {
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtil.requestLocationPermissionFromActivity(mLayout, this);
+        }else{
+            startMerchantActivity();
+        }
+    }
+
+    private void startMerchantActivity(){
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
@@ -865,5 +885,24 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         Intent intent = new Intent(MainActivity.this, clazz);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startScanActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } if (requestCode == PermissionUtil.PERMISSION_REQUEST_LOCATION) {
+            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                startMerchantActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

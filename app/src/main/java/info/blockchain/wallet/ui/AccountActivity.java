@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -13,10 +14,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,6 +58,7 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
+import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.websocket.WebSocketService;
 import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.util.AddressInfo;
@@ -131,6 +136,7 @@ public class AccountActivity extends AppCompatActivity {
     private Context context = null;
     private FloatingActionsMenu menuMultipleActions = null;
     private MenuItem transferFundsMenuItem = null;
+    private View mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +145,7 @@ public class AccountActivity extends AppCompatActivity {
         context = this;
 
         setContentView(R.layout.activity_accounts);
+        mLayout = findViewById(R.id.main_layout);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -292,58 +299,65 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private void importAddress(){
-
+    private void startScanActivity(){
         if (!AppUtil.getInstance(AccountActivity.this).isCameraOpen()) {
-
-            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
-                intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
-                intent.putExtra(Intents.Scan.MODE, Intents.Scan.MODE);
-                startActivityForResult(intent, IMPORT_PRIVATE_REQUEST_CODE);
-            } else {
-                final EditText double_encrypt_password = new EditText(AccountActivity.this);
-                double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                new AlertDialog.Builder(AccountActivity.this)
-                        .setTitle(R.string.app_name)
-                        .setMessage(R.string.enter_double_encryption_pw)
-                        .setView(double_encrypt_password)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                String pw2 = double_encrypt_password.getText().toString();
-
-                                if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        new CharSequenceX(pw2),
-                                        PayloadFactory.getInstance().get().getOptions().getIterations()
-                                )) {
-
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-                                    Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
-                                    intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
-                                    intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-                                    startActivityForResult(intent, IMPORT_PRIVATE_REQUEST_CODE);
-
-                                } else {
-                                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                }
-
-                            }
-                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        ;
-                    }
-                }).show();
-            }
-
+            Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
+            intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
+            intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
+            startActivityForResult(intent, IMPORT_PRIVATE_REQUEST_CODE);
         } else {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
+    }
+
+    private void importAddress(){
+
+        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                PermissionUtil.requestCameraPermissionFromActivity(mLayout, this);
+            }else{
+                startScanActivity();
+            }
+        } else {
+            final EditText double_encrypt_password = new EditText(AccountActivity.this);
+            double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+            new AlertDialog.Builder(AccountActivity.this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.enter_double_encryption_pw)
+                    .setView(double_encrypt_password)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+
+                            String pw2 = double_encrypt_password.getText().toString();
+
+                            if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
+                                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
+                                    PayloadFactory.getInstance().get().getSharedKey(),
+                                    new CharSequenceX(pw2),
+                                    PayloadFactory.getInstance().get().getOptions().getIterations()
+                            )) {
+
+                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+
+                                if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                    PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountActivity.this);
+                                }else{
+                                    startScanActivity();
+                                }
+
+                            } else {
+                                ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                            }
+
+                        }
+                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    ;
+                }
+            }).show();
         }
     }
 
@@ -1474,5 +1488,18 @@ public class AccountActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startScanActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
