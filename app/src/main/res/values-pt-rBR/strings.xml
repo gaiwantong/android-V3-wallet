@@ -493,5 +493,8 @@
     <string name="estimate_confirm_block_count">Tempo de confirmação estimado: ~[--minutes--] minutes ([--block_count--] blocks)</string>
     <string name="fee_too_low_no_confirm">A taxa é tão pequena que sua transação pode nunca se confirmar.</string>
     <string name="transaction_surge">Atualmente, a rede de mineração Bitcoin está experimentando um alto volume de atividades, resultando em taxas recomendadas mais altas do que o habitual.</string>
+    <string name="unsupported_encryption_version">Versão Wallet [--version--] não suportado.</string>
+    <string name="logout">Sair</string>
+    <string name="to_field_helper">Digite o endereço Bitcoin ou selecione</string>
 
 </resources>

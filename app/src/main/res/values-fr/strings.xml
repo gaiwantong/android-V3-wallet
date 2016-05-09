@@ -493,5 +493,8 @@
     <string name="estimate_confirm_block_count">Temps de confirmation estimé: ~[--minutes--] ([--block_count--] blocs)</string>
     <string name="fee_too_low_no_confirm">Vos frais sont si petits que votre transaction peut ne jamais être confirmée.</string>
     <string name="transaction_surge">Le réseau de minage Bitcoin connaît actuellement un fort volume d\'activité, ce qui entraîne des frais recommandés qui sont plus élevés que d\'habitude.</string>
+    <string name="unsupported_encryption_version">Version Wallet [--version--] non supporté.</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="to_field_helper">Entrez l'adresse Bitcoin ou sélectionnez</string>
 
 </resources>

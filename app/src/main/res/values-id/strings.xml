@@ -492,6 +492,9 @@
     <string name="no_confirmed_funds">Tidak ada dana yang telah dikonfirmasi untuk dibelanjakan.</string>
     <string name="estimate_confirm_block_count">Waktu perkiraan konfirmasi: ~[--minutes--] menit ([--block_count--] blok)</string>
     <string name="fee_too_low_no_confirm">Biaya Anda begitu kecil sehingga transaksi Anda mungkin tidak pernah dikonfirmasi.</string>
-    <string name="transaction_surge">Jaringan pertambangan Bitcoin saat ini sedang mengalami volume aktivitas tinggi, mengakibatkan biaya yang direkomendasi lebih tinggi dari biasa.</string>
+    <string name="transaction_surge">Masukkan alamat Bitcoin atau pilih</string>
+    <string name="unsupported_encryption_version">Versi dompet [--version--] tidak didukung.</string>
+    <string name="logout">Keluar</string>
+    <string name="to_field_helper">Masukkan alamat Bitcoin atau pilih</string>
 
 </resources>

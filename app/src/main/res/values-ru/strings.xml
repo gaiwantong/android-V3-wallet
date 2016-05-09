@@ -493,5 +493,8 @@
     <string name="estimate_confirm_block_count">Примерное время подтверждения: ~[--minutes--] минут ([--block_count--] блоков)</string>
     <string name="fee_too_low_no_confirm">Ваша комиссия  настолько мала, что ваша  транзакция может никогда не получить подтверждения.</string>
     <string name="transaction_surge">Активность сети Bitcoin в настоящее время очень высока, поэтому рекомендуемые  значения комиссии выше, чем обычно.</string>
+    <string name="unsupported_encryption_version">Бумажник версия [--version--] не поддерживается.</string>
+    <string name="logout">Выйти</string>
+    <string name="to_field_helper">Введите адрес Bitcoin или выберите</string>
 
 </resources>

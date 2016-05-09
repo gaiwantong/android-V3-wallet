@@ -513,5 +513,5 @@
     <string name="transaction_surge">The Bitcoin mining network is currently experiencing a high volume of activity, resulting in recommended fees that are higher than usual.</string>
     <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
     <string name="logout">Logout</string>
-    <string name="to_field_helper">Paste or scan an address or select a destination</string>
+    <string name="to_field_helper">Enter Bitcoin address or select</string>
 </resources>
