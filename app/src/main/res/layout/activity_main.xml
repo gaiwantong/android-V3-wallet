@@ -1,36 +1,37 @@
 <android.support.v4.widget.DrawerLayout
-	android:id="@+id/drawer_layout"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fitsSystemWindows="true"
-		android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/main_layout"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
 
-		<include layout="@layout/toolbar"/>
+        <include layout="@layout/toolbar"/>
 
-		<FrameLayout
-			android:id="@+id/content_frame"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"/>
-	</LinearLayout>
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
 
-	<info.blockchain.wallet.drawer.ScrimInsetsFrameLayout
-		android:id="@+id/scrimInsetsFrameLayout"
-		xmlns:app="http://schemas.android.com/apk/res-auto"
-		android:layout_width="@dimen/navigation_drawer_width"
-		android:layout_height="wrap_content"
-		android:layout_gravity="start"
-		android:elevation="10dp"
-		android:fitsSystemWindows="true"
-		app:insetForeground="#4000">
+    <android.support.design.internal.ScrimInsetsFrameLayout
+        android:id="@+id/scrimInsetsFrameLayout"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="@dimen/navigation_drawer_width"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:elevation="10dp"
+        android:fitsSystemWindows="true"
+        app:insetForeground="#4000">
 
-		<include layout="@layout/navigation_drawer"/>
+        <include layout="@layout/navigation_drawer"/>
 
-	</info.blockchain.wallet.drawer.ScrimInsetsFrameLayout>
+    </android.support.design.internal.ScrimInsetsFrameLayout>
 
 </android.support.v4.widget.DrawerLayout>
