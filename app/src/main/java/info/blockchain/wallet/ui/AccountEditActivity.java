@@ -6,16 +6,20 @@ import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,10 +32,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.callbacks.OpCallback;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
@@ -41,17 +46,17 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.websocket.WebSocketService;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.websocket.WebSocketService;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -88,12 +93,14 @@ public class AccountEditActivity extends AppCompatActivity {
     private LegacyAddress legacyAddress = null;
 
     private int accountIndex;
+    private View mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_account_edit);
+        mLayout = findViewById(R.id.main_layout);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -709,11 +716,12 @@ public class AccountEditActivity extends AppCompatActivity {
                                             final String pw = password.getText().toString();
 
                                             if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
-
                                                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-                                                Intent intent = new Intent(AccountEditActivity.this, CaptureActivity.class);
-                                                startActivityForResult(intent, SCAN_PRIVX);
-
+                                                if (ContextCompat.checkSelfPermission(AccountEditActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                                    PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountEditActivity.this);
+                                                }else{
+                                                    startScanActivity();
+                                                }
                                             } else {
                                                 ToastCustom.makeText(AccountEditActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
@@ -728,8 +736,20 @@ public class AccountEditActivity extends AppCompatActivity {
                         }
                     }).setNegativeButton(R.string.cancel, null).show();
         }else{
+            if (ContextCompat.checkSelfPermission(AccountEditActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountEditActivity.this);
+            }else{
+                startScanActivity();
+            }
+        }
+    }
+
+    private void startScanActivity(){
+        if (!AppUtil.getInstance(AccountEditActivity.this).isCameraOpen()) {
             Intent intent = new Intent(AccountEditActivity.this, CaptureActivity.class);
             startActivityForResult(intent, SCAN_PRIVX);
+        } else {
+            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
     }
 
@@ -1242,5 +1262,18 @@ public class AccountEditActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startScanActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

@@ -3,6 +3,7 @@ package info.blockchain.wallet.ui;
 import com.google.common.collect.HashBiMap;
 import com.google.zxing.client.android.CaptureActivity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -13,12 +14,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBarActivity;
@@ -63,12 +67,14 @@ import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.ui.helpers.CustomKeypad;
 import info.blockchain.wallet.ui.helpers.ReselectSpinner;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
@@ -1227,11 +1233,23 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                         watchOnlyPendingSpend = pendingSpend;
 
-                        Intent intent = new Intent(getActivity(), CaptureActivity.class);
-                        startActivityForResult(intent, SCAN_PRIVX);
+                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                            PermissionUtil.requestCameraPermissionFromFragment(rootView.findViewById(R.id.main_layout), getActivity(), MainActivity.currentFragment);
+                        }else{
+                            startScanActivity();
+                        }
 
                     }
                 }).setNegativeButton(R.string.cancel, null).show();
+    }
+
+    private void startScanActivity(){
+        if (!AppUtil.getInstance(getActivity()).isCameraOpen()) {
+            Intent intent = new Intent(getActivity(), CaptureActivity.class);
+            startActivityForResult(intent, SCAN_PRIVX);
+        } else {
+            ToastCustom.makeText(getActivity(), getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        }
     }
 
     @Override
@@ -2154,6 +2172,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
             return row;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startScanActivity();
+            } else {
+                // Permission request was denied.
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
