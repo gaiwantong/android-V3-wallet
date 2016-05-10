@@ -53,7 +53,7 @@
                        android:layout_height="32dp"
                        android:layout_margin="16dp"
                        android:tint="@color/blockchain_blue"
-                       android:src="@drawable/icon_receive"/>
+                       android:src="@drawable/ic_arrow_downward_black_24dp"/>
 
             <TextView
                     android:id="@+id/confirm_to_label"
