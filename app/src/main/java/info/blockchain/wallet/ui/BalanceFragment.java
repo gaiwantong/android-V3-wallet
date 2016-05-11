@@ -439,20 +439,20 @@ public class BalanceFragment extends Fragment {
                     if(allTransactions != null)unsortedTransactionList.addAll(allTransactions);
 
                     //Balance = all xpubs + all legacy address balances
-                    btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getXpubBalance()) + ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
 
                 }else{
                     //Total for legacyAddresses
                     List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
                     if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
                     //Balance = all legacy address balances
-                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                    btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
                 }
             }else if(account.getTags().contains(TAG_IMPORTED_ADDRESSES)){
                 //V3 - Imported Addresses
                 List<Tx> allLegacyTransactions = MultiAddrFactory.getInstance().getLegacyTxs();
                 if(allLegacyTransactions != null)unsortedTransactionList.addAll(allLegacyTransactions);
-                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyBalance());
+                btc_balance = ((double) MultiAddrFactory.getInstance().getLegacyActiveBalance());
 
             }else{
                 //V3 - Individual
