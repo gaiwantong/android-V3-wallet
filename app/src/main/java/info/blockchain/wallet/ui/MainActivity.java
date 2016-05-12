@@ -39,6 +39,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.drawer.DrawerAdapter;
 import info.blockchain.wallet.drawer.DrawerItem;
@@ -58,6 +59,7 @@ import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.util.ArrayList;
@@ -792,6 +794,12 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();
+
+                try {
+                    AddressFactory.getInstance(MainActivity.this, null).wipe();
+                } catch (AddressFormatException e) {
+                    e.printStackTrace();
+                }
 
                 startService(new Intent(MainActivity.this, info.blockchain.wallet.websocket.WebSocketService.class));
 
