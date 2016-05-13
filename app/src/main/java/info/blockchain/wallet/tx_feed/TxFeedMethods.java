@@ -45,7 +45,7 @@ public class TxFeedMethods {
         ArrayList<String> inputXpubList = new ArrayList<>();
 
         //Inputs / From field
-        if (transaction.getDirection().equals(MultiAddrFactory.RECEIVED)) {//only 1 addr for receive
+        if (transaction.getDirection().equals(MultiAddrFactory.RECEIVED) && transactionDetails.getInputs().size() > 0) {//only 1 addr for receive
             inputMap.put(transactionDetails.getInputs().get(0).addr, transactionDetails.getInputs().get(0).value);
 
         } else {
