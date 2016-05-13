@@ -47,9 +47,10 @@ public class WebSocketService extends android.app.Service {
         String[] addrs = getAddresses();
         String[] xpubs = getXpubs();
 
-        webSocketHandler = new WebSocketHandler(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
-        webSocketHandler.start();
-
+        if(addrs.length > 0 || xpubs.length > 0) {
+            webSocketHandler = new WebSocketHandler(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+            webSocketHandler.start();
+        }
     }
 
     private String[] getXpubs() {
@@ -90,7 +91,7 @@ public class WebSocketService extends android.app.Service {
 
     @Override
     public void onDestroy() {
-        webSocketHandler.stop();
+        if(webSocketHandler != null)webSocketHandler.stop();
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
         super.onDestroy();
     }
