@@ -1,43 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference
-        android:title="@string/options_id"
-        android:summary="@string/options_id2"
-        android:key="guid"
+
+    <PreferenceCategory
+            android:title="@string/profile"
+            android:key="pref_key_storage_settings">
+        <Preference
+                android:title="@string/email"
+                android:key="email"
         />
-    <Preference
-        android:title="@string/options_units"
-        android:summary="@string/options_units2"
-        android:key="units"
+        <Preference
+                android:title="@string/mobile"
+                android:key="mobile"
         />
-    <Preference
-        android:title="@string/options_currency"
-        android:summary="@string/options_currency2"
-        android:key="fiat"
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/wallet">
+        <Preference
+                android:title="@string/options_id"
+                android:key="guid"
         />
-    <Preference
-        android:title="@string/preferences_about_title"
-        android:summary="@string/about_us"
-        android:key="about"
+        <Preference
+                android:title="@string/options_units"
+                android:key="units"
         />
-    <Preference
-        android:title="@string/options_tos"
-        android:summary="@string/options_tos2"
-        android:key="tos"
+        <Preference
+                android:title="@string/options_currency"
+                android:key="fiat"
         />
-    <Preference
-        android:title="@string/options_privacy"
-        android:summary="@string/options_privacy2"
-        android:key="privacy"
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/app"
+            android:key="app">
+        <Preference
+                android:title="@string/preferences_about_title"
+                android:key="about"
         />
-    <Preference
-        android:title="@string/verify_email"
-        android:summary="@string/verify_email2"
-        android:key="verify_email"
+        <Preference
+                android:title="@string/options_tos"
+                android:key="tos"
         />
-    <CheckBoxPreference
-        android:title="@string/disable_root_warning"
-        android:summary="@string/disable_root_warning2"
-        android:key="disable_root_warning"
+        <Preference
+                android:title="@string/options_privacy"
+                android:key="privacy"
         />
+        <CheckBoxPreference
+                android:title="@string/disable_root_warning"
+                android:key="disable_root_warning"
+        />
+    </PreferenceCategory>
+
 </PreferenceScreen>

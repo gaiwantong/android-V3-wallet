@@ -169,7 +169,7 @@
     <string name="use_password">Use password</string>
     <string name="wipe_wallet">Forget wallet</string>
 
-    <string name="select_units">Select displayable BTC units</string>
+    <string name="select_units">Select BTC units</string>
     <string name="weak_password">The selected password is too weak to secure your funds. We strongly suggest you select a different one. Would you like to define a new password?</string>
 
     <string name="from">From</string>
@@ -402,9 +402,8 @@
     <string name="ask_me_later">Ask me later</string>
     <string name="verify_email">Verify Email</string>
     <string name="email_verified">Email Verified</string>
-    <string name="verify_email2">Your verified email address is used to send login codes when suspicious or unusual activity is detected, to remind you of your wallet login ID, and to send bitcoin payment alerts when funds are sent or received. We will not use your email address for marketing purposes</string>
-    <string name="disable_root_warning">Disable warning</string>
-    <string name="disable_root_warning2">Disable warning dialog in case your phone is rooted</string>
+    <string name="verify_email2">Your verified email address is used to send login codes when suspicious or unusual activity is detected, to remind you of your wallet login ID, and to send bitcoin payment alerts when funds are sent or received. We will not use your email address for marketing purposes.</string>
+    <string name="disable_root_warning">Disable rooted device warning</string>
 
     <string name="show_balance">Show Balance</string>
     <string name="my_address">My Address</string>
@@ -516,4 +515,16 @@
     <string name="to_field_helper">Enter Bitcoin address or select</string>
     <string name="request_camera_permission">Camera access is required.</string>
     <string name="request_location_permission">Location access is required.</string>
+
+    <string name="not_specified">not specified</string>
+    <string name="update">Update</string>
+    <string name="mobile">Mobile</string>
+    <string name="mobile_description">Your mobile phone can be used to enable two-factor authentication, helping to secure your wallet from unauthorized access.</string>
+    <string name="profile">Profile</string>
+    <string name="wallet">Wallet</string>
+    <string name="app">App</string>
+    <string name="update_failed">Failed to update.</string>
+    <string name="verified">verified</string>
+    <string name="unverified">unverified</string>
+
 </resources>
