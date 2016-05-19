@@ -3,7 +3,7 @@
 
     <PreferenceCategory
             android:title="@string/profile"
-            android:key="pref_key_storage_settings">
+            android:key="profile">
         <Preference
                 android:title="@string/email"
                 android:key="email"
@@ -11,6 +11,12 @@
         <Preference
                 android:title="@string/mobile"
                 android:key="mobile"
+        />
+        <EditTextPreference
+                android:key="verify_mobile"
+                android:maxLength="5"
+                android:dialogTitle="@string/verify_mobile"
+                android:dialogMessage="@string/verify_sms_summary"
         />
     </PreferenceCategory>
 

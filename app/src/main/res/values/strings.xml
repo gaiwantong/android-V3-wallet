@@ -524,7 +524,10 @@
     <string name="wallet">Wallet</string>
     <string name="app">App</string>
     <string name="update_failed">Failed to update.</string>
+    <string name="verify_mobile">Verify Mobile</string>
     <string name="verified">verified</string>
     <string name="unverified">unverified</string>
+    <string name="select_country">Select Country</string>
+    <string name="verify_sms_summary">We have sent your mobile phone an SMS message with a verification code. Enter the code to verify your mobile phone number.</string>
 
 </resources>
