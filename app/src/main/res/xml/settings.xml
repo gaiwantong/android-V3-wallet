@@ -12,11 +12,10 @@
                 android:title="@string/mobile"
                 android:key="mobile"
         />
-        <EditTextPreference
+        <Preference
                 android:key="verify_mobile"
-                android:maxLength="5"
-                android:dialogTitle="@string/verify_mobile"
-                android:dialogMessage="@string/verify_sms_summary"
+                android:title="@string/verify_mobile"
+                android:summary="@string/verify_sms_summary"
         />
     </PreferenceCategory>
 

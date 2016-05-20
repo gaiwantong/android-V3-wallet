@@ -497,4 +497,14 @@
     <string name="logout">Выйти</string>
     <string name="to_field_helper">Введите адрес Bitcoin или выберите</string>
 
+    <string name="update">Обновить</string>
+    <string name="mobile">мобильный</string>
+    <string name="profile">Профиль</string>
+    <string name="wallet">Бумажник</string>
+    <string name="app">Приложение</string>
+    <string name="verify">проверить</string>
+    <string name="resend">Отправить</string>
+    <string name="verified">проверенный</string>
+    <string name="unverified">непроверенный</string>
+
 </resources>

@@ -497,4 +497,14 @@
     <string name="logout">Cerrar sesión</string>
     <string name="to_field_helper">Introduzca la dirección Bitcoin o seleccione</string>
 
+    <string name="update">Actualizar</string>
+    <string name="mobile">Móvil</string>
+    <string name="profile">Perfil</string>
+    <string name="wallet">Billetera</string>
+    <string name="app">App</string>
+    <string name="verify">Verificar</string>
+    <string name="resend">reenviar</string>
+    <string name="verified">verificado</string>
+    <string name="unverified">inconfirmado</string>
+
 </resources>

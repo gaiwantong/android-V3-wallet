@@ -513,21 +513,24 @@
     <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
     <string name="logout">Logout</string>
     <string name="to_field_helper">Enter Bitcoin address or select</string>
-    <string name="request_camera_permission">Camera access is required.</string>
-    <string name="request_location_permission">Location access is required.</string>
 
-    <string name="not_specified">not specified</string>
     <string name="update">Update</string>
     <string name="mobile">Mobile</string>
-    <string name="mobile_description">Your mobile phone can be used to enable two-factor authentication, helping to secure your wallet from unauthorized access.</string>
     <string name="profile">Profile</string>
     <string name="wallet">Wallet</string>
     <string name="app">App</string>
-    <string name="update_failed">Failed to update.</string>
-    <string name="verify_mobile">Verify Mobile</string>
+    <string name="verify">Verify</string>
+    <string name="resend">Resend</string>
     <string name="verified">verified</string>
     <string name="unverified">unverified</string>
+
+    <string name="request_camera_permission">Camera access is required.</string>
+    <string name="request_location_permission">Location access is required.</string>
+    <string name="not_specified">not specified</string>
+    <string name="update_failed">Failed to update.</string>
+    <string name="verify_mobile">Verify Mobile</string>
     <string name="select_country">Select Country</string>
     <string name="verify_sms_summary">We have sent your mobile phone an SMS message with a verification code. Enter the code to verify your mobile phone number.</string>
+    <string name="mobile_description">Your mobile phone can be used to enable two-factor authentication, helping to secure your wallet from unauthorized access.</string>
 
 </resources>

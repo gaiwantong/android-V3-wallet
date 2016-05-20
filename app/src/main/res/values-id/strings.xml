@@ -497,4 +497,14 @@
     <string name="logout">Keluar</string>
     <string name="to_field_helper">Masukkan alamat Bitcoin atau pilih</string>
 
+    <string name="update">Memperbarui</string>
+    <string name="mobile">mobil</string>
+    <string name="profile">Profil</string>
+    <string name="wallet">Dompet</string>
+    <string name="app">Aplikasi</string>
+    <string name="verify">Memeriksa</string>
+    <string name="resend">Kirim ulang</string>
+    <string name="verified">diverifikasi</string>
+    <string name="unverified">tidak diverifikasi</string>
+
 </resources>

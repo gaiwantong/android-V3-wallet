@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.support.annotation.UiThread;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -54,74 +56,101 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     Settings settingsApi;
 
+
+
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         addPreferencesFromResource(R.xml.settings);
 
         new AsyncTask<Void, Void, Void>() {
 
+            ProgressDialog progress;
+
             @Override
-            protected Void doInBackground(Void... params) {
-                settingsApi = new Settings(PayloadFactory.getInstance().get());
-                return null;
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                progress.show();
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
-                if(settingsApi != null) {
-                    emailPref = (Preference) findPreference("email");
-                    displayEmail();
-                    emailPref.setOnPreferenceClickListener(SettingsFragment.this);
-
-                    smsPref = (Preference) findPreference("mobile");
-                    displaySms();
-                    smsPref.setOnPreferenceClickListener(SettingsFragment.this);
-
-                    verifySmsPref  = (Preference) findPreference("verify_mobile");
-                    if(settingsApi.isSmsVerified()){
-                        PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
-                        profileCategory.removePreference(verifySmsPref);
-                    }else{
-                        verifySmsPref.setTitle(getString(R.string.verify_mobile));
-                        verifySmsPref.setSummary(getString(R.string.verify_sms_summary));
-                        verifySmsPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                            @Override
-                            public boolean onPreferenceChange(Preference preference, Object code) {
-                                Log.v("vos","newValue: "+code);
-
-                                ProgressDialog progress = new ProgressDialog(getActivity());
-                                progress.setTitle(R.string.app_name);
-                                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                                progress.show();
-
-                                boolean success = settingsApi.verifySms((String)code);
-                                if(!success){
-                                    ToastCustom.makeText(getActivity(), getString(R.string.verification_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                                }
-
-                                if (progress != null && progress.isShowing()) {
-                                    progress.dismiss();
-                                }
-                                return false;
-                            }
-                        });
-                    }
-
-                    unitsPref = (Preference) findPreference("units");
-                    unitsPref.setSummary(getDisplayUnits());
-                    unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
-
-                    fiatPref = (Preference) findPreference("fiat");
-                    fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
-                    fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
-                }
-
                 super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
             }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                settingsApi = new Settings(PayloadFactory.getInstance().get());
+                if(settingsApi != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshList();
+                        }
+                    });
+                }
+                return null;
+            }
+
         }.execute();
+    }
+
+    @UiThread
+    private void refreshList(){
+
+        addPreferencesFromResource(R.xml.settings);
+
+        emailPref = (Preference) findPreference("email");
+        String emailAndStatus = settingsApi.getEmail();
+        if(emailAndStatus == null || emailAndStatus.isEmpty()) {
+            emailAndStatus = getString(R.string.not_specified);
+        }else if(settingsApi.isEmailVerified()){
+            emailAndStatus += "  ("+getString(R.string.verified)+")";
+        }else{
+            emailAndStatus += "  ("+getString(R.string.unverified)+")";
+        }
+        emailPref.setSummary(emailAndStatus);
+        emailPref.setOnPreferenceClickListener(SettingsFragment.this);
+
+        smsPref = (Preference) findPreference("mobile");
+        String smsAndStatus = settingsApi.getSms();
+        if(smsAndStatus == null || smsAndStatus.isEmpty()) {
+            smsAndStatus = getString(R.string.not_specified);
+        }else if(settingsApi.isSmsVerified()){
+            smsAndStatus += "  ("+getString(R.string.verified)+")";
+        }else{
+            smsAndStatus += "  ("+getString(R.string.unverified)+")";
+        }
+        smsPref.setSummary(smsAndStatus);
+        smsPref.setOnPreferenceClickListener(SettingsFragment.this);
+
+        verifySmsPref  = (Preference) findPreference("verify_mobile");
+        if(verifySmsPref != null) {
+            verifySmsPref.setOnPreferenceClickListener(SettingsFragment.this);
+            PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
+            if (settingsApi.isSmsVerified() || settingsApi.getSms() == null || settingsApi.getSms().isEmpty()) {
+                profileCategory.removePreference(verifySmsPref);
+            } else {
+                profileCategory.addPreference(verifySmsPref);
+            }
+        }
+
+        unitsPref = (Preference) findPreference("units");
+        unitsPref.setSummary(getDisplayUnits());
+        unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
+
+        fiatPref = (Preference) findPreference("fiat");
+        fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+        fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         guidPref = (Preference) findPreference("guid");
         guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
@@ -198,102 +227,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
     }
 
-    private void displayEmail(){
-        new AsyncTask<Void, Void, Void>() {
-
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                progress.show();
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-            }
-
-            @Override
-            protected Void doInBackground(final Void... params) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String emailAndStatus = settingsApi.getEmail();
-                        if(emailAndStatus == null || emailAndStatus.isEmpty()) {
-                            emailAndStatus = getString(R.string.not_specified);
-                        }else if(settingsApi.isEmailVerified()){
-                            emailAndStatus += "  ("+getString(R.string.verified)+")";
-                        }else{
-                            emailAndStatus += "  ("+getString(R.string.unverified)+")";
-                        }
-                        emailPref.setSummary(emailAndStatus);
-                    }
-                });
-
-                return null;
-            }
-        }.execute();
-    }
-
-    private void displaySms(){
-
-        new AsyncTask<Void, Void, Void>() {
-
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                progress.show();
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-            }
-
-            @Override
-            protected Void doInBackground(final Void... params) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String smsAndStatus = settingsApi.getSms();
-                        if(smsAndStatus == null || smsAndStatus.isEmpty()) {
-                            smsAndStatus = getString(R.string.not_specified);
-                        }else if(settingsApi.isSmsVerified()){
-                            smsAndStatus += "  ("+getString(R.string.verified)+")";
-                        }else{
-                            smsAndStatus += "  ("+getString(R.string.unverified)+")";
-                        }
-                        smsPref.setSummary(smsAndStatus);
-                    }
-                });
-                return null;
-            }
-        }.execute();
-    }
-
     private void updateSms(String sms){
 
         if(sms == null || sms.isEmpty()) {
             sms = getString(R.string.not_specified);
             smsPref.setSummary(sms);
         }else{
+
+            final Handler mHandler = new Handler(Looper.getMainLooper());
 
             final String finalSms = sms;
             new AsyncTask<Void, Void, Void>() {
@@ -310,31 +251,68 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 }
 
                 @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
+                protected Void doInBackground(final Void... params) {
+                    final boolean success = settingsApi.setSms(finalSms);
+
                     if (progress != null && progress.isShowing()) {
                         progress.dismiss();
                         progress = null;
                     }
-                }
 
-                @Override
-                protected Void doInBackground(final Void... params) {
-                    final boolean success = settingsApi.setSms(finalSms);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!success) {
-                                ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                            }else{
-                                smsPref.setSummary(finalSms+"  ("+getString(R.string.unverified)+")");
+                    if (success) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshList();
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                    }
+
                     return null;
                 }
             }.execute();
         }
+    }
+
+    private void verifySms(final String code){
+
+        final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        new AsyncTask<Void, Void, Void>() {
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected Void doInBackground(final Void... params) {
+                final boolean success = settingsApi.verifySms((String)code);
+                if(success) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshList();
+                        }
+                    });
+                }else{
+                    ToastCustom.makeText(getActivity(), getString(R.string.verification_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                }
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+                return null;
+            }
+        }.execute();
     }
 
     @Override
@@ -348,6 +326,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             case "mobile":
                 showDialogMobile();
+                break;
+
+            case "verify_mobile":
+                showDialogVerifySms();
                 break;
 
             case "guid":
@@ -436,7 +418,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         if(country.getDialCode().equals("93")){
             setCountryFlag(tvCountry, "+1", R.drawable.flag_us);
         }else{
-            setCountryFlag(tvCountry, "+"+country.getDialCode(), country.getFlag());
+            setCountryFlag(tvCountry, country.getDialCode(), country.getFlag());
         }
         tvCountry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -463,6 +445,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
+        final Handler mHandler = new Handler(Looper.getMainLooper());
         alertDialogSms.setOnShowListener(new DialogInterface.OnShowListener() {
 
             @Override
@@ -474,12 +457,18 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     @Override
                     public void onClick(View view) {
 
-                        String sms = tvCountry.getText().toString()+etMobile.getText().toString();
+                        final String sms = tvCountry.getText().toString()+etMobile.getText().toString();
 
                         if (!FormatsUtil.getInstance().isValidMobileNumber(sms)) {
                             ToastCustom.makeText(getActivity(), getString(R.string.invalid_mobile), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }else {
-                            updateSms(sms);
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateSms(sms);
+                                }
+                            });
+
                             alertDialogSms.dismiss();
                         }
                     }
@@ -549,6 +538,66 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                             }
                         }
                 ).show();
+    }
+
+    private void showDialogVerifySms(){
+
+        final EditText etSms = new EditText(getActivity());
+        etSms.setPadding(46, 16, 46, 16);
+        final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.verify_mobile)
+                .setMessage(R.string.verify_sms_summary)
+                .setView(etSms)
+                .setCancelable(false)
+                .setPositiveButton(R.string.verify, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setNeutralButton(R.string.resend, null)
+                .create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+
+                Button buttonPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                buttonPositive.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        final String codeS = etSms.getText().toString();
+                        if(codeS != null && codeS.length()>0){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    verifySms(codeS);
+                                }
+                            });
+                            if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+                        }
+                    }
+                });
+
+                Button buttonNeutral = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                buttonNeutral.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Resend verification code
+                                updateSms(settingsApi.getSms());
+                            }
+                        });
+
+                        if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+                    }
+                });
+            }
+        });
+        alertDialog.show();
     }
 
     private void setCountryFlag(TextView tvCountry, String dialCode, int flagResourceId){

@@ -497,4 +497,14 @@
     <string name="logout">取消配对钱包</string>
     <string name="to_field_helper">输入比特币钱包地址或按此选择</string>
 
+    <string name="update">更新</string>
+    <string name="mobile">移动</string>
+    <string name="profile">轮廓</string>
+    <string name="wallet">钱包</string>
+    <string name="app">应用</string>
+    <string name="verify">校验</string>
+    <string name="resend">重发</string>
+    <string name="verified">验证</string>
+    <string name="unverified">未经验证</string>
+
 </resources>
