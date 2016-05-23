@@ -36,6 +36,14 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+            android:title="@string/security">
+        <CheckBoxPreference
+                android:title="@string/tor_requests"
+                android:key="tor"
+        />
+    </PreferenceCategory>
+
+    <PreferenceCategory
             android:title="@string/app"
             android:key="app">
         <Preference

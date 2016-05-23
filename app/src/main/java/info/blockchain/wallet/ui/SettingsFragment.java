@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
@@ -25,6 +26,7 @@ import com.mukesh.countrypicker.interfaces.CountryPickerListener;
 import com.mukesh.countrypicker.models.Country;
 
 import info.blockchain.api.Settings;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -48,6 +50,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     Preference unitsPref;
     Preference fiatPref;
 
+    //Security
+    CheckBoxPreference torPref;
+
     //App
     Preference aboutPref;
     Preference tosPref;
@@ -56,14 +61,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     Settings settingsApi;
 
-
-
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        addPreferencesFromResource(R.xml.settings);
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -89,7 +90,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             @Override
             protected Void doInBackground(Void... params) {
-                settingsApi = new Settings(PayloadFactory.getInstance().get());
+                Payload payload = PayloadFactory.getInstance().get();
+                settingsApi = new Settings(payload.getGuid(), payload.getSharedKey());
                 if(settingsApi != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -155,6 +157,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         guidPref = (Preference) findPreference("guid");
         guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
         guidPref.setOnPreferenceClickListener(this);
+
+        torPref = (CheckBoxPreference) findPreference("tor");
+        torPref.setChecked(settingsApi.isTorBlocked());
+        torPref.setOnPreferenceClickListener(this);
 
         aboutPref = (Preference) findPreference("about");
         aboutPref.setSummary("v"+ BuildConfig.VERSION_NAME);
@@ -315,6 +321,49 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }.execute();
     }
 
+    private void updateTor(final boolean enabled){
+
+        new AsyncTask<Void, Void, Void>() {
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+            }
+
+            @Override
+            protected Void doInBackground(final Void... params) {
+                final boolean success = settingsApi.setTorBlocked(enabled);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!success){
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }else{
+                            torPref.setChecked(enabled);
+                        }
+                    }
+                });
+
+                return null;
+            }
+        }.execute();
+    }
+
     @Override
     public boolean onPreferenceClick(Preference preference) {
 
@@ -344,6 +393,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 showDialogFiatUnits();
                 break;
 
+            case "tor":
+                showDialogTorEnable();
+                break;
+
             case "about":
                 Intent intent = new Intent(getActivity(), AboutActivity.class);
                 startActivity(intent);
@@ -366,6 +419,46 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
 
         return true;
+    }
+
+    private void showDialogTorEnable() {
+
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.tor_requests)
+                .setMessage(R.string.tor_summary)
+                .setCancelable(false)
+                .setPositiveButton(R.string.allow, null)
+                .setNegativeButton(R.string.block, null)
+                .create();
+        alertDialogEmail.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+
+                Button buttonPositive = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+                buttonPositive.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        updateTor(true);
+                        alertDialogEmail.dismiss();
+                    }
+                });
+
+                Button buttonNegative = alertDialogEmail.getButton(AlertDialog.BUTTON_NEGATIVE);
+                buttonNegative.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        updateTor(false);
+                        alertDialogEmail.dismiss();
+                    }
+                });
+            }
+        });
+        alertDialogEmail.show();
     }
 
     private void showDialogEmail(){

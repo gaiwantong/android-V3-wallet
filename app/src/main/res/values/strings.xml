@@ -533,4 +533,10 @@
     <string name="verify_sms_summary">We have sent your mobile phone an SMS message with a verification code. Enter the code to verify your mobile phone number.</string>
     <string name="mobile_description">Your mobile phone can be used to enable two-factor authentication, helping to secure your wallet from unauthorized access.</string>
 
+    <string name="allow">Allow</string>
+    <string name="block">Block</string>
+    <string name="security">Security</string>
+    <string name="two_fa">2-step Verification</string>
+    <string name="tor_requests">Tor Requests</string>
+    <string name="tor_summary">Enable the following option to prevent IP addresses that are known to be part of the Tor anonymizing network from accessing your wallet. The Tor network is frequently used by hackers attempting to access Blockchain users wallets.</string>
 </resources>
