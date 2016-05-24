@@ -37,6 +37,10 @@
 
     <PreferenceCategory
             android:title="@string/security">
+        <Preference
+                android:title="@string/change_pin_code"
+                android:key="pin"
+        />
         <!--<SwitchPreference-->
                 <!--android:title="@string/two_fa"-->
                 <!--android:key="2fa"-->

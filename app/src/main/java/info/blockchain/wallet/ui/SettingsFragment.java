@@ -51,6 +51,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     Preference fiatPref;
 
     //Security
+    Preference pinPref;
     SwitchPreference twoStepVerificationPref;
     Preference passwordHint1Pref;
     Preference changePasswordPref;
@@ -165,6 +166,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         //Security
+        pinPref = (Preference) findPreference("pin");
+        pinPref.setOnPreferenceClickListener(this);
+
 //        twoStepVerificationPref = (SwitchPreference) findPreference("2fa");
 //        twoStepVerificationPref.setOnPreferenceClickListener(this);
 
@@ -456,6 +460,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             case "fiat":
                 showDialogFiatUnits();
+                break;
+
+            case "pin":
+                showDialogChangePin();
                 break;
 
             case "pw_hint1":
@@ -797,6 +805,51 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             }
         });
         alertDialogEmail.show();
+    }
+
+    private void showDialogChangePin(){
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
+        dialogBuilder.setView(dialogView);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
+        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
+        confirmCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
+            }
+        });
+
+        TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
+        confirmChangePin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
+
+                if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+
+                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+
+                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+
+                    alertDialog.dismiss();
+                } else {
+                    pass.setText("");
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+            }
+        });
+
+        alertDialog.show();
     }
 
     private void setCountryFlag(TextView tvCountry, String dialCode, int flagResourceId){

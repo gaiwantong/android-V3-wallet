@@ -35,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
@@ -667,15 +666,12 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 doSettings();
                 break;
             case 2:
-                doChangePin();
-                break;
-            case 3:
                 doMyAccounts();
                 break;
-            case 4:
+            case 3:
                 doSupport();
                 break;
-            case 5:
+            case 4:
                 doUnpairWallet();
                 break;
         }
@@ -690,15 +686,12 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 doSettings();
                 break;
             case 2:
-                doChangePin();
-                break;
-            case 3:
                 doMyAccounts();
                 break;
-            case 4:
+            case 3:
                 doSupport();
                 break;
-            case 5:
+            case 4:
                 doUnpairWallet();
                 break;
         }
@@ -715,50 +708,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         else
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    }
-
-    private void doChangePin() {
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
-        dialogBuilder.setView(dialogView);
-
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setCanceledOnTouchOutside(false);
-
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-            }
-        });
-
-        TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
-        confirmChangePin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
-
-                if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
-
-                    PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                    PrefsUtil.getInstance(MainActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
-
-                    startSingleActivity(PinEntryActivity.class);
-                    finish();
-
-                    alertDialog.dismiss();
-                } else {
-                    pass.setText("");
-                    ToastCustom.makeText(MainActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-            }
-        });
-
-        alertDialog.show();
     }
 
     private void doUnpairWallet() {
