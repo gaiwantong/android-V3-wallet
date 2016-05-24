@@ -37,10 +37,29 @@
 
     <PreferenceCategory
             android:title="@string/security">
-        <CheckBoxPreference
+        <!--<SwitchPreference-->
+                <!--android:title="@string/two_fa"-->
+                <!--android:key="2fa"-->
+                <!--android:summary="not done"-->
+        <!--/>-->
+        <Preference
+                android:title="@string/password_hint"
+                android:key="pw_hint1"
+        />
+        <!--<Preference-->
+                <!--android:title="@string/change_password"-->
+                <!--android:key="change_pw"-->
+                <!--android:summary="not done"-->
+        <!--/>-->
+        <SwitchPreference
                 android:title="@string/tor_requests"
                 android:key="tor"
         />
+        <!--<Preference-->
+                <!--android:title="@string/wallet_recovery_phrase"-->
+                <!--android:key="wallet_recovery_phrase"-->
+                <!--android:summary="not done"-->
+        <!--/>-->
     </PreferenceCategory>
 
     <PreferenceCategory

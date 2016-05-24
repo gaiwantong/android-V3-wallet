@@ -9,10 +9,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.support.annotation.UiThread;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -51,7 +51,11 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     Preference fiatPref;
 
     //Security
-    CheckBoxPreference torPref;
+    SwitchPreference twoStepVerificationPref;
+    Preference passwordHint1Pref;
+    Preference changePasswordPref;
+    SwitchPreference torPref;
+    Preference walletRecoveryPhrasePref;
 
     //App
     Preference aboutPref;
@@ -111,6 +115,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         addPreferencesFromResource(R.xml.settings);
 
+        //Profile
         emailPref = (Preference) findPreference("email");
         String emailAndStatus = settingsApi.getEmail();
         if(emailAndStatus == null || emailAndStatus.isEmpty()) {
@@ -146,6 +151,11 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             }
         }
 
+        //Wallet
+        guidPref = (Preference) findPreference("guid");
+        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
+        guidPref.setOnPreferenceClickListener(SettingsFragment.this);
+
         unitsPref = (Preference) findPreference("units");
         unitsPref.setSummary(getDisplayUnits());
         unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
@@ -154,14 +164,26 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        guidPref = (Preference) findPreference("guid");
-        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
-        guidPref.setOnPreferenceClickListener(this);
+        //Security
+//        twoStepVerificationPref = (SwitchPreference) findPreference("2fa");
+//        twoStepVerificationPref.setOnPreferenceClickListener(this);
 
-        torPref = (CheckBoxPreference) findPreference("tor");
+        passwordHint1Pref = (Preference) findPreference("pw_hint1");
+        if(settingsApi.getPasswordHint1() != null && !settingsApi.getPasswordHint1().isEmpty()){
+            passwordHint1Pref.setSummary(settingsApi.getPasswordHint1());
+        }else{
+            passwordHint1Pref.setSummary("");
+        }
+        passwordHint1Pref.setOnPreferenceClickListener(this);
+
+//        changePasswordPref = (Preference) findPreference("change_pw");
+//        changePasswordPref.setOnPreferenceClickListener(this);
+
+        torPref = (SwitchPreference) findPreference("tor");
         torPref.setChecked(settingsApi.isTorBlocked());
         torPref.setOnPreferenceClickListener(this);
 
+        //App
         aboutPref = (Preference) findPreference("about");
         aboutPref.setSummary("v"+ BuildConfig.VERSION_NAME);
         aboutPref.setOnPreferenceClickListener(this);
@@ -364,6 +386,49 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }.execute();
     }
 
+    private void updatePasswordHint1(final String hint){
+
+        new AsyncTask<Void, Void, Void>() {
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+            }
+
+            @Override
+            protected Void doInBackground(final Void... params) {
+                final boolean success = settingsApi.setPasswordHint1(hint);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!success) {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        } else {
+                            passwordHint1Pref.setSummary(hint);
+                        }
+                    }
+                });
+
+                return null;
+            }
+        }.execute();
+    }
+
     @Override
     public boolean onPreferenceClick(Preference preference) {
 
@@ -391,6 +456,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             case "fiat":
                 showDialogFiatUnits();
+                break;
+
+            case "pw_hint1":
+                showDialogPasswordHint1();
+                break;
+
+            case "change_pw":
                 break;
 
             case "tor":
@@ -691,6 +763,40 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             }
         });
         alertDialog.show();
+    }
+
+    private void showDialogPasswordHint1(){
+        final EditText etPwHint1 = new EditText(getActivity());
+        etPwHint1.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        etPwHint1.setPadding(46, 16, 46, 16);
+
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.password_hint)
+                .setMessage(R.string.password_hint_summary)
+                .setView(etPwHint1)
+                .setCancelable(false)
+                .setPositiveButton(R.string.update, null)
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+        alertDialogEmail.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+
+                Button button = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        String hint = etPwHint1.getText().toString();
+                        updatePasswordHint1(hint);
+                        alertDialogEmail.dismiss();
+                    }
+                });
+            }
+        });
+        alertDialogEmail.show();
     }
 
     private void setCountryFlag(TextView tvCountry, String dialCode, int flagResourceId){
