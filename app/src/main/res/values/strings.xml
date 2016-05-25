@@ -541,6 +541,7 @@
     <string name="password_hint">Password Hint</string>
     <string name="password_hint_summary">Your Blockchain Wallet never communicates your password to our servers. This means we have no idea what your password is and we cannot reset it if you forget it. Create a memorable password hint that we can send to your verified email address in case you forget your password.</string>
     <string name="change_password">Change Password</string>
+    <string name="change_password_summary">Your password is never shared with our servers, which means we cannot help reset your password if you forget it. Make sure you write down your recovery phrase which can restore access to your wallet in the event of a lost password.</string>
     <string name="wallet_recovery_phrase">Wallet Recovery Phrase</string>
     <string name="stored">Stored</string>
 </resources>

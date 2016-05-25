@@ -2,7 +2,6 @@ package info.blockchain.wallet.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -22,12 +21,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.mukesh.countrypicker.fragments.CountryPicker;
-import com.mukesh.countrypicker.interfaces.CountryPickerListener;
 import com.mukesh.countrypicker.models.Country;
 
 import info.blockchain.api.Settings;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.BackgroundExecutor;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -86,25 +85,21 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();
                     progress = null;
                 }
+                if(settingsApi != null) {
+                    refreshList();
+                }
+
+                super.onPostExecute(aVoid);
             }
 
             @Override
             protected Void doInBackground(Void... params) {
                 Payload payload = PayloadFactory.getInstance().get();
                 settingsApi = new Settings(payload.getGuid(), payload.getSharedKey());
-                if(settingsApi != null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            refreshList();
-                        }
-                    });
-                }
                 return null;
             }
 
@@ -210,227 +205,141 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
+    @UiThread
     private void updateEmail(String email){
         if(email == null || email.isEmpty()) {
             email = getString(R.string.not_specified);
             emailPref.setSummary(email);
         }else{
-
             final String finalEmail = email;
-            new AsyncTask<Void, Void, Void>() {
-
-                ProgressDialog progress;
-
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                    progress = new ProgressDialog(getActivity());
-                    progress.setTitle(R.string.app_name);
-                    progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                    progress.show();
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    if (progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
-                }
-
-                @Override
-                protected Void doInBackground(final Void... params) {
-                    final boolean success = settingsApi.setEmail(finalEmail);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(!success){
-                                ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                            }else{
-                                emailPref.setSummary(finalEmail+"  ("+getString(R.string.unverified)+")");
+            Handler handler = new Handler(Looper.getMainLooper());
+            new BackgroundExecutor(getActivity(),
+                    () -> {
+                        settingsApi.setEmail(finalEmail, new Settings.ResultListener() {
+                            @Override
+                            public void onSuccess() {
+                                handler.post(() -> {
+                                    emailPref.setSummary(finalEmail + "  (" + getString(R.string.unverified) + ")");
+                                });
                             }
-                        }
-                    });
 
-                    return null;
-                }
-            }.execute();
+                            @Override
+                            public void onFail() {
+                                ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                            }
+
+                            @Override
+                            public void onBadRequest() {
+
+                            }
+                        });
+                    }).execute();
         }
     }
 
+    @UiThread
     private void updateSms(String sms){
 
         if(sms == null || sms.isEmpty()) {
             sms = getString(R.string.not_specified);
             smsPref.setSummary(sms);
-        }else{
-
-            final Handler mHandler = new Handler(Looper.getMainLooper());
+        }else {
 
             final String finalSms = sms;
-            new AsyncTask<Void, Void, Void>() {
-
-                ProgressDialog progress;
-
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                    progress = new ProgressDialog(getActivity());
-                    progress.setTitle(R.string.app_name);
-                    progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                    progress.show();
-                }
-
-                @Override
-                protected Void doInBackground(final Void... params) {
-                    final boolean success = settingsApi.setSms(finalSms);
-
-                    if (progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
-
-                    if (success) {
-                        mHandler.post(new Runnable() {
+            Handler handler = new Handler(Looper.getMainLooper());
+            new BackgroundExecutor(getActivity(),
+                    () -> {
+                        settingsApi.setSms(finalSms, new Settings.ResultListener() {
                             @Override
-                            public void run() {
-                                refreshList();
+                            public void onSuccess() {
+                                handler.post(() -> refreshList());
+                            }
+
+                            @Override
+                            public void onFail() {
+                                ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                            }
+
+                            @Override
+                            public void onBadRequest() {
+
                             }
                         });
-                    } else {
-                        ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    }
+                    }).execute();
 
-                    return null;
-                }
-            }.execute();
         }
     }
 
+    @UiThread
     private void verifySms(final String code){
-
-        final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        new AsyncTask<Void, Void, Void>() {
-
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                progress.show();
-            }
-
-            @Override
-            protected Void doInBackground(final Void... params) {
-                final boolean success = settingsApi.verifySms((String)code);
-                if(success) {
-                    mHandler.post(new Runnable() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        new BackgroundExecutor(getActivity(),
+                () -> {
+                    settingsApi.verifySms(code, new Settings.ResultListener() {
                         @Override
-                        public void run() {
-                            refreshList();
+                        public void onSuccess() {
+                            handler.post(() -> refreshList());
+                        }
+
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.verification_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
                         }
                     });
-                }else{
-                    ToastCustom.makeText(getActivity(), getString(R.string.verification_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                }
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-                return null;
-            }
-        }.execute();
+                }).execute();
     }
 
+    @UiThread
     private void updateTor(final boolean enabled){
-
-        new AsyncTask<Void, Void, Void>() {
-
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                progress.show();
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-            }
-
-            @Override
-            protected Void doInBackground(final Void... params) {
-                final boolean success = settingsApi.setTorBlocked(enabled);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!success){
-                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        }else{
-                            torPref.setChecked(enabled);
+        Handler handler = new Handler(Looper.getMainLooper());
+        new BackgroundExecutor(getActivity(),
+                () -> {
+                    settingsApi.setTorBlocked(enabled, new Settings.ResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            handler.post(() -> torPref.setChecked(enabled));
                         }
-                    }
-                });
 
-                return null;
-            }
-        }.execute();
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
+                        }
+                    });
+                }).execute();
     }
 
+    @UiThread
     private void updatePasswordHint1(final String hint){
-
-        new AsyncTask<Void, Void, Void>() {
-
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
-                progress.show();
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
-            }
-
-            @Override
-            protected Void doInBackground(final Void... params) {
-                final boolean success = settingsApi.setPasswordHint1(hint);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!success) {
-                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        } else {
-                            passwordHint1Pref.setSummary(hint);
+        Handler handler = new Handler(Looper.getMainLooper());
+        new BackgroundExecutor(getActivity(),
+                () -> {
+                    settingsApi.setPasswordHint1(hint, new Settings.ResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            handler.post(() -> passwordHint1Pref.setSummary(hint));
                         }
-                    }
-                });
 
-                return null;
-            }
-        }.execute();
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
+                        }
+                    });
+                }).execute();
     }
 
     @Override
@@ -510,38 +419,27 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setPositiveButton(R.string.allow, null)
                 .setNegativeButton(R.string.block, null)
                 .create();
-        alertDialogEmail.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialogEmail.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+            Button buttonPositive = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+            buttonPositive.setOnClickListener(view -> {
 
-                Button buttonPositive = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
-                buttonPositive.setOnClickListener(new View.OnClickListener() {
+                updateTor(true);
+                alertDialogEmail.dismiss();
+            });
 
-                    @Override
-                    public void onClick(View view) {
+            Button buttonNegative = alertDialogEmail.getButton(AlertDialog.BUTTON_NEGATIVE);
+            buttonNegative.setOnClickListener(view -> {
 
-                        updateTor(true);
-                        alertDialogEmail.dismiss();
-                    }
-                });
-
-                Button buttonNegative = alertDialogEmail.getButton(AlertDialog.BUTTON_NEGATIVE);
-                buttonNegative.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        updateTor(false);
-                        alertDialogEmail.dismiss();
-                    }
-                });
-            }
+                updateTor(false);
+                alertDialogEmail.dismiss();
+            });
         });
         alertDialogEmail.show();
     }
 
     private void showDialogEmail(){
+
         final EditText etEmail = new EditText(getActivity());
         etEmail.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         etEmail.setPadding(46, 16, 46, 16);
@@ -554,28 +452,19 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setPositiveButton(R.string.update, null)
                 .setNegativeButton(R.string.cancel, null)
                 .create();
-        alertDialogEmail.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialogEmail.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+            Button button = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
+                String email = etEmail.getText().toString();
 
-                Button button = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        String email = etEmail.getText().toString();
-
-                        if (!FormatsUtil.getInstance().isValidEmailAddress(email)) {
-                            ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }else {
-                            updateEmail(email);
-                            alertDialogEmail.dismiss();
-                        }
-                    }
-                });
-            }
+                if (!FormatsUtil.getInstance().isValidEmailAddress(email)) {
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }else {
+                    updateEmail(email);
+                    alertDialogEmail.dismiss();
+                }
+            });
         });
         alertDialogEmail.show();
     }
@@ -593,20 +482,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }else{
             setCountryFlag(tvCountry, country.getDialCode(), country.getFlag());
         }
-        tvCountry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        tvCountry.setOnClickListener(v -> {
 
-                picker.show(SettingsActivity.fragmentManager, "COUNTRY_PICKER");
-                picker.setListener(new CountryPickerListener() {
-                    @Override
-                    public void onSelectCountry(String name, String code, String dialCode, int flagDrawableResID) {
+            picker.show(SettingsActivity.fragmentManager, "COUNTRY_PICKER");
+            picker.setListener((name, code, dialCode, flagDrawableResID) -> {
 
-                        setCountryFlag(tvCountry, dialCode, flagDrawableResID);
-                        picker.dismiss();
-                    }
-                });
-            }
+                setCountryFlag(tvCountry, dialCode, flagDrawableResID);
+                picker.dismiss();
+            });
         });
 
         final AlertDialog alertDialogSms = new AlertDialog.Builder(getActivity())
@@ -619,34 +502,21 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .create();
 
         final Handler mHandler = new Handler(Looper.getMainLooper());
-        alertDialogSms.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialogSms.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+            Button button = alertDialogSms.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
 
-                Button button = alertDialogSms.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
+                final String sms = tvCountry.getText().toString()+etMobile.getText().toString();
 
-                    @Override
-                    public void onClick(View view) {
+                if (!FormatsUtil.getInstance().isValidMobileNumber(sms)) {
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_mobile), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }else {
+                    mHandler.post(() -> updateSms(sms));
 
-                        final String sms = tvCountry.getText().toString()+etMobile.getText().toString();
-
-                        if (!FormatsUtil.getInstance().isValidMobileNumber(sms)) {
-                            ToastCustom.makeText(getActivity(), getString(R.string.invalid_mobile), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }else {
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateSms(sms);
-                                }
-                            });
-
-                            alertDialogSms.dismiss();
-                        }
-                    }
-                });
-            }
+                    alertDialogSms.dismiss();
+                }
+            });
         });
         alertDialogSms.show();
     }
@@ -656,22 +526,15 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.guid_to_clipboard)
                 .setCancelable(false)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = null;
-                        clip = android.content.ClipData.newPlainText("guid", PayloadFactory.getInstance().get().getGuid());
-                        clipboard.setPrimaryClip(clip);
-                        ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    }
-
-                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ;
-            }
-        }).show();
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = null;
+                    clip = android.content.ClipData.newPlainText("guid", PayloadFactory.getInstance().get().getGuid());
+                    clipboard.setPrimaryClip(clip);
+                    ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                }).setNegativeButton(R.string.no, (dialog, whichButton) -> {
+                    ;
+                }).show();
     }
 
     private void showDialogBTCUnits(){
@@ -680,13 +543,11 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_units)
-                .setSingleChoiceItems(units, sel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, which);
-                                unitsPref.setSummary(getDisplayUnits());
-                                dialog.dismiss();
-                            }
-                        }
+                .setSingleChoiceItems(units, sel, (dialog, which) -> {
+                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, which);
+                    unitsPref.setSummary(getDisplayUnits());
+                    dialog.dismiss();
+                }
                 ).show();
     }
 
@@ -703,13 +564,11 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_currency)
-                .setSingleChoiceItems(currencies, selected, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
-                                fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
-                                dialog.dismiss();
-                            }
-                        }
+                .setSingleChoiceItems(currencies, selected, (dialog, which) -> {
+                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
+                    fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+                    dialog.dismiss();
+                }
                 ).show();
     }
 
@@ -728,54 +587,33 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.resend, null)
                 .create();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialog.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+            Button buttonPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            buttonPositive.setOnClickListener(view -> {
+                final String codeS = etSms.getText().toString();
+                if(codeS != null && codeS.length()>0){
+                    mHandler.post(() -> verifySms(codeS));
+                    if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+                }
+            });
 
-                Button buttonPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                buttonPositive.setOnClickListener(new View.OnClickListener() {
+            Button buttonNeutral = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            buttonNeutral.setOnClickListener(view -> {
 
-                    @Override
-                    public void onClick(View view) {
-                        final String codeS = etSms.getText().toString();
-                        if(codeS != null && codeS.length()>0){
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    verifySms(codeS);
-                                }
-                            });
-                            if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
-                        }
-                    }
+                mHandler.post(() -> {
+                    //Resend verification code
+                    updateSms(settingsApi.getSms());
                 });
 
-                Button buttonNeutral = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-                buttonNeutral.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //Resend verification code
-                                updateSms(settingsApi.getSms());
-                            }
-                        });
-
-                        if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
-                    }
-                });
-            }
+                if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+            });
         });
         alertDialog.show();
     }
 
     private void showDialogPasswordHint1(){
         final EditText etPwHint1 = new EditText(getActivity());
-        etPwHint1.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         etPwHint1.setPadding(46, 16, 46, 16);
 
         final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
@@ -786,23 +624,15 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setPositiveButton(R.string.update, null)
                 .setNegativeButton(R.string.cancel, null)
                 .create();
-        alertDialogEmail.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialogEmail.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+            Button button = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
 
-                Button button = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-
-                        String hint = etPwHint1.getText().toString();
-                        updatePasswordHint1(hint);
-                        alertDialogEmail.dismiss();
-                    }
-                });
-            }
+                String hint = etPwHint1.getText().toString();
+                updatePasswordHint1(hint);
+                alertDialogEmail.dismiss();
+            });
         });
         alertDialogEmail.show();
     }
@@ -818,34 +648,28 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         alertDialog.setCanceledOnTouchOutside(false);
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-            }
+        confirmCancel.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
         });
 
         TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
-        confirmChangePin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        confirmChangePin.setOnClickListener(v -> {
 
-                EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
+            EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
 
-                if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+            if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
 
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
+                PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
 
-                    alertDialog.dismiss();
-                } else {
-                    pass.setText("");
-                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
+                alertDialog.dismiss();
+            } else {
+                pass.setText("");
+                ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
         });
 
