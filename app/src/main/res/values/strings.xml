@@ -535,7 +535,7 @@
     <string name="block">Block</string>
     <string name="security">Security</string>
     <string name="two_fa">2-step Verification</string>
-    <string name="tor_requests">Allow Tor Requests</string>
+    <string name="tor_requests">Block Tor Requests</string>
     <string name="tor_summary">Enable the following option to prevent IP addresses that are known to be part of the Tor anonymizing network from accessing your wallet. The Tor network is frequently used by hackers attempting to access Blockchain users wallets.</string>
 
     <string name="password_hint">Password Hint</string>
@@ -544,4 +544,5 @@
     <string name="change_password_summary">Your password is never shared with our servers, which means we cannot help reset your password if you forget it. Make sure you write down your recovery phrase which can restore access to your wallet in the event of a lost password.</string>
     <string name="wallet_recovery_phrase">Wallet Recovery Phrase</string>
     <string name="stored">Stored</string>
+    <string name="verify_email_notice">We have sent your email address a verification link. Click the verification link to verify your email address.</string>
 </resources>

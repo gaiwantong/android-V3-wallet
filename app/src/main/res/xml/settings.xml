@@ -5,6 +5,10 @@
             android:title="@string/profile"
             android:key="profile">
         <Preference
+                android:title="@string/options_id"
+                android:key="guid"
+        />
+        <Preference
                 android:title="@string/email"
                 android:key="email"
         />
@@ -21,10 +25,6 @@
 
     <PreferenceCategory
             android:title="@string/wallet">
-        <Preference
-                android:title="@string/options_id"
-                android:key="guid"
-        />
         <Preference
                 android:title="@string/options_units"
                 android:key="units"

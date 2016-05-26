@@ -416,8 +416,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setTitle(R.string.tor_requests)
                 .setMessage(R.string.tor_summary)
                 .setCancelable(false)
-                .setPositiveButton(R.string.allow, null)
-                .setNegativeButton(R.string.block, null)
+                .setPositiveButton(R.string.block, null)
+                .setNegativeButton(R.string.allow, null)
                 .create();
         alertDialogEmail.setOnShowListener(dialog -> {
 
@@ -443,6 +443,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         final EditText etEmail = new EditText(getActivity());
         etEmail.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         etEmail.setPadding(46, 16, 46, 16);
+        etEmail.setText(settingsApi.getEmail());
+        etEmail.setSelection(etEmail.getText().length());
+        final Handler mHandler = new Handler(Looper.getMainLooper());
 
         final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.email)
@@ -451,6 +454,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setCancelable(false)
                 .setPositiveButton(R.string.update, null)
                 .setNegativeButton(R.string.cancel, null)
+                .setNeutralButton(R.string.resend, null)
                 .create();
         alertDialogEmail.setOnShowListener(dialog -> {
 
@@ -463,10 +467,33 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 }else {
                     updateEmail(email);
                     alertDialogEmail.dismiss();
+                    showDialogEmailVerification();
                 }
+            });
+
+            Button buttonNeutral = alertDialogEmail.getButton(AlertDialog.BUTTON_NEUTRAL);
+            buttonNeutral.setOnClickListener(view -> {
+
+                mHandler.post(() -> {
+                    //Resend verification code
+                    updateEmail(settingsApi.getEmail());
+                });
+
+                if(alertDialogEmail != null && alertDialogEmail.isShowing())alertDialogEmail.dismiss();
+                showDialogEmailVerification();
             });
         });
         alertDialogEmail.show();
+    }
+
+    private void showDialogEmailVerification() {
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.verify)
+                .setMessage(R.string.verify_email_notice)
+                .setCancelable(true)
+                .setPositiveButton(R.string.ok, null)
+                .show();
     }
 
     private void showDialogMobile(){
@@ -515,6 +542,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     mHandler.post(() -> updateSms(sms));
 
                     alertDialogSms.dismiss();
+                    showDialogVerifySms();
                 }
             });
         });
@@ -576,6 +604,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         final EditText etSms = new EditText(getActivity());
         etSms.setPadding(46, 16, 46, 16);
+        etSms.setSingleLine(true);
         final Handler mHandler = new Handler(Looper.getMainLooper());
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
@@ -615,6 +644,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     private void showDialogPasswordHint1(){
         final EditText etPwHint1 = new EditText(getActivity());
         etPwHint1.setPadding(46, 16, 46, 16);
+        etPwHint1.setText(settingsApi.getPasswordHint1());
+        etPwHint1.setSelection(etPwHint1.getText().length());
+        etPwHint1.setSingleLine(true);
 
         final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.password_hint)
