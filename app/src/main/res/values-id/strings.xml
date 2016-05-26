@@ -490,4 +490,11 @@
     <string name="verified">diverifikasi</string>
     <string name="unverified">tidak diverifikasi</string>
 
+    <string name="allow">Mengizinkan</string>
+    <string name="block">Blok</string>
+    <string name="security">Keamanan</string>
+    <string name="stored">Disimpan</string>
+    <string name="enable">Memungkinkan</string>
+    <string name="disable">melumpuhkan</string>
+
 </resources>

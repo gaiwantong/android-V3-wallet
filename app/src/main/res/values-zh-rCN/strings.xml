@@ -490,4 +490,11 @@
     <string name="verified">验证</string>
     <string name="unverified">未经验证</string>
 
+    <string name="allow">允许</string>
+    <string name="block">块</string>
+    <string name="security">安全</string>
+    <string name="stored">存储</string>
+    <string name="enable">启用</string>
+    <string name="disable">关闭</string>
+
 </resources>

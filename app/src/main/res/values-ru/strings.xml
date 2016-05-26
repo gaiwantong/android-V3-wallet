@@ -490,4 +490,11 @@
     <string name="verified">проверенный</string>
     <string name="unverified">непроверенный</string>
 
+    <string name="allow">Позволять</string>
+    <string name="block">блок</string>
+    <string name="security">Безопасность</string>
+    <string name="stored">Хранится</string>
+    <string name="enable">включить</string>
+    <string name="disable">запрещать</string>
+
 </resources>

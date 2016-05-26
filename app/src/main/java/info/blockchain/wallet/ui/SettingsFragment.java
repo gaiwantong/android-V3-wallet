@@ -44,12 +44,13 @@ import piuk.blockchain.android.R;
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
     //Profile
+    Preference guidPref;
     Preference emailPref;
+    SwitchPreference emailNotificationPref;
     Preference smsPref;
     Preference verifySmsPref;
 
     //Wallet
-    Preference guidPref;
     Preference unitsPref;
     Preference fiatPref;
 
@@ -59,7 +60,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     Preference passwordHint1Pref;
     Preference changePasswordPref;
     SwitchPreference torPref;
-    Preference walletRecoveryPhrasePref;
 
     //App
     Preference aboutPref;
@@ -127,6 +127,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
         emailPref.setSummary(emailAndStatus);
         emailPref.setOnPreferenceClickListener(SettingsFragment.this);
+
+        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
+        emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
+        emailNotificationPref.setOnPreferenceClickListener(this);
 
         smsPref = (Preference) findPreference("mobile");
         String smsAndStatus = settingsApi.getSms();
@@ -394,6 +398,49 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }.execute();
     }
 
+    @UiThread
+    private void updateEmailNotification(final boolean enabled){
+        Handler handler = new Handler(Looper.getMainLooper());
+        new BackgroundExecutor(getActivity(),
+                () -> {
+                    settingsApi.enableNotifications(enabled, new Settings.ResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            handler.post(() -> emailNotificationPref.setChecked(enabled));
+                        }
+
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
+                        }
+                    });
+                }).execute();
+
+        if(enabled) {
+            new BackgroundExecutor(getActivity(),
+                    () -> {
+                        settingsApi.setNotificationType(Settings.NOTIFICATION_TYPE_EMAIL, new Settings.ResultListener() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onFail() {
+                            }
+
+                            @Override
+                            public void onBadRequest() {
+                            }
+                        });
+                    }).execute();
+        }
+    }
+
     @Override
     public boolean onPreferenceClick(Preference preference) {
 
@@ -401,6 +448,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             case "email":
                 showDialogEmail();
+                break;
+
+            case "email_notifications":
+                showDialogEmailNotifications();
                 break;
 
             case "mobile":
@@ -752,6 +803,34 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             });
         });
         alertDialog.show();
+    }
+
+    private void showDialogEmailNotifications() {
+
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.email_notifications)
+                .setMessage(R.string.email_notifications_summary)
+                .setCancelable(false)
+                .setPositiveButton(R.string.enable, null)
+                .setNegativeButton(R.string.disable, null)
+                .create();
+        alertDialogEmail.setOnShowListener(dialog -> {
+
+            Button buttonPositive = alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE);
+            buttonPositive.setOnClickListener(view -> {
+
+                updateEmailNotification(true);
+                alertDialogEmail.dismiss();
+            });
+
+            Button buttonNegative = alertDialogEmail.getButton(AlertDialog.BUTTON_NEGATIVE);
+            buttonNegative.setOnClickListener(view -> {
+
+                updateEmailNotification(false);
+                alertDialogEmail.dismiss();
+            });
+        });
+        alertDialogEmail.show();
     }
 
     private void setCountryFlag(TextView tvCountry, String dialCode, int flagResourceId){

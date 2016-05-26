@@ -12,6 +12,10 @@
                 android:title="@string/email"
                 android:key="email"
         />
+        <SwitchPreference
+                android:title="@string/email_notifications"
+                android:key="email_notifications"
+        />
         <Preference
                 android:title="@string/mobile"
                 android:key="mobile"
@@ -59,11 +63,6 @@
                 android:title="@string/tor_requests"
                 android:key="tor"
         />
-        <!--<Preference-->
-                <!--android:title="@string/wallet_recovery_phrase"-->
-                <!--android:key="wallet_recovery_phrase"-->
-                <!--android:summary="not done"-->
-        <!--/>-->
     </PreferenceCategory>
 
     <PreferenceCategory

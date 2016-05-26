@@ -490,4 +490,11 @@
     <string name="verified">verificado</string>
     <string name="unverified">inconfirmado</string>
 
+    <string name="allow">Permitir</string>
+    <string name="block">Bloquear</string>
+    <string name="security">Seguridad</string>
+    <string name="stored">almacenado</string>
+    <string name="enable">Habilitar</string>
+    <string name="disable">Inhabilitar</string>
+
 </resources>
