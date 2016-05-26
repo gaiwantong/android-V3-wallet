@@ -13,7 +13,9 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.UiThread;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -24,10 +26,12 @@ import com.mukesh.countrypicker.fragments.CountryPicker;
 import com.mukesh.countrypicker.models.Country;
 
 import info.blockchain.api.Settings;
+import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.BackgroundExecutor;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -340,6 +344,54 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     });
                 }).execute();
+    }
+
+    @UiThread
+    private void updatePin(final String pin){
+
+        new AsyncTask<Void, Void, CharSequenceX>() {
+
+            ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+                progress.show();
+            }
+
+            @Override
+            protected void onPostExecute(CharSequenceX params) {
+                if (progress != null && progress.isShowing()) {
+                    progress.dismiss();
+                    progress = null;
+                }
+                if(params != null){
+                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+
+                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }else{
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+
+                super.onPostExecute(params);
+            }
+
+            @Override
+            protected CharSequenceX doInBackground(Void... params) {
+                try {
+                    return AccessFactory.getInstance(getActivity()).validatePIN(pin);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        }.execute();
     }
 
     @Override
@@ -671,40 +723,34 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     private void showDialogChangePin(){
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.alert_change_pin, null);
-        dialogBuilder.setView(dialogView);
+        final EditText etPin = new EditText(getActivity());
+        etPin.setInputType(InputType.TYPE_CLASS_NUMBER);
+        etPin.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        etPin.setPadding(46, 16, 46, 16);
+        int maxLength = 4;
+        InputFilter[] fArray = new InputFilter[1];
+        fArray[0] = new InputFilter.LengthFilter(maxLength);
+        etPin.setFilters(fArray);
 
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setCanceledOnTouchOutside(false);
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.change_pin_code)
+                .setMessage(R.string.enter_current_pin)
+                .setView(etPin)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+        alertDialog.setOnShowListener(dialog -> {
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(v -> {
-            if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-        });
+            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
 
-        TextView confirmChangePin = (TextView) dialogView.findViewById(R.id.confirm_unpair);
-        confirmChangePin.setOnClickListener(v -> {
-
-            EditText pass = (EditText) dialogView.findViewById(R.id.password_confirm);
-
-            if (pass.getText().toString().equals(PayloadFactory.getInstance().getTempPassword().toString())) {
-
-                PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
-
-                Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-
+                String pin = etPin.getText().toString();
+                updatePin(pin);
                 alertDialog.dismiss();
-            } else {
-                pass.setText("");
-                ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            }
-        });
 
+            });
+        });
         alertDialog.show();
     }
 

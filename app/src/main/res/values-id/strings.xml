@@ -193,7 +193,7 @@
 
     <string name="ok_cap">OKE</string>
     <string name="change_pin_code">Ubah PIN</string>
-    <string name="enter_password_to_change_pin">Mohon isikan sandi untuk mengganti PIN.</string>
+    <string name="enter_current_pin">Masukkan PIN.</string>
 
     <string name="suggest_merchant">Sarankan pedagang</string>
     <string name="business_name">Nama perusahaan</string>

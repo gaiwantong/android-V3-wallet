@@ -193,7 +193,7 @@
 
     <string name="ok_cap">确定</string>
     <string name="change_pin_code">更改 PIN</string>
-    <string name="enter_password_to_change_pin">请输入密码以更改 PIN。</string>
+    <string name="enter_current_pin">请输入PIN码。</string>
 
     <string name="suggest_merchant">推荐商家</string>
     <string name="business_name">商家名称</string>

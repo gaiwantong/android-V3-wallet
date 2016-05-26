@@ -193,7 +193,7 @@
 
     <string name="ok_cap">OK</string>
     <string name="change_pin_code">Изменить PIN</string>
-    <string name="enter_password_to_change_pin">Введите пароль для изменения PIN-кода.</string>
+    <string name="enter_current_pin">Пожалуйста, введите PIN-код.</string>
 
     <string name="suggest_merchant">Предложить торговца</string>
     <string name="business_name">Название компании</string>

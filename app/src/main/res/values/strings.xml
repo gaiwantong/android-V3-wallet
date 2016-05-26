@@ -208,7 +208,7 @@
 
     <string name="ok_cap">OK</string>
     <string name="change_pin_code">Change PIN</string>
-    <string name="enter_password_to_change_pin">Please enter password to change PIN.</string>
+    <string name="enter_current_pin">Please enter current PIN.</string>
 
     <string name="suggest_merchant">Suggest merchant</string>
     <string name="business_name">Business name</string>

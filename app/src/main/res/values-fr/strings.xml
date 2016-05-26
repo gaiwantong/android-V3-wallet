@@ -193,7 +193,7 @@
 
     <string name="ok_cap">OK</string>
     <string name="change_pin_code">Changer le code PIN</string>
-    <string name="enter_password_to_change_pin">Veuillez saisir le mot de passe pour changer le code PIN</string>
+    <string name="enter_current_pin">S\'il vous plaît entrer le code PIN.</string>
 
     <string name="suggest_merchant">Suggérer un commerçant</string>
     <string name="business_name">Nom de l’entreprise</string>
