@@ -282,7 +282,7 @@
     <string name="of">de</string>
     <string name="backup_confirmed">Proteção confirmada</string>
     <string name="backup_word_mismatch">Palavra incompatível</string>
-    <string name="backup_days_ago">Você protegeu sua carteira há [--time--] [--day--]</string>
+    <string name="backup_days_ago">Você protegeu sua carteira há %1$s %2$s</string>
     <string name="day">dia</string>
     <string name="days">dias</string>
     <string name="backup_only_need_to_once_reminder">Você só precisa proteger sua carteira uma vez, mas é recomendável verificar ocasionalmente se a proteção ainda é válida</string>
@@ -309,7 +309,7 @@
     <string name="verification_failed">Falha na verificação</string>
     <string name="resend_email_confirmation">Reenviar e-mail</string>
     <string name="please_confirm_email">Confirme seu endereço de e-mail</string>
-    <string name="confirmation_instructions">Enviamos um e-mail para [--email_address--]. Abra o e-mail e siga as instruções para concluir a instalação da carteira.</string>
+    <string name="confirmation_instructions">Enviamos um e-mail para %1$s. Abra o e-mail e siga as instruções para concluir a instalação da carteira.</string>
 
     <string name="send_payment">Enviar pagamento</string>
     <string name="share">Compartilhar endereço de recebimento</string>
@@ -438,7 +438,7 @@
     <string name="send_to_same_address_warning">Não é possível enviar ao mesmo endereço.</string>
     <string name="make_default">Tornar padrão</string>
     <string name="privx_required">Chave privada necessária</string>
-    <string name="watch_only_spend_instructions">Esta ação exige a chave privada para o endereço de bitcoin [--address--] Digitalize o código QR.</string>
+    <string name="watch_only_spend_instructionss">Esta ação exige a chave privada para o endereço de bitcoin %1$s Digitalize o código QR.</string>
     <string name="invalid_private_key">Chave privada inválida</string>
     <string name="watch_only_import_warning">Você está prestes a importar um endereço somente visualização, um endereço (ou script de chave pública) armazenado na carteira sem a chave privada correspondente. Você não pode usar os bitcoins de um endereço somente visualização diretamente, mas pode visualizar o saldo ou exportar uma transação para assiná-la externamente. Isto significa que os fundos podem ser utilizados SOMENTE se você tiver a chave privada armazenada em algum lugar. Se você não tiver a chave privada armazenada, NÃO instrua ninguém a enviar bitcoins para o endereço somente visualização. \n\nEstas opções são recomendadas apenas para usuários avançados. Deseja continuar?</string>
     <string name="scan_private_key">Digitalizar chave privada</string>
@@ -465,18 +465,18 @@
     <string name="default_label_brackets">(padrão)</string>
     <string name="not_now">Agora não</string>
     <string name="high_fee_not_necessary">Não é necessário ter uma taxa alta.</string>
-    <string name="high_fee_not_necessary_info">Você especificou uma taxa de transação excepcionalmente alta de [--custom_fee--].\n\nMesmo se você baixar a taxa para [--dynamic_fee--], espere a transação se confirmar dentro de ~10 minutos (1 bloco).</string>
+    <string name="high_fee_not_necessary_info">Você especificou uma taxa de transação excepcionalmente alta de %1$s.\n\nMesmo se você baixar a taxa para %2$s, espere a transação se confirmar dentro de ~10 minutos (1 bloco).</string>
     <string name="low_fee_not_recommended">Não se recomenda uma taxa personalizada baixa</string>
-    <string name="low_fee_suggestion">Você especificou uma taxa de transação excepcionalmente baixa de [--custom_fee--].\n\nSua transação pode ficar paralisada ou, possivelmente, nunca se confirmar. Para aumentar a probabilidade de confirmação de sua transação dentro de aproximadamente uma hora (6 blocos), recomendamos uma taxa de não menos do que [--dynamic_fee--].</string>
+    <string name="low_fee_suggestion">Você especificou uma taxa de transação excepcionalmente baixa de %1$s.\n\nSua transação pode ficar paralisada ou, possivelmente, nunca se confirmar. Para aumentar a probabilidade de confirmação de sua transação dentro de aproximadamente uma hora (6 blocos), recomendamos uma taxa de não menos do que %2$s.</string>
     <string name="raise_fee">Aumentar a taxa</string>
     <string name="lower_fee">Diminuir a taxa</string>
     <string name="keep_high_fee">Manter a taxa alta</string>
     <string name="keep_low_fee">Manter a taxa baixa</string>
     <string name="no_confirmed_funds">Não há fundos confirmados para gastar.</string>
-    <string name="estimate_confirm_block_count">Tempo de confirmação estimado: ~[--minutes--] minutes ([--block_count--] blocks)</string>
+    <string name="estimate_confirm_block_count">Tempo de confirmação estimado: ~%1$d minutes (%2$d blocks)</string>
     <string name="fee_too_low_no_confirm">A taxa é tão pequena que sua transação pode nunca se confirmar.</string>
     <string name="transaction_surge">Atualmente, a rede de mineração Bitcoin está experimentando um alto volume de atividades, resultando em taxas recomendadas mais altas do que o habitual.</string>
-    <string name="unsupported_encryption_version">Versão Wallet [--version--] não suportado.</string>
+    <string name="unsupported_encryption_version">Versão Wallet %1$d não suportado.</string>
     <string name="logout">Sair</string>
     <string name="to_field_helper">Digite o endereço Bitcoin ou selecione</string>
 

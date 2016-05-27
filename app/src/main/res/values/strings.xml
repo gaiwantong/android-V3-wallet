@@ -297,7 +297,7 @@
     <string name="of">of</string>
     <string name="backup_confirmed">Backup Confirmed</string>
     <string name="backup_word_mismatch">Word Mismatch</string>
-    <string name="backup_days_ago">You backed your wallet up [--time--] [--day--] ago</string>
+    <string name="backup_days_ago">You backed your wallet up %1$s %2$s ago</string>
     <string name="day">day</string>
     <string name="days">days</string>
     <string name="backup_only_need_to_once_reminder">You only need to back up your wallet once, but it is a good idea to occasionally verify that your backup is valid</string>
@@ -324,7 +324,7 @@
     <string name="verification_failed">Verification Failed</string>
     <string name="resend_email_confirmation">Resend Email</string>
     <string name="please_confirm_email">Please Confirm Your Email Address</string>
-    <string name="confirmation_instructions">We have sent you an email at [--email_address--]. Please open the email and follow the instructions to complete your wallet setup.</string>
+    <string name="confirmation_instructions">We have sent you an email at %1$s. Please open the email and follow the instructions to complete your wallet setup.</string>
 
     <string name="send_payment">Send Payment</string>
     <string name="share">Share Receive Address</string>
@@ -457,7 +457,7 @@
     <string name="send_to_same_address_warning">Can\'t send to the same address.</string>
     <string name="make_default">Make default</string>
     <string name="privx_required">Private Key Needed</string>
-    <string name="watch_only_spend_instructions">This action requires the private key for the Bitcoin address [--address--]. Please scan the QR code.</string>
+    <string name="watch_only_spend_instructionss">This action requires the private key for the Bitcoin address %1$s. Please scan the QR code.</string>
     <string name="invalid_private_key">Invalid private key</string>
     <string name="watch_only_import_warning">You are about to import a watch-only address, an address (or public key script)
         stored in the wallet without the corresponding private key. This
@@ -495,20 +495,20 @@
     <string name="default_label_brackets">(default)</string>
     <string name="not_now">Not now</string>
     <string name="high_fee_not_necessary">High fee not necessary.</string>
-    <string name="high_fee_not_necessary_info">You specified an unusually high transaction fee of [--custom_fee--].\n\nEven if you lower the fee to [--dynamic_fee--], you can expect the transaction to confirm within the next ~10 minutes (1 block).</string>
+    <string name="high_fee_not_necessary_info">You specified an unusually high transaction fee of %1$s.\n\nEven if you lower the fee to %2$s, you can expect the transaction to confirm within the next ~10 minutes (1 block).</string>
 
     <string name="low_fee_not_recommended">Low Custom Fee Not Recommended</string>
-    <string name="low_fee_suggestion">You specified an exceptionally small transaction fee of [--custom_fee--].\n\nYour transaction may become stuck and possibly never confirm. To increase the likelihood for your transaction to confirm within approximately one hour (6 blocks) we strongly recommend a fee of no less than [--dynamic_fee--].</string>
+    <string name="low_fee_suggestion">You specified an exceptionally small transaction fee of %1$s.\n\nYour transaction may become stuck and possibly never confirm. To increase the likelihood for your transaction to confirm within approximately one hour (6 blocks) we strongly recommend a fee of no less than %2$s.</string>
     <string name="raise_fee">Raise fee</string>
     <string name="lower_fee">Lower fee</string>
     <string name="keep_high_fee">Keep high fee</string>
     <string name="keep_low_fee">Keep low fee</string>
 
     <string name="no_confirmed_funds">No confirmed funds to spend.</string>
-    <string name="estimate_confirm_block_count">Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)</string>
+    <string name="estimate_confirm_block_count">Estimated confirmation time: ~%1$d minutes (%2$d blocks)</string>
     <string name="fee_too_low_no_confirm">Your fee is so small that your transaction may never be confirmed.</string>
     <string name="transaction_surge">The Bitcoin mining network is currently experiencing a high volume of activity, resulting in recommended fees that are higher than usual.</string>
-    <string name="unsupported_encryption_version">Wallet version [--version--] not supported.</string>
+    <string name="unsupported_encryption_version">Wallet version %1$d not supported.</string>
     <string name="logout">Logout</string>
     <string name="to_field_helper">Enter Bitcoin address or select</string>
 

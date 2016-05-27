@@ -1226,7 +1226,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.privx_required)
-                .setMessage(getString(R.string.watch_only_spend_instructions).replace("[--address--]",pendingSpend.fromLegacyAddress.getAddress()))
+                .setMessage(String.format(getString(R.string.watch_only_spend_instructionss), pendingSpend.fromLegacyAddress.getAddress()))
                 .setCancelable(false)
                 .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -1694,9 +1694,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         alertDialogFee.setCanceledOnTouchOutside(false);
 
         TextView tvMessageBody = (TextView) dialogView.findViewById(R.id.tv_body);
-        tvMessageBody.setText(getResources().getString(body)
-                .replace("[--custom_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC)
-                .replace("[--dynamic_fee--]", MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC));
+
+        String message = String.format(getString(body),
+                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC,
+                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC);
+        tvMessageBody.setText(message);
 
         ImageView confirmBack = (ImageView) dialogView.findViewById(R.id.confirm_cancel);
         confirmBack.setOnClickListener(new View.OnClickListener() {

@@ -282,7 +282,7 @@
     <string name="of">dari</string>
     <string name="backup_confirmed">Pencadangan Dikonfirmasikan</string>
     <string name="backup_word_mismatch">Kata Tidak Sesuai</string>
-    <string name="backup_days_ago">Anda mencadangkan dompet [--time--] [--day--] yang lalu</string>
+    <string name="backup_days_ago">Anda mencadangkan dompet %1$s %2$s yang lalu</string>
     <string name="day">hari</string>
     <string name="days">hari</string>
     <string name="backup_only_need_to_once_reminder">Anda hanya perlu mencadangkan dompet sekali saja, namun tidak ada salahnya untuk kadang-kadang memastikan bahwa pencadangan Anda valid</string>
@@ -309,7 +309,7 @@
     <string name="verification_failed">Verifikasi Gagal</string>
     <string name="resend_email_confirmation">Kirim Ulang Email</string>
     <string name="please_confirm_email">Mohon Konfirmasikan Alamat Email Anda</string>
-    <string name="confirmation_instructions">Kami telah mengirimi Anda email di [--email_address--]. Silakan buka email dan ikuti petunjuk untuk menyelesaikan pengaturan dompet Anda.</string>
+    <string name="confirmation_instructions">Kami telah mengirimi Anda email di %1$s. Silakan buka email dan ikuti petunjuk untuk menyelesaikan pengaturan dompet Anda.</string>
 
     <string name="send_payment">Kirim Pembayaran</string>
     <string name="share">Terima Alamat yang Dibagikan</string>
@@ -438,7 +438,7 @@
     <string name="send_to_same_address_warning">Tida\'k bisa mengirim ke alamat yang sama.</string>
     <string name="make_default">Buat default</string>
     <string name="privx_required">Kunci Pribadi Dibutuhkan</string>
-    <string name="watch_only_spend_instructions">Tindakan ini membutuhkan kunci pribadi untuk alamat Bitcoin [--address--]. Harap Pindai kode QR.</string>
+    <string name="watch_only_spend_instructionss">Tindakan ini membutuhkan kunci pribadi untuk alamat Bitcoin %1$s. Harap Pindai kode QR.</string>
     <string name="invalid_private_key">Sandi kunci pribadi tidak valid</string>
     <string name="watch_only_import_warning">Anda akan mengimpor alamat yang hanya menonton, alamat (atau skrip kunci umum) yang disimpan dalam dompet tanpa kunci pribadi sesuai. Anda tidak bisa membelanjakan bitcoin langsung dari alamat menonton saja, tetapi Anda bisa mendapatkan neraca, atau mengekspor transaksi untuk ditandatangani secara eksternal. Ini berarti dana dapat dibelanjakan HANYA jika Anda memiliki kunci pribadi disimpan di tempat lain. Jika Anda tidak memiliki kunci pribadi yang disimpan, JANGAN meminta siapa pun untuk mengirim bitcoin Anda ke alamat menonton saja.\n\nPilihan ini hanya disarankan untuk pengguna tingkat lanjut. Lanjutkan?</string>
     <string name="scan_private_key">Pindai Kunci Pribadi</string>
@@ -465,18 +465,18 @@
     <string name="default_label_brackets">(default)</string>
     <string name="not_now">Jangan sekarang</string>
     <string name="high_fee_not_necessary">Biaya tinggi yang tidak diperlukan.</string>
-    <string name="high_fee_not_necessary_info">Anda menetapkan biaya transaksi luar biasa tinggi [--custom_fee--].\n\nBahkan jika Anda menurunkan biaya untuk [--dynamic_fee--], Anda dapat mengharapkan transaksi untuk mengkonfirmasi dalam waktu ~10 menit (1 blok).</string>
+    <string name="high_fee_not_necessary_info">Anda menetapkan biaya transaksi luar biasa tinggi %1$s.\n\nBahkan jika Anda menurunkan biaya untuk %2$s, Anda dapat mengharapkan transaksi untuk mengkonfirmasi dalam waktu ~10 menit (1 blok).</string>
     <string name="low_fee_not_recommended">Biaya Rendah Tersuai Tidak Disarankan</string>
-    <string name="low_fee_suggestion">Anda menetapkan biaya transaksi sangat kecil [--custom_fee--].\n\nTransaksi Anda mungkin menjadi macet dan mungkin tidak akan pernah memberi mengkonfirmasi. Untuk meningkatkan kemungkinan agar transaksi Anda memberi konfirmasi dalam waktu sekitar satu jam (6 blok) kami sangat menyarankan biaya tidak kurang dari [--dynamic_fee--].</string>
+    <string name="low_fee_suggestion">Anda menetapkan biaya transaksi sangat kecil %1$s.\n\nTransaksi Anda mungkin menjadi macet dan mungkin tidak akan pernah memberi mengkonfirmasi. Untuk meningkatkan kemungkinan agar transaksi Anda memberi konfirmasi dalam waktu sekitar satu jam (6 blok) kami sangat menyarankan biaya tidak kurang dari %2$s.</string>
     <string name="raise_fee">Menaikkan biaya</string>
     <string name="lower_fee">Biaya lebih rendah</string>
     <string name="keep_high_fee">Mempertahankan biaya tinggi</string>
     <string name="keep_low_fee">Mempertahankan biaya rendah</string>
     <string name="no_confirmed_funds">Tidak ada dana yang telah dikonfirmasi untuk dibelanjakan.</string>
-    <string name="estimate_confirm_block_count">Waktu perkiraan konfirmasi: ~[--minutes--] menit ([--block_count--] blok)</string>
+    <string name="estimate_confirm_block_count">Waktu perkiraan konfirmasi: ~%1$d menit (%2$d blok)</string>
     <string name="fee_too_low_no_confirm">Biaya Anda begitu kecil sehingga transaksi Anda mungkin tidak pernah dikonfirmasi.</string>
     <string name="transaction_surge">Jaringan pertambangan Bitcoin saat ini sedang mengalami volume aktivitas tinggi, mengakibatkan biaya yang direkomendasi lebih tinggi dari biasa.</string>
-    <string name="unsupported_encryption_version">Versi dompet [--version--] tidak didukung.</string>
+    <string name="unsupported_encryption_version">Versi dompet %1$d tidak didukung.</string>
     <string name="logout">Keluar</string>
     <string name="to_field_helper">Masukkan alamat Bitcoin atau pilih</string>
 
