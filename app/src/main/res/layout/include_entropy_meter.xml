@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/entropy_meter"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:orientation="horizontal">
+
+    <TextView
+            android:layout_width="0dp"
+            android:layout_weight="30"
+            android:layout_height="match_parent"
+            android:textColor="@color/blockchain_grey"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:visibility="invisible"
+            android:text="@string/password"/>
+
+    <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="70"
+            android:layout_height="wrap_content"
+            android:paddingRight="16dp"
+            android:orientation="vertical">
+
+        <ProgressBar
+                android:id="@+id/pass_strength_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:background="@color/blockchain_light_grey"
+                android:progressDrawable="@drawable/progress_orange"
+        />
+
+        <TextView
+                android:id="@+id/pass_strength_verdict"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:text="Weak"
+                android:textColor="@color/blockchain_grey"/>
+    </LinearLayout>
+
+
+</LinearLayout>

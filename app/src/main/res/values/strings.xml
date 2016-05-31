@@ -549,4 +549,6 @@
     <string name="verify_email_notice">We have sent your email address a verification link. Click the verification link to verify your email address.</string>
     <string name="email_notifications">Email Notifications</string>
     <string name="email_notifications_summary">Enable notifications to receive an email whenever you receive bitcoins. Only labeled addresses and imported addresses are eligible to trigger notifications.</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
 </resources>

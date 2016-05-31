@@ -54,11 +54,10 @@
                 android:title="@string/password_hint"
                 android:key="pw_hint1"
         />
-        <!--<Preference-->
-                <!--android:title="@string/change_password"-->
-                <!--android:key="change_pw"-->
-                <!--android:summary="not done"-->
-        <!--/>-->
+        <Preference
+                android:title="@string/change_password"
+                android:key="change_pw"
+        />
         <SwitchPreference
                 android:title="@string/tor_requests"
                 android:key="tor"

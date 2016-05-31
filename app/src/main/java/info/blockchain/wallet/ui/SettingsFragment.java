@@ -13,13 +13,18 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.annotation.UiThread;
+import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mukesh.countrypicker.fragments.CountryPicker;
@@ -28,6 +33,7 @@ import com.mukesh.countrypicker.models.Country;
 import info.blockchain.api.Settings;
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.payload.Payload;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.BackgroundExecutor;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -35,8 +41,12 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -68,6 +78,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     Preference disableRootWarningPref;
 
     Settings settingsApi;
+    int pwStrength = 0;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
@@ -183,8 +194,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
         passwordHint1Pref.setOnPreferenceClickListener(this);
 
-//        changePasswordPref = (Preference) findPreference("change_pw");
-//        changePasswordPref.setOnPreferenceClickListener(this);
+        changePasswordPref = (Preference) findPreference("change_pw");
+        changePasswordPref.setOnPreferenceClickListener(this);
 
         torPref = (SwitchPreference) findPreference("tor");
         torPref.setChecked(settingsApi.isTorBlocked());
@@ -483,6 +494,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 break;
 
             case "change_pw":
+                showDialogChangePasswordWarning();
                 break;
 
             case "tor":
@@ -833,6 +845,167 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         alertDialogEmail.show();
     }
 
+    private void showDialogChangePasswordWarning() {
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.warning)
+                .setMessage(R.string.change_password_summary)
+                .setPositiveButton(R.string.dialog_continue, (dialog, which) -> {
+                    showDialogChangePassword();
+                })
+                .show();
+
+    }
+
+    private void showDialogChangePassword(){
+
+        LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
+        final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password2, null);
+
+        EditText etCurrentPw = (EditText) pwLayout.findViewById(R.id.current_password);
+        EditText etNewPw = (EditText) pwLayout.findViewById(R.id.new_password);
+        EditText etNewConfirmedPw = (EditText) pwLayout.findViewById(R.id.confirm_password);
+
+        LinearLayout entropyMeter = (LinearLayout) pwLayout.findViewById(R.id.entropy_meter);
+        ProgressBar passStrengthBar = (ProgressBar) pwLayout.findViewById(R.id.pass_strength_bar);
+        passStrengthBar.setMax(100);
+        TextView passStrengthVerdict = (TextView) pwLayout.findViewById(R.id.pass_strength_verdict);
+
+        etNewPw.addTextChangedListener(new TextWatcher() {
+            private Timer timer = new Timer();
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(final Editable editable) {
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        getActivity().runOnUiThread(() -> {
+                            entropyMeter.setVisibility(View.VISIBLE);
+                            setPasswordStrength(passStrengthVerdict, passStrengthBar, editable.toString());
+                        });
+                    }
+                }, 200);
+            }
+        });
+
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.change_password)
+                .setCancelable(false)
+                .setView(pwLayout)
+                .setPositiveButton(R.string.update, null)
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        alertDialog.setOnShowListener(dialog -> {
+
+            Button buttonPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            buttonPositive.setOnClickListener(view -> {
+
+                String currentPw = etCurrentPw.getText().toString();
+                String newPw = etNewPw.getText().toString();
+                String newConfirmedPw = etNewConfirmedPw.getText().toString();
+                final CharSequenceX walletPassword = PayloadFactory.getInstance().getTempPassword();
+
+                if(currentPw.equals(walletPassword.toString())) {
+                    if (newPw.equals(newConfirmedPw)) {
+                        if (newConfirmedPw == null || newConfirmedPw.length() < 9 || newConfirmedPw.length() > 255) {
+                            ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        } else if (pwStrength < 50){
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(R.string.app_name)
+                                    .setMessage(R.string.weak_password)
+                                    .setCancelable(false)
+                                    .setPositiveButton(R.string.yes, (dialog1, which) -> {
+                                        etNewConfirmedPw.setText("");
+                                        etNewConfirmedPw.requestFocus();
+                                        etNewPw.setText("");
+                                        etNewPw.requestFocus();
+                                    })
+                                    .setNegativeButton(R.string.polite_no, (dialog1, which) -> {
+                                        updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
+                                    })
+                                    .show();
+                        } else{
+                            updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
+                        }
+                    }else{
+                        etNewConfirmedPw.setText("");
+                        etNewConfirmedPw.requestFocus();
+                        ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+                }else{
+                    etCurrentPw.setText("");
+                    etCurrentPw.requestFocus();
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+            });
+
+            Button buttonNegative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            buttonNegative.setOnClickListener(view -> {
+
+                alertDialog.dismiss();
+            });
+        });
+        alertDialog.show();
+    }
+
+    private void updatePassword(AlertDialog alertDialog, final CharSequenceX updatedPassword, final CharSequenceX fallbackPassword){
+        ProgressDialog progress = new ProgressDialog(getActivity());
+        progress.setTitle(R.string.app_name);
+        progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
+        progress.setCancelable(false);
+        progress.show();
+
+        new Thread(() -> {
+            Looper.prepare();
+
+            PayloadFactory.getInstance().setTempPassword(updatedPassword);
+
+            if (AccessFactory.getInstance(getActivity()).createPIN(updatedPassword, AccessFactory.getInstance(getActivity()).getPIN())
+                    && PayloadBridge.getInstance(getActivity()).remoteSaveThreadLocked()) {
+
+                ToastCustom.makeText(getActivity(), getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+            } else {
+                //Revert on fail
+                PayloadFactory.getInstance().setTempPassword(fallbackPassword);
+                ToastCustom.makeText(getActivity(), getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                ToastCustom.makeText(getActivity(), getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            }
+            progress.dismiss();
+            alertDialog.dismiss();
+            Looper.loop();
+        }).start();
+    }
+
+    @UiThread
+    private void setPasswordStrength(TextView passStrengthVerdict, ProgressBar passStrengthBar, String pw){
+        int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_very_strong};
+        int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
+        pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
+
+        if(pw.equals(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
+
+        int pwStrengthLevel = 0;//red
+        if (pwStrength >= 75) pwStrengthLevel = 3;//green
+        else if (pwStrength >= 50) pwStrengthLevel = 2;//green
+        else if (pwStrength >= 25) pwStrengthLevel = 1;//orange
+
+        passStrengthBar.setProgress(pwStrength);
+        passStrengthBar.setProgressDrawable(ContextCompat.getDrawable(getActivity(), strengthColors[pwStrengthLevel]));
+        passStrengthVerdict.setText(getResources().getString(strengthVerdicts[pwStrengthLevel]));
+    }
+
+    @UiThread
     private void setCountryFlag(TextView tvCountry, String dialCode, int flagResourceId){
         tvCountry.setText(dialCode);
         Drawable drawable = getResources().getDrawable(flagResourceId);
