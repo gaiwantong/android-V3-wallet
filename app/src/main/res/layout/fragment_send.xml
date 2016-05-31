@@ -10,243 +10,250 @@
                 android:paddingTop="0dp"
                 tools:context="info.blockchain.wallet.ui.MainActivity">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/blockchain_pearl_white"
-            android:orientation="vertical"
-    >
+    <ScrollView android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/keypad"
+                android:background="@color/blockchain_pearl_white">
 
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="fill_parent"
-                android:background="@color/blockchain_pearl_white"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
         >
 
-            <View
-                    android:id="@+id/shadow"
-                    android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:background="@drawable/container_dropshadow_gradient"/>
-
             <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:background="@color/blockchain_pearl_white"
                     android:orientation="vertical"
             >
 
-                <LinearLayout
-                        android:id="@+id/from_row"
+                <View
+                        android:id="@+id/shadow"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingLeft="16dp"
+                        android:layout_height="4dp"
+                        android:background="@drawable/container_dropshadow_gradient"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/blockchain_pearl_white"
+                        android:orientation="vertical"
                 >
 
-                    <TextView
-                            android:layout_width="50dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/from"
-                            android:textColor="@color/blockchain_grey"/>
-
-                    <include
-                            android:id="@+id/accounts"
-                            layout="@layout/include_spinner_compat"
-                            android:layout_width="0dp"
+                    <LinearLayout
+                            android:id="@+id/from_row"
+                            android:layout_width="match_parent"
                             android:layout_height="48dp"
-                            android:layout_weight="1"/>
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="16dp"
+                    >
 
-                </LinearLayout>
+                        <TextView
+                                android:layout_width="50dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/from"
+                                android:textColor="@color/blockchain_grey"/>
 
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
+                        <include
+                                android:id="@+id/accounts"
+                                layout="@layout/include_spinner_compat"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_weight="1"/>
 
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingLeft="16dp"
-                >
+                    </LinearLayout>
 
-                    <TextView
-                            android:layout_width="50dp"
-                            android:layout_height="match_parent"
-                            android:text="@string/to"
-                            android:gravity="center|left"
-                            android:textColor="@color/blockchain_grey"/>
+                    <View
+                            android:layout_width="fill_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/blockchain_light_grey"/>
 
-                    <EditText
-                            android:id="@+id/destination"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="@color/blockchain_pearl_white"
-                            android:inputType="textNoSuggestions"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true"
-                            android:textColor="@color/primary_text_default_material_light"
-                            android:textCursorDrawable="@null"
-                            android:textSize="16sp"
-                            android:hint="@string/to_field_helper"
-                    />
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="16dp"
+                    >
 
-                    <info.blockchain.wallet.ui.helpers.ReselectSpinner
-                            android:id="@+id/sp_destination"
-                            android:layout_width="58dp"
-                            android:layout_height="match_parent"
-                            android:background="?android:selectableItemBackground"
-                            android:divider="@null"
-                            android:dropDownSelector="?android:selectableItemBackground"
-                    />
+                        <TextView
+                                android:layout_width="50dp"
+                                android:layout_height="match_parent"
+                                android:text="@string/to"
+                                android:gravity="center|left"
+                                android:textColor="@color/blockchain_grey"/>
 
-                </LinearLayout>
+                        <EditText
+                                android:id="@+id/destination"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@color/blockchain_pearl_white"
+                                android:inputType="textNoSuggestions"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:textColor="@color/primary_text_default_material_light"
+                                android:textCursorDrawable="@null"
+                                android:textSize="16sp"
+                                android:hint="@string/to_field_helper"
+                        />
 
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
+                        <info.blockchain.wallet.ui.helpers.ReselectSpinner
+                                android:id="@+id/sp_destination"
+                                android:layout_width="58dp"
+                                android:layout_height="match_parent"
+                                android:background="?android:selectableItemBackground"
+                                android:divider="@null"
+                                android:dropDownSelector="?android:selectableItemBackground"
+                        />
 
-                <include layout="@layout/include_amount_row"/>
+                    </LinearLayout>
 
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
+                    <View
+                            android:layout_width="fill_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/blockchain_light_grey"/>
 
-                <TextView
-                        android:id="@+id/max"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal|center_vertical"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp"
-                        android:textColor="@color/primary_text_default_material_light"
-                        android:alpha="0.7"
-                        android:textAlignment="gravity"
-                />
+                    <include layout="@layout/include_amount_row"/>
 
-                <ProgressBar
-                        style="?android:attr/progressBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp"
-                        android:visibility="gone"
-                        android:id="@+id/progressBarMaxAvailable" android:layout_gravity="center"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                    android:id="@+id/custom_fee_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-            >
-
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
-
-                <LinearLayout android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-
-                              android:paddingTop="16dp"
-                              android:gravity="center_vertical"
-                              android:orientation="horizontal">
+                    <View
+                            android:layout_width="fill_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/blockchain_light_grey"/>
 
                     <TextView
+                            android:id="@+id/max"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/transaction_fee"
-                            android:textColor="@color/blockchain_grey"/>
-
-                    <ImageView
-                            android:id="@+id/iv_fee_info"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginLeft="16dp"
-                            android:tint="@color/blockchain_grey"
-                            android:alpha="0.7"
-                            android:src="@drawable/ic_help_outline_white_24dp"/>
-
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent"
-                              android:layout_height="48dp"
-                              android:gravity="center_vertical"
-                              android:orientation="horizontal">
-
-                    <TextView
-                            android:id="@+id/tv_fee_unit"
-                            android:layout_width="50dp"
-                            android:layout_height="match_parent"
-                            android:gravity="center_vertical"
-                            android:text="BTC"
-                            android:textColor="@color/blockchain_grey"
-                    />
-
-                    <EditText
-                            android:id="@+id/custom_fee"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/underline"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true"
-                            android:hint="0.00"
-                            android:imeOptions="actionDone"
-                            android:inputType="number|numberDecimal"
-                            android:numeric="decimal"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp"
                             android:textColor="@color/primary_text_default_material_light"
-                            android:textColorHint="@color/blockchain_light_grey"
-                            android:textCursorDrawable="@null"
-                            android:maxLength="17"
+                            android:alpha="0.7"
+                            android:textAlignment="gravity"
                     />
+
+                    <ProgressBar
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"
+                            android:id="@+id/progressBarMaxAvailable"
+                            android:layout_gravity="center"/>
 
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent"
-                              android:layout_height="48dp"
-                              android:gravity="center_vertical"
-                              android:orientation="horizontal">
+                <LinearLayout
+                        android:id="@+id/custom_fee_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                >
 
-                    <TextView
-                            android:id="@+id/tv_estimate"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center_vertical"
-                            android:text="Estimated confirmation time: ~20 minutes (2 blocks)"
-                            android:textColor="@color/blockchain_blue"
-                    />
+                    <View
+                            android:layout_width="fill_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/blockchain_light_grey"/>
+
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+
+                                  android:paddingTop="16dp"
+                                  android:gravity="center_vertical"
+                                  android:orientation="horizontal">
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/transaction_fee"
+                                android:textColor="@color/blockchain_grey"/>
+
+                        <ImageView
+                                android:id="@+id/iv_fee_info"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginLeft="16dp"
+                                android:tint="@color/blockchain_grey"
+                                android:alpha="0.7"
+                                android:src="@drawable/ic_help_outline_white_24dp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="48dp"
+                                  android:gravity="center_vertical"
+                                  android:orientation="horizontal">
+
+                        <TextView
+                                android:id="@+id/tv_fee_unit"
+                                android:layout_width="50dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="BTC"
+                                android:textColor="@color/blockchain_grey"
+                        />
+
+                        <EditText
+                                android:id="@+id/custom_fee"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/underline"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:hint="0.00"
+                                android:imeOptions="actionDone"
+                                android:inputType="number|numberDecimal"
+                                android:numeric="decimal"
+                                android:textColor="@color/primary_text_default_material_light"
+                                android:textColorHint="@color/blockchain_light_grey"
+                                android:textCursorDrawable="@null"
+                                android:maxLength="17"
+                        />
+
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="48dp"
+                                  android:gravity="center_vertical"
+                                  android:orientation="horizontal">
+
+                        <TextView
+                                android:id="@+id/tv_estimate"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="Estimated confirmation time: ~20 minutes (2 blocks)"
+                                android:textColor="@color/blockchain_blue"
+                        />
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
             </LinearLayout>
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </ScrollView>
 
-    <include layout="@layout/include_numeric_keyboard"/>
+    <include android:id="@+id/keypad" layout="@layout/include_numeric_keyboard"/>
 
 </RelativeLayout>
