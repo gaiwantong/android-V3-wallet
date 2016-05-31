@@ -697,7 +697,7 @@ public class AccountEditActivity extends AppCompatActivity {
         if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.privx_required)
-                    .setMessage(getString(R.string.watch_only_spend_instructions).replace("[--address--]", legacyAddress.getAddress()))
+                    .setMessage(String.format(getString(R.string.watch_only_spend_instructionss), legacyAddress.getAddress()))
                     .setCancelable(false)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {

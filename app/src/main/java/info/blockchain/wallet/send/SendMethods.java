@@ -18,7 +18,7 @@ public class SendMethods {
 
             if(fee >= absoluteFeeSuggestedEstimates[i].longValue()){
                 estimateText = likelyToConfirmMessage;
-                estimateText = estimateText.replace("[--minutes--]", ((i+1) * minutesPerBlock)+"").replace("[--block_count--]", (i+1)+"");
+                estimateText = String.format(estimateText, ((i+1) * minutesPerBlock), (i+1));
                 break;
             }
         }

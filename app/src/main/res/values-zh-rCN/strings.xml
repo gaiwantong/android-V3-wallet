@@ -6,7 +6,6 @@
     <string-array name="navigation_drawer_items_lame">
         <item>@string/upgrade_wallet</item>
         <item>设置</item>
-        <item>更改 PIN</item>
         <item>我的地址</item>
         <item>支持</item>
         <item>取消配对钱包</item>
@@ -14,28 +13,12 @@
     <string-array name="navigation_drawer_items_hd">
         <item>@string/backup_wallet</item>
         <item>设置</item>
-        <item>更改 PIN</item>
         <item>我的地址</item>
         <item>支持</item>
         <item>取消配对钱包</item>
     </string-array>
 
-    <array name="navigation_drawer_icons_lame">
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
-    <array name="navigation_drawer_icons_hd">
-        <item>@drawable/bad_backup</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
+    <string name="change_pin">更改 PIN</string>
 
     <string name="app_name">Blockchain</string>
     <string name="action_settings">设置</string>
@@ -210,7 +193,7 @@
 
     <string name="ok_cap">确定</string>
     <string name="change_pin_code">更改 PIN</string>
-    <string name="enter_password_to_change_pin">请输入密码以更改 PIN。</string>
+    <string name="enter_current_pin">请输入PIN码。</string>
 
     <string name="suggest_merchant">推荐商家</string>
     <string name="business_name">商家名称</string>
@@ -299,7 +282,7 @@
     <string name="of">/</string>
     <string name="backup_confirmed">备份已确认</string>
     <string name="backup_word_mismatch">词不匹配</string>
-    <string name="backup_days_ago">您在 [--day--] [--time--] 前备份了钱包</string>
+    <string name="backup_days_ago">您在 %2$s %1$s 前备份了钱包</string>
     <string name="day">天</string>
     <string name="days">天</string>
     <string name="backup_only_need_to_once_reminder">您只需要备份一次钱包，但不时地检查一下备份的有效性是个好主意</string>
@@ -326,7 +309,7 @@
     <string name="verification_failed">验证失败</string>
     <string name="resend_email_confirmation">重新发送电子邮件</string>
     <string name="please_confirm_email">请确认您的电子邮件地址</string>
-    <string name="confirmation_instructions">您已发送了一封电子邮件至 [--email_address--]。请打开电子邮件并按照说明完成钱包设置。</string>
+    <string name="confirmation_instructions">您已发送了一封电子邮件至 %1$s。请打开电子邮件并按照说明完成钱包设置。</string>
 
     <string name="send_payment">发送付款</string>
     <string name="share">分享接收地址</string>
@@ -455,7 +438,7 @@
     <string name="send_to_same_address_warning">无法发送到同一个地址。</string>
     <string name="make_default">设为默认</string>
     <string name="privx_required">需要私钥</string>
-    <string name="watch_only_spend_instructions">此操作需要比特币地址 [--address--] 的私钥。请扫描二维码。</string>
+    <string name="watch_only_spend_instructionss">此操作需要比特币地址 %1$s 的私钥。请扫描二维码。</string>
     <string name="invalid_private_key">私钥无效。</string>
     <string name="watch_only_import_warning">您将导入一个仅监视地址，这是一种存储在钱包中但没有相应私钥的地址（或公钥脚本）。您无法直接从一个仅监视地址支出比特币，但是您可以获得余额，或者导出交易以便在外部签署。这意味着，只有您拥有存储在其他地方的私钥，才能支出资金。如果您没有存储私钥，请勿指示任何人将比特币发送到仅监视地址。\n\n仅建议高级用户使用这些选项。继续？</string>
     <string name="scan_private_key">扫描私钥</string>
@@ -482,19 +465,36 @@
     <string name="default_label_brackets">（默认值）</string>
     <string name="not_now">不是现在</string>
     <string name="high_fee_not_necessary">不必要的高收费。</string>
-    <string name="high_fee_not_necessary_info">您指定了一个异常高的交易费 [--custom_fee--]。\n\n即便您将收费降低至 [--dynamic_fee--]，您可以预期交易将在接下来大约10分钟内（1 个区块）确认。</string>
+    <string name="high_fee_not_necessary_info">您指定了一个异常高的交易费 %1$s。\n\n即便您将收费降低至 %2$s，您可以预期交易将在接下来大约10分钟内（1 个区块）确认。</string>
     <string name="low_fee_not_recommended">不推荐低自定义收费</string>
-    <string name="low_fee_suggestion">您指定了一个极低的交易费 [--custom_fee--]。\n\n您的交易可能会被卡住，可能永远不会确认。为了增加您的交易在大约一小时（6 个区块）内确认 的可能性，我们强烈建议收费不低于 [--dynamic_fee--]。</string>
+    <string name="low_fee_suggestion">您指定了一个极低的交易费 %1$s。\n\n您的交易可能会被卡住，可能永远不会确认。为了增加您的交易在大约一小时（6 个区块）内确认 的可能性，我们强烈建议收费不低于 %2$s。</string>
     <string name="raise_fee">提高收费</string>
     <string name="lower_fee">降低收费</string>
     <string name="keep_high_fee">保持高收费</string>
     <string name="keep_low_fee">保持低收费</string>
     <string name="no_confirmed_funds">没有确认的资金可花费。</string>
-    <string name="estimate_confirm_block_count">估计确认时间：大约[--minutes--] 分钟（[--block_count--] 个区块）</string>
+    <string name="estimate_confirm_block_count">估计确认时间：大约~%1$d 分钟（~%2$d 个区块）</string>
     <string name="fee_too_low_no_confirm">您的收费如此之低，可能永远不会确认您的交易。</string>
     <string name="transaction_surge">比特币挖掘网络目前正遇到高交易量，导致推荐的收费也比平常高。</string>
-    <string name="unsupported_encryption_version">钱包版本 [--version--] 不支持.</string>
+    <string name="unsupported_encryption_version">钱包版本 %1$d 不支持.</string>
     <string name="logout">取消配对钱包</string>
     <string name="to_field_helper">输入比特币钱包地址或按此选择</string>
+
+    <string name="update">更新</string>
+    <string name="mobile">移动</string>
+    <string name="profile">轮廓</string>
+    <string name="wallet">钱包</string>
+    <string name="app">应用</string>
+    <string name="verify">校验</string>
+    <string name="resend">重发</string>
+    <string name="verified">验证</string>
+    <string name="unverified">未经验证</string>
+
+    <string name="allow">允许</string>
+    <string name="block">块</string>
+    <string name="security">安全</string>
+    <string name="stored">存储</string>
+    <string name="enable">启用</string>
+    <string name="disable">关闭</string>
 
 </resources>

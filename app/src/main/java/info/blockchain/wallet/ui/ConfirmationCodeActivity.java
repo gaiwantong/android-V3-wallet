@@ -53,7 +53,8 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         setSupportActionBar(toolbar);
 
         tvInstructions = (TextView) findViewById(R.id.tvInstructions);
-        tvInstructions.setText(tvInstructions.getText().toString().replace("[--email_address--]", PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "'unknown'")));
+        String strMeatMsg = String.format(tvInstructions.getText().toString(), PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "'unknown'"));
+        tvInstructions.setText(strMeatMsg);
 
         etConfirmBox0 = (EditText) findViewById(R.id.confirmBox0);
         etConfirmBox1 = (EditText) findViewById(R.id.confirmBox1);

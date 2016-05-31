@@ -276,7 +276,7 @@ public class PinEntryActivity extends Activity {
 
                             new AlertDialog.Builder(PinEntryActivity.this)
                                     .setTitle(R.string.warning)
-                                    .setMessage(getString(R.string.unsupported_encryption_version).replace("[--version--]",walletVersion+""))
+                                    .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {

@@ -6,7 +6,6 @@
     <string-array name="navigation_drawer_items_lame">
         <item>@string/upgrade_wallet</item>
         <item>Configuración</item>
-        <item>Cambiar PIN</item>
         <item>Mis direcciones</item>
         <item>Ayuda</item>
         <item>Desemparejar monedero</item>
@@ -14,28 +13,12 @@
     <string-array name="navigation_drawer_items_hd">
         <item>@string/backup_wallet</item>
         <item>Configuración</item>
-        <item>Cambiar PIN</item>
         <item>Mis direcciones</item>
         <item>Ayuda</item>
         <item>Desemparejar monedero</item>
     </string-array>
 
-    <array name="navigation_drawer_icons_lame">
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
-    <array name="navigation_drawer_icons_hd">
-        <item>@drawable/bad_backup</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
+    <string name="change_pin">Cambiar PIN</string>
 
     <string name="app_name">Blockchain</string>
     <string name="action_settings">Configuración</string>
@@ -210,7 +193,7 @@
 
     <string name="ok_cap">VALE</string>
     <string name="change_pin_code">Cambiar PIN</string>
-    <string name="enter_password_to_change_pin">Introduzca la contraseña para cambiar el PIN</string>
+    <string name="enter_current_pin">Por favor, introduzca el PIN.</string>
 
     <string name="suggest_merchant">Sugerir comerciante</string>
     <string name="business_name">Nombre del negocio</string>
@@ -299,7 +282,7 @@
     <string name="of">de</string>
     <string name="backup_confirmed">Copia de seguridad confirmada</string>
     <string name="backup_word_mismatch">Se ha producido un error de concordancia con la palabra</string>
-    <string name="backup_days_ago">Ha hecho una copia de seguridad hace [--time--] [--day--]</string>
+    <string name="backup_days_ago">Ha hecho una copia de seguridad hace %1$s %2$s</string>
     <string name="day">día</string>
     <string name="days">días</string>
     <string name="backup_only_need_to_once_reminder">Sólo tiene que crear una copia de seguridad su monedero una vez, pero es una buena idea comprobar de vez en cuando que la copia de seguridad es válida</string>
@@ -326,7 +309,7 @@
     <string name="verification_failed">Error de verificación</string>
     <string name="resend_email_confirmation">Reenviar correo electrónico</string>
     <string name="please_confirm_email">Confirme su dirección de correo electrónico</string>
-    <string name="confirmation_instructions">Le hemos enviado un correo electrónico a [--email_address--]. Por favor, abra el correo electrónico y siga las instrucciones para completar la configuración de su monedero.</string>
+    <string name="confirmation_instructions">Le hemos enviado un correo electrónico a %1$s. Por favor, abra el correo electrónico y siga las instrucciones para completar la configuración de su monedero.</string>
 
     <string name="send_payment">Enviar pago</string>
     <string name="share">Compartir dirección de recepción</string>
@@ -455,7 +438,7 @@
     <string name="send_to_same_address_warning">No se puede enviar a la misma dirección.</string>
     <string name="make_default">Hacer por defecto</string>
     <string name="privx_required">Se requiere la clave privada</string>
-    <string name="watch_only_spend_instructions">Esta acción requiere la clave privada para la dirección Bitcoin [--address--]. Escanée el código QR.</string>
+    <string name="watch_only_spend_instructions">Esta acción requiere la clave privada para la dirección Bitcoin %1$s. Escanée el código QR.</string>
     <string name="invalid_private_key">Clave privada inválida</string>
     <string name="watch_only_import_warning">Va a importar una dirección sólo ver, una dirección (o script de clave pública) almacenado en el monedero sin la clave privada correspondiente. No puede gastar directamente el bitcoin desde una dirección sólo ver, pero puede obtener el saldo o exportar una transacción firmada desde el exterior. Esto significa que se pueden gastar los fondos SÓLO si usted tiene la clave privada almacenada en otra parte. Si no tiene la clave privada almacenada, no le solicite a nadie que envíe bitcoin a la dirección sólo ver.\n\nEstas opciones se recomiendan solo para usuarios avanzados. ¿Continuar?</string>
     <string name="scan_private_key">Escanear la clave privada</string>
@@ -482,19 +465,36 @@
     <string name="default_label_brackets">(por defecto)</string>
     <string name="not_now">Ahora no</string>
     <string name="high_fee_not_necessary">La tarifa alta no es necesaria.</string>
-    <string name="high_fee_not_necessary_info">Ha especificado una tarifa de transacción inusualmente alta de [--custom_fee--].\n\nIncluso si se reduce la cuota a [--dynamic_fee--], usted puede esperar la transacción para confirmar en los próximos ~ 10 minutos (1 bloque).</string>
+    <string name="high_fee_not_necessary_info">Ha especificado una tarifa de transacción inusualmente alta de %1$s.\n\nIncluso si se reduce la cuota a %2$s, usted puede esperar la transacción para confirmar en los próximos ~ 10 minutos (1 bloque).</string>
     <string name="low_fee_not_recommended">Tarifa personalizada que no se recomienda</string>
-    <string name="low_fee_suggestion">Ha especificado una tarifa de transacción excepcionalmente baja de [--custom_fee--].\n\nSu transacción puede atascarse y posiblemente nunca se confirme. Para aumentar la probabilidad de su transacción para confirmar dentro de aproximadamente una hora (6 bloques), recomendamos una tarifa inferior a [--dynamic_fee--].</string>
+    <string name="low_fee_suggestion">Ha especificado una tarifa de transacción excepcionalmente baja de %1$s.\n\nSu transacción puede atascarse y posiblemente nunca se confirme. Para aumentar la probabilidad de su transacción para confirmar dentro de aproximadamente una hora (6 bloques), recomendamos una tarifa inferior a %2$s.</string>
     <string name="raise_fee">Aumentar la tarifa</string>
     <string name="lower_fee">Disminuir la tarifa</string>
     <string name="keep_high_fee">Mantener la tarifa alta</string>
     <string name="keep_low_fee">Mantener la tarifa baja</string>
     <string name="no_confirmed_funds">Sin fondos confirmados para gastar.</string>
-    <string name="estimate_confirm_block_count">Tiempo de confirmación estimado: ~[--minutes--] minutos ([--block_count--] bloques)</string>
+    <string name="estimate_confirm_block_count">Tiempo de confirmación estimado: ~%1$d minutos (%2$d bloques)</string>
     <string name="fee_too_low_no_confirm">Su tarifa es tan pequeña que no se puede confirmar la transacción.</string>
     <string name="transaction_surge">La red de minería de Bitcoin está experimentando un alto volumen de actividad, resultando en tarifas recomendadas que son mayores de lo habitual.</string>
-    <string name="unsupported_encryption_version">Versión monedero [--version--] No soportado.</string>
+    <string name="unsupported_encryption_version">Versión monedero %1$d No soportado.</string>
     <string name="logout">Cerrar sesión</string>
     <string name="to_field_helper">Introduzca la dirección Bitcoin o seleccione</string>
+
+    <string name="update">Actualizar</string>
+    <string name="mobile">Móvil</string>
+    <string name="profile">Perfil</string>
+    <string name="wallet">Billetera</string>
+    <string name="app">App</string>
+    <string name="verify">Verificar</string>
+    <string name="resend">reenviar</string>
+    <string name="verified">verificado</string>
+    <string name="unverified">inconfirmado</string>
+
+    <string name="allow">Permitir</string>
+    <string name="block">Bloquear</string>
+    <string name="security">Seguridad</string>
+    <string name="stored">almacenado</string>
+    <string name="enable">Habilitar</string>
+    <string name="disable">Inhabilitar</string>
 
 </resources>

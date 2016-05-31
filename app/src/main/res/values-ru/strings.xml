@@ -6,7 +6,6 @@
     <string-array name="navigation_drawer_items_lame">
         <item>@string/upgrade_wallet</item>
         <item>Настройки</item>
-        <item>Изменить PIN</item>
         <item>Мои адреса</item>
         <item>Поддержка</item>
         <item>Отменить сопряжение кошелька</item>
@@ -14,28 +13,12 @@
     <string-array name="navigation_drawer_items_hd">
         <item>@string/backup_wallet</item>
         <item>Настройки</item>
-        <item>Изменить PIN</item>
         <item>Мои адреса</item>
         <item>Поддержка</item>
         <item>Отменить сопряжение кошелька</item>
     </string-array>
 
-    <array name="navigation_drawer_icons_lame">
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
-    <array name="navigation_drawer_icons_hd">
-        <item>@drawable/bad_backup</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/icon_pincode</item>
-        <item>@drawable/icon_accounts</item>
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
+    <string name="change_pin">Изменить PIN</string>
 
     <string name="app_name">Blockchain</string>
     <string name="action_settings">Настройки</string>
@@ -210,7 +193,7 @@
 
     <string name="ok_cap">OK</string>
     <string name="change_pin_code">Изменить PIN</string>
-    <string name="enter_password_to_change_pin">Введите пароль для изменения PIN-кода.</string>
+    <string name="enter_current_pin">Пожалуйста, введите PIN-код.</string>
 
     <string name="suggest_merchant">Предложить торговца</string>
     <string name="business_name">Название компании</string>
@@ -299,7 +282,7 @@
     <string name="of">из</string>
     <string name="backup_confirmed">Резервное копирование подтверждено</string>
     <string name="backup_word_mismatch">Несоответствие слова</string>
-    <string name="backup_days_ago">Вы скопировали кошелек  [--time--] [--day--] назад</string>
+    <string name="backup_days_ago">Вы скопировали кошелек  %1$s %2$s назад</string>
     <string name="day">день</string>
     <string name="days">дней</string>
     <string name="backup_only_need_to_once_reminder">Вам нужно скопировать кошелек один раз, но это хорошая идея, периодически проверять действительность копии</string>
@@ -326,7 +309,7 @@
     <string name="verification_failed">Сбой верификации</string>
     <string name="resend_email_confirmation">Отправить электронное сообщение заново</string>
     <string name="please_confirm_email">Подтвердите свой адрес электронной почты</string>
-    <string name="confirmation_instructions">Мы отправили вам  электронное сообщение на [--email_address--]. Откройте  электронное сообщение и следуйте инструкциям для завершения настройки кошелька.</string>
+    <string name="confirmation_instructions">Мы отправили вам  электронное сообщение на %1$s. Откройте  электронное сообщение и следуйте инструкциям для завершения настройки кошелька.</string>
 
     <string name="send_payment">Отправить платеж</string>
     <string name="share">Поделиться адресом получения</string>
@@ -455,7 +438,7 @@
     <string name="send_to_same_address_warning">Нельзя отправить на тот же адрес.</string>
     <string name="make_default">Сделать настройкой по умолчанию</string>
     <string name="privx_required">Нужен личный ключ</string>
-    <string name="watch_only_spend_instructions">Это действие требует использование личного ключа для адреса биткоинов [--address--]. Пожалуйста, сканируете QR-код.</string>
+    <string name="watch_only_spend_instructionss">Это действие требует использование личного ключа для адреса биткоинов %1$s. Пожалуйста, сканируете QR-код.</string>
     <string name="invalid_private_key">Недействительный личный ключ</string>
     <string name="watch_only_import_warning">Вы собираетесь импортировать адрес только для просмотра, адрес (или скрипт открытого ключа), хранящийся в кошельке без соответствующего личного ключа. Вы не можете непосредственно тратить биткоины с адреса только для просмотра, но можете узнать баланс или экспортировать транзакцию для внешней подписи. Это означает, что средства могут быть потрачены, ТОЛЬКО, если у вас есть закрытый ключ, который хранится в другом месте. Если у вас отсутствует закрытый ключ, хранящийся в другом месте, вам НЕ следует давать кому-то указания переводить вам биткионы на адрес только для просмотра.\n\nЭти опции рекомендуется только для опытных пользователей. Продолжить?</string>
     <string name="scan_private_key">Сканировать личный ключ</string>
@@ -482,19 +465,36 @@
     <string name="default_label_brackets">(по умолчанию)</string>
     <string name="not_now">Не сейчас</string>
     <string name="high_fee_not_necessary">Высокая плата не требуется.</string>
-    <string name="high_fee_not_necessary_info">Вы указали необычно высокую сумму комиссии в [--custom_fee--].\n\nДаже если вы снизите ее до [--dynamic_fee--], вы можете ожидать подтверждения транзакции в течение примерно 10 минут (1 блок).</string>
+    <string name="high_fee_not_necessary_info">Вы указали необычно высокую сумму комиссии в %1$s.\n\nДаже если вы снизите ее до %2$s, вы можете ожидать подтверждения транзакции в течение примерно 10 минут (1 блок).</string>
     <string name="low_fee_not_recommended">Низкий таможенный сбор не рекомендуется</string>
-    <string name="low_fee_suggestion">Вы указали очень низкую сумму комиссии в [--custom_fee--].\n\nВаша транзакция может никогда не получить подтверждения. Для увеличения вероятности подтверждения транзакции в течение приблизительно одного часа (6 блоков) мы настоятельно рекомендуем указать сумму не менее  [--dynamic_fee--].</string>
+    <string name="low_fee_suggestion">Вы указали очень низкую сумму комиссии в %1$s.\n\nВаша транзакция может никогда не получить подтверждения. Для увеличения вероятности подтверждения транзакции в течение приблизительно одного часа (6 блоков) мы настоятельно рекомендуем указать сумму не менее  %2$s.</string>
     <string name="raise_fee">Увеличить комиссию</string>
     <string name="lower_fee">Снизить комиссию</string>
     <string name="keep_high_fee">Сохранить высокую комиссию</string>
     <string name="keep_low_fee">Сохранить низкую комиссию</string>
     <string name="no_confirmed_funds">Нет подтвержденных средств.</string>
-    <string name="estimate_confirm_block_count">Примерное время подтверждения: ~[--minutes--] минут ([--block_count--] блоков)</string>
+    <string name="estimate_confirm_block_count">Примерное время подтверждения: ~%1$d минут (%2$d блоков)</string>
     <string name="fee_too_low_no_confirm">Ваша комиссия  настолько мала, что ваша  транзакция может никогда не получить подтверждения.</string>
     <string name="transaction_surge">Активность сети Bitcoin в настоящее время очень высока, поэтому рекомендуемые  значения комиссии выше, чем обычно.</string>
-    <string name="unsupported_encryption_version">Бумажник версия [--version--] не поддерживается.</string>
+    <string name="unsupported_encryption_version">Бумажник версия %1$d не поддерживается.</string>
     <string name="logout">Выйти</string>
     <string name="to_field_helper">Введите адрес Bitcoin или выберите</string>
+
+    <string name="update">Обновить</string>
+    <string name="mobile">мобильный</string>
+    <string name="profile">Профиль</string>
+    <string name="wallet">Бумажник</string>
+    <string name="app">Приложение</string>
+    <string name="verify">проверить</string>
+    <string name="resend">Отправить</string>
+    <string name="verified">проверенный</string>
+    <string name="unverified">непроверенный</string>
+
+    <string name="allow">Позволять</string>
+    <string name="block">блок</string>
+    <string name="security">Безопасность</string>
+    <string name="stored">Хранится</string>
+    <string name="enable">включить</string>
+    <string name="disable">запрещать</string>
 
 </resources>
