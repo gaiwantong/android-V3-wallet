@@ -111,7 +111,7 @@ public class AccessFactory {
         } catch (Exception e) {
             e.printStackTrace();
 
-            if (e.getMessage().contains("Invalid Response"))
+            if (e.getMessage().contains("Incorrect PIN"))
                 return null;
             else
                 throw e;

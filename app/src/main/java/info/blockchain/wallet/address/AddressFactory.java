@@ -44,6 +44,11 @@ public class AddressFactory {
         return instance;
     }
 
+    public void wipe(){
+        instance = null;
+        double_encryption_wallet = null;
+    }
+
     public void updateDoubleEncryptionWallet(){
         double_encryption_wallet = WalletFactory.getInstance().getWatchOnlyWallet();
     }
