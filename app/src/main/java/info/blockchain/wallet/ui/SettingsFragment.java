@@ -271,7 +271,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         settingsApi.setSms(finalSms, new Settings.ResultListener() {
                             @Override
                             public void onSuccess() {
-                                handler.post(() -> refreshList());
+                                handler.post(() -> {
+                                    refreshList();
+                                    showDialogVerifySms();
+                                });
                             }
 
                             @Override
@@ -657,7 +660,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     mHandler.post(() -> updateSms(sms));
 
                     alertDialogSms.dismiss();
-                    showDialogVerifySms();
                 }
             });
         });
@@ -747,6 +749,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
                 mHandler.post(() -> {
                     //Resend verification code
+                    alertDialog.dismiss();
                     updateSms(settingsApi.getSms());
                 });
             });
