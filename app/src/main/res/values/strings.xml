@@ -551,4 +551,5 @@
     <string name="email_notifications_summary">Enable notifications to receive an email whenever you receive bitcoins. Only labeled addresses and imported addresses are eligible to trigger notifications.</string>
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
+    <string name="sms_verified">Mobile number verified</string>
 </resources>
