@@ -297,7 +297,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     settingsApi.verifySms(code, new Settings.ResultListener() {
                         @Override
                         public void onSuccess() {
-                            handler.post(() -> refreshList());
+                            handler.post(() -> {
+                                refreshList();
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle(R.string.success)
+                                        .setMessage(R.string.sms_verified)
+                                        .setPositiveButton(R.string.dialog_continue, null)
+                                        .show();
+                            });
                         }
 
                         @Override
