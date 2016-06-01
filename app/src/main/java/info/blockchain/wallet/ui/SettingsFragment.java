@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
@@ -124,6 +125,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     @UiThread
     private void refreshList(){
 
+        PreferenceScreen prefScreen = getPreferenceScreen();
+        if(prefScreen != null)prefScreen.removeAll();
         addPreferencesFromResource(R.xml.settings);
 
         //Profile
