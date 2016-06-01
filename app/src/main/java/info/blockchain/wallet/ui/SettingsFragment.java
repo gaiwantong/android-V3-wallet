@@ -749,8 +749,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     //Resend verification code
                     updateSms(settingsApi.getSms());
                 });
-
-                if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
             });
         });
         alertDialog.show();
