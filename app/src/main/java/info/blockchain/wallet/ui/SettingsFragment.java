@@ -130,21 +130,25 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         addPreferencesFromResource(R.xml.settings);
 
         //Profile
+        PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
         emailPref = (Preference) findPreference("email");
+        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
+
         String emailAndStatus = settingsApi.getEmail();
         if(emailAndStatus == null || emailAndStatus.isEmpty()) {
             emailAndStatus = getString(R.string.not_specified);
         }else if(settingsApi.isEmailVerified()){
             emailAndStatus += "  ("+getString(R.string.verified)+")";
+
+            emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
+            emailNotificationPref.setOnPreferenceClickListener(this);
+
         }else{
             emailAndStatus += "  ("+getString(R.string.unverified)+")";
+            profileCategory.removePreference(emailNotificationPref);
         }
         emailPref.setSummary(emailAndStatus);
         emailPref.setOnPreferenceClickListener(SettingsFragment.this);
-
-        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
-        emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
-        emailNotificationPref.setOnPreferenceClickListener(this);
 
         smsPref = (Preference) findPreference("mobile");
         String smsAndStatus = settingsApi.getSms();
@@ -161,7 +165,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         verifySmsPref  = (Preference) findPreference("verify_mobile");
         if(verifySmsPref != null) {
             verifySmsPref.setOnPreferenceClickListener(SettingsFragment.this);
-            PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
             if (settingsApi.isSmsVerified() || settingsApi.getSms() == null || settingsApi.getSms().isEmpty()) {
                 profileCategory.removePreference(verifySmsPref);
             } else {
@@ -240,9 +243,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         settingsApi.setEmail(finalEmail, new Settings.ResultListener() {
                             @Override
                             public void onSuccess() {
-                                handler.post(() -> {
-                                    emailPref.setSummary(finalEmail + "  (" + getString(R.string.unverified) + ")");
-                                });
+                                handler.post(() -> refreshList());
                             }
 
                             @Override
