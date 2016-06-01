@@ -12,23 +12,15 @@
                 android:title="@string/email"
                 android:key="email"
         />
-        <SwitchPreference
-                android:title="@string/email_notifications"
-                android:key="email_notifications"
-        />
         <Preference
                 android:title="@string/mobile"
                 android:key="mobile"
         />
-        <Preference
-                android:key="verify_mobile"
-                android:title="@string/verify_mobile"
-                android:summary="@string/verify_sms_summary"
-        />
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:title="@string/wallet">
+            android:title="@string/preferences"
+            android:key="preferences">
         <Preference
                 android:title="@string/options_units"
                 android:key="units"
@@ -36,6 +28,10 @@
         <Preference
                 android:title="@string/options_currency"
                 android:key="fiat"
+        />
+        <SwitchPreference
+                android:title="@string/email_notifications"
+                android:key="email_notifications"
         />
     </PreferenceCategory>
 
@@ -51,12 +47,12 @@
                 <!--android:summary="not done"-->
         <!--/>-->
         <Preference
-                android:title="@string/password_hint"
-                android:key="pw_hint1"
-        />
-        <Preference
                 android:title="@string/change_password"
                 android:key="change_pw"
+        />
+        <Preference
+                android:title="@string/password_hint"
+                android:key="pw_hint1"
         />
         <SwitchPreference
                 android:title="@string/tor_requests"
