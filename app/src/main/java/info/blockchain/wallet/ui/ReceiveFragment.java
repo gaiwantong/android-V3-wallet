@@ -51,18 +51,18 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.ui.helpers.CustomKeypad;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
@@ -279,7 +279,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 edAmount1.addTextChangedListener(this);
 
-                if (textChangeAllowed &&  !s.toString().isEmpty()) {
+                if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
 
@@ -337,7 +337,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 edAmount2.addTextChangedListener(this);
 
-                if (textChangeAllowed && !s.toString().isEmpty()) {
+                if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
 
@@ -716,6 +716,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     }
 
     private void updateFiatTextField(String cBtc) {
+        if(cBtc.isEmpty())cBtc = "0";
         double btc_amount = 0.0;
         try {
             btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
@@ -727,7 +728,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     }
 
     private void updateBtcTextField(String cfiat) {
-
+        if(cfiat.isEmpty())cfiat = "0";
         double fiat_amount = 0.0;
         try {
             fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
