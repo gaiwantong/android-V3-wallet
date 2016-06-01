@@ -861,7 +861,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount1.addTextChangedListener(this);
 
-                if (textChangeAllowed && !s.toString().isEmpty()) {
+                if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateFiatTextField(s.toString());
                     textChangeAllowed = true;
@@ -921,7 +921,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount2.addTextChangedListener(this);
 
-                if (textChangeAllowed && !s.toString().isEmpty()) {
+                if (textChangeAllowed) {
                     textChangeAllowed = false;
                     updateBtcTextField(s.toString());
                     textChangeAllowed = true;
@@ -1013,6 +1013,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private void updateFiatTextField(String cBtc) {
+        if(cBtc.isEmpty())cBtc = "0";
         double btc_amount = 0.0;
         try {
             btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
@@ -1026,7 +1027,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private void updateBtcTextField(String cfiat) {
-
+        if(cfiat.isEmpty())cfiat = "0";
         double fiat_amount = 0.0;
         try {
             fiat_amount = NumberFormat.getInstance(Locale.getDefault()).parse(cfiat).doubleValue();
