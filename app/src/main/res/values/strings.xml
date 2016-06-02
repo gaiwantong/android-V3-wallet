@@ -552,4 +552,5 @@
     <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
     <string name="sms_verified">Mobile number verified</string>
+    <string name="preferences">Preferences</string>
 </resources>

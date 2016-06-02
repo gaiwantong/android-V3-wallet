@@ -57,13 +57,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     //Profile
     Preference guidPref;
     Preference emailPref;
-    SwitchPreference emailNotificationPref;
     Preference smsPref;
-    Preference verifySmsPref;
 
-    //Wallet
+    //Preferences
     Preference unitsPref;
     Preference fiatPref;
+    SwitchPreference emailNotificationPref;
 
     //Security
     Preference pinPref;
@@ -131,21 +130,19 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         //Profile
         PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
+        guidPref = (Preference) findPreference("guid");
+        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
+        guidPref.setOnPreferenceClickListener(SettingsFragment.this);
+
         emailPref = (Preference) findPreference("email");
-        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
 
         String emailAndStatus = settingsApi.getEmail();
         if(emailAndStatus == null || emailAndStatus.isEmpty()) {
             emailAndStatus = getString(R.string.not_specified);
         }else if(settingsApi.isEmailVerified()){
             emailAndStatus += "  ("+getString(R.string.verified)+")";
-
-            emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
-            emailNotificationPref.setOnPreferenceClickListener(this);
-
         }else{
             emailAndStatus += "  ("+getString(R.string.unverified)+")";
-            profileCategory.removePreference(emailNotificationPref);
         }
         emailPref.setSummary(emailAndStatus);
         emailPref.setOnPreferenceClickListener(SettingsFragment.this);
@@ -162,21 +159,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         smsPref.setSummary(smsAndStatus);
         smsPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        verifySmsPref  = (Preference) findPreference("verify_mobile");
-        if(verifySmsPref != null) {
-            verifySmsPref.setOnPreferenceClickListener(SettingsFragment.this);
-            if (settingsApi.isSmsVerified() || settingsApi.getSms() == null || settingsApi.getSms().isEmpty()) {
-                profileCategory.removePreference(verifySmsPref);
-            } else {
-                profileCategory.addPreference(verifySmsPref);
-            }
-        }
-
-        //Wallet
-        guidPref = (Preference) findPreference("guid");
-        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
-        guidPref.setOnPreferenceClickListener(SettingsFragment.this);
-
+        //Preferences
+        PreferenceCategory preferencesCategory = (PreferenceCategory) findPreference("preferences");
         unitsPref = (Preference) findPreference("units");
         unitsPref.setSummary(getDisplayUnits());
         unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
@@ -184,6 +168,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         fiatPref = (Preference) findPreference("fiat");
         fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
+
+        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
+        if(settingsApi.isEmailVerified()){
+            emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
+            emailNotificationPref.setOnPreferenceClickListener(this);
+        }else{
+            preferencesCategory.removePreference(emailNotificationPref);
+        }
 
         //Security
         pinPref = (Preference) findPreference("pin");
@@ -630,6 +622,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         View smsPickerView = inflater.inflate(R.layout.include_sms_update, null);
         final EditText etMobile = (EditText)smsPickerView.findViewById(R.id.etSms);
         final TextView tvCountry = (TextView)smsPickerView.findViewById(R.id.tvCountry);
+        final TextView tvSms = (TextView)smsPickerView.findViewById(R.id.tvSms);
 
         final CountryPicker picker = CountryPicker.newInstance(getString(R.string.select_country));
         final Country country = picker.getUserCountryInfo(getActivity());
@@ -648,14 +641,26 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             });
         });
 
-        final AlertDialog alertDialogSms = new AlertDialog.Builder(getActivity())
+        if (!settingsApi.isSmsVerified() && settingsApi.getSms() != null && !settingsApi.getSms().isEmpty()) {
+            tvSms.setText(settingsApi.getSms());
+            tvSms.setVisibility(View.VISIBLE);
+        }else {
+            tvSms.setVisibility(View.GONE);
+        }
+
+        final AlertDialog.Builder alertDialogSmsBuilder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.mobile)
                 .setMessage(getString(R.string.mobile_description))
                 .setView(smsPickerView)
                 .setCancelable(false)
                 .setPositiveButton(R.string.update, null)
-                .setNegativeButton(R.string.cancel, null)
-                .create();
+                .setNegativeButton(R.string.cancel, null);
+
+        if (!settingsApi.isSmsVerified() && settingsApi.getSms() != null && !settingsApi.getSms().isEmpty()) {
+            alertDialogSmsBuilder.setNeutralButton(R.string.verify, null);
+        }
+
+        AlertDialog alertDialogSms = alertDialogSmsBuilder.create();
 
         final Handler mHandler = new Handler(Looper.getMainLooper());
         alertDialogSms.setOnShowListener(dialog -> {
@@ -672,6 +677,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
                     alertDialogSms.dismiss();
                 }
+            });
+
+            alertDialogSms.getButton(AlertDialog.BUTTON_NEUTRAL)
+            .setOnClickListener(view -> {
+                showDialogVerifySms();
+                alertDialogSms.dismiss();
             });
         });
         alertDialogSms.show();
