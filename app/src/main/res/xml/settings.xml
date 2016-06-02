@@ -36,16 +36,16 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:title="@string/security">
+            android:title="@string/security"
+            android:key="security">
         <Preference
                 android:title="@string/change_pin_code"
                 android:key="pin"
         />
-        <!--<SwitchPreference-->
-                <!--android:title="@string/two_fa"-->
-                <!--android:key="2fa"-->
-                <!--android:summary="not done"-->
-        <!--/>-->
+        <SwitchPreference
+                android:title="@string/two_fa"
+                android:key="2fa"
+        />
         <Preference
                 android:title="@string/change_password"
                 android:key="change_pw"

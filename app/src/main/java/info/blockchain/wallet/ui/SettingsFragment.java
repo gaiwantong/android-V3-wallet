@@ -178,11 +178,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
 
         //Security
+        PreferenceCategory securityCategory = (PreferenceCategory) findPreference("security");
         pinPref = (Preference) findPreference("pin");
         pinPref.setOnPreferenceClickListener(this);
 
-//        twoStepVerificationPref = (SwitchPreference) findPreference("2fa");
-//        twoStepVerificationPref.setOnPreferenceClickListener(this);
+        twoStepVerificationPref = (SwitchPreference) findPreference("2fa");
+        twoStepVerificationPref.setOnPreferenceClickListener(this);
+        twoStepVerificationPref.setChecked(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS);
 
         passwordHint1Pref = (Preference) findPreference("pw_hint1");
         if(settingsApi.getPasswordHint1() != null && !settingsApi.getPasswordHint1().isEmpty()){
@@ -458,6 +460,32 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
     }
 
+    @UiThread
+    private void update2FA(final int type){
+        Handler handler = new Handler(Looper.getMainLooper());
+        new BackgroundExecutor(getActivity(),
+                () -> {
+                    settingsApi.setAuthType(type, new Settings.ResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            handler.post(() -> twoStepVerificationPref.setChecked(type == Settings.AUTH_TYPE_SMS));
+                        }
+
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                            handler.post(() -> twoStepVerificationPref.setChecked(type == Settings.AUTH_TYPE_SMS));
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
+                        }
+                    });
+                }).execute();
+    }
+
+
     @Override
     public boolean onPreferenceClick(Preference preference) {
 
@@ -489,6 +517,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             case "fiat":
                 showDialogFiatUnits();
+                break;
+
+            case "2fa":
+                showDialogTwoFA();
                 break;
 
             case "pin":
@@ -980,6 +1012,46 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             });
         });
         alertDialog.show();
+    }
+
+    private void showDialogTwoFA() {
+
+        if(!settingsApi.isSmsVerified()){
+            twoStepVerificationPref.setChecked(false);
+            showDialogMobile();
+        }else{
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.two_fa)
+                    .setMessage(R.string.two_fa_summary)
+                    .setNeutralButton(R.string.cancel, null);
+
+            if(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS){
+                alertDialogBuilder.setNegativeButton(R.string.disable, null);
+            }else{
+                alertDialogBuilder.setPositiveButton(R.string.enable, null);
+            }
+            AlertDialog alertDialogEmail = alertDialogBuilder.create();
+            alertDialogEmail.setOnShowListener(dialog -> {
+
+                alertDialogEmail.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(view -> {
+                            update2FA(Settings.AUTH_TYPE_SMS);
+                            alertDialogEmail.dismiss();
+                        });
+
+                alertDialogEmail.getButton(AlertDialog.BUTTON_NEGATIVE)
+                        .setOnClickListener(view -> {
+                            update2FA(Settings.AUTH_TYPE_OFF);
+                            alertDialogEmail.dismiss();
+                        });
+
+                alertDialogEmail.getButton(AlertDialog.BUTTON_NEUTRAL)
+                        .setOnClickListener(view -> {
+                            alertDialogEmail.dismiss();
+                        });
+            });
+            alertDialogEmail.show();
+        }
     }
 
     private void updatePassword(AlertDialog alertDialog, final CharSequenceX updatedPassword, final CharSequenceX fallbackPassword){
