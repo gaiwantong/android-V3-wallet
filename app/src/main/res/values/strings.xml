@@ -553,4 +553,5 @@
     <string name="new_password">New Password</string>
     <string name="sms_verified">Mobile number verified</string>
     <string name="preferences">Preferences</string>
+    <string name="two_fa_summary">Protect your wallet from unauthorized access by enabling 2-Step Verification. You can choose to use your mobile phone number to secure your wallet. This code will be requested when you try to access your wallet via the web browser.</string>
 </resources>
