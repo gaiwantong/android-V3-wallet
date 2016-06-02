@@ -740,6 +740,7 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 }
 
                 WalletFactory.getInstance().set(null);
+                WalletFactory.getInstance().setWatchOnlyWallet(null);
                 PayloadFactory.getInstance().wipe();
                 MultiAddrFactory.getInstance().wipe();
                 PrefsUtil.getInstance(MainActivity.this).clear();
