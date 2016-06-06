@@ -22,6 +22,7 @@ import piuk.blockchain.android.R;
 public class BackupWalletFragment2 extends Fragment {
 
     private TextView tvStart = null;
+    private TextView tvPreviousWord = null;
     private TextView tvNextWord = null;
 
     private LinearLayout cardLayout = null;
@@ -52,6 +53,9 @@ public class BackupWalletFragment2 extends Fragment {
         tvStart = (TextView) rootView.findViewById(R.id.start_action);
         tvStart.setVisibility(View.VISIBLE);
 
+        tvPreviousWord = (TextView) rootView.findViewById(R.id.previous_word_action);
+        tvPreviousWord.setVisibility(View.INVISIBLE);
+
         tvNextWord = (TextView) rootView.findViewById(R.id.next_word_action);
         tvNextWord.setVisibility(View.INVISIBLE);
 
@@ -68,6 +72,7 @@ public class BackupWalletFragment2 extends Fragment {
             @Override
             public void onClick(View v) {
                 tvStart.setVisibility(View.INVISIBLE);
+                tvPreviousWord.setVisibility(View.GONE);
                 tvNextWord.setVisibility(View.VISIBLE);
                 cardLayout.setVisibility(View.VISIBLE);
                 tvPressReveal.setVisibility(View.VISIBLE);
@@ -90,13 +95,60 @@ public class BackupWalletFragment2 extends Fragment {
         }
         showWordAtIndex(currentWordIndex);
 
-        tvNextWord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        tvNextWord.setOnClickListener(v -> {
 
-                if (currentWordIndex < mnemonic.length) {
+            if(currentWordIndex >= 0){
+                tvPreviousWord.setVisibility(View.VISIBLE);
+            }
 
-                    animExitToLeft.setAnimationListener(new Animation.AnimationListener() {
+            if (currentWordIndex < mnemonic.length) {
+
+                animExitToLeft.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        cardLayout.startAnimation(animEnterFromRight);
+                    }
+                });
+
+                cardLayout.startAnimation(animExitToLeft);
+
+                currentWordIndex++;
+            }
+
+            if (currentWordIndex == mnemonic.length) {
+
+                currentWordIndex = 0;
+                getFragmentManager().beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .replace(R.id.content_frame, new BackupWalletFragment3())
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+
+                if (currentWordIndex == mnemonic.length - 1)
+                    tvNextWord.setText(getResources().getString(R.string.VERIFY));
+                else
+                    tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
+
+                showWordAtIndex(currentWordIndex);
+
+                tvPreviousWord.setOnClickListener(v1 -> {
+
+                    tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
+
+                    if (currentWordIndex == 1) {
+                        tvPreviousWord.setVisibility(View.GONE);
+                    }
+
+                    animExitToRight.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation animation) {
                         }
@@ -107,65 +159,16 @@ public class BackupWalletFragment2 extends Fragment {
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            cardLayout.startAnimation(animEnterFromRight);
+                            cardLayout.startAnimation(animEnterFromLeft);
                         }
                     });
 
-                    cardLayout.startAnimation(animExitToLeft);
+                    cardLayout.startAnimation(animExitToRight);
 
-                    currentWordIndex++;
-                }
-
-                if (currentWordIndex == mnemonic.length) {
-
-                    currentWordIndex = 0;
-                    getFragmentManager().beginTransaction()
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .replace(R.id.content_frame, new BackupWalletFragment3())
-                            .addToBackStack(null)
-                            .commit();
-                } else {
-
-                    if (currentWordIndex == mnemonic.length - 1)
-                        tvNextWord.setText(getResources().getString(R.string.VERIFY));
-                    else
-                        tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
-
+                    currentWordIndex--;
                     showWordAtIndex(currentWordIndex);
 
-                    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
-
-                            if (currentWordIndex == 0) {
-                                getActivity().onBackPressed();
-                            } else {
-
-                                animExitToRight.setAnimationListener(new Animation.AnimationListener() {
-                                    @Override
-                                    public void onAnimationStart(Animation animation) {
-                                    }
-
-                                    @Override
-                                    public void onAnimationRepeat(Animation animation) {
-                                    }
-
-                                    @Override
-                                    public void onAnimationEnd(Animation animation) {
-                                        cardLayout.startAnimation(animEnterFromLeft);
-                                    }
-                                });
-
-                                cardLayout.startAnimation(animExitToRight);
-
-                                currentWordIndex--;
-                                showWordAtIndex(currentWordIndex);
-                            }
-                        }
-                    });
-                }
+                });
             }
         });
 

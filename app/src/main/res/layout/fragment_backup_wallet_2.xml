@@ -58,6 +58,23 @@
 		android:layout_height="wrap_content">
 
 		<TextView
+				android:id="@+id/previous_word_action"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_alignParentLeft="true"
+				android:clickable="true"
+				android:background="@drawable/selector_b_blue"
+				android:fontFamily="sans-serif"
+				android:paddingBottom="10dp"
+				android:paddingLeft="16dp"
+				android:paddingRight="16dp"
+				android:paddingTop="10dp"
+				android:text="@string/PREVIOUS_WORD"
+				android:textColor="@color/white"
+				android:textSize="14sp"/>
+
+		<TextView
 			android:id="@+id/start_action"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -66,6 +83,7 @@
 			android:background="@drawable/selector_white"
 			android:clickable="true"
 			android:fontFamily="sans-serif"
+			android:visibility="gone"
 			android:paddingBottom="10dp"
 			android:paddingLeft="32dp"
 			android:paddingRight="32dp"
@@ -87,8 +105,6 @@
 			android:paddingLeft="16dp"
 			android:paddingRight="16dp"
 			android:paddingTop="10dp"
-			android:layout_marginEnd="72dp"
-			android:layout_marginRight="72dp"
 			android:text="@string/NEXT_WORD"
 			android:textColor="@color/white"
 			android:textSize="14sp"/>
