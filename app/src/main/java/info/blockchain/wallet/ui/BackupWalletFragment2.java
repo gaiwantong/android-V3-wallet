@@ -24,6 +24,7 @@ public class BackupWalletFragment2 extends Fragment {
     private TextView tvStart = null;
     private TextView tvPreviousWord = null;
     private TextView tvNextWord = null;
+    private TextView tvInstructions = null;
 
     private LinearLayout cardLayout = null;
     private TextView tvPressReveal = null;
@@ -68,10 +69,13 @@ public class BackupWalletFragment2 extends Fragment {
         tvCurrentWord = (TextView) rootView.findViewById(R.id.tv_current_word);
         tvCurrentWord.setVisibility(View.INVISIBLE);
 
+        tvInstructions = (TextView) rootView.findViewById(R.id.tvInstructions);
+
         tvStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 tvStart.setVisibility(View.INVISIBLE);
+                tvInstructions.setText(getString(R.string.backup_write_down_words));
                 tvPreviousWord.setVisibility(View.GONE);
                 tvNextWord.setVisibility(View.VISIBLE);
                 cardLayout.setVisibility(View.VISIBLE);
@@ -134,7 +138,7 @@ public class BackupWalletFragment2 extends Fragment {
             } else {
 
                 if (currentWordIndex == mnemonic.length - 1)
-                    tvNextWord.setText(getResources().getString(R.string.VERIFY));
+                    tvNextWord.setText(getResources().getString(R.string.DONE));
                 else
                     tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
 
