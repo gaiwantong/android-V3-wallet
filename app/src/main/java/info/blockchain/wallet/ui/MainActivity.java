@@ -623,6 +623,7 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
                 if (!PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
                     //Not backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
+                    doBackupWallet();
                 } else {
                     //Backed up
                     drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
