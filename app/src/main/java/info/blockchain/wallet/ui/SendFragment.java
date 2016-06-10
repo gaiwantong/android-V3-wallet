@@ -47,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
@@ -1780,6 +1781,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 PayloadBridge.getInstance(context).remoteSaveThread();
                 closeDialog(alertDialog, true);
+
+                new AppRate(getActivity())
+                        .incrementTransactionCount()
+                        .init();
             }
 
             public void onFail(String error) {
