@@ -39,19 +39,17 @@
             android:layout_marginRight="72dp"
             android:layout_marginStart="72dp"
             android:layout_marginTop="10dp"
-            android:background="@color/backup_card_blue"
+            android:background="@color/white"
             android:gravity="center">
 
         <TextView
                 android:id="@+id/tv_press_reveal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:alpha=".45"
                 android:gravity="center"
                 android:padding="16dp"
-                android:textSize="14sp"
-                android:text="@string/press_to_reveal"
-                android:textColor="@color/white"/>
+                android:textSize="24sp"
+                android:textColor="@color/backup_card_text"/>
 
     </LinearLayout>
 
