@@ -49,6 +49,10 @@ android {
         unitTests.returnDefaultValues = true
     }
 
+    dataBinding {
+        enabled = true
+    }
+
     //TODO - the following needs to be added (SDK 23) to continue using org.apache.http.legacy as a work around.
     //TODO - SSLVerifierUtil should use HttpURLConnection class instead (reduces network use, minimizes power consumption) http://developer.android.com/intl/ko/about/versions/marshmallow/android-6.0-changes.html
     useLibrary 'org.apache.http.legacy'
