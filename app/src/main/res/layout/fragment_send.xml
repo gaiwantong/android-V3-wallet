@@ -5,8 +5,6 @@
                 android:id="@+id/main_layout"
                 android:background="@color/blockchain_light_grey"
                 android:paddingBottom="0dp"
-                android:paddingLeft="@dimen/padding_send_receive"
-                android:paddingRight="@dimen/padding_send_receive"
                 android:paddingTop="0dp"
                 tools:context="info.blockchain.wallet.ui.MainActivity">
 

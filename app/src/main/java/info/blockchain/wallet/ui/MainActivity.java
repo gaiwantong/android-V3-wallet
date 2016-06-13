@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         mainViewModel = new MainViewModel(this, this);
         binding.setViewModel(mainViewModel);
 
-        if (!getResources().getBoolean(R.bool.isRotatable))
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override

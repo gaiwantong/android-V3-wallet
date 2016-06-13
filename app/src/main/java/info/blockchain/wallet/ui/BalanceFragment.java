@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -68,6 +69,7 @@ import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifierThreadUtil;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.viewModel.BalanceViewModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -83,8 +85,9 @@ import java.util.Map;
 import java.util.Set;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
-public class BalanceFragment extends Fragment {
+public class BalanceFragment extends Fragment implements BalanceViewModel.DataListener{
 
     public static final String ACTION_INTENT = "info.blockchain.wallet.ui.BalanceFragment.REFRESH";
     private final static int SHOW_BTC = 1;
@@ -98,11 +101,9 @@ public class BalanceFragment extends Fragment {
     LinearLayoutManager layoutManager;
     HashMap<View, Boolean> rowViewState = null;
     Communicator comm;
-    private FloatingActionsMenu menuMultipleActions = null;
     //
     // main balance display
     //
-    private TextView tvBalance1 = null;
     private double btc_fx = 319.13;
     private Spannable span1 = null;
     private String strFiat = null;
@@ -110,7 +111,7 @@ public class BalanceFragment extends Fragment {
     //
     // accounts list
     //
-    private Spinner accountSpinner = null;
+    private Spinner accountSpinner = null;//TODO - move to drawer header
     private ArrayList<String> activeAccountAndAddressList = null;
     private HashBiMap<Object, Integer> activeAccountAndAddressBiMap = null;
     //
@@ -119,18 +120,14 @@ public class BalanceFragment extends Fragment {
     private final String TAG_ALL = "TAG_ALL";
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList = new ArrayList<Tx>();
-    private RecyclerView transactionRecyclerView = null;
     private TxAdapter transactionAdapter = null;
     private LinearLayout noTxMessage = null;
-    private LinearLayout mainContentShadow;
     private Activity thisActivity = null;
     private int originalHeight = 0;
     private int newHeight = 0;
     private int expandDuration = 200;
     private boolean mIsViewExpanded = false;
-    private View rootView = null;
     private View prevRowClicked = null;
-    private SwipeRefreshLayout swipeLayout = null;
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -142,12 +139,7 @@ public class BalanceFragment extends Fragment {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                swipeLayout.setRefreshing(true);
-                            }
-                        });
+                        binding.swipeContainer.setRefreshing(true);
                     }
 
                     @Override
@@ -160,27 +152,15 @@ public class BalanceFragment extends Fragment {
                             e.printStackTrace();
                         }
 
-                        // Update balance and transactions in the UI
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateAccountList();
-                                updateBalanceAndTransactionList(intent);
-                            }
-                        });
-
                         return null;
                     }
 
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                swipeLayout.setRefreshing(false);
-                            }
-                        });
+                        updateAccountList();
+                        updateBalanceAndTransactionList(intent);
+                        binding.swipeContainer.setRefreshing(false);
                     }
 
                 }.execute();
@@ -194,10 +174,15 @@ public class BalanceFragment extends Fragment {
         txFeedMethods = new TxFeedMethods();
     }
 
+    FragmentBalanceBinding binding;
+    BalanceViewModel viewModel;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
+        viewModel = new BalanceViewModel(getActivity(), this);
+        binding.setViewModel(viewModel);
 
         thisActivity = getActivity();
         setHasOptionsMenu(true);
@@ -213,11 +198,9 @@ public class BalanceFragment extends Fragment {
         activeAccountAndAddressBiMap = HashBiMap.create();
         transactionList = new ArrayList<>();
 
-        setupViews(rootView);
+        setupViews();
 
-        SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
-
-        return rootView;
+        return binding.getRoot();
     }
 
     private void updateAccountList(){
@@ -368,6 +351,7 @@ public class BalanceFragment extends Fragment {
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
 
+        //Why start service again?????
         if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
             thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
         } else {
@@ -514,11 +498,11 @@ public class BalanceFragment extends Fragment {
         span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
         span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         if (BALANCE_DISPLAY_STATE != SHOW_HIDE) {
-            tvBalance1.setText(span1);
+            binding.balance1.setText(span1);
         } else {
             span1 = Spannable.Factory.getInstance().newSpannable(thisActivity.getText(R.string.show_balance));
             span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            tvBalance1.setText(span1);
+            binding.balance1.setText(span1);
         }
 
         //Notify adapters of change
@@ -527,10 +511,10 @@ public class BalanceFragment extends Fragment {
 
         //Display help text to user if no transactionList on selected account/address
         if (transactionList.size() > 0) {
-            transactionRecyclerView.setVisibility(View.VISIBLE);
+            binding.rvTransactions.setVisibility(View.VISIBLE);
             noTxMessage.setVisibility(View.GONE);
         } else {
-            transactionRecyclerView.setVisibility(View.GONE);
+            binding.rvTransactions.setVisibility(View.GONE);
             noTxMessage.setVisibility(View.VISIBLE);
         }
     }
@@ -551,7 +535,7 @@ public class BalanceFragment extends Fragment {
         comm = (Communicator) activity;
     }
 
-    private void initFab(final View rootView){
+    private void initFab(){
 
         //First icon when fab expands
         com.getbase.floatingactionbutton.FloatingActionButton actionA = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
@@ -562,12 +546,7 @@ public class BalanceFragment extends Fragment {
         actionA.setIconDrawable(sendIcon);
         actionA.setColorPressed(getResources().getColor(R.color.blockchain_red_50));
         actionA.setTitle(getResources().getString(R.string.send_bitcoin));
-        actionA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendClicked();
-            }
-        });
+        actionA.setOnClickListener(v -> sendClicked());
 
         //Second icon when fab expands
         com.getbase.floatingactionbutton.FloatingActionButton actionB = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
@@ -578,30 +557,24 @@ public class BalanceFragment extends Fragment {
         actionB.setIconDrawable(receiveIcon);
         actionB.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
         actionB.setTitle(getResources().getString(R.string.receive_bitcoin));
-        actionB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                receiveClicked();
-            }
-        });
+        actionB.setOnClickListener(v -> receiveClicked());
 
         //Add buttons to expanding fab
-        menuMultipleActions = (FloatingActionsMenu) rootView.findViewById(R.id.multiple_actions);
-        menuMultipleActions.addButton(actionA);
-        menuMultipleActions.addButton(actionB);
+        binding.fab.addButton(actionA);
+        binding.fab.addButton(actionB);
 
-        menuMultipleActions.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+        binding.fab.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
             @Override
             public void onMenuExpanded() {
-                mainContentShadow.setVisibility(View.VISIBLE);
+                binding.balanceMainContentShadow.setVisibility(View.VISIBLE);
                 isBottomSheetOpen = true;
                 comm.setNavigationDrawerToggleEnabled(false);
             }
 
             @Override
             public void onMenuCollapsed() {
-                menuMultipleActions.collapse();
-                mainContentShadow.setVisibility(View.GONE);
+                binding.fab.collapse();
+                binding.balanceMainContentShadow.setVisibility(View.GONE);
                 isBottomSheetOpen = false;
                 comm.setNavigationDrawerToggleEnabled(true);
             }
@@ -627,38 +600,36 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        populateViewForOrientation(inflater, (ViewGroup) getView());
+//        LayoutInflater inflater = LayoutInflater.from(getActivity());
+//        populateViewForOrientation(inflater, (ViewGroup) getView());
     }
 
-    private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
-        viewGroup.removeAllViewsInLayout();
-        View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
-        setupViews(subview);
-    }
+//    private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
+//        viewGroup.removeAllViewsInLayout();
+//        View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
+//        setupViews();
+//    }
 
-    private void setupViews(View rootView) {
+    private void setupViews() {
 
-        initFab(rootView);
+        initFab();
 
-        noTxMessage = (LinearLayout) rootView.findViewById(R.id.no_tx_message);
+        noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
         noTxMessage.setVisibility(View.GONE);
-
-        tvBalance1 = (TextView) rootView.findViewById(R.id.balance1);
 
         //Elevation compat
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             //reapply layout attributes after setBackgroundResource
-            int bottom = tvBalance1.getPaddingBottom();
-            int top = tvBalance1.getPaddingTop();
-            int right = tvBalance1.getPaddingRight();
-            int left = tvBalance1.getPaddingLeft();
-            tvBalance1.setBackgroundResource(R.drawable.container_blue_shadow);
-            tvBalance1.setPadding(left, top, right, bottom);
-            tvBalance1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+            int bottom = binding.balance1.getPaddingBottom();
+            int top = binding.balance1.getPaddingTop();
+            int right = binding.balance1.getPaddingRight();
+            int left = binding.balance1.getPaddingLeft();
+            binding.balance1.setBackgroundResource(R.drawable.container_blue_shadow);
+            binding.balance1.setPadding(left, top, right, bottom);
+            binding.balance1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         }
 
-        tvBalance1.setOnTouchListener(new OnTouchListener() {
+        binding.balance1.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -713,28 +684,18 @@ public class BalanceFragment extends Fragment {
             }
         });
 
-        transactionRecyclerView = (RecyclerView) rootView.findViewById(R.id.txList2);
         transactionAdapter = new TxAdapter();
         layoutManager = new LinearLayoutManager(thisActivity);
-        transactionRecyclerView.setLayoutManager(layoutManager);
-        transactionRecyclerView.setAdapter(transactionAdapter);
+        binding.rvTransactions.setLayoutManager(layoutManager);
+        binding.rvTransactions.setAdapter(transactionAdapter);
 
-        if (!getResources().getBoolean(R.bool.isDualPane))
-            transactionRecyclerView.setOnScrollListener(new CollapseActionbarScrollListener() {
-                @Override
-                public void onMoved(int distance) {
+        binding.rvTransactions.setOnScrollListener(new CollapseActionbarScrollListener() {
+            @Override
+            public void onMoved(int distance) {
 
-                    tvBalance1.setTranslationY(-distance);
-                }
-            });
-        else
-            transactionRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
-                }
-            });
+                binding.balance1.setTranslationY(-distance);
+            }
+        });
 
         // drawerTitle account now that wallet has been created
         if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
@@ -751,11 +712,10 @@ public class BalanceFragment extends Fragment {
             thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
         }
 
-        mainContentShadow = (LinearLayout) rootView.findViewById(R.id.balance_main_content_shadow);
-        mainContentShadow.setOnClickListener(new View.OnClickListener() {
+        binding.balanceMainContentShadow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                menuMultipleActions.collapse();
+                binding.fab.collapse();
             }
         });
 
@@ -765,13 +725,12 @@ public class BalanceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
-                menuMultipleActions.startAnimation(bounce);
+                binding.fab.startAnimation(bounce);
             }
         });
 
-        swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
-        swipeLayout.setProgressViewEndTarget(false, (int) (getResources().getDisplayMetrics().density * (72 + 20)));
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        binding.swipeContainer.setProgressViewEndTarget(false, (int) (getResources().getDisplayMetrics().density * (72 + 20)));
+        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -779,7 +738,7 @@ public class BalanceFragment extends Fragment {
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             }
         });
-        swipeLayout.setColorSchemeResources(R.color.blockchain_receive_green,
+        binding.swipeContainer.setColorSchemeResources(R.color.blockchain_receive_green,
                 R.color.blockchain_blue,
                 R.color.blockchain_send_red);
     }
@@ -799,8 +758,6 @@ public class BalanceFragment extends Fragment {
 
             //Set views
             View detailsView = view;
-            if (getResources().getBoolean(R.bool.isDualPane))
-                detailsView = rootView;
 
             final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
             final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
@@ -815,8 +772,8 @@ public class BalanceFragment extends Fragment {
             final LinearLayout feeContainer = (LinearLayout) detailsView.findViewById(R.id.tx_fee_container);
             final View feeSeparator = detailsView.findViewById(R.id.tx_fee_separator);
 
-            if (getResources().getBoolean(R.bool.isDualPane) || (!getResources().getBoolean(R.bool.isDualPane) && !mIsViewExpanded)) {
-                if (prevRowClicked != null && prevRowClicked == transactionRecyclerView.getLayoutManager().getChildAt(position)) {
+            if (!mIsViewExpanded) {
+                if (prevRowClicked != null && prevRowClicked == binding.rvTransactions.getLayoutManager().getChildAt(position)) {
                     txsDetails.setVisibility(View.INVISIBLE);
                     prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
                     prevRowClicked = null;
@@ -876,22 +833,21 @@ public class BalanceFragment extends Fragment {
                     }
                 });
 
-                if (!getResources().getBoolean(R.bool.isDualPane))
-                    txsDetails.setOnTouchListener(new OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
+                txsDetails.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
 
-                            if (event.getAction() == MotionEvent.ACTION_UP) {
-                                onRowClick(view, position);
-                            }
-                            return true;
-
-                            //To be used with advance send tx display
-                            // Disallow the touch request for parent scroll on touch of child view
-                            //v.getParent().requestDisallowInterceptTouchEvent(true);
-                            //return false;
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            onRowClick(view, position);
                         }
-                    });
+                        return true;
+
+                        //To be used with advance send tx display
+                        // Disallow the touch request for parent scroll on touch of child view
+                        //v.getParent().requestDisallowInterceptTouchEvent(true);
+                        //return false;
+                    }
+                });
 
                 //Get Details
                 if (transactionSummary.getHash().isEmpty()) {
@@ -1004,7 +960,6 @@ public class BalanceFragment extends Fragment {
                                 ivStatus.setVisibility(View.VISIBLE);
 
                                 if (inputMap.size() >= 2 || outputMap.size() >= 2)//details view needs to be scrollable now
-                                    if (!getResources().getBoolean(R.bool.isDualPane))
                                         txsDetails.setOnTouchListener(new OnTouchListener() {
                                             @Override
                                             public boolean onTouch(View v, MotionEvent event) {
@@ -1018,31 +973,20 @@ public class BalanceFragment extends Fragment {
                 }
             }
 
-            //Single Pane View - Expand and collapse details
-            if (!getResources().getBoolean(R.bool.isDualPane)) {
-                if (originalHeight == 0) {
-                    originalHeight = view.getHeight();
-                }
-
-                newHeight = originalHeight + txsDetails.getHeight();
-
-                if (!mIsViewExpanded) {
-                    expandView(view, txsDetails);
-
-                } else {
-                    collapseView(view, txsDetails);
-                }
-
-                rowViewState.put(view, mIsViewExpanded);
-            } else {
-                //Dual Pane View
-                view.findViewById(R.id.tx_row).setBackgroundResource(R.color.blockchain_light_grey);
-
-                if (prevRowClicked != null)
-                    prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
-
-                prevRowClicked = view;
+            if (originalHeight == 0) {
+                originalHeight = view.getHeight();
             }
+
+            newHeight = originalHeight + txsDetails.getHeight();
+
+            if (!mIsViewExpanded) {
+                expandView(view, txsDetails);
+
+            } else {
+                collapseView(view, txsDetails);
+            }
+
+            rowViewState.put(view, mIsViewExpanded);
         }
     }
 
@@ -1125,13 +1069,7 @@ public class BalanceFragment extends Fragment {
         @Override
         public TxAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-            View v = null;
-
-            boolean isTwoPane = getResources().getBoolean(R.bool.isDualPane);
-            if (!isTwoPane)
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
-            else
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_simple, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.txs_layout_expandable, parent, false);
             return new ViewHolder(v);
         }
 
@@ -1250,7 +1188,7 @@ public class BalanceFragment extends Fragment {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
 
-            swipeLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+            binding.swipeContainer.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
 
             //Only bring heading back down after 2nd item visible (0 = heading)
             if (layoutManager.findFirstCompletelyVisibleItemPosition() <= 2) {
