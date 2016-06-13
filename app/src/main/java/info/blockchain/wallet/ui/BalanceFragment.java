@@ -21,9 +21,10 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
@@ -327,13 +328,17 @@ public class BalanceFragment extends Fragment {
     }
 
     private void setAccountSpinner(){
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
         if(activeAccountAndAddressList.size() > 1){
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
         }else{
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setDisplayShowTitleEnabled(true);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
             accountSpinner.setSelection(0);
-            ((ActionBarActivity) thisActivity).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
             accountSpinner.setVisibility(View.GONE);
         }
     }
@@ -534,7 +539,6 @@ public class BalanceFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        menu.findItem(R.id.action_merchant_directory).setVisible(true);
         menu.findItem(R.id.action_qr).setVisible(true);
         menu.findItem(R.id.action_send).setVisible(false);
         menu.findItem(R.id.action_share_receive).setVisible(false);
@@ -775,7 +779,7 @@ public class BalanceFragment extends Fragment {
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             }
         });
-        swipeLayout.setColorScheme(R.color.blockchain_receive_green,
+        swipeLayout.setColorSchemeResources(R.color.blockchain_receive_green,
                 R.color.blockchain_blue,
                 R.color.blockchain_send_red);
     }

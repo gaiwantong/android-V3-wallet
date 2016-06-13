@@ -25,7 +25,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -151,9 +151,9 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private void setupToolbar(){
 
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        ((ActionBarActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
         setHasOptionsMenu(true);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -743,7 +743,6 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        menu.findItem(R.id.action_merchant_directory).setVisible(false);
         menu.findItem(R.id.action_qr).setVisible(false);
         menu.findItem(R.id.action_send).setVisible(false);
         MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);

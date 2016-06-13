@@ -25,7 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
@@ -243,9 +243,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void setupToolbar(){
 
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        ((ActionBarActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
         setHasOptionsMenu(true);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
@@ -1172,7 +1172,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        menu.findItem(R.id.action_merchant_directory).setVisible(false);
         menu.findItem(R.id.action_qr).setVisible(true);
         menu.findItem(R.id.action_share_receive).setVisible(false);
 

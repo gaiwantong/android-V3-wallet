@@ -8,45 +8,39 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessFactory;
 import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.drawer.DrawerAdapter;
-import info.blockchain.wallet.drawer.DrawerItem;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.EnableGeo;
-import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -61,13 +55,12 @@ import info.blockchain.wallet.util.WebUtil;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.bip44.WalletFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import piuk.blockchain.android.R;
 
-public class MainActivity extends ActionBarActivity implements BalanceFragment.Communicator {
+public class MainActivity extends AppCompatActivity implements BalanceFragment.Communicator {
 
     public static final int SCAN_URI = 2007;
     private static final int REQUEST_BACKUP = 2225;
@@ -75,16 +68,13 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
     public static Fragment currentFragment;
     private static int MERCHANT_ACTIVITY = 1;
     public long sendFragmentBitcoinAmountStorage = 0;
-    RecyclerView recyclerViewDrawer;
     DrawerLayout mDrawerLayout;
-    ActionBarDrawerToggle mDrawerToggle;
+
     int exitClickCount = 0;
     int exitClickCooldown = 2;//seconds
+
     // toolbar
     private Toolbar toolbar = null;
-    private ArrayList<DrawerItem> drawerItems;
-    private int backupWalletDrawerIndex;
-    private DrawerAdapter adapterDrawer;
     private AlertDialog rootedAlertDialog;
     private View mLayout;
 
@@ -264,9 +254,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
 
         if (!getResources().getBoolean(R.bool.isRotatable))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        setToolbar();
-        setNavigationDrawer();
     }
 
     @Override
@@ -322,9 +309,11 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
-            case R.id.action_merchant_directory:
-                doMerchantDirectory();
+
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
+
             case R.id.action_qr:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     PermissionUtil.requestCameraPermissionFromActivity(mLayout, this);
@@ -365,30 +354,7 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
             }
 
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
-            drawerItems = new ArrayList<>();
-            final String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
-            final TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
-            for (int i = 0; i < drawerTitles.length; i++) {
-
-                if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
-                    backupWalletDrawerIndex = i;
-
-                    if (!PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
-                        //Not backed up0
-                        drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-                    } else {
-                        //Backed up
-                        drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
-                    }
-                } else if (drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
-                    continue;//Wallet has been upgraded
-                } else {
-                    drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-                }
-            }
-            drawerIcons.recycle();
-            adapterDrawer = new DrawerAdapter(drawerItems);
-            recyclerViewDrawer.setAdapter(adapterDrawer);
+            resetNavigationDrawer();
         }
     }
 
@@ -479,27 +445,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         startActivity(intent);
     }
 
-    //Zeroblock hidden from sidebar
-//    private void doExchangeRates() {
-//        if (hasZeroBlock()) {
-//            Intent intent = getPackageManager().getLaunchIntentForPackage("com.phlint.android.zeroblock");
-//            startActivity(intent);
-//        } else {
-//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + "com.phlint.android.zeroblock"));
-//            startActivity(intent);
-//        }
-//    }
-//
-//    private boolean hasZeroBlock() {
-//        PackageManager pm = this.getPackageManager();
-//        try {
-//            pm.getPackageInfo("com.phlint.android.zeroblock", 0);
-//            return true;
-//        } catch (NameNotFoundException nnfe) {
-//            return false;
-//        }
-//    }
-
     private void startScanActivity() {
         if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
@@ -519,187 +464,6 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
-    public void setToolbar() {
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
-        setSupportActionBar(toolbar);
-    }
-
-    public void resetNavigationDrawer() {
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
-
-            public void onDrawerClosed(View view) {
-                drawerIsOpen = false;
-
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    toolbar.getChildAt(i).setEnabled(true);
-                    toolbar.getChildAt(i).setClickable(true);
-                }
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                drawerIsOpen = true;
-
-                InputMethodManager inputManager = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    toolbar.getChildAt(i).setEnabled(false);
-                    toolbar.getChildAt(i).setClickable(false);
-                }
-            }
-        };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        mDrawerToggle.syncState();
-    }
-
-    public void setNavigationDrawer() {
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        // Setup Drawer Icon
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
-
-            public void onDrawerClosed(View view) {
-                drawerIsOpen = false;
-
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    toolbar.getChildAt(i).setEnabled(true);
-                    toolbar.getChildAt(i).setClickable(true);
-                }
-
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                drawerIsOpen = true;
-
-                InputMethodManager inputManager = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    toolbar.getChildAt(i).setEnabled(false);
-                    toolbar.getChildAt(i).setClickable(false);
-                }
-            }
-        };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        mDrawerToggle.syncState();
-
-        // statusBar color behind navigation drawer
-        TypedValue typedValueStatusBarColor = new TypedValue();
-        MainActivity.this.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValueStatusBarColor, true);
-        final int colorStatusBar = typedValueStatusBarColor.data;
-        mDrawerLayout.setStatusBarBackgroundColor(colorStatusBar);
-
-        TextView tvEmail = (TextView) mDrawerLayout.findViewById(R.id.drawer_email);
-        tvEmail.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, ""));
-
-        // Setup RecyclerView inside drawer
-        recyclerViewDrawer = (RecyclerView) findViewById(R.id.drawer_recycler);
-        recyclerViewDrawer.setHasFixedSize(true);
-        recyclerViewDrawer.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-
-        drawerItems = new ArrayList<>();
-        String[] drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_hd);
-        TypedArray drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_hd);
-
-        if (AppUtil.getInstance(this).isNotUpgraded()) {
-            drawerTitles = getResources().getStringArray(R.array.navigation_drawer_items_lame);
-            drawerIcons = getResources().obtainTypedArray(R.array.navigation_drawer_icons_lame);
-        }
-
-        for (int i = 0; i < drawerTitles.length; i++) {
-
-            if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
-
-                backupWalletDrawerIndex = i;
-
-                if (!PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
-                    //Not backed up
-                    drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-                    doBackupWallet();
-                } else {
-                    //Backed up
-                    drawerItems.add(new DrawerItem(drawerTitles[i], getResources().getDrawable(R.drawable.good_backup)));
-                }
-
-                continue;
-            } else if (drawerTitles[i].equals(getResources().getString(R.string.backup_wallet))) {
-                continue;//No backup for legacy wallets
-            } else if (drawerTitles[i].equals(getResources().getString(R.string.upgrade_wallet)) && (PayloadFactory.getInstance().get().isUpgraded())) {
-                continue;//Wallet has been upgraded
-            }
-
-            drawerItems.add(new DrawerItem(drawerTitles[i], drawerIcons.getDrawable(i)));
-        }
-        drawerIcons.recycle();
-        adapterDrawer = new DrawerAdapter(drawerItems);
-        recyclerViewDrawer.setAdapter(adapterDrawer);
-
-        recyclerViewDrawer.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-
-                        if (AppUtil.getInstance(MainActivity.this).isNotUpgraded()) {
-                            selectDrawerItemLegacy(position);
-                        } else {
-                            selectDrawerItemHd(position);
-                        }
-
-                        mDrawerLayout.closeDrawers();
-
-                    }
-                })
-        );
-    }
-
-    private void selectDrawerItemLegacy(int position) {
-        switch (position) {
-            case 0:
-                doUpgrade();
-                break;
-            case 1:
-                doSettings();
-                break;
-            case 2:
-                doMyAccounts();
-                break;
-            case 3:
-                doSupport();
-                break;
-            case 4:
-                doUnpairWallet();
-                break;
-        }
-    }
-
-    private void selectDrawerItemHd(int position) {
-        switch (position) {
-            case 0:
-                doBackupWallet();
-                break;
-            case 1:
-                doSettings();
-                break;
-            case 2:
-                doMyAccounts();
-                break;
-            case 3:
-                doSupport();
-                break;
-            case 4:
-                doUnpairWallet();
-                break;
-        }
-    }
-
     @Override
     public void setNavigationDrawerToggleEnabled(boolean enabled) {
         for (int i = 0; i < toolbar.getChildCount(); i++) {
@@ -711,6 +475,79 @@ public class MainActivity extends ActionBarActivity implements BalanceFragment.C
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         else
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    public void selectDrawerItem(MenuItem menuItem) {
+
+        switch(menuItem.getItemId()) {
+            case R.id.nav_backup:
+                doBackupWallet();
+                break;
+            case R.id.nav_addresses:
+                doMyAccounts();
+                break;
+            case R.id.nav_upgrade:
+                doUpgrade();
+                break;
+            case R.id.nav_map:
+                doMerchantDirectory();
+                break;
+            case R.id.nav_settings:
+                doSettings();
+                break;
+            case R.id.nav_support:
+                doSupport();
+                break;
+            case R.id.nav_logout:
+                doUnpairWallet();
+                break;
+        }
+        mDrawerLayout.closeDrawers();
+    }
+
+    @Override
+    public void resetNavigationDrawer() {
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+        setSupportActionBar(toolbar);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = (NavigationView)findViewById(R.id.nvView);
+        View headerLayout = navigationView.getHeaderView(0);
+        MenuItem backUpMenuItem = navigationView.getMenu().findItem(R.id.nav_backup);
+        MenuItem upgradeMenuItem = navigationView.getMenu().findItem(R.id.nav_upgrade);
+
+        if (AppUtil.getInstance(this).isNotUpgraded()) {
+            //Legacy
+            upgradeMenuItem.setVisible(true);
+            backUpMenuItem.setVisible(false);
+        }else{
+            //HD
+            upgradeMenuItem.setVisible(false);
+            backUpMenuItem.setVisible(true);
+        }
+
+        MenuItem backUpView = navigationView.getMenu().findItem(R.id.nav_backup);
+        Drawable drawable = backUpView.getIcon();
+        drawable.mutate();
+        if (PayloadFactory.getInstance().get() != null &&
+                PayloadFactory.getInstance().get().getHdWallet() != null &&
+                !PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
+            //Not backed up
+            drawable.setColorFilter(getResources().getColor(R.color.blockchain_send_red), PorterDuff.Mode.SRC_ATOP);
+//            doBackupWallet();
+        } else {
+            //Backed up
+            drawable.setColorFilter(getResources().getColor(R.color.alert_green), PorterDuff.Mode.SRC_ATOP);
+        }
+
+        navigationView.setNavigationItemSelectedListener(
+                menuItem -> {
+                    selectDrawerItem(menuItem);
+                    return true;
+                });
     }
 
     private void doUnpairWallet() {
