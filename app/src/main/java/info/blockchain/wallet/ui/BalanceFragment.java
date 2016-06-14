@@ -344,19 +344,24 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
+                //TODO this BALANCE_DISPLAY_STATE could be improved
                 if (BALANCE_DISPLAY_STATE == SHOW_BTC) {
                     BALANCE_DISPLAY_STATE = SHOW_FIAT;
                     isBTC = false;
+                    viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
+
                 } else if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
                     BALANCE_DISPLAY_STATE = SHOW_HIDE;
                     isBTC = true;
+                    viewModel.setBalance(context.getString(R.string.show_balance));
+
                 } else {
                     BALANCE_DISPLAY_STATE = SHOW_BTC;
                     isBTC = true;
+                    viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                 }
                 PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
 
-                viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                 return false;
             }
         });
@@ -786,14 +791,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     @Override
-    public void onUpdateBalance(Spannable balance) {
-        if (BALANCE_DISPLAY_STATE != SHOW_HIDE) {
-            binding.balance1.setText(span1);//TODO dataBinding should make this unnecessary
-        }else{
-            Spannable span1 = Spannable.Factory.getInstance().newSpannable(context.getText(R.string.show_balance));
-            span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            binding.balance1.setText(span1);
-        }
+    public void onRefreshBalanceAndTransactions() {
 
         //Notify adapters of change
         accountsAdapter.notifyDataSetChanged();

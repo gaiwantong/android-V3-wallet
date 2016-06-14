@@ -1,9 +1,14 @@
 package info.blockchain.wallet.model;
 
-import android.databinding.BaseObservable;
+public class BalanceModel {
 
-public class BalanceModel extends BaseObservable {
+    private String balance;
 
-    public BalanceModel() {
+    public String getBalance() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
     }
 }

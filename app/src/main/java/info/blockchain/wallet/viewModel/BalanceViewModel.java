@@ -4,9 +4,9 @@ import com.google.common.collect.HashBiMap;
 
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.support.v4.util.Pair;
-import android.text.Spannable;
-import android.text.style.RelativeSizeSpan;
 
 import info.blockchain.wallet.model.BalanceModel;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -29,9 +29,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import piuk.blockchain.android.BR;
 import piuk.blockchain.android.R;
 
-public class BalanceViewModel implements ViewModel{
+public class BalanceViewModel extends BaseObservable implements ViewModel {
 
     private Context context;
     private DataListener dataListener;
@@ -43,10 +44,20 @@ public class BalanceViewModel implements ViewModel{
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList;
 
+    @Bindable
+    public String getBalance(){
+        return model.getBalance();
+    }
+
+    public void setBalance(String balance){
+        model.setBalance(balance);
+        notifyPropertyChanged(BR.balance);
+    }
+
     public interface DataListener {
         void onRefreshAccounts();
         void onAccountSizeChange();
-        void onUpdateBalance(Spannable balance);
+        void onRefreshBalanceAndTransactions();
     }
 
     public BalanceViewModel(Context context, DataListener dataListener) {
@@ -394,9 +405,8 @@ public class BalanceViewModel implements ViewModel{
             balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
         }
 
-        Spannable span1 = Spannable.Factory.getInstance().newSpannable(balanceTotal);
-        span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - (isBTC ? getDisplayUnits().length() : 3), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        dataListener.onUpdateBalance(span1);
+        setBalance(balanceTotal);
+        dataListener.onRefreshBalanceAndTransactions();
     }
 
     public List<Tx> getAllXpubAndLegacyTxs(){
