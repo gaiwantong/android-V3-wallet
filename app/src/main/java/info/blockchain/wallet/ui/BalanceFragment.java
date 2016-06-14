@@ -61,7 +61,6 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.tx_feed.TxFeedMethods;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -122,12 +121,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private List<Tx> transactionList = new ArrayList<Tx>();
     private TxAdapter transactionAdapter = null;
     private LinearLayout noTxMessage = null;
-    private Activity thisActivity = null;
+    private Activity context = null;
     private int originalHeight = 0;
     private int newHeight = 0;
     private int expandDuration = 200;
     private boolean mIsViewExpanded = false;
     private View prevRowClicked = null;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -147,7 +147,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            HDPayloadBridge.getInstance(getActivity()).updateBalancesAndTransactions();
+                            HDPayloadBridge.getInstance(context).updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -168,28 +168,23 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         }
     };
 
-    private TxFeedMethods txFeedMethods;
-
-    public BalanceFragment() {
-        txFeedMethods = new TxFeedMethods();
-    }
-
     FragmentBalanceBinding binding;
     BalanceViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        context = getActivity();
+
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
-        viewModel = new BalanceViewModel(getActivity(), this);
+        viewModel = new BalanceViewModel(context, this);
         binding.setViewModel(viewModel);
 
-        thisActivity = getActivity();
         setHasOptionsMenu(true);
 
         balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
-        BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
+        BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
         if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
             isBTC = false;
         }
@@ -241,7 +236,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                 //Only V3 will display "All"
                 Account all = new Account();
-                all.setLabel(getActivity().getResources().getString(R.string.all_accounts));
+                all.setLabel(context.getResources().getString(R.string.all_accounts));
                 all.setTags(Arrays.asList(TAG_ALL));
                 activeAccountAndAddressList.add(all.getLabel());
                 activeAccountAndAddressBiMap.put(all, spinnerIndex);
@@ -250,7 +245,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             } else if (activeLegacyAddresses.size() > 1) {
 
                 //V2 "All" at top of accounts spinner if wallet contains multiple legacy addresses
-                ImportedAccount iAccount = new ImportedAccount(getActivity().getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
                 iAccount.setTags(Arrays.asList(TAG_ALL));
                 activeAccountAndAddressList.add(iAccount.getLabel());
                 activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
@@ -274,7 +269,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (PayloadFactory.getInstance().get().isUpgraded() && activeLegacyAddresses.size() > 0) {
 
             //Only V3 - Consolidate and add Legacy addresses to "Imported Addresses" at bottom of accounts spinner
-            ImportedAccount iAccount = new ImportedAccount(getActivity().getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+            ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
             iAccount.setTags(Arrays.asList(TAG_IMPORTED_ADDRESSES));
             activeAccountAndAddressList.add(iAccount.getLabel());
             activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
@@ -288,7 +283,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                 //Prefix "watch-only"
                 if (legacyAddress.isWatchOnly()) {
-                    labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
+                    labelOrAddress = context.getString(R.string.watch_only_label) + " " + labelOrAddress;
                 }
 
                 activeAccountAndAddressList.add(labelOrAddress);
@@ -302,7 +297,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             setAccountSpinner();
 
         //Notify adapter of list update
-        getActivity().runOnUiThread(new Runnable() {
+        context.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
@@ -312,16 +307,16 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     private void setAccountSpinner(){
 
-        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        ((AppCompatActivity) context).setSupportActionBar(toolbar);
 
         if(activeAccountAndAddressList.size() > 1){
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
         }else{
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+            ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(true);
             accountSpinner.setSelection(0);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
+            ((AppCompatActivity) context).getSupportActionBar().setTitle(activeAccountAndAddressList.get(0));
             accountSpinner.setVisibility(View.GONE);
         }
     }
@@ -349,14 +344,14 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         isBottomSheetOpen = false;
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
-        LocalBroadcastManager.getInstance(thisActivity).registerReceiver(receiver, filter);
+        LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
 
         //Why start service again?????
-        if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
+        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
         } else {
-            thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
-            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
+            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
         }
 
         updateBalanceAndTransactionList(null);
@@ -367,12 +362,12 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     public void onPause() {
         super.onPause();
 
-        LocalBroadcastManager.getInstance(thisActivity).unregisterReceiver(receiver);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver);
     }
 
     private String getDisplayUnits() {
 
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
     }
 
@@ -484,13 +479,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         transactionList.addAll(unsortedTransactionList);
 
         //Update Balance
-        strFiat = PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(thisActivity).getLastPrice(strFiat);
+        strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";
         if (isBTC) {
-            balanceTotal = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
+            balanceTotal = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
         } else {
             balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
         }
@@ -500,7 +495,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (BALANCE_DISPLAY_STATE != SHOW_HIDE) {
             binding.balance1.setText(span1);
         } else {
-            span1 = Spannable.Factory.getInstance().newSpannable(thisActivity.getText(R.string.show_balance));
+            span1 = Spannable.Factory.getInstance().newSpannable(context.getText(R.string.show_balance));
             span1.setSpan(new RelativeSizeSpan(0.67f), 0, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             binding.balance1.setText(span1);
         }
@@ -538,10 +533,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private void initFab(){
 
         //First icon when fab expands
-        com.getbase.floatingactionbutton.FloatingActionButton actionA = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
+        com.getbase.floatingactionbutton.FloatingActionButton actionA = new com.getbase.floatingactionbutton.FloatingActionButton(context);
         actionA.setColorNormal(getResources().getColor(R.color.blockchain_send_red));
         actionA.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
-        Drawable sendIcon = getActivity().getResources().getDrawable(R.drawable.icon_send);
+        Drawable sendIcon = context.getResources().getDrawable(R.drawable.icon_send);
         sendIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
         actionA.setIconDrawable(sendIcon);
         actionA.setColorPressed(getResources().getColor(R.color.blockchain_red_50));
@@ -549,10 +544,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         actionA.setOnClickListener(v -> sendClicked());
 
         //Second icon when fab expands
-        com.getbase.floatingactionbutton.FloatingActionButton actionB = new com.getbase.floatingactionbutton.FloatingActionButton(getActivity());
+        com.getbase.floatingactionbutton.FloatingActionButton actionB = new com.getbase.floatingactionbutton.FloatingActionButton(context);
         actionB.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
         actionB.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
-        Drawable receiveIcon = getActivity().getResources().getDrawable(R.drawable.icon_receive);
+        Drawable receiveIcon = context.getResources().getDrawable(R.drawable.icon_receive);
         receiveIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
         actionB.setIconDrawable(receiveIcon);
         actionB.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
@@ -582,7 +577,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void sendClicked(){
-        SSLVerifierThreadUtil.getInstance(getActivity()).validateSSLThread();
+        SSLVerifierThreadUtil.getInstance(context).validateSSLThread();
 
         Fragment fragment = new SendFragment();
         FragmentManager fragmentManager = getFragmentManager();
@@ -600,15 +595,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-//        LayoutInflater inflater = LayoutInflater.from(getActivity());
-//        populateViewForOrientation(inflater, (ViewGroup) getView());
     }
-
-//    private void populateViewForOrientation(LayoutInflater inflater, ViewGroup viewGroup) {
-//        viewGroup.removeAllViewsInLayout();
-//        View subview = inflater.inflate(getResources().getLayout(R.layout.balance_layout_oriented), viewGroup);
-//        setupViews();
-//    }
 
     private void setupViews() {
 
@@ -643,16 +630,16 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     BALANCE_DISPLAY_STATE = SHOW_BTC;
                     isBTC = true;
                 }
-                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
+                PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
 
                 updateBalanceAndTransactionList(null);
                 return false;
             }
         });
 
-        accountSpinner = (Spinner) thisActivity.findViewById(R.id.account_spinner);
+        accountSpinner = (Spinner) context.findViewById(R.id.account_spinner);
         updateAccountList();
-        accountsAdapter = new AccountAdapter(thisActivity, R.layout.spinner_title_bar, activeAccountAndAddressList);
+        accountsAdapter = new AccountAdapter(context, R.layout.spinner_title_bar, activeAccountAndAddressList);
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);
         accountSpinner.setAdapter(accountsAdapter);
         accountSpinner.setOnTouchListener(new OnTouchListener() {
@@ -685,7 +672,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         });
 
         transactionAdapter = new TxAdapter();
-        layoutManager = new LinearLayoutManager(thisActivity);
+        layoutManager = new LinearLayoutManager(context);
         binding.rvTransactions.setLayoutManager(layoutManager);
         binding.rvTransactions.setAdapter(transactionAdapter);
 
@@ -698,18 +685,18 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         });
 
         // drawerTitle account now that wallet has been created
-        if (PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(thisActivity).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-            PrefsUtil.getInstance(thisActivity).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-            PayloadBridge.getInstance(thisActivity).remoteSaveThread();
+        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+            PayloadBridge.getInstance(context).remoteSaveThread();
             accountsAdapter.notifyDataSetChanged();
         }
 
-        if (!OSUtil.getInstance(thisActivity).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
+        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
         } else {
-            thisActivity.stopService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
-            thisActivity.startService(new Intent(thisActivity, info.blockchain.wallet.websocket.WebSocketService.class));
+            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
         }
 
         binding.balanceMainContentShadow.setOnClickListener(new View.OnClickListener() {
@@ -724,7 +711,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         noTxMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Animation bounce = AnimationUtils.loadAnimation(getActivity(), R.anim.jump);
+                Animation bounce = AnimationUtils.loadAnimation(context, R.anim.jump);
                 binding.fab.startAnimation(bounce);
             }
         });
@@ -735,7 +722,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             public void onRefresh() {
 
                 Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
         });
         binding.swipeContainer.setColorSchemeResources(R.color.blockchain_receive_green,
@@ -851,10 +838,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                 //Get Details
                 if (transactionSummary.getHash().isEmpty()) {
-                    getActivity().runOnUiThread(new Runnable() {
+                    context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tvStatus.setText(thisActivity.getString(R.string.WAITING));
+                            tvStatus.setText(context.getString(R.string.WAITING));
 
                             tvOutAddr.setText("");
                             tvTxHash.setText("");
@@ -901,11 +888,11 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                                 //Fee
                                 String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
                                 if (isBTC)
-                                    fee = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + getDisplayUnits());
+                                    fee = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + getDisplayUnits());
                                 tvFee.setText(fee);
 
                                 //Filter non-change addresses
-                                Pair<HashMap<String, Long>, HashMap<String, Long>> pair = txFeedMethods.filterNonChangeAddresses(transactionDetails, transactionSummary);
+                                Pair<HashMap<String, Long>, HashMap<String, Long>> pair = viewModel.filterNonChangeAddresses(transactionDetails, transactionSummary);
 
                                 //From
                                 HashMap<String,Long> inputMap = pair.first;
@@ -914,13 +901,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                                 ArrayList<String> labelList = new ArrayList<String>();
                                 Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
                                 for(Map.Entry<String, Long> set : entrySet){
-                                    String label = txFeedMethods.addressToLabel(set.getKey());
+                                    String label = viewModel.addressToLabel(set.getKey());
                                     if(!labelList.contains(label))
                                         labelList.add(label);
                                 }
 
                                 String inputMapString = StringUtils.join(labelList.toArray(), "\n");
-                                tvOutAddr.setText(txFeedMethods.addressToLabel(inputMapString));
+                                tvOutAddr.setText(viewModel.addressToLabel(inputMapString));
                                 //todo end
 
                                 //To Address
@@ -929,17 +916,17 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                                 for (Map.Entry<String, Long> item : outputMap.entrySet()) {
 
-                                    View v = LayoutInflater.from(getActivity()).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
+                                    View v = LayoutInflater.from(context).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
                                     TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
 
                                     TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
                                     toAddressContainer.addView(v);
 
-                                    tvToAddr.setText(txFeedMethods.addressToLabel(item.getKey()));
+                                    tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
                                     long amount = item.getValue();
                                     String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
                                     if (isBTC)
-                                        amountS = (MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(amount) + " " + getDisplayUnits());
+                                        amountS = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(amount) + " " + getDisplayUnits());
 
                                     tvFee.setText(fee);
                                     tvToAddrTotal.setText(amountS);
@@ -996,7 +983,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         //Fade Details in - expansion of row will create slide down effect
         txsDetails.setVisibility(View.VISIBLE);
-        txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.abc_fade_in));
+        txsDetails.setAnimation(AnimationUtils.loadAnimation(context, R.anim.abc_fade_in));
         txsDetails.setEnabled(true);
 
         mIsViewExpanded = !mIsViewExpanded;
@@ -1007,13 +994,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private void collapseView(View view, final ScrollView txsDetails) {
 
         TypedValue outValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
         view.setBackgroundResource(outValue.resourceId);
 
         mIsViewExpanded = !mIsViewExpanded;
         ValueAnimator resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
 
-        txsDetails.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down));
+        txsDetails.setAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down));
 
         Animation anim = new AlphaAnimation(1.00f, 0.00f);
         anim.setDuration(expandDuration / 2);
@@ -1087,7 +1074,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 tvResult.setTextColor(Color.WHITE);
 
                 TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-                tvTS.setText(DateUtil.getInstance(thisActivity).formatted(tx.getTS()));
+                tvTS.setText(DateUtil.getInstance(context).formatted(tx.getTS()));
 
                 TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
                 String dirText = tx.getDirection();
@@ -1099,7 +1086,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     tvDirection.setText(getResources().getString(R.string.SENT));
 
                 if (isBTC) {
-                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(thisActivity).getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + getDisplayUnits());
+                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + getDisplayUnits());
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 } else {
                     span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
@@ -1107,13 +1094,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 }
                 if (tx.isMove()) {
                     tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_lighter_blue_50 : R.drawable.rounded_view_lighter_blue);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
+                    tvDirection.setTextColor(context.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_transfer_blue_50 : R.color.blockchain_transfer_blue));
                 } else if (_btc_balance < 0.0) {
                     tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_red_50 : R.drawable.rounded_view_red);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
+                    tvDirection.setTextColor(context.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_red_50 : R.color.blockchain_send_red));
                 } else {
                     tvResult.setBackgroundResource(tx.getConfirmations() < nbConfirmations ? R.drawable.rounded_view_green_50 : R.drawable.rounded_view_green);
-                    tvDirection.setTextColor(thisActivity.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
+                    tvDirection.setTextColor(context.getResources().getColor(tx.getConfirmations() < nbConfirmations ? R.color.blockchain_green_50 : R.color.blockchain_receive_green));
                 }
 
                 TextView tvWatchOnly = (TextView) holder.itemView.findViewById(R.id.watch_only);
