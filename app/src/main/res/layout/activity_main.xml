@@ -1,37 +1,44 @@
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/main_layout"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical">
+    <data>
+        <variable name="viewModel" type="info.blockchain.wallet.viewModel.MainViewModel"/>
+    </data>
 
-        <include layout="@layout/toolbar"/>
-
-        <FrameLayout
-            android:id="@+id/content_frame"
+    <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            android:layout_height="match_parent">
 
-    <android.support.design.internal.ScrimInsetsFrameLayout
-        android:id="@+id/scrimInsetsFrameLayout"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="@dimen/navigation_drawer_width"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:elevation="10dp"
-        android:fitsSystemWindows="true"
-        app:insetForeground="#4000">
+        <!-- This LinearLayout represents the contents of the screen  -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        <include layout="@layout/navigation_drawer"/>
+            <!-- The ActionBar displayed at the top -->
+            <include
+                    layout="@layout/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-    </android.support.design.internal.ScrimInsetsFrameLayout>
+            <!-- The main content view where fragments are loaded -->
+            <FrameLayout
+                    android:id="@+id/content_frame"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+        </LinearLayout>
 
-</android.support.v4.widget.DrawerLayout>
+        <!-- The navigation drawer that comes from the left -->
+        <!-- Note that `android:layout_gravity` needs to be set to 'start' -->
+        <android.support.design.widget.NavigationView
+                android:id="@+id/nvView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@android:color/white"
+                app:headerLayout="@layout/navigation_drawer_header"
+                app:menu="@menu/drawer_view"/>
+    </android.support.v4.widget.DrawerLayout>
+</layout>

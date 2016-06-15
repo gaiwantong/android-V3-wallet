@@ -1,0 +1,8 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="168dp"
+                android:layout_width="320dp"
+                android:id="@+id/navigationHeader"
+                android:visibility="gone"
+                android:background="@color/blockchain_dark_blue">
+
+</RelativeLayout>

@@ -3,37 +3,8 @@
 
     <string name="backup_wallet">Backup funds</string>
     <string name="upgrade_wallet">Upgrade</string>
-    <string-array name="navigation_drawer_items_lame">
-        <item>@string/upgrade_wallet</item>
-        <item>Settings</item>
-        <item>Addresses</item>
-        <item>Support</item>
-        <item>Logout</item>
-    </string-array>
-    <string-array name="navigation_drawer_items_hd">
-        <item>@string/backup_wallet</item>
-        <item>Settings</item>
-        <item>Addresses</item>
-        <item>Support</item>
-        <item>Logout</item>
-    </string-array>
 
     <string name="change_pin">Change PIN</string>
-
-    <array name="navigation_drawer_icons_lame">
-        <item>@drawable/ic_info_outline_grey600_24dp</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/ic_person_grey600_24dp</item>
-        <item>@drawable/ic_help_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
-    <array name="navigation_drawer_icons_hd">
-        <item>@drawable/bad_backup</item>
-        <item>@drawable/icon_settings</item>
-        <item>@drawable/ic_person_grey600_24dp</item>
-        <item>@drawable/ic_help_grey600_24dp</item>
-        <item>@drawable/icon_logout</item>
-    </array>
 
     <string name="app_name">Blockchain</string>
     <string name="action_settings">Settings</string>
