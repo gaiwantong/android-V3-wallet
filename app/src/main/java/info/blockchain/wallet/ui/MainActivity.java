@@ -16,6 +16,7 @@ import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -231,7 +232,8 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_support:
-                startActivity(new Intent(MainActivity.this, SupportActivity.class));
+//                startActivity(new Intent(MainActivity.this, SupportActivity.class));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://support.blockchain.com/")));
                 break;
             case R.id.nav_logout:
                 new AlertDialog.Builder(this)
