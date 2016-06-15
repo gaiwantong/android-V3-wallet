@@ -50,6 +50,7 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadBridge;
@@ -175,7 +176,15 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         setupViews();
 
+        promptToRateApp();
+
         return binding.getRoot();
+    }
+
+    private void promptToRateApp(){
+        new AppRate((Activity)context)
+                .setMinTransactionsUntilPrompt(3)
+                .init();
     }
 
     private void setAccountSpinner(){

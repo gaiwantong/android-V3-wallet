@@ -532,5 +532,10 @@
     <string name="backup_funds_again">Backup Funds Again</string>
     <string name="lost_mnemonic">Lost your 12 word recovery phrase?</string>
     <string name="backup_write_down_12_words">Write the following 12 words onto a piece of paper. Anyone with access to your Recovery Phrase has access to your bitcoin so be sure to keep it offline somewhere very safe and secure.</string>
+    <string name="rate_title">Rate Blockchain Wallet</string>
+    <string name="rate_message">Enjoying the Blockchain Wallet? Please take a moment to leave a review in Google Play and let others know about it.</string>
+    <string name="rate_yes">Yes, rate Blockchain Wallet</string>
+    <string name="rate_no">No, thanks</string>
+    <string name="rate_later">Remind me later</string>
 
 </resources>
