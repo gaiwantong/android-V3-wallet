@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     public static boolean drawerIsOpen = false;
     public static Fragment currentFragment;
     private static int MERCHANT_ACTIVITY = 1;
+    private static String SUPPORT_URI = "http://support.blockchain.com/";
 
     // toolbar
     private Toolbar toolbar = null;
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 break;
             case R.id.nav_support:
 //                startActivity(new Intent(MainActivity.this, SupportActivity.class));
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://support.blockchain.com/")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URI)));
                 break;
             case R.id.nav_logout:
                 new AlertDialog.Builder(this)
