@@ -279,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 !PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
             //Not backed up
             drawable.setColorFilter(getResources().getColor(R.color.blockchain_send_red), PorterDuff.Mode.SRC_ATOP);
-            startActivityForResult(new Intent(MainActivity.this, BackupWalletActivity.class), REQUEST_BACKUP);
         } else {
             //Backed up
             drawable.setColorFilter(getResources().getColor(R.color.alert_green), PorterDuff.Mode.SRC_ATOP);
@@ -441,5 +440,10 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     public void onExitConfirmToast() {
         ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+    }
+
+    @Override
+    public void onRequestBackup() {
+        startActivityForResult(new Intent(this, BackupWalletActivity.class), REQUEST_BACKUP);
     }
 }
