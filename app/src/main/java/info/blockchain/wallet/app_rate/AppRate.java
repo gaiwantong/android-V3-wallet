@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
@@ -21,17 +22,16 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
     private static final String TAG = "AppRater";
 
     public static final String SHARED_PREFS_NAME = "apprate_prefs";
-    public static final String PREF_APP_HAS_CRASHED = "pref_app_has_crashed";
     public static final String PREF_DATE_REMIND_START = "date_remind_start";
     public static final String PREF_TRANSACTION_COUNT = "transaction_count";
     public static final String PREF_DONT_SHOW_AGAIN = "dont_show_again";
+    public static final String PREF_DAYS_UNTIL_PROMPT = "days_until_prompt";
 
     private Activity hostActivity;
     private OnClickListener clickListener;
     private SharedPreferences preferences;
 
     private long minTransactionsUntilPrompt = 0;
-    private long minDaysUntilPrompt = 0;
 
     public AppRate(Activity hostActivity) {
         this.hostActivity = hostActivity;
@@ -44,7 +44,9 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
     }
 
     public AppRate setMinDaysUntilPrompt(long minDaysUntilPrompt) {
-        this.minDaysUntilPrompt = minDaysUntilPrompt;
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong(AppRate.PREF_DAYS_UNTIL_PROMPT, minDaysUntilPrompt);
+        editor.commit();
         return this;
     }
 
@@ -61,13 +63,9 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
      */
     public void init() {
 
-        if (preferences.getBoolean(AppRate.PREF_DONT_SHOW_AGAIN, false) || (
-                preferences.getBoolean(AppRate.PREF_APP_HAS_CRASHED, false))) {
-            return;
-        }
-
         SharedPreferences.Editor editor = preferences.edit();
         long transactionCount = preferences.getLong(AppRate.PREF_TRANSACTION_COUNT, 0);
+        long minDaysUntilPrompt = preferences.getLong(AppRate.PREF_DAYS_UNTIL_PROMPT, 0);
 
         // Get date of 'remind me later'.
         Long dateRemindStart = preferences.getLong(AppRate.PREF_DATE_REMIND_START, 0);
@@ -91,6 +89,7 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
         SharedPreferences.Editor editor = preferences.edit();
         long transactionCount = preferences.getLong(AppRate.PREF_TRANSACTION_COUNT, 0) + 1;
         editor.putLong(AppRate.PREF_TRANSACTION_COUNT, transactionCount);
+        editor.commit();
         return this;
     }
 
@@ -159,7 +158,6 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
 
                 setMinDaysUntilPrompt(7);
                 editor.putLong(AppRate.PREF_DATE_REMIND_START, System.currentTimeMillis());
-                editor.putLong(AppRate.PREF_TRANSACTION_COUNT, 0);
 
                 break;
 
