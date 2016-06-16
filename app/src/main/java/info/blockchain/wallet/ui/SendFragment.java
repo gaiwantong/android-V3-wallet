@@ -1780,6 +1780,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 closeDialog(alertDialog, true);
 
                 new AppRate(getActivity())
+                        .setMinTransactionsUntilPrompt(3)
                         .incrementTransactionCount()
                         .init();
             }
