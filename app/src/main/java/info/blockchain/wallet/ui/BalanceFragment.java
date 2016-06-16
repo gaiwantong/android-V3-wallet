@@ -186,7 +186,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if(viewModel.getActiveAccountAndAddressList().size() > 1){
             ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
-        }else{
+        }else if(viewModel.getActiveAccountAndAddressList().size() > 0){
             ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(true);
             accountSpinner.setSelection(0);
             ((AppCompatActivity) context).getSupportActionBar().setTitle(viewModel.getActiveAccountAndAddressList().get(0));
@@ -776,7 +776,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onRefreshAccounts() {
         //TODO revise
-        if(accountSpinner != null)
+        if(accountSpinner != null && MainActivity.currentFragment instanceof BalanceFragment)
             setAccountSpinner();
 
         context.runOnUiThread(() -> {
