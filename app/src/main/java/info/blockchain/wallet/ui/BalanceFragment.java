@@ -776,7 +776,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onRefreshAccounts() {
         //TODO revise
-        if(accountSpinner != null)
+        if(accountSpinner != null && MainActivity.currentFragment instanceof BalanceFragment)
             setAccountSpinner();
 
         context.runOnUiThread(() -> {
