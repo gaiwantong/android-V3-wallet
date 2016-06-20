@@ -832,8 +832,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             button.setOnClickListener(view -> {
 
                 String hint = etPwHint1.getText().toString();
-                updatePasswordHint1(hint);
-                alertDialogEmail.dismiss();
+                if(!hint.equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+                    updatePasswordHint1(hint);
+                    alertDialogEmail.dismiss();
+                }else{
+                    ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error),ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                }
             });
         });
         alertDialogEmail.show();
