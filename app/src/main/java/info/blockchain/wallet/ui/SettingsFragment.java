@@ -1049,6 +1049,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
                 alertDialogEmail.getButton(AlertDialog.BUTTON_NEUTRAL)
                         .setOnClickListener(view -> {
+                            if(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS){
+                                twoStepVerificationPref.setChecked(true);
+                            }else{
+                                twoStepVerificationPref.setChecked(false);
+                            }
+
                             alertDialogEmail.dismiss();
                         });
             });
