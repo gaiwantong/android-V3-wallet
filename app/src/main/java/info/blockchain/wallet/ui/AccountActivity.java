@@ -1258,7 +1258,7 @@ public class AccountActivity extends AppCompatActivity {
         List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
         for(LegacyAddress legacyAddress : legacyAddresses){
 
-            if(!legacyAddress.isWatchOnly()){
+            if(!legacyAddress.isWatchOnly() && legacyAddress.getTag() != PayloadFactory.ARCHIVED_ADDRESS){
 
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 
