@@ -237,7 +237,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         settingsApi.setEmail(finalEmail, new Settings.ResultListener() {
                             @Override
                             public void onSuccess() {
-                                handler.post(() -> refreshList());
+                                handler.post(() -> {
+                                    updateEmailNotification(false);
+                                    refreshList();});
                             }
 
                             @Override
