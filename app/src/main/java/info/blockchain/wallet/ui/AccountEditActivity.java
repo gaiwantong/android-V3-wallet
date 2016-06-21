@@ -23,6 +23,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -76,7 +77,7 @@ import piuk.blockchain.android.R;
 public class AccountEditActivity extends AppCompatActivity {
 
     private final int SCAN_PRIVX = 302;
-    private final int ADDRESS_LABEL_MAX_LENGTH = 32;
+    private final int ADDRESS_LABEL_MAX_LENGTH = 17;
 
     private TextView tvLabelTitle = null;
     private TextView tvLabel = null;
@@ -475,6 +476,7 @@ public class AccountEditActivity extends AppCompatActivity {
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
         etLabel.setPadding(46, 16, 46, 16);
+        etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
         new AlertDialog.Builder(this)
                 .setTitle(R.string.name)
                 .setMessage(R.string.assign_display_name)

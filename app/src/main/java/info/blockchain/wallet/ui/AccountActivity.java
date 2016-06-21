@@ -104,7 +104,7 @@ public class AccountActivity extends AppCompatActivity {
     private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
     private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
 
-    private static int ADDRESS_LABEL_MAX_LENGTH = 32;
+    private static int ADDRESS_LABEL_MAX_LENGTH = 17;
 
     private static String[] HEADERS;
     public static String IMPORTED_HEADER;
@@ -424,6 +424,7 @@ public class AccountActivity extends AppCompatActivity {
     private void promptForAccountLabel(final String validatedSecondPassword){
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
         new AlertDialog.Builder(this)
                 .setTitle(R.string.label)
                 .setMessage(R.string.assign_display_name)
