@@ -1,7 +1,6 @@
 package info.blockchain.wallet.app_rate;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +9,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.text.format.DateUtils;
 
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -107,7 +107,7 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
         String remindLater = hostActivity.getString(R.string.rate_later);
         String dismiss = hostActivity.getString(R.string.rate_no);
 
-        new AlertDialog.Builder(hostActivity)
+        new AlertDialog.Builder(hostActivity, R.style.StackedAlertDialogStyle)
                 .setIcon(R.drawable.ic_launcher)
                 .setTitle(title)
                 .setMessage(message)
