@@ -537,5 +537,6 @@
     <string name="rate_yes">Yes, rate Blockchain Wallet</string>
     <string name="rate_no">No, thanks</string>
     <string name="rate_later">Remind me later</string>
+    <string name="hint_reveals_password_error">You may not set your main wallet password as your password hint.</string>
 
 </resources>
