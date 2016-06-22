@@ -28,4 +28,12 @@
 		<item name="color">@android:color/white</item>
 	</style>
 
+	<style name="StackedAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+		<item name="buttonBarButtonStyle">@style/StackedButtonBarButtonStyle</item>
+	</style>
+
+	<style name="StackedButtonBarButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+		<item name="android:layout_gravity">left</item>
+	</style>
+
 </resources>
