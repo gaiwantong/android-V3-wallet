@@ -27,7 +27,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -331,14 +330,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         //Elevation compat
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            //reapply layout attributes after setBackgroundResource
-            int bottom = binding.balance1.getPaddingBottom();
-            int top = binding.balance1.getPaddingTop();
-            int right = binding.balance1.getPaddingRight();
-            int left = binding.balance1.getPaddingLeft();
             binding.balance1.setBackgroundResource(R.drawable.container_blue_shadow);
-            binding.balance1.setPadding(left, top, right, bottom);
-            binding.balance1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         }
 
         binding.balance1.setOnTouchListener(new OnTouchListener() {
