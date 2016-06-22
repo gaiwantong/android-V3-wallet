@@ -57,6 +57,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -93,7 +94,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     //
     // main balance display
     //
-    private double btc_fx = 319.13;
+    private double btc_fx = 319.13;//TODO remove hard coded when refactoring
     private Spannable span1 = null;
     private boolean isBTC = true;
     //
@@ -792,6 +793,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     @Override
     public void onRefreshBalanceAndTransactions() {
+
+        String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
 
         //Notify adapters of change
         accountsAdapter.notifyDataSetChanged();
