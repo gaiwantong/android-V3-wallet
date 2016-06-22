@@ -1,29 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
 
-    <string name="backup_wallet">Резервный кошелек</string>
-    <string name="upgrade_wallet">Обновить кошелек</string>
-    <string-array name="navigation_drawer_items_lame">
-        <item>@string/upgrade_wallet</item>
-        <item>Настройки</item>
-        <item>Мои адреса</item>
-        <item>Поддержка</item>
-        <item>Отменить сопряжение кошелька</item>
-    </string-array>
-    <string-array name="navigation_drawer_items_hd">
-        <item>@string/backup_wallet</item>
-        <item>Настройки</item>
-        <item>Мои адреса</item>
-        <item>Поддержка</item>
-        <item>Отменить сопряжение кошелька</item>
-    </string-array>
+    <string name="backup_wallet">Сделать резервную копию средств</string>
+    <string name="upgrade_wallet">Улучшить версию</string>
 
-    <string name="change_pin">Изменить PIN</string>
+    <string name="change_pin">Изменить PIN-код</string>
 
     <string name="app_name">Blockchain</string>
     <string name="action_settings">Настройки</string>
 
-    <string name="all_accounts">Все учетные записи</string>
+    <string name="all_accounts">Все</string>
 
     <string name="please_wait">Подождите</string>
 
@@ -39,7 +25,7 @@
 
     <string name="YESTERDAY">Вчера</string>
     <string name="TODAY">Сегодня</string>
-    <string name="AGO">назад</string>
+    <string name="AGO">ранее</string>
 
     <string name="SENT">Отправлено</string>
     <string name="RECEIVED">Получено</string>
@@ -56,7 +42,7 @@
 
     <string name="select_currency">Выбор валюты</string>
     <string name="options_currency">Местная валюта</string>
-    <string name="options_currency2">Ваша предпочтительная официальная валюта</string>
+    <string name="options_currency2">Предпочитаемая вами официальная валюта</string>
 
     <string name="options_mnemonic">Показать мнемоник</string>
     <string name="options_mnemonic2">Показать мнемоник для этого кошелька</string>
@@ -65,7 +51,7 @@
     <string name="options_tos">Условия предоставления услуг</string>
     <string name="options_tos2">Условия предоставления услуг для Blockchain Android Bitcoin</string>
     <string name="options_privacy">Политика конфиденциальности</string>
-    <string name="options_privacy2">Blockchain: политика конфиденциальности</string>
+    <string name="options_privacy2">Блочная цепь: политика конфиденциальности</string>
 
     <string name="invalid_email">Недействительный адрес электронной почты</string>
     <string name="invalid_mobile">Недействительный номер мобильного телефона</string>
@@ -74,7 +60,7 @@
     <string name="password_mismatch_error">Пароли не совпадают</string>
 
     <string name="no_private_key">Невозможно создать личный ключ.</string>
-    <string name="pin_4_strikes">4 неудачные попытки ввода PIN-кода. Предоставьте пароль.</string>
+    <string name="pin_4_strikes">4 неудачных попытки ввода PIN-кода. Предоставьте пароль.</string>
     <string name="pin_4_strikes_password_accepted">Пароль принят. Введите новый PIN-код.</string>
 
     <string name="bip38_password_entry">Введите пароль личного ключа</string>
@@ -92,30 +78,30 @@
     <string name="pairing_failed">Сопряжение не удалось. Попробуйте еще раз.</string>
     <string name="pairing_failed_decrypt_error">Сопряжение не удалось. Ошибка дешифровки.</string>
 
-    <string name="check_connectivity_exit">Кошелек Blockchain не может получить доступ к Интернету. Проверьте возможность подключения на вашем устройстве и повторите попытку.</string>
+    <string name="check_connectivity_exit">Кошелек Blockchain не может получить доступ к интернету. Проверьте возможность подключения на вашем устройстве и повторите попытку.</string>
     <string name="dialog_continue">Продолжить</string>
     <string name="cannot_edit_imported_label">Невозможно отредактировать ярлыки импортированных адресов</string>
 
     <string name="double_encryption_password_error">Ошибка двойного шифрования пароля. Попробуйте еще раз.</string>
 
     <string name="command2">Отсканируйте код сопряжения</string>
-    <string name="command3">Я не могу получить доступ к моей камере</string>
+    <string name="command3">Я не могу получить доступ к своей камере</string>
     <string name="CREATE">СОЗДАТЬ НОВЫЙ КОШЕЛЕК</string>
     <string name="LOGIN">Войти в мой кошелек</string>
     <string name="pair_your_wallet">Выполните сопряжение своего кошелька</string>
     <string name="scan_pairing_code">Отсканируйте код сопряжения</string>
     <string name="manual_pairing">Ручное сопряжение</string>
-    <string name="pair_wallet_step_1">Войдите в свой кошелек Blockchain через ПК или Mac по адресу blockchain.info/wallet.</string>
-    <string name="pair_wallet_step_2">Нажмите кнопку Параметры учетной записи, а затем выберите вкладку Устройства.</string>
-    <string name="pair_wallet_step_3">Нажмите кнопку Показать код сопряжения, чтобы открыть QR-код - квадратный черно-белый штрих-код. Отсканируйте код своей камерой.</string>
+    <string name="pair_wallet_step_1">Войдите в свой кошелек Blockchain на ПК или Mac, пройдя по ссылке https:// blockchain.info/wallet.</string>
+    <string name="pair_wallet_step_2">Если вы используете старый кошелек, нажмите кнопку «Параметры учетной записи» и выберите вкладку «Устройства». Если вы используете наш новую бета-версию бумажника, перейдите в «Настройки / Информация» о бумажнике.</string>
+    <string name="pair_wallet_step_3">Нажмите кнопку «Показать код сопряжения», чтобы открыть QR-код. Отсканируйте код своей камерой.</string>
     <string name="disable_two_factor">Прежде чем пытаться вручную выполнить сопряжение своего кошелька, необходимо отключить двухфакторную аутентификацию</string>
     <string name="wallet_id">ID кошелька</string>
     <string name="default_wallet_name">Мой кошелек Bitcoin</string>
 
     <string name="password">Пароль</string>
-    <string name="email">Электронный адрес</string>
+    <string name="email">Адрес эл.почты</string>
     <string name="agree_terms_of_service">Создавая новый кошелек, вы соглашаетесь с</string>
-    <string name="blockchain_tos">Условия предоставления услуг Blockchain </string>
+    <string name="blockchain_tos">Условиями предоставления услуг Blockchain </string>
     <string name="create_wallet">Создать кошелек</string>
     <string name="new_wallet">Новый кошелек</string>
     <string name="strength_weak">Ненадежный</string>
@@ -128,11 +114,11 @@
     <string name="CONFIRM_PAYMENT">ПОДТВЕРДИТЬ ОПЛАТУ</string>
     <string name="GO_BACK">ВЕРНУТЬСЯ</string>
 
-    <string name="total">Всего для отправки</string>
+    <string name="total">Всего</string>
 
     <string name="no_funds_available">Нет средств, доступных для этой учетной записи</string>
     <string name="no_funds_available2">Нет средств, доступных для этого адреса</string>
-    <string name="max_available">Максимум доступно:</string>
+    <string name="max_available">Всего в наличии за вычетом тарифа:</string>
 
     <string name="invalid_bitcoin_address">Недействительный адрес Bitcoin</string>
     <string name="invalid_amount">Недействительная сумма</string>
@@ -152,18 +138,18 @@
     <string name="use_password">Использовать пароль</string>
     <string name="wipe_wallet">Удалить кошелек</string>
 
-    <string name="select_units">Выберите отображаемые единицы BTC</string>
+    <string name="select_units">Выберите единицы BTC</string>
     <string name="weak_password">Выбранный пароль слишком ненадежный, чтобы обезопасить ваши средства. Мы настоятельно рекомендуем вам выбрать другой. Хотите задать новый пароль?</string>
 
     <string name="from">От</string>
     <string name="to">Кому</string>
 
-    <string name="confirm_details">Подтвердить детали</string>
+    <string name="confirm_details">Подтвердить оплату</string>
     <string name="fee">Комиссия</string>
     <string name="dialog_send">ОТПРАВИТЬ</string>
     <string name="dialog_cancel">ОТМЕНА</string>
     <string name="dialog_priority_fee">ОТПРАВИТЬ С КОМИССИЕЙ ЗА ПРИОРИТЕТ</string>
-    <string name="exit_confirm">Для выхода еще раз нажмите кнопку Назад</string>
+    <string name="exit_confirm">Для выхода еще раз нажмите кнопку «Назад»</string>
 
     <string name="label_address">Ваш адрес успешно импортирован. При необходимости присвойте понятное отображаемое имя этому адресу.</string>
     <string name="label_address2">Ваш адрес успешно создан. При необходимости присвойте понятное отображаемое имя этому адресу.</string>
@@ -171,13 +157,13 @@
     <string name="bip38_error">Недействительный пароль личного ключа</string>
     <string name="privkey_error">Нераспознанный формат личного ключа</string>
     <string name="hd_error">Ошибка кошелька HD</string>
-    <string name="scan_not_recognized">Невозможно декодировать скан</string>
+    <string name="scan_not_recognized">Невозможно расшифровать скан</string>
 
     <string name="imported_addresses">Импортированные адреса</string>
     <string name="account_colon">Учетная запись:</string>
     <string name="created_account_colon">Созданная учетная запись:</string>
 
-    <string name="tx_length_error">Кошелек Blockchain не может обрабатывать транзакции размером более 100 КБ. Попробуйте разделить ваши транзакции.</string>
+    <string name="tx_length_error">Кошелек Blockchain не может обрабатывать транзакции размером более 100 КБ. Попробуйте разделить свои транзакции.</string>
     <string name="invalid_tx">Попытка недействительной транзакции</string>
 
     <string name="remote_save_ok">Удаленное сохранение выполнено</string>
@@ -192,8 +178,8 @@
     <string name="unpair">ОТМЕНИТЬ СОПРЯЖЕНИЕ</string>
 
     <string name="ok_cap">OK</string>
-    <string name="change_pin_code">Изменить PIN</string>
-    <string name="enter_current_pin">Пожалуйста, введите PIN-код.</string>
+    <string name="change_pin_code">Изменить PIN-код</string>
+    <string name="enter_current_pin">Пожалуйста, введите текущий PIN-код.</string>
 
     <string name="suggest_merchant">Предложить торговца</string>
     <string name="business_name">Название компании</string>
@@ -231,11 +217,11 @@
         <item>Предложить торговца</item>
     </string-array>
 
-    <string name="my_accounts">Мои учетные записи</string>
-    <string name="my_addresses">Мои адреса</string>
-    <string name="accounts">Учетные записи</string>
+    <string name="my_accounts">Адреса</string>
+    <string name="my_addresses">Адреса</string>
+    <string name="accounts">Адреса</string>
     <string name="addresses">Адреса</string>
-    <string name="create_new_account">Создать новую учетную запись</string>
+    <string name="create_new">Создать новый</string>
     <string name="import_address">Импортировать адреса</string>
     <string name="save_name">Сохранить имя</string>
 
@@ -265,19 +251,19 @@
     <string name="next">Далее</string>
     <string name="address_lookup_fail">Невозможно восстановить адрес. Введите адрес вручную.</string>
 
-    <string name="backup_1_heading">Вы еще не сделали резервную копию вашего кошелька</string>
-    <string name="backup_1_subheading">Сделать резервное копирование вашего кошелька легко, оно гарантирует, что вы не потеряете доступ к вашим средствам, даже если наш сервис недоступен.</string>
+    <string name="backup_1_heading">Вы еще не сделали резервную копию своих средств</string>
+    <string name="backup_1_subheading">Ах нет! Вы еще не сделали резервную копию своих средств Убедитесь, что у вам доступны ваши биткоины (за исключением импортируемых адресов), даже если вы забудете свой пароль или сервис будет недоступен. Мы обещаем, что это будет быстро, просто и полезно.</string>
     <string name="BACKUP_WALLET">РЕЗЕРВНЫЙ КОШЕЛЕК</string>
-    <string name="backup_how_to">Как восстановить кошелек</string>
-    <string name="backup_step_1">Перейдите на blockchain.info/restorewallet</string>
-    <string name="backup_step_2">Введите свою резервную фразу из 12 слов</string>
+    <string name="backup_how_to">Инструкции ниже:</string>
+    <string name="backup_step_1">Перейдите на https://blockchain.info/wallet/recover</string>
+    <string name="backup_step_2">Введите контрольную фразу для восстановления из 12 слов</string>
     <string name="START">НАЧАТЬ</string>
-    <string name="backup_write_down_words">Запишите слова в точном порядке, в котором они отображаются на листе бумаги.</string>
+    <string name="backup_write_down_words">Важно записывать слова точно в таком же виде, так как они появляются здесь, в этом порядке.</string>
     <string name="NEXT_WORD">СЛЕДУЮЩЕЕ СЛОВО</string>
     <string name="press_to_reveal">Нажмите и удерживайте, чтобы показать слово</string>
     <string name="VERIFY">ВЕРИФИЦИРОВАТЬ</string>
-    <string name="backup_verify_heading">Убедитесь, что вы записали резервную фразу</string>
-    <string name="VERIFY_BACKUP">ВЕРИФИЦИРОВАТЬ РЕЗЕРВНУЮ КОПИЮ</string>
+    <string name="backup_verify_heading">Введите следующие слова из вашей фразы для восстановления, чтобы завершить процесс создания резервной копии.</string>
+    <string name="VERIFY_BACKUP">ПРОВЕРИТЬ РЕЗЕРВНУЮ КОПИЮ</string>
     <string name="Word">Слово</string>
     <string name="of">из</string>
     <string name="backup_confirmed">Резервное копирование подтверждено</string>
@@ -285,7 +271,7 @@
     <string name="backup_days_ago">Вы скопировали кошелек  %1$s %2$s назад</string>
     <string name="day">день</string>
     <string name="days">дней</string>
-    <string name="backup_only_need_to_once_reminder">Вам нужно скопировать кошелек один раз, но это хорошая идея, периодически проверять действительность копии</string>
+    <string name="backup_only_need_to_once_reminder">Прекрасно! Если вы потеряли свой пароль, вы можете восстановить средства в этом кошельке, даже полученные в будущем (за исключением импортируемых адресов) с помощью фразы для восстановления из 12 слов. Запишите фразу для восстановления и сохраните ее в безопасном и надежном месте оффлайн. Любой, кто имеет доступ к вашей фразе для восстановления, имеет доступ к вашим средствам в биткоинах.</string>
 
     <string name="received_bitcoin">Полученные Bitcoin</string>
     <string name="refresh_balance">Обновить баланс</string>
@@ -317,7 +303,7 @@
     <string name="confirm_password">Подтвердить пароль</string>
     <string name="check_email_to_auth_login">Проверьте свою электронную почту, чтобы одобрить эту попытку входа.</string>
     <string name="confirmations">Подтверждения</string>
-    <string name="transaction_fee">Комиссия майнеров Bitcoin</string>
+    <string name="transaction_fee">Комиссия транзакции</string>
     <string name="transaction_hash">Искажение транзакции</string>
     <string name="your_transactions">Ваши транзакции</string>
     <string name="transaction_occur_when">Транзакции осуществляются, когда вы получаете и отправляете bitcoin.</string>
@@ -332,26 +318,18 @@
     <string name="logging_out_automatically">Сеанс заканчивается автоматически</string>
     <string name="transaction_submitted">Транзакция выполнена</string>
     <string name="transaction_failed">Сбой транзакции</string>
-    <string name="UPGRADE_YOUR_WALLET">ОБНОВИТЕ СВОЙ КОШЕЛЕК</string>
-    <string name="ASK_ME_LATER">СПРОСИТЕ МЕНЯ ПОЗЖЕ</string>
-    <string name="upgrade_page_1">Создайте персонализированные учетные записи, чтобы помочь сохранить организацию вашего кошелька.</string>
+    <string name="UPGRADE_YOUR_WALLET">Улучшить версию</string>
+    <string name="ASK_ME_LATER">Спросите меня позже</string>
+    <string name="upgrade_page_1">Настройте структуру хранения биткоинов в кошельке Blockchain</string>
     <string name="upgrade_page_2">Простое, одноразовое создание резервной копии кошелька обеспечивает контроль над вашими средствами.</string>
     <string name="upgrade_page_3">Все, что вам нужно для получения, отправки и хранения bitcoin.</string>
-    <string name="CONFIRM">ПОДТВЕРДИТЬ</string>
-    <string name="confirm_upgrade">Подтвердить обновление</string>
-    <!--<string name="confirm_upgrade_info">Ваш кошелек будет обновлен до нашего последнего формата кошелька. Это позволит вам воспользоваться преимуществами важных улучшений конфиденциальности и безопасности. Обратите внимание, что сразу после вашего подтверждения процесс обновления начнется и вы не сможете его отменить.</string>-->
-    <string name="confirm_upgrade_info">Обновление занимает всего секунду и ваш Bitcoin и история будет в безопасности . Вот то, что лучше :\n\n
-        ✓Ваш кошелек будет обновлен до нашего последнего формата кошелька.\n
-        ✓Это позволит вам воспользоваться преимуществами важных улучшений конфиденциальности и безопасности.\n
-        ✓Упрощенная резервное копирование и восстановление.\n
-        ✓Обратите внимание, что сразу после вашего подтверждения процесс обновления начнется и вы не сможете его отменить.\n\n
-        Shared Coin не поддерживается в настоящее время.
-    </string>
+    <string name="CONFIRM">ОБНОВИТЬ СЕЙЧАС</string>
+    <string name="confirm_upgrade">Подтвердить обновление</string><!--<string name="confirm_upgrade_info">The upgrade takes just a second and your Bitcoin and history will be safe. Here is what’s better:\n\n✓ Completely updated design and user experience\n✓ Robust security center\n✓ Enhanced Privacy\n✓ Simplified backup and recovery\n✓ Customized fund management\n\nOne advanced transaction type (Shared Coin) is not supported in the new version at this time.</string>--><string name="confirm_upgrade_info">Обновление занимает всего секунду, ваши биткоины и история сохранятся. Сделаны следующие улучшения:\n\n ✓Полностью обновлен дизайн и интерфейс\n ✓Усилена конфиденциальность\n ✓Упрощено резервное копирование и восстановление\n ✓Настраиваемое управление средствами\n\n Функция Shared Coin в данный момент не поддерживается.</string>
     <string name="upgrading">Идет обновление...</string>
     <string name="upgrading_started_info">Ваш кошелек обновляется, будьте терпеливы, это может занять некоторое время в зависимости от размера и продолжительности действия вашего кошелька.</string>
     <string name="upgrade_success_heading">Ваш кошелек был обновлен!</string>
     <string name="upgrade_interrupted">Обновление кошелька было прервано. Выполните сопряжение вашего кошелька еще раз и повторите попытку.</string>
-    <string name="upgrade_success_info">Теперь у вас есть наиболее безопасный и конфиденциальный кошелек Blockchain, вы можете продолжить работу с кошельком.</string>
+    <string name="upgrade_success_info">Теперь у вас есть наиболее безопасный и конфиденциальный кошелек Blockchain. Теперь ы можете перейти к кошельку.</string>
     <string name="CLOSE">ЗАКРЫТЬ</string>
     <string name="total_funds">Все</string>
     <string name="unexpected_error">Непредвиденная ошибка, повторите попытку позже.</string>
@@ -361,8 +339,8 @@
 
     <string name="archived_address">Этот адрес архивируется. Вы можете управлять ими через веб-кошелек Blockchain.</string>
     <string name="watchonly_address">Этот адрес предназначен только для просмотра. Вы можете управлять ими через веб-кошелек Blockchain.</string>
-    <string name="watchonly_address_spend_warning">Этот адрес часы только. Вы можете потратить от него с помощью веб-кошелька Blockchain.</string>
-    <string name="watchonly_address_receive_warning">Вы собираетесь получить в часы только адрес. Вы можете только потратить эти средства, если у вас есть доступ к закрытому ключу. Продолжать?</string>
+    <string name="watchonly_address_spend_warning">Этот адрес предназначен только для просмотра. Вы можете расходовать средства из веб-кошелька Blockchain.</string>
+    <string name="watchonly_address_receive_warning">Вы  получите биткоины на адрес только для просмотра. Вы сможете воспользоваться этими средствами только, если у вас есть доступ к закрытому ключу. Продолжить?</string>
 
     <string name="PENDING">НА РАССМОТРЕНИИ</string>
     <string name="COMPLETE">ЗАВЕРШИТЬ</string>
@@ -385,9 +363,8 @@
     <string name="ask_me_later">Спросите меня позже</string>
     <string name="verify_email">Верифицировать электронную почту</string>
     <string name="email_verified">Электронная почта верифицирована</string>
-    <string name="verify_email2">Ваш верифицированный адрес электронной почты используется для отправки кодов входа в систему при подозрительной или необычной активности, для напоминания  ID для доступа к кошельку и отправки сообщений о платеже bitcoin, когда средства отправлены или получены. Мы не будем использовать ваш электронный адрес в маркетинговых целях.</string>
-    <string name="disable_root_warning">Отключить предупреждения</string>
-    <string name="disable_root_warning2">Отключить предупреждение диалог в случае, если ваш телефон коренится</string>
+    <string name="verify_email2">Ваш подтвержденный электронный адрес  используется для отправки кодов входа в систему, при подозрительной или необычной активности, для напоминания  ID для доступа к кошельку и отправления сообщений о поступлении средств на счет. Мы не будем использовать ваш электронный адрес в маркетинговых целях.</string>
+    <string name="disable_root_warning">Отключить предупреждение рутированного устройства</string>
 
     <string name="show_balance">Показать баланс</string>
     <string name="my_address">Мой адрес</string>
@@ -409,10 +386,10 @@
 
     <string name="cannot_launch_app">На этом устройстве невозможно запустить кошелек Blockchain.</string>
     <string name="support_guide">Подробно опишите проблему, с которой вы столкнулись, а также шаги, которые мы можем предпринять, чтобы отследить ошибку.</string>
-    <string name="label">переименовать</string>
-    <string name="rename_address">Rename Address</string>
-    <string name="edit">редактировать</string>
-    <string name="label_cant_be_empty">Этикетка не может быть пустым.</string>
+    <string name="label">Ярлык</string>
+    <string name="rename_address">Внесите изменения в адрес</string>
+    <string name="edit">Правка</string>
+    <string name="label_cant_be_empty">Метка не может быть пустой.</string>
     <string name="saving_changes">Сохранение изменений...</string>
     <string name="warning">Предупреждение</string>
 
@@ -438,14 +415,14 @@
     <string name="send_to_same_address_warning">Нельзя отправить на тот же адрес.</string>
     <string name="make_default">Сделать настройкой по умолчанию</string>
     <string name="privx_required">Нужен личный ключ</string>
-    <string name="watch_only_spend_instructionss">Это действие требует использование личного ключа для адреса биткоинов %1$s. Пожалуйста, сканируете QR-код.</string>
+    <string name="watch_only_spend_instructionss">Это действие требует использование личного ключа для адреса биткоинов %1$s. Пожалуйста, сканируйте QR-код.</string>
     <string name="invalid_private_key">Недействительный личный ключ</string>
-    <string name="watch_only_import_warning">Вы собираетесь импортировать адрес только для просмотра, адрес (или скрипт открытого ключа), хранящийся в кошельке без соответствующего личного ключа. Вы не можете непосредственно тратить биткоины с адреса только для просмотра, но можете узнать баланс или экспортировать транзакцию для внешней подписи. Это означает, что средства могут быть потрачены, ТОЛЬКО, если у вас есть закрытый ключ, который хранится в другом месте. Если у вас отсутствует закрытый ключ, хранящийся в другом месте, вам НЕ следует давать кому-то указания переводить вам биткионы на адрес только для просмотра.\n\nЭти опции рекомендуется только для опытных пользователей. Продолжить?</string>
+    <string name="watch_only_import_warning">Вы собираетесь импортировать адрес только для просмотра, адрес (или скрипт открытого ключа), хранящийся в кошельке без соответствующего личного ключа. Это означает, что средства могут быть потрачены, ТОЛЬКО, если у вас есть закрытый ключ, который хранится в другом месте. Если у вас отсутствует закрытый ключ, хранящийся в другом месте, вам НЕ следует давать кому-то указания переводить вам биткионы на адрес только для просмотра.\n\nЭти опции рекомендуется только для опытных пользователей. Продолжить?</string>
     <string name="scan_private_key">Сканировать личный ключ</string>
     <string name="private_key_successfully_imported">Вы успешно импортировали личный ключ.</string>
     <string name="private_key_not_matching_address">ПРИМЕЧАНИЕ: Сканированный личный ключ не соответствует этому адресу, предназначенному только для просмотра. Чтобы воспользоваться средствами из этого кошелька, отсканируйте верный личный ключ.</string>
-    <string name="watch_only">только для просмотра</string>
-    <string name="extended_public_key_description">Покажите xPub, если вы выступаете в роли продавца, и используйте приложение Blockchain Merchant для обеспечения безопасности и конфиденциальности при получении средств..\n\Сохраняйте конфиденциальность  xPub. Получив доступ к xPub, кто-то получит доступ к информации о ваших средствах и операциях.</string>
+    <string name="watch_only">Только для просмотра</string>
+    <string name="extended_public_key_description">Покажите xPub, если вы выступаете в роли продавца, и используйте приложение Blockchain Merchant для обеспечения безопасности и конфиденциальности при получении средств.\n\n\Сохраняйте конфиденциальность  xPub. Получивший доступ к xPub получит доступ к информации о ваших средствах и операциях.</string>
     <string name="watch_only_description">Этот адрес предназначен только для просмотра. Чтобы воспользоваться средствами из этого кошелька, отсканируйте свой личный ключ.</string>
     <string name="success">Успешно</string>
     <string name="default_label">По умолчанию</string>
@@ -456,6 +433,7 @@
     <string name="transfer_funds_safe">Переведенные средства будут в безопасности; к вашим услугам будет увеличение конфиденциальности, удобство резервного копирования и восстановления.</string>
     <string name="spendable_addresses">адреса для расходов</string>
     <string name="total_fees">Общая комиссия</string>
+
     <string name="dont_ask_again">Не спрашивать снова.</string>
     <string name="insufficient_fee">Комиссия слишком низкая.</string>
     <string name="customize">настроить</string>
@@ -465,36 +443,76 @@
     <string name="default_label_brackets">(по умолчанию)</string>
     <string name="not_now">Не сейчас</string>
     <string name="high_fee_not_necessary">Высокая плата не требуется.</string>
-    <string name="high_fee_not_necessary_info">Вы указали необычно высокую сумму комиссии в %1$s.\n\nДаже если вы снизите ее до %2$s, вы можете ожидать подтверждения транзакции в течение примерно 10 минут (1 блок).</string>
+    <string name="high_fee_not_necessary_info">Вы указали необычно высокую сумму комиссии в %1$s.\n\nДаже если вы снизите ее до%2$s,, вы можете ожидать подтверждения транзакции в течение примерно 10 минут (1 блок).</string>
+
     <string name="low_fee_not_recommended">Низкий таможенный сбор не рекомендуется</string>
-    <string name="low_fee_suggestion">Вы указали очень низкую сумму комиссии в %1$s.\n\nВаша транзакция может никогда не получить подтверждения. Для увеличения вероятности подтверждения транзакции в течение приблизительно одного часа (6 блоков) мы настоятельно рекомендуем указать сумму не менее  %2$s.</string>
+    <string name="low_fee_suggestion">Вы указали очень низкую сумму комиссии в %1$s.\n\nВаша транзакция может быть задержана и никогда не получить подтверждения. Для увеличения вероятности подтверждения транзакции в течение приблизительно одного часа (6 блоков) мы настоятельно рекомендуем указать сумму комиссии не менее %2$s.</string>
     <string name="raise_fee">Увеличить комиссию</string>
     <string name="lower_fee">Снизить комиссию</string>
     <string name="keep_high_fee">Сохранить высокую комиссию</string>
     <string name="keep_low_fee">Сохранить низкую комиссию</string>
+
     <string name="no_confirmed_funds">Нет подтвержденных средств.</string>
-    <string name="estimate_confirm_block_count">Примерное время подтверждения: ~%1$d минут (%2$d блоков)</string>
-    <string name="fee_too_low_no_confirm">Ваша комиссия  настолько мала, что ваша  транзакция может никогда не получить подтверждения.</string>
+    <string name="estimate_confirm_block_count">Примерное время подтверждения: ~ %1$d минут (%2$ d блока)</string>
+    <string name="fee_too_low_no_confirm">Ваша комиссия  настолько мала, что ваша транзакция может никогда не получить подтверждения.</string>
     <string name="transaction_surge">Активность сети Bitcoin в настоящее время очень высока, поэтому рекомендуемые  значения комиссии выше, чем обычно.</string>
-    <string name="unsupported_encryption_version">Бумажник версия %1$d не поддерживается.</string>
+    <string name="unsupported_encryption_version">Кошелек версии %1$d не поддерживается.</string>
     <string name="logout">Выйти</string>
     <string name="to_field_helper">Введите адрес Bitcoin или выберите</string>
 
     <string name="update">Обновить</string>
-    <string name="mobile">мобильный</string>
+    <string name="mobile">Мобильный телефон</string>
     <string name="profile">Профиль</string>
-    <string name="wallet">Бумажник</string>
+    <string name="wallet">Кошелек</string>
     <string name="app">Приложение</string>
-    <string name="verify">проверить</string>
-    <string name="resend">Отправить</string>
-    <string name="verified">проверенный</string>
-    <string name="unverified">непроверенный</string>
+    <string name="verify">Верифицировать</string>
+    <string name="resend">Отправить заново</string>
+    <string name="verified">Подтвержден</string>
+    <string name="unverified">Не подтвержден</string>
 
-    <string name="allow">Позволять</string>
-    <string name="block">блок</string>
+    <string name="allow">Разрешить</string>
+    <string name="block">Заблокировать</string>
     <string name="security">Безопасность</string>
-    <string name="stored">Хранится</string>
-    <string name="enable">включить</string>
-    <string name="disable">запрещать</string>
+    <string name="stored">Сохранено</string>
+    <string name="enable">Активировать</string>
+    <string name="disable">Деактивировать</string>
+
+    <string name="request_camera_permission">Необходим доступ к камере.</string>
+    <string name="request_location_permission">Необходим доступ к местоположению.</string>
+    <string name="not_specified">не указан</string>
+    <string name="update_failed">Не удалось обновить.</string>
+    <string name="verify_mobile">Проверка мобильного</string>
+    <string name="select_country">Выберите страну</string>
+    <string name="verify_sms_summary">Мы отправили на ваш мобильный телефон SMS с кодом верификации. Введите код ниже, чтобы верифицировать ваш номер мобильного телефона</string>
+    <string name="mobile_description">Номер мобильного телефона может использоваться для активации функции двухсторонней аутентификации, помогающей защитить ваш кошелек от несанкционированного доступа.</string>
+
+    <string name="two_fa">2-шаговая верификация</string>
+    <string name="tor_requests">Заблокировать запросы сети Tor</string>
+    <string name="tor_summary">Хотите запретить IP-адресам, известным как часть анонимной сети Tor, получать доступ к вашему кошельку? Сеть Tor часто используется хакерами, пытающимися получить доступ к кошелкам пользователей Blockchain.</string>
+    <string name="password_hint">Подсказка для пароля</string>
+    <string name="password_hint_summary">Ваш кошелек Blockchain не передает ваш пароль на наши серверы. Это означает, что у нас нет информации о вашем пароле, и мы не сможем восстановить его, если вы его забыли. Создайте запоминающуюся подсказку для пароля, которую мы можем отправить на ваш электронный адрес в случае, если вы забыли свой пароль.</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="change_password_summary">Ваш пароль не хранится на наших серверах. Это означает, что мы не сможем восстановить пароль, если вы забыли его. Обязательно запишите свою фразу для восстановления, которая поможет восстановить доступ к вашему кошельку в случае потери пароля.</string>
+    <string name="wallet_recovery_phrase">Фраза для восстановления кошелька</string>
+    <string name="verify_email_notice">Мы отправили ваш адрес электронной почты ссылку для подтверждения. Нажмите на ссылку для подтверждения своего адреса электронной почты.</string>
+    <string name="email_notifications">Уведомления по электронной почте</string>
+    <string name="email_notifications_summary">Активируйте уведомления, чтобы получать электронные сообщения всякий раз, когда вы получаете bitcoins. Включение уведомлений разрешено только для маркированных и импортированных адресов.</string>
+    <string name="current_password">Действующий пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="sms_verified">Номер мобильного телефона проверена</string>
+    <string name="preferences">Предпочтения</string>
+    <string name="two_fa_summary">Защитите свой кошелек от несанкционированного доступа, активировав 2-шаговую верификацию. Для обеспечения безопасности кошелька можно использовать номер мобильного телефона. Этот код будет запрашиваться при попытке получить доступ к вашему кошельку через веб-браузер.</string>
+
+    <string name="PREVIOUS_WORD">ПРЕДЫДУЩЕЕ СЛОВО</string>
+    <string name="DONE">ГОТОВО</string>
+    <string name="backup_funds">Создать резервную копию средств </string>
+    <string name="backup_funds_again">Сделать резервную копию средств еще раз</string>
+    <string name="lost_mnemonic">Потеряли вашу фразу для восстановления из 12 слов?</string>
+    <string name="backup_write_down_12_words">Напишите следующие 12 слов на листе бумаги. Любой имеющий доступ к вашей фразе для восстановления может получить доступ к вашим биткоинам, поэтому фразу нужно хранить в надежном и недоступном другим месте.</string>
+    <string name="rate_title">Оценить  Blockchain Wallet</string>
+    <string name="rate_message">Вам нравится  Blockchain Wallet? Пожалуйста, найдите минутку, чтобы оставить отзыв в Google Play и пусть другие знают об этом.</string>
+    <string name="rate_yes">Да, оценить  Blockchain Wallet</string>
+    <string name="rate_no">Нет, спасибо</string>
+    <string name="rate_later">Напомните мне позже</string>
 
 </resources>
