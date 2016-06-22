@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
@@ -66,18 +65,21 @@ public class AppRate implements android.content.DialogInterface.OnClickListener,
         SharedPreferences.Editor editor = preferences.edit();
         long transactionCount = preferences.getLong(AppRate.PREF_TRANSACTION_COUNT, 0);
         long minDaysUntilPrompt = preferences.getLong(AppRate.PREF_DAYS_UNTIL_PROMPT, 0);
+        boolean dontShowAgain = preferences.getBoolean(AppRate.PREF_DONT_SHOW_AGAIN, false);
 
-        // Get date of 'remind me later'.
-        Long dateRemindStart = preferences.getLong(AppRate.PREF_DATE_REMIND_START, 0);
-        if (dateRemindStart == 0) {
-            dateRemindStart = System.currentTimeMillis();
-            editor.putLong(AppRate.PREF_DATE_REMIND_START, dateRemindStart);
-        }
+        if(!dontShowAgain) {
+            // Get date of 'remind me later'.
+            Long dateRemindStart = preferences.getLong(AppRate.PREF_DATE_REMIND_START, 0);
+            if (dateRemindStart == 0) {
+                dateRemindStart = System.currentTimeMillis();
+                editor.putLong(AppRate.PREF_DATE_REMIND_START, dateRemindStart);
+            }
 
-        // Show the rate dialog if needed.
-        if (transactionCount >= minTransactionsUntilPrompt) {
-            if (System.currentTimeMillis() >= dateRemindStart + (minDaysUntilPrompt * DateUtils.DAY_IN_MILLIS)) {
-                showDefaultDialog();
+            // Show the rate dialog if needed.
+            if (transactionCount >= minTransactionsUntilPrompt) {
+                if (System.currentTimeMillis() >= dateRemindStart + (minDaysUntilPrompt * DateUtils.DAY_IN_MILLIS)) {
+                    showDefaultDialog();
+                }
             }
         }
 
