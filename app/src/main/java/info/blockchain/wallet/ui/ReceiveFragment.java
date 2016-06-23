@@ -92,6 +92,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private ImageView ivReceivingQR = null;
     private TextView edReceivingAddress = null;
+    private ImageView addressInfo = null;
 
     private EditText edAmount1 = null;
     private EditText edAmount2 = null;
@@ -118,6 +119,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     private String strFiat = null;
     private boolean isBTC = true;
     private double btc_fx = 319.13;
+    private final String addressInfoLink = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -446,6 +448,28 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             public void onPanelHidden(View panel) {
             }
         });
+
+        addressInfo = (ImageView)rootView.findViewById(R.id.iv_address_info);
+        addressInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(getString(R.string.why_has_my_address_changed))
+                        .setMessage(getString(R.string.new_address_info))
+                        .setPositiveButton(R.string.learn_more, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent();
+                                intent.setData(Uri.parse(addressInfoLink));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton(R.string.ok, null)
+                        .show();
+            }
+        });
     }
 
     private void setCustomKeypad(){
@@ -665,6 +689,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             protected void onPreExecute() {
                 super.onPreExecute();
 
+                addressInfo.setVisibility(View.GONE);
                 ivReceivingQR.setVisibility(View.GONE);
                 edReceivingAddress.setVisibility(View.GONE);
                 rootView.findViewById(R.id.progressBar2).setVisibility(View.VISIBLE);
@@ -694,6 +719,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 ivReceivingQR.setVisibility(View.VISIBLE);
                 edReceivingAddress.setVisibility(View.VISIBLE);
                 ivReceivingQR.setImageBitmap(bitmap);
+                addressInfo.setVisibility(View.VISIBLE);
 
                 setupBottomSheet();
             }
