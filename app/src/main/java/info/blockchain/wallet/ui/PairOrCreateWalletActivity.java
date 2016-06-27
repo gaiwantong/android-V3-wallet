@@ -16,7 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -116,7 +116,10 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
             public void run() {
                 Looper.prepare();
 
-                if (PairingFactory.getInstance(PairOrCreateWalletActivity.this).handleQRCode(data)) {
+                String guid = new Pairing(PairOrCreateWalletActivity.this).handleQRCode(data);
+
+                if (guid != null) {
+                    PrefsUtil.getInstance(PairOrCreateWalletActivity.this).setValue(PrefsUtil.KEY_GUID, guid);
                     PrefsUtil.getInstance(PairOrCreateWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 //                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
                     Intent intent = new Intent(PairOrCreateWalletActivity.this, PinEntryActivity.class);

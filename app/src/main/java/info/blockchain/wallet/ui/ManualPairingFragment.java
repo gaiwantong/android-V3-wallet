@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -106,9 +106,9 @@ public class ManualPairingFragment extends Fragment {
                 Looper.prepare();
 
                 try {
-                    String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+                    String response = new Pairing(getActivity()).getWalletManualPairing(guid);
 
-                    if (response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+                    if (response.equals(Pairing.KEY_AUTH_REQUIRED)) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -246,6 +246,7 @@ public class ManualPairingFragment extends Fragment {
         }).start();
 
         int sleep = 5;//second
+        Pairing pairing = new Pairing(getActivity());
         while (waitinForAuth) {
 
             try {
@@ -257,8 +258,8 @@ public class ManualPairingFragment extends Fragment {
 
             String response = null;
             try {
-                response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
-                if (!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+                response = pairing.getWalletManualPairing(guid);
+                if (!response.equals(Pairing.KEY_AUTH_REQUIRED)) {
                     waitinForAuth = false;
                     return response;
                 }
@@ -267,6 +268,6 @@ public class ManualPairingFragment extends Fragment {
             }
         }
         waitinForAuth = false;
-        return PairingFactory.KEY_AUTH_REQUIRED;
+        return Pairing.KEY_AUTH_REQUIRED;
     }
 }

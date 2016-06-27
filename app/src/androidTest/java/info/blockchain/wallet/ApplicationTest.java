@@ -37,9 +37,6 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
 
     public void testAll() throws Exception {
 
-        PairingTest pairingTest = new PairingTest("PairingTest", getActivity());
-        pairingTest.test();
-
         SSLVerifierTest sslTest = new SSLVerifierTest("SSLVerifierTest", getActivity());
         sslTest.test();
 

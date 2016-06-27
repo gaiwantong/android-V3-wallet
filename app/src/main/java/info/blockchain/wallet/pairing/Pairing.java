@@ -17,47 +17,37 @@ import java.util.regex.Pattern;
 
 //import android.util.Log;
 
-public class PairingFactory {
+public class Pairing {
 
     public static String KEY_AUTH_REQUIRED = "Authorization Required";
     private static Context context = null;
-    private static PairingFactory instance = null;
 
-    private PairingFactory() {
-        ;
+    public Pairing(Context context){
+        this.context = context;
     }
 
-    public static PairingFactory getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new PairingFactory();
-        }
-
-        return instance;
-    }
-
-    public boolean handleQRCode(String raw) {
+    /*
+    TODO - better error handling
+     */
+    public String handleQRCode(String raw) {
 
         if (raw == null || raw.length() == 0 || raw.charAt(0) != '1') {
-            return false;
+            return null;
         }
 
         String[] components = raw.split("\\|", Pattern.LITERAL);
 
         if (components.length != 3) {
 //            Log.i("Pairing", "does not have 3 components");
-            return false;
+            return null;
         }
 
         String guid = components[1];
         if (guid.length() != 36) {
 //            Log.i("Pairing", "guid != 36 length");
-            return false;
+            return null;
         }
-//        Log.i("Pairing", "guid:" + guid);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
+//        Log.i("Pairing", "guid:" + gui//d);
 
         String encrypted = components[2];
 
@@ -66,24 +56,24 @@ public class PairingFactory {
             temp_password = getPairingEncryptionPassword(guid);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
 
         String decrypted = AESUtil.decrypt(encrypted, new CharSequenceX(temp_password), AESUtil.QrCodePbkdf2Iterations);
         if (decrypted == null) {
-            return false;
+            return null;
         }
         String[] sharedKeyAndPassword = decrypted.split("\\|", Pattern.LITERAL);
 
         if (sharedKeyAndPassword.length < 2) {
 //            Log.i("Pairing", "sharedKeyAndPassword >= 2");
-            return false;
+            return null;
         }
 
         String sharedKey = sharedKeyAndPassword[0];
         if (sharedKey.length() != 36) {
 //            Log.i("Pairing", "sharedKey != 36 length");
-            return false;
+            return null;
         }
 
         CharSequenceX password = null;
@@ -92,12 +82,12 @@ public class PairingFactory {
             PayloadFactory.getInstance().setTempPassword(password);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
-            return false;
+            return null;
         }
 
         AppUtil.getInstance(context).setSharedKey(sharedKey);
 
-        return true;
+        return guid;
     }
 
     public String getPairingEncryptionPassword(final String guid) throws Exception {
