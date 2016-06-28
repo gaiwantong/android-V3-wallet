@@ -70,7 +70,7 @@ public class MainViewModel implements ViewModel{
     }
 
     private void checkRooted(){
-        if (RootUtil.getInstance().isDeviceRooted() &&
+        if (new RootUtil().isDeviceRooted() &&
                 !PrefsUtil.getInstance(this.context).getValue("disable_root_warning", false)) {
             this.dataListener.onRooted();
         }

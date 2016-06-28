@@ -6,21 +6,6 @@ import java.io.InputStreamReader;
 
 public class RootUtil {
 
-    private static RootUtil instance = null;
-
-    private RootUtil() {
-        ;
-    }
-
-    public static RootUtil getInstance() {
-
-        if (instance == null) {
-            instance = new RootUtil();
-        }
-
-        return instance;
-    }
-
     public boolean isDeviceRooted() {
         return buildTags() || checkPaths() || checkSu();
     }

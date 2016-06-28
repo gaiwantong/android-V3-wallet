@@ -214,7 +214,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         disableRootWarningPref = (Preference) findPreference("disable_root_warning");
         if (disableRootWarningPref != null &&
-                !RootUtil.getInstance().isDeviceRooted()) {
+                !new RootUtil().isDeviceRooted()) {
             PreferenceCategory appCategory = (PreferenceCategory) findPreference("app");
             appCategory.removePreference(disableRootWarningPref);
         }
