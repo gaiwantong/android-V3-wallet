@@ -60,7 +60,7 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.SSLVerifierThreadUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 
@@ -301,7 +301,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void sendClicked(){
-        SSLVerifierThreadUtil.getInstance(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSLThread();
 
         Fragment fragment = new SendFragment();
         FragmentManager fragmentManager = getFragmentManager();

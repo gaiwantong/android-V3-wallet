@@ -17,7 +17,7 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
-import info.blockchain.wallet.util.SSLVerifierThreadUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.AddressFormatException;
@@ -87,7 +87,7 @@ public class MainViewModel implements ViewModel{
 
     private void preLaunchChecks(){
         exchangeRateThread();
-        SSLVerifierThreadUtil.getInstance(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSLThread();
 
         boolean isPinValidated = false;
         Bundle extras = ((Activity)context).getIntent().getExtras();

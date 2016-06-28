@@ -22,10 +22,9 @@ import piuk.blockchain.android.R;
 
 // openssl s_client -showcerts -connect blockchain.info:443
 
-public class SSLVerifierThreadUtil {
+public class SSLVerifyUtil {
 
-    private static SSLVerifierThreadUtil instance = null;
-    private static Context context = null;
+    private Context context = null;
 
     public static final int STATUS_POTENTIAL_SERVER_DOWN = 0;
     public static final int STATUS_PINNING_FAIL = 1;
@@ -33,19 +32,8 @@ public class SSLVerifierThreadUtil {
 
     private AlertDialog alertDialog = null;
 
-    private SSLVerifierThreadUtil() {
-        ;
-    }
-
-    public static SSLVerifierThreadUtil getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new SSLVerifierThreadUtil();
-        }
-
-        return instance;
+    public SSLVerifyUtil(Context context) {
+        this.context = context;
     }
 
     public void validateSSLThread() {

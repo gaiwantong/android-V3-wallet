@@ -2,7 +2,7 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import info.blockchain.wallet.util.SSLVerifierThreadUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 
 public class SSLVerifierTest extends BlockchainTest {
 
@@ -37,7 +37,7 @@ public class SSLVerifierTest extends BlockchainTest {
     }
 
     public void checkCertificatePinning() {
-        SSLVerifierThreadUtil ssl = SSLVerifierThreadUtil.getInstance(context);
+        SSLVerifyUtil ssl = new SSLVerifyUtil(context);
         AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificatePinned() == ssl.STATUS_PINNING_SUCCESS);
     }
 }
