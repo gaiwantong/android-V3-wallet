@@ -15,8 +15,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -106,9 +106,11 @@ public class ManualPairingFragment extends Fragment {
                 Looper.prepare();
 
                 try {
-                    String response = new Pairing(getActivity()).getWalletManualPairing(guid);
+                    Access access = new Access();
+                    String sessionId = access.getSessionId(guid);
+                    String response = access.getEncryptedPayload(guid, sessionId);
 
-                    if (response.equals(Pairing.KEY_AUTH_REQUIRED)) {
+                    if (response.equals(Access.KEY_AUTH_REQUIRED)) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -246,28 +248,38 @@ public class ManualPairingFragment extends Fragment {
         }).start();
 
         int sleep = 5;//second
-        Pairing pairing = new Pairing(getActivity());
-        while (waitinForAuth) {
+        Access access = new Access();
+        String sessionId = null;
+        try {
+            sessionId = access.getSessionId(guid);
 
-            try {
-                Thread.sleep(1000 * sleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            sleep = 1;//after initial sleep, poll every 1 second
+            while (waitinForAuth) {
 
-            String response = null;
-            try {
-                response = pairing.getWalletManualPairing(guid);
-                if (!response.equals(Pairing.KEY_AUTH_REQUIRED)) {
-                    waitinForAuth = false;
-                    return response;
+                try {
+                    Thread.sleep(1000 * sleep);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                sleep = 1;//after initial sleep, poll every 1 second
+
+                String response = null;
+                try {
+                    response = access.getEncryptedPayload(guid, sessionId);
+                    if (!response.equals(Access.KEY_AUTH_REQUIRED)) {
+                        waitinForAuth = false;
+                        return response;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            waitinForAuth = false;
+            return Access.KEY_AUTH_REQUIRED;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        waitinForAuth = false;
-        return Pairing.KEY_AUTH_REQUIRED;
+
+        return null;
     }
 }

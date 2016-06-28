@@ -89,10 +89,8 @@ public class PrefsUtil implements PersistantPrefs {
     }
 
     public boolean clear() {
-        String cookie = getValue(KEY_SESSION_ID, null);
         Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.clear();
-        if (cookie != null) setValue(KEY_SESSION_ID, cookie);
         return editor.commit();
     }
 

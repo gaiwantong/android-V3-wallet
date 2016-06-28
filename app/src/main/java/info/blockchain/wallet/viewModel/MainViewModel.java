@@ -122,7 +122,6 @@ public class MainViewModel implements ViewModel{
         // App has been PIN validated
         else if (isPinValidated || (AccessFactory.getInstance(context).isLoggedIn())) {
             AccessFactory.getInstance(context).setIsLoggedIn(true);
-            this.setSessionId();
 
             this.dataListener.onFetchTransactionsStart();
 
@@ -186,31 +185,6 @@ public class MainViewModel implements ViewModel{
                 ExchangeRateFactory.getInstance(context).updateFxPricesForEnabledCurrencies();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-
-            Looper.loop();
-
-        }).start();
-    }
-
-    private void setSessionId() {
-
-        new Thread(() -> {
-            Looper.prepare();
-
-            String sid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SESSION_ID, null);
-            if (sid.isEmpty()) sid = null;
-
-            if (sid == null) {
-                //Get new SID
-                String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
-                try {
-                    sid = WebUtil.getInstance().getCookie(WebUtil.PAYLOAD_URL + "/" + guid + "?format=json&resend_code=false", "SID");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (sid != null && !sid.isEmpty())
-                    PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SESSION_ID, sid);
             }
 
             Looper.loop();
