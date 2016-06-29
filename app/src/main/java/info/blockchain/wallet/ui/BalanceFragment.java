@@ -801,6 +801,12 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             binding.rvTransactions.setVisibility(View.GONE);
             noTxMessage.setVisibility(View.VISIBLE);
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            //Fix for padding bug related to Android 4.1
+            float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, getResources().getDisplayMetrics());
+            binding.balance1.setPadding((int) px, 0, 0, 0);
+        }
     }
 
     interface Communicator {

@@ -145,13 +145,6 @@ public class MainViewModel implements ViewModel{
                     dataListener.onStartBalanceFragment();
                 }
 
-                if (PayloadFactory.getInstance().get() != null &&
-                        PayloadFactory.getInstance().get().getHdWallet() != null &&
-                        !PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
-                    //Not backed up
-                    dataListener.onRequestBackup();
-                }
-
                 Looper.loop();
             }).start();
         } else {
