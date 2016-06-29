@@ -56,6 +56,7 @@ public class PinEntryActivity extends Activity {
     private ProgressDialog progress = null;
     private String strEmail = null;
     private String strPassword = null;
+    private PrefsUtil prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +76,11 @@ public class PinEntryActivity extends Activity {
             createWallet();
         }
 
+        prefs = new PrefsUtil(this);
+
         // Set title state
         titleView = (TextView) findViewById(R.id.titleBox);
-        if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
+        if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
 
             titleView.setText(R.string.create_pin);
         } else {
@@ -115,7 +118,7 @@ public class PinEntryActivity extends Activity {
             builder.create().show();
         }
 
-        int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
+        int fails = prefs.getValue(PrefsUtil.KEY_PIN_FAILS, 0);
         if (fails >= maxAttempts) {
             ToastCustom.makeText(getApplicationContext(), getString(R.string.pin_4_strikes), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
@@ -193,7 +196,7 @@ public class PinEntryActivity extends Activity {
     }
 
     private void saveLoginAndPassword() {
-        PrefsUtil.getInstance(this).setValue(PrefsUtil.KEY_EMAIL, strEmail);
+        prefs.setValue(PrefsUtil.KEY_EMAIL, strEmail);
         PayloadFactory.getInstance().setEmail(strEmail);
         PayloadFactory.getInstance().setTempPassword(new CharSequenceX(strPassword));
     }
@@ -303,20 +306,20 @@ public class PinEntryActivity extends Activity {
                                     dismissProgressView();
 
                                     try {
-                                        int previousVersionCode = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
+                                        int previousVersionCode = prefs.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
                                         PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 
                                         //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
                                         if (previousVersionCode != packageInfo.versionCode) {
-                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
-                                            PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
+                                            prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                            prefs.setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
                                         }
 
                                     } catch (PackageManager.NameNotFoundException e) {
                                         e.printStackTrace();
                                     }
 
-                                    if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
+                                    if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
                                         Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
@@ -357,14 +360,14 @@ public class PinEntryActivity extends Activity {
                 if (AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
                     dismissProgressView();
 
-                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                    prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
                     updatePayloadThread(PayloadFactory.getInstance().getTempPassword());
 
                 } else {
                     dismissProgressView();
 
                     ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    PrefsUtil.getInstance(PinEntryActivity.this).clear();
+                    prefs.clear();
                     AppUtil.getInstance(PinEntryActivity.this).restartApp();
                 }
 
@@ -417,7 +420,7 @@ public class PinEntryActivity extends Activity {
                 if (password != null) {
                     dismissProgressView();
 
-                    PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                    prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
                     updatePayloadThread(password);
                 } else {
                     dismissProgressView();
@@ -487,8 +490,8 @@ public class PinEntryActivity extends Activity {
                         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
                         PayloadFactory.getInstance().setTempPassword(pw);
-                        PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                        PrefsUtil.getInstance(PinEntryActivity.this).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                        prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
+                        prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
                         Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -537,7 +540,7 @@ public class PinEntryActivity extends Activity {
             }
 
             // Validate
-            if (PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
+            if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
                 titleView.setVisibility(View.INVISIBLE);
                 validatePIN(userEnteredPIN);
             } else if (userEnteredPINConfirm == null) {
@@ -599,8 +602,8 @@ public class PinEntryActivity extends Activity {
     }
 
     private void incrementFailureCount() {
-        int fails = PrefsUtil.getInstance(PinEntryActivity.this).getValue(PrefsUtil.KEY_PIN_FAILS, 0);
-        PrefsUtil.getInstance(PinEntryActivity.this).setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
+        int fails = prefs.getValue(PrefsUtil.KEY_PIN_FAILS, 0);
+        prefs.setValue(PrefsUtil.KEY_PIN_FAILS, ++fails);
 
         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 

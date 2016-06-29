@@ -7,89 +7,72 @@ import android.preference.PreferenceManager;
 
 public class PrefsUtil implements PersistantPrefs {
 
-    private static Context context = null;
-    private static PrefsUtil instance = null;
+    private SharedPreferences preferenceManager;
 
-    private PrefsUtil() {
-        ;
-    }
-
-    public static PrefsUtil getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new PrefsUtil();
-        }
-
-        return instance;
+    public PrefsUtil(Context context) {
+        this.preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public String getValue(String name, String value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(name, (value == null || value.length() < 1) ? "" : value);
+        return preferenceManager.getString(name, (value == null || value.length() < 1) ? "" : value);
     }
 
     public boolean setValue(String name, String value) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.putString(name, (value == null || value.length() < 1) ? "" : value);
         return editor.commit();
     }
 
     public int getValue(String name, int value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(name, 0);
+        return preferenceManager.getInt(name, 0);
     }
 
     public boolean setValue(String name, int value) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.putInt(name, (value < 0) ? 0 : value);
         return editor.commit();
     }
 
     public boolean setValue(String name, long value) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.putLong(name, (value < 0L) ? 0L : value);
         return editor.commit();
     }
 
     public long getValue(String name, long value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         long result = 0l;
         try {
-            result = prefs.getLong(name, 0L);
+            result = preferenceManager.getLong(name, 0L);
         } catch (Exception e) {
-            result = (long) prefs.getInt(name, 0);
+            result = (long) preferenceManager.getInt(name, 0);
         }
 
         return result;
     }
 
     public boolean getValue(String name, boolean value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getBoolean(name, value);
+        return preferenceManager.getBoolean(name, value);
     }
 
     public boolean setValue(String name, boolean value) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.putBoolean(name, value);
         return editor.commit();
     }
 
     public boolean has(String name) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.contains(name);
+        return preferenceManager.contains(name);
     }
 
     public boolean removeValue(String name) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.remove(name);
         return editor.commit();
     }
 
     public boolean clear() {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        Editor editor = preferenceManager.edit();
         editor.clear();
         return editor.commit();
     }

@@ -356,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     public void onConnectivityFail() {
 
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getString(R.string.check_connectivity_exit);
         builder.setMessage(message)
@@ -364,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                         (d, id) -> {
                             d.dismiss();
                             Class c = null;
-                            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+                            if (new PrefsUtil(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                                 c = LandingActivity.class;
                             } else {
                                 c = PinEntryActivity.class;

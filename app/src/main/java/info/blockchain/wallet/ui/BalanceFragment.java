@@ -111,6 +111,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private int expandDuration = 200;
     private boolean mIsViewExpanded = false;
     private View prevRowClicked = null;
+    private PrefsUtil prefs;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -159,6 +160,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         context = getActivity();
+        prefs = new PrefsUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);
@@ -168,7 +170,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
-        BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
+        BALANCE_DISPLAY_STATE = prefs.getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
         if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
             isBTC = false;
         }
@@ -353,7 +355,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     isBTC = true;
                     viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                 }
-                PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
+                prefs.setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
 
                 return false;
             }
@@ -407,9 +409,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         });
 
         // drawerTitle account now that wallet has been created
-        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+        if (prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            prefs.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
             PayloadBridge.getInstance(context).remoteSaveThread();
             accountsAdapter.notifyDataSetChanged();
         }
@@ -608,7 +610,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                                 progressView.setVisibility(View.GONE);
 
                                 //Fee
-                                String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+                                String strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
                                 String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
                                 if (isBTC)
                                     fee = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
@@ -786,7 +788,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onRefreshBalanceAndTransactions() {
 
-        String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
 
         //Notify adapters of change
@@ -828,7 +830,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-            String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            String strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
 
             if (viewModel.getTransactionList() != null) {
                 final Tx tx = viewModel.getTransactionList().get(position);

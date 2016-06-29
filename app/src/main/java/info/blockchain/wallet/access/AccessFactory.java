@@ -35,6 +35,7 @@ public class AccessFactory {
 
     private static Context context = null;
     private static AccessFactory instance = null;
+    private static PrefsUtil prefs;
 
     private AccessFactory() {
         ;
@@ -43,6 +44,7 @@ public class AccessFactory {
     public static AccessFactory getInstance(Context ctx) {
 
         context = ctx;
+        prefs = new PrefsUtil(context);
 
         if (instance == null) {
             instance = new AccessFactory();
@@ -76,8 +78,8 @@ public class AccessFactory {
 //            Log.i("AccessFactory", "JSON response:" + json.toString());
             if (json.get("success") != null) {
                 String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(_value), AESUtil.PinPbkdf2Iterations);
-                PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
-                PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, _key);
+                prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
+                prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, _key);
                 return true;
             } else {
                 return false;
@@ -97,8 +99,8 @@ public class AccessFactory {
         CharSequenceX password = null;
 
         _pin = pin;
-        _key = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
-        String encrypted_password = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
+        _key = prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
+        String encrypted_password = prefs.getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
 
         try {
             final JSONObject json = accessApi.validateAccess(_key, _pin);
@@ -148,7 +150,7 @@ public class AccessFactory {
         }
 
         if (response != null && response.equals("Email Updated")) {
-            PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_EMAIL, _email);
+            prefs.setValue(PrefsUtil.KEY_EMAIL, _email);
             return true;
         } else {
             return false;
@@ -167,7 +169,7 @@ public class AccessFactory {
         }
 
         if (response != null && response.equals("Email successfully verified")) {
-            PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+            prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
             return response;
         } else {
             return response;

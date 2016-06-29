@@ -13,13 +13,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.List;
-
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.BackupWalletUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.BackupWalletUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+
+import java.util.List;
+
 import piuk.blockchain.android.R;
 
 public class BackupWalletFragment3 extends Fragment {
@@ -58,7 +59,7 @@ public class BackupWalletFragment3 extends Fragment {
                         && etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
                     PayloadFactory.getInstance().get().getHdWallet().mnemonic_verified(true);
-                    PrefsUtil.getInstance(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int) (System.currentTimeMillis() / 1000));
+                    new PrefsUtil(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int) (System.currentTimeMillis() / 1000));
                     PayloadBridge.getInstance(getActivity()).remoteSaveThread();
                     ToastCustom.makeText(getActivity(), getString(R.string.backup_confirmed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                     getActivity().setResult(Activity.RESULT_OK);

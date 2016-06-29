@@ -97,7 +97,7 @@ public class BackupWalletFragment1 extends Fragment {
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar_general);
         toolbar.setNavigationOnClickListener(v -> getActivity().onBackPressed());
 
-        int lastBackup = PrefsUtil.getInstance(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
+        int lastBackup = new PrefsUtil(getActivity()).getValue(BackupWalletActivity.BACKUP_DATE_KEY, 0);
         if (lastBackup != 0) {
 
             String daysAgo = (Math.round(((System.currentTimeMillis() / 1000) - lastBackup) / 86400.0)) + "";

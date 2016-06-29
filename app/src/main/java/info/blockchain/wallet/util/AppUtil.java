@@ -38,6 +38,7 @@ public class AppUtil {
     private static boolean newlyCreated = false;
 
     private AlertDialog alertDialog = null;
+    private static PrefsUtil prefs;
 
     private AppUtil() {
         // Singleton
@@ -45,6 +46,7 @@ public class AppUtil {
 
     public static AppUtil getInstance(Context ctx) {
         context = ctx;
+        prefs = new PrefsUtil(context);
 
         if (instance == null) {
             strReceiveQRFilename = context.getExternalCacheDir() + File.separator + "qr.png";
@@ -62,7 +64,7 @@ public class AppUtil {
     public void clearCredentials() {
         WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
-        PrefsUtil.getInstance(context).clear();
+        prefs.clear();
     }
 
     public void clearCredentialsAndRestart() {
@@ -97,7 +99,7 @@ public class AppUtil {
     }
 
     public void setUpgradeReminder(long ts) {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, ts);
+        prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, ts);
     }
 
     public boolean isNewlyCreated() {
@@ -109,14 +111,14 @@ public class AppUtil {
     }
 
     public boolean isSane() {
-        String guid = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, "");
+        String guid = prefs.getValue(PrefsUtil.KEY_GUID, "");
 
         if (!guid.matches(REGEX_UUID)) {
             return false;
         }
 
-        String encryptedPassword = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
-        String pinID = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
+        String encryptedPassword = prefs.getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
+        String pinID = prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
 
         if (encryptedPassword.length() == 0 || pinID.length() == 0) {
             return false;
@@ -142,11 +144,11 @@ public class AppUtil {
     }
 
     public String getSharedKey() {
-        return PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SHARED_KEY, "");
+        return prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "");
     }
 
     public void setSharedKey(String sharedKey) {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
 
     public boolean isNotUpgraded() {
@@ -196,7 +198,7 @@ public class AppUtil {
 
     public boolean detectObscuredWindow(MotionEvent event){
         //Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
-        if ((!PrefsUtil.getInstance(context).getValue("OVERLAY_TRUSTED",false)) && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
+        if ((!prefs.getValue("OVERLAY_TRUSTED",false)) && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
 
             //Prevent multiple popups
             if(alertDialog != null)
@@ -208,7 +210,7 @@ public class AppUtil {
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            PrefsUtil.getInstance(context).setValue("OVERLAY_TRUSTED", true);
+                            prefs.setValue("OVERLAY_TRUSTED", true);
                             dialog.dismiss();
                         }
                     }).setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {

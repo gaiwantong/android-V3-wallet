@@ -32,6 +32,7 @@ public class HDPayloadBridge {
 
     private static Context context = null;
     private static HDPayloadBridge instance = null;
+    private static PrefsUtil prefs;
 
     private HDPayloadBridge() {
         ;
@@ -40,6 +41,7 @@ public class HDPayloadBridge {
     public static HDPayloadBridge getInstance(Context ctx) {
 
         context = ctx;
+        prefs = new PrefsUtil(context);
 
         if (instance == null) {
             instance = new HDPayloadBridge();
@@ -59,7 +61,7 @@ public class HDPayloadBridge {
 
     public boolean init(CharSequenceX password) {
 
-        PayloadFactory.getInstance().get(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_GUID, ""),
+        PayloadFactory.getInstance().get(prefs.getValue(PrefsUtil.KEY_GUID, ""),
                 AppUtil.getInstance(context).getSharedKey(),
                 password);
 
@@ -88,12 +90,12 @@ public class HDPayloadBridge {
             DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException,
             MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
 
-        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_ASK_LATER, false)) {
+        if (prefs.getValue(PrefsUtil.KEY_ASK_LATER, false)) {
             return true;
         }
 
         if (!PayloadFactory.getInstance().get().isUpgraded() &&
-                PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
+                prefs.getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
             return true;
         }
 

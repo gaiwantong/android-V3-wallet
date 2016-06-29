@@ -120,6 +120,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     private boolean isBTC = true;
     private double btc_fx = 319.13;
     private final String addressInfoLink = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
+    private PrefsUtil prefs;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -137,6 +138,8 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
         this.rootView = rootView;
+
+        prefs = new PrefsUtil(getActivity());
 
         locale = Locale.getDefault();
 
@@ -250,7 +253,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 edAmount1.removeTextChangedListener(this);
 
-                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 switch (unit) {
@@ -402,7 +405,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                         spAccounts.setSelection(spAccounts.getSelectedItemPosition());
                         Object object = accountBiMap.inverse().get(spAccounts.getSelectedItemPosition());
 
-                        if(PrefsUtil.getInstance(getActivity()).getValue("WARN_WATCH_ONLY_SPEND", true)){
+                        if(prefs.getValue("WARN_WATCH_ONLY_SPEND", true)){
                             promptWatchOnlySpendWarning(object);
                         }
 
@@ -417,8 +420,8 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvCurrency1.setText(strBTC);
@@ -509,7 +512,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 @Override
                 public void onClick(View v) {
                     spAccounts.setSelection(0, true);
-                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked())prefs.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -518,7 +521,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             confirmContinue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked())prefs.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -590,8 +593,8 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-            strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+            strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(isBTC ? strBTC : strFiat);
             tvFiat2.setText(isBTC ? strFiat : strBTC);
@@ -606,8 +609,8 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         MainActivity.currentFragment = this;
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(isBTC ? strBTC : strFiat);
         tvFiat2.setText(isBTC ? strFiat : strBTC);

@@ -76,11 +76,14 @@ public class ExchangeRateFactory {
     }
 
     public double getLastPrice(String currency) {
+
+        PrefsUtil prefs = new PrefsUtil(context);
+
         if (fxRates.get(currency) != null && fxRates.get(currency) > 0.0) {
-            PrefsUtil.getInstance(context).setValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, Double.toString(fxRates.get(currency)));
+            prefs.setValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, Double.toString(fxRates.get(currency)));
             return fxRates.get(currency);
         } else {
-            return Double.parseDouble(PrefsUtil.getInstance(context).getValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, "0.0"));
+            return Double.parseDouble(prefs.getValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, "0.0"));
         }
     }
 

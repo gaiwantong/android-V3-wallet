@@ -53,8 +53,9 @@ public class PairingViewModel implements ViewModel{
                 AppUtil.getInstance(context).setSharedKey(sharedKeyAndPassword[0]);
 
                 if (qrComponents.guid != null) {
-                    PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, qrComponents.guid);
-                    PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                    PrefsUtil prefs = new PrefsUtil(context);
+                    prefs.setValue(PrefsUtil.KEY_GUID, qrComponents.guid);
+                    prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                     Intent intent = new Intent(context, PinEntryActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);

@@ -34,6 +34,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     private ProgressDialog progress = null;
 
     private String code = null;
+    private PrefsUtil prefs;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -52,8 +53,10 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         toolbar.setTitle(getResources().getString(R.string.confirmation_code));
         setSupportActionBar(toolbar);
 
+        prefs = new PrefsUtil(this);
+
         tvInstructions = (TextView) findViewById(R.id.tvInstructions);
-        String strMeatMsg = String.format(tvInstructions.getText().toString(), PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "'unknown'"));
+        String strMeatMsg = String.format(tvInstructions.getText().toString(), prefs.getValue(PrefsUtil.KEY_EMAIL, "'unknown'"));
         tvInstructions.setText(strMeatMsg);
 
         etConfirmBox0 = (EditText) findViewById(R.id.confirmBox0);
@@ -70,7 +73,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
         etConfirmBox0.requestFocus();
 
-        if (PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
+        if (prefs.getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
 
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
@@ -91,7 +94,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
     public void sendClicked() {
 
-        final String email = PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_EMAIL, "");
+        final String email = prefs.getValue(PrefsUtil.KEY_EMAIL, "");
 
         final Handler handler = new Handler();
 
@@ -167,15 +170,15 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     response = AccessFactory.getInstance(ConfirmationCodeActivity.this).verifyEmail(done);
                     if (response != null && response.equals("Email successfully verified")) {
 
-                        if (!PrefsUtil.getInstance(ConfirmationCodeActivity.this).getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
+                        if (!prefs.getValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false)) {
                             if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
 
                                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                                 AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
                             }
                         } else {
-                            PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false);
-                            PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                            prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false);
+                            prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
 
                             ToastCustom.makeText(ConfirmationCodeActivity.this, getString(R.string.email_verified), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
                             ConfirmationCodeActivity.this.finish();
@@ -261,7 +264,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
             @Override
             public void run() {
                 Looper.prepare();
-                PrefsUtil.getInstance(ConfirmationCodeActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, true);
+                prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, true);
 
                 try {
                     if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {

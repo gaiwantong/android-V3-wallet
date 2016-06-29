@@ -57,6 +57,7 @@ public class UpgradeWalletActivity extends Activity {
     private ProgressBar progressBar = null;
     private TextView confirmCancel = null;
     private TextView confirmUpgrade = null;
+    private PrefsUtil prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,8 @@ public class UpgradeWalletActivity extends Activity {
 
         setContentView(R.layout.activity_upgrade_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        prefs = new PrefsUtil(this);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         pageHeader = (TextSwitcher) findViewById(R.id.upgrade_page_header);
@@ -240,7 +243,7 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     private void doUpgrade(final CharSequenceX secondPassword) {
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+        prefs.setValue(PrefsUtil.KEY_ASK_LATER, false);
 
         onUpgradeStart();
 
@@ -296,7 +299,7 @@ public class UpgradeWalletActivity extends Activity {
 
     private void onUpgradeCompleted() {
 
-        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+        prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
 
         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
@@ -313,8 +316,8 @@ public class UpgradeWalletActivity extends Activity {
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, false);
+                        prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                        prefs.setValue(PrefsUtil.KEY_ASK_LATER, false);
                         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
                         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
                     }
@@ -326,7 +329,7 @@ public class UpgradeWalletActivity extends Activity {
     private void onUpgradeFail() {
 
         AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
-        PrefsUtil.getInstance(getApplicationContext()).setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+        prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
 
         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
 
@@ -351,8 +354,8 @@ public class UpgradeWalletActivity extends Activity {
 
     public void askLaterClicked(View view) {
         AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-        PrefsUtil.getInstance(UpgradeWalletActivity.this).setValue(PrefsUtil.KEY_ASK_LATER, true);
+        prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+        prefs.setValue(PrefsUtil.KEY_ASK_LATER, true);
         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
         AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
     }

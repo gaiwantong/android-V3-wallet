@@ -72,7 +72,7 @@ public class PayloadBridge {
         payload.setGuid(guid);
         payload.setSharedKey(sharedKey);
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
+        new PrefsUtil(context).setValue(PrefsUtil.KEY_GUID, guid);
         AppUtil.getInstance(context).setSharedKey(sharedKey);
 
         HDWallet payloadHDWallet = new HDWallet();

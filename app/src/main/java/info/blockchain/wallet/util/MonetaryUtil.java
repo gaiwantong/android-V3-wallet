@@ -24,6 +24,7 @@ public class MonetaryUtil {
     private static MonetaryUtil instance = null;
     private static DecimalFormat btcFormat = null;
     private static DecimalFormat fiatFormat = null;
+    private static PrefsUtil prefs;
 
     private MonetaryUtil() {
         ;
@@ -55,6 +56,7 @@ public class MonetaryUtil {
     public static MonetaryUtil getInstance(Context ctx) {
 
         context = ctx;
+        prefs = new PrefsUtil(context);
 
         return getInstance();
     }
@@ -80,7 +82,7 @@ public class MonetaryUtil {
 
         String strAmount = null;
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((((double) (value * MICRO_LONG)) / BTC_DEC));
@@ -100,7 +102,7 @@ public class MonetaryUtil {
 
         BigInteger amount = BigInteger.ZERO;
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = BigInteger.valueOf(value / MICRO_LONG);
@@ -120,7 +122,7 @@ public class MonetaryUtil {
 
         double amount = 0.0;
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value / MICRO_DOUBLE;
@@ -140,7 +142,7 @@ public class MonetaryUtil {
 
         double amount = 0.0;
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value * MICRO_DOUBLE;
@@ -164,7 +166,7 @@ public class MonetaryUtil {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format(((double) (value * MICRO_LONG)) / BTC_DEC);
@@ -188,7 +190,7 @@ public class MonetaryUtil {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format((value * MICRO_DOUBLE) / BTC_DEC);

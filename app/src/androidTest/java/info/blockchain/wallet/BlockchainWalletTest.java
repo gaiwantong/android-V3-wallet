@@ -52,12 +52,12 @@ public class BlockchainWalletTest extends BlockchainTest {
          * The pin identifier and the encrypted password can be obtained by observing AccessFactory.java for this app
          * during an actual login.
          */
+        PrefsUtil prefs = new PrefsUtil(context);
+        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
-
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
+        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
+        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
 
         CharSequenceX pw = new CharSequenceX(WalletUtil.getInstance(context).getValidPassword());
 
@@ -65,19 +65,19 @@ public class BlockchainWalletTest extends BlockchainTest {
 
         loginBadPW(new CharSequenceX("bogus"));
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, "12345678-9abc-def0-ffff-ffffffffffff");
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, "12345678-9abc-def0-ffff-ffffffffffff");
+        prefs.setValue(PrefsUtil.KEY_GUID, "12345678-9abc-def0-ffff-ffffffffffff");
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, "12345678-9abc-def0-ffff-ffffffffffff");
 
         loginBadParams(pw);
 
         //
         // login w/ PIN tests
         //
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
+        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
+        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
+        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
 
         loginGoodPIN();
 

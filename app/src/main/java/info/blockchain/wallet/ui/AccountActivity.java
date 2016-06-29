@@ -137,12 +137,14 @@ public class AccountActivity extends AppCompatActivity {
     private FloatingActionsMenu menuMultipleActions = null;
     private MenuItem transferFundsMenuItem = null;
     private View mLayout;
+    private PrefsUtil prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         context = this;
+        prefs = new PrefsUtil(context);
 
         setContentView(R.layout.activity_accounts);
         mLayout = findViewById(R.id.main_layout);
@@ -274,7 +276,7 @@ public class AccountActivity extends AppCompatActivity {
 
             transferFundsMenuItem.setVisible(true);
 
-            if(PrefsUtil.getInstance(AccountActivity.this).getValue("WARN_TRANSFER_ALL", true)){
+            if(prefs.getValue("WARN_TRANSFER_ALL", true)){
                 promptToTransferFunds(true);
             }
 
@@ -666,7 +668,7 @@ public class AccountActivity extends AppCompatActivity {
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
-        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
         return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
     }
@@ -676,7 +678,7 @@ public class AccountActivity extends AppCompatActivity {
         String address = legacy.get(index).getAddress();
         Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
         if (amount == null) amount = 0l;
-        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(this).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
         return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
     }
@@ -1228,7 +1230,7 @@ public class AccountActivity extends AppCompatActivity {
         confirmCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dismissForever.isChecked())PrefsUtil.getInstance(AccountActivity.this).setValue("WARN_TRANSFER_ALL", false);
+                if(dismissForever.isChecked())prefs.setValue("WARN_TRANSFER_ALL", false);
                 alertDialog.dismiss();
             }
         });
@@ -1237,7 +1239,7 @@ public class AccountActivity extends AppCompatActivity {
         confirmSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dismissForever.isChecked())PrefsUtil.getInstance(AccountActivity.this).setValue("WARN_TRANSFER_ALL", false);
+                if(dismissForever.isChecked())prefs.setValue("WARN_TRANSFER_ALL", false);
                 checkTransferFunds();
                 alertDialog.dismiss();
             }

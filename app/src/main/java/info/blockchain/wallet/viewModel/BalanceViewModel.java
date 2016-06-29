@@ -43,6 +43,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private final String TAG_ALL = "TAG_ALL";
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList;
+    private PrefsUtil prefs;
 
     @Bindable
     public String getBalance(){
@@ -68,6 +69,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         this.activeAccountAndAddressList = new ArrayList<>();
         this.activeAccountAndAddressBiMap = HashBiMap.create();
         this.transactionList = new ArrayList<>();
+        this.prefs = new PrefsUtil(context);
     }
 
     @Override
@@ -394,7 +396,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         transactionList.addAll(unsortedTransactionList);
 
         //Update Balance
-        String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         double btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
@@ -430,7 +432,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getDisplayUnits() {
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
     private class TxDateComparator implements Comparator<Tx> {

@@ -79,11 +79,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     Settings settingsApi;
     int pwStrength = 0;
+    PrefsUtil prefs;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        prefs = new PrefsUtil(getActivity());
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -166,7 +169,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         fiatPref = (Preference) findPreference("fiat");
-        fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+        fiatPref.setSummary(prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
@@ -221,7 +224,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     }
 
     private String getDisplayUnits() {
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
     @UiThread
@@ -394,8 +397,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     progress = null;
                 }
                 if(params != null){
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                    prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -740,12 +743,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     private void showDialogBTCUnits(){
         final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-        final int sel = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, 0);
+        final int sel = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, 0);
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_units)
                 .setSingleChoiceItems(units, sel, (dialog, which) -> {
-                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, which);
+                            prefs.setValue(PrefsUtil.KEY_BTC_UNITS, which);
                     unitsPref.setSummary(getDisplayUnits());
                     dialog.dismiss();
                 }
@@ -754,7 +757,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     private void showDialogFiatUnits(){
         final String[] currencies = ExchangeRateFactory.getInstance(getActivity()).getCurrencyLabels();
-        String strCurrency = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strCurrency = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         int selected = 0;
         for (int i = 0; i < currencies.length; i++) {
             if (currencies[i].endsWith(strCurrency)) {
@@ -766,8 +769,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_currency)
                 .setSingleChoiceItems(currencies, selected, (dialog, which) -> {
-                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
-                    fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+                            prefs.setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
+                    fiatPref.setSummary(prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
                     dialog.dismiss();
                 }
                 ).show();
@@ -1100,7 +1103,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
         pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
 
-        if(pw.equals(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
+        if(pw.equals(prefs.getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
 
         int pwStrengthLevel = 0;//red
         if (pwStrength >= 75) pwStrengthLevel = 3;//green
