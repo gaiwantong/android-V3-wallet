@@ -153,11 +153,6 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private void setupToolbar(){
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
-        setHasOptionsMenu(true);
-
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
         toolbar.setNavigationOnClickListener(new OnClickListener() {
@@ -173,6 +168,15 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
             }
         });
+
+        if(((AppCompatActivity) getActivity()).getSupportActionBar() == null){
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        }
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
+        setHasOptionsMenu(true);
     }
 
     private String getDefaultDecimalSeparator(){

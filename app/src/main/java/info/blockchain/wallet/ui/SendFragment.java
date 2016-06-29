@@ -244,11 +244,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void setupToolbar(){
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
-        setHasOptionsMenu(true);
-
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -266,6 +261,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         });
 
+        if(((AppCompatActivity) getActivity()).getSupportActionBar() == null){
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        }
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.send_bitcoin);
+        setHasOptionsMenu(true);
     }
 
     private void setupViews(){
