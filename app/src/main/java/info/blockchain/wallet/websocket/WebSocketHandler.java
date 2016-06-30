@@ -17,7 +17,7 @@ import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
+import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.json.JSONArray;
@@ -299,7 +299,7 @@ public class WebSocketHandler {
                                                 text += " from " + in_addr;
                                             }
 
-                                            NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
+                                            new NotificationsUtil(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
                                         }
 
                                         updateBalancesAndTransactions();
