@@ -185,7 +185,7 @@ public class HDPayloadBridge {
         PayloadFactory.getInstance().get().getHdWallet().setAccounts(accounts);
         PayloadFactory.getInstance().cache();
 
-        if (OSUtil.getInstance(context.getApplicationContext()).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+        if (new OSUtil(context.getApplicationContext()).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
             context.getApplicationContext().stopService(new Intent(context.getApplicationContext(),
                     info.blockchain.wallet.websocket.WebSocketService.class));
         }

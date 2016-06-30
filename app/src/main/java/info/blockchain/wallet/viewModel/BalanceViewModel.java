@@ -20,6 +20,7 @@ import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList;
     private PrefsUtil prefs;
+    private OSUtil osUtil;
 
     @Bindable
     public String getBalance(){
@@ -70,6 +72,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         this.activeAccountAndAddressBiMap = HashBiMap.create();
         this.transactionList = new ArrayList<>();
         this.prefs = new PrefsUtil(context);
+        this.osUtil = new OSUtil(context);
     }
 
     @Override
@@ -453,5 +456,14 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
         }
 
+    }
+
+    public void startWebSocketService(){
+        if (!osUtil.isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        } else {
+            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        }
     }
 }

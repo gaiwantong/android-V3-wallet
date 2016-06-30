@@ -30,7 +30,7 @@ public class SendMethodsTest {
     @Test
     public void getEstimatedConfirmationMessageTest() {
 
-        String likelyToConfirmMessage = "Estimated confirmation time: ~[--minutes--] minutes ([--block_count--] blocks)";
+        String likelyToConfirmMessage = "Estimated confirmation time: ~%1$d minutes (%2$d blocks)";
         String unlikelyToConfirmMessage = "Your fee is so small that your transaction may never be confirmed.";
 
         BigInteger[] estimates = new BigInteger[6];

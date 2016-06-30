@@ -5,26 +5,13 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-//import android.util.Log;
 
 public class OSUtil {
 
-    private static OSUtil instance = null;
-    private static Context context = null;
+    private Context context = null;
 
-    private OSUtil() {
-        ;
-    }
-
-    public static OSUtil getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new OSUtil();
-        }
-
-        return instance;
+    public OSUtil(Context context) {
+        this.context = context;
     }
 
     public boolean isServiceRunning(Class<?> serviceClass) {

@@ -68,6 +68,8 @@ public class PinEntryActivity extends Activity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        prefs = new PrefsUtil(this);
+
         //Coming from CreateWalletFragment
         getBundleData();
         if (strPassword != null && strEmail != null) {
@@ -75,8 +77,6 @@ public class PinEntryActivity extends Activity {
             saveLoginAndPassword();
             createWallet();
         }
-
-        prefs = new PrefsUtil(this);
 
         // Set title state
         titleView = (TextView) findViewById(R.id.titleBox);

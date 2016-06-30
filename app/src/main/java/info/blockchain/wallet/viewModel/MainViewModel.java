@@ -15,6 +15,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
@@ -31,6 +32,7 @@ public class MainViewModel implements ViewModel{
     private Context context;
     private DataListener dataListener;
     private PrefsUtil prefs;
+    private OSUtil osUtil;
 
     private int exitClickCount = 0;
     private int exitClickCooldown = 2;//seconds
@@ -54,6 +56,7 @@ public class MainViewModel implements ViewModel{
         this.context = context;
         this.dataListener = dataListener;
         this.prefs = new PrefsUtil(context);
+        this.osUtil = new OSUtil(context);
 
         AppUtil.getInstance(context).applyPRNGFixes();
 
@@ -223,5 +226,17 @@ public class MainViewModel implements ViewModel{
             }
         }).start();
 
+    }
+
+    public void startWebSocketService(){
+        if (!osUtil.isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        }
+    }
+
+    public void stopWebSocketService(){
+        if (!osUtil.isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        }
     }
 }

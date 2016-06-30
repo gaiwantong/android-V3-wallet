@@ -35,7 +35,6 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -80,9 +79,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         AppUtil.getInstance(MainActivity.this).stopLogoutTimer();
         AppUtil.getInstance(MainActivity.this).deleteQR();
 
-        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            startService(new Intent(MainActivity.this, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
+        mainViewModel.startWebSocketService();
     }
 
     @Override
@@ -94,9 +91,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
             rootedAlertDialog = null;
         }
 
-        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            stopService(new Intent(MainActivity.this, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
+        mainViewModel.stopWebSocketService();
     }
 
     @Override

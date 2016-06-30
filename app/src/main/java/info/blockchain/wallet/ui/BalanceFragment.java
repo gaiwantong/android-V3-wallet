@@ -58,7 +58,6 @@ import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -221,14 +220,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
 
-        //TODO Why start service again?????
-        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        } else {
-            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
-
+        viewModel.startWebSocketService();
         viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
         viewModel.updateAccountList();
     }
@@ -414,13 +406,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             prefs.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
             PayloadBridge.getInstance(context).remoteSaveThread();
             accountsAdapter.notifyDataSetChanged();
-        }
-
-        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        } else {
-            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
         }
 
         binding.balanceMainContentShadow.setOnClickListener(new View.OnClickListener() {
