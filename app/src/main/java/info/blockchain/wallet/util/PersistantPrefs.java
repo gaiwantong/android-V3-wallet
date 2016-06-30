@@ -20,6 +20,7 @@ public interface PersistantPrefs {
     public static final String KEY_BALANCE_DISPLAY_STATE = "balance_display_state";
     public static final String KEY_SCHEME_URL = "scheme_url";
     public static final String KEY_CURRENT_APP_VERSION = "KEY_CURRENT_APP_VERSION";
+    public static final String KEY_NEWLY_CREATED_WALLET = "newly_created_wallet";
 
     public abstract String getValue(String name, String value);
     public boolean setValue(String name, String value);

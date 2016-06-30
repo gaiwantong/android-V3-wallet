@@ -26,17 +26,18 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
 
@@ -58,6 +59,7 @@ public class UpgradeWalletActivity extends Activity {
     private TextView confirmCancel = null;
     private TextView confirmUpgrade = null;
     private PrefsUtil prefs;
+    private AppUtil appUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,7 @@ public class UpgradeWalletActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         prefs = new PrefsUtil(this);
+        appUtil = new AppUtil(this);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         pageHeader = (TextSwitcher) findViewById(R.id.upgrade_page_header);
@@ -191,7 +194,7 @@ public class UpgradeWalletActivity extends Activity {
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
                 AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+                appUtil.restartApp("verified", true);
             }
         });
 
@@ -255,8 +258,8 @@ public class UpgradeWalletActivity extends Activity {
             protected Void doInBackground(Void[] params) {
                 try {
                     if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
-                        AppUtil.getInstance(UpgradeWalletActivity.this).setUpgradeReminder(System.currentTimeMillis());
-                        AppUtil.getInstance(getApplicationContext()).setNewlyCreated(true);
+                        appUtil.setUpgradeReminder(System.currentTimeMillis());
+                        appUtil.setNewlyCreated(true);
                         boolean isSuccessful = HDPayloadBridge.getInstance(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), secondPassword);
                         if(isSuccessful){
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
@@ -319,7 +322,7 @@ public class UpgradeWalletActivity extends Activity {
                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                         prefs.setValue(PrefsUtil.KEY_ASK_LATER, false);
                         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+                        appUtil.restartApp("verified", true);
                     }
                 });
             }
@@ -328,7 +331,7 @@ public class UpgradeWalletActivity extends Activity {
 
     private void onUpgradeFail() {
 
-        AppUtil.getInstance(getApplicationContext()).setNewlyCreated(false);
+        appUtil.setNewlyCreated(false);
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
 
         PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
@@ -345,7 +348,7 @@ public class UpgradeWalletActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-                        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+                        appUtil.restartApp();
                     }
                 });
             }
@@ -353,11 +356,11 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     public void askLaterClicked(View view) {
-        AppUtil.getInstance(this).setUpgradeReminder(System.currentTimeMillis());
+        appUtil.setUpgradeReminder(System.currentTimeMillis());
         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
         prefs.setValue(PrefsUtil.KEY_ASK_LATER, true);
         AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-        AppUtil.getInstance(UpgradeWalletActivity.this).restartApp("verified", true);
+        appUtil.restartApp("verified", true);
     }
 
     private void setSelectedPage(int position) {
@@ -387,7 +390,7 @@ public class UpgradeWalletActivity extends Activity {
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
 
-            AppUtil.getInstance(UpgradeWalletActivity.this).restartApp();
+            appUtil.restartApp();
 
             return true;
         } else {
@@ -400,12 +403,12 @@ public class UpgradeWalletActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

@@ -34,6 +34,7 @@ public class PayloadBridge {
     private static Context context = null;
 
     private static PayloadBridge instance = null;
+    private static AppUtil appUtil;
 
     private PayloadBridge() {
         ;
@@ -42,12 +43,13 @@ public class PayloadBridge {
     /**
      * Return instance for a PayloadBridge
      *
-     * @param Context ctx app context
+     * @param ctx app context
      * @return PayloadBridge
      */
     public static PayloadBridge getInstance(Context ctx) {
 
         context = ctx;
+        appUtil = new AppUtil(context);
 
         if (instance == null) {
             instance = new PayloadBridge();
@@ -60,7 +62,7 @@ public class PayloadBridge {
      * Create a Blockchain wallet and include the HD_Wallet passed as an argument and write it to this instance's
      * payload.
      *
-     * @param HD_Wallet hdw HD wallet to include in the payload
+     * @param hdw HD wallet to include in the payload
      * @return boolean
      */
     public boolean createBlockchainWallet(org.bitcoinj.core.bip44.Wallet hdw) {
@@ -73,7 +75,7 @@ public class PayloadBridge {
         payload.setSharedKey(sharedKey);
 
         new PrefsUtil(context).setValue(PrefsUtil.KEY_GUID, guid);
-        AppUtil.getInstance(context).setSharedKey(sharedKey);
+        appUtil.setSharedKey(sharedKey);
 
         HDWallet payloadHDWallet = new HDWallet();
         payloadHDWallet.setSeedHex(hdw.getSeedHex());
@@ -162,7 +164,7 @@ public class PayloadBridge {
      */
     public ECKey newLegacyAddress() {
 
-        AppUtil.getInstance(context).applyPRNGFixes();
+        appUtil.applyPRNGFixes();
 
         String result = null;
         byte[] data = null;

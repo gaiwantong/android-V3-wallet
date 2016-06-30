@@ -37,8 +37,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.ui.helpers.OnSwipeTouchListener;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import java.text.NumberFormat;
@@ -373,14 +373,14 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
 
         launchedList = false;
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

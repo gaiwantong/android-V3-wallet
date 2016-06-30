@@ -21,9 +21,11 @@ import piuk.blockchain.android.R;
 public class PairingViewModel implements ViewModel{
 
     private Context context;
+    private AppUtil appUtil;
 
     public PairingViewModel(Context context) {
         this.context = context;
+        this.appUtil = new AppUtil(context);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class PairingViewModel implements ViewModel{
 
     public void pairWithQR(String raw) {
 
-        AppUtil.getInstance(context).clearCredentials();
+        appUtil.clearCredentials();
 
         new Thread(() -> {
             Looper.prepare();
@@ -50,7 +52,7 @@ public class PairingViewModel implements ViewModel{
                 CharSequenceX password = new CharSequenceX(new String(Hex.decode(sharedKeyAndPassword[1]), "UTF-8"));
 
                 PayloadFactory.getInstance().setTempPassword(password);
-                AppUtil.getInstance(context).setSharedKey(sharedKeyAndPassword[0]);
+                appUtil.setSharedKey(sharedKeyAndPassword[0]);
 
                 if (qrComponents.guid != null) {
                     PrefsUtil prefs = new PrefsUtil(context);
@@ -61,7 +63,7 @@ public class PairingViewModel implements ViewModel{
                     context.startActivity(intent);
                 } else {
                     ToastCustom.makeText(context, context.getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(context).clearCredentialsAndRestart();
+                    appUtil.clearCredentialsAndRestart();
                 }
 
             }catch (Exception e){

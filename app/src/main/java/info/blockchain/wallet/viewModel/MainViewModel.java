@@ -15,6 +15,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
@@ -33,6 +34,7 @@ public class MainViewModel implements ViewModel{
     private DataListener dataListener;
     private PrefsUtil prefs;
     private OSUtil osUtil;
+    private AppUtil appUtil;
 
     private int exitClickCount = 0;
     private int exitClickCooldown = 2;//seconds
@@ -57,8 +59,9 @@ public class MainViewModel implements ViewModel{
         this.dataListener = dataListener;
         this.prefs = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
+        this.appUtil = new AppUtil(context);
 
-        AppUtil.getInstance(context).applyPRNGFixes();
+        this.appUtil.applyPRNGFixes();
 
         checkIntent();
         checkRooted();
@@ -67,7 +70,7 @@ public class MainViewModel implements ViewModel{
 
     private void checkIntent(){
         // Log out if started with the logout intent
-        if (((Activity)context).getIntent().getAction() != null && AppUtil.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
+        if (((Activity)context).getIntent().getAction() != null && LogoutUtil.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
             ((Activity)context).finish();
             System.exit(0);
             return;
@@ -116,7 +119,7 @@ public class MainViewModel implements ViewModel{
             this.dataListener.onRequestPin();
         }
         // Installed app, check sanity
-        else if (!AppUtil.getInstance(context).isSane()) {
+        else if (!appUtil.isSane()) {
             this.dataListener.onCorruptPayload();
         }
         // Legacy app has not been prompted for upgrade
@@ -159,7 +162,7 @@ public class MainViewModel implements ViewModel{
 
     @Override
     public void destroy() {
-        AppUtil.getInstance(context).deleteQR();
+        appUtil.deleteQR();
         context = null;
         dataListener = null;
     }
@@ -203,14 +206,14 @@ public class MainViewModel implements ViewModel{
             e.printStackTrace();
         }
 
-        AppUtil.getInstance(context).restartApp();
+        appUtil.restartApp();
     }
 
     public void onBackPressed(){
 
         exitClickCount++;
         if (exitClickCount == 2) {
-            AppUtil.getInstance(context).logout();
+            LogoutUtil.getInstance(context).logout();
         } else {
             dataListener.onExitConfirmToast();
         }

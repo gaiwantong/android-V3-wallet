@@ -13,7 +13,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.LogoutUtil;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -77,12 +77,12 @@ public class AboutActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

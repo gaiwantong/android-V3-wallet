@@ -40,11 +40,15 @@ public class ManualPairingFragment extends Fragment {
     private boolean waitinForAuth = true;
     private int timer = 0;
 
+    private AppUtil appUtil;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
+
+        appUtil = new AppUtil(getActivity());
 
         edGuid = (EditText) rootView.findViewById(R.id.wallet_id);
         edPassword = (EditText) rootView.findViewById(R.id.wallet_pass);
@@ -123,7 +127,7 @@ public class ManualPairingFragment extends Fragment {
 
                     if (response != null && response.equals("Authorization Required")) {
                         ToastCustom.makeText(getActivity(), getString(R.string.auth_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        appUtil.clearCredentialsAndRestart();
                     }
 
                     JSONObject jsonObj = new JSONObject(response);
@@ -142,7 +146,7 @@ public class ManualPairingFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed_decrypt_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                            appUtil.clearCredentialsAndRestart();
                         }
 
                         if (decrypted_payload != null) {
@@ -152,7 +156,7 @@ public class ManualPairingFragment extends Fragment {
                             if (payloadObj != null && payloadObj.has("sharedKey")) {
                                 prefs.setValue(PrefsUtil.KEY_GUID, guid);
                                 PayloadFactory.getInstance().setTempPassword(password);
-                                AppUtil.getInstance(getActivity()).setSharedKey((String) payloadObj.get("sharedKey"));
+                                appUtil.setSharedKey((String) payloadObj.get("sharedKey"));
 
                                 if (HDPayloadBridge.getInstance(getActivity()).init(password)) {
                                     prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
@@ -243,7 +247,7 @@ public class ManualPairingFragment extends Fragment {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         waitinForAuth = false;
                         progress.cancel();
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        appUtil.clearCredentialsAndRestart();
                     }
                 }
             }

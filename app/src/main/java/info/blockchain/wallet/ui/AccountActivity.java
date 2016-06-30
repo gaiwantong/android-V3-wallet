@@ -43,12 +43,13 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
-import info.blockchain.wallet.payload.HDPayloadBridge;
+import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
-import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
@@ -58,21 +59,21 @@ import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.util.PermissionUtil;
-import info.blockchain.wallet.websocket.WebSocketService;
-import info.blockchain.wallet.address.AddressFactory;
+import info.blockchain.wallet.ui.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.websocket.WebSocketService;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -108,6 +109,8 @@ public class AccountActivity extends AppCompatActivity {
 
     private static String[] HEADERS;
     public static String IMPORTED_HEADER;
+
+    private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -145,6 +148,7 @@ public class AccountActivity extends AppCompatActivity {
 
         context = this;
         prefs = new PrefsUtil(context);
+        appUtil = new AppUtil(context);
 
         setContentView(R.layout.activity_accounts);
         mLayout = findViewById(R.id.main_layout);
@@ -162,7 +166,7 @@ public class AccountActivity extends AppCompatActivity {
     private void initToolbar(){
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
+        if (!appUtil.isNotUpgraded()) {
             toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
         } else {
             toolbar.setTitle(getResources().getString(R.string.my_addresses));
@@ -174,7 +178,7 @@ public class AccountActivity extends AppCompatActivity {
 
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded())
+        if (!appUtil.isNotUpgraded())
             HEADERS = new String[]{IMPORTED_HEADER};
         else
             HEADERS = new String[0];
@@ -194,7 +198,7 @@ public class AccountActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded())
+                        if (!appUtil.isNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         onRowClick(position);
@@ -212,7 +216,7 @@ public class AccountActivity extends AppCompatActivity {
         actionA.setIconDrawable(getResources().getDrawable(R.drawable.icon_accounthd));
         actionA.setColorPressed(getResources().getColor(R.color.blockchain_dark_blue));
 
-        if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
+        if (!appUtil.isNotUpgraded()) {
             //V3
             actionA.setTitle(getResources().getString(R.string.create_new));
             actionA.setOnClickListener(new View.OnClickListener() {
@@ -302,7 +306,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void startScanActivity(){
-        if (!AppUtil.getInstance(AccountActivity.this).isCameraOpen()) {
+        if (!appUtil.isCameraOpen()) {
             Intent intent = new Intent(AccountActivity.this, CaptureActivity.class);
             intent.putExtra(Intents.Scan.FORMATS, EnumSet.allOf(BarcodeFormat.class));
             intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
@@ -637,7 +641,7 @@ public class AccountActivity extends AppCompatActivity {
         }
         if (iAccount != null) {
 
-            if (!AppUtil.getInstance(AccountActivity.this).isNotUpgraded()) {
+            if (!appUtil.isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountsAndImportedList.size());
                 accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd), false, false, false));
@@ -690,13 +694,13 @@ public class AccountActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -1180,12 +1184,12 @@ public class AccountActivity extends AppCompatActivity {
                         addAddressAndUpdateList(legacy);
                     } else {
                         ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(AccountActivity.this).restartApp();
+                        appUtil.restartApp();
                     }
                 } else {
 //                    ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(AccountActivity.this).restartApp();
+                    appUtil.restartApp();
                 }
 
                 progress.dismiss();

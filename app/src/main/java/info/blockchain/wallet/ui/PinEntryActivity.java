@@ -26,6 +26,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
 import org.bitcoinj.crypto.MnemonicException;
@@ -57,6 +58,7 @@ public class PinEntryActivity extends Activity {
     private String strEmail = null;
     private String strPassword = null;
     private PrefsUtil prefs;
+    private AppUtil appUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,7 @@ public class PinEntryActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         prefs = new PrefsUtil(this);
+        appUtil = new AppUtil(this);
 
         //Coming from CreateWalletFragment
         getBundleData();
@@ -137,7 +140,7 @@ public class PinEntryActivity extends Activity {
                     }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                    appUtil.clearCredentialsAndRestart();
 
                 }
             }).show();
@@ -148,7 +151,7 @@ public class PinEntryActivity extends Activity {
     public boolean dispatchTouchEvent(MotionEvent event) {
 
         //Test for screen overlays before user enters PIN
-        if(AppUtil.getInstance(this).detectObscuredWindow(event)){
+        if(appUtil.detectObscuredWindow(event)){
             return true;//consume event
         }else{
             return super.dispatchTouchEvent(event);
@@ -160,7 +163,7 @@ public class PinEntryActivity extends Activity {
         super.onResume();
         userEnteredPIN = "";
         clearPinBoxes();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
@@ -168,7 +171,7 @@ public class PinEntryActivity extends Activity {
         if (allowExit) {
             exitClickCount++;
             if (exitClickCount == 2) {
-                AppUtil.getInstance(this).logout();
+                LogoutUtil.getInstance(this).logout();
             } else
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
@@ -217,7 +220,7 @@ public class PinEntryActivity extends Activity {
 
                 try {
                     // New wallet
-                    AppUtil.getInstance(PinEntryActivity.this).setNewlyCreated(true);
+                    appUtil.setNewlyCreated(true);
 
                     HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
 
@@ -230,7 +233,7 @@ public class PinEntryActivity extends Activity {
                     }
                 } catch (IOException | MnemonicException.MnemonicLengthException e) {
                     ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                    appUtil.clearCredentialsAndRestart();
                 } finally {
                     dismissProgressView();
                 }
@@ -271,7 +274,7 @@ public class PinEntryActivity extends Activity {
 
                     if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
                         PayloadFactory.getInstance().setTempPassword(pw);
-                        AppUtil.getInstance(PinEntryActivity.this).setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
+                        appUtil.setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
 
                         double walletVersion = PayloadFactory.getInstance().getVersion();
 
@@ -283,19 +286,19 @@ public class PinEntryActivity extends Activity {
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
-                                            AppUtil.getInstance(PinEntryActivity.this).logout();
+                                            LogoutUtil.getInstance(PinEntryActivity.this).logout();
                                         }
                                     })
                                     .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
-                                            AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                                            appUtil.clearCredentialsAndRestart();
+                                            appUtil.restartApp();
                                         }
                                     }).show();
                         }else {
 
-                            if (AppUtil.getInstance(PinEntryActivity.this).isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
+                            if (appUtil.isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
                                     (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
                                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
                                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
@@ -324,14 +327,14 @@ public class PinEntryActivity extends Activity {
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
                                     } else {
-                                        AppUtil.getInstance(PinEntryActivity.this).restartApp("verified", true);
+                                        appUtil.restartApp("verified", true);
                                     }
                                 }
                             });
                         }
                     } else {
                         dismissProgressView();
-                        AppUtil.getInstance(PinEntryActivity.this).clearCredentialsAndRestart();
+                        appUtil.clearCredentialsAndRestart();
                     }
 
                     Looper.loop();
@@ -368,7 +371,7 @@ public class PinEntryActivity extends Activity {
 
                     ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     prefs.clear();
-                    AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                    appUtil.restartApp();
                 }
 
                 handler.post(new Runnable() {
@@ -452,7 +455,7 @@ public class PinEntryActivity extends Activity {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
-                        AppUtil.getInstance(PinEntryActivity.this).restartApp();
+                        appUtil.restartApp();
                     }
                 })
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

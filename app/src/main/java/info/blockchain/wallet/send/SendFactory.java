@@ -52,6 +52,7 @@ public class SendFactory {
     private String[] fromAddresses = null;
     public HashMap<String, String> fromAddressPathMap = null;
     private boolean sentChange = false;
+    private static AppUtil appUtil;
 
     private SendFactory() {
         ;
@@ -60,6 +61,7 @@ public class SendFactory {
     public static SendFactory getInstance(Context ctx) {
 
         context = ctx.getApplicationContext();
+        appUtil = new AppUtil(context);
 
         if (instance == null) {
             instance = new SendFactory();
@@ -110,7 +112,7 @@ public class SendFactory {
         if (isXpub) {
             ret = getUnspentOutputPoints(true, new String[]{address}, amount, feePerKb, unspentsApiResponse);
         } else {
-            if (AppUtil.getInstance(context).isNotUpgraded()) {
+            if (appUtil.isNotUpgraded()) {
                 List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
                 fromAddresses = addrs.toArray(new String[addrs.size()]);
             }
@@ -207,7 +209,7 @@ public class SendFactory {
 
                     }
 
-                    if (AppUtil.getInstance(context).isNotUpgraded()) {
+                    if (appUtil.isNotUpgraded()) {
                         wallet = new Wallet(MainNetParams.get());
                         List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
                         for (LegacyAddress addr : addrs) {

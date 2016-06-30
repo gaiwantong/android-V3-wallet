@@ -49,6 +49,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.LogoutUtil;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -144,7 +145,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
 
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
@@ -208,7 +209,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     @Override
     protected void onPause() {
 
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
 
         if (handler != null) {
             handler.quitSynchronously();

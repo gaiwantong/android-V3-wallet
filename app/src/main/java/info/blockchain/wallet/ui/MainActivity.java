@@ -35,6 +35,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -59,11 +60,15 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
 
+    private AppUtil appUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        appUtil = new AppUtil(this);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new MainViewModel(this, this);
@@ -76,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(MainActivity.this).stopLogoutTimer();
-        AppUtil.getInstance(MainActivity.this).deleteQR();
+        LogoutUtil.getInstance(MainActivity.this).stopLogoutTimer();
+        appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
     }
@@ -178,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     }
 
     private void startScanActivity() {
-        if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
+        if (!appUtil.isCameraOpen()) {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
             startActivityForResult(intent, SCAN_URI);
         } else {
@@ -256,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         MenuItem backUpMenuItem = binding.nvView.getMenu().findItem(R.id.nav_backup);
         MenuItem upgradeMenuItem = binding.nvView.getMenu().findItem(R.id.nav_upgrade);
 
-        if (AppUtil.getInstance(this).isNotUpgraded()) {
+        if (appUtil.isNotUpgraded()) {
             //Legacy
             upgradeMenuItem.setVisible(true);
             backUpMenuItem.setVisible(false);
@@ -306,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -388,8 +393,8 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 .setMessage(MainActivity.this.getString(R.string.not_sane_error))
                 .setCancelable(false)
                 .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-                    AppUtil.getInstance(MainActivity.this).clearCredentialsAndRestart();
-                    AppUtil.getInstance(MainActivity.this).restartApp();
+                    appUtil.clearCredentialsAndRestart();
+                    appUtil.restartApp();
                 }).show();
     }
 

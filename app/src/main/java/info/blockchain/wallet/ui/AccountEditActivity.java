@@ -53,6 +53,7 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -462,12 +463,12 @@ public class AccountEditActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -747,7 +748,7 @@ public class AccountEditActivity extends AppCompatActivity {
     }
 
     private void startScanActivity(){
-        if (!AppUtil.getInstance(AccountEditActivity.this).isCameraOpen()) {
+        if (!new AppUtil(AccountEditActivity.this).isCameraOpen()) {
             Intent intent = new Intent(AccountEditActivity.this, CaptureActivity.class);
             startActivityForResult(intent, SCAN_PRIVX);
         } else {

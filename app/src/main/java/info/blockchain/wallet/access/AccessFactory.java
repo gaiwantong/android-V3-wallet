@@ -62,7 +62,7 @@ public class AccessFactory {
 
         _pin = pin;
 
-        AppUtil.getInstance(context).applyPRNGFixes();
+        new AppUtil(context).applyPRNGFixes();
 
         try {
             byte[] bytes = new byte[16];

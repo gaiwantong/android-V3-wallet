@@ -1249,7 +1249,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private void startScanActivity(){
-        if (!AppUtil.getInstance(getActivity()).isCameraOpen()) {
+        if (!new AppUtil(getActivity()).isCameraOpen()) {
             Intent intent = new Intent(getActivity(), CaptureActivity.class);
             startActivityForResult(intent, SCAN_PRIVX);
         } else {

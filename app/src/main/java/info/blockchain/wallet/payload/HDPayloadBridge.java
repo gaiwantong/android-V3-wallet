@@ -33,6 +33,7 @@ public class HDPayloadBridge {
     private static Context context = null;
     private static HDPayloadBridge instance = null;
     private static PrefsUtil prefs;
+    private static AppUtil appUtil;
 
     private HDPayloadBridge() {
         ;
@@ -42,6 +43,7 @@ public class HDPayloadBridge {
 
         context = ctx;
         prefs = new PrefsUtil(context);
+        appUtil = new AppUtil(context);
 
         if (instance == null) {
             instance = new HDPayloadBridge();
@@ -62,7 +64,7 @@ public class HDPayloadBridge {
     public boolean init(CharSequenceX password) {
 
         PayloadFactory.getInstance().get(prefs.getValue(PrefsUtil.KEY_GUID, ""),
-                AppUtil.getInstance(context).getSharedKey(),
+                appUtil.getSharedKey(),
                 password);
 
         if (PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().stepNumber != 9) {
@@ -116,7 +118,7 @@ public class HDPayloadBridge {
         if (PayloadFactory.getInstance().get().getHdWallets() == null ||
                 PayloadFactory.getInstance().get().getHdWallets().size() == 0) {
 
-            AppUtil.getInstance(context).applyPRNGFixes();
+            appUtil.applyPRNGFixes();
 
             String xpub = null;
             int attempts = 0;
@@ -140,7 +142,7 @@ public class HDPayloadBridge {
                 hdw.setSeedHex(seedHex);
                 List<Account> accounts = new ArrayList<Account>();
                 xpub = WalletFactory.getInstance().get().getAccount(0).xpubstr();
-                if (AppUtil.getInstance(context).isNewlyCreated()) {
+                if (appUtil.isNewlyCreated()) {
                     accounts.add(new Account());
                     accounts.get(0).setXpub(xpub);
                     String xpriv = WalletFactory.getInstance().get().getAccount(0).xprvstr();
@@ -168,7 +170,7 @@ public class HDPayloadBridge {
 
             } while (!no_tx && attempts < 3);
 
-            if (!no_tx && AppUtil.getInstance(context).isNewlyCreated()) {
+            if (!no_tx && appUtil.isNewlyCreated()) {
                 return false;
             } else {
                 if(!PayloadBridge.getInstance(context).remoteSaveThreadLocked())
@@ -200,7 +202,7 @@ public class HDPayloadBridge {
         // TODO getXpub must be called before getLegacy (unify should fix this)
 
         // xPub balance
-        if (!AppUtil.getInstance(context).isNotUpgraded()) {
+        if (!appUtil.isNotUpgraded()) {
             String[] xpubs = getXPUBs(false);
             if (xpubs.length > 0) {
                 MultiAddrFactory.getInstance().refreshXPUBData(xpubs);

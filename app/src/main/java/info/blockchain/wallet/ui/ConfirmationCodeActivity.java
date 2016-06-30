@@ -13,12 +13,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.LogoutUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 import piuk.blockchain.android.R;
 
@@ -35,6 +36,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
 
     private String code = null;
     private PrefsUtil prefs;
+    private AppUtil appUtil;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -54,6 +56,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
         setSupportActionBar(toolbar);
 
         prefs = new PrefsUtil(this);
+        appUtil = new AppUtil(this);
 
         tvInstructions = (TextView) findViewById(R.id.tvInstructions);
         String strMeatMsg = String.format(tvInstructions.getText().toString(), prefs.getValue(PrefsUtil.KEY_EMAIL, "'unknown'"));
@@ -174,7 +177,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                             if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
 
                                 PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                                AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                                appUtil.restartApp("verified", true);
                             }
                         } else {
                             prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFY_ASK_LATER, false);
@@ -256,7 +259,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     }
 
     public void forgetClicked(View view) {
-        AppUtil.getInstance(this).clearCredentialsAndRestart();
+        appUtil.clearCredentialsAndRestart();
     }
 
     public void askMeLaterClicked(View view) {
@@ -270,7 +273,7 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
                     if (HDPayloadBridge.getInstance(ConfirmationCodeActivity.this).init(PayloadFactory.getInstance().getTempPassword())) {
 
                         PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                        AppUtil.getInstance(ConfirmationCodeActivity.this).restartApp("verified", true);
+                        appUtil.restartApp("verified", true);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -284,12 +287,12 @@ public class ConfirmationCodeActivity extends ActionBarActivity implements TextW
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        LogoutUtil.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        LogoutUtil.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

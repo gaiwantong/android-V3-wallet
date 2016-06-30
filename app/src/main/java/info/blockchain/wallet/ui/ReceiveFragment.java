@@ -833,7 +833,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     private void setupBottomSheet() {
 
         //Re-Populate list
-        String strFileName = AppUtil.getInstance(getActivity()).getReceiveQRFilename();
+        String strFileName = new AppUtil(getActivity()).getReceiveQRFilename();
         File file = new File(strFileName);
         if (!file.exists()) {
             try {
