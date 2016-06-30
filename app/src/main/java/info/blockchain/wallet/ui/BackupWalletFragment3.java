@@ -38,7 +38,7 @@ public class BackupWalletFragment3 extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_backup_wallet_3, container, false);
 
-        final List<Pair<Integer, String>> confirmSequence = BackupWalletUtil.getInstance(getActivity()).getConfirmSequence();
+        final List<Pair<Integer, String>> confirmSequence = new BackupWalletUtil(getActivity()).getConfirmSequence();
         mnemonicRequestHint = getResources().getStringArray(R.array.mnemonic_word_requests);
 
         etFirstRequest = (EditText) rootView.findViewById(R.id.etFirstRequest);

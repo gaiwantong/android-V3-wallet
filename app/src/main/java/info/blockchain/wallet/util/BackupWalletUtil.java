@@ -25,28 +25,10 @@ import piuk.blockchain.android.R;
 
 public class BackupWalletUtil {
 
-    private static BackupWalletUtil instance = null;
-    private static Context context = null;
+    private Context context = null;
 
-    private BackupWalletUtil() {
-        ;
-    }
-
-    /**
-     * Return instance for BackupWalletUtil.
-     *
-     * @param Context ctx app context
-     * @return BackupWalletUtil
-     */
-    public static BackupWalletUtil getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new BackupWalletUtil();
-        }
-
-        return instance;
+    public BackupWalletUtil(Context context) {
+        this.context = context;
     }
 
     /**
