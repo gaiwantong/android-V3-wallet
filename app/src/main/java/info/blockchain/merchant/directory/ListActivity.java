@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.LogoutUtil;
+import info.blockchain.wallet.access.AccessState;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -113,12 +113,12 @@ public class ListActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

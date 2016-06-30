@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -53,7 +54,6 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
@@ -463,12 +463,12 @@ public class AccountEditActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

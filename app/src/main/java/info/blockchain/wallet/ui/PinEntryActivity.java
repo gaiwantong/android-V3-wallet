@@ -19,14 +19,13 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
 import org.bitcoinj.crypto.MnemonicException;
@@ -163,7 +162,7 @@ public class PinEntryActivity extends Activity {
         super.onResume();
         userEnteredPIN = "";
         clearPinBoxes();
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
@@ -171,7 +170,7 @@ public class PinEntryActivity extends Activity {
         if (allowExit) {
             exitClickCount++;
             if (exitClickCount == 2) {
-                LogoutUtil.getInstance(this).logout();
+                AccessState.getInstance(this).logout();
             } else
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
@@ -286,7 +285,7 @@ public class PinEntryActivity extends Activity {
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
-                                            LogoutUtil.getInstance(PinEntryActivity.this).logout();
+                                            AccessState.getInstance(PinEntryActivity.this).logout();
                                         }
                                     })
                                     .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
@@ -360,7 +359,7 @@ public class PinEntryActivity extends Activity {
             public void run() {
                 Looper.prepare();
 
-                if (AccessFactory.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
+                if (AccessState.getInstance(PinEntryActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), pin)) {
                     dismissProgressView();
 
                     prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
@@ -409,7 +408,7 @@ public class PinEntryActivity extends Activity {
                 CharSequenceX password;
 
                 try {
-                    password = AccessFactory.getInstance(PinEntryActivity.this).validatePIN(pin);
+                    password = AccessState.getInstance(PinEntryActivity.this).validatePIN(pin);
                 } catch (Exception e) {
                     dismissProgressView();
 

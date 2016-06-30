@@ -32,7 +32,7 @@ import com.mukesh.countrypicker.fragments.CountryPicker;
 import com.mukesh.countrypicker.models.Country;
 
 import info.blockchain.api.Settings;
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -413,7 +413,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             @Override
             protected CharSequenceX doInBackground(Void... params) {
                 try {
-                    return AccessFactory.getInstance(getActivity()).validatePIN(pin);
+                    return AccessState.getInstance(getActivity()).validatePIN(pin);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
@@ -1081,7 +1081,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             PayloadFactory.getInstance().setTempPassword(updatedPassword);
 
-            if (AccessFactory.getInstance(getActivity()).createPIN(updatedPassword, AccessFactory.getInstance(getActivity()).getPIN())
+            if (AccessState.getInstance(getActivity()).createPIN(updatedPassword, AccessState.getInstance(getActivity()).getPIN())
                     && PayloadBridge.getInstance(getActivity()).remoteSaveThreadLocked()) {
 
                 ToastCustom.makeText(getActivity(), getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);

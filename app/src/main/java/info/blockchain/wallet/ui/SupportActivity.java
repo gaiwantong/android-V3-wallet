@@ -14,9 +14,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.util.LogoutUtil;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -130,12 +130,12 @@ public class SupportActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

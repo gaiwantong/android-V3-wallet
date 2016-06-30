@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -15,7 +15,6 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
@@ -70,7 +69,7 @@ public class MainViewModel implements ViewModel{
 
     private void checkIntent(){
         // Log out if started with the logout intent
-        if (((Activity)context).getIntent().getAction() != null && LogoutUtil.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
+        if (((Activity)context).getIntent().getAction() != null && AccessState.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
             ((Activity)context).finish();
             System.exit(0);
             return;
@@ -124,12 +123,12 @@ public class MainViewModel implements ViewModel{
         }
         // Legacy app has not been prompted for upgrade
         else if (isPinValidated && !PayloadFactory.getInstance().get().isUpgraded() && prefs.getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
-            AccessFactory.getInstance(context).setIsLoggedIn(true);
+            AccessState.getInstance(context).setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();
         }
         // App has been PIN validated
-        else if (isPinValidated || (AccessFactory.getInstance(context).isLoggedIn())) {
-            AccessFactory.getInstance(context).setIsLoggedIn(true);
+        else if (isPinValidated || (AccessState.getInstance(context).isLoggedIn())) {
+            AccessState.getInstance(context).setIsLoggedIn(true);
 
             this.dataListener.onFetchTransactionsStart();
 
@@ -213,7 +212,7 @@ public class MainViewModel implements ViewModel{
 
         exitClickCount++;
         if (exitClickCount == 2) {
-            LogoutUtil.getInstance(context).logout();
+            AccessState.getInstance(context).logout();
         } else {
             dataListener.onExitConfirmToast();
         }

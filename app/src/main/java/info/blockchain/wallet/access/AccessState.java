@@ -1,9 +1,14 @@
 package info.blockchain.wallet.access;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
+import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -13,41 +18,49 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
-public class AccessFactory {
+public class AccessState {
+
+    private static final long LOGOUT_TIMEOUT = 1000L * 30L; // 30 seconds in milliseconds
+    public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
 
     private static Access accessApi;
-    private static String _pin = null;
-
-    private static boolean isLoggedIn = false;
 
     private static Context context = null;
-    private static AccessFactory instance = null;
     private static PrefsUtil prefs;
 
-    private AccessFactory() {
-        ;
-    }
+    private static AccessState instance = null;
 
-    public static AccessFactory getInstance(Context ctx) {
+    private static String pin = null;
+    private static boolean isLoggedIn = false;
+    private static PendingIntent logoutPendingIntent;
 
-        context = ctx;
-        prefs = new PrefsUtil(context);
+    private AccessState() {}
+
+    public static AccessState getInstance(Context passedContext) {
 
         if (instance == null) {
-            instance = new AccessFactory();
+            instance = new AccessState();
+
+            context = passedContext;
+            prefs = new PrefsUtil(context);
             accessApi = new Access();
+
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setAction(AccessState.LOGOUT_ACTION);
+            logoutPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         }
 
         return instance;
     }
 
-    public boolean createPIN(CharSequenceX password, String pin) {
+    public boolean createPIN(CharSequenceX password, String passedPin) {
 
         if (pin == null || pin.equals("0000") || pin.length() != 4) {
             return false;
         }
 
-        _pin = pin;
+        pin = passedPin;
 
         new AppUtil(context).applyPRNGFixes();
 
@@ -59,7 +72,7 @@ public class AccessFactory {
             random.nextBytes(bytes);
             String value = new String(org.spongycastle.util.encoders.Hex.encode(bytes), "UTF-8");
 
-            JSONObject json = accessApi.setAccess(key, value, _pin);
+            JSONObject json = accessApi.setAccess(key, value, pin);
             if (json.get("success") != null) {
                 String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(value), AESUtil.PinPbkdf2Iterations);
                 prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
@@ -78,15 +91,15 @@ public class AccessFactory {
 
     }
 
-    public CharSequenceX validatePIN(String pin) throws Exception {
+    public CharSequenceX validatePIN(String passedPin) throws Exception {
 
-        _pin = pin;
+        pin = passedPin;
 
         String key = prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
         String encrypted_password = prefs.getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
 
         try {
-            final JSONObject json = accessApi.validateAccess(key, _pin);
+            final JSONObject json = accessApi.validateAccess(key, pin);
             String decryptionKey = (String) json.get("success");
             CharSequenceX password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
             return password;
@@ -102,15 +115,42 @@ public class AccessFactory {
         }
     }
 
+    public void setPIN(String pin) {
+        this.pin = pin;
+    }
+
     public String getPIN() {
-        return _pin;
+        return pin;
+    }
+
+    /**
+     * Called from all activities' onPause
+     */
+    public void startLogoutTimer() {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT, logoutPendingIntent);
+    }
+
+    /**
+     * Called from all activities' onResume
+     */
+    public void stopLogoutTimer() {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(logoutPendingIntent);
+    }
+
+    public void logout() {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setAction(LOGOUT_ACTION);
+        context.startActivity(intent);
     }
 
     public boolean isLoggedIn() {
         return isLoggedIn;
     }
 
-    public void setIsLoggedIn(boolean logged) {
-        isLoggedIn = logged;
+    public void setIsLoggedIn(boolean loggedIn) {
+        this.isLoggedIn = loggedIn;
     }
 }

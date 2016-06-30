@@ -31,11 +31,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     protected void onResume() {
         super.onResume();
 
-        LogoutUtil.getInstance(MainActivity.this).stopLogoutTimer();
+        AccessState.getInstance(MainActivity.this).stopLogoutTimer();
         appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     protected void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

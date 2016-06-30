@@ -14,8 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.viewModel.PairingViewModel;
 
 import piuk.blockchain.android.R;
@@ -49,7 +49,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override

@@ -6,7 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.util.LogoutUtil;
+import info.blockchain.wallet.access.AccessState;
 
 import piuk.blockchain.android.R;
 
@@ -40,7 +40,7 @@ public class BackupWalletActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class BackupWalletActivity extends ActionBarActivity {
 
     @Override
     protected void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

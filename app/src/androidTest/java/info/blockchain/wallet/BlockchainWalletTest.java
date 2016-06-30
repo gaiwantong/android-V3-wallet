@@ -3,17 +3,10 @@ package info.blockchain.wallet;
 import android.content.Context;
 
 import info.blockchain.credentials.WalletUtil;
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.crypto.MnemonicException;
-import org.json.JSONException;
-
-import java.io.IOException;
 
 public class BlockchainWalletTest extends BlockchainTest {
 
@@ -129,7 +122,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     public void loginGoodPIN() {
         CharSequenceX password = null;
         try {
-            password = AccessFactory.getInstance(context).validatePIN(WalletUtil.getInstance(context).getValidPin());
+            password = AccessState.getInstance(context).validatePIN(WalletUtil.getInstance(context).getValidPin());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -140,7 +133,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     public void loginBadPIN() {
         CharSequenceX password = null;
         try {
-            password = AccessFactory.getInstance(context).validatePIN("9999");
+            password = AccessState.getInstance(context).validatePIN("9999");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

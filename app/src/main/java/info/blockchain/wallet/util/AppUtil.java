@@ -6,9 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Camera;
-import android.util.Log;
 import android.view.MotionEvent;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -142,7 +142,7 @@ public class AppUtil {
                 PRNGFixes.apply();
             } catch (Exception e1) {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                LogoutUtil.logout();
+                AccessState.getInstance(context).logout();
             }
         }
     }

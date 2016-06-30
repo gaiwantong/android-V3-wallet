@@ -41,6 +41,7 @@ import android.widget.TextView;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.address.AddressFactory;
@@ -67,7 +68,6 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -694,13 +694,13 @@ public class AccountActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

@@ -26,7 +26,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadBridge;
@@ -35,7 +35,6 @@ import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.LogoutUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -140,7 +139,7 @@ public class UpgradeWalletActivity extends Activity {
 
                                             Looper.prepare();
 
-                                            if (AccessFactory.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessFactory.getInstance(UpgradeWalletActivity.this).getPIN())) {
+                                            if (AccessState.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessState.getInstance(UpgradeWalletActivity.this).getPIN())) {
                                                 PayloadBridge.getInstance(UpgradeWalletActivity.this).remoteSaveThread();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                             } else {
@@ -193,7 +192,7 @@ public class UpgradeWalletActivity extends Activity {
 
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
                 appUtil.restartApp("verified", true);
             }
         });
@@ -321,7 +320,7 @@ public class UpgradeWalletActivity extends Activity {
 
                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                         prefs.setValue(PrefsUtil.KEY_ASK_LATER, false);
-                        AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
                         appUtil.restartApp("verified", true);
                     }
                 });
@@ -359,7 +358,7 @@ public class UpgradeWalletActivity extends Activity {
         appUtil.setUpgradeReminder(System.currentTimeMillis());
         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
         prefs.setValue(PrefsUtil.KEY_ASK_LATER, true);
-        AccessFactory.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
         appUtil.restartApp("verified", true);
     }
 
@@ -403,12 +402,12 @@ public class UpgradeWalletActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        LogoutUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        LogoutUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
