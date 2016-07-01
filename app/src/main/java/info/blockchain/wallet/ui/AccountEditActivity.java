@@ -526,7 +526,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                                     legacyAddress.setLabel(params[0]);
                                                 }
 
-                                                if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                                                if (PayloadFactory.getInstance().put()) {
 
                                                     runOnUiThread(new Runnable() {
                                                         @Override
@@ -617,7 +617,7 @@ public class AccountEditActivity extends AppCompatActivity {
 
                                             toggleArchived();
 
-                                            if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                                            if (PayloadFactory.getInstance().put()) {
 
                                                 try {
                                                     HDPayloadBridge.getInstance().updateBalancesAndTransactions();
@@ -675,7 +675,7 @@ public class AccountEditActivity extends AppCompatActivity {
                 final int revertDefault = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
                 PayloadFactory.getInstance().get().getHdWallet().setDefaultIndex(accountIndex);
 
-                if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+                if (PayloadFactory.getInstance().put()) {
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -915,7 +915,7 @@ public class AccountEditActivity extends AppCompatActivity {
             legacyAddress.setWatchOnly(false);
         }
 
-        if (PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThreadLocked()) {
+        if (PayloadFactory.getInstance().put()) {
 
             //Reset double encrypt
             PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
@@ -1225,7 +1225,16 @@ public class AccountEditActivity extends AppCompatActivity {
                 //Update v2 balance immediately after spend - until refresh from server
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThread();
+                PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                    @Override
+                    public void onSaveSuccess() {
+                    }
+
+                    @Override
+                    public void onSaveFail() {
+                        ToastCustom.makeText(AccountEditActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+                });
 
                 runOnUiThread(new Runnable() {
                     @Override

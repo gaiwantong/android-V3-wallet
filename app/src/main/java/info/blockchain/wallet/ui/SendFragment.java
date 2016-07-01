@@ -1782,7 +1782,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
-                PayloadBridge.getInstance(context).remoteSaveThread();
+                PayloadBridge.getInstance(context).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                    @Override
+                    public void onSaveSuccess() {
+                    }
+
+                    @Override
+                    public void onSaveFail() {
+                        ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+                });
                 closeDialog(alertDialog, true);
 
                 new AppRate(getActivity())

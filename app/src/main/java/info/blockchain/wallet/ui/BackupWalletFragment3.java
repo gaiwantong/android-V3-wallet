@@ -60,11 +60,24 @@ public class BackupWalletFragment3 extends Fragment {
 
                     PayloadFactory.getInstance().get().getHdWallet().mnemonic_verified(true);
                     new PrefsUtil(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int) (System.currentTimeMillis() / 1000));
-                    PayloadBridge.getInstance(getActivity()).remoteSaveThread();
-                    ToastCustom.makeText(getActivity(), getString(R.string.backup_confirmed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    getActivity().setResult(Activity.RESULT_OK);
-                    getFragmentManager().popBackStack();
-                    getFragmentManager().popBackStack();
+                    PayloadBridge.getInstance(getActivity()).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                        @Override
+                        public void onSaveSuccess() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.backup_confirmed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                            getActivity().setResult(Activity.RESULT_OK);
+                            getFragmentManager().popBackStack();
+                            getFragmentManager().popBackStack();
+                        }
+
+                        @Override
+                        public void onSaveFail() {
+                            ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            getActivity().setResult(Activity.RESULT_CANCELED);
+                            getFragmentManager().popBackStack();
+                            getFragmentManager().popBackStack();
+                        }
+                    });
+
                 } else
                     ToastCustom.makeText(getActivity(), getString(R.string.backup_word_mismatch), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 

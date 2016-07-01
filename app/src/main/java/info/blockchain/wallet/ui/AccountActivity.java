@@ -524,7 +524,7 @@ public class AccountActivity extends AppCompatActivity {
                     }
 
                     //Save payload
-                    if (PayloadBridge.getInstance(AccountActivity.this).remoteSaveThreadLocked()) {
+                    if (PayloadFactory.getInstance().put()) {
 
                         ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
@@ -934,10 +934,19 @@ public class AccountActivity extends AppCompatActivity {
         }
         legacyAddress.setWatchOnly(false);
         PayloadFactory.getInstance().set(payload);
-        PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread();
-        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-        updateAccountsList();
+        PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+            @Override
+            public void onSaveSuccess() {
+                ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                updateAccountsList();
+            }
 
+            @Override
+            public void onSaveFail() {
+                ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                //TODO revert on fail
+            }
+        });
     }
 
     private void importWatchOnly(String address){
@@ -1468,13 +1477,20 @@ public class AccountActivity extends AppCompatActivity {
                 if(isLastSpend){
                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                    PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread();
-                    runOnUiThread(new Runnable() {
+                    PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override
-                        public void run() {
-                            updateAccountsList();
-                            transferFundsMenuItem.setVisible(false);
+                        public void onSaveSuccess() {
                         }
+
+                        @Override
+                        public void onSaveFail() {
+                            ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        }
+                    });
+
+                    runOnUiThread(() -> {
+                        updateAccountsList();
+                        transferFundsMenuItem.setVisible(false);
                     });
                 }
 

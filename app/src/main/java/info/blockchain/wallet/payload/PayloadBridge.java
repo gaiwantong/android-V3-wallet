@@ -1,10 +1,8 @@
 package info.blockchain.wallet.payload;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -100,53 +98,27 @@ public class PayloadBridge {
         return true;
     }
 
-    /**
-     * Remote save of payload to server - no thread.
-     */
-    public boolean remoteSaveThreadLocked()  {
-
-        if (PayloadFactory.getInstance().get() != null) {
-            return PayloadFactory.getInstance().put();
-        }else{
-            return false;
-        }
+    public interface PayloadSaveListener{
+        void onSaveSuccess();
+        void onSaveFail();
     }
 
     /**
      * Thread for remote save of payload to server.
      */
-    public void remoteSaveThread() {
+    public void remoteSaveThread(PayloadSaveListener listener) {
 
-        final Handler handler = new Handler();
+        new Thread(() -> {
+            Looper.prepare();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                if (PayloadFactory.getInstance().get() != null) {
-
-                    if (PayloadFactory.getInstance().put()) {
-//                        ToastCustom.makeText(context, "Remote save OK", ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                        ;
-                    } else {
-                        ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    }
-
-                } else {
-                    ToastCustom.makeText(context, context.getString(R.string.payload_corrupted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ;
-                    }
-                });
-
-                Looper.loop();
-
+            if (PayloadFactory.getInstance().put()) {
+                listener.onSaveSuccess();
+            } else {
+                listener.onSaveFail();
             }
+
+            Looper.loop();
+
         }).start();
     }
 }

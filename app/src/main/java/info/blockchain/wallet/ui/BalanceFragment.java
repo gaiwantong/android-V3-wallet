@@ -55,6 +55,7 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -404,7 +405,17 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
             prefs.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-            PayloadBridge.getInstance(context).remoteSaveThread();
+            PayloadBridge.getInstance(context).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                @Override
+                public void onSaveSuccess() {
+
+                }
+
+                @Override
+                public void onSaveFail() {
+                    ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+            });
             accountsAdapter.notifyDataSetChanged();
         }
 

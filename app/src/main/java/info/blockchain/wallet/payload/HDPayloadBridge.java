@@ -173,7 +173,7 @@ public class HDPayloadBridge {
             if (!no_tx && appUtil.isNewlyCreated()) {
                 return false;
             } else {
-                if(!PayloadBridge.getInstance(context).remoteSaveThreadLocked())
+                if(!PayloadFactory.getInstance().put())
                     return false;
             }
         }
