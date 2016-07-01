@@ -60,7 +60,7 @@ public class BackupWalletFragment3 extends Fragment {
 
                     PayloadFactory.getInstance().get().getHdWallet().mnemonic_verified(true);
                     new PrefsUtil(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int) (System.currentTimeMillis() / 1000));
-                    PayloadBridge.getInstance(getActivity()).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override
                         public void onSaveSuccess() {
                             ToastCustom.makeText(getActivity(), getString(R.string.backup_confirmed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);

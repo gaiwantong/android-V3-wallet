@@ -3,14 +3,14 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.content.Intent;
 
-import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.address.AddressFactory;
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -26,14 +26,13 @@ import java.util.List;
 
 import piuk.blockchain.android.R;
 
-//import android.util.Log;
-
 public class HDPayloadBridge {
 
     private static Context context = null;
     private static HDPayloadBridge instance = null;
     private static PrefsUtil prefs;
     private static AppUtil appUtil;
+    private static PrefsUtil prefsUtil;
 
     private HDPayloadBridge() {
         ;
@@ -44,6 +43,7 @@ public class HDPayloadBridge {
         context = ctx;
         prefs = new PrefsUtil(context);
         appUtil = new AppUtil(context);
+        prefsUtil = new PrefsUtil(context);
 
         if (instance == null) {
             instance = new HDPayloadBridge();
@@ -254,12 +254,20 @@ public class HDPayloadBridge {
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException {
         WalletFactory.getInstance().newWallet(12, passphrase, 1);
-        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
+        Payload payload = PayloadBridge.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
+        if(payload != null){
+            prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
+            appUtil.setSharedKey(payload.getSharedKey());
+        }
     }
 
     public void restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException {
         WalletFactory.getInstance().restoreWallet(seed, passphrase, 1);
-        PayloadBridge.getInstance(context).createBlockchainWallet(WalletFactory.getInstance().get());
+        Payload payload = PayloadBridge.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
+        if(payload != null){
+            prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
+            appUtil.setSharedKey(payload.getSharedKey());
+        }
     }
 
     //

@@ -934,7 +934,7 @@ public class AccountActivity extends AppCompatActivity {
         }
         legacyAddress.setWatchOnly(false);
         PayloadFactory.getInstance().set(payload);
-        PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+        PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
             @Override
             public void onSaveSuccess() {
                 ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
@@ -1477,7 +1477,7 @@ public class AccountActivity extends AppCompatActivity {
                 if(isLastSpend){
                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                     PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                    PayloadBridge.getInstance(AccountActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override
                         public void onSaveSuccess() {
                         }

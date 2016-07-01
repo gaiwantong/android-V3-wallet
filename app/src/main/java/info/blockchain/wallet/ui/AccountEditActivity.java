@@ -1225,7 +1225,7 @@ public class AccountEditActivity extends AppCompatActivity {
                 //Update v2 balance immediately after spend - until refresh from server
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
                 PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                PayloadBridge.getInstance(AccountEditActivity.this).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                     @Override
                     public void onSaveSuccess() {
                     }

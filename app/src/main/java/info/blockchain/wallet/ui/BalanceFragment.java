@@ -405,7 +405,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(prefs.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
             prefs.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-            PayloadBridge.getInstance(context).remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+            PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                 @Override
                 public void onSaveSuccess() {
 
