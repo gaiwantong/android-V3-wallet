@@ -73,7 +73,7 @@ public class AppUtil {
     }
 
     public void setUpgradeReminder(long ts) {
-        prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, ts);
+        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, ts);
     }
 
     public boolean isNewlyCreated() {

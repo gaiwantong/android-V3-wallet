@@ -22,6 +22,7 @@ import android.widget.TextView;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.HDPayloadBridge;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
@@ -221,7 +222,11 @@ public class PinEntryActivity extends Activity {
                     // New wallet
                     appUtil.setNewlyCreated(true);
 
-                    HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
+                    Payload payload = HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
+                    if(payload != null){
+                        prefs.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
+                        appUtil.setSharedKey(payload.getSharedKey());
+                    }
 
                     PayloadFactory.getInstance().get().setUpgraded(true);
 
@@ -313,7 +318,7 @@ public class PinEntryActivity extends Activity {
 
                                         //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
                                         if (previousVersionCode != packageInfo.versionCode) {
-                                            prefs.setValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L);
+                                            prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
                                             prefs.setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
                                         }
 
@@ -321,7 +326,7 @@ public class PinEntryActivity extends Activity {
                                         e.printStackTrace();
                                     }
 
-                                    if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
+                                    if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
                                         Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);

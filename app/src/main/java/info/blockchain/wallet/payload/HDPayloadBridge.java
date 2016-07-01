@@ -30,9 +30,7 @@ public class HDPayloadBridge {
 
     private static Context context = null;
     private static HDPayloadBridge instance = null;
-    private static PrefsUtil prefs;
     private static AppUtil appUtil;
-    private static PrefsUtil prefsUtil;
 
     private HDPayloadBridge() {
         ;
@@ -41,9 +39,7 @@ public class HDPayloadBridge {
     public static HDPayloadBridge getInstance(Context ctx) {
 
         context = ctx;
-        prefs = new PrefsUtil(context);
         appUtil = new AppUtil(context);
-        prefsUtil = new PrefsUtil(context);
 
         if (instance == null) {
             instance = new HDPayloadBridge();
@@ -63,8 +59,9 @@ public class HDPayloadBridge {
 
     public boolean init(CharSequenceX password) {
 
-        PayloadFactory.getInstance().get(prefs.getValue(PrefsUtil.KEY_GUID, ""),
-                appUtil.getSharedKey(),
+        //TODO - remove PrefsUtil
+        PayloadFactory.getInstance().get(new PrefsUtil(context).getValue(PrefsUtil.KEY_GUID, ""),
+                new AppUtil(context).getSharedKey(),
                 password);
 
         if (PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().stepNumber != 9) {
@@ -91,15 +88,6 @@ public class HDPayloadBridge {
     public boolean update(CharSequenceX password, CharSequenceX secondPassword) throws IOException, JSONException,
             DecoderException, AddressFormatException, MnemonicException.MnemonicLengthException,
             MnemonicException.MnemonicChecksumException, MnemonicException.MnemonicWordException {
-
-        if (prefs.getValue(PrefsUtil.KEY_ASK_LATER, false)) {
-            return true;
-        }
-
-        if (!PayloadFactory.getInstance().get().isUpgraded() &&
-                prefs.getValue(PrefsUtil.KEY_HD_UPGRADED_LAST_REMINDER, 0L) == 0L) {
-            return true;
-        }
 
         if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
             if (StringUtils.isEmpty(secondPassword) || !DoubleEncryptionFactory.getInstance().validateSecondPassword(
@@ -252,22 +240,14 @@ public class HDPayloadBridge {
 
     }
 
-    public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException {
+    public Payload createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException {
         WalletFactory.getInstance().newWallet(12, passphrase, 1);
-        Payload payload = PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
-        if(payload != null){
-            prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
-            appUtil.setSharedKey(payload.getSharedKey());
-        }
+        return PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
     }
 
-    public void restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException {
+    public Payload restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException {
         WalletFactory.getInstance().restoreWallet(seed, passphrase, 1);
-        Payload payload = PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
-        if(payload != null){
-            prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
-            appUtil.setSharedKey(payload.getSharedKey());
-        }
+        return PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
     }
 
     //

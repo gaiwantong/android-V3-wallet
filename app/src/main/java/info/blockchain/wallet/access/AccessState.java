@@ -56,7 +56,7 @@ public class AccessState {
 
     public boolean createPIN(CharSequenceX password, String passedPin) {
 
-        if (pin == null || pin.equals("0000") || pin.length() != 4) {
+        if (passedPin == null || passedPin.equals("0000") || passedPin.length() != 4) {
             return false;
         }
 
