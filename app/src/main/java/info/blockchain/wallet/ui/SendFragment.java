@@ -159,6 +159,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private BigInteger[] absoluteFeeSuggestedEstimates = null;
     private PrefsUtil prefs;
+    private HDPayloadBridge hdPayloadBridge;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -203,6 +204,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
         prefs = new PrefsUtil(getActivity());
+        hdPayloadBridge = new HDPayloadBridge(getActivity());
 
         setupToolbar();
 
@@ -705,7 +707,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
 
             ReceiveAddress receiveAddress = null;
-            receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
+            receiveAddress = hdPayloadBridge.getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
         } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
@@ -1770,7 +1772,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                     //Update v3 balance immediately after spend - until refresh from server
                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                    MultiAddrFactory.getInstance().setXpubAmount(hdPayloadBridge.account2Xpub(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(hdPayloadBridge.account2Xpub(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
                 } else {
 

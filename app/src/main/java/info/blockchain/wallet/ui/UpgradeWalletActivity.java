@@ -257,7 +257,7 @@ public class UpgradeWalletActivity extends Activity {
                     if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
                         appUtil.setUpgradeReminder(System.currentTimeMillis());
                         appUtil.setNewlyCreated(true);
-                        boolean isSuccessful = HDPayloadBridge.getInstance(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), secondPassword);
+                        boolean isSuccessful = new HDPayloadBridge(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), secondPassword);
                         if(isSuccessful){
                             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                             success = true;

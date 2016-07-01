@@ -140,7 +140,7 @@ public class MainViewModel implements ViewModel{
                 Looper.prepare();
 
                 try {
-                    HDPayloadBridge.getInstance(context).updateBalancesAndTransactions();
+                    new HDPayloadBridge(context).updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

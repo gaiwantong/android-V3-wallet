@@ -59,6 +59,7 @@ public class PinEntryActivity extends Activity {
     private String strPassword = null;
     private PrefsUtil prefs;
     private AppUtil appUtil;
+    private HDPayloadBridge hdPayloadBridge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class PinEntryActivity extends Activity {
 
         prefs = new PrefsUtil(this);
         appUtil = new AppUtil(this);
+        hdPayloadBridge = new HDPayloadBridge(this);
 
         //Coming from CreateWalletFragment
         getBundleData();
@@ -222,7 +224,7 @@ public class PinEntryActivity extends Activity {
                     // New wallet
                     appUtil.setNewlyCreated(true);
 
-                    Payload payload = HDPayloadBridge.getInstance(PinEntryActivity.this).createHDWallet(12, "", 1);
+                    Payload payload = hdPayloadBridge.createHDWallet(12, "", 1);
                     if(payload != null){
                         prefs.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
                         appUtil.setSharedKey(payload.getSharedKey());
@@ -276,7 +278,7 @@ public class PinEntryActivity extends Activity {
                 try {
                     Looper.prepare();
 
-                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(
+                    if (hdPayloadBridge.init(
                             prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
                             ,prefs.getValue(PrefsUtil.KEY_GUID,""),
                             pw)) {
@@ -496,7 +498,7 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(
+                    if (hdPayloadBridge.init(
                             prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
                             ,prefs.getValue(PrefsUtil.KEY_GUID,""), pw)) {
 

@@ -27,33 +27,12 @@ import piuk.blockchain.android.R;
 
 public class HDPayloadBridge {
 
-    private static Context context = null;
-    private static HDPayloadBridge instance = null;
-    private static AppUtil appUtil;
+    private Context context = null;
+    private AppUtil appUtil;
 
-    private HDPayloadBridge() {
-        ;
-    }
-
-    public static HDPayloadBridge getInstance(Context ctx) {
-
-        context = ctx;
-        appUtil = new AppUtil(context);
-
-        if (instance == null) {
-            instance = new HDPayloadBridge();
-        }
-
-        return instance;
-    }
-
-    public static HDPayloadBridge getInstance() {
-
-        if (instance == null) {
-            instance = new HDPayloadBridge();
-        }
-
-        return instance;
+    public HDPayloadBridge(Context context) {
+        this.context = context;
+        this.appUtil = new AppUtil(context);
     }
 
     public boolean init(String sharedKey, String guid, CharSequenceX password) {

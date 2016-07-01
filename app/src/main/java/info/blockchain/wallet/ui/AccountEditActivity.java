@@ -620,7 +620,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                             if (PayloadFactory.getInstance().put()) {
 
                                                 try {
-                                                    HDPayloadBridge.getInstance().updateBalancesAndTransactions();
+                                                    new HDPayloadBridge(AccountEditActivity.this).updateBalancesAndTransactions();
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -1125,7 +1125,7 @@ public class AccountEditActivity extends AppCompatActivity {
     private String getV3ReceiveAddress(int accountIndex) {
 
         try {
-            ReceiveAddress receiveAddress = HDPayloadBridge.getInstance(this).getReceiveAddress(accountIndex);
+            ReceiveAddress receiveAddress = new HDPayloadBridge(this).getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
         } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {

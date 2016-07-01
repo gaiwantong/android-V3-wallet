@@ -112,6 +112,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private boolean mIsViewExpanded = false;
     private View prevRowClicked = null;
     private PrefsUtil prefs;
+    private HDPayloadBridge hdPayloadBridge;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -132,7 +133,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            HDPayloadBridge.getInstance(context).updateBalancesAndTransactions();
+                            hdPayloadBridge.updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -161,6 +162,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         context = getActivity();
         prefs = new PrefsUtil(context);
+        hdPayloadBridge = new HDPayloadBridge(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);

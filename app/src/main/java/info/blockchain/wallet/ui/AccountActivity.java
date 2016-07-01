@@ -511,7 +511,7 @@ public class AccountActivity extends AppCompatActivity {
 
                     //Add account
                     try {
-                        account = HDPayloadBridge.getInstance().addAccount(accountLabel);
+                        account = new HDPayloadBridge(AccountActivity.this).addAccount(accountLabel);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -668,7 +668,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private String getAccountBalance(int index) {
 
-        String address = HDPayloadBridge.getInstance(this).account2Xpub(index);
+        String address = new HDPayloadBridge(this).account2Xpub(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
@@ -1364,7 +1364,7 @@ public class AccountActivity extends AppCompatActivity {
     private String getV3ReceiveAddress(int accountIndex) {
 
         try {
-            ReceiveAddress receiveAddress = HDPayloadBridge.getInstance(this).getReceiveAddress(accountIndex);
+            ReceiveAddress receiveAddress = new HDPayloadBridge(this).getReceiveAddress(accountIndex);
             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIndex).incReceive();
             return receiveAddress.getAddress();
 

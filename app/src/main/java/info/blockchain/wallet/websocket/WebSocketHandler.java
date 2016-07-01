@@ -46,12 +46,14 @@ public class WebSocketHandler {
     private HashSet<String> onChangeHashSet = new HashSet<String>();
     private Timer pingTimer = null;
     private boolean pingPongSuccess = false;
+    private HDPayloadBridge hdPayloadBridge;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
         this.addrs = addrs;
+        this.hdPayloadBridge = new HDPayloadBridge(context);
     }
 
     public void send(String message) {
@@ -172,8 +174,9 @@ public class WebSocketHandler {
 
                 Looper.prepare();
 
+                //TODO - updateBalancesAndTransactions is being called twice here
                 try {
-                    HDPayloadBridge.getInstance().updateBalancesAndTransactions();
+                    hdPayloadBridge.updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -318,7 +321,7 @@ public class WebSocketHandler {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 //Download changed payload
-                                                HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().get().getSharedKey(),
+                                                hdPayloadBridge.init(PayloadFactory.getInstance().get().getSharedKey(),
                                                         PayloadFactory.getInstance().get().getGuid(),
                                                         PayloadFactory.getInstance().getTempPassword());
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
