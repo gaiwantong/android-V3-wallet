@@ -85,7 +85,7 @@ public class BlockchainWalletTest extends BlockchainTest {
         boolean loggedIn = false;
 
         try {
-            loggedIn = HDPayloadBridge.getInstance(context).init(pw);
+//            loggedIn = HDPayloadBridge.getInstance(context).init(pw);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -98,7 +98,7 @@ public class BlockchainWalletTest extends BlockchainTest {
         boolean loggedIn = false;
 
         try {
-            loggedIn = HDPayloadBridge.getInstance(context).init(new CharSequenceX(pw));
+//            loggedIn = HDPayloadBridge.getInstance(context).init(new CharSequenceX(pw));
         } catch (Exception e) {
             ;
         } finally {
@@ -111,7 +111,7 @@ public class BlockchainWalletTest extends BlockchainTest {
         boolean loggedIn = false;
 
         try {
-            loggedIn = HDPayloadBridge.getInstance(context).init(pw);
+//            loggedIn = HDPayloadBridge.getInstance(context).init(pw);
         } catch (Exception e) {
             ;
         } finally {

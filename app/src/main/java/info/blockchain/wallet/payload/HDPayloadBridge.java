@@ -10,7 +10,6 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.OSUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -57,11 +56,10 @@ public class HDPayloadBridge {
         return instance;
     }
 
-    public boolean init(CharSequenceX password) {
+    public boolean init(String sharedKey, String guid, CharSequenceX password) {
 
-        //TODO - remove PrefsUtil
-        PayloadFactory.getInstance().get(new PrefsUtil(context).getValue(PrefsUtil.KEY_GUID, ""),
-                new AppUtil(context).getSharedKey(),
+        PayloadFactory.getInstance().get(guid,
+                sharedKey,
                 password);
 
         if (PayloadFactory.getInstance().get() == null || PayloadFactory.getInstance().get().stepNumber != 9) {

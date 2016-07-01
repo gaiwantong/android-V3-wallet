@@ -156,9 +156,11 @@ public class ManualPairingFragment extends Fragment {
                             if (payloadObj != null && payloadObj.has("sharedKey")) {
                                 prefs.setValue(PrefsUtil.KEY_GUID, guid);
                                 PayloadFactory.getInstance().setTempPassword(password);
-                                appUtil.setSharedKey((String) payloadObj.get("sharedKey"));
 
-                                if (HDPayloadBridge.getInstance(getActivity()).init(password)) {
+                                String sharedKey = (String) payloadObj.get("sharedKey");
+                                appUtil.setSharedKey(sharedKey);
+
+                                if (HDPayloadBridge.getInstance(getActivity()).init(sharedKey, guid, password)) {
                                     prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                     PayloadFactory.getInstance().setTempPassword(password);
 //                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);

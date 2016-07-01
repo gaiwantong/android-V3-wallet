@@ -317,7 +317,10 @@ public class WebSocketHandler {
                                         if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
-                                                HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
+                                                //Download changed payload
+                                                HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().get().getSharedKey(),
+                                                        PayloadFactory.getInstance().get().getGuid(),
+                                                        PayloadFactory.getInstance().getTempPassword());
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 updateBalancesAndTransactions();
                                             }

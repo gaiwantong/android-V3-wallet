@@ -276,7 +276,11 @@ public class PinEntryActivity extends Activity {
                 try {
                     Looper.prepare();
 
-                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
+                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(
+                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
+                            ,prefs.getValue(PrefsUtil.KEY_GUID,""),
+                            pw)) {
+
                         PayloadFactory.getInstance().setTempPassword(pw);
                         appUtil.setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
 
@@ -492,7 +496,9 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(pw)) {
+                    if (HDPayloadBridge.getInstance(PinEntryActivity.this).init(
+                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
+                            ,prefs.getValue(PrefsUtil.KEY_GUID,""), pw)) {
 
                         ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
