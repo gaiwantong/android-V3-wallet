@@ -254,7 +254,7 @@ public class HDPayloadBridge {
 
     public void createHDWallet(int nbWords, String passphrase, int nbAccounts) throws IOException, MnemonicException.MnemonicLengthException {
         WalletFactory.getInstance().newWallet(12, passphrase, 1);
-        Payload payload = PayloadBridge.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
+        Payload payload = PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
         if(payload != null){
             prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
             appUtil.setSharedKey(payload.getSharedKey());
@@ -263,7 +263,7 @@ public class HDPayloadBridge {
 
     public void restoreHDWallet(String seed, String passphrase, int nbAccounts) throws IOException, AddressFormatException, DecoderException, MnemonicException.MnemonicLengthException, MnemonicException.MnemonicWordException, MnemonicException.MnemonicChecksumException {
         WalletFactory.getInstance().restoreWallet(seed, passphrase, 1);
-        Payload payload = PayloadBridge.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
+        Payload payload = PayloadFactory.getInstance().createBlockchainWallet(context.getString(R.string.default_wallet_name));
         if(payload != null){
             prefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
             appUtil.setSharedKey(payload.getSharedKey());
