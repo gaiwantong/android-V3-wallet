@@ -113,6 +113,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private View prevRowClicked = null;
     private PrefsUtil prefs;
     private HDPayloadBridge hdPayloadBridge;
+    private DateUtil dateUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -163,6 +164,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         context = getActivity();
         prefs = new PrefsUtil(context);
         hdPayloadBridge = new HDPayloadBridge(context);
+        dateUtil = new DateUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);
@@ -841,7 +843,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 tvResult.setTextColor(Color.WHITE);
 
                 TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-                tvTS.setText(DateUtil.getInstance(context).formatted(tx.getTS()));
+                tvTS.setText(dateUtil.formatted(tx.getTS()));
 
                 TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
                 String dirText = tx.getDirection();

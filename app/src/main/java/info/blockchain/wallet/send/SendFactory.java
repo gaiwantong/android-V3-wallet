@@ -61,7 +61,7 @@ public class SendFactory {
     public static SendFactory getInstance(Context ctx) {
 
         context = ctx.getApplicationContext();
-        appUtil = new AppUtil(context);
+        appUtil = new AppUtil(ctx);
 
         if (instance == null) {
             instance = new SendFactory();
