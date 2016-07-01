@@ -1065,11 +1065,18 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             protected ECKey doInBackground(Void... params) {
 
-                ECKey ecKey = PayloadBridge.getInstance(AccountActivity.this).newLegacyAddress();
+                ECKey ecKey = null;
+                try {
+                    ecKey = AddressFactory.getInstance(AccountActivity.this, null).newLegacyAddress();
+                } catch (AddressFormatException e) {
+                    e.printStackTrace();
+                }
+
                 if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     return null;
                 }
+
                 return ecKey;
             }
 

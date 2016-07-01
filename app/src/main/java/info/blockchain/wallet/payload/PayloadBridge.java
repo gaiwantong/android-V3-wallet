@@ -4,19 +4,14 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.util.Util;
-import info.blockchain.wallet.util.WebUtil;
 
-import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -154,49 +149,4 @@ public class PayloadBridge {
             }
         }).start();
     }
-
-    /*
-     *
-     *
-        For 'lame' mode only
-     *
-     *
-     */
-    public ECKey newLegacyAddress() {
-
-        appUtil.applyPRNGFixes();
-
-        String result = null;
-        byte[] data = null;
-        try {
-            result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
-            if (!result.matches("^[A-Fa-f0-9]{64}$")) {
-                return null;
-            }
-            data = Hex.decode(result);
-        } catch (Exception e) {
-            return null;
-        }
-
-        ECKey ecKey = null;
-        if (data != null) {
-            byte[] rdata = new byte[32];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(rdata);
-            byte[] privbytes = Util.getInstance().xor(data, rdata);
-            if (privbytes == null) {
-                return null;
-            }
-            ecKey = ECKey.fromPrivate(privbytes, true);
-            // erase all byte arrays:
-            random.nextBytes(privbytes);
-            random.nextBytes(rdata);
-            random.nextBytes(data);
-        } else {
-            return null;
-        }
-
-        return ecKey;
-    }
-
 }
