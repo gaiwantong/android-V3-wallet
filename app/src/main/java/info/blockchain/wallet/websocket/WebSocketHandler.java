@@ -19,6 +19,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.PrefsUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +48,8 @@ public class WebSocketHandler {
     private Timer pingTimer = null;
     private boolean pingPongSuccess = false;
     private HDPayloadBridge hdPayloadBridge;
+    private PrefsUtil prefsUtil;
+    private MonetaryUtil monetaryUtil;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
@@ -54,6 +57,8 @@ public class WebSocketHandler {
         this.xpubs = xpubs;
         this.addrs = addrs;
         this.hdPayloadBridge = new HDPayloadBridge(context);
+        this.prefsUtil = new PrefsUtil(context);
+        this.monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
 
     public void send(String message) {
@@ -296,7 +301,7 @@ public class WebSocketHandler {
 
                                         String title = context.getString(R.string.app_name);
                                         if (total_value > 0L) {
-                                            String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double) total_value / 1e8) + " BTC";
+                                            String marquee = context.getString(R.string.received_bitcoin) + " " + monetaryUtil.getBTCFormat().format((double) total_value / 1e8) + " BTC";
                                             String text = marquee;
                                             if (total_value > 0) {
                                                 text += " from " + in_addr;

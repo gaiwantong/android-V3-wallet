@@ -44,8 +44,9 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private final String TAG_ALL = "TAG_ALL";
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList;
-    private PrefsUtil prefs;
+    private PrefsUtil prefsUtil;
     private OSUtil osUtil;
+    private MonetaryUtil monetaryUtil;
 
     @Bindable
     public String getBalance(){
@@ -71,8 +72,9 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         this.activeAccountAndAddressList = new ArrayList<>();
         this.activeAccountAndAddressBiMap = HashBiMap.create();
         this.transactionList = new ArrayList<>();
-        this.prefs = new PrefsUtil(context);
+        this.prefsUtil = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
 
     @Override
@@ -399,15 +401,15 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         transactionList.addAll(unsortedTransactionList);
 
         //Update Balance
-        String strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         double btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";
         if (isBTC) {
-            balanceTotal = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
+            balanceTotal = (monetaryUtil.getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
         } else {
-            balanceTotal = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
+            balanceTotal = (monetaryUtil.getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
         }
 
         setBalance(balanceTotal);
@@ -435,7 +437,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getDisplayUnits() {
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
     private class TxDateComparator implements Comparator<Tx> {

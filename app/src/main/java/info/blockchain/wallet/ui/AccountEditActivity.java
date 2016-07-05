@@ -56,6 +56,7 @@ import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.websocket.WebSocketService;
@@ -96,6 +97,8 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private int accountIndex;
     private View mLayout;
+    private MonetaryUtil monetaryUtil;
+    private PrefsUtil prefsUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +109,9 @@ public class AccountEditActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        prefsUtil = new PrefsUtil(this);
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         initToolbar();
         getIntentData();
@@ -1073,7 +1079,7 @@ public class AccountEditActivity extends AppCompatActivity {
         //Fee
         TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
         pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
-        confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
+        confirmFee.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
 
         //Total
         long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
@@ -1081,7 +1087,7 @@ public class AccountEditActivity extends AppCompatActivity {
         pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
         double btc_balance = (((double) balanceAfterFee) / 1e8);
-        confirmTotal.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(this).getDenominatedAmount(btc_balance)) + " " + " BTC");
+        confirmTotal.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_balance)) + " " + " BTC");
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {

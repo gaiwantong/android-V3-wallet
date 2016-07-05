@@ -140,15 +140,17 @@ public class AccountActivity extends AppCompatActivity {
     private FloatingActionsMenu menuMultipleActions = null;
     private MenuItem transferFundsMenuItem = null;
     private View mLayout;
-    private PrefsUtil prefs;
+    private PrefsUtil prefsUtil;
+    private MonetaryUtil monetaryUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         context = this;
-        prefs = new PrefsUtil(context);
+        prefsUtil = new PrefsUtil(context);
         appUtil = new AppUtil(context);
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setContentView(R.layout.activity_accounts);
         mLayout = findViewById(R.id.main_layout);
@@ -280,7 +282,7 @@ public class AccountActivity extends AppCompatActivity {
 
             transferFundsMenuItem.setVisible(true);
 
-            if(prefs.getValue("WARN_TRANSFER_ALL", true)){
+            if(prefsUtil.getValue("WARN_TRANSFER_ALL", true)){
                 promptToTransferFunds(true);
             }
 
@@ -672,9 +674,9 @@ public class AccountActivity extends AppCompatActivity {
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
-        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        String unit = (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-        return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
+        return monetaryUtil.getDisplayAmount(amount) + " " + unit;
     }
 
     private String getAddressBalance(int index) {
@@ -682,9 +684,9 @@ public class AccountActivity extends AppCompatActivity {
         String address = legacy.get(index).getAddress();
         Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
         if (amount == null) amount = 0l;
-        String unit = (String) MonetaryUtil.getInstance().getBTCUnits()[prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        String unit = (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
-        return MonetaryUtil.getInstance(AccountActivity.this).getDisplayAmount(amount) + " " + unit;
+        return monetaryUtil.getDisplayAmount(amount) + " " + unit;
     }
 
     @Override
@@ -1250,7 +1252,7 @@ public class AccountActivity extends AppCompatActivity {
         confirmCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dismissForever.isChecked())prefs.setValue("WARN_TRANSFER_ALL", false);
+                if(dismissForever.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
                 alertDialog.dismiss();
             }
         });
@@ -1259,7 +1261,7 @@ public class AccountActivity extends AppCompatActivity {
         confirmSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dismissForever.isChecked())prefs.setValue("WARN_TRANSFER_ALL", false);
+                if(dismissForever.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
                 checkTransferFunds();
                 alertDialog.dismiss();
             }
@@ -1329,11 +1331,11 @@ public class AccountActivity extends AppCompatActivity {
 
         //Fee
         TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-        confirmFee.setText(MonetaryUtil.getInstance(this).getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
+        confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
 
         //Total
         TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-        confirmTotal.setText(MonetaryUtil.getInstance(this).getDisplayAmount(totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
+        confirmTotal.setText(monetaryUtil.getDisplayAmount(totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
 
         TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
         confirmCancel.setOnClickListener(new View.OnClickListener() {

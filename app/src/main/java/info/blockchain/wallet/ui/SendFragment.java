@@ -158,8 +158,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private BigInteger absoluteFeeUsed = FeeUtil.AVERAGE_FEE;
 
     private BigInteger[] absoluteFeeSuggestedEstimates = null;
-    private PrefsUtil prefs;
+    private PrefsUtil prefsUtil;
     private HDPayloadBridge hdPayloadBridge;
+    private MonetaryUtil monetaryUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -203,8 +204,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
-        prefs = new PrefsUtil(getActivity());
+        prefsUtil = new PrefsUtil(getActivity());
         hdPayloadBridge = new HDPayloadBridge(getActivity());
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setupToolbar();
 
@@ -634,7 +636,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (object instanceof LegacyAddress) {
 
                             //V2
-                            if (((LegacyAddress) object).isWatchOnly() && prefs.getValue("WARN_WATCH_ONLY_SPEND", true)) {
+                            if (((LegacyAddress) object).isWatchOnly() && prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
 
                                 promptWatchOnlySpendWarning(object);
 
@@ -681,7 +683,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 @Override
                 public void onClick(View v) {
                     edReceiveTo.setText("");
-                    if(confirmDismissForever.isChecked())prefs.setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -691,7 +693,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 @Override
                 public void onClick(View v) {
                     edReceiveTo.setText(((LegacyAddress) object).getAddress());
-                    if(confirmDismissForever.isChecked())prefs.setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -735,8 +737,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
         edAmount1.setHint("0" + defaultSeparator + "00");
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvCurrency1.setText(strBTC);
@@ -764,7 +766,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             //Convert to correct units
             try {
-                btcAmount = MonetaryUtil.getInstance(getActivity()).getDisplayAmount(Long.parseLong(btcAmount));
+                btcAmount = monetaryUtil.getDisplayAmount(Long.parseLong(btcAmount));
             }catch (Exception e){
                 btcAmount = null;
             }
@@ -786,21 +788,21 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             double btc_amount = 0.0;
             try {
-                btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
+                btc_amount = monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
             } catch (NumberFormatException e) {
                 btc_amount = 0.0;
             }
 
             // sanity check on strFiat, necessary if the result of a URI scan
             if (strFiat == null) {
-                strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+                strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             }
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
             double fiat_amount = btc_fx * btc_amount;
-            edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+            edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
 //                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
+            strBTC = monetaryUtil.getBTCUnit(MonetaryUtil.UNIT_BTC);
             tvCurrency1.setText(strBTC);
             tvFeeUnits.setText(strBTC);
             tvFiat2.setText(strFiat);
@@ -820,7 +822,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 long lamount = 0L;
                 try {
                     //Long is safe to use, but double can lead to ugly rounding issues..
-                    lamount = (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
+                    lamount = (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
 
                     if (BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
                         ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
@@ -833,7 +835,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount1.removeTextChangedListener(this);
 
-                int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 switch (unit) {
@@ -961,8 +963,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-            strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+            strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(strBTC);
             tvFeeUnits.setText(strBTC);
@@ -976,8 +978,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         MainActivity.currentFragment = this;
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(strBTC);
         tvFeeUnits.setText(strBTC);
@@ -1023,14 +1025,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if(cBtc.isEmpty())cBtc = "0";
         double btc_amount = 0.0;
         try {
-            btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
+            btc_amount = monetaryUtil.getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
         } catch (NumberFormatException nfe) {
             btc_amount = 0.0;
         } catch (ParseException pe) {
             btc_amount = 0.0;
         }
         double fiat_amount = btc_fx * btc_amount;
-        edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+        edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
     }
 
     private void updateBtcTextField(String cfiat) {
@@ -1042,7 +1044,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             fiat_amount = 0.0;
         }
         double btc_amount = fiat_amount / btc_fx;
-        edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
+        edAmount1.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
     }
 
     private BigInteger getSpendAmount(){
@@ -1165,7 +1167,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
                     tvMax.setVisibility(View.VISIBLE);
                     btSend.setEnabled(true);
-                    tvMax.setText(getResources().getString(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance)) + " " + strBTC);
+                    tvMax.setText(getResources().getString(R.string.max_available) + " " + monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(sweepBalance)) + " " + strBTC);
                 }
             });
         }
@@ -1555,25 +1557,25 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //BTC Amount
                 TextView tvAmountBtc = (TextView) dialogView.findViewById(R.id.confirm_amount_btc);
-                tvAmountBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bigIntAmount.longValue()));
+                tvAmountBtc.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntAmount.longValue()));
 
                 //BTC Fee
                 final TextView tvFeeBtc = (TextView) dialogView.findViewById(R.id.confirm_fee_btc);
-                tvFeeBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bigIntFee.longValue()));
+                tvFeeBtc.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()));
 
                 TextView tvTotlaBtc = (TextView) dialogView.findViewById(R.id.confirm_total_btc);
                 BigInteger totalBtc = (pendingSpend.bigIntAmount.add(pendingSpend.bigIntFee));
-                tvTotlaBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(totalBtc.longValue()));
+                tvTotlaBtc.setText(monetaryUtil.getDisplayAmount(totalBtc.longValue()));
 
                 //Fiat Amount
                 btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-                String amountFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
+                String amountFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
                 TextView tvAmountFiat = (TextView) dialogView.findViewById(R.id.confirm_amount_fiat);
                 tvAmountFiat.setText(amountFiat);
 
                 //Fiat Fee
                 TextView tvFeeFiat = (TextView) dialogView.findViewById(R.id.confirm_fee_fiat);
-                String feeFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
+                String feeFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
                 tvFeeFiat.setText(feeFiat);
 
                 ImageView ivFeeInfo = (ImageView) dialogView.findViewById(R.id.iv_fee_info);
@@ -1595,7 +1597,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 TextView tvTotalFiat = (TextView) dialogView.findViewById(R.id.confirm_total_fiat);
                 BigInteger totalFiat = (pendingSpend.bigIntAmount.add(pendingSpend.bigIntFee));
-                String totalFiatS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (totalFiat.doubleValue() / 1e8)));
+                String totalFiatS = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (totalFiat.doubleValue() / 1e8)));
                 tvTotalFiat.setText(totalFiatS);
 
                 TextView tvCustomizeFee = (TextView) dialogView.findViewById(R.id.tv_customize_fee);
@@ -1611,7 +1613,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             public void run() {
                                 rootView.findViewById(R.id.custom_fee_container).setVisibility(View.VISIBLE);
 
-                                String fee = MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(absoluteFeeSuggested.doubleValue() / 1e8));
+                                String fee = monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(absoluteFeeSuggested.doubleValue() / 1e8));
 
                                 EditText etCustomFee = (EditText)rootView.findViewById(R.id.custom_fee);
                                 etCustomFee.setText(fee);
@@ -1703,8 +1705,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         TextView tvMessageBody = (TextView) dialogView.findViewById(R.id.tv_body);
 
         String message = String.format(getString(body),
-                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC,
-                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC);
+                monetaryUtil.getDisplayAmount(customFee.longValue()) + " " + strBTC,
+                monetaryUtil.getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC);
         tvMessageBody.setText(message);
 
         ImageView confirmBack = (ImageView) dialogView.findViewById(R.id.confirm_cancel);
@@ -1745,7 +1747,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         String message = getResources().getString(R.string.recommended_fee)
                 +"\n\n"
-                +MonetaryUtil.getInstance(getActivity()).getDisplayAmount(fee.longValue())
+                +monetaryUtil.getDisplayAmount(fee.longValue())
                 +" "+strBTC;
 
         new AlertDialog.Builder(getActivity())
@@ -2041,7 +2043,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if(getActivity() != null && getActivity().isFinishing())//activity has been destroyed
             return 0l;
 
-        return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
+        return (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
     }
 
     private boolean isValidAmount(BigInteger bAmount){
@@ -2152,7 +2154,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
             if (isDropdown) {
-                balance.setText("(" + MonetaryUtil.getInstance(getActivity()).getDisplayAmount(amount) + " " + strBTC + ")");
+                balance.setText("(" + monetaryUtil.getDisplayAmount(amount) + " " + strBTC + ")");
                 label.setText(labelText);
             } else
                 label.setText(labelText);

@@ -1,7 +1,5 @@
 package info.blockchain.wallet.util;
 
-import android.content.Context;
-
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -19,46 +17,28 @@ public class MonetaryUtil {
     public static final long MILLI_LONG = 1000L;
     public static final long MICRO_LONG = 1000000L;
     public static final double BTC_DEC = 1e8;
-    private static Context context = null;
-    private static CharSequence[] btcUnits = {"BTC", "mBTC", "bits"};
-    private static MonetaryUtil instance = null;
-    private static DecimalFormat btcFormat = null;
-    private static DecimalFormat fiatFormat = null;
-    private static PrefsUtil prefs;
+    private CharSequence[] btcUnits = {"BTC", "mBTC", "bits"};
+    private DecimalFormat btcFormat = null;
+    private DecimalFormat fiatFormat = null;
 
-    private MonetaryUtil() {
-        ;
-    }
+    int unit;
 
-    public static MonetaryUtil getInstance() {
+    public MonetaryUtil(int unit) {
+        this.unit = unit;
 
-        if (instance == null) {
-            fiatFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
-            fiatFormat.setMaximumFractionDigits(2);
-            fiatFormat.setMinimumFractionDigits(2);
-            DecimalFormatSymbols symbolsF = fiatFormat.getDecimalFormatSymbols();
-            symbolsF.setGroupingSeparator(' ');
-            fiatFormat.setDecimalFormatSymbols(symbolsF);
+        fiatFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
+        fiatFormat.setMaximumFractionDigits(2);
+        fiatFormat.setMinimumFractionDigits(2);
+        DecimalFormatSymbols symbolsF = fiatFormat.getDecimalFormatSymbols();
+        symbolsF.setGroupingSeparator(' ');
+        fiatFormat.setDecimalFormatSymbols(symbolsF);
 
-            btcFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
-            btcFormat.setMaximumFractionDigits(8);
-            btcFormat.setMinimumFractionDigits(1);
-            DecimalFormatSymbols symbolsB = btcFormat.getDecimalFormatSymbols();
-            symbolsB.setGroupingSeparator(' ');
-            btcFormat.setDecimalFormatSymbols(symbolsB);
-
-            instance = new MonetaryUtil();
-        }
-
-        return instance;
-    }
-
-    public static MonetaryUtil getInstance(Context ctx) {
-
-        context = ctx;
-        prefs = new PrefsUtil(context);
-
-        return getInstance();
+        btcFormat = (DecimalFormat)NumberFormat.getInstance(Locale.getDefault());
+        btcFormat.setMaximumFractionDigits(8);
+        btcFormat.setMinimumFractionDigits(1);
+        DecimalFormatSymbols symbolsB = btcFormat.getDecimalFormatSymbols();
+        symbolsB.setGroupingSeparator(' ');
+        btcFormat.setDecimalFormatSymbols(symbolsB);
     }
 
     public NumberFormat getBTCFormat() {
@@ -82,7 +62,6 @@ public class MonetaryUtil {
 
         String strAmount = null;
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = Double.toString((((double) (value * MICRO_LONG)) / BTC_DEC));
@@ -91,7 +70,7 @@ public class MonetaryUtil {
                 strAmount = Double.toString((((double) (value * MILLI_LONG)) / BTC_DEC));
                 break;
             default:
-                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / BTC_DEC);
+                strAmount = getBTCFormat().format(value / BTC_DEC);
                 break;
         }
 
@@ -102,7 +81,6 @@ public class MonetaryUtil {
 
         BigInteger amount = BigInteger.ZERO;
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = BigInteger.valueOf(value / MICRO_LONG);
@@ -122,7 +100,6 @@ public class MonetaryUtil {
 
         double amount = 0.0;
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value / MICRO_DOUBLE;
@@ -142,7 +119,6 @@ public class MonetaryUtil {
 
         double amount = 0.0;
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 amount = value * MICRO_DOUBLE;
@@ -166,7 +142,6 @@ public class MonetaryUtil {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format(((double) (value * MICRO_LONG)) / BTC_DEC);
@@ -175,7 +150,7 @@ public class MonetaryUtil {
                 strAmount = df.format(((double) (value * MILLI_LONG)) / BTC_DEC);
                 break;
             default:
-                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / BTC_DEC);
+                strAmount = getBTCFormat().format(value / BTC_DEC);
                 break;
         }
 
@@ -190,7 +165,6 @@ public class MonetaryUtil {
         df.setMinimumFractionDigits(1);
         df.setMaximumFractionDigits(8);
 
-        int unit = prefs.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         switch (unit) {
             case MonetaryUtil.MICRO_BTC:
                 strAmount = df.format((value * MICRO_DOUBLE) / BTC_DEC);
@@ -199,7 +173,7 @@ public class MonetaryUtil {
                 strAmount = df.format((value * MILLI_DOUBLE) / BTC_DEC);
                 break;
             default:
-                strAmount = MonetaryUtil.getInstance().getBTCFormat().format(value / BTC_DEC);
+                strAmount = getBTCFormat().format(value / BTC_DEC);
                 break;
         }
 
