@@ -741,7 +741,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             int spinnerIndex = accountBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
             ReceiveAddress receiveAddress = null;
-            receiveAddress = new HDPayloadBridge(getActivity()).getReceiveAddress(accountIndex);
+            receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
         } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {

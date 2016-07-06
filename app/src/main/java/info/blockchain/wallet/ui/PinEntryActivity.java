@@ -73,7 +73,7 @@ public class PinEntryActivity extends Activity {
 
         prefs = new PrefsUtil(this);
         appUtil = new AppUtil(this);
-        hdPayloadBridge = new HDPayloadBridge(this);
+        hdPayloadBridge = new HDPayloadBridge();
 
         //Coming from CreateWalletFragment
         getBundleData();
@@ -224,7 +224,7 @@ public class PinEntryActivity extends Activity {
                     // New wallet
                     appUtil.setNewlyCreated(true);
 
-                    Payload payload = hdPayloadBridge.createHDWallet(12, "", 1);
+                    Payload payload = hdPayloadBridge.createHDWallet(12, "", 1, getString(R.string.default_wallet_name));
                     if(payload != null){
                         prefs.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
                         appUtil.setSharedKey(payload.getSharedKey());
@@ -278,74 +278,86 @@ public class PinEntryActivity extends Activity {
                 try {
                     Looper.prepare();
 
-                    if (hdPayloadBridge.init(
-                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
-                            ,prefs.getValue(PrefsUtil.KEY_GUID,""),
-                            pw)) {
-
-                        PayloadFactory.getInstance().setTempPassword(pw);
-                        appUtil.setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
-
-                        double walletVersion = PayloadFactory.getInstance().getVersion();
-
-                        if(walletVersion > PayloadFactory.SUPPORTED_ENCRYPTION_VERSION){
-
-                            new AlertDialog.Builder(PinEntryActivity.this)
-                                    .setTitle(R.string.warning)
-                                    .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            AccessState.getInstance(PinEntryActivity.this).logout();
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            appUtil.clearCredentialsAndRestart();
-                                            appUtil.restartApp();
-                                        }
-                                    }).show();
-                        }else {
-
-                            if (appUtil.isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
-                                    (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
-                                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
-                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-
-                            handler.post(new Runnable() {
+                    hdPayloadBridge.initiatePayload(
+                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "")
+                            , prefs.getValue(PrefsUtil.KEY_GUID, ""),
+                            pw,
+                            new HDPayloadBridge.InitiatePayloadListener() {
                                 @Override
-                                public void run() {
-                                    dismissProgressView();
+                                public void onInitSuccess() {
+                                    PayloadFactory.getInstance().setTempPassword(pw);
+                                    appUtil.setSharedKey(PayloadFactory.getInstance().get().getSharedKey());
 
-                                    try {
-                                        int previousVersionCode = prefs.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
-                                        PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                                    double walletVersion = PayloadFactory.getInstance().getVersion();
 
-                                        //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
-                                        if (previousVersionCode != packageInfo.versionCode) {
-                                            prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
-                                            prefs.setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
-                                        }
+                                    if(walletVersion > PayloadFactory.SUPPORTED_ENCRYPTION_VERSION){
 
-                                    } catch (PackageManager.NameNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
+                                        new AlertDialog.Builder(PinEntryActivity.this)
+                                                .setTitle(R.string.warning)
+                                                .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
+                                                .setCancelable(false)
+                                                .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                                        AccessState.getInstance(PinEntryActivity.this).logout();
+                                                    }
+                                                })
+                                                .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        appUtil.clearCredentialsAndRestart();
+                                                        appUtil.restartApp();
+                                                    }
+                                                }).show();
+                                    }else {
 
-                                    if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
-                                        Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    } else {
-                                        appUtil.restartApp("verified", true);
+                                        if (appUtil.isNewlyCreated() && PayloadFactory.getInstance().get().getHdWallet() != null &&
+                                                (PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel() == null ||
+                                                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getLabel().isEmpty()))
+                                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                dismissProgressView();
+
+                                                try {
+                                                    int previousVersionCode = prefs.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
+                                                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+
+                                                    //If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
+                                                    if (previousVersionCode != packageInfo.versionCode) {
+                                                        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
+                                                        prefs.setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
+                                                    }
+
+                                                } catch (PackageManager.NameNotFoundException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L && !PayloadFactory.getInstance().get().isUpgraded()) {
+                                                    Intent intent = new Intent(PinEntryActivity.this, UpgradeWalletActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                } else {
+                                                    appUtil.restartApp("verified", true);
+                                                }
+                                            }
+                                        });
                                     }
                                 }
+
+                                @Override
+                                public void onInitPairFail() {
+                                    dismissProgressView();
+                                    appUtil.clearCredentialsAndRestart();
+                                }
+
+                                @Override
+                                public void onInitCreateFail(String s) {
+                                    dismissProgressView();
+                                    appUtil.clearCredentialsAndRestart();
+                                }
                             });
-                        }
-                    } else {
-                        dismissProgressView();
-                        appUtil.clearCredentialsAndRestart();
-                    }
 
                     Looper.loop();
                 } finally {
@@ -498,24 +510,36 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                    if (hdPayloadBridge.init(
-                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY,"")
-                            ,prefs.getValue(PrefsUtil.KEY_GUID,""), pw)) {
+                    hdPayloadBridge.initiatePayload(
+                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "")
+                            , prefs.getValue(PrefsUtil.KEY_GUID, ""), pw, new HDPayloadBridge.InitiatePayloadListener() {
+                                @Override
+                                public void onInitSuccess() {
+                                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                    PayloadFactory.getInstance().setTempPassword(pw);
+                                    prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
+                                    prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-                        PayloadFactory.getInstance().setTempPassword(pw);
-                        prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
-                        prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                                    Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
 
-                        Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    } else {
-                        ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        dismissProgressView();
-                        validationDialog();
-                    }
+                                @Override
+                                public void onInitPairFail() {
+                                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    dismissProgressView();
+                                    validationDialog();
+                                }
+
+                                @Override
+                                public void onInitCreateFail(String s) {
+                                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    dismissProgressView();
+                                    validationDialog();
+                                }
+                            });
 
                     Looper.loop();
                 } finally {

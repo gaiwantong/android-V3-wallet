@@ -160,23 +160,26 @@ public class ManualPairingFragment extends Fragment {
                                 String sharedKey = (String) payloadObj.get("sharedKey");
                                 appUtil.setSharedKey(sharedKey);
 
-                                if (new HDPayloadBridge(getActivity()).init(sharedKey, guid, password)) {
-                                    prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                    PayloadFactory.getInstance().setTempPassword(password);
-//                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    getActivity().startActivity(intent);
-                                } else {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            edPassword.setText("");
-                                        }
-                                    });
-                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
+                                new HDPayloadBridge().initiatePayload(sharedKey, guid, password, new HDPayloadBridge.InitiatePayloadListener() {
+                                    @Override
+                                    public void onInitSuccess() {
+                                        prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                                        PayloadFactory.getInstance().setTempPassword(password);
+                                        Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        getActivity().startActivity(intent);
+                                    }
 
+                                    @Override
+                                    public void onInitPairFail() {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+
+                                    @Override
+                                    public void onInitCreateFail(String s) {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+                                });
                             }
 
                         } else {

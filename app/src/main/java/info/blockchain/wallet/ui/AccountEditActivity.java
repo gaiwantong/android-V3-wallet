@@ -99,6 +99,7 @@ public class AccountEditActivity extends AppCompatActivity {
     private View mLayout;
     private MonetaryUtil monetaryUtil;
     private PrefsUtil prefsUtil;
+    private AppUtil appUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +113,7 @@ public class AccountEditActivity extends AppCompatActivity {
 
         prefsUtil = new PrefsUtil(this);
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        appUtil = new AppUtil(this);
 
         initToolbar();
         getIntentData();
@@ -626,7 +628,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                             if (PayloadFactory.getInstance().put()) {
 
                                                 try {
-                                                    new HDPayloadBridge(AccountEditActivity.this).updateBalancesAndTransactions();
+                                                    new HDPayloadBridge().updateBalancesAndTransactions(appUtil.isNotUpgraded());
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -1131,7 +1133,7 @@ public class AccountEditActivity extends AppCompatActivity {
     private String getV3ReceiveAddress(int accountIndex) {
 
         try {
-            ReceiveAddress receiveAddress = new HDPayloadBridge(this).getReceiveAddress(accountIndex);
+            ReceiveAddress receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
         } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {

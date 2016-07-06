@@ -134,7 +134,7 @@ public class BackupWalletUtil {
 
         try {
 
-            seed = new HDPayloadBridge(context).getHDMnemonic();
+            seed = new HDPayloadBridge().getHDMnemonic();
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();

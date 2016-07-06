@@ -4,7 +4,6 @@ import android.content.Context;
 
 import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 

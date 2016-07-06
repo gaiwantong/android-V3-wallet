@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -34,6 +35,7 @@ import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -249,19 +251,44 @@ public class UpgradeWalletActivity extends Activity {
 
         new AsyncTask<Void, Void, Void>(){
 
-            private boolean success = false;
-
             @Override
             protected Void doInBackground(Void[] params) {
                 try {
                     if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
                         appUtil.setUpgradeReminder(System.currentTimeMillis());
                         appUtil.setNewlyCreated(true);
-                        boolean isSuccessful = new HDPayloadBridge(getApplicationContext()).update(PayloadFactory.getInstance().getTempPassword(), secondPassword);
-                        if(isSuccessful){
-                            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
-                            success = true;
-                        }
+                        appUtil.applyPRNGFixes();
+
+                        new HDPayloadBridge().upgradePayload(
+                                PayloadFactory.getInstance().getTempPassword(),
+                                secondPassword,
+                                appUtil.isNewlyCreated(),
+                                UpgradeWalletActivity.this.getResources().getString(R.string.default_wallet_name),
+                                new HDPayloadBridge.UpgradePayloadListener() {
+                                    @Override
+                                    public void onDoubleEncryptionPasswordError() {
+                                        ToastCustom.makeText(UpgradeWalletActivity.this, UpgradeWalletActivity.this.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        onUpgradeFail();
+                                    }
+
+                                    @Override
+                                    public void onUpgradeSuccess() {
+                                        if (new OSUtil(UpgradeWalletActivity.this).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
+                                            UpgradeWalletActivity.this.stopService(new Intent(UpgradeWalletActivity.this,
+                                                    info.blockchain.wallet.websocket.WebSocketService.class));
+                                        }
+                                        UpgradeWalletActivity.this.startService(new Intent(UpgradeWalletActivity.this,
+                                                info.blockchain.wallet.websocket.WebSocketService.class));
+
+                                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                        onUpgradeCompleted();
+                                    }
+
+                                    @Override
+                                    public void onUpgradeFail() {
+                                        onUpgradeFail();
+                                    }
+                                });
                     }
 
                 } catch (Exception e) {
@@ -269,17 +296,6 @@ public class UpgradeWalletActivity extends Activity {
                 }
 
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-
-                if(success){
-                    onUpgradeCompleted();
-                }else{
-                    onUpgradeFail();
-                }
             }
         }.execute();
     }

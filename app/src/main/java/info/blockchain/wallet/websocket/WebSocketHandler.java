@@ -12,13 +12,14 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
-import info.blockchain.wallet.ui.BalanceFragment;
 import info.blockchain.wallet.payload.HDPayloadBridge;
-import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.ui.BalanceFragment;
+import info.blockchain.wallet.ui.MainActivity;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.PrefsUtil;
 
 import org.json.JSONArray;
@@ -50,15 +51,17 @@ public class WebSocketHandler {
     private HDPayloadBridge hdPayloadBridge;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
+    private AppUtil appUtil;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
         this.addrs = addrs;
-        this.hdPayloadBridge = new HDPayloadBridge(context);
+        this.hdPayloadBridge = new HDPayloadBridge();
         this.prefsUtil = new PrefsUtil(context);
         this.monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        this.appUtil = new AppUtil(context);
     }
 
     public void send(String message) {
@@ -181,7 +184,7 @@ public class WebSocketHandler {
 
                 //TODO - updateBalancesAndTransactions is being called twice here
                 try {
-                    hdPayloadBridge.updateBalancesAndTransactions();
+                    hdPayloadBridge.updateBalancesAndTransactions(appUtil.isNotUpgraded());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -326,9 +329,25 @@ public class WebSocketHandler {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 //Download changed payload
-                                                hdPayloadBridge.init(PayloadFactory.getInstance().get().getSharedKey(),
+                                                hdPayloadBridge.initiatePayload(PayloadFactory.getInstance().get().getSharedKey(),
                                                         PayloadFactory.getInstance().get().getGuid(),
-                                                        PayloadFactory.getInstance().getTempPassword());
+                                                        PayloadFactory.getInstance().getTempPassword(),
+                                                        new HDPayloadBridge.InitiatePayloadListener() {
+                                                            @Override
+                                                            public void onInitSuccess() {
+
+                                                            }
+
+                                                            @Override
+                                                            public void onInitPairFail() {
+
+                                                            }
+
+                                                            @Override
+                                                            public void onInitCreateFail(String s) {
+
+                                                            }
+                                                        });
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 updateBalancesAndTransactions();
                                             }

@@ -46,7 +46,6 @@ import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
-import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
@@ -513,15 +512,8 @@ public class AccountActivity extends AppCompatActivity {
 
                     //Add account
                     try {
-                        account = new HDPayloadBridge(AccountActivity.this).addAccount(accountLabel);
+                        account = new HDPayloadBridge().addAccount(accountLabel);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    //Update double encryption wallet - to be used when getting new receive address
-                    try {
-                        AddressFactory.getInstance(AccountActivity.this, null).updateDoubleEncryptionWallet();
-                    } catch (AddressFormatException e) {
                         e.printStackTrace();
                     }
 
@@ -670,7 +662,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private String getAccountBalance(int index) {
 
-        String address = new HDPayloadBridge(this).account2Xpub(index);
+        String address = new HDPayloadBridge().account2Xpub(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
@@ -1076,12 +1068,8 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             protected ECKey doInBackground(Void... params) {
 
-                ECKey ecKey = null;
-                try {
-                    ecKey = AddressFactory.getInstance(AccountActivity.this, null).newLegacyAddress();
-                } catch (AddressFormatException e) {
-                    e.printStackTrace();
-                }
+                new AppUtil(context).applyPRNGFixes();
+                ECKey ecKey = new HDPayloadBridge().newLegacyAddress();
 
                 if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1366,7 +1354,7 @@ public class AccountActivity extends AppCompatActivity {
     private String getV3ReceiveAddress(int accountIndex) {
 
         try {
-            ReceiveAddress receiveAddress = new HDPayloadBridge(this).getReceiveAddress(accountIndex);
+            ReceiveAddress receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
             PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIndex).incReceive();
             return receiveAddress.getAddress();
 

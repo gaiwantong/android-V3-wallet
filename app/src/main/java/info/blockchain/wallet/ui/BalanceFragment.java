@@ -56,6 +56,7 @@ import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
@@ -115,6 +116,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private HDPayloadBridge hdPayloadBridge;
     private DateUtil dateUtil;
     private MonetaryUtil monetaryUtil;
+    private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -135,7 +137,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            hdPayloadBridge.updateBalancesAndTransactions();
+                            hdPayloadBridge.updateBalancesAndTransactions(appUtil.isNotUpgraded());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -164,9 +166,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         context = getActivity();
         prefsUtil = new PrefsUtil(context);
-        hdPayloadBridge = new HDPayloadBridge(context);
+        hdPayloadBridge = new HDPayloadBridge();
         dateUtil = new DateUtil(context);
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        appUtil = new AppUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);

@@ -205,7 +205,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
         prefsUtil = new PrefsUtil(getActivity());
-        hdPayloadBridge = new HDPayloadBridge(getActivity());
+        hdPayloadBridge = new HDPayloadBridge();
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setupToolbar();

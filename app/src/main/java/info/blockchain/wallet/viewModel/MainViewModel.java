@@ -8,7 +8,6 @@ import android.os.Looper;
 
 import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.HDPayloadBridge;
@@ -21,8 +20,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
-
-import org.bitcoinj.core.AddressFormatException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -140,7 +137,7 @@ public class MainViewModel implements ViewModel{
                 Looper.prepare();
 
                 try {
-                    new HDPayloadBridge(context).updateBalancesAndTransactions();
+                    new HDPayloadBridge().updateBalancesAndTransactions(appUtil.isNotUpgraded());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -201,12 +198,6 @@ public class MainViewModel implements ViewModel{
         PayloadFactory.getInstance().wipe();
         MultiAddrFactory.getInstance().wipe();
         prefs.clear();
-
-        try {
-            AddressFactory.getInstance(context, null).wipe();
-        } catch (AddressFormatException e) {
-            e.printStackTrace();
-        }
 
         appUtil.restartApp();
     }
