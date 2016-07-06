@@ -47,6 +47,8 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import info.blockchain.bip44.Wallet;
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -85,8 +87,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;

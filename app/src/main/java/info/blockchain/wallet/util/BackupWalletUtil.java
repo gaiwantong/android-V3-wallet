@@ -3,14 +3,14 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
+import info.blockchain.bip44.Wallet;
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.apache.commons.codec.DecoderException;
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;

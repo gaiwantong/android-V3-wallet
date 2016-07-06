@@ -41,6 +41,8 @@ import android.widget.TextView;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.bip44.Wallet;
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
@@ -80,8 +82,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;

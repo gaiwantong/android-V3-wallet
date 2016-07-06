@@ -3,6 +3,8 @@ package info.blockchain.wallet.payload;
 import android.content.Context;
 import android.content.Intent;
 
+import info.blockchain.bip44.Wallet;
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -14,8 +16,6 @@ import info.blockchain.wallet.util.OSUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
 import org.json.JSONException;
 
@@ -236,7 +236,7 @@ public class HDPayloadBridge {
 
         if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
 
-            org.bitcoinj.core.bip44.Wallet hd_wallet = null;
+            Wallet hd_wallet = null;
 
             if (PayloadFactory.getInstance().get().getHdWallet() != null) {
                 hd_wallet = WalletFactory.getInstance().restoreWallet(PayloadFactory.getInstance().get().getHdWallet().getSeedHex(), PayloadFactory.getInstance().get().getHdWallet().getPassphrase(), PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());

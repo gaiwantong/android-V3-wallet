@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.address.AddressFactory;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
@@ -22,7 +23,6 @@ import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.util.Arrays;
 import java.util.List;

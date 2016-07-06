@@ -8,12 +8,11 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.view.MotionEvent;
 
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-
-import org.bitcoinj.core.bip44.WalletFactory;
 
 import java.io.File;
 import java.security.Security;

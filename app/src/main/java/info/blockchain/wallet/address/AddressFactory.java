@@ -2,6 +2,9 @@ package info.blockchain.wallet.address;
 
 import android.content.Context;
 
+import info.blockchain.bip44.Address;
+import info.blockchain.bip44.Wallet;
+import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -11,9 +14,6 @@ import info.blockchain.wallet.util.WebUtil;
 
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.bip44.Address;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.MnemonicException;
 import org.spongycastle.util.encoders.Hex;
 
