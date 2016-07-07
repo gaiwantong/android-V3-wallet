@@ -5,8 +5,6 @@ import android.os.AsyncTask;
 import android.os.Looper;
 
 import info.blockchain.api.PushTx;
-import info.blockchain.bip44.Address;
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -16,7 +14,6 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.Hash;
-import info.blockchain.wallet.util.PrivateKeyFactory;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bitcoinj.core.AddressFormatException;
@@ -155,12 +152,7 @@ public class SendFactory {
                     Pair<Transaction, Long> pair = null;
                     String changeAddr = null;
                     if (isHD) {
-                        int changeIdx = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).getIdxChangeAddresses();
-                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                            changeAddr = WalletFactory.getInstance().get().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-                        } else {
-                            changeAddr = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChange().getAddressAt(changeIdx).getAddressString();
-                        }
+                        changeAddr = PayloadFactory.getInstance().getChangeAddress(accountIdx);
                     } else {
                         changeAddr = legacyAddress.getAddress();
                     }
@@ -183,15 +175,7 @@ public class SendFactory {
                             String privStr = null;
                             if (isHD) {
                                 String path = fromAddressPathMap.get(address);
-                                String[] s = path.split("/");
-                                Address hd_address = null;
-                                if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                                    hd_address = WalletFactory.getInstance().get().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-                                } else {
-                                    hd_address = WalletFactory.getInstance().getWatchOnlyWallet().getAccount(accountIdx).getChain(Integer.parseInt(s[1])).getAddressAt(Integer.parseInt(s[2]));
-                                }
-                                privStr = hd_address.getPrivateKeyString();
-                                walletKey = PrivateKeyFactory.getInstance().getKey(PrivateKeyFactory.WIF_COMPRESSED, privStr);
+                                walletKey = PayloadFactory.getInstance().getECKey(accountIdx, path);
                             } else {
                                 walletKey = legacyAddress.getECKey();
                             }

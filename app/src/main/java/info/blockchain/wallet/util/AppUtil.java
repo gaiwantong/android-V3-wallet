@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.view.MotionEvent;
 
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.MainActivity;
@@ -35,7 +34,6 @@ public class AppUtil {
     }
 
     public void clearCredentials() {
-        WalletFactory.getInstance().set(null);
         PayloadFactory.getInstance().wipe();
         prefs.clear();
     }

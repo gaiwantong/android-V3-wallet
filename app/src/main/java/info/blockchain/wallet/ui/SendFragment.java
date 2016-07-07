@@ -47,8 +47,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import info.blockchain.bip44.Wallet;
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -1484,37 +1482,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
-
-                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
-
-                            if (pendingSpend.isHD) {
-
-                                String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
-                                String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                                        encrypted_hex,
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        pw,
-                                        PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
-
-                                try {
-                                    Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                                    WalletFactory.getInstance().setWatchOnlyWallet(hdw);
-                                } catch (IOException | DecoderException | AddressFormatException |
-                                        MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
-                                        MnemonicException.MnemonicWordException e) {
-                                    e.printStackTrace();
-                                }
-
-                            } else {
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-                            }
-
+                        if(PayloadFactory.getInstance().setDoubleEncryptPassword(pw, pendingSpend.isHD)){
                             confirmPayment(pendingSpend);
-
-                        } else {
+                        }else{
                             ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
-
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {

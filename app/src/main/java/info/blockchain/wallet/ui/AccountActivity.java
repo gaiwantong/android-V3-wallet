@@ -41,8 +41,6 @@ import android.widget.TextView;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import info.blockchain.bip44.Wallet;
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
@@ -485,58 +483,41 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 protected Void doInBackground(Void... params) {
 
-                    Account account = null;
-
-                    //If double encrypted
-                    //Ensure watch-only wallet (no private keys) is in sync with hd wallet before adding account
-                    if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                        CharSequenceX tempPassword = PayloadFactory.getInstance().getTempDoubleEncryptPassword();
-                        String tempPasswordS = "";
-                        if (tempPassword != null) tempPasswordS = tempPassword.toString();
-
-                        String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                                PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-                                PayloadFactory.getInstance().get().getSharedKey(),
-                                tempPasswordS,
-                                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
-
-                        try {
-
-                            Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                            WalletFactory.getInstance().setWatchOnlyWallet(hdw);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
-                    }
-
-                    //Add account
                     try {
-                        account = new HDPayloadBridge().addAccount(accountLabel);
-                    } catch (Exception e) {
+                        PayloadFactory.getInstance().addAccount(accountLabel, new PayloadFactory.AccountAddListener() {
+                            @Override
+                            public void onAccountAddSuccess(Account account) {
+                                ToastCustom.makeText(AccountActivity.this,
+                                        AccountActivity.this.getString(R.string.remote_save_ok),
+                                        ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                                //Subscribe to new xpub only if successfully created
+                                Intent intent = new Intent(WebSocketService.ACTION_INTENT);
+                                intent.putExtra("xpub", account.getXpub());
+                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+                                //Update adapter list
+                                updateAccountsList();
+                            }
+
+                            @Override
+                            public void onAccountAddFail() {
+                                ToastCustom.makeText(AccountActivity.this,
+                                        AccountActivity.this.getString(R.string.unexpected_error),
+                                        ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            }
+
+                            @Override
+                            public void onPayloadSaveFail() {
+                                ToastCustom.makeText(AccountActivity.this,
+                                        AccountActivity.this.getString(R.string.remote_save_ko),
+                                        ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+
+                            }
+                        });
+                        }catch (Exception e){
                         e.printStackTrace();
                     }
-
-                    //Save payload
-                    if (PayloadFactory.getInstance().put()) {
-
-                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-
-                        //Subscribe to new xpub only if successfully created
-                        Intent intent = new Intent(WebSocketService.ACTION_INTENT);
-                        intent.putExtra("xpub", account.getXpub());
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-                        //Update adapter list
-                        updateAccountsList();
-
-                    } else {
-                        ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    }
-
-                    //Reset 2nd pwd
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-
                     return null;
                 }
             }.execute();

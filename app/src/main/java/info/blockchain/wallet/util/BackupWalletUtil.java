@@ -3,14 +3,10 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import info.blockchain.bip44.Wallet;
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.crypto.MnemonicException;
 
 import java.io.IOException;
@@ -90,42 +86,14 @@ public class BackupWalletUtil {
 
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
-        if (PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString().length() == 0) {
+        String[] mnemonic = PayloadFactory.getInstance().getMnemonicForDoubleEncryptedWallet();
+
+        if(mnemonic != null){
+            return mnemonic;
+        }else{
             ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return null;
         }
-
-        // Decrypt seedHex (which is double encrypted in this case)
-        String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                PayloadFactory.getInstance().get().getHdWallet().getSeedHex(),
-                PayloadFactory.getInstance().get().getSharedKey(),
-                PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(),
-                PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
-
-        String mnemonic = null;
-
-        // Try to create a using the decrypted seed hex
-        try {
-            Wallet hdw = WalletFactory.getInstance().get();
-            WalletFactory.getInstance().restoreWallet(decrypted_hex, "", 1);
-
-            mnemonic = WalletFactory.getInstance().get().getMnemonic();
-
-            WalletFactory.getInstance().set(hdw);
-
-        } catch (IOException | DecoderException | AddressFormatException | MnemonicException.MnemonicLengthException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException e) {
-            e.printStackTrace();
-        } finally {
-            if (mnemonic != null && mnemonic.length() > 0) {
-
-                return mnemonic.split("\\s+");
-
-            } else {
-                ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-            }
-        }
-
-        return null;
     }
 
     private String[] getHDSeedAsMnemonic(boolean mnemonic) {

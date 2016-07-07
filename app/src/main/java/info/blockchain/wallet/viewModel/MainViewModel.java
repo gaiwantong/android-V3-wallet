@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 
-import info.blockchain.bip44.WalletFactory;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -193,8 +192,6 @@ public class MainViewModel implements ViewModel{
     }
 
     public void unpair(){
-        WalletFactory.getInstance().set(null);
-        WalletFactory.getInstance().setWatchOnlyWallet(null);
         PayloadFactory.getInstance().wipe();
         MultiAddrFactory.getInstance().wipe();
         prefs.clear();
