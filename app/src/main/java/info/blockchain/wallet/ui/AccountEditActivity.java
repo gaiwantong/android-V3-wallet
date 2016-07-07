@@ -38,13 +38,11 @@ import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
@@ -61,15 +59,11 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.websocket.WebSocketService;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -628,7 +622,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                             if (PayloadFactory.getInstance().put()) {
 
                                                 try {
-                                                    new HDPayloadBridge().updateBalancesAndTransactions(appUtil.isNotUpgraded());
+                                                    PayloadFactory.getInstance().updateBalancesAndTransactions();
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -1072,7 +1066,7 @@ public class AccountEditActivity extends AppCompatActivity {
 
         int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
         Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
-        pendingSpend.destination = getV3ReceiveAddress(defaultIndex);
+        pendingSpend.destination = PayloadFactory.getInstance().getV3ReceiveAddress(defaultIndex);
 
         String toLabel = defaultAccount.getLabel();
         if(toLabel ==null || toLabel.isEmpty())toLabel = pendingSpend.destination;
@@ -1128,18 +1122,6 @@ public class AccountEditActivity extends AppCompatActivity {
         String destination;
         BigInteger bigIntFee;
         BigInteger bigIntAmount;
-    }
-
-    private String getV3ReceiveAddress(int accountIndex) {
-
-        try {
-            ReceiveAddress receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
-            return receiveAddress.getAddress();
-
-        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     private void alertDoubleEncrypted(final PendingSpend pendingSpend){

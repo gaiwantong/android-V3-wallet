@@ -122,6 +122,7 @@ public class AppUtil {
         prefs.setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
 
+    //TODO - remove this
     public boolean isNotUpgraded() {
         return PayloadFactory.getInstance().get() != null && !PayloadFactory.getInstance().get().isUpgraded();
     }

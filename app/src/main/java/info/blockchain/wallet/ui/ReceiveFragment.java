@@ -53,7 +53,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.ReceiveAddress;
@@ -64,10 +63,7 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
-import org.apache.commons.codec.DecoderException;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.uri.BitcoinURI;
 
 import java.io.File;
@@ -737,14 +733,15 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private String getV3ReceiveAddress(Account account) {
 
+        //TODO - consider using existing getV3ReceiveAddress in PayloadFactory
         try {
             int spinnerIndex = accountBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
             ReceiveAddress receiveAddress = null;
-            receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
+            receiveAddress = PayloadFactory.getInstance().getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
-        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

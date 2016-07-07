@@ -49,13 +49,11 @@ import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
@@ -74,18 +72,14 @@ import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.websocket.WebSocketService;
 
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -643,7 +637,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private String getAccountBalance(int index) {
 
-        String address = new HDPayloadBridge().account2Xpub(index);
+        String address = PayloadFactory.getInstance().getXpubFromAccountIndex(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
@@ -1050,7 +1044,7 @@ public class AccountActivity extends AppCompatActivity {
             protected ECKey doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                ECKey ecKey = new HDPayloadBridge().newLegacyAddress();
+                ECKey ecKey = PayloadFactory.getInstance().newLegacyAddress();
 
                 if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1263,7 +1257,7 @@ public class AccountActivity extends AppCompatActivity {
                     Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
                     totalToSend += totalToSendAfterFee;
                     pendingSpend.bigIntAmount = BigInteger.valueOf(totalToSendAfterFee);
-                    pendingSpend.destination = getV3ReceiveAddress(defaultIndex);//assign new receive address for each transfer
+                    pendingSpend.destination = PayloadFactory.getInstance().getV3ReceiveAddress(defaultIndex);//assign new receive address for each transfer
                     pendingSpendList.add(pendingSpend);
                 }
             }
@@ -1330,19 +1324,6 @@ public class AccountActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
-    }
-
-    private String getV3ReceiveAddress(int accountIndex) {
-
-        try {
-            ReceiveAddress receiveAddress = new HDPayloadBridge().getReceiveAddress(accountIndex);
-            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIndex).incReceive();
-            return receiveAddress.getAddress();
-
-        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     private class PendingSpend {

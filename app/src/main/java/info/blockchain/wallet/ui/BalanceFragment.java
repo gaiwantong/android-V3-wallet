@@ -50,7 +50,6 @@ import android.widget.TextView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.payload.Transaction;
@@ -113,7 +112,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private boolean mIsViewExpanded = false;
     private View prevRowClicked = null;
     private PrefsUtil prefsUtil;
-    private HDPayloadBridge hdPayloadBridge;
     private DateUtil dateUtil;
     private MonetaryUtil monetaryUtil;
     private AppUtil appUtil;
@@ -137,7 +135,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            hdPayloadBridge.updateBalancesAndTransactions(appUtil.isNotUpgraded());
+                            PayloadFactory.getInstance().updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -166,7 +164,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         context = getActivity();
         prefsUtil = new PrefsUtil(context);
-        hdPayloadBridge = new HDPayloadBridge();
         dateUtil = new DateUtil(context);
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         appUtil = new AppUtil(context);

@@ -9,7 +9,6 @@ import android.os.Looper;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -136,7 +135,7 @@ public class MainViewModel implements ViewModel{
                 Looper.prepare();
 
                 try {
-                    new HDPayloadBridge().updateBalancesAndTransactions(appUtil.isNotUpgraded());
+                    PayloadFactory.getInstance().updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

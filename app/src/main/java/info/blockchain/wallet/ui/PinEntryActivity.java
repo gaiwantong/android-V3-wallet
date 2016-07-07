@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -59,7 +58,6 @@ public class PinEntryActivity extends Activity {
     private String strPassword = null;
     private PrefsUtil prefs;
     private AppUtil appUtil;
-    private HDPayloadBridge hdPayloadBridge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +71,6 @@ public class PinEntryActivity extends Activity {
 
         prefs = new PrefsUtil(this);
         appUtil = new AppUtil(this);
-        hdPayloadBridge = new HDPayloadBridge();
 
         //Coming from CreateWalletFragment
         getBundleData();
@@ -224,7 +221,7 @@ public class PinEntryActivity extends Activity {
                     // New wallet
                     appUtil.setNewlyCreated(true);
 
-                    Payload payload = hdPayloadBridge.createHDWallet(12, "", 1, getString(R.string.default_wallet_name));
+                    Payload payload = PayloadFactory.getInstance().createHDWallet(12, "", 1, getString(R.string.default_wallet_name));
                     if(payload != null){
                         prefs.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
                         appUtil.setSharedKey(payload.getSharedKey());
@@ -278,11 +275,11 @@ public class PinEntryActivity extends Activity {
                 try {
                     Looper.prepare();
 
-                    hdPayloadBridge.initiatePayload(
+                    PayloadFactory.getInstance().initiatePayload(
                             prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "")
                             , prefs.getValue(PrefsUtil.KEY_GUID, ""),
                             pw,
-                            new HDPayloadBridge.InitiatePayloadListener() {
+                            new PayloadFactory.InitiatePayloadListener() {
                                 @Override
                                 public void onInitSuccess() {
                                     PayloadFactory.getInstance().setTempPassword(pw);
@@ -510,9 +507,9 @@ public class PinEntryActivity extends Activity {
                     Looper.prepare();
 
                     PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
-                    hdPayloadBridge.initiatePayload(
+                    PayloadFactory.getInstance().initiatePayload(
                             prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "")
-                            , prefs.getValue(PrefsUtil.KEY_GUID, ""), pw, new HDPayloadBridge.InitiatePayloadListener() {
+                            , prefs.getValue(PrefsUtil.KEY_GUID, ""), pw, new PayloadFactory.InitiatePayloadListener() {
                                 @Override
                                 public void onInitSuccess() {
                                     ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);

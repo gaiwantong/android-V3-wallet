@@ -55,7 +55,6 @@ import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
@@ -80,16 +79,12 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -157,7 +152,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private BigInteger[] absoluteFeeSuggestedEstimates = null;
     private PrefsUtil prefsUtil;
-    private HDPayloadBridge hdPayloadBridge;
     private MonetaryUtil monetaryUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -203,7 +197,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
         prefsUtil = new PrefsUtil(getActivity());
-        hdPayloadBridge = new HDPayloadBridge();
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setupToolbar();
@@ -702,15 +695,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private String getV3ReceiveAddress(Account account) {
 
+        //TODO - consider using existing getV3ReceiveAddress in PayloadFactory
         try {
             int spinnerIndex = receiveToBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
 
             ReceiveAddress receiveAddress = null;
-            receiveAddress = hdPayloadBridge.getReceiveAddress(accountIndex);
+            receiveAddress = PayloadFactory.getInstance().getReceiveAddress(accountIndex);
             return receiveAddress.getAddress();
 
-        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -1746,7 +1740,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                     //Update v3 balance immediately after spend - until refresh from server
                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                    MultiAddrFactory.getInstance().setXpubAmount(hdPayloadBridge.account2Xpub(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(hdPayloadBridge.account2Xpub(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                    MultiAddrFactory.getInstance().setXpubAmount(PayloadFactory.getInstance().getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(PayloadFactory.getInstance().getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
                 } else {
 

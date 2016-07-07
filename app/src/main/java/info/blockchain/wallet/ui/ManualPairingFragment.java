@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
@@ -160,7 +159,7 @@ public class ManualPairingFragment extends Fragment {
                                 String sharedKey = (String) payloadObj.get("sharedKey");
                                 appUtil.setSharedKey(sharedKey);
 
-                                new HDPayloadBridge().initiatePayload(sharedKey, guid, password, new HDPayloadBridge.InitiatePayloadListener() {
+                                PayloadFactory.getInstance().initiatePayload(sharedKey, guid, password, new PayloadFactory.InitiatePayloadListener() {
                                     @Override
                                     public void onInitSuccess() {
                                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);

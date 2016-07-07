@@ -259,7 +259,7 @@ public class UpgradeWalletActivity extends Activity {
                         appUtil.setNewlyCreated(true);
                         appUtil.applyPRNGFixes();
 
-                        new HDPayloadBridge().upgradePayload(
+                        PayloadFactory.getInstance().upgradePayload(
                                 PayloadFactory.getInstance().getTempPassword(),
                                 secondPassword,
                                 appUtil.isNewlyCreated(),

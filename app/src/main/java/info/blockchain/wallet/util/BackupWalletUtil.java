@@ -3,7 +3,6 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
@@ -16,8 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 import piuk.blockchain.android.R;
-
-//import android.util.Log;
 
 public class BackupWalletUtil {
 
@@ -102,7 +99,7 @@ public class BackupWalletUtil {
 
         try {
 
-            seed = new HDPayloadBridge().getHDMnemonic();
+            seed = PayloadFactory.getInstance().getHDMnemonic();
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();

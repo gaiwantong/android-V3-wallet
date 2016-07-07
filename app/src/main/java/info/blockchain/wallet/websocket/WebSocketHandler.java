@@ -12,12 +12,10 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadFactory;
 import info.blockchain.wallet.ui.BalanceFragment;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -33,8 +31,6 @@ import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
 
-//import android.util.Log;
-
 public class WebSocketHandler {
 
     private static String guid = null;
@@ -48,20 +44,16 @@ public class WebSocketHandler {
     private HashSet<String> onChangeHashSet = new HashSet<String>();
     private Timer pingTimer = null;
     private boolean pingPongSuccess = false;
-    private HDPayloadBridge hdPayloadBridge;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
-    private AppUtil appUtil;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
         this.addrs = addrs;
-        this.hdPayloadBridge = new HDPayloadBridge();
         this.prefsUtil = new PrefsUtil(context);
         this.monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        this.appUtil = new AppUtil(context);
     }
 
     public void send(String message) {
@@ -184,7 +176,7 @@ public class WebSocketHandler {
 
                 //TODO - updateBalancesAndTransactions is being called twice here
                 try {
-                    hdPayloadBridge.updateBalancesAndTransactions(appUtil.isNotUpgraded());
+                    PayloadFactory.getInstance().updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -329,10 +321,10 @@ public class WebSocketHandler {
 
                                             if (PayloadFactory.getInstance().getTempPassword() != null) {
                                                 //Download changed payload
-                                                hdPayloadBridge.initiatePayload(PayloadFactory.getInstance().get().getSharedKey(),
+                                                PayloadFactory.getInstance().initiatePayload(PayloadFactory.getInstance().get().getSharedKey(),
                                                         PayloadFactory.getInstance().get().getGuid(),
                                                         PayloadFactory.getInstance().getTempPassword(),
-                                                        new HDPayloadBridge.InitiatePayloadListener() {
+                                                        new PayloadFactory.InitiatePayloadListener() {
                                                             @Override
                                                             public void onInitSuccess() {
 
