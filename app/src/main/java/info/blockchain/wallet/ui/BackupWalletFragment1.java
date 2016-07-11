@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -31,6 +31,7 @@ public class BackupWalletFragment1 extends Fragment {
     TextView tvSubHeader;
     TextView tvLostMnemonic;
     boolean toggle = true;
+    PayloadManager payloadManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,8 +46,10 @@ public class BackupWalletFragment1 extends Fragment {
         tvBackupWallet = (TextView) rootView.findViewById(R.id.backup_wallet_action);
         tvBackupWallet.setOnClickListener(v -> {
 
+            payloadManager = PayloadManager.getInstance();
+
             // Wallet is double encrypted
-            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (payloadManager.getPayload().isDoubleEncrypted()) {
                 final EditText double_encrypt_password = new EditText(getActivity());
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -60,12 +63,12 @@ public class BackupWalletFragment1 extends Fragment {
                             final String pw = double_encrypt_password.getText().toString();
 
                             if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                    PayloadFactory.getInstance().get().getSharedKey(),
+                                    payloadManager.getPayload().getDoublePasswordHash(),
+                                    payloadManager.getPayload().getSharedKey(),
                                     new CharSequenceX(pw),
-                                    PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+                                    payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                 getFragmentManager().beginTransaction()
                                         .replace(R.id.content_frame, new BackupWalletFragment2())
@@ -73,7 +76,7 @@ public class BackupWalletFragment1 extends Fragment {
                                         .commit();
                             } else {
                                 ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                             }
                         }).setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
                             ;

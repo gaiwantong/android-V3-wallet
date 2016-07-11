@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -29,6 +30,7 @@ public class MainViewModel implements ViewModel{
     private PrefsUtil prefs;
     private OSUtil osUtil;
     private AppUtil appUtil;
+    private PayloadManager payloadManager;
 
     private int exitClickCount = 0;
     private int exitClickCooldown = 2;//seconds
@@ -54,6 +56,7 @@ public class MainViewModel implements ViewModel{
         this.prefs = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
         this.appUtil = new AppUtil(context);
+        this.payloadManager = PayloadManager.getInstance();
 
         this.appUtil.applyPRNGFixes();
 
@@ -105,7 +108,7 @@ public class MainViewModel implements ViewModel{
 
         // No GUID? Treat as new installation
         if (prefs.getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
-            PayloadFactory.getInstance().setTempPassword(new CharSequenceX(""));
+            payloadManager.setTempPassword(new CharSequenceX(""));
             this.dataListener.onNoGUID();
         }
         // No PIN ID? Treat as installed app without confirmed PIN
@@ -118,9 +121,13 @@ public class MainViewModel implements ViewModel{
         }
         // Legacy app has not been prompted for upgrade
         else if (isPinValidated &&
-                !PayloadFactory.getInstance().get().isUpgraded() &&
+                !payloadManager.getPayload().isUpgraded() &&
                 !prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false) &&
                 prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
+
+            Log.v("vos","isPinValidated: "+isPinValidated);
+            Log.v("vos","isUpgraded(): "+payloadManager.getPayload().isUpgraded());
+
             AccessState.getInstance(context).setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();
         }
@@ -135,7 +142,7 @@ public class MainViewModel implements ViewModel{
                 Looper.prepare();
 
                 try {
-                    PayloadFactory.getInstance().updateBalancesAndTransactions();
+                    payloadManager.updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -191,7 +198,7 @@ public class MainViewModel implements ViewModel{
     }
 
     public void unpair(){
-        PayloadFactory.getInstance().wipe();
+        payloadManager.wipe();
         MultiAddrFactory.getInstance().wipe();
         prefs.clear();
 

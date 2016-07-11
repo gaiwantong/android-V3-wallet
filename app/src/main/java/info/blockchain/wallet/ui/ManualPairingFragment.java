@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -134,7 +134,7 @@ public class ManualPairingFragment extends Fragment {
                     if (jsonObj != null && jsonObj.has("payload")) {
                         String encrypted_payload = (String) jsonObj.getString("payload");
 
-                        int iterations = PayloadFactory.WalletPbkdf2Iterations;
+                        int iterations = PayloadManager.WalletPbkdf2Iterations;
                         if (jsonObj.has("pbkdf2_iterations")) {
                             iterations = Integer.valueOf(jsonObj.get("pbkdf2_iterations").toString()).intValue();
                         }
@@ -154,16 +154,19 @@ public class ManualPairingFragment extends Fragment {
 
                             if (payloadObj != null && payloadObj.has("sharedKey")) {
                                 prefs.setValue(PrefsUtil.KEY_GUID, guid);
-                                PayloadFactory.getInstance().setTempPassword(password);
+
+                                PayloadManager payloadManager = PayloadManager.getInstance();
+
+                                payloadManager.setTempPassword(password);
 
                                 String sharedKey = (String) payloadObj.get("sharedKey");
                                 appUtil.setSharedKey(sharedKey);
 
-                                PayloadFactory.getInstance().initiatePayload(sharedKey, guid, password, new PayloadFactory.InitiatePayloadListener() {
+                                payloadManager.initiatePayload(sharedKey, guid, password, new PayloadManager.InitiatePayloadListener() {
                                     @Override
                                     public void onInitSuccess() {
                                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                        PayloadFactory.getInstance().setTempPassword(password);
+                                        payloadManager.setTempPassword(password);
                                         Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         getActivity().startActivity(intent);

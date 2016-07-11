@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import piuk.blockchain.android.BuildConfig;
@@ -48,7 +48,7 @@ public class SupportActivity extends AppCompatActivity {
 
         TextView walletId = (TextView) findViewById(R.id.wallet_id);
 
-        final String guid = PayloadFactory.getInstance().get().getGuid();
+        final String guid = PayloadManager.getInstance().getPayload().getGuid();
         walletId.setText(guid);
 
         LinearLayout idContainer = (LinearLayout) findViewById(R.id.wallet_id_container);

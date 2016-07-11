@@ -53,7 +53,7 @@ import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
@@ -133,6 +133,7 @@ public class AccountActivity extends AppCompatActivity {
     private View mLayout;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +142,7 @@ public class AccountActivity extends AppCompatActivity {
         context = this;
         prefsUtil = new PrefsUtil(context);
         appUtil = new AppUtil(context);
+        payloadManager = PayloadManager.getInstance();
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setContentView(R.layout.activity_accounts);
@@ -159,7 +161,7 @@ public class AccountActivity extends AppCompatActivity {
     private void initToolbar(){
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        if (!appUtil.isNotUpgraded()) {
+        if (!payloadManager.isNotUpgraded()) {
             toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
         } else {
             toolbar.setTitle(getResources().getString(R.string.my_addresses));
@@ -171,7 +173,7 @@ public class AccountActivity extends AppCompatActivity {
 
         IMPORTED_HEADER = getResources().getString(R.string.imported_addresses);
 
-        if (!appUtil.isNotUpgraded())
+        if (!payloadManager.isNotUpgraded())
             HEADERS = new String[]{IMPORTED_HEADER};
         else
             HEADERS = new String[0];
@@ -191,7 +193,7 @@ public class AccountActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(final View view, int position) {
 
-                        if (!appUtil.isNotUpgraded())
+                        if (!payloadManager.isNotUpgraded())
                             if (headerPositions.contains(position)) return;//headers unclickable
 
                         onRowClick(position);
@@ -209,7 +211,7 @@ public class AccountActivity extends AppCompatActivity {
         actionA.setIconDrawable(getResources().getDrawable(R.drawable.icon_accounthd));
         actionA.setColorPressed(getResources().getColor(R.color.blockchain_dark_blue));
 
-        if (!appUtil.isNotUpgraded()) {
+        if (!payloadManager.isNotUpgraded()) {
             //V3
             actionA.setTitle(getResources().getString(R.string.create_new));
             actionA.setOnClickListener(new View.OnClickListener() {
@@ -269,7 +271,7 @@ public class AccountActivity extends AppCompatActivity {
         inflater.inflate(R.menu.account_activity_actions, menu);
         transferFundsMenuItem = menu.findItem(R.id.action_transfer_funds);
 
-        if(hasTransferableFunds() && PayloadFactory.getInstance().get().isUpgraded()){
+        if(hasTransferableFunds() && payloadManager.getPayload().isUpgraded()){
 
             transferFundsMenuItem.setVisible(true);
 
@@ -311,7 +313,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void importAddress(){
 
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if (!payloadManager.getPayload().isDoubleEncrypted()) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 PermissionUtil.requestCameraPermissionFromActivity(mLayout, this);
             }else{
@@ -332,13 +334,13 @@ public class AccountActivity extends AppCompatActivity {
                             String pw2 = double_encrypt_password.getText().toString();
 
                             if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                    PayloadFactory.getInstance().get().getSharedKey(),
+                                    payloadManager.getPayload().getDoublePasswordHash(),
+                                    payloadManager.getPayload().getSharedKey(),
                                     new CharSequenceX(pw2),
-                                    PayloadFactory.getInstance().get().getOptions().getIterations()
+                                    payloadManager.getPayload().getOptions().getIterations()
                             )) {
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                 if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                                     PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountActivity.this);
@@ -348,7 +350,7 @@ public class AccountActivity extends AppCompatActivity {
 
                             } else {
                                 ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                             }
 
                         }
@@ -362,7 +364,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void createNewAccount() {
 
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if (!payloadManager.getPayload().isDoubleEncrypted()) {
             promptForAccountLabel(null);
         } else {
 
@@ -376,7 +378,7 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 public void onFail() {
                     ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
             });
         }
@@ -400,12 +402,12 @@ public class AccountActivity extends AppCompatActivity {
                         if (secondPassword != null &&
                                 secondPassword.length() > 0 &&
                                 DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        new CharSequenceX(secondPassword), PayloadFactory.getInstance().get().getOptions().getIterations()) &&
+                                        payloadManager.getPayload().getDoublePasswordHash(),
+                                        payloadManager.getPayload().getSharedKey(),
+                                        new CharSequenceX(secondPassword), payloadManager.getPayload().getOptions().getIterations()) &&
                                 !StringUtils.isEmpty(secondPassword)) {
 
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
+                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
                             callback.onSuccess(secondPassword);
 
                         } else {
@@ -478,7 +480,7 @@ public class AccountActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... params) {
 
                     try {
-                        PayloadFactory.getInstance().addAccount(accountLabel, new PayloadFactory.AccountAddListener() {
+                        payloadManager.addAccount(accountLabel, new PayloadManager.AccountAddListener() {
                             @Override
                             public void onAccountAddSuccess(Account account) {
                                 ToastCustom.makeText(AccountActivity.this,
@@ -524,7 +526,7 @@ public class AccountActivity extends AppCompatActivity {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else {
 
-            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 addAddress();
             } else {
 
@@ -542,19 +544,19 @@ public class AccountActivity extends AppCompatActivity {
                                 String pw2 = double_encrypt_password.getText().toString();
 
                                 if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
+                                        payloadManager.getPayload().getDoublePasswordHash(),
+                                        payloadManager.getPayload().getSharedKey(),
                                         new CharSequenceX(pw2),
-                                        PayloadFactory.getInstance().get().getOptions().getIterations()
+                                        payloadManager.getPayload().getOptions().getIterations()
                                 )) {
 
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw2));
+                                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                     addAddress();
 
                                 } else {
                                     ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 }
 
                             }
@@ -578,9 +580,9 @@ public class AccountActivity extends AppCompatActivity {
         accountsAndImportedList.clear();
 
         int i = 0;
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             List<Account> accountClone = new ArrayList<Account>(accounts.size());
             accountClone.addAll(accounts);
 
@@ -588,8 +590,8 @@ public class AccountActivity extends AppCompatActivity {
                 accountClone.remove(accountClone.size() - 1);
             }
 
-            int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-            Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+            int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+            Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
 
             int archivedCount = 0;
             for (; i < accountClone.size(); i++) {
@@ -605,12 +607,12 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         ImportedAccount iAccount = null;
-        if (PayloadFactory.getInstance().get().getLegacyAddresses().size() > 0) {
-            iAccount = new ImportedAccount(getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+        if (payloadManager.getPayload().getLegacyAddresses().size() > 0) {
+            iAccount = new ImportedAccount(getString(R.string.imported_addresses), payloadManager.getPayload().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
         }
         if (iAccount != null) {
 
-            if (!appUtil.isNotUpgraded()) {
+            if (!payloadManager.isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountsAndImportedList.size());
                 accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd), false, false, false));
@@ -623,7 +625,7 @@ public class AccountActivity extends AppCompatActivity {
                 String balance = getAddressBalance(j);
                 if (label == null || label.length() == 0) label = legacy.get(j).getAddress();
 
-                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadFactory.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly(), false));
+                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadManager.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly(), false));
             }
         }
 
@@ -637,7 +639,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private String getAccountBalance(int index) {
 
-        String address = PayloadFactory.getInstance().getXpubFromAccountIndex(index);
+        String address = payloadManager.getXpubFromAccountIndex(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
         if (amount == null) amount = 0l;
 
@@ -708,7 +710,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void importBIP38Address(final String data) {
 
-        final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         final EditText password = new EditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -742,21 +744,21 @@ public class AccountActivity extends AppCompatActivity {
                                     BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), data);
                                     final ECKey key = bip38.decrypt(pw);
 
-                                    if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+                                    if (key != null && key.hasPrivKey() && payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
                                         //A private key to an existing address has been scanned
                                         setPrivateKey(key);
 
-                                    } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+                                    } else if (key != null && key.hasPrivKey() && !payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
                                         final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
                                                     /*
                                                      * if double encrypted, save encrypted in payload
                                                      */
-                                        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                        if (!payloadManager.getPayload().isDoubleEncrypted()) {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
                                             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
@@ -821,24 +823,24 @@ public class AccountActivity extends AppCompatActivity {
             return;
         }
 
-        if (key != null && key.hasPrivKey() && PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+        if (key != null && key.hasPrivKey() && payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
             //A private key to an existing address has been scanned
             setPrivateKey(key);
 
-        } else if (key != null && key.hasPrivKey() && !PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
+        } else if (key != null && key.hasPrivKey() && !payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
 
-            final List<LegacyAddress> rollbackLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+            final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
             final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
             /*
              * if double encrypted, save encrypted in payload
              */
-            if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
@@ -891,18 +893,18 @@ public class AccountActivity extends AppCompatActivity {
 
     private void setPrivateKey(ECKey key){
 
-        Payload payload = PayloadFactory.getInstance().get();
+        Payload payload = payloadManager.getPayload();
         int index = payload.getLegacyAddressStrings().indexOf(key.toAddress(MainNetParams.get()).toString());
         LegacyAddress legacyAddress = payload.getLegacyAddresses().get(index);
         if (!payload.isDoubleEncrypted()) {
             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
         } else {
             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payload.getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), payload.getOptions().getIterations());
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payload.getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payload.getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
         }
         legacyAddress.setWatchOnly(false);
-        PayloadFactory.getInstance().set(payload);
+        payloadManager.setPayload(payload);
         PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
             @Override
             public void onSaveSuccess() {
@@ -931,7 +933,7 @@ public class AccountActivity extends AppCompatActivity {
 
         if(!FormatsUtil.getInstance().isValidBitcoinAddress(address)){
             ToastCustom.makeText(AccountActivity.this, getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-        }else if (PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(address)) {
+        }else if (payloadManager.getPayload().getLegacyAddressStrings().contains(address)) {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.address_already_in_wallet), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else {
 
@@ -1044,7 +1046,7 @@ public class AccountActivity extends AppCompatActivity {
             protected ECKey doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                ECKey ecKey = PayloadFactory.getInstance().newLegacyAddress();
+                ECKey ecKey = payloadManager.newLegacyAddress();
 
                 if (ecKey == null) {
                     ToastCustom.makeText(context, context.getString(R.string.cannot_create_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1059,8 +1061,8 @@ public class AccountActivity extends AppCompatActivity {
                 super.onPostExecute(ecKey);
 
                 String encryptedKey = new String(Base58.encode(ecKey.getPrivKeyBytes()));
-                if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
-                    encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                if (payloadManager.getPayload().isDoubleEncrypted()) {
+                    encryptedKey = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                 }
                 final LegacyAddress legacyAddress = new LegacyAddress();
                 legacyAddress.setEncryptedKey(encryptedKey);
@@ -1137,20 +1139,20 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... params) {
 
-                if (PayloadFactory.getInstance().get() != null) {
+                if (payloadManager.getPayload() != null) {
 
-                    Payload updatedPayload = PayloadFactory.getInstance().get();
+                    Payload updatedPayload = payloadManager.getPayload();
                     List<LegacyAddress> updatedLegacyAddresses = updatedPayload.getLegacyAddresses();
                     updatedLegacyAddresses.add(legacy);
                     updatedPayload.setLegacyAddresses(updatedLegacyAddresses);
-                    PayloadFactory.getInstance().set(updatedPayload);
+                    payloadManager.setPayload(updatedPayload);
 
-                    if (PayloadFactory.getInstance().put()) {
+                    if (payloadManager.savePayloadToServer()) {
                         ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                         ToastCustom.makeText(getApplicationContext(), legacy.getAddress(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
-                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
-                        List<String> legacyAddressList = PayloadFactory.getInstance().get().getLegacyAddressStrings();
+                        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
+                        List<String> legacyAddressList = payloadManager.getPayload().getLegacyAddressStrings();
                         try {
                             MultiAddrFactory.getInstance().refreshLegacyAddressData(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
                         } catch (Exception e) {
@@ -1181,7 +1183,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private boolean hasTransferableFunds(){
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
         for(LegacyAddress legacyAddress : legacyAddresses){
 
             if(!legacyAddress.isWatchOnly()){
@@ -1241,12 +1243,12 @@ public class AccountActivity extends AppCompatActivity {
         ArrayList<PendingSpend> pendingSpendList = new ArrayList<>();
         long totalToSend = 0;
 
-        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
+        int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
         for(LegacyAddress legacyAddress : legacyAddresses){
 
-            if(!legacyAddress.isWatchOnly() && legacyAddress.getTag() != PayloadFactory.ARCHIVED_ADDRESS){
+            if(!legacyAddress.isWatchOnly() && legacyAddress.getTag() != PayloadManager.ARCHIVED_ADDRESS){
 
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 
@@ -1257,7 +1259,7 @@ public class AccountActivity extends AppCompatActivity {
                     Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
                     totalToSend += totalToSendAfterFee;
                     pendingSpend.bigIntAmount = BigInteger.valueOf(totalToSendAfterFee);
-                    pendingSpend.destination = PayloadFactory.getInstance().getV3ReceiveAddress(defaultIndex);//assign new receive address for each transfer
+                    pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);//assign new receive address for each transfer
                     pendingSpendList.add(pendingSpend);
                 }
             }
@@ -1288,8 +1290,8 @@ public class AccountActivity extends AppCompatActivity {
         //To default
         TextView confirmTo = (TextView) dialogView.findViewById(R.id.confirm_to);
 
-        int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-        Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+        int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+        Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
         confirmTo.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
 
         //Fee
@@ -1313,7 +1315,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (!PayloadFactory.getInstance().get().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+                if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
                     sendPayment(pendingSpendList);
                 } else {
                     alertDoubleEncrypted(pendingSpendList);
@@ -1348,9 +1350,9 @@ public class AccountActivity extends AppCompatActivity {
 
                         final String pw = password.getText().toString();
 
-                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(payloadManager.getPayload().getDoublePasswordHash(), payloadManager.getPayload().getSharedKey(), new CharSequenceX(pw), payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
 
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
                             sendPayment(pendingSpendList);
 
                         } else {
@@ -1428,7 +1430,7 @@ public class AccountActivity extends AppCompatActivity {
 
                 if(isLastSpend){
                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                     PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override
                         public void onSaveSuccess() {
@@ -1462,7 +1464,7 @@ public class AccountActivity extends AppCompatActivity {
             public void onFailPermanently(String error) {
 
                 //Reset double encrypt for V2
-                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();

@@ -9,7 +9,7 @@ import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -50,6 +50,7 @@ public class SendFactory {
     public HashMap<String, String> fromAddressPathMap = null;
     private boolean sentChange = false;
     private static AppUtil appUtil;
+    private static PayloadManager payloadManager;
 
     private SendFactory() {
         ;
@@ -63,6 +64,7 @@ public class SendFactory {
         if (instance == null) {
             instance = new SendFactory();
             pushTxApi = new PushTx();
+            payloadManager = PayloadManager.getInstance();
         }
 
         return instance;
@@ -109,8 +111,8 @@ public class SendFactory {
         if (isXpub) {
             ret = getUnspentOutputPoints(true, new String[]{address}, amount, feePerKb, unspentsApiResponse);
         } else {
-            if (appUtil.isNotUpgraded()) {
-                List<String> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddressStrings();
+            if (payloadManager.isNotUpgraded()) {
+                List<String> addrs = payloadManager.getPayload().getActiveLegacyAddressStrings();
                 fromAddresses = addrs.toArray(new String[addrs.size()]);
             }
 
@@ -152,7 +154,7 @@ public class SendFactory {
                     Pair<Transaction, Long> pair = null;
                     String changeAddr = null;
                     if (isHD) {
-                        changeAddr = PayloadFactory.getInstance().getChangeAddress(accountIdx);
+                        changeAddr = payloadManager.getChangeAddress(accountIdx);
                     } else {
                         changeAddr = legacyAddress.getAddress();
                     }
@@ -175,7 +177,7 @@ public class SendFactory {
                             String privStr = null;
                             if (isHD) {
                                 String path = fromAddressPathMap.get(address);
-                                walletKey = PayloadFactory.getInstance().getECKey(accountIdx, path);
+                                walletKey = payloadManager.getECKey(accountIdx, path);
                             } else {
                                 walletKey = legacyAddress.getECKey();
                             }
@@ -193,9 +195,9 @@ public class SendFactory {
 
                     }
 
-                    if (appUtil.isNotUpgraded()) {
+                    if (payloadManager.isNotUpgraded()) {
                         wallet = new Wallet(MainNetParams.get());
-                        List<LegacyAddress> addrs = PayloadFactory.getInstance().get().getActiveLegacyAddresses();
+                        List<LegacyAddress> addrs = payloadManager.getPayload().getActiveLegacyAddresses();
                         for (LegacyAddress addr : addrs) {
                             if (addr != null && addr.getECKey() != null && addr.getECKey().hasPrivKey()) {
                                 wallet.addKey(addr.getECKey());
@@ -218,14 +220,14 @@ public class SendFactory {
                                 opc.onSuccess(tx.getHashAsString());
 
                                 if (note != null && note.length() > 0) {
-                                    Map<String, String> notes = PayloadFactory.getInstance().get().getNotes();
+                                    Map<String, String> notes = payloadManager.getPayload().getNotes();
                                     notes.put(tx.getHashAsString(), note);
-                                    PayloadFactory.getInstance().get().setNotes(notes);
+                                    payloadManager.getPayload().setNotes(notes);
                                 }
 
                                 if (isHD && sentChange) {
                                     // increment change address counter
-                                    PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(accountIdx).incChange();
+                                    payloadManager.getPayload().getHdWallet().getAccounts().get(accountIdx).incChange();
                                 }
 
                             } else {

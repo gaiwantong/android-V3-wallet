@@ -7,7 +7,7 @@ import android.os.Looper;
 import info.blockchain.api.Access;
 import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.pairing.PairingQRComponents;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.PinEntryActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
@@ -51,7 +51,7 @@ public class PairingViewModel implements ViewModel{
 
                 CharSequenceX password = new CharSequenceX(new String(Hex.decode(sharedKeyAndPassword[1]), "UTF-8"));
 
-                PayloadFactory.getInstance().setTempPassword(password);
+                PayloadManager.getInstance().setTempPassword(password);
                 appUtil.setSharedKey(sharedKeyAndPassword[0]);
 
                 if (qrComponents.guid != null) {

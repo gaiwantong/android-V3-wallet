@@ -15,7 +15,7 @@ import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -47,6 +47,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private PrefsUtil prefsUtil;
     private OSUtil osUtil;
     private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     @Bindable
     public String getBalance(){
@@ -68,6 +69,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         this.context = context;
         this.dataListener = dataListener;
         this.model = new BalanceModel();
+        this.payloadManager = PayloadManager.getInstance();
 
         this.activeAccountAndAddressList = new ArrayList<>();
         this.activeAccountAndAddressBiMap = HashBiMap.create();
@@ -144,8 +146,8 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
                     outputMap.put(output.addr, output.value);
                 }
 
-            } else if(PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(output.addr) ||
-                    PayloadFactory.getInstance().get().getWatchOnlyAddressStrings().contains(output.addr)){
+            } else if(payloadManager.getPayload().getLegacyAddressStrings().contains(output.addr) ||
+                    payloadManager.getPayload().getWatchOnlyAddressStrings().contains(output.addr)){
 
                 //If output address belongs to a legacy address we own - we have to check if it's change
 
@@ -177,7 +179,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
     public String addressToLabel(String address){
 
-        HDWallet hdWallet = PayloadFactory.getInstance().get().getHdWallet();
+        HDWallet hdWallet = payloadManager.getPayload().getHdWallet();
         List<Account> accountList = new ArrayList<>();
         if(hdWallet != null && hdWallet.getAccounts() != null)
             accountList = hdWallet.getAccounts();
@@ -192,17 +194,17 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
                 //eventhough it looks like this shouldn't happen,
                 //it sometimes happens with transfers if user clicks to view details immediately.
                 //TODO - see if isOwnHDAddress could be updated to solve this
-                int accIndex = PayloadFactory.getInstance().get().getXpub2Account().get(xpub);
+                int accIndex = payloadManager.getPayload().getXpub2Account().get(xpub);
                 String label = accountList.get(accIndex).getLabel();
                 if (label != null && !label.isEmpty())
                     return label;
             }
 
             //If address one of owned legacy addresses
-        }else if (PayloadFactory.getInstance().get().getLegacyAddressStrings().contains(address) ||
-                PayloadFactory.getInstance().get().getWatchOnlyAddressStrings().contains(address)){
+        }else if (payloadManager.getPayload().getLegacyAddressStrings().contains(address) ||
+                payloadManager.getPayload().getWatchOnlyAddressStrings().contains(address)){
 
-            Payload payload = PayloadFactory.getInstance().get();
+            Payload payload = payloadManager.getPayload();
 
             String label = payload.getLegacyAddresses().get(payload.getLegacyAddressStrings().indexOf(address)).getLabel();
             if (label != null && !label.isEmpty())
@@ -226,13 +228,13 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
         //All accounts/addresses
         List<Account> allAccounts = null;
-        List<LegacyAddress> allLegacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> allLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         //Only active accounts/addresses (exclude archived)
         List<Account> activeAccounts = new ArrayList<>();
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
-            allAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();//V3
+            allAccounts = payloadManager.getPayload().getHdWallet().getAccounts();//V3
 
             for (Account item : allAccounts) {
                 if (!item.isArchived()) {
@@ -242,7 +244,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         }
         List<LegacyAddress> activeLegacyAddresses = new ArrayList<>();
         for (LegacyAddress item : allLegacyAddresses) {
-            if (item.getTag() != PayloadFactory.ARCHIVED_ADDRESS){
+            if (item.getTag() != PayloadManager.ARCHIVED_ADDRESS){
                 activeLegacyAddresses.add(item);
             }
         }
@@ -250,7 +252,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         //"All" - total balance
         if (activeAccounts != null && activeAccounts.size() > 1 || activeLegacyAddresses.size() > 0) {
 
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
+            if (payloadManager.getPayload().isUpgraded()) {
 
                 //Only V3 will display "All"
                 Account all = new Account();
@@ -263,7 +265,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
             } else if (activeLegacyAddresses.size() > 1) {
 
                 //V2 "All" at top of accounts spinner if wallet contains multiple legacy addresses
-                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+                ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.total_funds), payloadManager.getPayload().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
                 iAccount.setTags(Arrays.asList(TAG_ALL));
                 activeAccountAndAddressList.add(iAccount.getLabel());
                 activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
@@ -284,10 +286,10 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         }
 
         //Add "Imported Addresses" or "Total Funds" to map
-        if (PayloadFactory.getInstance().get().isUpgraded() && activeLegacyAddresses.size() > 0) {
+        if (payloadManager.getPayload().isUpgraded() && activeLegacyAddresses.size() > 0) {
 
             //Only V3 - Consolidate and add Legacy addresses to "Imported Addresses" at bottom of accounts spinner
-            ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), PayloadFactory.getInstance().get().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
+            ImportedAccount iAccount = new ImportedAccount(context.getString(R.string.imported_addresses), payloadManager.getPayload().getLegacyAddresses(), new ArrayList<String>(), MultiAddrFactory.getInstance().getLegacyBalance());
             iAccount.setTags(Arrays.asList(TAG_IMPORTED_ADDRESSES));
             activeAccountAndAddressList.add(iAccount.getLabel());
             activeAccountAndAddressBiMap.put(iAccount, spinnerIndex);
@@ -339,7 +341,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
             //V3 - All
             if(account.getTags().contains(TAG_ALL)){
-                if (PayloadFactory.getInstance().get().isUpgraded()) {
+                if (payloadManager.getPayload().isUpgraded()) {
                     //Total for accounts
                     List<Tx> allTransactions = getAllXpubAndLegacyTxs();
                     if(allTransactions != null)unsortedTransactionList.addAll(allTransactions);

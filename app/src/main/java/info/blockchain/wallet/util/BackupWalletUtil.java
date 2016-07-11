@@ -3,7 +3,7 @@ package info.blockchain.wallet.util;
 import android.content.Context;
 import android.util.Pair;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.bitcoinj.crypto.MnemonicException;
@@ -67,11 +67,11 @@ public class BackupWalletUtil {
      */
     public String[] getMnemonic() {
         // Wallet is not double encrypted
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+        if (!PayloadManager.getInstance().getPayload().isDoubleEncrypted()) {
             return getHDSeedAsMnemonic(true);
         }
         // User has already entered double-encryption password
-        else if (PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString().length() > 0) {
+        else if (PayloadManager.getInstance().getTempDoubleEncryptPassword().toString().length() > 0) {
             return getMnemonicForDoubleEncryptedWallet();
         }
         // access must be established before calling this function
@@ -83,7 +83,7 @@ public class BackupWalletUtil {
 
     private String[] getMnemonicForDoubleEncryptedWallet() {
 
-        String[] mnemonic = PayloadFactory.getInstance().getMnemonicForDoubleEncryptedWallet();
+        String[] mnemonic = PayloadManager.getInstance().getMnemonicForDoubleEncryptedWallet();
 
         if(mnemonic != null){
             return mnemonic;
@@ -99,7 +99,7 @@ public class BackupWalletUtil {
 
         try {
 
-            seed = PayloadFactory.getInstance().getHDMnemonic();
+            seed = PayloadManager.getInstance().getHDMnemonic();
 
         } catch (IOException | MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();

@@ -54,8 +54,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.CustomKeypad;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
@@ -118,6 +117,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     private final String addressInfoLink = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -136,6 +136,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         View rootView = inflater.inflate(R.layout.fragment_receive, container, false);
         this.rootView = rootView;
 
+        payloadManager = PayloadManager.getInstance();
         prefsUtil = new PrefsUtil(getActivity());
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
@@ -536,10 +537,10 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         int spinnerIndex = 0;
 
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
             //V3
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             int accountIndex = 0;
             for (Account item : accounts) {
 
@@ -557,11 +558,11 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         }
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
                 continue;//skip archived address
 
             //If address has no label, we'll display address
@@ -625,9 +626,9 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         if (spAccounts != null) {
 
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
-                int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-                Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+            if (payloadManager.getPayload().isUpgraded()) {
+                int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+                Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
                 int defaultSpinnerIndex = accountBiMap.get(defaultAccount);
                 displayQRCode(defaultSpinnerIndex);
             } else {
@@ -733,13 +734,10 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private String getV3ReceiveAddress(Account account) {
 
-        //TODO - consider using existing getV3ReceiveAddress in PayloadFactory
         try {
             int spinnerIndex = accountBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
-            ReceiveAddress receiveAddress = null;
-            receiveAddress = PayloadFactory.getInstance().getReceiveAddress(accountIndex);
-            return receiveAddress.getAddress();
+            return payloadManager.getReceiveAddress(accountIndex);
 
         } catch (Exception e) {
             e.printStackTrace();

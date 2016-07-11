@@ -6,7 +6,7 @@ import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
@@ -53,15 +53,16 @@ public class SendTest extends BlockchainTest {
      */
     public void test() {
 
+        PayloadManager payloadManager = PayloadManager.getInstance();
         String payload = WalletUtil.getInstance(context).getPayload();
-        PayloadFactory.getInstance().set(new Payload(payload));
+        payloadManager.setPayload(new Payload(payload));
         try {
-            PayloadFactory.getInstance().get().parseJSON();
+            payloadManager.getPayload().parseJSON();
         } catch (Exception e) {
             ;
         }
         try {
-            MultiAddrFactory.getInstance().refreshXPUBData(new String[]{PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub()});
+            MultiAddrFactory.getInstance().refreshXPUBData(new String[]{payloadManager.getPayload().getHdWallet().getAccounts().get(0).getXpub()});
         } catch (Exception e) {
             e.printStackTrace();
         }

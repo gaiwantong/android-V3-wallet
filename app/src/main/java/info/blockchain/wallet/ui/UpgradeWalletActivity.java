@@ -29,8 +29,7 @@ import android.widget.ViewSwitcher;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.payload.HDPayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -60,6 +59,7 @@ public class UpgradeWalletActivity extends Activity {
     private TextView confirmUpgrade = null;
     private PrefsUtil prefs;
     private AppUtil appUtil;
+    private PayloadManager payloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +68,7 @@ public class UpgradeWalletActivity extends Activity {
         setContentView(R.layout.activity_upgrade_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        payloadManager = PayloadManager.getInstance();
         prefs = new PrefsUtil(this);
         appUtil = new AppUtil(this);
 
@@ -106,7 +107,7 @@ public class UpgradeWalletActivity extends Activity {
             }
         });
 
-        if (PasswordUtil.getInstance().ddpw(PayloadFactory.getInstance().getTempPassword()) || PasswordUtil.getInstance().getStrength(PayloadFactory.getInstance().getTempPassword().toString()) < 50) {
+        if (PasswordUtil.getInstance().ddpw(payloadManager.getTempPassword()) || PasswordUtil.getInstance().getStrength(payloadManager.getTempPassword().toString()) < 50) {
 
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password, null);
@@ -131,8 +132,8 @@ public class UpgradeWalletActivity extends Activity {
                                     ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 } else {
 
-                                    final CharSequenceX currentPassword = PayloadFactory.getInstance().getTempPassword();
-                                    PayloadFactory.getInstance().setTempPassword(new CharSequenceX(password2));
+                                    final CharSequenceX currentPassword = payloadManager.getTempPassword();
+                                    payloadManager.setTempPassword(new CharSequenceX(password2));
 
                                     new Thread(new Runnable() {
                                         @Override
@@ -140,11 +141,11 @@ public class UpgradeWalletActivity extends Activity {
 
                                             Looper.prepare();
 
-                                            if (AccessState.getInstance(UpgradeWalletActivity.this).createPIN(PayloadFactory.getInstance().getTempPassword(), AccessState.getInstance(UpgradeWalletActivity.this).getPIN())) {
-                                                PayloadFactory.getInstance().put();
+                                            if (AccessState.getInstance(UpgradeWalletActivity.this).createPIN(payloadManager.getTempPassword(), AccessState.getInstance(UpgradeWalletActivity.this).getPIN())) {
+                                                payloadManager.savePayloadToServer();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                             } else {
-                                                PayloadFactory.getInstance().setTempPassword(currentPassword);
+                                                payloadManager.setTempPassword(currentPassword);
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                             }
@@ -203,7 +204,7 @@ public class UpgradeWalletActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                if (payloadManager.getPayload().isDoubleEncrypted()) {
                     final EditText double_encrypt_password = new EditText(UpgradeWalletActivity.this);
                     double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -218,17 +219,17 @@ public class UpgradeWalletActivity extends Activity {
                                     final String pw = double_encrypt_password.getText().toString();
 
                                     if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                            PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                            PayloadFactory.getInstance().get().getSharedKey(),
+                                            payloadManager.getPayload().getDoublePasswordHash(),
+                                            payloadManager.getPayload().getSharedKey(),
                                             new CharSequenceX(pw),
-                                            PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
+                                            payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
 
-                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
+                                        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
 
                                         doUpgrade(new CharSequenceX(pw));
                                     } else {
                                         ToastCustom.makeText(getApplicationContext(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                                     }
                                 }
                             }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -259,12 +260,12 @@ public class UpgradeWalletActivity extends Activity {
                         appUtil.setNewlyCreated(true);
                         appUtil.applyPRNGFixes();
 
-                        PayloadFactory.getInstance().upgradePayload(
-                                PayloadFactory.getInstance().getTempPassword(),
+                        payloadManager.upgradeV2PayloadToV3(
+                                payloadManager.getTempPassword(),
                                 secondPassword,
                                 appUtil.isNewlyCreated(),
                                 UpgradeWalletActivity.this.getResources().getString(R.string.default_wallet_name),
-                                new HDPayloadBridge.UpgradePayloadListener() {
+                                new PayloadManager.UpgradePayloadListener() {
                                     @Override
                                     public void onDoubleEncryptionPasswordError() {
                                         ToastCustom.makeText(UpgradeWalletActivity.this, UpgradeWalletActivity.this.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -280,7 +281,7 @@ public class UpgradeWalletActivity extends Activity {
                                         UpgradeWalletActivity.this.startService(new Intent(UpgradeWalletActivity.this,
                                                 info.blockchain.wallet.websocket.WebSocketService.class));
 
-                                        PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
+                                        payloadManager.getPayload().getHdWallet().getAccounts().get(0).setLabel(getResources().getString(R.string.default_wallet_name));
                                         onUpgradeCompleted();
                                     }
 
@@ -317,7 +318,7 @@ public class UpgradeWalletActivity extends Activity {
 
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
 
-        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
 
         runOnUiThread(new Runnable() {
             @Override
@@ -346,7 +347,7 @@ public class UpgradeWalletActivity extends Activity {
         appUtil.setNewlyCreated(false);
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
 
-        PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
 
         runOnUiThread(new Runnable() {
             @Override

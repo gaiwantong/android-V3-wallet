@@ -12,7 +12,7 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.BalanceFragment;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -46,12 +46,14 @@ public class WebSocketHandler {
     private boolean pingPongSuccess = false;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
         this.addrs = addrs;
+        this.payloadManager = PayloadManager.getInstance();
         this.prefsUtil = new PrefsUtil(context);
         this.monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
@@ -176,7 +178,7 @@ public class WebSocketHandler {
 
                 //TODO - updateBalancesAndTransactions is being called twice here
                 try {
-                    PayloadFactory.getInstance().updateBalancesAndTransactions();
+                    payloadManager.updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -260,7 +262,7 @@ public class WebSocketHandler {
                                                     if (prevOutObj.has("xpub")) {
                                                         total_value -= value;
                                                     } else if (prevOutObj.has("addr")) {
-                                                        if (PayloadFactory.getInstance().get().containsLegacyAddress((String) prevOutObj.get("addr"))) {
+                                                        if (payloadManager.getPayload().containsLegacyAddress((String) prevOutObj.get("addr"))) {
                                                             total_value -= value;
                                                         } else if (in_addr == null) {
                                                             in_addr = (String) prevOutObj.get("addr");
@@ -285,7 +287,7 @@ public class WebSocketHandler {
                                                 if (outObj.has("xpub")) {
                                                     total_value += value;
                                                 } else if (outObj.has("addr")) {
-                                                    if (PayloadFactory.getInstance().get().containsLegacyAddress((String) outObj.get("addr"))) {
+                                                    if (payloadManager.getPayload().containsLegacyAddress((String) outObj.get("addr"))) {
                                                         total_value += value;
                                                     }
                                                 } else {
@@ -309,7 +311,7 @@ public class WebSocketHandler {
 
                                     } else if (op.equals("on_change")) {
 
-                                        final String localChecksum = PayloadFactory.getInstance().getCheckSum();
+                                        final String localChecksum = payloadManager.getCheckSum();
 
                                         boolean isSameChecksum = false;
                                         if (jsonObject.has("checksum")) {
@@ -319,12 +321,12 @@ public class WebSocketHandler {
 
                                         if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
-                                            if (PayloadFactory.getInstance().getTempPassword() != null) {
+                                            if (payloadManager.getTempPassword() != null) {
                                                 //Download changed payload
-                                                PayloadFactory.getInstance().initiatePayload(PayloadFactory.getInstance().get().getSharedKey(),
-                                                        PayloadFactory.getInstance().get().getGuid(),
-                                                        PayloadFactory.getInstance().getTempPassword(),
-                                                        new PayloadFactory.InitiatePayloadListener() {
+                                                payloadManager.initiatePayload(payloadManager.getPayload().getSharedKey(),
+                                                        payloadManager.getPayload().getGuid(),
+                                                        payloadManager.getTempPassword(),
+                                                        new PayloadManager.InitiatePayloadListener() {
                                                             @Override
                                                             public void onInitSuccess() {
 

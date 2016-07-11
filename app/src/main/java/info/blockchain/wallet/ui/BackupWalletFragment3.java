@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.BackupWalletUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -58,7 +58,7 @@ public class BackupWalletFragment3 extends Fragment {
                         && etSecondRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(1).second)
                         && etThirdRequest.getText().toString().trim().equalsIgnoreCase(confirmSequence.get(2).second)) {
 
-                    PayloadFactory.getInstance().get().getHdWallet().mnemonic_verified(true);
+                    PayloadManager.getInstance().getPayload().getHdWallet().mnemonic_verified(true);
                     new PrefsUtil(getActivity()).setValue(BackupWalletActivity.BACKUP_DATE_KEY, (int) (System.currentTimeMillis() / 1000));
                     PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override

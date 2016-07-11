@@ -34,7 +34,7 @@ import com.mukesh.countrypicker.models.Country;
 import info.blockchain.api.Settings;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.BackgroundExecutor;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -80,12 +80,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     int pwStrength = 0;
     PrefsUtil prefsUtil;
     MonetaryUtil monetaryUtil;
+    PayloadManager payloadManager;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
+        payloadManager = PayloadManager.getInstance();
         prefsUtil = new PrefsUtil(getActivity());
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
@@ -117,7 +119,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             @Override
             protected Void doInBackground(Void... params) {
-                Payload payload = PayloadFactory.getInstance().get();
+                Payload payload = payloadManager.getPayload();
                 settingsApi = new Settings(payload.getGuid(), payload.getSharedKey());
                 return null;
             }
@@ -135,7 +137,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         //Profile
         PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
         guidPref = (Preference) findPreference("guid");
-        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
+        guidPref.setSummary(payloadManager.getPayload().getGuid());
         guidPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         emailPref = (Preference) findPreference("email");
@@ -734,7 +736,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                     android.content.ClipData clip = null;
-                    clip = android.content.ClipData.newPlainText("guid", PayloadFactory.getInstance().get().getGuid());
+                    clip = android.content.ClipData.newPlainText("guid", payloadManager.getPayload().getGuid());
                     clipboard.setPrimaryClip(clip);
                     ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                 }).setNegativeButton(R.string.no, (dialog, whichButton) -> {
@@ -838,7 +840,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             button.setOnClickListener(view -> {
 
                 String hint = etPwHint1.getText().toString();
-                if(!hint.equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+                if(!hint.equals(payloadManager.getTempPassword().toString())) {
                     updatePasswordHint1(hint);
                     alertDialogEmail.dismiss();
                 }else{
@@ -979,7 +981,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 String currentPw = etCurrentPw.getText().toString();
                 String newPw = etNewPw.getText().toString();
                 String newConfirmedPw = etNewConfirmedPw.getText().toString();
-                final CharSequenceX walletPassword = PayloadFactory.getInstance().getTempPassword();
+                final CharSequenceX walletPassword = payloadManager.getTempPassword();
 
                 if(currentPw.equals(walletPassword.toString())) {
                     if (newPw.equals(newConfirmedPw)) {
@@ -1080,15 +1082,15 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         new Thread(() -> {
             Looper.prepare();
 
-            PayloadFactory.getInstance().setTempPassword(updatedPassword);
+            payloadManager.setTempPassword(updatedPassword);
 
             if (AccessState.getInstance(getActivity()).createPIN(updatedPassword, AccessState.getInstance(getActivity()).getPIN())
-                    && PayloadFactory.getInstance().put()) {
+                    && payloadManager.savePayloadToServer()) {
 
                 ToastCustom.makeText(getActivity(), getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
             } else {
                 //Revert on fail
-                PayloadFactory.getInstance().setTempPassword(fallbackPassword);
+                payloadManager.setTempPassword(fallbackPassword);
                 ToastCustom.makeText(getActivity(), getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 ToastCustom.makeText(getActivity(), getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }

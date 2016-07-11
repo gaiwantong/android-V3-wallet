@@ -51,7 +51,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
@@ -135,7 +135,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            PayloadFactory.getInstance().updateBalancesAndTransactions();
+                            PayloadManager.getInstance().updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -409,7 +409,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         // drawerTitle account now that wallet has been created
         if (prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            PayloadManager.getInstance().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
             prefsUtil.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
             PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                 @Override

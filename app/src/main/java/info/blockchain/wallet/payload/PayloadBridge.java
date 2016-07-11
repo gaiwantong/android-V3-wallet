@@ -8,6 +8,7 @@ import android.os.Looper;
 public class PayloadBridge {
 
     private static PayloadBridge instance;
+    private static PayloadManager payloadManager;
 
     private PayloadBridge() {
     }
@@ -16,6 +17,7 @@ public class PayloadBridge {
 
         if(instance == null){
             instance = new PayloadBridge();
+            payloadManager = PayloadManager.getInstance();
         }
 
         return instance;
@@ -34,7 +36,7 @@ public class PayloadBridge {
         new Thread(() -> {
             Looper.prepare();
 
-            if (PayloadFactory.getInstance().put()) {
+            if (payloadManager.savePayloadToServer()) {
                 listener.onSaveSuccess();
             } else {
                 listener.onSaveFail();

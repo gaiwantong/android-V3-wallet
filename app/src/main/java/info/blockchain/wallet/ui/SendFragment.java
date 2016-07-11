@@ -57,8 +57,7 @@ import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
@@ -153,6 +152,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private BigInteger[] absoluteFeeSuggestedEstimates = null;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -196,6 +196,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
 
+        payloadManager = PayloadManager.getInstance();
         prefsUtil = new PrefsUtil(getActivity());
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
@@ -473,10 +474,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         int spinnerIndex = 0;
 
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
             //V3
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             for (Account item : accounts) {
 
                 if (item.isArchived())
@@ -490,11 +491,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         }
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
                 continue;//skip archived
 
             //If address has no label, we'll display address
@@ -527,10 +528,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         int spinnerIndex = 0;
 
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
             //V3
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             int accountIndex = 0;
             for (Account item : accounts) {
 
@@ -548,11 +549,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         }
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
                 continue;//skip archived address
 
             //If address has no label, we'll display address
@@ -569,7 +570,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         //Address Book
-        List<AddressBookEntry> addressBookEntries = PayloadFactory.getInstance().get().getAddressBookEntries();
+        List<AddressBookEntry> addressBookEntries = payloadManager.getPayload().getAddressBookEntries();
 
         for(AddressBookEntry addressBookEntry : addressBookEntries){
 
@@ -695,14 +696,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private String getV3ReceiveAddress(Account account) {
 
-        //TODO - consider using existing getV3ReceiveAddress in PayloadFactory
         try {
             int spinnerIndex = receiveToBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
-
-            ReceiveAddress receiveAddress = null;
-            receiveAddress = PayloadFactory.getInstance().getReceiveAddress(accountIndex);
-            return receiveAddress.getAddress();
+            return payloadManager.getReceiveAddress(accountIndex);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -990,9 +987,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         if (sendFromSpinner != null) {
 
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
-                int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-                Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+            if (payloadManager.getPayload().isUpgraded()) {
+                int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+                Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
                 int defaultSpinnerIndex = sendFromBiMap.get(defaultAccount);
                 sendFromSpinner.setSelection(defaultSpinnerIndex);
             } else {
@@ -1218,7 +1215,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
         }else{
-            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         }
     }
@@ -1269,7 +1266,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
                 if (format != null) {
 
-                    if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                    if (payloadManager.getPayload().isDoubleEncrypted()) {
                         promptForSecondPassword(new OpSimpleCallback() {
                             @Override
                             public void onSuccess(String string) {
@@ -1283,7 +1280,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             @Override
                             public void onFail() {
                                 ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                             }
                         });
                     }else{
@@ -1322,12 +1319,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (secondPassword != null &&
                                 secondPassword.length() > 0 &&
                                 DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        new CharSequenceX(secondPassword), PayloadFactory.getInstance().get().getOptions().getIterations()) &&
+                                        payloadManager.getPayload().getDoublePasswordHash(),
+                                        payloadManager.getPayload().getSharedKey(),
+                                        new CharSequenceX(secondPassword), payloadManager.getPayload().getOptions().getIterations()) &&
                                 !StringUtils.isEmpty(secondPassword)) {
 
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
+                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
                             callback.onSuccess(secondPassword);
 
                         } else {
@@ -1357,9 +1354,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             //Create copy, otherwise pass by ref will override
             LegacyAddress tempLegacyAddress = new LegacyAddress();
-            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (payloadManager.getPayload().isDoubleEncrypted()) {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                 tempLegacyAddress.setEncryptedKey(encrypted2);
             }else{
                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1414,9 +1411,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
                                             //Create copy, otherwise pass by ref will override
                                             LegacyAddress tempLegacyAddress = new LegacyAddress();
-                                            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                            if (payloadManager.getPayload().isDoubleEncrypted()) {
                                                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                                                 tempLegacyAddress.setEncryptedKey(encrypted2);
                                             }else{
                                                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1456,7 +1453,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void checkDoubleEncrypt(final PendingSpend pendingSpend){
 
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+        if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
             confirmPayment(pendingSpend);
         } else {
             alertDoubleEncrypted(pendingSpend);
@@ -1476,7 +1473,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
-                        if(PayloadFactory.getInstance().setDoubleEncryptPassword(pw, pendingSpend.isHD)){
+                        if(payloadManager.setDoubleEncryptPassword(pw, pendingSpend.isHD)){
                             confirmPayment(pendingSpend);
                         }else{
                             ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1628,7 +1625,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 executeSend(pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 closeDialog(alertDialog, false);
                             }
@@ -1740,7 +1737,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                     //Update v3 balance immediately after spend - until refresh from server
                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                    MultiAddrFactory.getInstance().setXpubAmount(PayloadFactory.getInstance().getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(PayloadFactory.getInstance().getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                    MultiAddrFactory.getInstance().setXpubAmount(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
                 } else {
 
@@ -1749,7 +1746,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     //TODO - why are we not setting individual address balance as well, was this over looked?
 
                     //Reset double encrypt for V2
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
@@ -1807,7 +1804,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //Reset double encrypt for V2
                 if (!pendingSpend.isHD) {
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 closeDialog(alertDialog, true);
@@ -1818,7 +1815,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //Reset double encrypt for V2
                 if (!pendingSpend.isHD) {
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 if (getActivity() != null)

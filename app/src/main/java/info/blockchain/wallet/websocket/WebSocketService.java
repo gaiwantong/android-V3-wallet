@@ -9,7 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 
 //import android.util.Log;
 
@@ -18,6 +18,8 @@ public class WebSocketService extends android.app.Service {
     public static final String ACTION_INTENT = "info.blockchain.wallet.WebSocketService.SUBSCRIBE_TO_ADDRESS";
     private final IBinder mBinder = new LocalBinder();
     private WebSocketHandler webSocketHandler = null;
+    private PayloadManager payloadManager;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -38,6 +40,8 @@ public class WebSocketService extends android.app.Service {
     public void onCreate() {
         super.onCreate();
 
+        this.payloadManager = PayloadManager.getInstance();
+
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 
@@ -48,7 +52,7 @@ public class WebSocketService extends android.app.Service {
         String[] xpubs = getXpubs();
 
         if(addrs.length > 0 || xpubs.length > 0) {
-            webSocketHandler = new WebSocketHandler(getApplicationContext(), PayloadFactory.getInstance().get().getGuid(), xpubs, addrs);
+            webSocketHandler = new WebSocketHandler(getApplicationContext(), payloadManager.getPayload().getGuid(), xpubs, addrs);
             webSocketHandler.start();
         }
     }
@@ -56,9 +60,9 @@ public class WebSocketService extends android.app.Service {
     private String[] getXpubs() {
 
         int nbAccounts = 0;
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
             try {
-                nbAccounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts().size();
+                nbAccounts = payloadManager.getPayload().getHdWallet().getAccounts().size();
             } catch (java.lang.IndexOutOfBoundsException e) {
                 nbAccounts = 0;
             }
@@ -66,7 +70,7 @@ public class WebSocketService extends android.app.Service {
 
         final String[] xpubs = new String[nbAccounts];
         for (int i = 0; i < nbAccounts; i++) {
-            String s = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(i).getXpub();
+            String s = payloadManager.getPayload().getHdWallet().getAccounts().get(i).getXpub();
             if (s != null && s.length() > 0) {
                 xpubs[i] = s;
             }
@@ -77,12 +81,12 @@ public class WebSocketService extends android.app.Service {
 
     private String[] getAddresses() {
 
-        int nbLegacy = PayloadFactory.getInstance().get().getLegacyAddresses().size();
+        int nbLegacy = payloadManager.getPayload().getLegacyAddresses().size();
         final String[] addrs = new String[nbLegacy];
         for (int i = 0; i < nbLegacy; i++) {
-            String s = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+            String s = payloadManager.getPayload().getLegacyAddresses().get(i).getAddress();
             if (s != null && s.length() > 0) {
-                addrs[i] = PayloadFactory.getInstance().get().getLegacyAddresses().get(i).getAddress();
+                addrs[i] = payloadManager.getPayload().getLegacyAddresses().get(i).getAddress();
             }
         }
 

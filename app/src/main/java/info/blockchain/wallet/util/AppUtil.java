@@ -9,7 +9,7 @@ import android.hardware.Camera;
 import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.MainActivity;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
@@ -34,7 +34,7 @@ public class AppUtil {
     }
 
     public void clearCredentials() {
-        PayloadFactory.getInstance().wipe();
+        PayloadManager.getInstance().wipe();
         prefs.clear();
     }
 
@@ -120,11 +120,6 @@ public class AppUtil {
 
     public void setSharedKey(String sharedKey) {
         prefs.setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
-    }
-
-    //TODO - remove this
-    public boolean isNotUpgraded() {
-        return PayloadFactory.getInstance().get() != null && !PayloadFactory.getInstance().get().isUpgraded();
     }
 
     public void applyPRNGFixes() {

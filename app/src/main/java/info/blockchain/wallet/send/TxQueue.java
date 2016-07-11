@@ -6,7 +6,7 @@ import android.util.Log;
 
 import info.blockchain.api.PushTx;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 
 import org.bitcoinj.core.Transaction;
@@ -27,6 +27,7 @@ public class TxQueue {
     private static Context context = null;
     private static ConcurrentLinkedQueue<Spendable> queue = null;
     private static TxQueue instance = null;
+    private static PayloadManager payloadManager;
 
     private TxQueue() {
         ;
@@ -42,6 +43,7 @@ public class TxQueue {
 
             instance = new TxQueue();
             pushTxApi = new PushTx();
+            payloadManager = PayloadManager.getInstance();
         }
 
         return instance;
@@ -113,14 +115,14 @@ public class TxQueue {
                                             sp.getOpCallback().onSuccess(sp.getTx().getHashAsString());
 
                                             if (sp.getNote() != null && sp.getNote().length() > 0) {
-                                                Map<String, String> notes = PayloadFactory.getInstance().get().getNotes();
+                                                Map<String, String> notes = payloadManager.getPayload().getNotes();
                                                 notes.put(sp.getTx().getHashAsString(), sp.getNote());
-                                                PayloadFactory.getInstance().get().setNotes(notes);
+                                                payloadManager.getPayload().setNotes(notes);
                                             }
 
                                             if (sp.isHD() && sp.sentChange()) {
                                                 // increment change address counter
-                                                PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(sp.getAccountIdx()).incChange();
+                                                payloadManager.getPayload().getHdWallet().getAccounts().get(sp.getAccountIdx()).incChange();
                                             }
 
                                             if (queue.size() == 0) {
