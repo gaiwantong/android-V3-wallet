@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
@@ -124,9 +123,6 @@ public class MainViewModel implements ViewModel{
                 !payloadManager.getPayload().isUpgraded() &&
                 !prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false) &&
                 prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
-
-            Log.v("vos","isPinValidated: "+isPinValidated);
-            Log.v("vos","isUpgraded(): "+payloadManager.getPayload().isUpgraded());
 
             AccessState.getInstance(context).setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();
