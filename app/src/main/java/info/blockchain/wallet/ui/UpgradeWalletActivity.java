@@ -261,7 +261,6 @@ public class UpgradeWalletActivity extends Activity {
                         appUtil.applyPRNGFixes();
 
                         payloadManager.upgradeV2PayloadToV3(
-                                payloadManager.getTempPassword(),
                                 secondPassword,
                                 appUtil.isNewlyCreated(),
                                 UpgradeWalletActivity.this.getResources().getString(R.string.default_wallet_name),
@@ -287,7 +286,7 @@ public class UpgradeWalletActivity extends Activity {
 
                                     @Override
                                     public void onUpgradeFail() {
-                                        onUpgradeFail();
+                                        onUpgradeFailed();
                                     }
                                 });
                     }
@@ -342,7 +341,7 @@ public class UpgradeWalletActivity extends Activity {
         });
     }
 
-    private void onUpgradeFail() {
+    private void onUpgradeFailed() {
 
         appUtil.setNewlyCreated(false);
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
