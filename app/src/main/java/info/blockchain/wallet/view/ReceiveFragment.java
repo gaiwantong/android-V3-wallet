@@ -238,10 +238,10 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
-        tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
+        tvCurrency1 = (TextView) rootView.findViewById(R.id.currency_btc);
+        tvFiat2 = (TextView) rootView.findViewById(R.id.currency_fiat);
 
-        edAmount1 = (EditText) rootView.findViewById(R.id.amount1);
+        edAmount1 = (EditText) rootView.findViewById(R.id.amount_btc);
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         edAmount1.setHint("0" + defaultSeperator + "00");
         edAmount1.setSelectAllOnFocus(true);
@@ -310,7 +310,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
+        edAmount2 = (EditText) rootView.findViewById(R.id.amount_fiat);
         edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         edAmount2.setHint("0" + defaultSeperator + "00");
         edAmount2.setSelectAllOnFocus(true);

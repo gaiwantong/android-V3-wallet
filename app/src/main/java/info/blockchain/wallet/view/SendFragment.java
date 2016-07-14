@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -43,7 +44,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -63,9 +63,6 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.view.helpers.CustomKeypad;
-import info.blockchain.wallet.view.helpers.ReselectSpinner;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -77,6 +74,9 @@ import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.ToastCustom;
+import info.blockchain.wallet.viewModel.SendViewModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.Base58;
@@ -96,31 +96,21 @@ import java.util.List;
 import java.util.Locale;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentSendBinding;
 
-public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener {
+public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener, SendViewModel.DataListener {
 
     private final int SCAN_PRIVX = 301;
     private static Context context = null;
     private View rootView;
 
-    private EditText edReceiveTo = null;
-    private EditText edAmount1 = null;
-    private TextView tvCurrency1 = null;
-    private TextView tvFeeUnits = null;
-    private EditText edAmount2 = null;
-    private TextView tvFiat2 = null;
     private MenuItem btSend;
-    private TextView tvMax = null;
-    private EditText etCustomFee = null;
-    private TextView tvEstimateConfirm = null;
     public static CustomKeypad customKeypad;
 
-    private Spinner sendFromSpinner = null;
     private List<String> sendFromList = null;
     private HashBiMap<Object, Integer> sendFromBiMap = null;
     private SendFromAdapter sendFromAdapter = null;
 
-    private ReselectSpinner receiveToSpinner = null;
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> receiveToBiMap = null;
     private ReceiveToAdapter receiveToAdapter = null;
@@ -153,6 +143,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
     private PayloadManager payloadManager;
+
+    private FragmentSendBinding binding;
+//    private SendViewModel viewModel;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -194,7 +187,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(R.layout.fragment_send, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_send, container, false);
+        rootView = binding.getRoot();
+//        viewModel = new SendViewModel(getActivity(), this);
+//        binding.setViewModel(viewModel);
 
         payloadManager = PayloadManager.getInstance();
         prefsUtil = new PrefsUtil(getActivity());
@@ -226,7 +222,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         SendFactory.getInstance(getActivity()).getSuggestedFee(this);
 
-        sendFromSpinner.setSelection(0);
+        binding.accounts.spinner.setSelection(0);
 
         selectDefaultAccount();
 
@@ -272,12 +268,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void setupViews(){
 
-        sendFromSpinner = (Spinner) rootView.findViewById(R.id.accounts);
-        receiveToSpinner = (ReselectSpinner) rootView.findViewById(R.id.sp_destination);
-        edReceiveTo = ((EditText) rootView.findViewById(R.id.destination));
-        edReceiveTo.setHorizontallyScrolling(false);
-        edReceiveTo.setLines(3);
-        edReceiveTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.destination.setHorizontallyScrolling(false);
+        binding.destination.setLines(3);
+        binding.destination.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus && customKeypad != null)
@@ -285,19 +278,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         });
 
-        edAmount1 = ((EditText) rootView.findViewById(R.id.amount1));
-        edAmount2 = (EditText) rootView.findViewById(R.id.amount2);
-
-        tvCurrency1 = (TextView) rootView.findViewById(R.id.currency1);
-        tvFiat2 = (TextView) rootView.findViewById(R.id.fiat2);
-        tvMax = (TextView) rootView.findViewById(R.id.max);
-        tvFeeUnits = (TextView) rootView.findViewById(R.id.tv_fee_unit);
-
-        tvEstimateConfirm = (TextView) rootView.findViewById(R.id.tv_estimate);
-        etCustomFee = (EditText) rootView.findViewById(R.id.custom_fee);
-        etCustomFee.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
+        binding.customFee.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
         //As soon as the user customizes our suggested dynamic fee - hide (recommended)
-        etCustomFee.addTextChangedListener(new TextWatcher() {
+        binding.customFee.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -316,9 +299,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     long balanceAfterFee = (unspentsCoinsBundle.getTotalAmount().longValue() - absoluteFeeUsed.longValue());
 
                     if (balanceAfterFee < 0) {
-                        tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                        binding.max.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                     } else {
-                        tvMax.setTextColor(getResources().getColor(R.color.textColorPrimary));
+                        binding.max.setTextColor(getResources().getColor(R.color.textColorPrimary));
                     }
 
                     String likelyToConfirmMessage = getText(R.string.estimate_confirm_block_count).toString();
@@ -326,12 +309,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                     // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
                     String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
-                    tvEstimateConfirm.setText(estimateText);
+                    binding.tvEstimate.setText(estimateText);
 
                     if (estimateText.equals(unlikelyToConfirmMessage)) {
-                        tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                     } else {
-                        tvEstimateConfirm.setTextColor(getResources().getColor(R.color.blockchain_blue));
+                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_blue));
                     }
 
                     displaySweepAmount();
@@ -354,19 +337,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         customKeypad.setDecimalSeparator(defaultSeparator);
 
         //Enable custom keypad and disables default keyboard from popping up
-        customKeypad.enableOnView(edAmount1);
-        customKeypad.enableOnView(edAmount2);
-        customKeypad.enableOnView(etCustomFee);
+        customKeypad.enableOnView(binding.amountRow.amountBtc);
+        customKeypad.enableOnView(binding.amountRow.amountFiat);
+        customKeypad.enableOnView(binding.customFee);
 
-        edAmount1.setText("");
-        edAmount1.requestFocus();
+        binding.amountRow.amountBtc.setText("");
+        binding.amountRow.amountBtc.requestFocus();
     }
 
     private BigInteger getCustomFee(){
 
         long amountL = 0L;
-        if(!etCustomFee.getText().toString().isEmpty())
-            amountL = getLongValue(etCustomFee.getText().toString());
+        if(!binding.customFee.getText().toString().isEmpty())
+            amountL = getLongValue(binding.customFee.getText().toString());
 
         return BigInteger.valueOf(amountL);
     }
@@ -391,35 +374,35 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         sendFromAdapter = new SendFromAdapter(getActivity(), R.layout.spinner_item, sendFromList);
-        sendFromSpinner.setAdapter(sendFromAdapter);
-        sendFromSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        binding.accounts.spinner.setAdapter(sendFromAdapter);
+        binding.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
             public void onGlobalLayout() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    sendFromSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    binding.accounts.spinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
-                    sendFromSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    binding.accounts.spinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    sendFromSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                    binding.accounts.spinner.setDropDownWidth(binding.accounts.spinner.getWidth());
                 }
             }
         });
 
-        sendFromSpinner.setOnItemSelectedListener(
+        binding.accounts.spinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
                         unspentsCoinsBundle = null;
                         unspentApiResponse = null;
-                        tvMax.setVisibility(View.GONE);
+                        binding.max.setVisibility(View.GONE);
                         rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.VISIBLE);
                         if(btSend != null)btSend.setEnabled(false);
 
-                        getUnspent(sendFromSpinner.getSelectedItemPosition());//the current selected item in from dropdown (Account or Legacy Address)
+                        getUnspent(binding.accounts.spinner.getSelectedItemPosition());//the current selected item in from dropdown (Account or Legacy Address)
                     }
 
                     @Override
@@ -598,32 +581,32 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         receiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
 
         //If there is only 1 account/address - hide drop down
-        if (receiveToList.size() <= 1) receiveToSpinner.setVisibility(View.GONE);
+        if (receiveToList.size() <= 1) binding.spDestination.setVisibility(View.GONE);
 
-        receiveToSpinner.setAdapter(receiveToAdapter);
-        receiveToSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        binding.spDestination.setAdapter(receiveToAdapter);
+        binding.spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
             public void onGlobalLayout() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    receiveToSpinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    binding.spDestination.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
-                    receiveToSpinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    binding.spDestination.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                if(sendFromSpinner.getWidth() > 0)
+                if(binding.accounts.spinner.getWidth() > 0)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        receiveToSpinner.setDropDownWidth(sendFromSpinner.getWidth());
+                        binding.spDestination.setDropDownWidth(binding.accounts.spinner.getWidth());
                     }
             }
         });
 
-        receiveToSpinner.setOnItemSelectedEvenIfUnchangedListener(
+        binding.spDestination.setOnItemSelectedEvenIfUnchangedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
-                        final Object object = receiveToBiMap.inverse().get(receiveToSpinner.getSelectedItemPosition());
+                        final Object object = receiveToBiMap.inverse().get(binding.spDestination.getSelectedItemPosition());
 
                         if (object instanceof LegacyAddress) {
 
@@ -633,16 +616,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 promptWatchOnlySpendWarning(object);
 
                             } else {
-                                edReceiveTo.setText(((LegacyAddress) object).getAddress());
+                                binding.destination.setText(((LegacyAddress) object).getAddress());
                             }
                         } else if(object instanceof Account){
                             //V3
                             //TODO - V3 no watch only yet
-                            edReceiveTo.setText(getV3ReceiveAddress((Account) object));
+                            binding.destination.setText(getV3ReceiveAddress((Account) object));
 
                         } else if (object instanceof AddressBookEntry){
                             //Address book
-                            edReceiveTo.setText(((AddressBookEntry) object).getAddress());
+                            binding.destination.setText(((AddressBookEntry) object).getAddress());
                         }
 
                         spDestinationSelected = true;
@@ -674,7 +657,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             confirmCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    edReceiveTo.setText("");
+                    binding.destination.setText("");
                     if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
@@ -684,7 +667,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             confirmContinue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    edReceiveTo.setText(((LegacyAddress) object).getAddress());
+                    binding.destination.setText(((LegacyAddress) object).getAddress());
                     if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
@@ -715,24 +698,24 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void initVars(){
 
-        edAmount1.addTextChangedListener(btcTextWatcher);
-        edAmount1.setSelectAllOnFocus(true);
+        binding.amountRow.amountBtc.addTextChangedListener(btcTextWatcher);
+        binding.amountRow.amountBtc.setSelectAllOnFocus(true);
 
-        edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
-        edAmount2.setHint("0" + defaultSeparator + "00");
-        edAmount2.addTextChangedListener(fiatTextWatcher);
-        edAmount2.setSelectAllOnFocus(true);
+        binding.amountRow.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+        binding.amountRow.amountFiat.setHint("0" + defaultSeparator + "00");
+        binding.amountRow.amountFiat.addTextChangedListener(fiatTextWatcher);
+        binding.amountRow.amountFiat.setSelectAllOnFocus(true);
 
-        edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
-        edAmount1.setHint("0" + defaultSeparator + "00");
+        binding.amountRow.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+        binding.amountRow.amountBtc.setHint("0" + defaultSeparator + "00");
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
-        tvCurrency1.setText(strBTC);
-        tvFeeUnits.setText(strBTC);
-        tvFiat2.setText(strFiat);
+        binding.amountRow.currencyBtc.setText(strBTC);
+        binding.tvFeeUnit.setText(strBTC);
+        binding.amountRow.currencyFiat.setText(strFiat);
     }
 
     private void handleIncomingQRScan(String scanData){
@@ -765,19 +748,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         if (!btcAddress.equals("")) {
-            edReceiveTo.setText(btcAddress);
+            binding.destination.setText(btcAddress);
         }
 
         if (btcAmount != null && !btcAmount.equals("")) {
-            edAmount1.removeTextChangedListener(btcTextWatcher);
-            edAmount2.removeTextChangedListener(fiatTextWatcher);
+            binding.amountRow.amountBtc.removeTextChangedListener(btcTextWatcher);
+            binding.amountRow.amountFiat.removeTextChangedListener(fiatTextWatcher);
 
-            edAmount1.setText(btcAmount);
-            edAmount1.setSelection(edAmount1.getText().toString().length());
+            binding.amountRow.amountBtc.setText(btcAmount);
+            binding.amountRow.amountBtc.setSelection(binding.amountRow.amountBtc.getText().toString().length());
 
             double btc_amount = 0.0;
             try {
-                btc_amount = monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
+                btc_amount = monetaryUtil.getUndenominatedAmount(Double.parseDouble(binding.amountRow.amountBtc.getText().toString()));
             } catch (NumberFormatException e) {
                 btc_amount = 0.0;
             }
@@ -789,15 +772,15 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
             double fiat_amount = btc_fx * btc_amount;
-            edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
+            binding.amountRow.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
 //                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
             strBTC = monetaryUtil.getBTCUnit(MonetaryUtil.UNIT_BTC);
-            tvCurrency1.setText(strBTC);
-            tvFeeUnits.setText(strBTC);
-            tvFiat2.setText(strFiat);
+            binding.amountRow.currencyBtc.setText(strBTC);
+            binding.tvFeeUnit.setText(strBTC);
+            binding.amountRow.currencyFiat.setText(strFiat);
 
-            edAmount1.addTextChangedListener(btcTextWatcher);
-            edAmount2.addTextChangedListener(fiatTextWatcher);
+            binding.amountRow.amountBtc.addTextChangedListener(btcTextWatcher);
+            binding.amountRow.amountFiat.addTextChangedListener(fiatTextWatcher);
         }
     }
 
@@ -811,18 +794,18 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 long lamount = 0L;
                 try {
                     //Long is safe to use, but double can lead to ugly rounding issues..
-                    lamount = (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
+                    lamount = (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(Double.parseDouble(binding.amountRow.amountBtc.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
 
                     if (BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
                         ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        edAmount1.setText("0.0");
+                        binding.amountRow.amountBtc.setText("0.0");
                         return;
                     }
                 } catch (NumberFormatException nfe) {
                     ;
                 }
 
-                edAmount1.removeTextChangedListener(this);
+                binding.amountRow.amountBtc.removeTextChangedListener(this);
 
                 int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
@@ -847,9 +830,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount1.setText(input.substring(0, input.length() - 1));
-                                edAmount1.setSelection(edAmount1.getText().length());
-                                s = edAmount1.getEditableText();
+                                binding.amountRow.amountBtc.setText(input.substring(0, input.length() - 1));
+                                binding.amountRow.amountBtc.setSelection(binding.amountRow.amountBtc.getText().length());
+                                s = binding.amountRow.amountBtc.getEditableText();
                             }
                         }
                     }
@@ -857,7 +840,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     ;
                 }
 
-                edAmount1.addTextChangedListener(this);
+                binding.amountRow.amountBtc.addTextChangedListener(this);
 
                 if (textChangeAllowed) {
                     textChangeAllowed = false;
@@ -866,9 +849,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 }
 
                 if (s.toString().contains(defaultSeparator))
-                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                    binding.amountRow.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
                 else
-                    edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+                    binding.amountRow.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
 
                 if (unspentApiResponse != null) {
                     unspentsCoinsBundle = getCoins();
@@ -894,7 +877,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 String input = s.toString();
 
-                edAmount2.removeTextChangedListener(this);
+                binding.amountRow.amountFiat.removeTextChangedListener(this);
 
                 int max_len = 2;
                 NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
@@ -907,9 +890,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
                             if (dec.length() > max_len) {
-                                edAmount2.setText(input.substring(0, input.length() - 1));
-                                edAmount2.setSelection(edAmount2.getText().length());
-                                s = edAmount2.getEditableText();
+                                binding.amountRow.amountFiat.setText(input.substring(0, input.length() - 1));
+                                binding.amountRow.amountFiat.setSelection(binding.amountRow.amountFiat.getText().length());
+                                s = binding.amountRow.amountFiat.getEditableText();
                             }
                         }
                     }
@@ -917,7 +900,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     ;
                 }
 
-                edAmount2.addTextChangedListener(this);
+                binding.amountRow.amountFiat.addTextChangedListener(this);
 
                 if (textChangeAllowed) {
                     textChangeAllowed = false;
@@ -926,9 +909,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 }
 
                 if (s.toString().contains(defaultSeparator))
-                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+                    binding.amountRow.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
                 else
-                    edAmount2.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
+                    binding.amountRow.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
 
                 if (unspentApiResponse != null) {
                     unspentsCoinsBundle = getCoins();
@@ -955,9 +938,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-            tvCurrency1.setText(strBTC);
-            tvFeeUnits.setText(strBTC);
-            tvFiat2.setText(strFiat);
+            binding.amountRow.currencyBtc.setText(strBTC);
+            binding.tvFeeUnit.setText(strBTC);
+            binding.amountRow.currencyFiat.setText(strFiat);
         }
     }
 
@@ -970,9 +953,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-        tvCurrency1.setText(strBTC);
-        tvFeeUnits.setText(strBTC);
-        tvFiat2.setText(strFiat);
+        binding.amountRow.currencyBtc.setText(strBTC);
+        binding.tvFeeUnit.setText(strBTC);
+        binding.amountRow.currencyFiat.setText(strFiat);
 
         if (getArguments() != null)
             if (getArguments().getBoolean("incoming_from_scan", false)) {
@@ -985,16 +968,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void selectDefaultAccount() {
 
-        if (sendFromSpinner != null) {
+        if (binding.accounts.spinner != null) {
 
             if (payloadManager.getPayload().isUpgraded()) {
                 int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
                 Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
                 int defaultSpinnerIndex = sendFromBiMap.get(defaultAccount);
-                sendFromSpinner.setSelection(defaultSpinnerIndex);
+                binding.accounts.spinner.setSelection(defaultSpinnerIndex);
             } else {
                 //V2
-                sendFromSpinner.setSelection(0);
+                binding.accounts.spinner.setSelection(0);
             }
         }
     }
@@ -1021,7 +1004,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             btc_amount = 0.0;
         }
         double fiat_amount = btc_fx * btc_amount;
-        edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
+        binding.amountRow.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
     }
 
     private void updateBtcTextField(String cfiat) {
@@ -1033,15 +1016,15 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             fiat_amount = 0.0;
         }
         double btc_amount = fiat_amount / btc_fx;
-        edAmount1.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
+        binding.amountRow.amountBtc.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
     }
 
     private BigInteger getSpendAmount(){
 
         //Get amount to spend
         long amountL = 0L;
-        if(!edAmount1.getText().toString().isEmpty())
-            amountL = getLongValue(edAmount1.getText().toString());
+        if(!binding.amountRow.amountBtc.getText().toString().isEmpty())
+            amountL = getLongValue(binding.amountRow.amountBtc.getText().toString());
 
         return BigInteger.valueOf(amountL);
     }
@@ -1060,7 +1043,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         BigInteger spendAmount = getSpendAmount();
 
         //Check should we use dynamic or customized fee?
-        boolean useCustomFee = !etCustomFee.getText().toString().isEmpty();
+        boolean useCustomFee = !binding.customFee.getText().toString().isEmpty();
         BigInteger feePerKb = BigInteger.ZERO;
         BigInteger absoluteFee = BigInteger.ZERO;
 
@@ -1136,7 +1119,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         //Check customized fee
-        if(!etCustomFee.getText().toString().isEmpty())
+        if(!binding.customFee.getText().toString().isEmpty())
             sweepAmount -= getCustomFee().longValue();
 
         return sweepAmount;
@@ -1146,24 +1129,17 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         final double sweepBalance = Math.max(((double) getSweepAmount()) / 1e8, 0.0);
 
-//        Log.v("vos", "balanceAvailable: " + balanceAvailable);
-//        Log.v("vos", "sweepBalance: " + sweepBalance);
-
         if(getActivity() != null && !getActivity().isFinishing()) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
-                    tvMax.setVisibility(View.VISIBLE);
+                    binding.max.setVisibility(View.VISIBLE);
                     btSend.setEnabled(true);
-                    tvMax.setText(getResources().getString(R.string.max_available) + " " + monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(sweepBalance)) + " " + strBTC);
+                    binding.max.setText(getResources().getString(R.string.max_available) + " " + monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(sweepBalance)) + " " + strBTC);
                 }
             });
         }
-
-//        if(unspentsCoinsBundle != null)Log.v("vos", unspentsCoinsBundle.getOutputs().size()+" selected Coins amount: " + unspentsCoinsBundle.getTotalAmount());
-//        Log.v("vos","absoluteFeeUsed: "+ absoluteFeeUsed.longValue());
-//        Log.v("vos","-------------------------------------------------");
     }
 
     @Override
@@ -1869,18 +1845,18 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         PendingSpend pendingSpend = new PendingSpend();
 
         //Check if fields are parsable
-        if ((edAmount1.getText() == null || edAmount1.getText().toString().isEmpty()) ||
-                (edAmount2.getText() == null || edAmount2.getText().toString().isEmpty())){
+        if ((binding.amountRow.amountBtc.getText() == null || binding.amountRow.amountBtc.getText().toString().isEmpty()) ||
+                (binding.amountRow.amountFiat.getText() == null || binding.amountRow.amountFiat.getText().toString().isEmpty())){
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return null;
         }
-        if(edReceiveTo.getText() == null || edReceiveTo.getText().toString().isEmpty()){
+        if(binding.destination.getText() == null || binding.destination.getText().toString().isEmpty()){
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return null;
         }
 
         //is V3?
-        Object object = sendFromBiMap.inverse().get(sendFromSpinner.getSelectedItemPosition());
+        Object object = sendFromBiMap.inverse().get(binding.spDestination.getSelectedItemPosition());
 
         if(object instanceof LegacyAddress){
             //V2
@@ -1899,13 +1875,13 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         //Amount to send
-        pendingSpend.bigIntAmount = BigInteger.valueOf(getLongValue(edAmount1.getText().toString()));
+        pendingSpend.bigIntAmount = BigInteger.valueOf(getLongValue(binding.amountRow.amountBtc.getText().toString()));
 
         //Fee
         pendingSpend.bigIntFee = absoluteFeeUsed;
 
         //Destination
-        pendingSpend.destination = edReceiveTo.getText().toString().trim();
+        pendingSpend.destination = binding.destination.getText().toString().trim();
 
         //Note
         pendingSpend.note = null;//future use
@@ -1914,8 +1890,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private boolean isValidSpend(PendingSpend pendingSpend) {
-
-//        Log.v("vos","pendingSpend: "+pendingSpend);
 
         //Validate amount
         if(!isValidAmount(pendingSpend.bigIntAmount)){
@@ -1933,18 +1907,18 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             String xpub = pendingSpend.fromAccount.getXpub();
             if(!hasSufficientFunds(xpub, null, amountToSendIncludingFee)){
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                binding.customFee.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 return false;
             }else{
-                tvMax.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
+                binding.customFee.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
             }
         }else{
             if(!hasSufficientFunds(null, pendingSpend.fromLegacyAddress.getAddress(), amountToSendIncludingFee)){
                 ToastCustom.makeText(getActivity(), getString(R.string.insufficient_funds), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                tvMax.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+                binding.customFee.setTextColor(getResources().getColor(R.color.blockchain_send_red));
                 return false;
             }else{
-                tvMax.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
+                binding.customFee.setTextColor(getResources().getColor(R.color.primary_text_default_material_light));
             }
         }
 
@@ -2018,7 +1992,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         //Test that amount does not exceed btc limit
         if (bAmount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
-            edAmount1.setText("0");
+            binding.amountRow.amountBtc.setText("0");
             return false;
         }
 

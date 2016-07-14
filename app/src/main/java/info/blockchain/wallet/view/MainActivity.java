@@ -52,10 +52,8 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     private static int MERCHANT_ACTIVITY = 1;
     private static String SUPPORT_URI = "http://support.blockchain.com/";
 
-    // toolbar
     private Toolbar toolbar = null;
     private AlertDialog rootedAlertDialog;
-
     private MainViewModel mainViewModel;//MainActivity logic
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
