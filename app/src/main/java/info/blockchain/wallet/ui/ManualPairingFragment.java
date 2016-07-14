@@ -15,10 +15,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.pairing.PairingFactory;
-import info.blockchain.wallet.payload.HDPayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -40,11 +39,15 @@ public class ManualPairingFragment extends Fragment {
     private boolean waitinForAuth = true;
     private int timer = 0;
 
+    private AppUtil appUtil;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
+
+        appUtil = new AppUtil(getActivity());
 
         edGuid = (EditText) rootView.findViewById(R.id.wallet_id);
         edPassword = (EditText) rootView.findViewById(R.id.wallet_pass);
@@ -106,9 +109,11 @@ public class ManualPairingFragment extends Fragment {
                 Looper.prepare();
 
                 try {
-                    String response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
+                    Access access = new Access();
+                    String sessionId = access.getSessionId(guid);
+                    String response = access.getEncryptedPayload(guid, sessionId);
 
-                    if (response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
+                    if (response.equals(Access.KEY_AUTH_REQUIRED)) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -121,7 +126,7 @@ public class ManualPairingFragment extends Fragment {
 
                     if (response != null && response.equals("Authorization Required")) {
                         ToastCustom.makeText(getActivity(), getString(R.string.auth_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        appUtil.clearCredentialsAndRestart();
                     }
 
                     JSONObject jsonObj = new JSONObject(response);
@@ -129,7 +134,7 @@ public class ManualPairingFragment extends Fragment {
                     if (jsonObj != null && jsonObj.has("payload")) {
                         String encrypted_payload = (String) jsonObj.getString("payload");
 
-                        int iterations = PayloadFactory.WalletPbkdf2Iterations;
+                        int iterations = PayloadManager.WalletPbkdf2Iterations;
                         if (jsonObj.has("pbkdf2_iterations")) {
                             iterations = Integer.valueOf(jsonObj.get("pbkdf2_iterations").toString()).intValue();
                         }
@@ -140,33 +145,43 @@ public class ManualPairingFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed_decrypt_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                            AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                            appUtil.clearCredentialsAndRestart();
                         }
 
                         if (decrypted_payload != null) {
                             JSONObject payloadObj = new JSONObject(decrypted_payload);
+                            PrefsUtil prefs = new PrefsUtil(getActivity());
+
                             if (payloadObj != null && payloadObj.has("sharedKey")) {
-                                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_GUID, guid);
-                                PayloadFactory.getInstance().setTempPassword(password);
-                                AppUtil.getInstance(getActivity()).setSharedKey((String) payloadObj.get("sharedKey"));
+                                prefs.setValue(PrefsUtil.KEY_GUID, guid);
 
-                                if (HDPayloadBridge.getInstance(getActivity()).init(password)) {
-                                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                    PayloadFactory.getInstance().setTempPassword(password);
-//                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_success), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    getActivity().startActivity(intent);
-                                } else {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            edPassword.setText("");
-                                        }
-                                    });
-                                    ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
+                                PayloadManager payloadManager = PayloadManager.getInstance();
 
+                                payloadManager.setTempPassword(password);
+
+                                String sharedKey = (String) payloadObj.get("sharedKey");
+                                appUtil.setSharedKey(sharedKey);
+
+                                payloadManager.initiatePayload(sharedKey, guid, password, new PayloadManager.InitiatePayloadListener() {
+                                    @Override
+                                    public void onInitSuccess() {
+                                        prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                                        payloadManager.setTempPassword(password);
+                                        Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        getActivity().startActivity(intent);
+                                    }
+
+                                    @Override
+                                    public void onInitPairFail() {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+
+                                    @Override
+                                    public void onInitCreateFail(String s) {
+                                        ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                    }
+                                });
                             }
 
                         } else {
@@ -239,34 +254,45 @@ public class ManualPairingFragment extends Fragment {
                         ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         waitinForAuth = false;
                         progress.cancel();
-                        AppUtil.getInstance(getActivity()).clearCredentialsAndRestart();
+                        appUtil.clearCredentialsAndRestart();
                     }
                 }
             }
         }).start();
 
         int sleep = 5;//second
-        while (waitinForAuth) {
+        Access access = new Access();
+        String sessionId = null;
+        try {
+            sessionId = access.getSessionId(guid);
 
-            try {
-                Thread.sleep(1000 * sleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            sleep = 1;//after initial sleep, poll every 1 second
+            while (waitinForAuth) {
 
-            String response = null;
-            try {
-                response = PairingFactory.getInstance(getActivity()).getWalletManualPairing(guid);
-                if (!response.equals(PairingFactory.KEY_AUTH_REQUIRED)) {
-                    waitinForAuth = false;
-                    return response;
+                try {
+                    Thread.sleep(1000 * sleep);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                sleep = 1;//after initial sleep, poll every 1 second
+
+                String response = null;
+                try {
+                    response = access.getEncryptedPayload(guid, sessionId);
+                    if (!response.equals(Access.KEY_AUTH_REQUIRED)) {
+                        waitinForAuth = false;
+                        return response;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            waitinForAuth = false;
+            return Access.KEY_AUTH_REQUIRED;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        waitinForAuth = false;
-        return PairingFactory.KEY_AUTH_REQUIRED;
+
+        return null;
     }
 }

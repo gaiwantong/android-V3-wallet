@@ -9,17 +9,14 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import info.blockchain.wallet.pairing.PairingFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.viewModel.PairingViewModel;
 
 import piuk.blockchain.android.R;
 
@@ -52,7 +49,7 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
@@ -81,13 +78,9 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
             fragment = null;
             getFragmentManager().popBackStack();
         } else {
-            AppUtil.getInstance(PairOrCreateWalletActivity.this).restartApp();
+            new AppUtil(PairOrCreateWalletActivity.this).restartApp();
         }
 
-    }
-
-    public void setActionBarTitle(String title) {
-        getSupportActionBar().setTitle(title);
     }
 
     @Override
@@ -95,47 +88,9 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
 
         if (resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR) {
             if (data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
-                AppUtil.getInstance(this).clearCredentials();
-                String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
-                pairingThreadQR(strResult);
+                PairingViewModel viewModel = new PairingViewModel(PairOrCreateWalletActivity.this);
+                viewModel.pairWithQR(data.getStringExtra(CaptureActivity.SCAN_RESULT));
             }
-        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == PAIRING_QR) {
-            ;
-        } else {
-            ;
         }
-
-    }
-
-    private void pairingThreadQR(final String data) {
-
-        final Handler handler = new Handler();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                if (PairingFactory.getInstance(PairOrCreateWalletActivity.this).handleQRCode(data)) {
-                    PrefsUtil.getInstance(PairOrCreateWalletActivity.this).setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-//                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_success), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_OK);
-                    Intent intent = new Intent(PairOrCreateWalletActivity.this, PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                } else {
-                    ToastCustom.makeText(PairOrCreateWalletActivity.this, getString(R.string.pairing_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    AppUtil.getInstance(PairOrCreateWalletActivity.this).clearCredentialsAndRestart();
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ;
-                    }
-                });
-
-                Looper.loop();
-            }
-        }).start();
     }
 }

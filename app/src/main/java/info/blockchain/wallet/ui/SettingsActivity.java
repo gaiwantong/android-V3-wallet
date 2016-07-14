@@ -8,7 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.access.AccessState;
 
 import piuk.blockchain.android.R;
 
@@ -39,12 +39,12 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

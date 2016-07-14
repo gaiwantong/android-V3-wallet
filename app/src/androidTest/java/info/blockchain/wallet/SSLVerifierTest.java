@@ -2,7 +2,7 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
-import info.blockchain.wallet.util.SSLVerifierUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 
 public class SSLVerifierTest extends BlockchainTest {
 
@@ -33,23 +33,11 @@ public class SSLVerifierTest extends BlockchainTest {
      */
     public void test() {
 
-        SSLVerifierUtil ssl = getSSLVerifierInstance();
-        checkHostname(ssl);
-        checkCertificatePinning(ssl);
-
+        checkCertificatePinning();
     }
 
-    public SSLVerifierUtil getSSLVerifierInstance() {
-        SSLVerifierUtil ssl = SSLVerifierUtil.getInstance(context);
-        AssertUtil.getInstance().assert_true(this, "SSLVerifierUtil instance returned", ssl != null);
-        return ssl;
-    }
-
-    public void checkHostname(SSLVerifierUtil ssl) {
-        AssertUtil.getInstance().assert_true(this, "Finds valid hostname", ssl.isValidHostname());
-    }
-
-    public void checkCertificatePinning(SSLVerifierUtil ssl) {
+    public void checkCertificatePinning() {
+        SSLVerifyUtil ssl = new SSLVerifyUtil(context);
         AssertUtil.getInstance().assert_true(this, "Pins certificate", ssl.certificatePinned() == ssl.STATUS_PINNING_SUCCESS);
     }
 }

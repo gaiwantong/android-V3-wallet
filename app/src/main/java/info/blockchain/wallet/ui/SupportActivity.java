@@ -14,9 +14,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
-import info.blockchain.wallet.util.AppUtil;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -48,7 +48,7 @@ public class SupportActivity extends AppCompatActivity {
 
         TextView walletId = (TextView) findViewById(R.id.wallet_id);
 
-        final String guid = PayloadFactory.getInstance().get().getGuid();
+        final String guid = PayloadManager.getInstance().getPayload().getGuid();
         walletId.setText(guid);
 
         LinearLayout idContainer = (LinearLayout) findViewById(R.id.wallet_id_container);
@@ -130,12 +130,12 @@ public class SupportActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

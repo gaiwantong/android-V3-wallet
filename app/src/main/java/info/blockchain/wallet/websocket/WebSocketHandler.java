@@ -12,13 +12,13 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.BalanceFragment;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.ui.MainActivity;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.NotificationsFactory;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.NotificationsUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,8 +30,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
-
-//import android.util.Log;
 
 public class WebSocketHandler {
 
@@ -46,12 +44,18 @@ public class WebSocketHandler {
     private HashSet<String> onChangeHashSet = new HashSet<String>();
     private Timer pingTimer = null;
     private boolean pingPongSuccess = false;
+    private PrefsUtil prefsUtil;
+    private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;
         this.guid = guid;
         this.xpubs = xpubs;
         this.addrs = addrs;
+        this.payloadManager = PayloadManager.getInstance();
+        this.prefsUtil = new PrefsUtil(context);
+        this.monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
 
     public void send(String message) {
@@ -172,8 +176,9 @@ public class WebSocketHandler {
 
                 Looper.prepare();
 
+                //TODO - updateBalancesAndTransactions is being called twice here
                 try {
-                    HDPayloadBridge.getInstance().updateBalancesAndTransactions();
+                    payloadManager.updateBalancesAndTransactions();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -257,7 +262,7 @@ public class WebSocketHandler {
                                                     if (prevOutObj.has("xpub")) {
                                                         total_value -= value;
                                                     } else if (prevOutObj.has("addr")) {
-                                                        if (PayloadFactory.getInstance().get().containsLegacyAddress((String) prevOutObj.get("addr"))) {
+                                                        if (payloadManager.getPayload().containsLegacyAddress((String) prevOutObj.get("addr"))) {
                                                             total_value -= value;
                                                         } else if (in_addr == null) {
                                                             in_addr = (String) prevOutObj.get("addr");
@@ -282,7 +287,7 @@ public class WebSocketHandler {
                                                 if (outObj.has("xpub")) {
                                                     total_value += value;
                                                 } else if (outObj.has("addr")) {
-                                                    if (PayloadFactory.getInstance().get().containsLegacyAddress((String) outObj.get("addr"))) {
+                                                    if (payloadManager.getPayload().containsLegacyAddress((String) outObj.get("addr"))) {
                                                         total_value += value;
                                                     }
                                                 } else {
@@ -293,20 +298,20 @@ public class WebSocketHandler {
 
                                         String title = context.getString(R.string.app_name);
                                         if (total_value > 0L) {
-                                            String marquee = context.getString(R.string.received_bitcoin) + " " + MonetaryUtil.getInstance().getBTCFormat().format((double) total_value / 1e8) + " BTC";
+                                            String marquee = context.getString(R.string.received_bitcoin) + " " + monetaryUtil.getBTCFormat().format((double) total_value / 1e8) + " BTC";
                                             String text = marquee;
                                             if (total_value > 0) {
                                                 text += " from " + in_addr;
                                             }
 
-                                            NotificationsFactory.getInstance(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
+                                            new NotificationsUtil(context).setNotification(title, marquee, text, R.drawable.ic_notification_transparent, R.drawable.ic_launcher, MainActivity.class, 1000);
                                         }
 
                                         updateBalancesAndTransactions();
 
                                     } else if (op.equals("on_change")) {
 
-                                        final String localChecksum = PayloadFactory.getInstance().getCheckSum();
+                                        final String localChecksum = payloadManager.getCheckSum();
 
                                         boolean isSameChecksum = false;
                                         if (jsonObject.has("checksum")) {
@@ -316,8 +321,27 @@ public class WebSocketHandler {
 
                                         if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
-                                            if (PayloadFactory.getInstance().getTempPassword() != null) {
-                                                HDPayloadBridge.getInstance(context).init(PayloadFactory.getInstance().getTempPassword());
+                                            if (payloadManager.getTempPassword() != null) {
+                                                //Download changed payload
+                                                payloadManager.initiatePayload(payloadManager.getPayload().getSharedKey(),
+                                                        payloadManager.getPayload().getGuid(),
+                                                        payloadManager.getTempPassword(),
+                                                        new PayloadManager.InitiatePayloadListener() {
+                                                            @Override
+                                                            public void onInitSuccess() {
+
+                                                            }
+
+                                                            @Override
+                                                            public void onInitPairFail() {
+
+                                                            }
+
+                                                            @Override
+                                                            public void onInitCreateFail(String s) {
+
+                                                            }
+                                                        });
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 updateBalancesAndTransactions();
                                             }

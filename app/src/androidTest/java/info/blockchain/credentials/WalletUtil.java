@@ -40,11 +40,12 @@ public class WalletUtil {
     }
 
     public void setValidCredentials() {
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_GUID, guid);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
+        PrefsUtil prefs = new PrefsUtil(context);
+        prefs.setValue(PrefsUtil.KEY_GUID, guid);
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
 
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_PIN_IDENTIFIER, pin_identifier);
-        PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
+        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, pin_identifier);
+        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
     }
 
     public String getValidPassword() {

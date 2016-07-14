@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.access.AccessState;
 
 public class PolicyActivity extends Activity {
 
@@ -62,12 +62,12 @@ public class PolicyActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 }

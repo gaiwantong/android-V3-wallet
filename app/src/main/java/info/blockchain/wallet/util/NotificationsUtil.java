@@ -11,29 +11,17 @@ import android.support.v4.app.NotificationCompat;
 
 import piuk.blockchain.android.R;
 
-public class NotificationsFactory {
+public class NotificationsUtil {
 
-    public static NotificationManager mNotificationManager;
-    private static Context context = null;
-    private static NotificationsFactory instance = null;
+    public NotificationManager notificationManager;
+    private Context context = null;
 
-    private NotificationsFactory() {
-        ;
-    }
-
-    public static NotificationsFactory getInstance(Context ctx) {
-
-        context = ctx;
-
-        if (instance == null) {
-            instance = new NotificationsFactory();
-        }
-
-        return instance;
+    public NotificationsUtil(Context context) {
+        this.context = context;
+        this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public void setNotification(String title, String marquee, String text, int drawablePostLollipop, int drawablePreLollipop, Class cls, int id) {
-        mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         int drawableCompat = drawablePreLollipop;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -55,6 +43,6 @@ public class NotificationsFactory {
                 .setDefaults(Notification.DEFAULT_LIGHTS)
                 .setContentText(text);
 
-        mNotificationManager.notify(id, mBuilder.build());
+        notificationManager.notify(id, mBuilder.build());
     }
 }

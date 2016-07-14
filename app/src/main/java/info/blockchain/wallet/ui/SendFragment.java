@@ -55,11 +55,9 @@ import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
-import info.blockchain.wallet.payload.ReceiveAddress;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.SendMethods;
@@ -80,18 +78,12 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.bip44.Wallet;
-import org.bitcoinj.core.bip44.WalletFactory;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.crypto.MnemonicException;
 import org.bitcoinj.params.MainNetParams;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -158,6 +150,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private BigInteger absoluteFeeUsed = FeeUtil.AVERAGE_FEE;
 
     private BigInteger[] absoluteFeeSuggestedEstimates = null;
+    private PrefsUtil prefsUtil;
+    private MonetaryUtil monetaryUtil;
+    private PayloadManager payloadManager;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -200,6 +195,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_send, container, false);
+
+        payloadManager = PayloadManager.getInstance();
+        prefsUtil = new PrefsUtil(getActivity());
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         setupToolbar();
 
@@ -475,10 +474,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         int spinnerIndex = 0;
 
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
             //V3
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             for (Account item : accounts) {
 
                 if (item.isArchived())
@@ -492,11 +491,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         }
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
                 continue;//skip archived
 
             //If address has no label, we'll display address
@@ -529,10 +528,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         int spinnerIndex = 0;
 
-        if (PayloadFactory.getInstance().get().isUpgraded()) {
+        if (payloadManager.getPayload().isUpgraded()) {
 
             //V3
-            List<Account> accounts = PayloadFactory.getInstance().get().getHdWallet().getAccounts();
+            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
             int accountIndex = 0;
             for (Account item : accounts) {
 
@@ -550,11 +549,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         }
 
-        List<LegacyAddress> legacyAddresses = PayloadFactory.getInstance().get().getLegacyAddresses();
+        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
         for (LegacyAddress legacyAddress : legacyAddresses) {
 
-            if (legacyAddress.getTag() == PayloadFactory.ARCHIVED_ADDRESS)
+            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
                 continue;//skip archived address
 
             //If address has no label, we'll display address
@@ -571,7 +570,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         //Address Book
-        List<AddressBookEntry> addressBookEntries = PayloadFactory.getInstance().get().getAddressBookEntries();
+        List<AddressBookEntry> addressBookEntries = payloadManager.getPayload().getAddressBookEntries();
 
         for(AddressBookEntry addressBookEntry : addressBookEntries){
 
@@ -629,7 +628,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (object instanceof LegacyAddress) {
 
                             //V2
-                            if (((LegacyAddress) object).isWatchOnly() && PrefsUtil.getInstance(getActivity()).getValue("WARN_WATCH_ONLY_SPEND", true)) {
+                            if (((LegacyAddress) object).isWatchOnly() && prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
 
                                 promptWatchOnlySpendWarning(object);
 
@@ -676,7 +675,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 @Override
                 public void onClick(View v) {
                     edReceiveTo.setText("");
-                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -686,7 +685,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 @Override
                 public void onClick(View v) {
                     edReceiveTo.setText(((LegacyAddress) object).getAddress());
-                    if(confirmDismissForever.isChecked())PrefsUtil.getInstance(getActivity()).setValue("WARN_WATCH_ONLY_SPEND", false);
+                    if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
                     alertDialog.dismiss();
                 }
             });
@@ -700,12 +699,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         try {
             int spinnerIndex = receiveToBiMap.get(account);
             int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
+            return payloadManager.getReceiveAddress(accountIndex);
 
-            ReceiveAddress receiveAddress = null;
-            receiveAddress = HDPayloadBridge.getInstance(getActivity()).getReceiveAddress(accountIndex);
-            return receiveAddress.getAddress();
-
-        } catch (DecoderException | IOException | MnemonicException.MnemonicWordException | MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException | AddressFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -730,8 +726,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         edAmount1.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeparator));
         edAmount1.setHint("0" + defaultSeparator + "00");
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
         tvCurrency1.setText(strBTC);
@@ -759,7 +755,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             //Convert to correct units
             try {
-                btcAmount = MonetaryUtil.getInstance(getActivity()).getDisplayAmount(Long.parseLong(btcAmount));
+                btcAmount = monetaryUtil.getDisplayAmount(Long.parseLong(btcAmount));
             }catch (Exception e){
                 btcAmount = null;
             }
@@ -781,21 +777,21 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             double btc_amount = 0.0;
             try {
-                btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
+                btc_amount = monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()));
             } catch (NumberFormatException e) {
                 btc_amount = 0.0;
             }
 
             // sanity check on strFiat, necessary if the result of a URI scan
             if (strFiat == null) {
-                strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+                strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             }
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
 
             double fiat_amount = btc_fx * btc_amount;
-            edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+            edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
 //                PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(MonetaryUtil.UNIT_BTC);
+            strBTC = monetaryUtil.getBTCUnit(MonetaryUtil.UNIT_BTC);
             tvCurrency1.setText(strBTC);
             tvFeeUnits.setText(strBTC);
             tvFiat2.setText(strFiat);
@@ -815,7 +811,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 long lamount = 0L;
                 try {
                     //Long is safe to use, but double can lead to ugly rounding issues..
-                    lamount = (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
+                    lamount = (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(Double.parseDouble(edAmount1.getText().toString()))).multiply(BigDecimal.valueOf(100000000)).longValue());
 
                     if (BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
                         ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
@@ -828,7 +824,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 edAmount1.removeTextChangedListener(this);
 
-                int unit = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+                int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
                 int max_len = 8;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 switch (unit) {
@@ -956,8 +952,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-            strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+            strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
             tvCurrency1.setText(strBTC);
             tvFeeUnits.setText(strBTC);
@@ -971,8 +967,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         MainActivity.currentFragment = this;
 
-        strBTC = MonetaryUtil.getInstance().getBTCUnit(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
         tvCurrency1.setText(strBTC);
         tvFeeUnits.setText(strBTC);
@@ -991,9 +987,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         if (sendFromSpinner != null) {
 
-            if (PayloadFactory.getInstance().get().isUpgraded()) {
-                int defaultIndex = PayloadFactory.getInstance().get().getHdWallet().getDefaultIndex();
-                Account defaultAccount = PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(defaultIndex);
+            if (payloadManager.getPayload().isUpgraded()) {
+                int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+                Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
                 int defaultSpinnerIndex = sendFromBiMap.get(defaultAccount);
                 sendFromSpinner.setSelection(defaultSpinnerIndex);
             } else {
@@ -1018,14 +1014,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if(cBtc.isEmpty())cBtc = "0";
         double btc_amount = 0.0;
         try {
-            btc_amount = MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
+            btc_amount = monetaryUtil.getUndenominatedAmount(NumberFormat.getInstance(Locale.getDefault()).parse(cBtc).doubleValue());
         } catch (NumberFormatException nfe) {
             btc_amount = 0.0;
         } catch (ParseException pe) {
             btc_amount = 0.0;
         }
         double fiat_amount = btc_fx * btc_amount;
-        edAmount2.setText(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(fiat_amount));
+        edAmount2.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
     }
 
     private void updateBtcTextField(String cfiat) {
@@ -1037,7 +1033,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             fiat_amount = 0.0;
         }
         double btc_amount = fiat_amount / btc_fx;
-        edAmount1.setText(MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(btc_amount)));
+        edAmount1.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
     }
 
     private BigInteger getSpendAmount(){
@@ -1160,7 +1156,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
                     tvMax.setVisibility(View.VISIBLE);
                     btSend.setEnabled(true);
-                    tvMax.setText(getResources().getString(R.string.max_available) + " " + MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(sweepBalance)) + " " + strBTC);
+                    tvMax.setText(getResources().getString(R.string.max_available) + " " + monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(sweepBalance)) + " " + strBTC);
                 }
             });
         }
@@ -1219,7 +1215,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
         }else{
-            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         }
     }
@@ -1246,7 +1242,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private void startScanActivity(){
-        if (!AppUtil.getInstance(getActivity()).isCameraOpen()) {
+        if (!new AppUtil(getActivity()).isCameraOpen()) {
             Intent intent = new Intent(getActivity(), CaptureActivity.class);
             startActivityForResult(intent, SCAN_PRIVX);
         } else {
@@ -1270,7 +1266,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
                 if (format != null) {
 
-                    if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                    if (payloadManager.getPayload().isDoubleEncrypted()) {
                         promptForSecondPassword(new OpSimpleCallback() {
                             @Override
                             public void onSuccess(String string) {
@@ -1284,7 +1280,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             @Override
                             public void onFail() {
                                 ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                             }
                         });
                     }else{
@@ -1323,12 +1319,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         if (secondPassword != null &&
                                 secondPassword.length() > 0 &&
                                 DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        PayloadFactory.getInstance().get().getDoublePasswordHash(),
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        new CharSequenceX(secondPassword), PayloadFactory.getInstance().get().getOptions().getIterations()) &&
+                                        payloadManager.getPayload().getDoublePasswordHash(),
+                                        payloadManager.getPayload().getSharedKey(),
+                                        new CharSequenceX(secondPassword), payloadManager.getPayload().getOptions().getIterations()) &&
                                 !StringUtils.isEmpty(secondPassword)) {
 
-                            PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
+                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
                             callback.onSuccess(secondPassword);
 
                         } else {
@@ -1358,9 +1354,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
             //Create copy, otherwise pass by ref will override
             LegacyAddress tempLegacyAddress = new LegacyAddress();
-            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+            if (payloadManager.getPayload().isDoubleEncrypted()) {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                 tempLegacyAddress.setEncryptedKey(encrypted2);
             }else{
                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1415,9 +1411,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
                                             //Create copy, otherwise pass by ref will override
                                             LegacyAddress tempLegacyAddress = new LegacyAddress();
-                                            if (PayloadFactory.getInstance().get().isDoubleEncrypted()) {
+                                            if (payloadManager.getPayload().isDoubleEncrypted()) {
                                                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, PayloadFactory.getInstance().get().getSharedKey(), PayloadFactory.getInstance().getTempDoubleEncryptPassword().toString(), PayloadFactory.getInstance().get().getOptions().getIterations());
+                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
                                                 tempLegacyAddress.setEncryptedKey(encrypted2);
                                             }else{
                                                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1457,7 +1453,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void checkDoubleEncrypt(final PendingSpend pendingSpend){
 
-        if (!PayloadFactory.getInstance().get().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+        if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
             confirmPayment(pendingSpend);
         } else {
             alertDoubleEncrypted(pendingSpend);
@@ -1477,37 +1473,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
-
-                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(PayloadFactory.getInstance().get().getDoublePasswordHash(), PayloadFactory.getInstance().get().getSharedKey(), new CharSequenceX(pw), PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations())) {
-
-                            if (pendingSpend.isHD) {
-
-                                String encrypted_hex = PayloadFactory.getInstance().get().getHdWallet().getSeedHex();
-                                String decrypted_hex = DoubleEncryptionFactory.getInstance().decrypt(
-                                        encrypted_hex,
-                                        PayloadFactory.getInstance().get().getSharedKey(),
-                                        pw,
-                                        PayloadFactory.getInstance().get().getDoubleEncryptionPbkdf2Iterations());
-
-                                try {
-                                    Wallet hdw = WalletFactory.getInstance().restoreWallet(decrypted_hex, "", PayloadFactory.getInstance().get().getHdWallet().getAccounts().size());
-                                    WalletFactory.getInstance().setWatchOnlyWallet(hdw);
-                                } catch (IOException | DecoderException | AddressFormatException |
-                                        MnemonicException.MnemonicChecksumException | MnemonicException.MnemonicLengthException |
-                                        MnemonicException.MnemonicWordException e) {
-                                    e.printStackTrace();
-                                }
-
-                            } else {
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(pw));
-                            }
-
+                        if(payloadManager.setDoubleEncryptPassword(pw, pendingSpend.isHD)){
                             confirmPayment(pendingSpend);
-
-                        } else {
+                        }else{
                             ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
-
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -1550,25 +1520,25 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //BTC Amount
                 TextView tvAmountBtc = (TextView) dialogView.findViewById(R.id.confirm_amount_btc);
-                tvAmountBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bigIntAmount.longValue()));
+                tvAmountBtc.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntAmount.longValue()));
 
                 //BTC Fee
                 final TextView tvFeeBtc = (TextView) dialogView.findViewById(R.id.confirm_fee_btc);
-                tvFeeBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(pendingSpend.bigIntFee.longValue()));
+                tvFeeBtc.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()));
 
                 TextView tvTotlaBtc = (TextView) dialogView.findViewById(R.id.confirm_total_btc);
                 BigInteger totalBtc = (pendingSpend.bigIntAmount.add(pendingSpend.bigIntFee));
-                tvTotlaBtc.setText(MonetaryUtil.getInstance(getActivity()).getDisplayAmount(totalBtc.longValue()));
+                tvTotlaBtc.setText(monetaryUtil.getDisplayAmount(totalBtc.longValue()));
 
                 //Fiat Amount
                 btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
-                String amountFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
+                String amountFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
                 TextView tvAmountFiat = (TextView) dialogView.findViewById(R.id.confirm_amount_fiat);
                 tvAmountFiat.setText(amountFiat);
 
                 //Fiat Fee
                 TextView tvFeeFiat = (TextView) dialogView.findViewById(R.id.confirm_fee_fiat);
-                String feeFiat = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
+                String feeFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntFee.doubleValue() / 1e8)));
                 tvFeeFiat.setText(feeFiat);
 
                 ImageView ivFeeInfo = (ImageView) dialogView.findViewById(R.id.iv_fee_info);
@@ -1590,7 +1560,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 TextView tvTotalFiat = (TextView) dialogView.findViewById(R.id.confirm_total_fiat);
                 BigInteger totalFiat = (pendingSpend.bigIntAmount.add(pendingSpend.bigIntFee));
-                String totalFiatS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (totalFiat.doubleValue() / 1e8)));
+                String totalFiatS = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (totalFiat.doubleValue() / 1e8)));
                 tvTotalFiat.setText(totalFiatS);
 
                 TextView tvCustomizeFee = (TextView) dialogView.findViewById(R.id.tv_customize_fee);
@@ -1606,7 +1576,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             public void run() {
                                 rootView.findViewById(R.id.custom_fee_container).setVisibility(View.VISIBLE);
 
-                                String fee = MonetaryUtil.getInstance().getBTCFormat().format(MonetaryUtil.getInstance(getActivity()).getDenominatedAmount(absoluteFeeSuggested.doubleValue() / 1e8));
+                                String fee = monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(absoluteFeeSuggested.doubleValue() / 1e8));
 
                                 EditText etCustomFee = (EditText)rootView.findViewById(R.id.custom_fee);
                                 etCustomFee.setText(fee);
@@ -1655,7 +1625,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 executeSend(pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
-                                PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 closeDialog(alertDialog, false);
                             }
@@ -1698,8 +1668,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         TextView tvMessageBody = (TextView) dialogView.findViewById(R.id.tv_body);
 
         String message = String.format(getString(body),
-                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(customFee.longValue()) + " " + strBTC,
-                MonetaryUtil.getInstance(getActivity()).getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC);
+                monetaryUtil.getDisplayAmount(customFee.longValue()) + " " + strBTC,
+                monetaryUtil.getDisplayAmount(absoluteFeeSuggested.longValue()) + " " + strBTC);
         tvMessageBody.setText(message);
 
         ImageView confirmBack = (ImageView) dialogView.findViewById(R.id.confirm_cancel);
@@ -1740,7 +1710,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         String message = getResources().getString(R.string.recommended_fee)
                 +"\n\n"
-                +MonetaryUtil.getInstance(getActivity()).getDisplayAmount(fee.longValue())
+                +monetaryUtil.getDisplayAmount(fee.longValue())
                 +" "+strBTC;
 
         new AlertDialog.Builder(getActivity())
@@ -1767,7 +1737,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                     //Update v3 balance immediately after spend - until refresh from server
                     MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                    MultiAddrFactory.getInstance().setXpubAmount(HDPayloadBridge.getInstance(context).account2Xpub(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(HDPayloadBridge.getInstance(context).account2Xpub(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                    MultiAddrFactory.getInstance().setXpubAmount(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
                 } else {
 
@@ -1776,10 +1746,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     //TODO - why are we not setting individual address balance as well, was this over looked?
 
                     //Reset double encrypt for V2
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
-                PayloadBridge.getInstance(context).remoteSaveThread();
+                PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                    @Override
+                    public void onSaveSuccess() {
+                    }
+
+                    @Override
+                    public void onSaveFail() {
+                        ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    }
+                });
                 closeDialog(alertDialog, true);
 
                 new AppRate(getActivity())
@@ -1825,7 +1804,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //Reset double encrypt for V2
                 if (!pendingSpend.isHD) {
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 closeDialog(alertDialog, true);
@@ -1836,7 +1815,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 //Reset double encrypt for V2
                 if (!pendingSpend.isHD) {
-                    PayloadFactory.getInstance().setTempDoubleEncryptPassword(new CharSequenceX(""));
+                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 if (getActivity() != null)
@@ -2027,7 +2006,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if(getActivity() != null && getActivity().isFinishing())//activity has been destroyed
             return 0l;
 
-        return (BigDecimal.valueOf(MonetaryUtil.getInstance(getActivity()).getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
+        return (BigDecimal.valueOf(monetaryUtil.getUndenominatedAmount(amount)).multiply(BigDecimal.valueOf(100000000)).longValue());
     }
 
     private boolean isValidAmount(BigInteger bAmount){
@@ -2138,7 +2117,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
             if (isDropdown) {
-                balance.setText("(" + MonetaryUtil.getInstance(getActivity()).getDisplayAmount(amount) + " " + strBTC + ")");
+                balance.setText("(" + monetaryUtil.getDisplayAmount(amount) + " " + strBTC + ")");
                 label.setText(labelText);
             } else
                 label.setText(labelText);

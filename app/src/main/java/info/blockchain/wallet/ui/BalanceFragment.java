@@ -50,17 +50,17 @@ import android.widget.TextView;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.HDPayloadBridge;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.SSLVerifierThreadUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 
@@ -111,6 +111,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private int expandDuration = 200;
     private boolean mIsViewExpanded = false;
     private View prevRowClicked = null;
+    private PrefsUtil prefsUtil;
+    private DateUtil dateUtil;
+    private MonetaryUtil monetaryUtil;
+    private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -131,7 +135,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                         // Update internal balance and transaction data
                         try {
-                            HDPayloadBridge.getInstance(context).updateBalancesAndTransactions();
+                            PayloadManager.getInstance().updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -159,6 +163,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         context = getActivity();
+        prefsUtil = new PrefsUtil(context);
+        dateUtil = new DateUtil(context);
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        appUtil = new AppUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);
@@ -168,7 +176,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         balanceBarHeight = (int) getResources().getDimension(R.dimen.action_bar_height) + 35;
 
-        BALANCE_DISPLAY_STATE = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
+        BALANCE_DISPLAY_STATE = prefsUtil.getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
         if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
             isBTC = false;
         }
@@ -219,14 +227,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
 
-        //TODO Why start service again?????
-        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        } else {
-            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
-
+        viewModel.startWebSocketService();
         viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
         viewModel.updateAccountList();
     }
@@ -301,7 +302,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void sendClicked(){
-        SSLVerifierThreadUtil.getInstance(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSLThread();
 
         Fragment fragment = new SendFragment();
         FragmentManager fragmentManager = getFragmentManager();
@@ -353,7 +354,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     isBTC = true;
                     viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                 }
-                PrefsUtil.getInstance(context).setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
+                prefsUtil.setValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, BALANCE_DISPLAY_STATE);
 
                 return false;
             }
@@ -407,18 +408,21 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         });
 
         // drawerTitle account now that wallet has been created
-        if (PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).setLabel(PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
-            PrefsUtil.getInstance(context).removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
-            PayloadBridge.getInstance(context).remoteSaveThread();
-            accountsAdapter.notifyDataSetChanged();
-        }
+        if (prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
+            PayloadManager.getInstance().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            prefsUtil.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
+            PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                @Override
+                public void onSaveSuccess() {
 
-        if (!OSUtil.getInstance(context).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-        } else {
-            context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
-            context.startService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+                }
+
+                @Override
+                public void onSaveFail() {
+                    ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
+            });
+            accountsAdapter.notifyDataSetChanged();
         }
 
         binding.balanceMainContentShadow.setOnClickListener(new View.OnClickListener() {
@@ -608,10 +612,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                                 progressView.setVisibility(View.GONE);
 
                                 //Fee
-                                String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-                                String fee = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
+                                String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+                                String fee = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
                                 if (isBTC)
-                                    fee = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
+                                    fee = (monetaryUtil.getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
                                 tvFee.setText(fee);
 
                                 //Filter non-change addresses
@@ -647,9 +651,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                                     tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
                                     long amount = item.getValue();
-                                    String amountS = (MonetaryUtil.getInstance().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
+                                    String amountS = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
                                     if (isBTC)
-                                        amountS = (MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
+                                        amountS = (monetaryUtil.getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
 
                                     tvFee.setText(fee);
                                     tvToAddrTotal.setText(amountS);
@@ -786,7 +790,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onRefreshBalanceAndTransactions() {
 
-        String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(context).getLastPrice(strFiat);
 
         //Notify adapters of change
@@ -828,7 +832,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-            String strFiat = PrefsUtil.getInstance(context).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+            String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
 
             if (viewModel.getTransactionList() != null) {
                 final Tx tx = viewModel.getTransactionList().get(position);
@@ -841,7 +845,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 tvResult.setTextColor(Color.WHITE);
 
                 TextView tvTS = (TextView) holder.itemView.findViewById(R.id.ts);
-                tvTS.setText(DateUtil.getInstance(context).formatted(tx.getTS()));
+                tvTS.setText(dateUtil.formatted(tx.getTS()));
 
                 TextView tvDirection = (TextView) holder.itemView.findViewById(R.id.direction);
                 String dirText = tx.getDirection();
@@ -853,10 +857,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     tvDirection.setText(getResources().getString(R.string.SENT));
 
                 if (isBTC) {
-                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance(context).getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + viewModel.getDisplayUnits());
+                    span1 = Spannable.Factory.getInstance().newSpannable(monetaryUtil.getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + viewModel.getDisplayUnits());
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - viewModel.getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 } else {
-                    span1 = Spannable.Factory.getInstance().newSpannable(MonetaryUtil.getInstance().getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
+                    span1 = Spannable.Factory.getInstance().newSpannable(monetaryUtil.getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 if (tx.isMove()) {

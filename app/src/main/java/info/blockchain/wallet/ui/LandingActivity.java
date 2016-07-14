@@ -12,8 +12,9 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.util.AppUtil;
 
 import piuk.blockchain.android.R;
 
@@ -84,14 +85,14 @@ public class LandingActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
 
         //Test for screen overlays before user creates a new wallet or enters confidential information
-        if(AppUtil.getInstance(this).detectObscuredWindow(event)){
+        if(new AppUtil(this).detectObscuredWindow(event)){
             return true;//consume event
         }else{
             return super.dispatchTouchEvent(event);

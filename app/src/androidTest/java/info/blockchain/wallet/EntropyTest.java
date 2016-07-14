@@ -106,7 +106,7 @@ public class EntropyTest extends BlockchainTest {
      */
     public ECKey newLegacyAddress(int testCase) {
 
-        AppUtil.getInstance(context).applyPRNGFixes();
+        new AppUtil(context).applyPRNGFixes();
 
         String result = null;
         byte[] data = null;

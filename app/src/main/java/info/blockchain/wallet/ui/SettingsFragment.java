@@ -32,10 +32,9 @@ import com.mukesh.countrypicker.fragments.CountryPicker;
 import com.mukesh.countrypicker.models.Country;
 
 import info.blockchain.api.Settings;
-import info.blockchain.wallet.access.AccessFactory;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.BackgroundExecutor;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -79,11 +78,18 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     Settings settingsApi;
     int pwStrength = 0;
+    PrefsUtil prefsUtil;
+    MonetaryUtil monetaryUtil;
+    PayloadManager payloadManager;
 
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        payloadManager = PayloadManager.getInstance();
+        prefsUtil = new PrefsUtil(getActivity());
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -113,7 +119,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
             @Override
             protected Void doInBackground(Void... params) {
-                Payload payload = PayloadFactory.getInstance().get();
+                Payload payload = payloadManager.getPayload();
                 settingsApi = new Settings(payload.getGuid(), payload.getSharedKey());
                 return null;
             }
@@ -131,7 +137,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         //Profile
         PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
         guidPref = (Preference) findPreference("guid");
-        guidPref.setSummary(PayloadFactory.getInstance().get().getGuid());
+        guidPref.setSummary(payloadManager.getPayload().getGuid());
         guidPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         emailPref = (Preference) findPreference("email");
@@ -166,7 +172,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         fiatPref = (Preference) findPreference("fiat");
-        fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+        fiatPref.setSummary(prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
         emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
@@ -214,14 +220,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         disableRootWarningPref = (Preference) findPreference("disable_root_warning");
         if (disableRootWarningPref != null &&
-                !RootUtil.getInstance().isDeviceRooted()) {
+                !new RootUtil().isDeviceRooted()) {
             PreferenceCategory appCategory = (PreferenceCategory) findPreference("app");
             appCategory.removePreference(disableRootWarningPref);
         }
     }
 
     private String getDisplayUnits() {
-        return (String) MonetaryUtil.getInstance().getBTCUnits()[PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
     @UiThread
@@ -394,8 +400,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     progress = null;
                 }
                 if(params != null){
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_FAILS);
-                    PrefsUtil.getInstance(getActivity()).removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                    prefsUtil.removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    prefsUtil.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -410,7 +416,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             @Override
             protected CharSequenceX doInBackground(Void... params) {
                 try {
-                    return AccessFactory.getInstance(getActivity()).validatePIN(pin);
+                    return AccessState.getInstance(getActivity()).validatePIN(pin);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
@@ -730,7 +736,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                     android.content.ClipData clip = null;
-                    clip = android.content.ClipData.newPlainText("guid", PayloadFactory.getInstance().get().getGuid());
+                    clip = android.content.ClipData.newPlainText("guid", payloadManager.getPayload().getGuid());
                     clipboard.setPrimaryClip(clip);
                     ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                 }).setNegativeButton(R.string.no, (dialog, whichButton) -> {
@@ -739,13 +745,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     }
 
     private void showDialogBTCUnits(){
-        final CharSequence[] units = MonetaryUtil.getInstance().getBTCUnits();
-        final int sel = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_BTC_UNITS, 0);
+        final CharSequence[] units = monetaryUtil.getBTCUnits();
+        final int sel = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, 0);
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_units)
                 .setSingleChoiceItems(units, sel, (dialog, which) -> {
-                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_BTC_UNITS, which);
+                            prefsUtil.setValue(PrefsUtil.KEY_BTC_UNITS, which);
                     unitsPref.setSummary(getDisplayUnits());
                     dialog.dismiss();
                 }
@@ -754,7 +760,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     private void showDialogFiatUnits(){
         final String[] currencies = ExchangeRateFactory.getInstance(getActivity()).getCurrencyLabels();
-        String strCurrency = PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String strCurrency = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         int selected = 0;
         for (int i = 0; i < currencies.length; i++) {
             if (currencies[i].endsWith(strCurrency)) {
@@ -766,8 +772,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.select_currency)
                 .setSingleChoiceItems(currencies, selected, (dialog, which) -> {
-                    PrefsUtil.getInstance(getActivity()).setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
-                    fiatPref.setSummary(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+                            prefsUtil.setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
+                    fiatPref.setSummary(prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
                     dialog.dismiss();
                 }
                 ).show();
@@ -834,7 +840,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             button.setOnClickListener(view -> {
 
                 String hint = etPwHint1.getText().toString();
-                if(!hint.equals(PayloadFactory.getInstance().getTempPassword().toString())) {
+                if(!hint.equals(payloadManager.getTempPassword().toString())) {
                     updatePasswordHint1(hint);
                     alertDialogEmail.dismiss();
                 }else{
@@ -975,7 +981,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 String currentPw = etCurrentPw.getText().toString();
                 String newPw = etNewPw.getText().toString();
                 String newConfirmedPw = etNewConfirmedPw.getText().toString();
-                final CharSequenceX walletPassword = PayloadFactory.getInstance().getTempPassword();
+                final CharSequenceX walletPassword = payloadManager.getTempPassword();
 
                 if(currentPw.equals(walletPassword.toString())) {
                     if (newPw.equals(newConfirmedPw)) {
@@ -1076,15 +1082,15 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         new Thread(() -> {
             Looper.prepare();
 
-            PayloadFactory.getInstance().setTempPassword(updatedPassword);
+            payloadManager.setTempPassword(updatedPassword);
 
-            if (AccessFactory.getInstance(getActivity()).createPIN(updatedPassword, AccessFactory.getInstance(getActivity()).getPIN())
-                    && PayloadBridge.getInstance(getActivity()).remoteSaveThreadLocked()) {
+            if (AccessState.getInstance(getActivity()).createPIN(updatedPassword, AccessState.getInstance(getActivity()).getPIN())
+                    && payloadManager.savePayloadToServer()) {
 
                 ToastCustom.makeText(getActivity(), getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
             } else {
                 //Revert on fail
-                PayloadFactory.getInstance().setTempPassword(fallbackPassword);
+                payloadManager.setTempPassword(fallbackPassword);
                 ToastCustom.makeText(getActivity(), getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 ToastCustom.makeText(getActivity(), getString(R.string.password_unchanged), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
@@ -1100,7 +1106,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
         pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
 
-        if(pw.equals(PrefsUtil.getInstance(getActivity()).getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
+        if(pw.equals(prefsUtil.getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
 
         int pwStrengthLevel = 0;//red
         if (pwStrength >= 75) pwStrengthLevel = 3;//green

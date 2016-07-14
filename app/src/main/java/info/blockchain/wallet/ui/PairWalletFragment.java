@@ -59,7 +59,7 @@ public class PairWalletFragment extends Fragment implements FragmentCompat.OnReq
     }
 
     private void startScanActivity(){
-        if (!AppUtil.getInstance(getActivity()).isCameraOpen()) {
+        if (!new AppUtil(getActivity()).isCameraOpen()) {
             Intent intent = new Intent(getActivity(), CaptureActivity.class);
             intent.putExtra("SCAN_FORMATS", "QR_CODE");
             getActivity().startActivityForResult(intent, PairOrCreateWalletActivity.PAIRING_QR);

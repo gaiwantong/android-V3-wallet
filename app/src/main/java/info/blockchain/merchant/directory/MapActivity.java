@@ -36,8 +36,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.ui.helpers.OnSwipeTouchListener;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -373,14 +373,14 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
 
         launchedList = false;
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 

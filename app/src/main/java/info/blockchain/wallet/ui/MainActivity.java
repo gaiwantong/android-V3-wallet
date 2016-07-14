@@ -31,11 +31,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.ui.helpers.EnableGeo;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -60,11 +60,15 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
 
+    private AppUtil appUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        appUtil = new AppUtil(this);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new MainViewModel(this, this);
@@ -77,12 +81,10 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(MainActivity.this).stopLogoutTimer();
-        AppUtil.getInstance(MainActivity.this).deleteQR();
+        AccessState.getInstance(MainActivity.this).stopLogoutTimer();
+        appUtil.deleteQR();
 
-        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            startService(new Intent(MainActivity.this, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
+        mainViewModel.startWebSocketService();
     }
 
     @Override
@@ -94,9 +96,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
             rootedAlertDialog = null;
         }
 
-        if (!OSUtil.getInstance(MainActivity.this).isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
-            stopService(new Intent(MainActivity.this, info.blockchain.wallet.websocket.WebSocketService.class));
-        }
+        mainViewModel.stopWebSocketService();
     }
 
     @Override
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     }
 
     private void startScanActivity() {
-        if (!AppUtil.getInstance(MainActivity.this).isCameraOpen()) {
+        if (!appUtil.isCameraOpen()) {
             Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
             startActivityForResult(intent, SCAN_URI);
         } else {
@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         MenuItem backUpMenuItem = binding.nvView.getMenu().findItem(R.id.nav_backup);
         MenuItem upgradeMenuItem = binding.nvView.getMenu().findItem(R.id.nav_upgrade);
 
-        if (AppUtil.getInstance(this).isNotUpgraded()) {
+        if (PayloadManager.getInstance().isNotUpgraded()) {
             //Legacy
             upgradeMenuItem.setVisible(true);
             backUpMenuItem.setVisible(false);
@@ -274,9 +274,9 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         MenuItem backUpView = binding.nvView.getMenu().findItem(R.id.nav_backup);
         Drawable drawable = backUpView.getIcon();
         drawable.mutate();
-        if (PayloadFactory.getInstance().get() != null &&
-                PayloadFactory.getInstance().get().getHdWallet() != null &&
-                !PayloadFactory.getInstance().get().getHdWallet().isMnemonicVerified()) {
+        if (PayloadManager.getInstance().getPayload() != null &&
+                PayloadManager.getInstance().getPayload().getHdWallet() != null &&
+                !PayloadManager.getInstance().getPayload().getHdWallet().isMnemonicVerified()) {
             //Not backed up
             drawable.setColorFilter(getResources().getColor(R.color.blockchain_send_red), PorterDuff.Mode.SRC_ATOP);
         } else {
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -356,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     public void onConnectivityFail() {
 
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getString(R.string.check_connectivity_exit);
         builder.setMessage(message)
@@ -364,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                         (d, id) -> {
                             d.dismiss();
                             Class c = null;
-                            if (PrefsUtil.getInstance(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+                            if (new PrefsUtil(MainActivity.this).getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
                                 c = LandingActivity.class;
                             } else {
                                 c = PinEntryActivity.class;
@@ -392,8 +393,8 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 .setMessage(MainActivity.this.getString(R.string.not_sane_error))
                 .setCancelable(false)
                 .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-                    AppUtil.getInstance(MainActivity.this).clearCredentialsAndRestart();
-                    AppUtil.getInstance(MainActivity.this).restartApp();
+                    appUtil.clearCredentialsAndRestart();
+                    appUtil.restartApp();
                 }).show();
     }
 

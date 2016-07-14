@@ -12,21 +12,10 @@ import piuk.blockchain.android.R;
 
 public class DateUtil {
 
-    private static DateUtil instance = null;
-    private static Context context = null;
+    private Context context = null;
 
-    private DateUtil() {
-        ;
-    }
-
-    public static DateUtil getInstance(Context ctx) {
-        context = ctx;
-
-        if (instance == null) {
-            instance = new DateUtil();
-        }
-
-        return instance;
+    public DateUtil(Context context) {
+        this.context = context;
     }
 
     public String formatted(long ts) {

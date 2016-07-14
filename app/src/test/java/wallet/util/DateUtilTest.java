@@ -22,7 +22,7 @@ public class DateUtilTest {
 
     @Test
     public void dateFormatTest() {
-        DateUtil dateUtil = DateUtil.getInstance(mMockContext);
+        DateUtil dateUtil = new DateUtil(mMockContext);
 
         //unit test for 'Today' and 'Yesterday' uses android framework (code unchanged)
 

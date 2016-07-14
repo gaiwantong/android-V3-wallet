@@ -149,6 +149,7 @@ public class CreateWalletFragment extends Fragment {
                 final String em = edEmail.getText().toString().trim();
                 final String pw1 = edPassword1.getText().toString();
                 final String pw2 = edPassword2.getText().toString();
+                AppUtil appUtil = new AppUtil(getActivity());
 
                 if (em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -170,7 +171,7 @@ public class CreateWalletFragment extends Fragment {
                                 }
                             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+                            appUtil.setUpgradeReminder(1L);
 
                             hideKeyboard();
                             Intent intent = new Intent(getActivity(), PinEntryActivity.class);
@@ -180,7 +181,7 @@ public class CreateWalletFragment extends Fragment {
                         }
                     }).show();
                 } else {
-                    AppUtil.getInstance(getActivity()).setUpgradeReminder(1L);
+                    appUtil.setUpgradeReminder(1L);
 
                     hideKeyboard();
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);

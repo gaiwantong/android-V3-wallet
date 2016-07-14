@@ -6,11 +6,12 @@ import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
-import info.blockchain.wallet.payload.PayloadFactory;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 import org.bitcoinj.core.Transaction;
 
@@ -20,6 +21,8 @@ import java.util.HashMap;
 public class SendTest extends BlockchainTest {
 
     long lamount = (long) (Double.parseDouble("0.0001") * 1e8);
+    PrefsUtil prefsUtil;
+    MonetaryUtil monetaryUtil;
 
     /**
      * @param String  name
@@ -34,6 +37,8 @@ public class SendTest extends BlockchainTest {
      */
     protected void setUp() throws Exception {
         super.setUp();
+        prefsUtil = new PrefsUtil(context);
+        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
 
     /* (non-Javadoc)
@@ -48,15 +53,16 @@ public class SendTest extends BlockchainTest {
      */
     public void test() {
 
+        PayloadManager payloadManager = PayloadManager.getInstance();
         String payload = WalletUtil.getInstance(context).getPayload();
-        PayloadFactory.getInstance().set(new Payload(payload));
+        payloadManager.setPayload(new Payload(payload));
         try {
-            PayloadFactory.getInstance().get().parseJSON();
+            payloadManager.getPayload().parseJSON();
         } catch (Exception e) {
             ;
         }
         try {
-            MultiAddrFactory.getInstance().refreshXPUBData(new String[]{PayloadFactory.getInstance().get().getHdWallet().getAccounts().get(0).getXpub()});
+            MultiAddrFactory.getInstance().refreshXPUBData(new String[]{payloadManager.getPayload().getHdWallet().getAccounts().get(0).getXpub()});
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,10 +102,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionHD(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), MonetaryUtil.getInstance().getUndenominatedAmount(lamount));
+        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
-            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, MonetaryUtil.getInstance().getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
+            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,10 +130,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionLegacy(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), MonetaryUtil.getInstance().getUndenominatedAmount(lamount));
+        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
-            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, MonetaryUtil.getInstance().getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
+            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
         } catch (Exception e) {
             e.printStackTrace();
         }

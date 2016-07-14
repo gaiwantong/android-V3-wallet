@@ -29,7 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.ui.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -237,12 +237,12 @@ public class SuggestMerchant extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        AppUtil.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance(this).stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AppUtil.getInstance(this).startLogoutTimer();
+        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
