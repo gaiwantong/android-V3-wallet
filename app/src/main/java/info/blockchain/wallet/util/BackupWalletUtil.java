@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Pair;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.crypto.MnemonicException;
 

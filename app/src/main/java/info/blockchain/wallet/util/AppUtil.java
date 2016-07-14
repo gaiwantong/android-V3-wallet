@@ -10,8 +10,8 @@ import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.ui.MainActivity;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.MainActivity;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.io.File;
 import java.security.Security;

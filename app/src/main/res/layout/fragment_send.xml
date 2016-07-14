@@ -6,7 +6,7 @@
                 android:background="@color/blockchain_light_grey"
                 android:paddingBottom="0dp"
                 android:paddingTop="0dp"
-                tools:context="info.blockchain.wallet.ui.MainActivity">
+                tools:context="info.blockchain.wallet.view.MainActivity">
 
     <ScrollView android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -99,7 +99,7 @@
                                 android:hint="@string/to_field_helper"
                         />
 
-                        <info.blockchain.wallet.ui.helpers.ReselectSpinner
+                        <info.blockchain.wallet.view.helpers.ReselectSpinner
                                 android:id="@+id/sp_destination"
                                 android:layout_width="58dp"
                                 android:layout_height="match_parent"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<info.blockchain.wallet.ui.helpers.FloatingActionButton
+<info.blockchain.wallet.view.helpers.FloatingActionButton
 	android:id="@+id/btActivateBottomSheet"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:fab="http://schemas.android.com/apk/res-auto"

@@ -7,7 +7,7 @@ import android.util.Log;
 import info.blockchain.api.PushTx;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.core.Transaction;
 import org.spongycastle.util.encoders.Hex;

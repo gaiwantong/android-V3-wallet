@@ -30,7 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
 import java.io.IOException;

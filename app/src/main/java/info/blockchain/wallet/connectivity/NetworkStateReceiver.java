@@ -7,7 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
 
-import info.blockchain.wallet.ui.BalanceFragment;
+import info.blockchain.wallet.view.BalanceFragment;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 

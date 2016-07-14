@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.ui.AccountActivity;
+import info.blockchain.wallet.view.AccountActivity;
 
 import java.util.ArrayList;
 
