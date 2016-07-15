@@ -5,27 +5,25 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
-
-//import android.util.Log;
+import piuk.blockchain.android.databinding.ActivityAboutBinding;
 
 public class AboutActivity extends Activity {
 
-    private TextView tvAbout = null;
-    private TextView bRate = null;
-    private TextView bDownload = null;
     private String strMerchantPackage = "info.blockchain.merchant";
+
+    private ActivityAboutBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +31,14 @@ public class AboutActivity extends Activity {
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        this.setContentView(R.layout.activity_about);
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        tvAbout = (TextView) findViewById(R.id.about);
-        tvAbout.setText(getString(R.string.about, BuildConfig.VERSION_NAME, "2015"));
+        binding.about.setText(getString(R.string.about, BuildConfig.VERSION_NAME, "2015"));
 
-        bRate = (TextView) findViewById(R.id.rate_us);
-        bRate.setOnClickListener(new Button.OnClickListener() {
+        binding.rateUs.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 String appPackageName = getPackageName();
                 Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
@@ -50,11 +47,10 @@ public class AboutActivity extends Activity {
             }
         });
 
-        bDownload = (TextView) findViewById(R.id.free_wallet);
         if (hasWallet()) {
-            bDownload.setVisibility(View.GONE);
+            binding.freeWallet.setVisibility(View.GONE);
         } else {
-            bDownload.setOnClickListener(new Button.OnClickListener() {
+            binding.freeWallet.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
                     Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
                     startActivity(marketIntent);
