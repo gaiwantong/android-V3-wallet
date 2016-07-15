@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/blockchain_blue"
-              android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
-           android:layout_width="match_parent"
-           android:layout_height="match_parent" >
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_blue"
+            android:orientation="vertical">
 
-        <SurfaceView android:id="@+id/preview_view"
-                     android:layout_width="fill_parent"
-                     android:layout_height="fill_parent"/>
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        <com.google.zxing.client.android.ViewfinderView
-            android:id="@+id/viewfinder_view"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"/>
+            <SurfaceView android:id="@+id/preview_view"
+                         android:layout_width="fill_parent"
+                         android:layout_height="fill_parent"/>
 
-        <include layout="@layout/toolbar_general"/>
+            <com.google.zxing.client.android.ViewfinderView
+                    android:id="@+id/viewfinder_view"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"/>
 
-    </FrameLayout>
+            <include layout="@layout/toolbar_general"/>
 
-</LinearLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+</layout>

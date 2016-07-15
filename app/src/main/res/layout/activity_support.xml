@@ -1,88 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="@color/blockchain_pearl_white"
-			  android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-	<include layout="@layout/toolbar_general"/>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_pearl_white"
+            android:orientation="vertical">
 
-    <View
-        android:id="@+id/shadow"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="@drawable/container_dropshadow_gradient" />
+        <include layout="@layout/toolbar_general"/>
 
-	<LinearLayout
-		android:id="@+id/wallet_id_container"
-		android:layout_width="match_parent"
-		android:layout_height="72dp"
-		android:paddingTop="16dp"
-		android:background="@color/white"
-		android:orientation="vertical">
+        <View
+                android:id="@+id/shadow"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@drawable/container_dropshadow_gradient"/>
 
-		<TextView
-			android:id="@+id/my_wallet_id_header"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/my_wallet_id"
-			android:textSize="14sp"
-			android:paddingLeft="16dp"
-			android:paddingBottom="8dp"
-			android:textColor="@color/blockchain_grey"
-			android:duplicateParentState="true">
-		</TextView>
+        <LinearLayout
+                android:id="@+id/wallet_id_container"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:paddingTop="16dp"
+                android:background="@color/white"
+                android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/wallet_id"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textSize="14sp"
-			android:paddingLeft="16dp"
-			android:paddingRight="16dp"
-			android:textColor="@color/primary_text_default_material_light"
-			android:duplicateParentState="true">
-		</TextView>
+            <TextView
+                    android:id="@+id/my_wallet_id_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/my_wallet_id"
+                    android:textSize="14sp"
+                    android:paddingLeft="16dp"
+                    android:paddingBottom="8dp"
+                    android:textColor="@color/blockchain_grey"
+                    android:duplicateParentState="true">
+            </TextView>
 
-	</LinearLayout>
+            <TextView
+                    android:id="@+id/wallet_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:textColor="@color/primary_text_default_material_light"
+                    android:duplicateParentState="true">
+            </TextView>
 
-	<View
-		android:layout_width="fill_parent"
-		android:layout_height="1dp"
-		android:background="@color/blockchain_light_grey"/>
+        </LinearLayout>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="72dp"
-		android:background="@color/white"
-		android:orientation="horizontal">
+        <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@color/blockchain_light_grey"/>
 
-		<TextView
-			android:id="@+id/new_support_request"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:text="@string/new_support_request"
-			android:textSize="14sp"
-			android:paddingLeft="16dp"
-			android:paddingTop="16dp"
-			android:paddingBottom="16dp"
-			android:textColor="@color/blockchain_grey">
-		</TextView>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:background="@color/white"
+                android:orientation="horizontal">
 
-		<TextView
-			android:id="@+id/email_action"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:gravity="center_vertical"
-			android:text="@string/EMAIL"
-			android:textSize="14sp"
-			android:paddingRight="16dp"
-			android:paddingLeft="16dp"
-			android:textColor="@color/blockchain_blue">
-		</TextView>
+            <TextView
+                    android:id="@+id/new_support_request"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="@string/new_support_request"
+                    android:textSize="14sp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:textColor="@color/blockchain_grey">
+            </TextView>
 
-	</LinearLayout>
+            <TextView
+                    android:id="@+id/email_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="@string/EMAIL"
+                    android:textSize="14sp"
+                    android:paddingRight="16dp"
+                    android:paddingLeft="16dp"
+                    android:textColor="@color/blockchain_blue">
+            </TextView>
 
-</LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

@@ -1,120 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:card_view="http://schemas.android.com/apk/res-auto"
-			  android:orientation="vertical"
-			  android:layout_width="match_parent"
-			  android:layout_height="wrap_content">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<android.support.v7.widget.CardView
-			android:id="@+id/card_view"
-			android:layout_gravity="center"
-			android:layout_width="fill_parent"
-			android:layout_height="72dp"
-			android:layout_margin="2dp"
-			card_view:cardCornerRadius="2dp"
-			card_view:contentPadding="16dp">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-		<RelativeLayout
-				android:layout_width="match_parent"
-				android:layout_height="72dp"
-				android:layout_gravity="center_vertical">
+        <android.support.v7.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_gravity="center"
+                android:layout_width="fill_parent"
+                android:layout_height="72dp"
+                android:layout_margin="2dp"
+                app:cardCornerRadius="2dp"
+                app:contentPadding="16dp">
 
-			<RelativeLayout
-					android:id="@+id/icon_layout"
-					android:layout_width="32dp"
-					android:layout_height="32dp"
-					android:layout_marginRight="16dp"
-					android:layout_centerVertical="true">
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:layout_gravity="center_vertical">
 
-				<ImageView
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:src="@drawable/round_view_grey"/>
+                <RelativeLayout
+                        android:id="@+id/icon_layout"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_centerVertical="true">
 
-				<ImageView
-						android:id="@+id/my_account_row_icon"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_centerInParent="true"
-						android:scaleType="centerCrop"
-						android:src="@drawable/icon_accounthd"/>
+                    <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/round_view_grey"/>
 
-			</RelativeLayout>
+                    <ImageView
+                            android:id="@+id/my_account_row_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerInParent="true"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/icon_accounthd"/>
 
-			<LinearLayout android:layout_width="match_parent"
-						  android:layout_height="match_parent"
-						  android:layout_toRightOf="@+id/icon_layout"
-						  android:gravity="center_vertical"
-						  android:orientation="vertical">
+                </RelativeLayout>
 
-				<TextView
-						android:id="@+id/my_account_row_label"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="top"
-						android:paddingBottom="4dp"
-						android:fontFamily="sans-serif"
-						android:text="Label"
-						android:singleLine="true"
-						android:marqueeRepeatLimit="marquee_forever"
-						android:textColor="@color/primary_text_default_material_light"
-						android:textSize="14sp"/>
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="match_parent"
+                              android:layout_toRightOf="@+id/icon_layout"
+                              android:gravity="center_vertical"
+                              android:orientation="vertical">
 
-				<LinearLayout android:layout_width="wrap_content"
-							  android:layout_height="wrap_content"
-							  android:orientation="horizontal">
-					<TextView
-							android:id="@+id/my_account_row_amount"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_gravity="bottom"
-							android:fontFamily="sans-serif"
-							android:text="0.0 BTC"
-							android:singleLine="true"
-							android:paddingRight="8dp"
-							android:textColor="@color/blockchain_receive_green"
-							android:textSize="12sp"/>
+                    <TextView
+                            android:id="@+id/my_account_row_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top"
+                            android:paddingBottom="4dp"
+                            android:fontFamily="sans-serif"
+                            android:text="Label"
+                            android:singleLine="true"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:textColor="@color/primary_text_default_material_light"
+                            android:textSize="14sp"/>
 
-					<TextView
-							android:id="@+id/my_account_row_default"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_gravity="bottom"
-							android:fontFamily="sans-serif"
-							android:text="@string/default_label_brackets"
-							android:paddingRight="8dp"
-							android:singleLine="true"
-							android:alpha="0.8"
-							android:textColor="@color/primary_text_default_material_light"
-							android:textSize="12sp"/>
+                    <LinearLayout android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:orientation="horizontal">
+                        <TextView
+                                android:id="@+id/my_account_row_amount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:fontFamily="sans-serif"
+                                android:text="0.0 BTC"
+                                android:singleLine="true"
+                                android:paddingRight="8dp"
+                                android:textColor="@color/blockchain_receive_green"
+                                android:textSize="12sp"/>
 
-					<TextView
-							android:id="@+id/my_account_row_archived"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_gravity="bottom"
-							android:fontFamily="sans-serif"
-							android:text="@string/archived_label"
-							android:paddingRight="8dp"
-							android:singleLine="true"
-							android:textColor="@color/blockchain_transfer_blue"
-							android:textSize="12sp"/>
+                        <TextView
+                                android:id="@+id/my_account_row_default"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/default_label_brackets"
+                                android:paddingRight="8dp"
+                                android:singleLine="true"
+                                android:alpha="0.8"
+                                android:textColor="@color/primary_text_default_material_light"
+                                android:textSize="12sp"/>
 
-					<TextView
-							android:id="@+id/my_account_row_watch_only"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_gravity="bottom"
-							android:fontFamily="sans-serif"
-							android:text="@string/watch_only_label"
-							android:paddingRight="8dp"
-							android:singleLine="true"
-							android:textColor="@color/blockchain_send_red"
-							android:textSize="12sp"/>
-				</LinearLayout>
+                        <TextView
+                                android:id="@+id/my_account_row_archived"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/archived_label"
+                                android:paddingRight="8dp"
+                                android:singleLine="true"
+                                android:textColor="@color/blockchain_transfer_blue"
+                                android:textSize="12sp"/>
 
-			</LinearLayout>
+                        <TextView
+                                android:id="@+id/my_account_row_watch_only"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/watch_only_label"
+                                android:paddingRight="8dp"
+                                android:singleLine="true"
+                                android:textColor="@color/blockchain_send_red"
+                                android:textSize="12sp"/>
+                    </LinearLayout>
 
-		</RelativeLayout>
-	</android.support.v7.widget.CardView>
-</LinearLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+</layout>

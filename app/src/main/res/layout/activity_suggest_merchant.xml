@@ -1,167 +1,171 @@
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	>
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-		>
-
-		<include layout="@layout/toolbar_general"/>
-
-        <View
-            android:id="@+id/shadow"
+    <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:background="@drawable/container_dropshadow_gradient" />
+            android:layout_height="match_parent"
+    >
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="48dp"
-			android:gravity="center_vertical"
-			android:orientation="horizontal"
-			android:paddingLeft="16dp"
-			android:paddingRight="16dp"
-			>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+        >
 
-			<TextView
-				android:layout_width="0dp"
-				android:layout_weight="3"
-				android:layout_height="wrap_content"
-				android:text="@string/name"
-				android:textColor="@color/blockchain_grey"/>
+            <include layout="@layout/toolbar_general"/>
 
-			<EditText
-				android:id="@+id/merchant_name"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="7"
-				android:background="@color/blockchain_pearl_white"
-				android:focusable="true"
-				android:focusableInTouchMode="true"
-				android:paddingLeft="16dp"
-				android:singleLine="true"
-				android:text=""
-				android:textColor="@color/primary_text_default_material_light"
-				android:textCursorDrawable="@null"
-				/>
+            <View
+                    android:id="@+id/shadow"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@drawable/container_dropshadow_gradient"/>
 
-		</LinearLayout>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+            >
 
-		<View
-			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="@color/blockchain_light_grey"/>
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:text="@string/name"
+                        android:textColor="@color/blockchain_grey"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="48dp"
-			android:gravity="center_vertical"
-			android:orientation="horizontal"
-			android:paddingLeft="16dp"
-			>
+                <EditText
+                        android:id="@+id/merchant_name"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:background="@color/blockchain_pearl_white"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:paddingLeft="16dp"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textCursorDrawable="@null"
+                />
 
-			<TextView
-				android:layout_width="0dp"
-				android:layout_weight="3"
-				android:layout_height="wrap_content"
-				android:text="@string/business_category"
-				android:textColor="@color/blockchain_grey"
-				android:layout_marginRight="16dp"/>
+            </LinearLayout>
 
-			<Spinner
-				android:id="@+id/merchant_category_spinner"
-				android:layout_width="0dp"
-				android:layout_height="48dp"
-				android:layout_weight="7"
-                android:background="?android:selectableItemBackground"
-                android:divider="@null"
-                android:dropDownSelector="?android:selectableItemBackground"
-				/>
+            <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/blockchain_light_grey"/>
 
-		</LinearLayout>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+            >
 
-		<View
-			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="@color/blockchain_light_grey"/>
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:text="@string/business_category"
+                        android:textColor="@color/blockchain_grey"
+                        android:layout_marginRight="16dp"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="58dp"
-			android:gravity="center_vertical"
-			android:orientation="horizontal"
-			android:paddingLeft="16dp"
-			android:paddingRight="16dp"
-			>
+                <Spinner
+                        android:id="@+id/merchant_category_spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="7"
+                        android:background="?android:selectableItemBackground"
+                        android:divider="@null"
+                        android:dropDownSelector="?android:selectableItemBackground"
+                />
 
-			<TextView
-				android:layout_width="0dp"
-				android:layout_weight="3"
-				android:layout_height="wrap_content"
-				android:text="@string/location"
-				android:textColor="@color/blockchain_grey"/>
+            </LinearLayout>
 
-			<TextView
-				android:id="@+id/manual_entry_action"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="3"
-				android:gravity="bottom|center_horizontal"
-				android:onClick="manualClicked"
-				android:text="@string/manual_entry"
-				android:textColor="@color/primary_text_default_material_light"
-				android:textSize="12sp"
-				android:background="@drawable/selector_pearl_white"
-				android:clickable="true"
-				android:paddingBottom="10dp"
-				/>
+            <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/blockchain_light_grey"/>
 
-			<TextView
-				android:id="@+id/current_location_action"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="4"
-				android:gravity="bottom|center_horizontal"
-				android:onClick="autoClicked"
-				android:text="@string/use_my_current_location"
-				android:textColor="@color/blockchain_blue"
-				android:textSize="12sp"
-				android:background="@drawable/selector_pearl_white"
-				android:clickable="true"
-				android:paddingBottom="10dp"
-				/>
-		</LinearLayout>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+            >
 
-		<View
-			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="@color/blockchain_light_grey"/>
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:text="@string/location"
+                        android:textColor="@color/blockchain_grey"/>
 
-		<include
-			layout="@layout/activity_suggest_merchant_map_include"/>
+                <TextView
+                        android:id="@+id/manual_entry_action"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:gravity="bottom|center_horizontal"
+                        android:onClick="manualClicked"
+                        android:text="@string/manual_entry"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textSize="12sp"
+                        android:background="@drawable/selector_pearl_white"
+                        android:clickable="true"
+                        android:paddingBottom="10dp"
+                />
 
-		<include
-			layout="@layout/activity_suggest_merchant_details_include"/>
+                <TextView
+                        android:id="@+id/current_location_action"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4"
+                        android:gravity="bottom|center_horizontal"
+                        android:onClick="autoClicked"
+                        android:text="@string/use_my_current_location"
+                        android:textColor="@color/blockchain_blue"
+                        android:textSize="12sp"
+                        android:background="@drawable/selector_pearl_white"
+                        android:clickable="true"
+                        android:paddingBottom="10dp"
+                />
+            </LinearLayout>
 
-	</LinearLayout>
+            <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/blockchain_light_grey"/>
 
-	<TextView
-		android:id="@+id/command_save"
-		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:layout_alignParentBottom="true"
-		android:layout_gravity="center_horizontal|center_vertical"
-		android:background="@color/blockchain_blue"
-		android:gravity="center_horizontal|center_vertical"
-		android:text="@string/save"
-		android:textAlignment="gravity"
-		android:textColor="@color/white"
-		android:textSize="16sp"
-		/>
+            <include
+                    layout="@layout/activity_suggest_merchant_map_include"/>
 
-</RelativeLayout>
+            <include
+                    layout="@layout/activity_suggest_merchant_details_include"/>
+
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/command_save"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:background="@color/blockchain_blue"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/save"
+                android:textAlignment="gravity"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+        />
+
+    </RelativeLayout>
+</layout>

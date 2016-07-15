@@ -1,126 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/blockchain_pearl_white"
-              android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
-            android:layout_marginBottom="16dp">
-
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_pearl_white"
+            android:orientation="vertical">
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginBottom="16dp">
+
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/transfer_funds"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textSize="24sp"/>
+
+            </LinearLayout>
 
             <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:id="@+id/tv_transfer_funds"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/transfer_funds"
-                    android:textColor="@color/primary_text_default_material_light"
-                    android:textSize="24sp"/>
+                    android:text="@string/transfer_recommend"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/blockchain_blue"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/from"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/blockchain_grey"/>
+
+            <TextView
+                    android:id="@+id/confirm_from"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text_default_material_light"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/to"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/blockchain_grey"/>
+
+            <TextView
+                    android:id="@+id/confirm_to"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text_default_material_light"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fee"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/blockchain_grey"/>
+
+            <TextView
+                    android:id="@+id/confirm_fee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text_default_material_light"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/blockchain_grey"/>
+
+            <TextView
+                    android:id="@+id/confirm_total_to_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text_default_material_light"/>
 
         </LinearLayout>
 
-        <TextView
-                android:id="@+id/tv_transfer_funds"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/transfer_recommend"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_blue"/>
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|right">
 
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/from"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
+            <TextView
+                    android:id="@+id/confirm_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/cancel"
+                    android:gravity="center"
+                    android:layout_marginRight="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:textColor="@color/primary_text_default_material_light"/>
 
-        <TextView
-                android:id="@+id/confirm_from"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
+            <TextView
+                    android:id="@+id/confirm_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/transfer"
+                    android:gravity="center"
+                    android:layout_marginRight="16dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:textColor="@color/blockchain_blue"/>
 
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/to"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_to"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/fee"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_fee"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/total"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/blockchain_grey"/>
-
-        <TextView
-                android:id="@+id/confirm_total_to_send"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_text_default_material_light"/>
+        </LinearLayout>
 
     </LinearLayout>
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical|right">
-
-        <TextView
-                android:id="@+id/confirm_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/cancel"
-                android:gravity="center"
-                android:layout_marginRight="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/primary_text_default_material_light"/>
-
-        <TextView
-                android:id="@+id/confirm_send"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="@string/transfer"
-                android:gravity="center"
-                android:layout_marginRight="16dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:textColor="@color/blockchain_blue"/>
-
-    </LinearLayout>
-
-</LinearLayout>
+</layout>

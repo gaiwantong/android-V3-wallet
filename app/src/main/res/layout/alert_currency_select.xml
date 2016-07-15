@@ -1,74 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="@color/blockchain_pearl_white"
-			  android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:layout_marginTop="24dp"
-		android:layout_marginLeft="24dp"
-		android:layout_marginRight="24dp"
-		android:layout_marginBottom="16dp">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_pearl_white"
+            android:orientation="vertical">
 
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_vertical"
-			android:orientation="horizontal">
-
-			<TextView
-				android:layout_width="0dp"
-				android:layout_weight="1"
-				android:layout_height="wrap_content"
-				android:text="@string/select_currency"
-				android:textColor="@color/primary_text_default_material_light"
-				android:textSize="24sp"/>
-
-		</LinearLayout>
-
-		<ListView
-			android:id="@+id/currency_list"
-			android:layout_width="match_parent"
-			android:layout_height="300dp"
-			android:layout_marginTop="16dp">
-		</ListView>
-
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:orientation="horizontal"
-		android:gravity="center_vertical|right">
-
-		<TextView
-			android:id="@+id/cancel"
-			android:layout_width="wrap_content"
-			android:layout_height="36dp"
-			android:text="@string/dialog_cancel"
-			android:gravity="center"
-			android:layout_marginRight="8dp"
-			android:paddingLeft="8dp"
-			android:paddingRight="8dp"
-			android:textColor="@color/primary_text_default_material_light"/>
-
-		<TextView
-			android:id="@+id/ok"
-			android:layout_width="wrap_content"
-			android:layout_height="36dp"
-			android:text="@string/ok_cap"
-			android:gravity="center"
-			android:layout_marginRight="16dp"
-			android:paddingLeft="8dp"
-			android:paddingRight="8dp"
-			android:textColor="@color/blockchain_blue"/>
-
-	</LinearLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginBottom="16dp">
 
 
-</LinearLayout>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_currency"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textSize="24sp"/>
+
+            </LinearLayout>
+
+            <ListView
+                    android:id="@+id/currency_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="16dp">
+            </ListView>
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|right">
+
+            <TextView
+                    android:id="@+id/cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/dialog_cancel"
+                    android:gravity="center"
+                    android:layout_marginRight="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:textColor="@color/primary_text_default_material_light"/>
+
+            <TextView
+                    android:id="@+id/ok"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/ok_cap"
+                    android:gravity="center"
+                    android:layout_marginRight="16dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:textColor="@color/blockchain_blue"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</layout>

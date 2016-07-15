@@ -1,118 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/blockchain_upgrade_wallet_bg"
-              android:orientation="vertical">
-
-    <ImageView
-        android:layout_width="87dp"
-        android:layout_height="79dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:layout_margin="16dp"
-        android:src="@drawable/logo3x"
-        android:scaleType="fitCenter"
-        />
-
-    <TextSwitcher
-        android:id="@+id/upgrade_page_header"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
-        android:text="@string/upgrade_page_1"
-        android:textSize="14sp"
-        android:onClick="askLaterClicked"
-        android:gravity="center"
-        android:textColor="@color/white"
-        />
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-    </android.support.v4.view.ViewPager>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blockchain_blue"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingBottom="32dp"
-        android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_upgrade_wallet_bg"
+            android:orientation="vertical">
+
+        <ImageView
+                android:layout_width="87dp"
+                android:layout_height="79dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:layout_margin="16dp"
+                android:src="@drawable/logo3x"
+                android:scaleType="fitCenter"
+        />
+
+        <TextSwitcher
+                android:id="@+id/upgrade_page_header"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp"
+                android:text="@string/upgrade_page_1"
+                android:textSize="14sp"
+                android:onClick="askLaterClicked"
+                android:gravity="center"
+                android:textColor="@color/white"
+        />
+
+        <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+        </android.support.v4.view.ViewPager>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:paddingBottom="16dp"
-            android:paddingTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/blockchain_blue"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingBottom="32dp"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:paddingBottom="16dp"
+                    android:paddingTop="16dp"
             >
 
-            <TextView
-                android:id="@+id/pageBox0"
-                android:layout_width="16dip"
-                android:layout_height="16dip"
-                android:layout_margin="10dip"
-                android:background="@drawable/rounded_view_upgrade_wallet_blue"
+                <TextView
+                        android:id="@+id/pageBox0"
+                        android:layout_width="16dip"
+                        android:layout_height="16dip"
+                        android:layout_margin="10dip"
+                        android:background="@drawable/rounded_view_upgrade_wallet_blue"
                 />
 
-            <TextView
-                android:id="@+id/pageBox1"
-                android:layout_width="16dip"
-                android:layout_height="16dip"
-                android:layout_margin="10dip"
-                android:background="@drawable/rounded_view_dark_blue"
+                <TextView
+                        android:id="@+id/pageBox1"
+                        android:layout_width="16dip"
+                        android:layout_height="16dip"
+                        android:layout_margin="10dip"
+                        android:background="@drawable/rounded_view_dark_blue"
                 />
 
-            <TextView
-                android:id="@+id/pageBox2"
-                android:layout_width="16dip"
-                android:layout_height="16dip"
-                android:layout_margin="10dip"
-                android:background="@drawable/rounded_view_dark_blue"
+                <TextView
+                        android:id="@+id/pageBox2"
+                        android:layout_width="16dip"
+                        android:layout_height="16dip"
+                        android:layout_margin="10dip"
+                        android:background="@drawable/rounded_view_dark_blue"
                 />
+
+            </LinearLayout>
+
+            <Button
+                    android:id="@+id/upgrade_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:paddingLeft="32dp"
+                    android:paddingRight="32dp"
+                    android:text="@string/UPGRADE_YOUR_WALLET"
+                    android:textSize="20sp"
+                    android:onClick="upgradeClicked"
+                    android:background="@drawable/rounded_view_white2"
+                    android:textColor="@color/blockchain_blue"
+                    android:layout_gravity="center_horizontal"
+            />
+
+            <TextView
+                    android:id="@+id/askLater_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:padding="10dp"
+                    android:text="@string/ASK_ME_LATER"
+                    android:textSize="20sp"
+                    android:clickable="true"
+                    android:onClick="askLaterClicked"
+                    android:gravity="center"
+                    android:alpha=".6"
+                    android:textColor="@color/white"
+            />
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/upgrade_btn"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp"
-            android:text="@string/UPGRADE_YOUR_WALLET"
-            android:textSize="20sp"
-            android:onClick="upgradeClicked"
-            android:background="@drawable/rounded_view_white2"
-            android:textColor="@color/blockchain_blue"
-            android:layout_gravity="center_horizontal"
-            />
-
-        <TextView
-            android:id="@+id/askLater_tv"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:padding="10dp"
-            android:text="@string/ASK_ME_LATER"
-            android:textSize="20sp"
-            android:clickable="true"
-            android:onClick="askLaterClicked"
-            android:gravity="center"
-            android:alpha=".6"
-            android:textColor="@color/white"
-            />
-
     </LinearLayout>
-
-</LinearLayout>
+</layout>
