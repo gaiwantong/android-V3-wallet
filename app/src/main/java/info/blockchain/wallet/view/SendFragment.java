@@ -1856,7 +1856,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         //is V3?
-        Object object = sendFromBiMap.inverse().get(binding.spDestination.getSelectedItemPosition());
+        Object object = sendFromBiMap.inverse().get(binding.accounts.spinner.getSelectedItemPosition());
 
         if(object instanceof LegacyAddress){
             //V2
