@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -30,8 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -46,7 +44,6 @@ import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
@@ -57,6 +54,7 @@ import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
 
 import org.bitcoinj.core.Base58;
@@ -69,38 +67,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
+import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
+import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
 public class AccountEditActivity extends AppCompatActivity {
 
     private final int SCAN_PRIVX = 302;
     private final int ADDRESS_LABEL_MAX_LENGTH = 17;
 
-    private TextView tvLabelTitle = null;
-    private TextView tvLabel = null;
-
-    private TextView tvDefault = null;
-
-    private TextView tvXpub = null;
-    private TextView tvExtendedXpubDescription = null;
-
-    private TextView tvArchiveHeading = null;
-    private TextView tvArchiveDescription = null;
-
     private Account account = null;
     private LegacyAddress legacyAddress = null;
 
     private int accountIndex;
-    private View mLayout;
     private MonetaryUtil monetaryUtil;
     private PrefsUtil prefsUtil;
     private PayloadManager payloadManager;
+
+    private ActivityAccountEditBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_account_edit);
-        mLayout = findViewById(R.id.main_layout);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_account_edit);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -118,32 +108,22 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void setupViews() {
 
-        tvLabelTitle = (TextView) findViewById(R.id.tv_label);
         if(account != null){
-            tvLabelTitle.setText(getString(R.string.name));//V3
+            binding.tvLabel.setText(getString(R.string.name));//V3
         }else{
-            tvLabelTitle.setText(getString(R.string.label));//V2
+            binding.tvLabel.setText(getString(R.string.label));//V2
         }
-
-        tvLabel = (TextView) findViewById(R.id.account_name);
-        tvDefault = (TextView) findViewById(R.id.tv_default);
-
-        tvXpub = (TextView)findViewById(R.id.tv_xpub);
-        tvExtendedXpubDescription = (TextView)findViewById(R.id.tv_extended_xpub_description);
-
-        tvArchiveHeading = (TextView) findViewById(R.id.tv_archive);
-        tvArchiveDescription = (TextView) findViewById(R.id.tv_archive_description);
 
         if (account != null) {
 
-            findViewById(R.id.privx_container).setVisibility(View.GONE);
+            binding.privxContainer.setVisibility(View.GONE);
 
         }else if (legacyAddress != null){
 
             if(legacyAddress.isWatchOnly()){
-                findViewById(R.id.privx_container).setVisibility(View.VISIBLE);
+                binding.privxContainer.setVisibility(View.VISIBLE);
             }else{
-                findViewById(R.id.privx_container).setVisibility(View.GONE);
+                binding.privxContainer.setVisibility(View.GONE);
             }
         }
     }
@@ -158,7 +138,8 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void updateTransferField(){
         if (account != null) {
-            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+            binding.transferContainer.setVisibility(View.GONE);
+
         }else if (legacyAddress != null && payloadManager.getPayload().isUpgraded()){
 
             long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
@@ -166,39 +147,39 @@ public class AccountEditActivity extends AppCompatActivity {
             long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
 
             if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
-                findViewById(R.id.transfer_container).setVisibility(View.VISIBLE);
+                binding.transferContainer.setVisibility(View.VISIBLE);
             }else{
                 //No need to show 'transfer' if funds are less than dust amount
-                findViewById(R.id.transfer_container).setVisibility(View.GONE);
+                binding.transferContainer.setVisibility(View.GONE);
             }
         }else{
             //No transfer option for V2
-            findViewById(R.id.transfer_container).setVisibility(View.GONE);
+            binding.transferContainer.setVisibility(View.GONE);
         }
     }
 
     private void updateLabelField(){
         if (account != null) {
-            tvLabel.setText(account.getLabel());
+            binding.accountName.setText(account.getLabel());
         }else if (legacyAddress != null){
-            tvLabel.setText(legacyAddress.getLabel());
+            binding.accountName.setText(legacyAddress.getLabel());
         }
     }
 
     private void updateDefaultField(){
         if (account != null) {
             if(isDefault(account)){
-                findViewById(R.id.default_container).setVisibility(View.GONE);
-                findViewById(R.id.default_container).setClickable(false);
+                binding.defaultContainer.setVisibility(View.GONE);
+                binding.defaultContainer.setClickable(false);
             }else{
-                findViewById(R.id.default_container).setVisibility(View.VISIBLE);
-                tvDefault.setText(getString(R.string.make_default));
-                tvDefault.setTextColor(getResources().getColor(R.color.blockchain_blue));
-                findViewById(R.id.default_container).setClickable(true);
+                binding.defaultContainer.setVisibility(View.VISIBLE);
+                binding.tvDefault.setText(getString(R.string.make_default));
+                binding.tvDefault.setTextColor(getResources().getColor(R.color.blockchain_blue));
+                binding.defaultContainer.setClickable(true);
             }
 
         }else if (legacyAddress != null){
-            findViewById(R.id.default_container).setVisibility(View.GONE);//No default for V2
+            binding.defaultContainer.setVisibility(View.GONE);//No default for V2
         }
     }
 
@@ -214,11 +195,11 @@ public class AccountEditActivity extends AppCompatActivity {
     private void updateXpubField(){
         if (account != null) {
 
-            tvXpub.setText(R.string.extended_public_key);
+            binding.tvXpub.setText(R.string.extended_public_key);
         }else if (legacyAddress != null){
 
-            tvXpub.setText(R.string.address);
-            tvExtendedXpubDescription.setVisibility(View.GONE);
+            binding.tvXpub.setText(R.string.address);
+            binding.tvExtendedXpubDescription.setVisibility(View.GONE);
         }
     }
 
@@ -295,52 +276,51 @@ public class AccountEditActivity extends AppCompatActivity {
 
     private void initToolbar() {
 
-        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        toolbar.setTitle(getResources().getString(R.string.edit));
-        setSupportActionBar(toolbar);
+        binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.edit));
+        setSupportActionBar(binding.toolbarContainer.toolbarGeneral);
     }
 
     private void setArchive(boolean isArchived){
 
         if(isArchived){
-            tvArchiveHeading.setText(R.string.unarchive);
-            tvArchiveDescription.setText(R.string.archived_description);
+            binding.tvArchive.setText(R.string.unarchive);
+            binding.tvArchiveDescription.setText(R.string.archived_description);
 
-            findViewById(R.id.label_container).setAlpha(0.5f);
-            findViewById(R.id.label_container).setClickable(false);
-            findViewById(R.id.xpub_container).setAlpha(0.5f);
-            findViewById(R.id.xpub_container).setClickable(false);
-            findViewById(R.id.privx_container).setAlpha(0.5f);
-            findViewById(R.id.privx_container).setClickable(false);
-            findViewById(R.id.default_container).setAlpha(0.5f);
-            findViewById(R.id.default_container).setClickable(false);
-            findViewById(R.id.transfer_container).setAlpha(0.5f);
-            findViewById(R.id.transfer_container).setClickable(false);
+            binding.labelContainer.setAlpha(0.5f);
+            binding.labelContainer.setClickable(false);
+            binding.xpubContainer.setAlpha(0.5f);
+            binding.xpubContainer.setClickable(false);
+            binding.privxContainer.setAlpha(0.5f);
+            binding.privxContainer.setClickable(false);
+            binding.defaultContainer.setAlpha(0.5f);
+            binding.defaultContainer.setClickable(false);
+            binding.transferContainer.setAlpha(0.5f);
+            binding.transferContainer.setClickable(false);
         }else{
 
             //Don't allow archiving of default account
             if(isArchivable()){
-                findViewById(R.id.archive_container).setAlpha(1.0f);
-                findViewById(R.id.archive_container).setClickable(true);
-                tvArchiveDescription.setText(R.string.not_archived_description);
+                binding.archiveContainer.setAlpha(1.0f);
+                binding.archiveContainer.setClickable(true);
+                binding.tvArchiveDescription.setText(R.string.not_archived_description);
             }else{
-                findViewById(R.id.archive_container).setAlpha(0.5f);
-                findViewById(R.id.archive_container).setClickable(false);
-                tvArchiveDescription.setText(getString(R.string.default_account_description));
+                binding.archiveContainer.setAlpha(0.5f);
+                binding.archiveContainer.setClickable(false);
+                binding.tvArchiveDescription.setText(getString(R.string.default_account_description));
             }
 
-            tvArchiveHeading.setText(R.string.archive);
+            binding.tvArchive.setText(R.string.archive);
 
-            findViewById(R.id.label_container).setAlpha(1.0f);
-            findViewById(R.id.label_container).setClickable(true);
-            findViewById(R.id.xpub_container).setAlpha(1.0f);
-            findViewById(R.id.xpub_container).setClickable(true);
-            findViewById(R.id.privx_container).setAlpha(1.0f);
-            findViewById(R.id.privx_container).setClickable(true);
-            findViewById(R.id.default_container).setAlpha(1.0f);
-            findViewById(R.id.default_container).setClickable(true);
-            findViewById(R.id.transfer_container).setAlpha(1.0f);
-            findViewById(R.id.transfer_container).setClickable(true);
+            binding.labelContainer.setAlpha(1.0f);
+            binding.labelContainer.setClickable(true);
+            binding.xpubContainer.setAlpha(1.0f);
+            binding.xpubContainer.setClickable(true);
+            binding.privxContainer.setAlpha(1.0f);
+            binding.privxContainer.setClickable(true);
+            binding.defaultContainer.setAlpha(1.0f);
+            binding.defaultContainer.setClickable(true);
+            binding.transferContainer.setAlpha(1.0f);
+            binding.transferContainer.setClickable(true);
         }
     }
 
@@ -385,47 +365,39 @@ public class AccountEditActivity extends AppCompatActivity {
     private void showAddressDetails(){
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_show_extended_public_key, null);
-        dialogBuilder.setView(dialogView);
+        AlertShowExtendedPublicKeyBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.alert_show_extended_public_key, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
-
-        TextView tvHeading = (TextView)dialogView.findViewById(R.id.tv_warning_heading);
-        TextView tvXpubNote = (TextView)dialogView.findViewById(R.id.tv_xpub_note);
-        final TextView tvXpub = (TextView)dialogView.findViewById(R.id.tv_extended_xpub);
-        ImageView ivQr = (ImageView)dialogView.findViewById(R.id.iv_qr);
 
         String qrString = null;
 
         if (account != null) {
 
-            tvHeading.setText(R.string.extended_public_key);
-            tvXpubNote.setText(R.string.scan_this_code);
-            tvXpub.setText(R.string.copy_xpub);
-            tvXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
+            dialogBinding.tvWarningHeading.setText(R.string.extended_public_key);
+            dialogBinding.tvXpubNote.setText(R.string.scan_this_code);
+            dialogBinding.tvExtendedXpub.setText(R.string.copy_xpub);
+            dialogBinding.tvExtendedXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
             qrString = account.getXpub();
 
         }else if (legacyAddress != null){
 
-            tvHeading.setText(R.string.address);
-            tvXpubNote.setText(legacyAddress.getAddress());
-            tvXpub.setText(R.string.copy_address);
-            tvXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
+            dialogBinding.tvWarningHeading.setText(R.string.address);
+            dialogBinding.tvXpubNote.setText(legacyAddress.getAddress());
+            dialogBinding.tvExtendedXpub.setText(R.string.copy_address);
+            dialogBinding.tvExtendedXpub.setTextColor(getResources().getColor(R.color.blockchain_blue));
             qrString = legacyAddress.getAddress();
         }
 
         final String finalQrString = qrString;
-        tvXpub.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) AccountEditActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = null;
-                clip = android.content.ClipData.newPlainText("Send address", finalQrString);
-                ToastCustom.makeText(AccountEditActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                clipboard.setPrimaryClip(clip);
-            }
+        dialogBinding.tvExtendedXpub.setOnClickListener(v -> {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) AccountEditActivity.this.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = null;
+            clip = android.content.ClipData.newPlainText("Send address", finalQrString);
+            ToastCustom.makeText(AccountEditActivity.this, getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+            clipboard.setPrimaryClip(clip);
         });
 
         Bitmap bitmap = null;
@@ -436,15 +408,11 @@ public class AccountEditActivity extends AppCompatActivity {
         } catch (WriterException e) {
             e.printStackTrace();
         }
-        ivQr.setImageBitmap(bitmap);
+        dialogBinding.ivQr.setImageBitmap(bitmap);
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (alertDialog != null && alertDialog.isShowing()) {
-                    alertDialog.cancel();
-                }
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.cancel();
             }
         });
 
@@ -723,7 +691,7 @@ public class AccountEditActivity extends AppCompatActivity {
                                             if (DoubleEncryptionFactory.getInstance().validateSecondPassword(payloadManager.getPayload().getDoublePasswordHash(), payloadManager.getPayload().getSharedKey(), new CharSequenceX(pw), payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
                                                 payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
                                                 if (ContextCompat.checkSelfPermission(AccountEditActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                                                    PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountEditActivity.this);
+                                                    PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, AccountEditActivity.this);
                                                 }else{
                                                     startScanActivity();
                                                 }
@@ -742,7 +710,7 @@ public class AccountEditActivity extends AppCompatActivity {
                     }).setNegativeButton(R.string.cancel, null).show();
         }else{
             if (ContextCompat.checkSelfPermission(AccountEditActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountEditActivity.this);
+                PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, AccountEditActivity.this);
             }else{
                 startScanActivity();
             }
@@ -925,7 +893,7 @@ public class AccountEditActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    findViewById(R.id.privx_container).setVisibility(View.GONE);
+                    binding.privxContainer.setVisibility(View.GONE);
                     setResult(RESULT_OK);
                 }
             });
@@ -1048,69 +1016,54 @@ public class AccountEditActivity extends AppCompatActivity {
         pendingSpend.fromLegacyAddress = legacyAddress;
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_transfer_funds, null);
-        dialogBuilder.setView(dialogView);
+        AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.alert_transfer_funds, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
         //From
-        TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from);
         String label = pendingSpend.fromLegacyAddress.getLabel();
         if(label == null || label.isEmpty())label = pendingSpend.fromLegacyAddress.getAddress();
-        confirmFrom.setText(label);
+        dialogBinding.confirmFrom.setText(label);
 
         //To default
-        TextView confirmTo = (TextView) dialogView.findViewById(R.id.confirm_to);
-
         int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
         Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
         pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);
 
         String toLabel = defaultAccount.getLabel();
         if(toLabel ==null || toLabel.isEmpty())toLabel = pendingSpend.destination;
-        confirmTo.setText(toLabel+" ("+getResources().getString(R.string.default_label)+")");
+        dialogBinding.confirmTo.setText(toLabel+" ("+getResources().getString(R.string.default_label)+")");
 
         //Fee
-        TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
         pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
-        confirmFee.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
+        dialogBinding.confirmFee.setText(monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC");
 
         //Total
         long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
         long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
         pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
-        TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
         double btc_balance = (((double) balanceAfterFee) / 1e8);
-        confirmTotal.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_balance)) + " " + " BTC");
+        dialogBinding.confirmTotalToSend.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_balance)) + " " + " BTC");
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+        dialogBinding.confirmCancel.setOnClickListener(v -> alertDialog.dismiss());
 
-        TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
-        confirmSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        dialogBinding.confirmSend.setOnClickListener(v -> {
 
-                if(FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)){
-                    if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
-                        sendPayment(pendingSpend);
-                    } else {
-                        alertDoubleEncrypted(pendingSpend);
-                    }
-                }else{
-                    //This should never happen
-                    ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            if(FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)){
+                if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+                    sendPayment(pendingSpend);
+                } else {
+                    alertDoubleEncrypted(pendingSpend);
                 }
-
-                alertDialog.dismiss();
+            }else{
+                //This should never happen
+                ToastCustom.makeText(AccountEditActivity.this, getResources().getString(R.string.invalid_bitcoin_address), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             }
+
+            alertDialog.dismiss();
         });
 
         alertDialog.show();
@@ -1229,7 +1182,7 @@ public class AccountEditActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        findViewById(R.id.transfer_container).setVisibility(View.GONE);
+                        binding.transferContainer.setVisibility(View.GONE);
                     }
                 });
 
