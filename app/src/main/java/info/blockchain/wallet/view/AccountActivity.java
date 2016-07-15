@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,8 +25,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -34,12 +33,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
@@ -57,8 +53,6 @@ import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -70,6 +64,8 @@ import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +83,9 @@ import java.util.List;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.ActivityAccountsBinding;
+import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
+import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
 //import android.util.Log;
 
@@ -120,7 +119,6 @@ public class AccountActivity extends AppCompatActivity {
         }
     };
     private LinearLayoutManager layoutManager = null;
-    private RecyclerView mRecyclerView = null;
     private ArrayList<AccountItem> accountsAndImportedList = null;
     private AccountAdapter accountsAdapter = null;
     private ArrayList<Integer> headerPositions;
@@ -128,12 +126,12 @@ public class AccountActivity extends AppCompatActivity {
     private List<LegacyAddress> legacy = null;
     private ProgressDialog progress = null;
     private Context context = null;
-    private FloatingActionsMenu menuMultipleActions = null;
     private MenuItem transferFundsMenuItem = null;
-    private View mLayout;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
     private PayloadManager payloadManager;
+
+    private ActivityAccountsBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,8 +143,7 @@ public class AccountActivity extends AppCompatActivity {
         payloadManager = PayloadManager.getInstance();
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
-        setContentView(R.layout.activity_accounts);
-        mLayout = findViewById(R.id.main_layout);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -160,13 +157,12 @@ public class AccountActivity extends AppCompatActivity {
 
     private void initToolbar(){
 
-        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         if (!payloadManager.isNotUpgraded()) {
-            toolbar.setTitle("");//TODO - empty header for V3 for now - awaiting product
+            binding.toolbarContainer.toolbarGeneral.setTitle("");//TODO - empty header for V3 for now - awaiting product
         } else {
-            toolbar.setTitle(getResources().getString(R.string.my_addresses));
+            binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.my_addresses));
         }
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbarContainer.toolbarGeneral);
     }
 
     private void setupViews(){
@@ -178,16 +174,15 @@ public class AccountActivity extends AppCompatActivity {
         else
             HEADERS = new String[0];
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.accountsList);
         layoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(layoutManager);
+        binding.accountsList.setLayoutManager(layoutManager);
 
         accountsAndImportedList = new ArrayList<>();
         updateAccountsList();
         accountsAdapter = new AccountAdapter(accountsAndImportedList);
-        mRecyclerView.setAdapter(accountsAdapter);
+        binding.accountsList.setAdapter(accountsAdapter);
 
-        mRecyclerView.addOnItemTouchListener(
+        binding.accountsList.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
 
                     @Override
@@ -218,7 +213,8 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     createNewAccount();
-                    if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+                    if(binding.multipleActions.isExpanded())
+                        binding.multipleActions.collapse();
                 }
             });
         }else {
@@ -228,7 +224,8 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     createNewAddress();
-                    if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+                    if(binding.multipleActions.isExpanded())
+                        binding.multipleActions.collapse();
                 }
             });
         }
@@ -244,14 +241,14 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 importAddress();
-                if(menuMultipleActions.isExpanded())menuMultipleActions.collapse();
+                if(binding.multipleActions.isExpanded())
+                    binding.multipleActions.collapse();
             }
         });
 
         //Add buttons to expanding fab
-        menuMultipleActions = (FloatingActionsMenu) findViewById(R.id.multiple_actions);
-        menuMultipleActions.addButton(actionA);
-        menuMultipleActions.addButton(actionB);
+        binding.multipleActions.addButton(actionA);
+        binding.multipleActions.addButton(actionB);
     }
 
     private void onRowClick(int position){
@@ -315,7 +312,7 @@ public class AccountActivity extends AppCompatActivity {
 
         if (!payloadManager.getPayload().isDoubleEncrypted()) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                PermissionUtil.requestCameraPermissionFromActivity(mLayout, this);
+                PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, this);
             }else{
                 startScanActivity();
             }
@@ -343,7 +340,7 @@ public class AccountActivity extends AppCompatActivity {
                                 payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw2));
 
                                 if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                                    PermissionUtil.requestCameraPermissionFromActivity(mLayout, AccountActivity.this);
+                                    PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, AccountActivity.this);
                                 }else{
                                     startScanActivity();
                                 }
@@ -1163,36 +1160,26 @@ public class AccountActivity extends AppCompatActivity {
     private void promptToTransferFunds(boolean isPopup){
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_prompt_transfer_funds, null);
-        dialogBuilder.setView(dialogView);
+        AlertPromptTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.alert_prompt_transfer_funds, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
-        final CheckBox dismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
-
         if(!isPopup){
-            dialogView.findViewById(R.id.confirm_dont_ask_again).setVisibility(View.GONE);
+            dialogBinding.confirmDontAskAgain.setVisibility(View.GONE);
         }
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(dismissForever.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
-                alertDialog.dismiss();
-            }
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
+            alertDialog.dismiss();
         });
 
-        TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
-        confirmSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(dismissForever.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
-                checkTransferFunds();
-                alertDialog.dismiss();
-            }
+        dialogBinding.confirmSend.setOnClickListener(v -> {
+            if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
+            checkTransferFunds();
+            alertDialog.dismiss();
         });
 
         alertDialog.show();
@@ -1234,58 +1221,41 @@ public class AccountActivity extends AppCompatActivity {
     public void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
 
         //Only funded legacy address' will see this option
-
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_transfer_funds, null);
-        dialogBuilder.setView(dialogView);
+        AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.alert_transfer_funds, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
-        TextView transferFundsDescription = (TextView) dialogView.findViewById(R.id.tv_transfer_funds);
-        transferFundsDescription.setVisibility(View.GONE);
+        dialogBinding.tvTransferFunds.setVisibility(View.GONE);
 
         //From
-        TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from);
-        confirmFrom.setText(pendingSpendList.size()+" "+getResources().getString(R.string.spendable_addresses));
+        dialogBinding.confirmFrom.setText(pendingSpendList.size()+" "+getResources().getString(R.string.spendable_addresses));
 
         //To default
-        TextView confirmTo = (TextView) dialogView.findViewById(R.id.confirm_to);
-
         int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
         Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
-        confirmTo.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
+        dialogBinding.confirmTo.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
 
         //Fee
-        TextView confirmFee = (TextView) dialogView.findViewById(R.id.confirm_fee);
-        confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
+        dialogBinding.confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
 
         //Total
-        TextView confirmTotal = (TextView) dialogView.findViewById(R.id.confirm_total_to_send);
-        confirmTotal.setText(monetaryUtil.getDisplayAmount(totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
+        dialogBinding.confirmTotalToSend.setText(monetaryUtil.getDisplayAmount(
+                totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
+        dialogBinding.confirmCancel.setOnClickListener(v -> alertDialog.dismiss());
+
+        dialogBinding.confirmSend.setOnClickListener(v -> {
+
+            if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+                sendPayment(pendingSpendList);
+            } else {
+                alertDoubleEncrypted(pendingSpendList);
             }
-        });
 
-        TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
-        confirmSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
-                    sendPayment(pendingSpendList);
-                } else {
-                    alertDoubleEncrypted(pendingSpendList);
-                }
-
-                alertDialog.dismiss();
-            }
+            alertDialog.dismiss();
         });
 
         alertDialog.show();

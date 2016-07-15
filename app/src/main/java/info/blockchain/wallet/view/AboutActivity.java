@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 
 import info.blockchain.wallet.access.AccessState;
 
@@ -38,23 +37,19 @@ public class AboutActivity extends Activity {
 
         binding.about.setText(getString(R.string.about, BuildConfig.VERSION_NAME, "2015"));
 
-        binding.rateUs.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                String appPackageName = getPackageName();
-                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
-                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                startActivity(marketIntent);
-            }
+        binding.rateUs.setOnClickListener(v -> {
+            String appPackageName = getPackageName();
+            Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
+            marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            startActivity(marketIntent);
         });
 
         if (hasWallet()) {
             binding.freeWallet.setVisibility(View.GONE);
         } else {
-            binding.freeWallet.setOnClickListener(new Button.OnClickListener() {
-                public void onClick(View v) {
-                    Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
-                    startActivity(marketIntent);
-                }
+            binding.freeWallet.setOnClickListener(v -> {
+                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
+                startActivity(marketIntent);
             });
         }
 
