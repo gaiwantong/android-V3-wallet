@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,6 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
 
 public class PinEntryActivity extends Activity {
 
@@ -39,12 +41,6 @@ public class PinEntryActivity extends Activity {
     final int maxAttempts = 4;
     String userEnteredPIN = "";
     String userEnteredPINConfirm = null;
-    TextView titleView = null;
-
-    TextView pinBox0 = null;
-    TextView pinBox1 = null;
-    TextView pinBox2 = null;
-    TextView pinBox3 = null;
 
     TextView[] pinBoxArray = null;
     boolean allowExit = true;
@@ -57,13 +53,15 @@ public class PinEntryActivity extends Activity {
     private AppUtil appUtil;
     private PayloadManager payloadManager;
 
+    private ActivityPinEntryBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.activity_pin_entry);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_pin_entry);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -80,24 +78,18 @@ public class PinEntryActivity extends Activity {
         }
 
         // Set title state
-        titleView = (TextView) findViewById(R.id.titleBox);
         if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
 
-            titleView.setText(R.string.create_pin);
+            binding.titleBox.setText(R.string.create_pin);
         } else {
-            titleView.setText(R.string.pin_entry);
+            binding.titleBox.setText(R.string.pin_entry);
         }
 
-        pinBox0 = (TextView) findViewById(R.id.pinBox0);
-        pinBox1 = (TextView) findViewById(R.id.pinBox1);
-        pinBox2 = (TextView) findViewById(R.id.pinBox2);
-        pinBox3 = (TextView) findViewById(R.id.pinBox3);
-
         pinBoxArray = new TextView[PIN_LENGTH];
-        pinBoxArray[0] = pinBox0;
-        pinBoxArray[1] = pinBox1;
-        pinBoxArray[2] = pinBox2;
-        pinBoxArray[3] = pinBox3;
+        pinBoxArray[0] = binding.pinBox0;
+        pinBoxArray[1] = binding.pinBox1;
+        pinBoxArray[2] = binding.pinBox2;
+        pinBoxArray[3] = binding.pinBox3;
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -577,7 +569,7 @@ public class PinEntryActivity extends Activity {
 
             // Validate
             if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
-                titleView.setVisibility(View.INVISIBLE);
+                binding.titleBox.setVisibility(View.INVISIBLE);
                 validatePIN(userEnteredPIN);
             } else if (userEnteredPINConfirm == null) {
                 // End of Create -  Change to Confirm
@@ -588,7 +580,7 @@ public class PinEntryActivity extends Activity {
                         PinEntryActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                titleView.setText(R.string.confirm_pin);
+                                binding.titleBox.setText(R.string.confirm_pin);
                                 clearPinBoxes();
                                 userEnteredPINConfirm = userEnteredPIN;
                                 userEnteredPIN = "";
@@ -610,7 +602,7 @@ public class PinEntryActivity extends Activity {
                         clearPinBoxes();
                         userEnteredPIN = "";
                         userEnteredPINConfirm = null;
-                        titleView.setText(R.string.create_pin);
+                        binding.titleBox.setText(R.string.create_pin);
                     }
                 }, 200);
             }
