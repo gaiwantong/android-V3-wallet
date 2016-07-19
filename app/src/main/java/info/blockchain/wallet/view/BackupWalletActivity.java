@@ -1,24 +1,28 @@
 package info.blockchain.wallet.view;
 
 import android.content.pm.ActivityInfo;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 
 import info.blockchain.wallet.access.AccessState;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.ActivityBackupWalletBinding;
 
-public class BackupWalletActivity extends ActionBarActivity {
+public class BackupWalletActivity extends AppCompatActivity {
 
     public static final String BACKUP_DATE_KEY = "BACKUP_DATE_KEY";
+
+    private ActivityBackupWalletBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_backup_wallet);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_backup_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);

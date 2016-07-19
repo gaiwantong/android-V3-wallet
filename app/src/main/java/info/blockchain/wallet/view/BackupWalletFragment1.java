@@ -2,6 +2,7 @@ package info.blockchain.wallet.view;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -11,40 +12,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentBackupWallet1Binding;
 
 public class BackupWalletFragment1 extends Fragment {
 
-    TextView tvBackupWallet;
-
-    ImageView ivAlert;
-    TextView tvHeader;
-    TextView tvSubHeader;
-    TextView tvLostMnemonic;
-    boolean toggle = true;
-    PayloadManager payloadManager;
+    private PayloadManager payloadManager;
+    private FragmentBackupWallet1Binding binding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_backup_wallet_1, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_backup_wallet_1, container, false);
 
-        tvHeader = (TextView) rootView.findViewById(R.id.backup_header);
-        tvSubHeader = (TextView) rootView.findViewById(R.id.backup_subheader);
-        tvLostMnemonic  = (TextView) rootView.findViewById(R.id.backup_lost_mnemonic);
-        ivAlert = (ImageView) rootView.findViewById(R.id.ic_alert);
-
-        tvBackupWallet = (TextView) rootView.findViewById(R.id.backup_wallet_action);
-        tvBackupWallet.setOnClickListener(v -> {
+        binding.backupWalletAction.setOnClickListener(v -> {
 
             payloadManager = PayloadManager.getInstance();
 
@@ -90,7 +78,7 @@ public class BackupWalletFragment1 extends Fragment {
             }
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override
@@ -108,15 +96,15 @@ public class BackupWalletFragment1 extends Fragment {
             if (daysAgo.equals("1")) day = getResources().getString(R.string.day);
 
             String msg = String.format(getResources().getString(R.string.backup_days_ago), daysAgo, day);
-            tvHeader.setText(msg);
-            tvSubHeader.setText(getResources().getString(R.string.backup_only_need_to_once_reminder));
-            ivAlert.setImageResource(R.drawable.ic_thumb_up_white_48dp);
-            ivAlert.setColorFilter(getActivity().getResources().getColor(R.color.blockchain_blue), PorterDuff.Mode.SRC_ATOP);
-            tvBackupWallet.setText(getString(R.string.backup_funds_again));
-            tvLostMnemonic.setVisibility(View.VISIBLE);
+            binding.backupHeader.setText(msg);
+            binding.backupSubheader.setText(getResources().getString(R.string.backup_only_need_to_once_reminder));
+            binding.icAlert.setImageResource(R.drawable.ic_thumb_up_white_48dp);
+            binding.icAlert.setColorFilter(getActivity().getResources().getColor(R.color.blockchain_blue), PorterDuff.Mode.SRC_ATOP);
+            binding.backupWalletAction.setText(getString(R.string.backup_funds_again));
+            binding.backupLostMnemonic.setVisibility(View.VISIBLE);
         }else{
-            tvBackupWallet.setText(getString(R.string.backup_funds));
-            tvLostMnemonic.setVisibility(View.GONE);
+            binding.backupWalletAction.setText(getString(R.string.backup_funds));
+            binding.backupLostMnemonic.setVisibility(View.GONE);
         }
     }
 }

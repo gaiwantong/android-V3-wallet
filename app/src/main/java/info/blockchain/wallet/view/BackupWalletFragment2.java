@@ -3,6 +3,7 @@ package info.blockchain.wallet.view;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -11,23 +12,13 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import info.blockchain.wallet.util.BackupWalletUtil;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentBackupWallet2Binding;
 
 public class BackupWalletFragment2 extends Fragment {
-
-    private TextView tvStart = null;
-    private TextView tvPreviousWord = null;
-    private TextView tvNextWord = null;
-    private TextView tvInstructions = null;
-
-    private LinearLayout cardLayout = null;
-    private TextView tvPressReveal = null;
-    private TextView tvCurrentWord = null;
 
     private int currentWordIndex = 0;
     private String[] mnemonic = null;
@@ -41,39 +32,28 @@ public class BackupWalletFragment2 extends Fragment {
     private Animation animExitToRight = null;
     private Animation animEnterFromLeft = null;
 
+    private FragmentBackupWallet2Binding binding;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_backup_wallet_2, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_backup_wallet_2, container, false);
 
-        tvStart = (TextView) rootView.findViewById(R.id.start_action);
-        tvStart.setVisibility(View.VISIBLE);
+        binding.startAction.setVisibility(View.VISIBLE);
+        binding.previousWordAction.setVisibility(View.INVISIBLE);
+        binding.nextWordAction.setVisibility(View.INVISIBLE);
+        binding.cardLayout.setVisibility(View.INVISIBLE);
+        binding.tvPressReveal.setVisibility(View.INVISIBLE);
+        binding.tvCurrentWord.setVisibility(View.INVISIBLE);
 
-        tvPreviousWord = (TextView) rootView.findViewById(R.id.previous_word_action);
-        tvPreviousWord.setVisibility(View.INVISIBLE);
-
-        tvNextWord = (TextView) rootView.findViewById(R.id.next_word_action);
-        tvNextWord.setVisibility(View.INVISIBLE);
-
-        cardLayout = (LinearLayout) rootView.findViewById(R.id.card_layout);
-        cardLayout.setVisibility(View.INVISIBLE);
-
-        tvPressReveal = (TextView) rootView.findViewById(R.id.tv_press_reveal);
-        tvPressReveal.setVisibility(View.INVISIBLE);
-
-        tvCurrentWord = (TextView) rootView.findViewById(R.id.tv_current_word);
-        tvCurrentWord.setVisibility(View.INVISIBLE);
-
-        tvInstructions = (TextView) rootView.findViewById(R.id.tvInstructions);
-
-        tvStart.setOnClickListener(v -> {
-            tvStart.setVisibility(View.INVISIBLE);
-            tvInstructions.setText(getString(R.string.backup_write_down_words));
-            tvPreviousWord.setVisibility(View.GONE);
-            tvNextWord.setVisibility(View.VISIBLE);
-            cardLayout.setVisibility(View.VISIBLE);
-            tvPressReveal.setVisibility(View.VISIBLE);
-            tvCurrentWord.setVisibility(View.VISIBLE);
+        binding.startAction.setOnClickListener(v -> {
+            binding.startAction.setVisibility(View.INVISIBLE);
+            binding.tvInstructions.setText(getString(R.string.backup_write_down_words));
+            binding.previousWordAction.setVisibility(View.GONE);
+            binding.nextWordAction.setVisibility(View.VISIBLE);
+            binding.cardLayout.setVisibility(View.VISIBLE);
+            binding.tvPressReveal.setVisibility(View.VISIBLE);
+            binding.tvCurrentWord.setVisibility(View.VISIBLE);
         });
 
         word = getResources().getString(R.string.Word);
@@ -89,13 +69,13 @@ public class BackupWalletFragment2 extends Fragment {
         if (currentWordIndex == mnemonic.length) {
             currentWordIndex = 0;
         }
-        tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
-        tvPressReveal.setText(mnemonic[currentWordIndex]);
+        binding.tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
+        binding.tvPressReveal.setText(mnemonic[currentWordIndex]);
 
-        tvNextWord.setOnClickListener(v -> {
+        binding.nextWordAction.setOnClickListener(v -> {
 
             if(currentWordIndex >= 0){
-                tvPreviousWord.setVisibility(View.VISIBLE);
+                binding.previousWordAction.setVisibility(View.VISIBLE);
             }
 
             if (currentWordIndex < mnemonic.length) {
@@ -103,8 +83,8 @@ public class BackupWalletFragment2 extends Fragment {
                 animExitToLeft.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-                        tvPressReveal.setText("");
-                        tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
+                        binding.tvPressReveal.setText("");
+                        binding.tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
                     }
 
                     @Override
@@ -113,12 +93,12 @@ public class BackupWalletFragment2 extends Fragment {
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        cardLayout.startAnimation(animEnterFromRight);
-                        tvPressReveal.setText(mnemonic[currentWordIndex]);
+                        binding.cardLayout.startAnimation(animEnterFromRight);
+                        binding.tvPressReveal.setText(mnemonic[currentWordIndex]);
                     }
                 });
 
-                cardLayout.startAnimation(animExitToLeft);
+                binding.cardLayout.startAnimation(animExitToLeft);
 
                 currentWordIndex++;
             }
@@ -134,25 +114,25 @@ public class BackupWalletFragment2 extends Fragment {
             } else {
 
                 if (currentWordIndex == mnemonic.length - 1)
-                    tvNextWord.setText(getResources().getString(R.string.DONE));
+                    binding.nextWordAction.setText(getResources().getString(R.string.DONE));
                 else
-                    tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
+                    binding.nextWordAction.setText(getResources().getString(R.string.NEXT_WORD));
             }
         });
 
-        tvPreviousWord.setOnClickListener(v1 -> {
+        binding.previousWordAction.setOnClickListener(v1 -> {
 
-            tvNextWord.setText(getResources().getString(R.string.NEXT_WORD));
+            binding.nextWordAction.setText(getResources().getString(R.string.NEXT_WORD));
 
             if (currentWordIndex == 1) {
-                tvPreviousWord.setVisibility(View.GONE);
+                binding.previousWordAction.setVisibility(View.GONE);
             }
 
             animExitToRight.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    tvPressReveal.setText("");
-                    tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
+                    binding.tvPressReveal.setText("");
+                    binding.tvCurrentWord.setText(word + " " + (currentWordIndex + 1) + " " + of + " 12");
                 }
 
                 @Override
@@ -161,17 +141,17 @@ public class BackupWalletFragment2 extends Fragment {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    cardLayout.startAnimation(animEnterFromLeft);
-                    tvPressReveal.setText(mnemonic[currentWordIndex]);
+                    binding.cardLayout.startAnimation(animEnterFromLeft);
+                    binding.tvPressReveal.setText(mnemonic[currentWordIndex]);
                 }
             });
 
-            cardLayout.startAnimation(animExitToRight);
+            binding.cardLayout.startAnimation(animExitToRight);
 
             currentWordIndex--;
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override
