@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-<!--roboto-->
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" 
-    android:layout_height="48dp"
-	android:textSize="16sp"
-	android:fontFamily="sans-serif"
-    android:gravity="left|center_vertical"
-    android:textColor="@color/primary_text_default_material_light"
-    android:background="@drawable/selector_pearl_white"
-	android:paddingLeft="16dp"
-	android:paddingRight="16dp"
-	android:singleLine="true"
-	android:marqueeRepeatLimit="marquee_forever"
+    <!--roboto-->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif"
+            android:gravity="left|center_vertical"
+            android:textColor="@color/primary_text_default_material_light"
+            android:background="@drawable/selector_pearl_white"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:singleLine="true"
+            android:marqueeRepeatLimit="marquee_forever"
     />
+</layout>

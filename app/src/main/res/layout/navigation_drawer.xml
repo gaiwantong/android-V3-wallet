@@ -1,33 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				android:layout_height="match_parent"
-				android:layout_width="320dp"
-				android:id="@+id/googleDrawer"
-				android:background="@android:color/white">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:layout_height="168dp"
-		android:background="@color/blockchain_blue"
-		android:id="@+id/navigationHeader"
-		android:paddingTop="24dp">
+    <RelativeLayout
+            android:layout_height="match_parent"
+            android:layout_width="320dp"
+            android:id="@+id/googleDrawer"
+            android:background="@android:color/white">
 
-	</RelativeLayout>
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="168dp"
+                android:background="@color/blockchain_blue"
+                android:id="@+id/navigationHeader"
+                android:paddingTop="24dp">
 
-    <View
-        android:id="@+id/shadow"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_below="@id/navigationHeader"
-        android:background="@drawable/container_dropshadow_gradient" />
+        </RelativeLayout>
 
-	<ListView android:id="@+id/drawer_list"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:layout_gravity="start"
-			  android:choiceMode="singleChoice"
-			  android:layout_below="@+id/shadow"
-			  android:divider="@android:color/transparent"
-			  android:dividerHeight="0dp"
-			  android:background="@color/blockchain_pearl_white"/>
+        <View
+                android:id="@+id/shadow"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@id/navigationHeader"
+                android:background="@drawable/container_dropshadow_gradient"/>
 
-</RelativeLayout>
+        <ListView android:id="@+id/drawer_list"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_gravity="start"
+                  android:choiceMode="singleChoice"
+                  android:layout_below="@+id/shadow"
+                  android:divider="@android:color/transparent"
+                  android:dividerHeight="0dp"
+                  android:background="@color/blockchain_pearl_white"/>
+
+    </RelativeLayout>
+</layout>

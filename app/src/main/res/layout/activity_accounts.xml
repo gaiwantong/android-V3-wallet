@@ -1,41 +1,44 @@
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:fab="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/main_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <include layout="@layout/toolbar_general"/>
-
-    <RelativeLayout
-            android:id="@+id/github_main_content"
+    <LinearLayout
+            android:id="@+id/main_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/accountsList"
+        <include android:id="@+id/toolbar_container" layout="@layout/toolbar_general"/>
+
+        <RelativeLayout
+                android:id="@+id/github_main_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/blockchain_pearl_white"
-                android:clipToPadding="false"
-                android:clickable="true"/>
+                android:layout_height="match_parent">
 
-        <com.getbase.floatingactionbutton.FloatingActionsMenu
-                android:id="@+id/multiple_actions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                fab:fab_addButtonColorNormal="@color/blockchain_blue"
-                fab:fab_addButtonColorPressed="@color/blockchain_dark_blue"
-                fab:fab_addButtonPlusIconColor="@color/white"
-                fab:fab_labelStyle="@style/menu_labels_style"
-                android:layout_marginBottom="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginEnd="16dp">
-        </com.getbase.floatingactionbutton.FloatingActionsMenu>
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/accountsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/blockchain_pearl_white"
+                    android:clipToPadding="false"
+                    android:clickable="true"/>
 
-    </RelativeLayout>
-</LinearLayout>
+            <com.getbase.floatingactionbutton.FloatingActionsMenu
+                    android:id="@+id/multiple_actions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    app:fab_addButtonColorNormal="@color/blockchain_blue"
+                    app:fab_addButtonColorPressed="@color/blockchain_dark_blue"
+                    app:fab_addButtonPlusIconColor="@color/white"
+                    app:fab_labelStyle="@style/menu_labels_style"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginEnd="16dp">
+            </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+        </RelativeLayout>
+    </LinearLayout>
+</layout>

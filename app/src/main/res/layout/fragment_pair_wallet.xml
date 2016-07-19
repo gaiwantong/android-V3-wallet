@@ -1,138 +1,143 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:id="@+id/main_layout"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-		>
+    <RelativeLayout
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1"
-			android:orientation="vertical"
-			android:gravity="center"
-			android:background="@color/blockchain_pearl_white">
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+        >
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="16dp"
-				android:orientation="horizontal">
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@color/blockchain_pearl_white">
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textSize="33sp"
-					android:textColor="@color/blockchain_blue"
-					android:gravity="center_vertical"
-					android:paddingLeft="16dp"
-					android:paddingRight="16dp"
-					android:text="1"/>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="horizontal">
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textColor="@color/black"
-					android:gravity="center_vertical"
-					android:paddingRight="16dp"
-					android:text="@string/pair_wallet_step_1"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="33sp"
+                            android:textColor="@color/blockchain_blue"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="1"/>
 
-			</LinearLayout>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/black"
+                            android:gravity="center_vertical"
+                            android:paddingRight="16dp"
+                            android:text="@string/pair_wallet_step_1"/>
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="16dp"
-				android:orientation="horizontal">
+                </LinearLayout>
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textSize="33sp"
-					android:textColor="@color/blockchain_blue"
-					android:gravity="center_vertical"
-					android:paddingLeft="16dp"
-					android:paddingRight="16dp"
-					android:text="2"/>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="horizontal">
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textColor="@color/black"
-					android:gravity="center_vertical"
-					android:paddingRight="16dp"
-					android:text="@string/pair_wallet_step_2"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="33sp"
+                            android:textColor="@color/blockchain_blue"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="2"/>
 
-			</LinearLayout>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/black"
+                            android:gravity="center_vertical"
+                            android:paddingRight="16dp"
+                            android:text="@string/pair_wallet_step_2"/>
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="16dp"
-				android:orientation="horizontal">
+                </LinearLayout>
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textSize="33sp"
-					android:textColor="@color/blockchain_blue"
-					android:gravity="center_vertical"
-					android:paddingLeft="16dp"
-					android:paddingRight="16dp"
-					android:text="3"/>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="horizontal">
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
-					android:textColor="@color/black"
-					android:gravity="center_vertical"
-					android:paddingRight="16dp"
-					android:text="@string/pair_wallet_step_3"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="33sp"
+                            android:textColor="@color/blockchain_blue"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="3"/>
 
-			</LinearLayout>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/black"
+                            android:gravity="center_vertical"
+                            android:paddingRight="16dp"
+                            android:text="@string/pair_wallet_step_3"/>
 
-		</LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
 
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+            >
 
-			<TextView
-				android:id="@+id/command_scan"
-				android:layout_width="match_parent"
-				android:layout_height="48dp"
-				android:background="@color/blockchain_blue"
-				android:layout_gravity="center_horizontal|center_vertical"
-				android:gravity="center_horizontal|center_vertical"
-				android:text="@string/command2"
-				android:textAlignment="gravity"
-				android:textColor="@color/white"
-				android:textSize="16sp"
-				/>
+                <TextView
+                        android:id="@+id/command_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@color/blockchain_blue"
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:text="@string/command2"
+                        android:textAlignment="gravity"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                />
 
-			<TextView
-				android:id="@+id/command_manual"
-				android:layout_width="match_parent"
-				android:layout_height="48dp"
-				android:layout_gravity="center_horizontal|center_vertical"
-				android:background="@color/blockchain_light_grey"
-				android:gravity="center_horizontal|center_vertical"
-				android:text="@string/command3"
-				android:textAlignment="gravity"
-				android:textColor="@color/blockchain_grey"
-				android:textSize="16sp"
-				/>
+                <TextView
+                        android:id="@+id/command_manual"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:background="@color/blockchain_light_grey"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:text="@string/command3"
+                        android:textAlignment="gravity"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="16sp"
+                />
 
-		</LinearLayout>
+            </LinearLayout>
 
-	</LinearLayout>
+        </LinearLayout>
 
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

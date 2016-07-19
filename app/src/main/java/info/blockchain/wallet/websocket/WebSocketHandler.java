@@ -13,9 +13,9 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.ui.BalanceFragment;
-import info.blockchain.wallet.ui.MainActivity;
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.BalanceFragment;
+import info.blockchain.wallet.view.MainActivity;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.util.PrefsUtil;

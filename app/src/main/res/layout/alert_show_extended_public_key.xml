@@ -1,55 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/white"
-              android:gravity="center_horizontal"
-              android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-
-    <TextView
-            android:id="@+id/tv_warning_heading"
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:padding="16dp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
             android:gravity="center_horizontal"
-            android:textColor="@color/primary_text_default_material_light"
-            android:textSize="24sp"/>
+            android:orientation="vertical">
 
-    <TextView
-            android:id="@+id/tv_xpub_note"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:text="description here"
-            android:gravity="center"
-            android:textColor="@color/primary_text_default_material_light"/>
 
-    <ImageView
-            android:id="@+id/iv_qr"
-            android:layout_width="260dp"
-            android:layout_height="260dp"
-            android:gravity="center"
-            />
+        <TextView
+                android:id="@+id/tv_warning_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Title"
+                android:padding="16dp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/primary_text_default_material_light"
+                android:textSize="24sp"/>
 
-    <TextView
-            android:id="@+id/tv_extended_xpub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/blockchain_grey"
-            android:text="xpub here"
-            android:textSize="14sp"
-            />
+        <TextView
+                android:id="@+id/tv_xpub_note"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="description here"
+                android:gravity="center"
+                android:textColor="@color/primary_text_default_material_light"/>
 
-    <TextView
-            android:id="@+id/confirm_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:text="@string/CLOSE"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/primary_text_default_material_light"/>
+        <ImageView
+                android:id="@+id/iv_qr"
+                android:layout_width="260dp"
+                android:layout_height="260dp"
+                android:gravity="center"
+        />
 
-</LinearLayout>
+        <TextView
+                android:id="@+id/tv_extended_xpub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/blockchain_grey"
+                android:text="xpub here"
+                android:textSize="14sp"
+        />
+
+        <TextView
+                android:id="@+id/confirm_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="@string/CLOSE"
+                android:gravity="center"
+                android:padding="16dp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/primary_text_default_material_light"/>
+
+    </LinearLayout>
+</layout>

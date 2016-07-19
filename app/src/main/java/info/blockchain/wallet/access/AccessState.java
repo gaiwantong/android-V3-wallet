@@ -8,7 +8,7 @@ import android.os.SystemClock;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.ui.MainActivity;
+import info.blockchain.wallet.view.MainActivity;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;

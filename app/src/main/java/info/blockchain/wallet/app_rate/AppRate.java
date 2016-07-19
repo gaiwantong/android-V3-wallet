@@ -12,7 +12,7 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateUtils;
 
-import info.blockchain.wallet.ui.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
 
