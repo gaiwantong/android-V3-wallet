@@ -89,7 +89,7 @@
 
                 </LinearLayout>
 
-                <include layout="@layout/include_entropy_meter"/>
+                <include android:id="@+id/entropy_container" layout="@layout/include_entropy_meter"/>
 
                 <View
                         android:layout_width="fill_parent"

@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -17,9 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import info.blockchain.wallet.util.AppUtil;
@@ -31,56 +29,42 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentCreateWalletBinding;
 
 public class CreateWalletFragment extends Fragment {
 
-    LinearLayout entropyMeter;
-    ProgressBar passStrengthBar;
-    TextView passStrengthVerdict;
-    TextView next;
-    TextView tos;
     int pwStrength;
     int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_very_strong};
     int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
-    private EditText edEmail = null;
-    private EditText edPassword1 = null;
-    private EditText edPassword2 = null;
+
+    private FragmentCreateWalletBinding binding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_create_wallet, container, false);
+
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_wallet, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.new_wallet));
 
-        ((TextView) rootView.findViewById(R.id.tos)).setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
+        binding.tos.setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
+        binding.commandNext.setClickable(false);
+        binding.entropyContainer.passStrengthBar.setMax(100);
 
-        edEmail = (EditText) rootView.findViewById(R.id.email_address);
-        edPassword1 = (EditText) rootView.findViewById(R.id.wallet_pass);
-        edPassword2 = (EditText) rootView.findViewById(R.id.wallet_pass_confrirm);
-        next = (TextView) rootView.findViewById(R.id.command_next);
-        next.setClickable(false);
-
-        passStrengthBar = (ProgressBar) rootView.findViewById(R.id.pass_strength_bar);
-        passStrengthBar.setMax(100);
-        passStrengthVerdict = (TextView) rootView.findViewById(R.id.pass_strength_verdict);
-        entropyMeter = (LinearLayout) rootView.findViewById(R.id.entropy_meter);
-
-        edEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.emailAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) setEntropyMeterVisible(View.GONE);
             }
         });
 
-        edPassword2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.walletPassConfrirm.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) setEntropyMeterVisible(View.GONE);
             }
         });
 
-        edPassword1.addTextChangedListener(new TextWatcher() {
+        binding.walletPass.addTextChangedListener(new TextWatcher() {
             private final long DELAY = 200; // small delay before pass entropy calc - increases performance when user types fast.
             private Timer timer = new Timer();
 
@@ -105,7 +89,7 @@ public class CreateWalletFragment extends Fragment {
 
                         final String pw = editable.toString();
 
-                        if (pw.equals(edEmail.getText().
+                        if (pw.equals(binding.emailAddress.getText().
 
                                         toString()
 
@@ -131,9 +115,9 @@ public class CreateWalletFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                passStrengthBar.setProgress(scorePerc);
-                                passStrengthBar.setProgressDrawable(ContextCompat.getDrawable(getActivity(), strengthColors[pwStrengthLevel]));
-                                passStrengthVerdict.setText(getResources().getString(strengthVerdicts[pwStrengthLevel]));
+                                binding.entropyContainer.passStrengthBar.setProgress(scorePerc);
+                                binding.entropyContainer.passStrengthBar.setProgressDrawable(ContextCompat.getDrawable(getActivity(), strengthColors[pwStrengthLevel]));
+                                binding.entropyContainer.passStrengthVerdict.setText(getResources().getString(strengthVerdicts[pwStrengthLevel]));
                             }
                         });
                     }
@@ -142,13 +126,13 @@ public class CreateWalletFragment extends Fragment {
             }
         });
 
-        next.setOnClickListener(new View.OnClickListener() {
+        binding.commandNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                final String em = edEmail.getText().toString().trim();
-                final String pw1 = edPassword1.getText().toString();
-                final String pw2 = edPassword2.getText().toString();
+                final String em = binding.emailAddress.getText().toString().trim();
+                final String pw1 = binding.walletPass.getText().toString();
+                final String pw2 = binding.walletPassConfrirm.getText().toString();
                 AppUtil appUtil = new AppUtil(getActivity());
 
                 if (em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
@@ -165,9 +149,9 @@ public class CreateWalletFragment extends Fragment {
                             .setCancelable(false)
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    edPassword1.setText("");
-                                    edPassword2.setText("");
-                                    edPassword1.requestFocus();
+                                    binding.walletPass.setText("");
+                                    binding.walletPassConfrirm.setText("");
+                                    binding.walletPass.requestFocus();
                                 }
                             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -192,17 +176,15 @@ public class CreateWalletFragment extends Fragment {
             }
         });
 
-        tos = (TextView) rootView.findViewById(R.id.tos);
-
         String text = getString(R.string.agree_terms_of_service) + " ";
         String text2 = getString(R.string.blockchain_tos);
 
         Spannable spannable = new SpannableString(text + text2);
         spannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.blockchain_blue)),
                 text.length(), text.length() + text2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tos.setText(spannable, TextView.BufferType.SPANNABLE);
+        binding.tos.setText(spannable, TextView.BufferType.SPANNABLE);
 
-        tos.setOnClickListener(new View.OnClickListener() {
+        binding.tos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), PolicyActivity.class);
@@ -212,7 +194,7 @@ public class CreateWalletFragment extends Fragment {
             }
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     private void hideKeyboard() {
@@ -227,7 +209,7 @@ public class CreateWalletFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                entropyMeter.setVisibility(visible);
+                binding.entropyContainer.entropyMeter.setVisibility(visible);
             }
         });
     }
