@@ -4,15 +4,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -20,39 +18,31 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.ActivitySupportBinding;
 
 public class SupportActivity extends AppCompatActivity {
+
+    private ActivitySupportBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_support);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_support);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         //TODO - don't use NoActionBar in styles.xml (affects BalanceFragment, so don't just edit styles.xml)
-        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
-        toolbar.setTitle(getResources().getString(R.string.contact_support));
-        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        TextView header = (TextView) findViewById(R.id.my_wallet_id_header);
-
-        TextView walletId = (TextView) findViewById(R.id.wallet_id);
+        binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.contact_support));
+        binding.toolbarContainer.toolbarGeneral.setTitleTextColor(getResources().getColor(R.color.white));
+        binding.toolbarContainer.toolbarGeneral.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+        binding.toolbarContainer.toolbarGeneral.setNavigationOnClickListener(v -> onBackPressed());
 
         final String guid = PayloadManager.getInstance().getPayload().getGuid();
-        walletId.setText(guid);
+        binding.walletId.setText(guid);
 
-        LinearLayout idContainer = (LinearLayout) findViewById(R.id.wallet_id_container);
-        idContainer.setOnClickListener(new View.OnClickListener() {
+        binding.walletIdContainer.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -80,11 +70,7 @@ public class SupportActivity extends AppCompatActivity {
             }
         });
 
-        TextView newSupportRequest = (TextView) findViewById(R.id.new_support_request);
-
-        TextView emailAction = (TextView) findViewById(R.id.email_action);
-
-        emailAction.setOnClickListener(new View.OnClickListener() {
+        binding.emailAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

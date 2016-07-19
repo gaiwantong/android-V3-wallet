@@ -9,7 +9,7 @@
             android:background="@color/blockchain_pearl_white"
             android:orientation="vertical">
 
-        <include layout="@layout/toolbar_general"/>
+        <include android:id="@+id/toolbar_container" layout="@layout/toolbar_general"/>
 
         <View
                 android:id="@+id/shadow"
