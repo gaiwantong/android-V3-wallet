@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,27 +13,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentManualPairingBinding;
 
 public class ManualPairingFragment extends Fragment {
-
-    private EditText edGuid = null;
-    private EditText edPassword = null;
-    private TextView next = null;
 
     private ProgressDialog progress = null;
 
@@ -41,23 +37,21 @@ public class ManualPairingFragment extends Fragment {
 
     private AppUtil appUtil;
 
+    private FragmentManualPairingBinding binding;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_manual_pairing, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_manual_pairing, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.manual_pairing));
 
         appUtil = new AppUtil(getActivity());
 
-        edGuid = (EditText) rootView.findViewById(R.id.wallet_id);
-        edPassword = (EditText) rootView.findViewById(R.id.wallet_pass);
-        next = (TextView) rootView.findViewById(R.id.command_next);
-
-        next.setOnClickListener(new View.OnClickListener() {
+        binding.commandNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String guid = edGuid.getText().toString();
-                final String pw = edPassword.getText().toString();
+                final String guid = binding.walletId.getText().toString();
+                final String pw = binding.walletPass.getText().toString();
 
                 if (guid == null || guid.length() == 0) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_guid), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -69,7 +63,7 @@ public class ManualPairingFragment extends Fragment {
             }
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override
@@ -188,7 +182,7 @@ public class ManualPairingFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    edPassword.setText("");
+                                    binding.walletPass.setText("");
                                 }
                             });
                             ToastCustom.makeText(getActivity(), getString(R.string.pairing_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);

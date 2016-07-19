@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
@@ -14,39 +15,37 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.databinding.FragmentPairWalletBinding;
 
 public class PairWalletFragment extends Fragment implements FragmentCompat.OnRequestPermissionsResultCallback{
 
-    TextView commandScan;
-    TextView commandManual;
+    private FragmentPairWalletBinding binding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_pair_wallet, container, false);
+
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_pair_wallet, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.pair_your_wallet));
 
-        commandScan = (TextView) rootView.findViewById(R.id.command_scan);
-        commandScan.setOnClickListener(new View.OnClickListener() {
+        binding.commandScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    PermissionUtil.requestCameraPermissionFromFragment(rootView.findViewById(R.id.main_layout), getActivity(), PairOrCreateWalletActivity.fragment);
+                    PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), PairOrCreateWalletActivity.fragment);
                 }else{
                     startScanActivity();
                 }
             }
         });
 
-        commandManual = (TextView) rootView.findViewById(R.id.command_manual);
-        commandManual.setOnClickListener(new View.OnClickListener() {
+        binding.commandManual.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PairOrCreateWalletActivity.fragment = new ManualPairingFragment();
@@ -55,7 +54,7 @@ public class PairWalletFragment extends Fragment implements FragmentCompat.OnReq
             }
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     private void startScanActivity(){
