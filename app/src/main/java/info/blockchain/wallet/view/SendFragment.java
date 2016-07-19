@@ -44,7 +44,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.app_rate.AppRate;
@@ -102,7 +101,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private final int SCAN_PRIVX = 301;
     private static Context context = null;
-    private View rootView;
 
     private MenuItem btSend;
     public static CustomKeypad customKeypad;
@@ -188,7 +186,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_send, container, false);
-        rootView = binding.getRoot();
 //        viewModel = new SendViewModel(getActivity(), this);
 //        binding.setViewModel(viewModel);
 
@@ -234,7 +231,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             handleIncomingQRScan(scanData);
         }
 
-        return rootView;
+        return binding.getRoot();
     }
 
     private void setupToolbar(){
@@ -322,18 +319,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         });
 
-        ImageView ivFeeInfo = (ImageView)rootView.findViewById(R.id.iv_fee_info);
-        ivFeeInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertCustomSpend(absoluteFeeSuggested);
-            }
-        });
+        binding.ivFeeInfo.setOnClickListener(v -> alertCustomSpend(absoluteFeeSuggested));
     }
 
     private void setCustomKeypad(){
 
-        customKeypad = new CustomKeypad(getActivity(), ((TableLayout) rootView.findViewById(R.id.numericPad)));
+        customKeypad = new CustomKeypad(getActivity(), (binding.keypad.numericPad));
         customKeypad.setDecimalSeparator(defaultSeparator);
 
         //Enable custom keypad and disables default keyboard from popping up
@@ -370,7 +361,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         if (sendFromList.size() == 1){
             getUnspent(0);//only 1 item in from dropdown (Account or Legacy Address)
-            rootView.findViewById(R.id.from_row).setVisibility(View.GONE);
+            binding.fromRow.setVisibility(View.GONE);
         }
 
         sendFromAdapter = new SendFromAdapter(getActivity(), R.layout.spinner_item, sendFromList);
@@ -399,7 +390,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         unspentsCoinsBundle = null;
                         unspentApiResponse = null;
                         binding.max.setVisibility(View.GONE);
-                        rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.VISIBLE);
+                        binding.progressBarMaxAvailable.setVisibility(View.VISIBLE);
                         if(btSend != null)btSend.setEnabled(false);
 
                         getUnspent(binding.accounts.spinner.getSelectedItemPosition());//the current selected item in from dropdown (Account or Legacy Address)
@@ -1133,7 +1124,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    rootView.findViewById(R.id.progressBarMaxAvailable).setVisibility(View.GONE);
+                    binding.progressBarMaxAvailable.setVisibility(View.GONE);
                     binding.max.setVisibility(View.VISIBLE);
                     btSend.setEnabled(true);
                     binding.max.setText(getResources().getString(R.string.max_available) + " " + monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(sweepBalance)) + " " + strBTC);
@@ -1208,7 +1199,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         watchOnlyPendingSpend = pendingSpend;
 
                         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            PermissionUtil.requestCameraPermissionFromFragment(rootView.findViewById(R.id.main_layout), getActivity(), MainActivity.currentFragment);
+                            PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), MainActivity.currentFragment);
                         }else{
                             startScanActivity();
                         }
@@ -1550,15 +1541,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                rootView.findViewById(R.id.custom_fee_container).setVisibility(View.VISIBLE);
+                                binding.customFeeContainer.setVisibility(View.VISIBLE);
 
                                 String fee = monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(absoluteFeeSuggested.doubleValue() / 1e8));
 
-                                EditText etCustomFee = (EditText)rootView.findViewById(R.id.custom_fee);
-                                etCustomFee.setText(fee);
-                                etCustomFee.setHint(fee);
-                                etCustomFee.requestFocus();
-                                etCustomFee.setSelection(etCustomFee.getText().length());
+                                binding.customFee.setText(fee);
+                                binding.customFee.setHint(fee);
+                                binding.customFee.requestFocus();
+                                binding.customFee.setSelection(binding.customFee.getText().length());
                             }
                         });
 
