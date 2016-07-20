@@ -330,8 +330,7 @@
         ✓Completely updated design and user experience\n
         ✓Enhanced Privacy\n
         ✓Simplified backup and recovery\n
-        ✓Customized fund management\n\n
-        Shared Coin is not supported at this time.
+        ✓Customized fund management
     </string>
     <string name="upgrading">Upgrading...</string>
     <string name="upgrading_started_info">Your wallet is upgrading, please be patient this may take some time depending on the size and age of your wallet.</string>
