@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,9 @@ import piuk.blockchain.android.R;
 
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
+    public static final String URL_TOS_POLICY = "https://blockchain.com/terms";
+    public static final String URL_PRIVACY_POLICY = "https://blockchain.com/privacy";
+
     //Profile
     Preference guidPref;
     Preference emailPref;
@@ -553,15 +557,11 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 break;
 
             case "tos":
-                intent = new Intent(getActivity(), PolicyActivity.class);
-                intent.putExtra("uri", "https://blockchain.com/terms");//plain text/html
-                startActivity(intent);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_TOS_POLICY)));
                 break;
 
             case "privacy":
-                intent = new Intent(getActivity(), PolicyActivity.class);
-                intent.putExtra("uri", "https://blockchain.com/privacy");//plain text/html
-                startActivity(intent);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIVACY_POLICY)));
                 break;
 
             case "disable_root_warning":

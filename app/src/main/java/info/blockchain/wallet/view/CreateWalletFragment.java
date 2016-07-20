@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -187,10 +188,7 @@ public class CreateWalletFragment extends Fragment {
         binding.tos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PolicyActivity.class);
-//                intent.putExtra("uri","https://blockchain.info/Resources/TermsofServicePolicy.pdf");//pdf
-                intent.putExtra("uri", "https://blockchain.com/terms");//plain text/html
-                startActivity(intent);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingsFragment.URL_TOS_POLICY)));
             }
         });
 
