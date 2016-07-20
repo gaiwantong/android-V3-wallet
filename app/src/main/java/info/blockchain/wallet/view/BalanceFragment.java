@@ -54,7 +54,6 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -62,6 +61,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 
 import org.apache.commons.lang3.StringUtils;
@@ -806,7 +806,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             noTxMessage.setVisibility(View.VISIBLE);
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (isAdded() && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             //Fix for padding bug related to Android 4.1
             float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, getResources().getDisplayMetrics());
             binding.balance1.setPadding((int) px, 0, 0, 0);
