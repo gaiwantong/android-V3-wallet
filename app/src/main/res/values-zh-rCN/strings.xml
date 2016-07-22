@@ -107,7 +107,7 @@
     <string name="strength_weak">弱</string>
     <string name="strength_medium">普通</string>
     <string name="strength_strong">强</string>
-    <string name="strength_very_strong">很强</string>
+    <string name="strength_normal">很强</string>
 
     <string name="CONTINUE">继续</string>
     <string name="SEND">发送</string>
