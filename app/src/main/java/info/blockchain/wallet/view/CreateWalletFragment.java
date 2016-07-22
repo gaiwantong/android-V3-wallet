@@ -34,8 +34,8 @@ import piuk.blockchain.android.databinding.FragmentCreateWalletBinding;
 public class CreateWalletFragment extends Fragment {
 
     int pwStrength;
-    int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_very_strong};
-    int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
+    int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_normal, R.string.strength_strong};
+    int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_blue, R.drawable.progress_green};
 
     private FragmentCreateWalletBinding binding;
 

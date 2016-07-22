@@ -107,7 +107,7 @@
     <string name="strength_weak">Ненадежный</string>
     <string name="strength_medium">Обычный </string>
     <string name="strength_strong">Надежный</string>
-    <string name="strength_very_strong">Очень надежный</string>
+    <string name="strength_normal">Очень надежный</string>
 
     <string name="CONTINUE">Продолжить</string>
     <string name="SEND">ОТПРАВИТЬ</string>

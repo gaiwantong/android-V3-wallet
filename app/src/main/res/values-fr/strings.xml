@@ -107,7 +107,7 @@
     <string name="strength_weak">Faible</string>
     <string name="strength_medium">Normal</string>
     <string name="strength_strong">Fort</string>
-    <string name="strength_very_strong">Très fort</string>
+    <string name="strength_normal">Très fort</string>
 
     <string name="CONTINUE">Continuer</string>
     <string name="SEND">ENVOYER</string>

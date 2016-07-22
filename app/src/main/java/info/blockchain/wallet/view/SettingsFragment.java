@@ -1102,7 +1102,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     @UiThread
     private void setPasswordStrength(TextView passStrengthVerdict, ProgressBar passStrengthBar, String pw){
-        int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_very_strong};
+        int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_normal};
         int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
         pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
 
