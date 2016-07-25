@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -9,13 +8,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
-import android.preference.SwitchPreference;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -36,8 +36,6 @@ import info.blockchain.api.Settings;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.helpers.BackgroundExecutor;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -45,6 +43,8 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
+import info.blockchain.wallet.view.helpers.BackgroundExecutor;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,7 +52,7 @@ import java.util.TimerTask;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 
-public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
+public class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceClickListener
 {
     public static final String URL_TOS_POLICY = "https://blockchain.com/terms";
     public static final String URL_PRIVACY_POLICY = "https://blockchain.com/privacy";
@@ -65,14 +65,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     //Preferences
     Preference unitsPref;
     Preference fiatPref;
-    SwitchPreference emailNotificationPref;
+    SwitchPreferenceCompat emailNotificationPref;
 
     //Security
     Preference pinPref;
-    SwitchPreference twoStepVerificationPref;
+    SwitchPreferenceCompat twoStepVerificationPref;
     Preference passwordHint1Pref;
     Preference changePasswordPref;
-    SwitchPreference torPref;
+    SwitchPreferenceCompat torPref;
 
     //App
     Preference aboutPref;
@@ -131,6 +131,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }.execute();
     }
 
+    @Override
+    public void onCreatePreferences(Bundle bundle, String s) {
+    }
+
     @UiThread
     private void refreshList(){
 
@@ -179,7 +183,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         fiatPref.setSummary(prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
         fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        emailNotificationPref = (SwitchPreference) findPreference("email_notifications");
+        emailNotificationPref = (SwitchPreferenceCompat) findPreference("email_notifications");
         if(settingsApi.isEmailVerified()){
             emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
             emailNotificationPref.setOnPreferenceClickListener(this);
@@ -192,7 +196,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         pinPref = (Preference) findPreference("pin");
         pinPref.setOnPreferenceClickListener(this);
 
-        twoStepVerificationPref = (SwitchPreference) findPreference("2fa");
+        twoStepVerificationPref = (SwitchPreferenceCompat) findPreference("2fa");
         twoStepVerificationPref.setOnPreferenceClickListener(this);
         twoStepVerificationPref.setChecked(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS);
 
@@ -207,7 +211,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         changePasswordPref = (Preference) findPreference("change_pw");
         changePasswordPref.setOnPreferenceClickListener(this);
 
-        torPref = (SwitchPreference) findPreference("tor");
+        torPref = (SwitchPreferenceCompat) findPreference("tor");
         torPref.setChecked(settingsApi.isTorBlocked());
         torPref.setOnPreferenceClickListener(this);
 
@@ -497,7 +501,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 }).execute();
     }
 
-
     @Override
     public boolean onPreferenceClick(Preference preference) {
 
@@ -673,7 +676,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
         tvCountry.setOnClickListener(v -> {
 
-            picker.show(SettingsActivity.fragmentManager, "COUNTRY_PICKER");
+            picker.show(getFragmentManager(), "COUNTRY_PICKER");
             picker.setListener((name, code, dialCode, flagDrawableResID) -> {
 
                 setCountryFlag(tvCountry, dialCode, flagDrawableResID);
