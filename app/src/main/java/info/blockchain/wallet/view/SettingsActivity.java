@@ -2,7 +2,6 @@ package info.blockchain.wallet.view;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,8 +13,6 @@ import piuk.blockchain.android.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    public static FragmentManager fragmentManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -26,8 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        fragmentManager = getSupportFragmentManager();
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit();
     }
 
     @Override

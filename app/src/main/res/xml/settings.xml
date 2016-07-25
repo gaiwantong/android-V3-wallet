@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
             android:title="@string/profile"
@@ -29,7 +29,7 @@
                 android:title="@string/options_currency"
                 android:key="fiat"
         />
-        <SwitchPreference
+        <SwitchPreferenceCompat
                 android:title="@string/email_notifications"
                 android:key="email_notifications"
         />
@@ -42,7 +42,7 @@
                 android:title="@string/change_pin_code"
                 android:key="pin"
         />
-        <SwitchPreference
+        <SwitchPreferenceCompat
                 android:title="@string/two_fa"
                 android:key="2fa"
         />
@@ -54,7 +54,7 @@
                 android:title="@string/password_hint"
                 android:key="pw_hint1"
         />
-        <SwitchPreference
+        <SwitchPreferenceCompat
                 android:title="@string/tor_requests"
                 android:key="tor"
         />
@@ -81,4 +81,4 @@
         />
     </PreferenceCategory>
 
-</PreferenceScreen>
+</android.support.v7.preference.PreferenceScreen>
