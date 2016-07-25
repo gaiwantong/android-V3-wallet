@@ -987,6 +987,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     if (newPw.equals(newConfirmedPw)) {
                         if (newConfirmedPw == null || newConfirmedPw.length() < 9 || newConfirmedPw.length() > 255) {
                             ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        } else if(newConfirmedPw.equals(settingsApi.getPasswordHint1())){
+                            ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error),ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         } else if (pwStrength < 50){
                             new AlertDialog.Builder(getActivity())
                                     .setTitle(R.string.app_name)
@@ -1102,8 +1104,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
     @UiThread
     private void setPasswordStrength(TextView passStrengthVerdict, ProgressBar passStrengthBar, String pw){
-        int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_strong, R.string.strength_normal};
-        int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_green, R.drawable.progress_green};
+        int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_normal, R.string.strength_strong};
+        int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_blue, R.drawable.progress_green};
         pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
 
         if(pw.equals(prefsUtil.getValue(PrefsUtil.KEY_EMAIL,"")))pwStrength = 0;
