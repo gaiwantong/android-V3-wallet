@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
@@ -11,12 +10,10 @@
             android:paddingBottom="8dp"
             android:visibility="visible">
 
-
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-        >
+                android:orientation="vertical">
 
             <View
                     android:layout_width="match_parent"
@@ -42,15 +39,13 @@
                             android:paddingBottom="8dp"
                             android:paddingLeft="20dp"
                             android:paddingRight="20dp"
-                            android:paddingTop="8dp"
-                    >
+                            android:paddingTop="8dp">
 
                         <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="8"
-                                android:orientation="vertical"
-                        >
+                                android:orientation="vertical">
 
                             <TextView
                                     android:id="@+id/tx_from"
@@ -61,8 +56,7 @@
                                     android:gravity="top"
                                     android:text="@string/from"
                                     android:textColor="@color/primary_text_default_material_light"
-                                    android:textSize="14sp"
-                            />
+                                    android:textSize="14sp"/>
 
                             <TextView
                                     android:id="@+id/tx_from_addr"
@@ -73,7 +67,7 @@
                                     android:marqueeRepeatLimit="marquee_forever"
                                     android:textColor="@color/primary_text_default_material_light"
                                     android:textSize="14sp"
-                            />
+                                    tools:text="Satoshi Nakamoto"/>
                         </LinearLayout>
 
                         <ImageView
@@ -94,7 +88,7 @@
                                 android:gravity="center"
                                 android:textColor="@color/primary_text_default_material_light"
                                 android:textSize="12sp"
-                        />
+                                tools:text="QUEUED"/>
                     </LinearLayout>
 
                     <View
@@ -131,8 +125,7 @@
                     android:paddingBottom="8dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
-                    android:paddingTop="8dp"
-            >
+                    android:paddingTop="8dp">
 
                 <ImageView
                         android:layout_width="36dp"
@@ -156,7 +149,6 @@
                             android:gravity="center_vertical"
                             android:text="@string/transaction_fee"
                             android:textColor="@color/primary_text_default_material_light"
-
                             android:textSize="14sp"/>
 
                     <TextView
@@ -167,7 +159,7 @@
                             android:gravity="center_vertical"
                             android:textColor="@color/primary_text_default_material_light"
                             android:textSize="12sp"
-                    />
+                            tools:text="0.000123"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -187,8 +179,7 @@
                     android:paddingBottom="8dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
-                    android:paddingTop="8dp"
-            >
+                    android:paddingTop="8dp">
 
                 <ImageView
                         android:layout_width="36dp"
@@ -207,7 +198,7 @@
                         android:gravity="center_vertical"
                         android:textColor="@color/blockchain_blue"
                         android:textSize="14sp"
-                />
+                        tools:text="000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
