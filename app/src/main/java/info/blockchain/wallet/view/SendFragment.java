@@ -1471,10 +1471,13 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from_label);
 
-                if(pendingSpend.isHD) {
+                if (pendingSpend.isHD) {
                     confirmFrom.setText(pendingSpend.fromAccount.getLabel());
-                }else{
-                    confirmFrom.setText(pendingSpend.fromLegacyAddress.getLabel());
+                } else {
+                    confirmFrom.setText(
+                            !pendingSpend.fromLegacyAddress.getLabel().isEmpty()
+                                    ? pendingSpend.fromLegacyAddress.getLabel()
+                                    : pendingSpend.fromLegacyAddress.getAddress());
                 }
 
                 TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to_label);
