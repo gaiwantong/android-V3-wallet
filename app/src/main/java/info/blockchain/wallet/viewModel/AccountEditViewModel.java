@@ -696,7 +696,7 @@ public class AccountEditViewModel implements ViewModel{
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(context).execSend(-1, unspents.getOutputs(),
+        SendFactory.getInstance(context).execSend(false, -1, unspents.getOutputs(),
                 pendingSpend.destination, pendingSpend.bigIntAmount,
                 pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 

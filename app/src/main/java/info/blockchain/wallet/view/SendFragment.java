@@ -62,7 +62,6 @@ import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -76,7 +75,6 @@ import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
 
-import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.params.MainNetParams;
@@ -1230,24 +1228,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             try {
                 final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
                 if (format != null) {
-
-                    if (secondPassword == null) {
-                        new SecondPasswordHandler(getActivity()).validate(new SecondPasswordHandler.ResultListener() {
-                            @Override
-                            public void onNoSecondPassword() {
-                                spendFromWatchOnly(format, scanData);
-                            }
-
-                            @Override
-                            public void onSecondPasswordValidated(String validateSecondPassword) {
-
-                                secondPassword = validateSecondPassword;
-                                spendFromWatchOnly(format, scanData);
-                            }
-                        });
-                    }else{
-                        spendFromWatchOnly(format, scanData);
-                    }
+                    spendFromWatchOnly(format, scanData);
                 } else {
                     ToastCustom.makeText(getActivity(), getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
@@ -1279,25 +1260,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         if (key != null && key.hasPrivKey() && watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
-
-            //Create copy, otherwise pass by ref will override
-            LegacyAddress tempLegacyAddress = new LegacyAddress();
-            if (payloadManager.getPayload().isDoubleEncrypted()) {
-                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
-                        payloadManager.getPayload().getSharedKey(),
-                        secondPassword,
-                        payloadManager.getPayload().getOptions().getIterations());
-                tempLegacyAddress.setEncryptedKey(encrypted2);
-            }else{
-                tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-            }
-            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
-            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
-
-            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
-
-            confirmPayment(watchOnlyPendingSpend);
+            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            confirmPayment(watchOnlyPendingSpend, true);
         } else {
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
@@ -1340,24 +1304,8 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                     if (key != null && key.hasPrivKey()) {
 
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
-                                            //Create copy, otherwise pass by ref will override
-                                            LegacyAddress tempLegacyAddress = new LegacyAddress();
-                                            if (payloadManager.getPayload().isDoubleEncrypted()) {
-                                                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
-                                                        payloadManager.getPayload().getSharedKey(),
-                                                        secondPassword,
-                                                        payloadManager.getPayload().getOptions().getIterations());
-                                                tempLegacyAddress.setEncryptedKey(encrypted2);
-                                            }else{
-                                                tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-                                            }
-                                            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
-                                            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
-
-                                            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
-
-                                            confirmPayment(watchOnlyPendingSpend);
+                                            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            confirmPayment(watchOnlyPendingSpend, true);
                                         }else{
                                             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                         }
@@ -1389,7 +1337,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if(payloadManager.getPayload().isDoubleEncrypted() && secondPassword == null){
             alertDoubleEncrypted(pendingSpend);
         }else{
-            confirmPayment(pendingSpend);
+            confirmPayment(pendingSpend, false);
         }
     }
 
@@ -1398,19 +1346,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         new SecondPasswordHandler(getActivity()).validate(new SecondPasswordHandler.ResultListener() {
             @Override
             public void onNoSecondPassword() {
-                confirmPayment(pendingSpend);
+                confirmPayment(pendingSpend, false);
             }
 
             @Override
             public void onSecondPasswordValidated(String validateSecondPassword) {
                 secondPassword = validateSecondPassword;
                 payloadManager.decryptDoubleEncryptedWallet(secondPassword);
-                confirmPayment(pendingSpend);
+                confirmPayment(pendingSpend, false);
             }
         });
     }
 
-    private void confirmPayment(final PendingSpend pendingSpend) {
+    private void confirmPayment(final PendingSpend pendingSpend, boolean isWatchOnlySpend) {
 
         new Thread(new Runnable() {
             @Override
@@ -1545,7 +1493,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             context = getActivity();
 
                             if (unspentsCoinsBundle != null) {
-                                executeSend(pendingSpend, unspentsCoinsBundle, alertDialog);
+                                executeSend(isWatchOnlySpend, pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
                                 ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1563,11 +1511,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 if(suggestedFeeBundle !=null && absoluteFeeSuggestedEstimates != null){
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[0]) > 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.high_fee_not_necessary_info, R.string.lower_fee, R.string.keep_high_fee, alertDialog);
+                        promptAlterFee(isWatchOnlySpend, absoluteFeeUsed, absoluteFeeSuggestedEstimates[0], R.string.high_fee_not_necessary_info, R.string.lower_fee, R.string.keep_high_fee, alertDialog);
                     }
 
                     if (absoluteFeeSuggestedEstimates != null && absoluteFeeUsed.compareTo(absoluteFeeSuggestedEstimates[5]) < 0) {
-                        promptAlterFee(absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
+                        promptAlterFee(isWatchOnlySpend, absoluteFeeUsed, absoluteFeeSuggestedEstimates[5], R.string.low_fee_suggestion, R.string.raise_fee, R.string.keep_low_fee, alertDialog);
                     }
                 }
 
@@ -1577,7 +1525,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }).start();
     }
 
-    private void promptAlterFee(BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int positiveAction, int negativeAction, final AlertDialog confirmDialog) {
+    private void promptAlterFee(boolean isWatchOnlySpend, BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int positiveAction, int negativeAction, final AlertDialog confirmDialog) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -1622,7 +1570,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 PendingSpend pendingSpend = getPendingSpendFromUIFields();
                 pendingSpend.bigIntFee = absoluteFeeSuggested;
                 absoluteFeeUsed = absoluteFeeSuggested;
-                confirmPayment(pendingSpend);
+                confirmPayment(pendingSpend, isWatchOnlySpend);
             }
         });
         alertDialogFee.show();
@@ -1641,9 +1589,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 .setPositiveButton(R.string.ok, null).show();
     }
 
-    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
+    private void executeSend(boolean isWatchOnlySpend, final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
 
-        SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex,
+        SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
                 unspents.getOutputs(),
                 pendingSpend.destination,
                 pendingSpend.bigIntAmount,
@@ -1705,7 +1653,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     String direction = MultiAddrFactory.SENT;
                     if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
 
-                    SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex,
+                    SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
                             unspents.getOutputs(),
                             pendingSpend.destination,
                             pendingSpend.bigIntAmount,

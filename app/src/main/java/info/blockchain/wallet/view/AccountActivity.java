@@ -1230,7 +1230,7 @@ public class AccountActivity extends AppCompatActivity {
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(this).execSend(-1, unspents.getOutputs(), pendingSpend.destination,
+        SendFactory.getInstance(this).execSend(false, -1, unspents.getOutputs(), pendingSpend.destination,
                 pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
                 pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 

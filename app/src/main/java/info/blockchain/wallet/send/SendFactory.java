@@ -139,7 +139,7 @@ public class SendFactory {
      * @param note Note to be attached to this tx
      * @param opc
      */
-    public void execSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress,
+    public void execSend(boolean isWatchOnlySpend, final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress,
                          final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee,
                          final String note, final boolean isQueueSend, final String secondPassword, final OpCallback opc) {
 
@@ -182,7 +182,7 @@ public class SendFactory {
                                 String path = fromAddressPathMap.get(address);
                                 walletKey = payloadManager.getECKey(accountIdx, path);
                             } else {
-                                if(payloadManager.getPayload().isDoubleEncrypted()){
+                                if(!isWatchOnlySpend && payloadManager.getPayload().isDoubleEncrypted()){
                                     walletKey = legacyAddress.getECKey(new CharSequenceX(secondPassword));
                                 }else{
                                     walletKey = legacyAddress.getECKey();
@@ -207,7 +207,7 @@ public class SendFactory {
                         List<LegacyAddress> addrs = payloadManager.getPayload().getActiveLegacyAddresses();
                         for (LegacyAddress addr : addrs) {
                             ECKey ecKey = null;
-                            if(payloadManager.getPayload().isDoubleEncrypted()) {
+                            if(!isWatchOnlySpend && payloadManager.getPayload().isDoubleEncrypted()) {
                                 ecKey = addr.getECKey(new CharSequenceX(secondPassword));
                             }else{
                                 ecKey = addr.getECKey();
