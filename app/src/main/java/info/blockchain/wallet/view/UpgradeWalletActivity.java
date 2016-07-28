@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,10 +30,10 @@ import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
@@ -190,42 +189,17 @@ public class UpgradeWalletActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                if (payloadManager.getPayload().isDoubleEncrypted()) {
-                    final EditText double_encrypt_password = new EditText(UpgradeWalletActivity.this);
-                    double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                new SecondPasswordHandler(UpgradeWalletActivity.this).validate(new SecondPasswordHandler.ResultListener() {
+                    @Override
+                    public void onNoSecondPassword() {
+                        doUpgrade(new CharSequenceX(""));
+                    }
 
-                    new AlertDialog.Builder(UpgradeWalletActivity.this)
-                            .setTitle(R.string.app_name)
-                            .setMessage(R.string.enter_double_encryption_pw)
-                            .setView(double_encrypt_password)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-
-                                    final String pw = double_encrypt_password.getText().toString();
-
-                                    if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                            payloadManager.getPayload().getDoublePasswordHash(),
-                                            payloadManager.getPayload().getSharedKey(),
-                                            new CharSequenceX(pw),
-                                            payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
-
-                                        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
-
-                                        doUpgrade(new CharSequenceX(pw));
-                                    } else {
-                                        ToastCustom.makeText(getApplicationContext(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                    }
-                                }
-                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            ;
-                        }
-                    }).show();
-                } else {
-                    doUpgrade(new CharSequenceX(""));
-                }
+                    @Override
+                    public void onSecondPasswordValidated(String validateSecondPassword) {
+                        doUpgrade(new CharSequenceX(validateSecondPassword));
+                    }
+                });
             }
         });
 
@@ -303,8 +277,6 @@ public class UpgradeWalletActivity extends Activity {
 
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
 
-        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -331,8 +303,6 @@ public class UpgradeWalletActivity extends Activity {
 
         appUtil.setNewlyCreated(false);
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
-
-        payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
 
         runOnUiThread(new Runnable() {
             @Override

@@ -33,7 +33,13 @@ public class BackupWalletFragment3 extends Fragment {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_backup_wallet_3, container, false);
 
-        final List<Pair<Integer, String>> confirmSequence = new BackupWalletUtil(getActivity()).getConfirmSequence();
+        Bundle bundle = this.getArguments();
+        String secondPassword = null;
+        if (bundle != null) {
+            secondPassword = bundle.getString("second_password");
+        }
+
+        final List<Pair<Integer, String>> confirmSequence = new BackupWalletUtil(getActivity()).getConfirmSequence(secondPassword);
         mnemonicRequestHint = getResources().getStringArray(R.array.mnemonic_word_requests);
 
         binding.etFirstRequest.setHint(mnemonicRequestHint[confirmSequence.get(0).first]);

@@ -11,6 +11,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.Hash;
@@ -138,7 +139,9 @@ public class SendFactory {
      * @param note Note to be attached to this tx
      * @param opc
      */
-    public void execSend(final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress, final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee, final String note, final boolean isQueueSend, final OpCallback opc) {
+    public void execSend(boolean isWatchOnlySpend, final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress,
+                         final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee,
+                         final String note, final boolean isQueueSend, final String secondPassword, final OpCallback opc) {
 
         final boolean isHD = accountIdx == -1 ? false : true;
 
@@ -179,7 +182,11 @@ public class SendFactory {
                                 String path = fromAddressPathMap.get(address);
                                 walletKey = payloadManager.getECKey(accountIdx, path);
                             } else {
-                                walletKey = legacyAddress.getECKey();
+                                if(!isWatchOnlySpend && payloadManager.getPayload().isDoubleEncrypted()){
+                                    walletKey = legacyAddress.getECKey(new CharSequenceX(secondPassword));
+                                }else{
+                                    walletKey = legacyAddress.getECKey();
+                                }
                             }
                         } catch (AddressFormatException afe) {
                             // skip add Watch Only Bitcoin Address key because already accounted for later with tempKeys
@@ -199,8 +206,14 @@ public class SendFactory {
                         wallet = new Wallet(MainNetParams.get());
                         List<LegacyAddress> addrs = payloadManager.getPayload().getActiveLegacyAddresses();
                         for (LegacyAddress addr : addrs) {
-                            if (addr != null && addr.getECKey() != null && addr.getECKey().hasPrivKey()) {
-                                wallet.addKey(addr.getECKey());
+                            ECKey ecKey = null;
+                            if(!isWatchOnlySpend && payloadManager.getPayload().isDoubleEncrypted()) {
+                                ecKey = addr.getECKey(new CharSequenceX(secondPassword));
+                            }else{
+                                ecKey = addr.getECKey();
+                            }
+                            if (addr != null && ecKey != null && ecKey.hasPrivKey()) {
+                                wallet.addKey(ecKey);
                             }
                         }
                     }

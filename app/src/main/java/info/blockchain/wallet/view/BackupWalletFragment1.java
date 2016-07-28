@@ -5,7 +5,6 @@ import android.app.FragmentTransaction;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -14,10 +13,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBackupWallet1Binding;
@@ -41,44 +38,37 @@ public class BackupWalletFragment1 extends Fragment {
                 final EditText double_encrypt_password = new EditText(getActivity());
                 double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.app_name)
-                        .setMessage(R.string.enter_double_encryption_pw)
-                        .setView(double_encrypt_password)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                new SecondPasswordHandler(getActivity()).validate(new SecondPasswordHandler.ResultListener() {
+                    @Override
+                    public void onNoSecondPassword() {
+                    }
 
-                            final String pw = double_encrypt_password.getText().toString();
+                    @Override
+                    public void onSecondPasswordValidated(String validateSecondPassword) {
 
-                            if (DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    payloadManager.getPayload().getDoublePasswordHash(),
-                                    payloadManager.getPayload().getSharedKey(),
-                                    new CharSequenceX(pw),
-                                    payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
+                        Fragment fragment = new BackupWalletFragment2();
+                        Bundle args = new Bundle();
+                        args.putString("second_password", validateSecondPassword);
+                        fragment.setArguments(args);
 
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
+                        loadFragment(fragment);
+                    }
+                });
 
-                                getFragmentManager().beginTransaction()
-                                        .replace(R.id.content_frame, new BackupWalletFragment2())
-                                        .addToBackStack(null)
-                                        .commit();
-                            } else {
-                                ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                            }
-                        }).setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
-                            ;
-                        }).show();
             } else {
-                getFragmentManager().beginTransaction()
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                        .replace(R.id.content_frame, new BackupWalletFragment2())
-                        .addToBackStack(null)
-                        .commit();
+                loadFragment(new BackupWalletFragment2());
             }
         });
 
         return binding.getRoot();
+    }
+
+    private void loadFragment(Fragment fragment){
+        getFragmentManager().beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.content_frame, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
