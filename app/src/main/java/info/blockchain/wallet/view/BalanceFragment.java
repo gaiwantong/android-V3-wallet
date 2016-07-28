@@ -121,37 +121,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         public void onReceive(final Context context, final Intent intent) {
 
             if (ACTION_INTENT.equals(intent.getAction())) {
-
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-                        binding.swipeContainer.setRefreshing(true);
-                    }
-
-                    @Override
-                    protected Void doInBackground(Void... params) {
-
-                        // Update internal balance and transaction data
-                        try {
-                            PayloadManager.getInstance().updateBalancesAndTransactions();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void aVoid) {
-                        super.onPostExecute(aVoid);
-                        viewModel.updateAccountList();
-                        viewModel.updateBalanceAndTransactionList(intent, accountSpinner.getSelectedItemPosition(), isBTC);
-                        binding.swipeContainer.setRefreshing(false);
-                    }
-
-                }.execute();
+                binding.swipeContainer.setRefreshing(true);
+                viewModel.updateAccountList();
+                viewModel.updateBalanceAndTransactionList(intent, accountSpinner.getSelectedItemPosition(), isBTC);
+                binding.swipeContainer.setRefreshing(false);
             }
         }
     };
@@ -447,8 +420,33 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             @Override
             public void onRefresh() {
 
-                Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        binding.swipeContainer.setRefreshing(true);
+                    }
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            PayloadManager.getInstance().updateBalancesAndTransactions();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        viewModel.updateAccountList();
+                        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
+                        binding.swipeContainer.setRefreshing(false);
+                    }
+
+                }.execute();
             }
         });
         binding.swipeContainer.setColorSchemeResources(R.color.blockchain_receive_green,

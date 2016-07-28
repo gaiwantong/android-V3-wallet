@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -13,12 +14,12 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.BalanceFragment;
-import info.blockchain.wallet.view.MainActivity;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.BalanceFragment;
+import info.blockchain.wallet.view.MainActivity;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -176,7 +177,6 @@ public class WebSocketHandler {
 
                 Looper.prepare();
 
-                //TODO - updateBalancesAndTransactions is being called twice here
                 try {
                     payloadManager.updateBalancesAndTransactions();
                 } catch (Exception e) {
