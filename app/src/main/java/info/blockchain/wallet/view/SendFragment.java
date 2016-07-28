@@ -49,7 +49,6 @@ import android.widget.TextView;
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
-import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -63,7 +62,6 @@ import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FeeUtil;
@@ -74,10 +72,10 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
@@ -144,6 +142,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private FragmentSendBinding binding;
 //    private SendViewModel viewModel;
+    private String secondPassword;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -1182,7 +1181,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
         }else{
-            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
             ToastCustom.makeText(getActivity(), getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         }
     }
@@ -1233,31 +1231,23 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
                 if (format != null) {
 
-                    if (payloadManager.getPayload().isDoubleEncrypted()) {
-                        promptForSecondPassword(new OpSimpleCallback() {
+                    if (secondPassword == null) {
+                        new SecondPasswordHandler(getActivity()).validate(new SecondPasswordHandler.ResultListener() {
                             @Override
-                            public void onSuccess(String string) {
-                                if (!format.equals(PrivateKeyFactory.BIP38)) {
-                                    spendFromWatchOnlyNonBIP38(format, scanData);
-                                } else {
-                                    spendFromWatchOnlyBIP38(scanData);
-                                }
+                            public void onNoSecondPassword() {
+                                spendFromWatchOnly(format, scanData);
                             }
 
                             @Override
-                            public void onFail() {
-                                ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
+                            public void onSecondPasswordValidated(String validateSecondPassword) {
+
+                                secondPassword = validateSecondPassword;
+                                spendFromWatchOnly(format, scanData);
                             }
                         });
                     }else{
-                        if (!format.equals(PrivateKeyFactory.BIP38)) {
-                            spendFromWatchOnlyNonBIP38(format, scanData);
-                        } else {
-                            spendFromWatchOnlyBIP38(scanData);
-                        }
+                        spendFromWatchOnly(format, scanData);
                     }
-
                 } else {
                     ToastCustom.makeText(getActivity(), getString(R.string.privkey_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 }
@@ -1268,45 +1258,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
     }
 
-    private void promptForSecondPassword(final OpSimpleCallback callback){
-
-        final EditText double_encrypt_password = new EditText(getActivity());
-        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(double_encrypt_password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        String secondPassword = double_encrypt_password.getText().toString();
-
-                        if (secondPassword != null &&
-                                secondPassword.length() > 0 &&
-                                DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        payloadManager.getPayload().getDoublePasswordHash(),
-                                        payloadManager.getPayload().getSharedKey(),
-                                        new CharSequenceX(secondPassword), payloadManager.getPayload().getOptions().getIterations()) &&
-                                !StringUtils.isEmpty(secondPassword)) {
-
-                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
-                            callback.onSuccess(secondPassword);
-
-                        } else {
-                            callback.onFail();
-                        }
-
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ;
-            }
-        }).show();
+    private void spendFromWatchOnly(final String format, final String scanData){
+        if (!format.equals(PrivateKeyFactory.BIP38)) {
+            spendFromWatchOnlyNonBIP38(format, scanData);
+        } else {
+            spendFromWatchOnlyBIP38(scanData);
+        }
     }
 
     private void spendFromWatchOnlyNonBIP38(final String format, final String scanData){
+
         ECKey key = null;
 
         try {
@@ -1323,7 +1284,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             LegacyAddress tempLegacyAddress = new LegacyAddress();
             if (payloadManager.getPayload().isDoubleEncrypted()) {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                        payloadManager.getPayload().getSharedKey(),
+                        secondPassword,
+                        payloadManager.getPayload().getOptions().getIterations());
                 tempLegacyAddress.setEncryptedKey(encrypted2);
             }else{
                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1380,7 +1344,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                             LegacyAddress tempLegacyAddress = new LegacyAddress();
                                             if (payloadManager.getPayload().isDoubleEncrypted()) {
                                                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+                                                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                                                        payloadManager.getPayload().getSharedKey(),
+                                                        secondPassword,
+                                                        payloadManager.getPayload().getOptions().getIterations());
                                                 tempLegacyAddress.setEncryptedKey(encrypted2);
                                             }else{
                                                 tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
@@ -1419,38 +1386,28 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     }
 
     private void checkDoubleEncrypt(final PendingSpend pendingSpend){
-
-        if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
-            confirmPayment(pendingSpend);
-        } else {
+        if(payloadManager.getPayload().isDoubleEncrypted() && secondPassword == null){
             alertDoubleEncrypted(pendingSpend);
+        }else{
+            confirmPayment(pendingSpend);
         }
     }
 
     private void alertDoubleEncrypted(final PendingSpend pendingSpend){
-        final EditText password = new EditText(getActivity());
-        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        final String pw = password.getText().toString();
-                        if(payloadManager.setDoubleEncryptPassword(pw, pendingSpend.isHD)){
-                            confirmPayment(pendingSpend);
-                        }else{
-                            ToastCustom.makeText(getActivity(), getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ;
+        new SecondPasswordHandler(getActivity()).validate(new SecondPasswordHandler.ResultListener() {
+            @Override
+            public void onNoSecondPassword() {
+                confirmPayment(pendingSpend);
             }
-        }).show();
+
+            @Override
+            public void onSecondPasswordValidated(String validateSecondPassword) {
+                secondPassword = validateSecondPassword;
+                payloadManager.decryptDoubleEncryptedWallet(secondPassword);
+                confirmPayment(pendingSpend);
+            }
+        });
     }
 
     private void confirmPayment(final PendingSpend pendingSpend) {
@@ -1591,7 +1548,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 executeSend(pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                                 ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 closeDialog(alertDialog, false);
                             }
@@ -1687,7 +1643,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
 
-        SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, pendingSpend.note, false, new OpCallback() {
+        SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex,
+                unspents.getOutputs(),
+                pendingSpend.destination,
+                pendingSpend.bigIntAmount,
+                pendingSpend.fromLegacyAddress,
+                pendingSpend.bigIntFee,
+                pendingSpend.note,
+                false,
+                secondPassword,
+                new OpCallback() {
 
             public void onSuccess() {
             }
@@ -1710,9 +1675,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     //Update v2 balance immediately after spend - until refresh from server
                     MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
                     //TODO - why are we not setting individual address balance as well, was this over looked?
-
-                    //Reset double encrypt for V2
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 }
 
                 PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
@@ -1743,7 +1705,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     String direction = MultiAddrFactory.SENT;
                     if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
 
-                    SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, pendingSpend.note, true, this);
+                    SendFactory.getInstance(context).execSend(pendingSpend.fromXpubIndex,
+                            unspents.getOutputs(),
+                            pendingSpend.destination,
+                            pendingSpend.bigIntAmount,
+                            pendingSpend.fromLegacyAddress,
+                            pendingSpend.bigIntFee,
+                            pendingSpend.note,
+                            true,
+                            secondPassword,
+                            this);
 
                     //Refresh BalanceFragment with the following - "placeholder" tx until websocket refreshes list
                     final Intent intent = new Intent(BalanceFragment.ACTION_INTENT);
@@ -1768,21 +1739,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     }).start();
                 }
 
-                //Reset double encrypt for V2
-                if (!pendingSpend.isHD) {
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                }
-
                 closeDialog(alertDialog, true);
             }
 
             @Override
             public void onFailPermanently(String error) {
-
-                //Reset double encrypt for V2
-                if (!pendingSpend.isHD) {
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                }
 
                 if (getActivity() != null)
                     ToastCustom.makeText(getActivity().getApplicationContext(), error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);

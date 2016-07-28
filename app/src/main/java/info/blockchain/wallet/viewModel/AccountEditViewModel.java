@@ -29,7 +29,6 @@ import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -66,6 +65,7 @@ public class AccountEditViewModel implements ViewModel{
 
     public AccountEditModel accountModel;
     private PendingSpend pendingSpend;
+    private String secondPassword;
 
     public interface DataListener {
         void onPromptAccountLabel();
@@ -325,7 +325,7 @@ public class AccountEditViewModel implements ViewModel{
 
     public void onClickTransferFunds(){
         if(FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)){
-            if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
+            if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 sendPayment();
             } else {
                 dataListener.onPromptSecondPasswordForTransfer();
@@ -555,15 +555,15 @@ public class AccountEditViewModel implements ViewModel{
             legacyAddress.setWatchOnly(false);
         } else {
             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                    payloadManager.getPayload().getSharedKey(),
+                    secondPassword,
+                    payloadManager.getPayload().getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
             legacyAddress.setWatchOnly(false);
         }
 
         if (payloadManager.savePayloadToServer()) {
-
-            //Reset double encrypt
-            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
 
             dataListener.onSetResult(Activity.RESULT_OK);
             accountModel.setScanPrivateKeyVisibility(View.GONE);
@@ -602,7 +602,10 @@ public class AccountEditViewModel implements ViewModel{
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                        payloadManager.getPayload().getSharedKey(),
+                        secondPassword,
+                        payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
@@ -630,7 +633,6 @@ public class AccountEditViewModel implements ViewModel{
 
         if (payloadManager.savePayloadToServer()) {
 
-            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
             List<String> legacyAddressList = payloadManager.getPayload().getLegacyAddressStrings();
             try {
                 MultiAddrFactory.getInstance().refreshLegacyAddressData(legacyAddressList.toArray(new String[legacyAddressList.size()]), false);
@@ -677,7 +679,6 @@ public class AccountEditViewModel implements ViewModel{
 
                 } else {
 
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                     dataListener.onToast(pendingSpend.fromLegacyAddress.getAddress()+" - "+context.getString(R.string.no_confirmed_funds), ToastCustom.TYPE_ERROR);
                 }
 
@@ -695,7 +696,9 @@ public class AccountEditViewModel implements ViewModel{
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(context).execSend(-1, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, new OpCallback() {
+        SendFactory.getInstance(context).execSend(-1, unspents.getOutputs(),
+                pendingSpend.destination, pendingSpend.bigIntAmount,
+                pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 
             public void onSuccess() {
             }
@@ -707,7 +710,6 @@ public class AccountEditViewModel implements ViewModel{
 
                 //Update v2 balance immediately after spend - until refresh from server
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                     @Override
                     public void onSaveSuccess() {
@@ -726,8 +728,6 @@ public class AccountEditViewModel implements ViewModel{
 
             public void onFail(String error) {
 
-                //Reset double encrypt for V2
-                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 dataListener.onToast(context.getResources().getString(R.string.send_failed), ToastCustom.TYPE_ERROR);
                 onProgressDismiss(progress);
             }
@@ -735,8 +735,6 @@ public class AccountEditViewModel implements ViewModel{
             @Override
             public void onFailPermanently(String error) {
 
-                //Reset double encrypt for V2
-                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 dataListener.onToast(error, ToastCustom.TYPE_ERROR);
                 onProgressDismiss(progress);
             }
@@ -803,17 +801,8 @@ public class AccountEditViewModel implements ViewModel{
         }
     }
 
-    public boolean setSecondPassword(String secondPassword) {
-        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(payloadManager.getPayload().getDoublePasswordHash(),
-                payloadManager.getPayload().getSharedKey(),
-                new CharSequenceX(secondPassword),
-                payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
-
-            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
-            return true;
-        } else {
-            return false;
-        }
+    public void setSecondPassword(String secondPassword) {
+        this.secondPassword = secondPassword;
     }
 
     public void archiveAccount(){

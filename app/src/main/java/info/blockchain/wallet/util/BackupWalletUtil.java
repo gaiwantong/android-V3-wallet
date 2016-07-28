@@ -29,10 +29,10 @@ public class BackupWalletUtil {
      *
      * @return List<Pair<Integer,String>>
      */
-    public List<Pair<Integer, String>> getConfirmSequence() {
+    public List<Pair<Integer, String>> getConfirmSequence(String secondPassword) {
 
         List<Pair<Integer, String>> toBeConfirmed = new ArrayList<Pair<Integer, String>>();
-        String[] s = getMnemonic();
+        String[] s = getMnemonic(secondPassword);
         SecureRandom random = new SecureRandom();
         List<Integer> seen = new ArrayList<Integer>();
 
@@ -65,14 +65,14 @@ public class BackupWalletUtil {
      *
      * @return String[]
      */
-    public String[] getMnemonic() {
+    public String[] getMnemonic(String secondPassword) {
         // Wallet is not double encrypted
         if (!PayloadManager.getInstance().getPayload().isDoubleEncrypted()) {
             return getHDSeedAsMnemonic(true);
         }
         // User has already entered double-encryption password
-        else if (PayloadManager.getInstance().getTempDoubleEncryptPassword().toString().length() > 0) {
-            return getMnemonicForDoubleEncryptedWallet();
+        else if (secondPassword != null && secondPassword.length() > 0) {
+            return getMnemonicForDoubleEncryptedWallet(secondPassword);
         }
         // access must be established before calling this function
         else {
@@ -81,9 +81,9 @@ public class BackupWalletUtil {
 
     }
 
-    private String[] getMnemonicForDoubleEncryptedWallet() {
+    private String[] getMnemonicForDoubleEncryptedWallet(String secondPassword) {
 
-        String[] mnemonic = PayloadManager.getInstance().getMnemonicForDoubleEncryptedWallet();
+        String[] mnemonic = PayloadManager.getInstance().getMnemonicForDoubleEncryptedWallet(secondPassword);
 
         if(mnemonic != null){
             return mnemonic;

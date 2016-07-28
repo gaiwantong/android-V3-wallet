@@ -41,7 +41,6 @@ import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.callbacks.OpCallback;
-import info.blockchain.wallet.callbacks.OpSimpleCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
@@ -55,7 +54,6 @@ import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -65,10 +63,10 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
@@ -80,6 +78,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -132,6 +132,7 @@ public class AccountActivity extends AppCompatActivity {
     private PayloadManager payloadManager;
 
     private ActivityAccountsBinding binding;
+    private String secondPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -308,118 +309,42 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private void importAddress(){
-
-        if (!payloadManager.getPayload().isDoubleEncrypted()) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, this);
-            }else{
-                startScanActivity();
-            }
+    private void importAddress() {
+        if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, AccountActivity.this);
         } else {
-            final EditText double_encrypt_password = new EditText(AccountActivity.this);
-            double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            new AlertDialog.Builder(AccountActivity.this)
-                    .setTitle(R.string.app_name)
-                    .setMessage(R.string.enter_double_encryption_pw)
-                    .setView(double_encrypt_password)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                            String pw2 = double_encrypt_password.getText().toString();
-
-                            if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                    payloadManager.getPayload().getDoublePasswordHash(),
-                                    payloadManager.getPayload().getSharedKey(),
-                                    new CharSequenceX(pw2),
-                                    payloadManager.getPayload().getOptions().getIterations()
-                            )) {
-
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-                                if (ContextCompat.checkSelfPermission(AccountActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                                    PermissionUtil.requestCameraPermissionFromActivity(binding.mainLayout, AccountActivity.this);
-                                }else{
-                                    startScanActivity();
-                                }
-
-                            } else {
-                                ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                            }
-
-                        }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    ;
-                }
-            }).show();
-        }
-    }
-
-    private void createNewAccount() {
-
-        if (!payloadManager.getPayload().isDoubleEncrypted()) {
-            promptForAccountLabel(null);
-        } else {
-
-            promptForSecondPassword(new OpSimpleCallback() {
+            new SecondPasswordHandler(AccountActivity.this).validate(new SecondPasswordHandler.ResultListener() {
                 @Override
-                public void onSuccess(String validatedSecondPassword) {
-
-                    promptForAccountLabel(validatedSecondPassword);
+                public void onNoSecondPassword() {
+                    startScanActivity();
                 }
 
                 @Override
-                public void onFail() {
-                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
+                public void onSecondPasswordValidated(String validateSecondPassword) {
+                    secondPassword = validateSecondPassword;
+                    startScanActivity();
                 }
             });
         }
     }
 
-    private void promptForSecondPassword(final OpSimpleCallback callback){
+    private void createNewAccount() {
 
-        final EditText double_encrypt_password = new EditText(AccountActivity.this);
-        double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-        new AlertDialog.Builder(AccountActivity.this)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(double_encrypt_password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        String secondPassword = double_encrypt_password.getText().toString();
-
-                        if (secondPassword != null &&
-                                secondPassword.length() > 0 &&
-                                DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        payloadManager.getPayload().getDoublePasswordHash(),
-                                        payloadManager.getPayload().getSharedKey(),
-                                        new CharSequenceX(secondPassword), payloadManager.getPayload().getOptions().getIterations()) &&
-                                !StringUtils.isEmpty(secondPassword)) {
-
-                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(secondPassword));
-                            callback.onSuccess(secondPassword);
-
-                        } else {
-                            callback.onFail();
-                        }
-
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ;
+        new SecondPasswordHandler(AccountActivity.this).validate(new SecondPasswordHandler.ResultListener() {
+            @Override
+            public void onNoSecondPassword() {
+                promptForAccountLabel(null);
             }
-        }).show();
+
+            @Override
+            public void onSecondPasswordValidated(String validateSecondPassword) {
+                secondPassword = validateSecondPassword;
+                promptForAccountLabel(validateSecondPassword);
+            }
+        });
     }
 
-    private void promptForAccountLabel(final String validatedSecondPassword){
+    private void promptForAccountLabel(@Nullable final String validatedSecondPassword){
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
@@ -440,7 +365,7 @@ public class AccountActivity extends AppCompatActivity {
                 }).setNegativeButton(R.string.cancel, null).show();
     }
 
-    private void addAccount(final String accountLabel, final String secondPassword) {
+    private void addAccount(final String accountLabel, @Nullable final String secondPassword) {
 
         if (!ConnectivityStatus.hasConnectivity(AccountActivity.this)) {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -477,7 +402,7 @@ public class AccountActivity extends AppCompatActivity {
                 protected Void doInBackground(Void... params) {
 
                     try {
-                        payloadManager.addAccount(accountLabel, new PayloadManager.AccountAddListener() {
+                        payloadManager.addAccount(accountLabel, secondPassword, new PayloadManager.AccountAddListener() {
                             @Override
                             public void onAccountAddSuccess(Account account) {
                                 ToastCustom.makeText(AccountActivity.this,
@@ -494,9 +419,9 @@ public class AccountActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onAccountAddFail() {
+                            public void onSecondPasswordFail() {
                                 ToastCustom.makeText(AccountActivity.this,
-                                        AccountActivity.this.getString(R.string.unexpected_error),
+                                        AccountActivity.this.getString(R.string.double_encryption_password_error),
                                         ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
 
@@ -523,48 +448,18 @@ public class AccountActivity extends AppCompatActivity {
             ToastCustom.makeText(AccountActivity.this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         } else {
 
-            if (!payloadManager.getPayload().isDoubleEncrypted()) {
-                addAddress();
-            } else {
+            new SecondPasswordHandler(AccountActivity.this).validate(new SecondPasswordHandler.ResultListener() {
+                @Override
+                public void onNoSecondPassword() {
+                    addAddress();
+                }
 
-                final EditText double_encrypt_password = new EditText(AccountActivity.this);
-                double_encrypt_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-                new AlertDialog.Builder(AccountActivity.this)
-                        .setTitle(R.string.app_name)
-                        .setMessage(R.string.enter_double_encryption_pw)
-                        .setView(double_encrypt_password)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                                String pw2 = double_encrypt_password.getText().toString();
-
-                                if (pw2 != null && pw2.length() > 0 && DoubleEncryptionFactory.getInstance().validateSecondPassword(
-                                        payloadManager.getPayload().getDoublePasswordHash(),
-                                        payloadManager.getPayload().getSharedKey(),
-                                        new CharSequenceX(pw2),
-                                        payloadManager.getPayload().getOptions().getIterations()
-                                )) {
-
-                                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw2));
-
-                                    addAddress();
-
-                                } else {
-                                    ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
-                                }
-
-                            }
-                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        ;
-                    }
-                }).show();
-
-            }
-
+                @Override
+                public void onSecondPasswordValidated(String validateSecondPassword) {
+                    secondPassword = validateSecondPassword;
+                    addAddress();
+                }
+            });
         }
 
     }
@@ -755,7 +650,10 @@ public class AccountActivity extends AppCompatActivity {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
                                             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+                                            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                                                    payloadManager.getPayload().getSharedKey(),
+                                                    secondPassword.toString(),
+                                                    payloadManager.getPayload().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
@@ -837,7 +735,10 @@ public class AccountActivity extends AppCompatActivity {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
                 String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payloadManager.getPayload().getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payloadManager.getPayload().getOptions().getIterations());
+                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                        payloadManager.getPayload().getSharedKey(),
+                        secondPassword.toString(),
+                        payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
@@ -897,7 +798,10 @@ public class AccountActivity extends AppCompatActivity {
             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
         } else {
             String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey, payload.getSharedKey(), payloadManager.getTempDoubleEncryptPassword().toString(), payload.getOptions().getIterations());
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
+                    payload.getSharedKey(),
+                    secondPassword.toString(),
+                    payload.getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
         }
         legacyAddress.setWatchOnly(false);
@@ -1043,7 +947,7 @@ public class AccountActivity extends AppCompatActivity {
             protected LegacyAddress doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME);
+                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword.toString());
             }
 
             @Override
@@ -1114,7 +1018,6 @@ public class AccountActivity extends AppCompatActivity {
                 if(payloadManager.addLegacyAddress(legacy)){
                     ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.remote_save_ok), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                     ToastCustom.makeText(getApplicationContext(), legacy.getAddress(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
 
                     List<String> legacyAddressList = payloadManager.getPayload().getLegacyAddressStrings();
                     try {
@@ -1249,11 +1152,18 @@ public class AccountActivity extends AppCompatActivity {
 
         dialogBinding.confirmSend.setOnClickListener(v -> {
 
-            if (!payloadManager.getPayload().isDoubleEncrypted() || DoubleEncryptionFactory.getInstance().isActivated()) {
-                sendPayment(pendingSpendList);
-            } else {
-                alertDoubleEncrypted(pendingSpendList);
-            }
+            new SecondPasswordHandler(AccountActivity.this).validate(new SecondPasswordHandler.ResultListener() {
+                @Override
+                public void onNoSecondPassword() {
+                    sendPayment(pendingSpendList);
+                }
+
+                @Override
+                public void onSecondPasswordValidated(String validateSecondPassword) {
+                    secondPassword = validateSecondPassword;
+                    sendPayment(pendingSpendList);
+                }
+            });
 
             alertDialog.dismiss();
         });
@@ -1267,37 +1177,6 @@ public class AccountActivity extends AppCompatActivity {
         String destination;
         BigInteger bigIntFee;
         BigInteger bigIntAmount;
-    }
-
-    private void alertDoubleEncrypted(final ArrayList<PendingSpend> pendingSpendList){
-        final EditText password = new EditText(this);
-        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        final String pw = password.getText().toString();
-
-                        if (DoubleEncryptionFactory.getInstance().validateSecondPassword(payloadManager.getPayload().getDoublePasswordHash(), payloadManager.getPayload().getSharedKey(), new CharSequenceX(pw), payloadManager.getPayload().getDoubleEncryptionPbkdf2Iterations())) {
-
-                            payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(pw));
-                            sendPayment(pendingSpendList);
-
-                        } else {
-                            ToastCustom.makeText(AccountActivity.this, getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
-
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ;
-            }
-        }).show();
     }
 
     private void sendPayment(final ArrayList<PendingSpend> pendingSpendList){
@@ -1351,7 +1230,9 @@ public class AccountActivity extends AppCompatActivity {
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(this).execSend(-1, unspents.getOutputs(), pendingSpend.destination, pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, new OpCallback() {
+        SendFactory.getInstance(this).execSend(-1, unspents.getOutputs(), pendingSpend.destination,
+                pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
+                pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 
             public void onSuccess() {
             }
@@ -1363,7 +1244,6 @@ public class AccountActivity extends AppCompatActivity {
 
                 if(isLastSpend){
                     ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                     PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                         @Override
                         public void onSaveSuccess() {
@@ -1396,8 +1276,6 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onFailPermanently(String error) {
 
-                //Reset double encrypt for V2
-                payloadManager.setTempDoubleEncryptPassword(new CharSequenceX(""));
                 ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 if (progress != null && progress.isShowing()) {
                     progress.dismiss();

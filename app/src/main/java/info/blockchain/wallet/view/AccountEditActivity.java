@@ -26,6 +26,7 @@ import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 
@@ -142,7 +143,18 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
                 .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-                    promptSecondPassword();
+                    new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
+                        @Override
+                        public void onNoSecondPassword() {
+                            onStartScanActivity();
+                        }
+
+                        @Override
+                        public void onSecondPasswordValidated(String validateSecondPassword) {
+                            viewModel.setSecondPassword(validateSecondPassword);
+                            onStartScanActivity();
+                        }
+                    });
                 }).setNegativeButton(R.string.cancel, null).show();
     }
 
@@ -226,27 +238,19 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptSecondPasswordForTransfer() {
-        final EditText password = new EditText(this);
-        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+        new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
+            @Override
+            public void onNoSecondPassword() {
+                viewModel.sendPayment();
+            }
 
-                        boolean success = viewModel.setSecondPassword(password.getText().toString());
-
-                        if(success){
-                            viewModel.sendPayment();
-                        }else{
-                            onToast(getString(R.string.double_encryption_password_error), ToastCustom.TYPE_ERROR);
-                        }
-                    }
-                }).setNegativeButton(R.string.cancel, null)
-                .show();
+            @Override
+            public void onSecondPasswordValidated(String validateSecondPassword) {
+                viewModel.setSecondPassword(validateSecondPassword);
+                viewModel.sendPayment();
+            }
+        });
     }
 
     @Override
@@ -295,27 +299,6 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         });
 
         alertDialog.show();
-    }
-
-    private void promptSecondPassword(){
-        final EditText password = new EditText(this);
-        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.enter_double_encryption_pw)
-                .setView(password)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-
-                    boolean success = viewModel.setSecondPassword(password.getText().toString());
-
-                    if(success){
-                        onStartScanActivity();
-                    }else{
-                        onToast(getString(R.string.double_encryption_password_error), ToastCustom.TYPE_ERROR);
-                    }
-                }).setNegativeButton(R.string.cancel, null).show();
     }
 
     @Override
