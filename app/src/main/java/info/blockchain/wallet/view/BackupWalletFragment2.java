@@ -33,11 +33,17 @@ public class BackupWalletFragment2 extends Fragment {
     private Animation animEnterFromLeft = null;
 
     private FragmentBackupWallet2Binding binding;
+    private String secondPassword = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_backup_wallet_2, container, false);
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            secondPassword = bundle.getString("second_password");
+        }
 
         binding.startAction.setVisibility(View.VISIBLE);
         binding.previousWordAction.setVisibility(View.INVISIBLE);
@@ -65,7 +71,7 @@ public class BackupWalletFragment2 extends Fragment {
         animExitToRight = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_right);
         animEnterFromLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left);
 
-        mnemonic = new BackupWalletUtil(getActivity()).getMnemonic();
+        mnemonic = new BackupWalletUtil(getActivity()).getMnemonic(secondPassword);
         if (currentWordIndex == mnemonic.length) {
             currentWordIndex = 0;
         }
@@ -106,9 +112,17 @@ public class BackupWalletFragment2 extends Fragment {
             if (currentWordIndex == mnemonic.length) {
 
                 currentWordIndex = 0;
+
+                Fragment fragment = new BackupWalletFragment3();
+                if(secondPassword!=null) {
+                    Bundle args = new Bundle();
+                    args.putString("second_password", secondPassword);
+                    fragment.setArguments(args);
+                }
+
                 getFragmentManager().beginTransaction()
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                        .replace(R.id.content_frame, new BackupWalletFragment3())
+                        .replace(R.id.content_frame, fragment)
                         .addToBackStack(null)
                         .commit();
             } else {
