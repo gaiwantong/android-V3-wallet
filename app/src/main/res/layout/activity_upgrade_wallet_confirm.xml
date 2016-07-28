@@ -69,6 +69,7 @@
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
                     android:text="@string/cancel"
+                    android:textAllCaps="true"
                     android:textColor="@color/primary_text_default_material_light"/>
 
             <TextView
@@ -80,6 +81,7 @@
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
                     android:text="@string/dialog_continue"
+                    android:textAllCaps="true"
                     android:textColor="@color/blockchain_blue"/>
 
         </LinearLayout>

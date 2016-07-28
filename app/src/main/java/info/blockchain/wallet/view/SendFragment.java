@@ -2069,9 +2069,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 LegacyAddress legacyAddress = ((LegacyAddress) object);
                 if(legacyAddress.isWatchOnly())labelText = getActivity().getString(R.string.watch_only_label);
                 if (legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
-                    labelText += legacyAddress.getLabel();
+                    labelText += " " + legacyAddress.getLabel();
                 } else {
-                    labelText += legacyAddress.getAddress();
+                    labelText += " " + legacyAddress.getAddress();
                 }
 
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
@@ -2104,15 +2104,15 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent, true);
+            return getCustomView(position, parent, true);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent, false);
+            return getCustomView(position, parent, false);
         }
 
-        public View getCustomView(int position, View convertView, ViewGroup parent, boolean isDropdown) {
+        public View getCustomView(int position, ViewGroup parent, boolean isDropdown) {
 
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -2121,7 +2121,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 int layoutRes = R.layout.fragment_send_account_row_dropdown;
                 row = inflater.inflate(layoutRes, parent, false);
                 TextView label = (TextView) row.findViewById(R.id.receive_account_label);
+                TextView tag = (TextView) row.findViewById(R.id.receive_account_balance);
                 label.setText(receiveToList.get(position));
+                if (receiveToBiMap.inverse().get(position) instanceof AddressBookEntry) {
+                    tag.setText(getString(R.string.address_book_label));
+                }
             } else {
                 int layoutRes = R.layout.spinner_item;
                 row = inflater.inflate(layoutRes, parent, false);

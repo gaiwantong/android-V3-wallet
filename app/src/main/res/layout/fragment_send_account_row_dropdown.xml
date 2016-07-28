@@ -4,34 +4,36 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/selector_pearl_white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/receive_account_label"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:gravity="center_vertical"
-            android:background="@drawable/selector_pearl_white"
-            android:layout_height="48dp">
-
-        <TextView
-                android:id="@+id/receive_account_label"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:gravity="center_vertical"
-                android:paddingRight="16dp"
-                android:textSize="16sp"
-                android:singleLine="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:textColor="@color/primary_text_default_material_light"/>
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:paddingRight="16dp"
+            android:textColor="@color/primary_text_default_material_light"
+            android:textSize="16sp"
+            tools:text="My Wallett"/>
 
 
         <TextView
-                android:id="@+id/receive_account_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:textSize="16sp"
-                android:gravity="center_vertical|right"
-                android:textColor="@color/blockchain_grey"/>
+            android:id="@+id/receive_account_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical|right"
+            android:textColor="@color/blockchain_grey"
+            android:textSize="16sp"
+            tools:text="0.12345"/>
 
     </LinearLayout>
 </layout>
