@@ -542,4 +542,9 @@
     <string name="learn_more">Learn More</string>
     <string name="new_address_info">For increased privacy, we generate a unique address for every payment. All addresses generated in your wallet can still receive funds, even if they no longer appear under Receive.</string>
 
+    <!-- SHARE RECEIVE ADDRESS -->
+    <string name="email_request_subject">Bitcoin payment request</string>
+    <string name="email_request_body">Please send%1$s BTC to the Bitcoin address %2$s.</string>
+    <string name="email_request_body_fallback">attached</string>
+
 </resources>
