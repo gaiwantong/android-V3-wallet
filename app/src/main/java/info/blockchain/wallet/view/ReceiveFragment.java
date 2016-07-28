@@ -1,11 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
-
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -44,18 +38,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.helpers.CustomKeypad;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
@@ -74,6 +62,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentReceiveBinding;
@@ -380,7 +379,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                         binding.accounts.spinner.setSelection(binding.accounts.spinner.getSelectedItemPosition());
                         Object object = accountBiMap.inverse().get(binding.accounts.spinner.getSelectedItemPosition());
 
-                        if(prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)){
+                        if (prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
                             promptWatchOnlySpendWarning(object);
                         }
 
@@ -428,26 +427,17 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        binding.ivAddressInfo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(getString(R.string.why_has_my_address_changed))
-                        .setMessage(getString(R.string.new_address_info))
-                        .setPositiveButton(R.string.learn_more, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.setData(Uri.parse(addressInfoLink));
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton(R.string.ok, null)
-                        .show();
-            }
-        });
+        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.why_has_my_address_changed))
+                .setMessage(getString(R.string.new_address_info))
+                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
+                    Intent intent = new Intent();
+                    intent.setData(Uri.parse(addressInfoLink));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.ok, null)
+                .show());
     }
 
     private void setCustomKeypad(){
@@ -618,6 +608,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         String receiveAddress = null;
 
         Object object = accountBiMap.inverse().get(spinnerIndex);
+        boolean shouldShowInfoButton = showAddressInfoButtonIfNecessary(object);
 
         if (object instanceof LegacyAddress) {
 
@@ -646,16 +637,20 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
 
             if (!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""));
+                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""), shouldShowInfoButton);
             } else {
-                generateQRCode("bitcoin:" + receiveAddress);
+                generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
             }
         } catch (NumberFormatException | ParseException e) {
-            generateQRCode("bitcoin:" + receiveAddress);
+            generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
         }
     }
 
-    private void generateQRCode(final String uri) {
+    private boolean showAddressInfoButtonIfNecessary(Object object) {
+        return !(object instanceof ImportedAccount || object instanceof LegacyAddress);
+    }
+
+    private void generateQRCode(final String uri, boolean displayInfoButton) {
 
         new AsyncTask<Void, Void, Bitmap>() {
 
@@ -693,7 +688,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 binding.qr.setVisibility(View.VISIBLE);
                 binding.receivingAddress.setVisibility(View.VISIBLE);
                 binding.qr.setImageBitmap(bitmap);
-                binding.ivAddressInfo.setVisibility(View.VISIBLE);
+                if (displayInfoButton) binding.ivAddressInfo.setVisibility(View.VISIBLE);
 
                 setupBottomSheet();
             }
