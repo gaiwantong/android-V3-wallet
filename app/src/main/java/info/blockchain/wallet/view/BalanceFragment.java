@@ -43,11 +43,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
@@ -63,16 +71,6 @@ import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
-
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
@@ -456,7 +454,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 R.color.blockchain_send_red);
     }
 
-    private void onRowClick(final View view, final int position) {
+    private void onRowClick(final View detailsView, final int position) {
 
         if (viewModel.getTransactionList() != null) {
             final Tx transactionSummary = viewModel.getTransactionList().get(position);
@@ -464,15 +462,12 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             final String strConfirmations = Long.toString(transactionSummary.getConfirmations());
 
             try {
-                mIsViewExpanded = rowViewState.get(view);
+                mIsViewExpanded = rowViewState.get(detailsView);
             } catch (Exception e) {
                 mIsViewExpanded = false;
             }
 
-            //Set views
-            View detailsView = view;
-
-            final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
+            final LinearLayout txsDetails = (LinearLayout) detailsView.findViewById(R.id.txs_details);
             final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
 
             final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
@@ -533,33 +528,26 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     }
                 });
 
-                TextView tvResult = (TextView) view.findViewById(R.id.result);
+                TextView tvResult = (TextView) detailsView.findViewById(R.id.result);
                 tvResult.setOnTouchListener(new OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            isBTC = (isBTC) ? false : true;
+                            isBTC = !isBTC;
                             viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                         }
                         return true;
                     }
                 });
 
-                txsDetails.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            onRowClick(view, position);
-                        }
-                        return true;
-
-                        //To be used with advance send tx display
-                        // Disallow the touch request for parent scroll on touch of child view
-                        //v.getParent().requestDisallowInterceptTouchEvent(true);
-                        //return false;
+                txsDetails.setOnTouchListener((v, event) -> {
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_UP:
+                            onRowClick(v, position);
+                            break;
                     }
+                    return false;
                 });
 
                 //Get Details
@@ -672,15 +660,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                                 toAddressContainer.setVisibility(View.VISIBLE);
                                 tvStatus.setVisibility(View.VISIBLE);
                                 ivStatus.setVisibility(View.VISIBLE);
-
-                                if (inputMap.size() >= 2 || outputMap.size() >= 2)//details view needs to be scrollable now
-                                        txsDetails.setOnTouchListener(new OnTouchListener() {
-                                            @Override
-                                            public boolean onTouch(View v, MotionEvent event) {
-                                                v.getParent().requestDisallowInterceptTouchEvent(true);
-                                                return false;
-                                            }
-                                        });
                             }
                         }
                     }.execute();
@@ -688,37 +667,35 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             }
 
             if (originalHeight == 0) {
-                originalHeight = view.getHeight();
+                originalHeight = detailsView.getHeight();
             }
 
             newHeight = originalHeight + txsDetails.getHeight();
 
             if (!mIsViewExpanded) {
-                expandView(view, txsDetails);
-
+                expandView(detailsView, txsDetails);
             } else {
-                collapseView(view, txsDetails);
+                collapseView(detailsView, txsDetails);
             }
 
-            rowViewState.put(view, mIsViewExpanded);
+            rowViewState.put(detailsView, mIsViewExpanded);
         }
     }
 
-    private void expandView(View view, ScrollView txsDetails) {
+    private void expandView(View view, LinearLayout txsDetails) {
 
         view.setBackgroundColor(getResources().getColor(R.color.white));
 
         //Fade Details in - expansion of row will create slide down effect
         txsDetails.setVisibility(View.VISIBLE);
         txsDetails.setAnimation(AnimationUtils.loadAnimation(context, R.anim.abc_fade_in));
-        txsDetails.setEnabled(true);
 
         mIsViewExpanded = !mIsViewExpanded;
         ValueAnimator resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
         startAnim(view, resizeAnimator);
     }
 
-    private void collapseView(View view, final ScrollView txsDetails) {
+    private void collapseView(View view, final LinearLayout txsDetails) {
 
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
@@ -740,7 +717,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             @Override
             public void onAnimationEnd(Animation animation) {
                 txsDetails.setVisibility(View.INVISIBLE);
-                txsDetails.setEnabled(false);
             }
 
             @Override
@@ -815,9 +791,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     interface Communicator {
 
-        public void setNavigationDrawerToggleEnabled(boolean enabled);
+        void setNavigationDrawerToggleEnabled(boolean enabled);
 
-        public void resetNavigationDrawer();
+        void resetNavigationDrawer();
     }
 
     private class TxAdapter extends RecyclerView.Adapter<TxAdapter.ViewHolder> {
@@ -892,7 +868,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                         parent.onTouchEvent(event);
 
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            isBTC = (isBTC) ? false : true;
+                            isBTC = !isBTC;
                             viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                         }
                         return true;
