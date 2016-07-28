@@ -1,8 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.client.android.CaptureActivity;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,6 +43,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
+
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -74,22 +89,6 @@ import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
-
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentSendBinding;
 
@@ -746,10 +745,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             binding.amountRow.amountBtc.setText(btcAmount);
             binding.amountRow.amountBtc.setSelection(binding.amountRow.amountBtc.getText().toString().length());
 
-            double btc_amount = 0.0;
+            double btc_amount;
             try {
-                btc_amount = monetaryUtil.getUndenominatedAmount(Double.parseDouble(binding.amountRow.amountBtc.getText().toString()));
+                NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+                Number btcNumber = numberFormat.parse(binding.amountRow.amountBtc.getText().toString());
+                btc_amount = monetaryUtil.getUndenominatedAmount(btcNumber.doubleValue());
             } catch (NumberFormatException e) {
+                btc_amount = 0.0;
+            } catch (ParseException e) {
                 btc_amount = 0.0;
             }
 
@@ -1376,10 +1379,13 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 TextView confirmFrom = (TextView) dialogView.findViewById(R.id.confirm_from_label);
 
-                if(pendingSpend.isHD) {
+                if (pendingSpend.isHD) {
                     confirmFrom.setText(pendingSpend.fromAccount.getLabel());
-                }else{
-                    confirmFrom.setText(pendingSpend.fromLegacyAddress.getLabel());
+                } else {
+                    confirmFrom.setText(
+                            !pendingSpend.fromLegacyAddress.getLabel().isEmpty()
+                                    ? pendingSpend.fromLegacyAddress.getLabel()
+                                    : pendingSpend.fromLegacyAddress.getAddress());
                 }
 
                 TextView confirmDestination = (TextView) dialogView.findViewById(R.id.confirm_to_label);
@@ -1972,9 +1978,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 LegacyAddress legacyAddress = ((LegacyAddress) object);
                 if(legacyAddress.isWatchOnly())labelText = getActivity().getString(R.string.watch_only_label);
                 if (legacyAddress.getLabel() != null && legacyAddress.getLabel().length() > 0) {
-                    labelText += legacyAddress.getLabel();
+                    labelText += " " + legacyAddress.getLabel();
                 } else {
-                    labelText += legacyAddress.getAddress();
+                    labelText += " " + legacyAddress.getAddress();
                 }
 
                 amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
@@ -2007,15 +2013,15 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent, true);
+            return getCustomView(position, parent, true);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return getCustomView(position, convertView, parent, false);
+            return getCustomView(position, parent, false);
         }
 
-        public View getCustomView(int position, View convertView, ViewGroup parent, boolean isDropdown) {
+        public View getCustomView(int position, ViewGroup parent, boolean isDropdown) {
 
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -2024,7 +2030,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 int layoutRes = R.layout.fragment_send_account_row_dropdown;
                 row = inflater.inflate(layoutRes, parent, false);
                 TextView label = (TextView) row.findViewById(R.id.receive_account_label);
+                TextView tag = (TextView) row.findViewById(R.id.receive_account_balance);
                 label.setText(receiveToList.get(position));
+                if (receiveToBiMap.inverse().get(position) instanceof AddressBookEntry) {
+                    tag.setText(getString(R.string.address_book_label));
+                }
             } else {
                 int layoutRes = R.layout.spinner_item;
                 row = inflater.inflate(layoutRes, parent, false);

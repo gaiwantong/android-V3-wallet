@@ -1,7 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,15 +29,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.helpers.EnableGeo;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.EnableGeo;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
-
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 

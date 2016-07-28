@@ -1,11 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
-
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -31,6 +25,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,21 +40,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.helpers.CustomKeypad;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
+import org.bitcoinj.uri.BitcoinURIParseException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -71,9 +62,23 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.BitcoinLinkGenerator;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentReceiveBinding;
@@ -380,7 +385,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                         binding.accounts.spinner.setSelection(binding.accounts.spinner.getSelectedItemPosition());
                         Object object = accountBiMap.inverse().get(binding.accounts.spinner.getSelectedItemPosition());
 
-                        if(prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)){
+                        if (prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
                             promptWatchOnlySpendWarning(object);
                         }
 
@@ -428,26 +433,17 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        binding.ivAddressInfo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(getString(R.string.why_has_my_address_changed))
-                        .setMessage(getString(R.string.new_address_info))
-                        .setPositiveButton(R.string.learn_more, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.setData(Uri.parse(addressInfoLink));
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton(R.string.ok, null)
-                        .show();
-            }
-        });
+        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.why_has_my_address_changed))
+                .setMessage(getString(R.string.new_address_info))
+                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
+                    Intent intent = new Intent();
+                    intent.setData(Uri.parse(addressInfoLink));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.ok, null)
+                .show());
     }
 
     private void setCustomKeypad(){
@@ -618,6 +614,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         String receiveAddress = null;
 
         Object object = accountBiMap.inverse().get(spinnerIndex);
+        boolean shouldShowInfoButton = showAddressInfoButtonIfNecessary(object);
 
         if (object instanceof LegacyAddress) {
 
@@ -646,16 +643,20 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
 
             if (!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""));
+                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""), shouldShowInfoButton);
             } else {
-                generateQRCode("bitcoin:" + receiveAddress);
+                generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
             }
         } catch (NumberFormatException | ParseException e) {
-            generateQRCode("bitcoin:" + receiveAddress);
+            generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
         }
     }
 
-    private void generateQRCode(final String uri) {
+    private boolean showAddressInfoButtonIfNecessary(Object object) {
+        return !(object instanceof ImportedAccount || object instanceof LegacyAddress);
+    }
+
+    private void generateQRCode(final String uri, boolean displayInfoButton) {
 
         new AsyncTask<Void, Void, Bitmap>() {
 
@@ -693,9 +694,9 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 binding.qr.setVisibility(View.VISIBLE);
                 binding.receivingAddress.setVisibility(View.VISIBLE);
                 binding.qr.setImageBitmap(bitmap);
-                binding.ivAddressInfo.setVisibility(View.VISIBLE);
+                if (displayInfoButton) binding.ivAddressInfo.setVisibility(View.VISIBLE);
 
-                setupBottomSheet();
+                setupBottomSheet(uri);
             }
         }.execute();
     }
@@ -795,7 +796,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     }
 
-    private void setupBottomSheet() {
+    private void setupBottomSheet(String uri) {
 
         //Re-Populate list
         String strFileName = new AppUtil(getActivity()).getReceiveQRFilename();
@@ -826,40 +827,87 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 ioe.printStackTrace();
             }
 
-            ArrayList<SendPaymentCodeData> dataList = new ArrayList<SendPaymentCodeData>();
+            ArrayList<SendPaymentCodeData> dataList = new ArrayList<>();
 
             PackageManager pm = getActivity().getPackageManager();
 
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_SEND);
-            intent.setType("image/png");
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            List<ResolveInfo> resInfos = pm.queryIntentActivities(intent, 0);
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+            emailIntent.setType("application/image");
+            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+
+            Intent imageIntent = new Intent();
+            imageIntent.setAction(Intent.ACTION_SEND);
+            imageIntent.setType("image/png");
+            imageIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+
+            try {
+                BitcoinURI addressUri = new BitcoinURI(uri);
+                String amount = addressUri.getAmount() != null ? " " + addressUri.getAmount().toPlainString() : "";
+                String address = addressUri.getAddress() != null ? addressUri.getAddress().toString() : getString(R.string.email_request_body_fallback);
+                String body = String.format(getString(R.string.email_request_body), amount, address);
+
+                String builder = "mailto:" +
+                        "?subject=" +
+                        getString(R.string.email_request_subject) +
+                        "&body=" +
+                        body +
+                        '\n' +
+                        '\n' +
+                        BitcoinLinkGenerator.getLink(addressUri);
+
+                emailIntent.setData(Uri.parse(builder));
+
+            } catch (BitcoinURIParseException e) {
+                Log.e(ReceiveFragment.class.getSimpleName(), "setupBottomSheet() threw BitcoinURIParseException");
+            }
+
+            HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap = new HashMap<>();
+
+            List<ResolveInfo> emailInfos = pm.queryIntentActivities(emailIntent, 0);
+            addResolveInfoToMap(emailIntent, intentHashMap, emailInfos);
+
+            List<ResolveInfo> imageInfos = pm.queryIntentActivities(imageIntent, 0);
+            addResolveInfoToMap(imageIntent, intentHashMap, imageInfos);
 
             SendPaymentCodeData d;
-            for (ResolveInfo resInfo : resInfos) {
 
-                String context = resInfo.activityInfo.packageName;
-                String packageClassName = resInfo.activityInfo.name;
-                CharSequence label = resInfo.loadLabel(pm);
-                Drawable icon = resInfo.loadIcon(pm);
+            Iterator it = intentHashMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry mapItem = (Map.Entry)it.next();
+                Pair<ResolveInfo, Intent> pair = (Pair<ResolveInfo, Intent>) mapItem.getValue();
+                ResolveInfo resolveInfo = pair.first;
+                String context = resolveInfo.activityInfo.packageName;
+                String packageClassName = resolveInfo.activityInfo.name;
+                CharSequence label = resolveInfo.loadLabel(pm);
+                Drawable icon = resolveInfo.loadIcon(pm);
 
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND);
-                shareIntent.setType("image/png");
-                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-                shareIntent.setClassName(context, packageClassName);
+                Intent intent = pair.second;
+                intent.setClassName(context, packageClassName);
 
                 d = new SendPaymentCodeData();
                 d.setTitle(label.toString());
                 d.setLogo(icon);
-                d.setIntent(shareIntent);
+                d.setIntent(intent);
                 dataList.add(d);
+
+                it.remove();
             }
 
             ArrayAdapter adapter = new SendPaymentCodeAdapter(getActivity(), dataList);
             binding.shareAppList.setAdapter(adapter);
             adapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Prevents apps being added to the list twice, as it's confusing for users. Full email intent
+     * takes priority.
+     */
+    private void addResolveInfoToMap(Intent intent, HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap, List<ResolveInfo> resolveInfo) {
+        for (ResolveInfo info : resolveInfo) {
+            if (!intentHashMap.containsKey(info.activityInfo.name)) {
+                intentHashMap.put(info.activityInfo.name, new Pair<>(info, new Intent(intent)));
+            }
         }
     }
 
