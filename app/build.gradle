@@ -14,8 +14,8 @@ android {
         applicationId "piuk.blockchain.android"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 219
-        versionName "6.1.28"
+        versionCode 220
+        versionName "6.1.29"
         multiDexEnabled true
     }
     buildTypes {
