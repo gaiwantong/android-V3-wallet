@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         appUtil = new AppUtil(this);
 
