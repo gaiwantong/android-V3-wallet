@@ -43,6 +43,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -467,7 +468,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 mIsViewExpanded = false;
             }
 
-            final LinearLayout txsDetails = (LinearLayout) detailsView.findViewById(R.id.txs_details);
+            final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
             final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
 
             final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
@@ -542,9 +543,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 });
 
                 txsDetails.setOnTouchListener((v, event) -> {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
                         case MotionEvent.ACTION_UP:
-                            onRowClick(v, position);
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
                             break;
                     }
                     return false;
@@ -682,7 +684,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         }
     }
 
-    private void expandView(View view, LinearLayout txsDetails) {
+    private void expandView(View view, ScrollView txsDetails) {
 
         view.setBackgroundColor(getResources().getColor(R.color.white));
 
@@ -695,7 +697,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         startAnim(view, resizeAnimator);
     }
 
-    private void collapseView(View view, final LinearLayout txsDetails) {
+    private void collapseView(View view, final ScrollView txsDetails) {
 
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
