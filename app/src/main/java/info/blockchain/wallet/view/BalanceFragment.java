@@ -39,7 +39,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -859,35 +858,29 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                 tvResult.setText(span1);
 
-                tvResult.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+                tvResult.setOnTouchListener((v, event) -> {
 
-                        FrameLayout parent = (FrameLayout) v.getParent();
-                        event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
-                        parent.onTouchEvent(event);
+                    View parent = (View) v.getParent();
+                    event.setLocation(v.getX() + (v.getWidth() / 2), v.getY() + (v.getHeight() / 2));
+                    parent.onTouchEvent(event);
 
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            isBTC = !isBTC;
-                            viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
-                        }
-                        return true;
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        isBTC = !isBTC;
+                        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
                     }
+                    return true;
                 });
 
-                txTouchView.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
+                txTouchView.setOnTouchListener((v, event) -> {
 
-                        FrameLayout parent = (FrameLayout) v.getParent();
-                        event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
-                        parent.onTouchEvent(event);
+                    View parent = (View) v.getParent();
+                    event.setLocation(event.getX(), v.getY() + (v.getHeight() / 2));
+                    parent.onTouchEvent(event);
 
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            onRowClick(holder.itemView, position);
-                        }
-                        return true;
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        onRowClick(holder.itemView, position);
                     }
+                    return true;
                 });
             }
         }
