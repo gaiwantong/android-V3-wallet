@@ -39,8 +39,8 @@
                     android:paddingRight="16dp"
                     android:layout_marginTop="16dp"
                     android:fontFamily="sans-serif"
-                    android:singleLine="true"
-                    android:text="April 2015"
+                    android:maxLines="1"
+                    tools:text="April 2015"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textSize="14sp"/>
 
@@ -58,7 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:text="Transfered"
+                        tools:text="Transferred"
                         android:layout_marginTop="4dp"
                         android:layout_marginRight="4dp"
                         android:layout_marginBottom="4dp"
@@ -89,7 +89,7 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="20dp"
                     android:fontFamily="sans-serif"
-                    android:text="result"
+                    tools:text="1.2345"
                     android:background="@drawable/rounded_view_green"
                     android:textColor="@color/white"
                     android:textSize="14sp"/>
