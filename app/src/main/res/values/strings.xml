@@ -552,12 +552,5 @@
     <string name="common_pin_dialog_message">The PIN you have selected is extremely common and may be easily guessed by someone with access to your phone within 3 tries. Would you like to use this PIN anyway?</string>
     <string name="common_pin_dialog_try_again">Try again</string>
     <string name="common_pin_dialog_continue">Continue</string>
-    <string-array name="common_pins">
-        <item>1234</item>
-        <item>1111</item>
-        <item>1212</item>
-        <item>7777</item>
-        <item>1004</item>
-    </string-array>
 
 </resources>

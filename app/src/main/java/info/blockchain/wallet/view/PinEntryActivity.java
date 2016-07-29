@@ -21,7 +21,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -644,8 +643,13 @@ public class PinEntryActivity extends Activity {
     }
 
     private boolean isPinCommon(String pin) {
-        List<String> commonPins = new ArrayList<>(
-                Arrays.asList(getResources().getStringArray(R.array.common_pins)));
+        List<String> commonPins = new ArrayList<String>() {{
+            add("1234");
+            add("1111");
+            add("1212");
+            add("7777");
+            add("1004");
+        }};
         return commonPins.contains(pin);
     }
 
