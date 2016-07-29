@@ -442,7 +442,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 })
-                .setNegativeButton(R.string.ok, null)
+                .setNegativeButton(android.R.string.ok, null)
                 .show());
     }
 

@@ -19,14 +19,14 @@ public class EnableGeo {
         final String message = activity.getString(R.string.enable_geo);
 
         builder.setMessage(message)
-                .setPositiveButton(R.string.ok,
+                .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface d, int id) {
                                 activity.startActivity(new Intent(action));
                                 d.dismiss();
                             }
                         })
-                .setNegativeButton(R.string.cancel,
+                .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface d, int id) {
                                 d.cancel();

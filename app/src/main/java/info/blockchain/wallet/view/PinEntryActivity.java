@@ -20,18 +20,20 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
+import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
 
@@ -78,8 +80,7 @@ public class PinEntryActivity extends Activity {
         }
 
         // Set title state
-        if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
-
+        if (isCreatingNewPin()) {
             binding.titleBox.setText(R.string.create_pin);
         } else {
             binding.titleBox.setText(R.string.pin_entry);
@@ -135,6 +136,10 @@ public class PinEntryActivity extends Activity {
                 }
             }).show();
         }
+    }
+
+    private boolean isCreatingNewPin() {
+        return prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1;
     }
 
     @Override
@@ -354,9 +359,8 @@ public class PinEntryActivity extends Activity {
         }).start();
     }
 
-    private void createPINThread(final String pin) {
+    private void createNewPinThread(String pin) {
         final Handler handler = new Handler();
-
         dismissProgressView();
         progress = new ProgressDialog(PinEntryActivity.this);
         progress.setCancelable(false);
@@ -364,39 +368,28 @@ public class PinEntryActivity extends Activity {
         progress.setMessage(getString(R.string.creating_pin));
         if(!isFinishing())progress.show();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
+        new Thread(() -> {
+            Looper.prepare();
 
-                if (AccessState.getInstance(PinEntryActivity.this).createPIN(payloadManager.getTempPassword(), pin)) {
-                    dismissProgressView();
-
-                    prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                    updatePayloadThread(payloadManager.getTempPassword());
-
-                } else {
-                    dismissProgressView();
-
-                    ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    prefs.clear();
-                    appUtil.restartApp();
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ;
-                    }
-                });
-
-                Looper.loop();
-
+            if (AccessState.getInstance(PinEntryActivity.this).createPIN(payloadManager.getTempPassword(), pin)) {
+                prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                updatePayloadThread(payloadManager.getTempPassword());
+            } else {
+                ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                prefs.clear();
+                appUtil.restartApp();
             }
+
+            dismissProgressView();
+            handler.post(() -> {
+                // No-op
+            });
+
+            Looper.loop();
         }).start();
     }
 
-    public void validatePIN(final String PIN) {
+    private void validatePIN(final String PIN) {
         validatePINThread(PIN);
     }
 
@@ -461,13 +454,13 @@ public class PinEntryActivity extends Activity {
                 .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
                 .setView(password)
                 .setCancelable(false)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         appUtil.restartApp();
                     }
                 })
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
@@ -556,56 +549,66 @@ public class PinEntryActivity extends Activity {
             // Throw error on '0000' to avoid server-side type issue
             if (userEnteredPIN.equals("0000")) {
                 ToastCustom.makeText(PinEntryActivity.this, getString(R.string.zero_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        clearPinBoxes();
-                        userEnteredPIN = "";
-                        userEnteredPINConfirm = null;
-                    }
-                }, 200);
+                new Handler().postDelayed(() -> clearPinViewAndReset(), 200);
                 return;
             }
 
-            // Validate
-            if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
-                binding.titleBox.setVisibility(View.INVISIBLE);
-                validatePIN(userEnteredPIN);
-            } else if (userEnteredPINConfirm == null) {
-                // End of Create -  Change to Confirm
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
+            // Only show warning on first entry and if user is creating a new PIN
+            if (isCreatingNewPin() && isPinCommon(userEnteredPIN) && userEnteredPINConfirm == null) {
+                showCommonPinWarning(new PinWarningCallback() {
                     @Override
-                    public void run() {
-                        PinEntryActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                binding.titleBox.setText(R.string.confirm_pin);
-                                clearPinBoxes();
-                                userEnteredPINConfirm = userEnteredPIN;
-                                userEnteredPIN = "";
-                            }
-                        });
+                    public void tryAgainClicked() {
+                        clearPinViewAndReset();
                     }
-                }, 200);
 
-            } else if (userEnteredPINConfirm.equals(userEnteredPIN)) {
-                // End of Confirm - Pin is confirmed
-                createPINThread(userEnteredPIN); // Pin is confirmed. Save to server.
-
+                    @Override
+                    public void continueClicked() {
+                        validateAndConfirmPin();
+                    }
+                });
             } else {
-                // End of Confirm - Pin Mismatch
-                ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        clearPinBoxes();
-                        userEnteredPIN = "";
-                        userEnteredPINConfirm = null;
-                        binding.titleBox.setText(R.string.create_pin);
-                    }
-                }, 200);
+                validateAndConfirmPin();
             }
+        }
+    }
+
+    private void clearPinViewAndReset() {
+        clearPinBoxes();
+        userEnteredPIN = "";
+        userEnteredPINConfirm = null;
+    }
+
+    private void validateAndConfirmPin() {
+        // Validate
+        if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() >= 1) {
+            binding.titleBox.setVisibility(View.INVISIBLE);
+            validatePIN(userEnteredPIN);
+        } else if (userEnteredPINConfirm == null) {
+            // End of Create -  Change to Confirm
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    PinEntryActivity.this.runOnUiThread(() -> {
+                        binding.titleBox.setText(R.string.confirm_pin);
+                        clearPinBoxes();
+                        userEnteredPINConfirm = userEnteredPIN;
+                        userEnteredPIN = "";
+                    });
+                }
+            }, 200);
+
+        } else if (userEnteredPINConfirm.equals(userEnteredPIN)) {
+            // End of Confirm - Pin is confirmed
+            createNewPinThread(userEnteredPIN); // Pin is confirmed. Save to server.
+
+        } else {
+            // End of Confirm - Pin Mismatch
+            ToastCustom.makeText(PinEntryActivity.this, getString(R.string.pin_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            new Handler().postDelayed(() -> {
+                clearPinViewAndReset();
+                binding.titleBox.setText(R.string.create_pin);
+            }, 200);
         }
     }
 
@@ -638,6 +641,29 @@ public class PinEntryActivity extends Activity {
         Intent intent = new Intent(PinEntryActivity.this, PinEntryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    private boolean isPinCommon(String pin) {
+        List<String> commonPins = new ArrayList<>(
+                Arrays.asList(getResources().getStringArray(R.array.common_pins)));
+        return commonPins.contains(pin);
+    }
+
+    private void showCommonPinWarning(PinWarningCallback callback) {
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.common_pin_dialog_title)
+                .setMessage(R.string.common_pin_dialog_message)
+                .setPositiveButton(R.string.common_pin_dialog_try_again, (dialogInterface, i) -> callback.tryAgainClicked())
+                .setNegativeButton(R.string.common_pin_dialog_continue, (dialogInterface, i) -> callback.continueClicked())
+                .setCancelable(false)
+                .create();
+
+        dialog.show();
+    }
+
+    private interface PinWarningCallback {
+        void tryAgainClicked();
+        void continueClicked();
     }
 
     @Override

@@ -23,14 +23,19 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mukesh.countrypicker.fragments.CountryPicker;
 import com.mukesh.countrypicker.models.Country;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.blockchain.api.Settings;
 import info.blockchain.wallet.access.AccessState;
@@ -43,12 +48,9 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
+import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.BackgroundExecutor;
 import info.blockchain.wallet.view.helpers.ToastCustom;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 
@@ -606,18 +608,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         final EditText etEmail = new EditText(getActivity());
         etEmail.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        etEmail.setPadding(46, 16, 46, 16);
         etEmail.setText(settingsApi.getEmail());
         etEmail.setSelection(etEmail.getText().length());
         final Handler mHandler = new Handler(Looper.getMainLooper());
 
-        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, getActivity());
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etEmail, params);
+
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.email)
                 .setMessage(R.string.verify_email2)
-                .setView(etEmail)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setPositiveButton(R.string.update, null)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .setNeutralButton(R.string.resend, null)
                 .create();
         alertDialogEmail.setOnShowListener(dialog -> {
@@ -656,7 +664,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .setTitle(R.string.verify)
                 .setMessage(R.string.verify_email_notice)
                 .setCancelable(true)
-                .setPositiveButton(R.string.ok, null)
+                .setPositiveButton(android.R.string.ok, null)
                 .show();
     }
 
@@ -691,13 +699,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             tvSms.setVisibility(View.GONE);
         }
 
-        final AlertDialog.Builder alertDialogSmsBuilder = new AlertDialog.Builder(getActivity())
+        final AlertDialog.Builder alertDialogSmsBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.mobile)
                 .setMessage(getString(R.string.mobile_description))
                 .setView(smsPickerView)
                 .setCancelable(false)
                 .setPositiveButton(R.string.update, null)
-                .setNegativeButton(R.string.cancel, null);
+                .setNegativeButton(android.R.string.cancel, null);
 
         if (!settingsApi.isSmsVerified() && settingsApi.getSms() != null && !settingsApi.getSms().isEmpty()) {
             alertDialogSmsBuilder.setNeutralButton(R.string.verify, null);
@@ -732,7 +740,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogGUI(){
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.guid_to_clipboard)
                 .setCancelable(false)
@@ -751,7 +759,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         final CharSequence[] units = monetaryUtil.getBTCUnits();
         final int sel = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, 0);
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.select_units)
                 .setSingleChoiceItems(units, sel, (dialog, which) -> {
                             prefsUtil.setValue(PrefsUtil.KEY_BTC_UNITS, which);
@@ -772,7 +780,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
         }
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.select_currency)
                 .setSingleChoiceItems(currencies, selected, (dialog, which) -> {
                             prefsUtil.setValue(PrefsUtil.KEY_SELECTED_FIAT, currencies[which].substring(currencies[which].length() - 3));
@@ -785,17 +793,23 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void showDialogVerifySms(){
 
         final EditText etSms = new EditText(getActivity());
-        etSms.setPadding(46, 16, 46, 16);
         etSms.setSingleLine(true);
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, getActivity());
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etSms, params);
+
         final Handler mHandler = new Handler(Looper.getMainLooper());
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.verify_mobile)
                 .setMessage(R.string.verify_sms_summary)
-                .setView(etSms)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setPositiveButton(R.string.verify, null)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .setNeutralButton(R.string.resend, null)
                 .create();
         alertDialog.setOnShowListener(dialog -> {
@@ -824,18 +838,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void showDialogPasswordHint1(){
         final EditText etPwHint1 = new EditText(getActivity());
-        etPwHint1.setPadding(46, 16, 46, 16);
         etPwHint1.setText(settingsApi.getPasswordHint1());
         etPwHint1.setSelection(etPwHint1.getText().length());
         etPwHint1.setSingleLine(true);
 
-        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, getActivity());
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etPwHint1, params);
+
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.password_hint)
                 .setMessage(R.string.password_hint_summary)
-                .setView(etPwHint1)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setPositiveButton(R.string.update, null)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .create();
         alertDialogEmail.setOnShowListener(dialog -> {
 
@@ -859,19 +879,26 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         final EditText etPin = new EditText(getActivity());
         etPin.setInputType(InputType.TYPE_CLASS_NUMBER);
         etPin.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        etPin.setPadding(46, 16, 46, 16);
+
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, getActivity());
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etPin, params);
+
         int maxLength = 4;
         InputFilter[] fArray = new InputFilter[1];
         fArray[0] = new InputFilter.LengthFilter(maxLength);
         etPin.setFilters(fArray);
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.change_pin_code)
                 .setMessage(R.string.enter_current_pin)
-                .setView(etPin)
+                .setView(frameLayout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, null)
-                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .create();
         alertDialog.setOnShowListener(dialog -> {
 
@@ -889,7 +916,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void showDialogEmailNotifications() {
 
-        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity())
+        final AlertDialog alertDialogEmail = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.email_notifications)
                 .setMessage(R.string.email_notifications_summary)
                 .setCancelable(false)
@@ -917,7 +944,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void showDialogChangePasswordWarning() {
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(R.string.change_password_summary)
                 .setPositiveButton(R.string.dialog_continue, (dialog, which) -> {
@@ -968,12 +995,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
         });
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.change_password)
                 .setCancelable(false)
                 .setView(pwLayout)
                 .setPositiveButton(R.string.update, null)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
         alertDialog.setOnShowListener(dialog -> {
@@ -993,7 +1020,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                         } else if(newConfirmedPw.equals(settingsApi.getPasswordHint1())){
                             ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error),ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         } else if (pwStrength < 50){
-                            new AlertDialog.Builder(getActivity())
+                            new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                     .setTitle(R.string.app_name)
                                     .setMessage(R.string.weak_password)
                                     .setCancelable(false)
@@ -1037,10 +1064,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             twoStepVerificationPref.setChecked(false);
             showDialogMobile();
         }else{
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity())
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                     .setTitle(R.string.two_fa)
                     .setMessage(R.string.two_fa_summary)
-                    .setNeutralButton(R.string.cancel, null);
+                    .setNeutralButton(android.R.string.cancel, null);
 
             if(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS){
                 alertDialogBuilder.setNegativeButton(R.string.disable, null);

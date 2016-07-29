@@ -78,13 +78,13 @@ public class SupportActivity extends AppCompatActivity {
                         .setTitle(R.string.app_name)
                         .setMessage(getString(R.string.support_guide))
                         .setCancelable(false)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 emailIntent(guid);
                             }
 
-                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
                         ;

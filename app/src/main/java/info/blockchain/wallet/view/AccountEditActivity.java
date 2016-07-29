@@ -1,7 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -22,6 +20,8 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
@@ -29,7 +29,6 @@ import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
-
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
@@ -102,7 +101,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
                     viewModel.updateAccountLabel(etLabel.getText().toString());
                 }
                 ).
-                setNegativeButton(R.string.cancel, null)
+                setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
@@ -142,7 +141,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
                 .setTitle(R.string.privx_required)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                     new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
                         @Override
                         public void onNoSecondPassword() {
@@ -155,7 +154,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
                             onStartScanActivity();
                         }
                     });
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     @Override
@@ -211,9 +210,9 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                     viewModel.importBIP38Address(data, password.getText().toString());
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     @Override
@@ -224,7 +223,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         alert.setPositiveButton(R.string.try_again, (dialog, whichButton) -> {
             viewModel.onClickScanXpriv(null);
         });
-        alert.setNegativeButton(R.string.cancel, null);
+        alert.setNegativeButton(android.R.string.cancel, null);
         alert.show();
     }
 
@@ -233,7 +232,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         new AlertDialog.Builder(this)
                 .setTitle(R.string.success)
                 .setMessage(R.string.private_key_successfully_imported)
-                .setPositiveButton(R.string.ok, null).show();
+                .setPositiveButton(android.R.string.ok, null).show();
     }
 
     @Override
