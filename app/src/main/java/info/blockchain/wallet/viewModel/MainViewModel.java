@@ -119,10 +119,7 @@ public class MainViewModel implements ViewModel{
             this.dataListener.onCorruptPayload();
         }
         // Legacy app has not been prompted for upgrade
-        else if (isPinValidated &&
-                !payloadManager.getPayload().isUpgraded() &&
-                !prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false) &&
-                prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
+        else if (isPinValidated && !payloadManager.getPayload().isUpgraded()) {
 
             AccessState.getInstance(context).setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();

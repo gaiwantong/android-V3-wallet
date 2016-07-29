@@ -14,7 +14,6 @@ import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +37,6 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityUpgradeWalletBinding;
-import piuk.blockchain.android.databinding.ActivityUpgradeWalletConfirmBinding;
 
 public class UpgradeWalletActivity extends Activity {
 
@@ -50,7 +48,6 @@ public class UpgradeWalletActivity extends Activity {
     private PayloadManager payloadManager;
 
     private ActivityUpgradeWalletBinding binding;
-    private ActivityUpgradeWalletConfirmBinding dialogBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +72,7 @@ public class UpgradeWalletActivity extends Activity {
         });
         binding.upgradePageHeader.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in));
         binding.upgradePageHeader.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_out));
-        binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_2));
+        binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_1));
 
         mCustomPagerAdapter = new CustomPagerAdapter(this);
         binding.pager.setAdapter(mCustomPagerAdapter);
@@ -159,51 +156,18 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     public void upgradeClicked(View view) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
-                R.layout.activity_upgrade_wallet_confirm, null, false);
-        dialogBuilder.setView(dialogBinding.getRoot());
 
-        alertDialog = dialogBuilder.create();
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.setCancelable(false);
-
-//        heading = (TextView) dialogView.findViewById(R.id.heading_tv);
-//        info = (TextView) dialogView.findViewById(R.id.upgrade_info_tv);
-//        progressBar = (ProgressBar) dialogView.findViewById(R.id.progressBar3);
-
-//        confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        dialogBinding.confirmCancel.setOnClickListener(new View.OnClickListener() {
+        new SecondPasswordHandler(UpgradeWalletActivity.this).validate(new SecondPasswordHandler.ResultListener() {
             @Override
-            public void onClick(View v) {
+            public void onNoSecondPassword() {
+                doUpgrade(new CharSequenceX(""));
+            }
 
-                if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-
-                AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-                appUtil.restartApp("verified", true);
+            @Override
+            public void onSecondPasswordValidated(String validateSecondPassword) {
+                doUpgrade(new CharSequenceX(validateSecondPassword));
             }
         });
-
-//        confirmUpgrade = (TextView) dialogView.findViewById(R.id.confirm_upgrade);
-        dialogBinding.confirmUpgrade.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                new SecondPasswordHandler(UpgradeWalletActivity.this).validate(new SecondPasswordHandler.ResultListener() {
-                    @Override
-                    public void onNoSecondPassword() {
-                        doUpgrade(new CharSequenceX(""));
-                    }
-
-                    @Override
-                    public void onSecondPasswordValidated(String validateSecondPassword) {
-                        doUpgrade(new CharSequenceX(validateSecondPassword));
-                    }
-                });
-            }
-        });
-
-        alertDialog.show();
     }
 
     private void doUpgrade(final CharSequenceX secondPassword) {
@@ -228,7 +192,7 @@ public class UpgradeWalletActivity extends Activity {
                                     @Override
                                     public void onDoubleEncryptionPasswordError() {
                                         ToastCustom.makeText(UpgradeWalletActivity.this, UpgradeWalletActivity.this.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        onUpgradeFail();
+                                        upgradeClicked(null);
                                     }
 
                                     @Override
@@ -264,11 +228,11 @@ public class UpgradeWalletActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialogBinding.headingTv.setText(getString(R.string.upgrading));
-                dialogBinding.upgradeInfoTv.setText(getString(R.string.upgrading_started_info));
-                dialogBinding.progressBar3.setVisibility(View.VISIBLE);
-                dialogBinding.confirmCancel.setVisibility(View.INVISIBLE);
-                dialogBinding.confirmUpgrade.setVisibility(View.INVISIBLE);
+                binding.upgradePageTitle.setText(getString(R.string.upgrading));
+                binding.upgradePageHeader.setText(getString(R.string.upgrading_started_info));
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.pager.setVisibility(View.GONE);
+                binding.upgradeActionContainer.setVisibility(View.GONE);
             }
         });
     }
@@ -280,12 +244,11 @@ public class UpgradeWalletActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialogBinding.headingTv.setText(getString(R.string.upgrade_success_heading));
-                dialogBinding.upgradeInfoTv.setText(getString(R.string.upgrade_success_info));
-                dialogBinding.progressBar3.setVisibility(View.GONE);
-                dialogBinding.confirmUpgrade.setVisibility(View.VISIBLE);
-                dialogBinding.confirmUpgrade.setText(getString(R.string.CLOSE));
-                dialogBinding.confirmUpgrade.setOnClickListener(new View.OnClickListener() {
+                binding.upgradePageTitle.setText(getString(R.string.upgrade_success_heading));
+                binding.upgradePageHeader.setText(getString(R.string.upgrade_success_info));
+                binding.progressBar.setVisibility(View.GONE);
+                binding.btnUpgradeComplete.setVisibility(View.VISIBLE);
+                binding.btnUpgradeComplete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
@@ -307,28 +270,20 @@ public class UpgradeWalletActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialogBinding.headingTv.setText(getString(R.string.upgrade_fail_heading));
-                dialogBinding.upgradeInfoTv.setText(getString(R.string.upgrade_fail_info));
-                dialogBinding.progressBar3.setVisibility(View.GONE);
-                dialogBinding.confirmUpgrade.setVisibility(View.VISIBLE);
-                dialogBinding.confirmUpgrade.setText(getString(R.string.CLOSE));
-                dialogBinding.confirmUpgrade.setOnClickListener(new View.OnClickListener() {
+                binding.upgradePageTitle.setText(getString(R.string.upgrade_fail_heading));
+                binding.upgradePageHeader.setText(getString(R.string.upgrade_fail_info));
+                binding.progressBar.setVisibility(View.GONE);
+                binding.btnUpgradeComplete.setVisibility(View.VISIBLE);
+                binding.btnUpgradeComplete.setText(getString(R.string.CLOSE));
+                binding.btnUpgradeComplete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
-                        appUtil.restartApp();
+                        onBackPressed();
                     }
                 });
             }
         });
-    }
-
-    public void askLaterClicked(View view) {
-        appUtil.setUpgradeReminder(System.currentTimeMillis());
-        prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, true);
-        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
-        appUtil.restartApp("verified", true);
     }
 
     private void setSelectedPage(int position) {
@@ -339,33 +294,18 @@ public class UpgradeWalletActivity extends Activity {
 
         switch (position) {
             case 0:
-                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_2));
+                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_1));
                 binding.pageBox0.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
             case 1:
-                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_3));
+                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_2));
                 binding.pageBox1.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
             case 2:
-                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_1));
+                binding.upgradePageHeader.setText(getResources().getString(R.string.upgrade_page_3));
                 binding.pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-
-            appUtil.restartApp();
-
-            return true;
-        } else {
-            ;
-        }
-
-        return false;
     }
 
     @Override
@@ -386,8 +326,8 @@ public class UpgradeWalletActivity extends Activity {
         LayoutInflater mLayoutInflater;
         int[] mResources = {
                 R.drawable.upgrade_backup_hilite,
+                R.drawable.upgrade_hd_address_hilite,
                 R.drawable.upgrade_tx_list_hilite,
-                R.drawable.upgrade_myaccounts_hilite
         };
 
         public CustomPagerAdapter(Context context) {
