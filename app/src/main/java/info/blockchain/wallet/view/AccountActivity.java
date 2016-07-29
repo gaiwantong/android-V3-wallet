@@ -1,9 +1,5 @@
 package info.blockchain.wallet.view;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,10 +28,29 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
@@ -61,26 +76,12 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
+import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
-
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
@@ -348,21 +349,28 @@ public class AccountActivity extends AppCompatActivity {
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
-        new AlertDialog.Builder(this)
+
+        FrameLayout frameLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etLabel, params);
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.label)
                 .setMessage(R.string.assign_display_name)
-                .setView(etLabel)
+                .setView(frameLayout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setPositiveButton(R.string.save_name, (dialog, whichButton) -> {
 
-                        if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
-                            addAccount(etLabel.getText().toString().trim(), validatedSecondPassword);
-                        } else {
-                            ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
+                    if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
+                        addAccount(etLabel.getText().toString().trim(), validatedSecondPassword);
+                    } else {
+                        ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                })
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void addAccount(final String accountLabel, @Nullable final String secondPassword) {
@@ -612,7 +620,7 @@ public class AccountActivity extends AppCompatActivity {
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
@@ -703,7 +711,7 @@ public class AccountActivity extends AppCompatActivity {
                         }).start();
 
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void importNonBIP38Address(final String format, final String data) {
@@ -892,7 +900,7 @@ public class AccountActivity extends AppCompatActivity {
                                 }
                             }).start();
                         }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                 }
             }).show();

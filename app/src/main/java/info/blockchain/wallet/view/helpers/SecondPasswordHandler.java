@@ -5,12 +5,11 @@ import android.content.Context;
 import android.text.InputType;
 import android.widget.EditText;
 
+import org.apache.commons.lang3.StringUtils;
+
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-
-import org.apache.commons.lang3.StringUtils;
-
 import piuk.blockchain.android.R;
 
 public class SecondPasswordHandler {
@@ -42,7 +41,7 @@ public class SecondPasswordHandler {
                     .setMessage(R.string.enter_double_encryption_pw)
                     .setView(double_encrypt_password)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                    .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
 
                         String secondPassword = double_encrypt_password.getText().toString();
 
@@ -60,7 +59,7 @@ public class SecondPasswordHandler {
                         } else {
                             ToastCustom.makeText(context, context.getString(R.string.double_encryption_password_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
-                    }).setNegativeButton(R.string.cancel, null).show();
+                    }).setNegativeButton(android.R.string.cancel, null).show();
         }
     }
 }

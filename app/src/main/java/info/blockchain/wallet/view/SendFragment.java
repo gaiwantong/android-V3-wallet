@@ -1204,7 +1204,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         }
 
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void startScanActivity(){
@@ -1280,7 +1280,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
@@ -1332,7 +1332,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         }).start();
 
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
 
     }
 
@@ -1426,7 +1426,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.transaction_fee)
                                 .setMessage(getText(R.string.recommended_fee).toString()+"\n\n"+getText(R.string.transaction_surge).toString())
-                                .setPositiveButton(R.string.ok, null).show();
+                                .setPositiveButton(android.R.string.ok, null).show();
                     }
                 });
 
@@ -1592,7 +1592,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.transaction_fee)
                 .setMessage(message)
-                .setPositiveButton(R.string.ok, null).show();
+                .setPositiveButton(android.R.string.ok, null).show();
     }
 
     private void executeSend(boolean isWatchOnlySpend, final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){

@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                         .setPositiveButton(R.string.unpair, (dialog, which) -> {
                             mainViewModel.unpair();
                         })
-                        .setNegativeButton(R.string.cancel,null)
+                        .setNegativeButton(android.R.string.cancel,null)
                         .show();
                 break;
         }
@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 .setTitle(R.string.app_name)
                 .setMessage(MainActivity.this.getString(R.string.not_sane_error))
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                     appUtil.clearCredentialsAndRestart();
                     appUtil.restartApp();
                 }).show();
