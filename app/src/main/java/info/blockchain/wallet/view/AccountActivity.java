@@ -28,8 +28,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.zxing.BarcodeFormat;
@@ -74,6 +76,7 @@ import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
+import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
@@ -346,21 +349,28 @@ public class AccountActivity extends AppCompatActivity {
         final EditText etLabel = new EditText(this);
         etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
-        new AlertDialog.Builder(this)
+
+        FrameLayout frameLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(etLabel, params);
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.label)
                 .setMessage(R.string.assign_display_name)
-                .setView(etLabel)
+                .setView(frameLayout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setPositiveButton(R.string.save_name, (dialog, whichButton) -> {
 
-                        if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
-                            addAccount(etLabel.getText().toString().trim(), validatedSecondPassword);
-                        } else {
-                            ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        }
+                    if (etLabel != null && etLabel.getText().toString().trim().length() > 0) {
+                        addAccount(etLabel.getText().toString().trim(), validatedSecondPassword);
+                    } else {
+                        ToastCustom.makeText(AccountActivity.this, getResources().getString(R.string.label_cant_be_empty), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-                }).setNegativeButton(android.R.string.cancel, null).show();
+                })
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void addAccount(final String accountLabel, @Nullable final String secondPassword) {
