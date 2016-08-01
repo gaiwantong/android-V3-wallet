@@ -101,7 +101,7 @@ dependencies {
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -110,7 +110,7 @@ buildscript {
     }
 }
 
-// Required because retrolambda is on maven central
+// Required for RetroLambda
 repositories {
-    mavenCentral()
+    jcenter()
 }
