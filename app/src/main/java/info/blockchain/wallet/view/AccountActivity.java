@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -77,6 +78,7 @@ import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -1002,7 +1004,7 @@ public class AccountActivity extends AppCompatActivity {
                                 params.setMargins(marginInPixels, 0, marginInPixels, 0);
                                 frameLayout.addView(address_label, params);
 
-                                new AlertDialog.Builder(AccountActivity.this)
+                                new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                         .setTitle(R.string.app_name)
                                         .setMessage(R.string.label_address2)
                                         .setView(frameLayout)
@@ -1127,6 +1129,13 @@ public class AccountActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
+
+        // This corrects the layout size after view drawn
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(alertDialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        alertDialog.getWindow().setAttributes(lp);
     }
 
     /*
@@ -1162,7 +1171,7 @@ public class AccountActivity extends AppCompatActivity {
         transferSpendableFunds(pendingSpendList, totalToSend);
     }
 
-    public void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
+    private void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
 
         //Only funded legacy address' will see this option
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -1248,7 +1257,7 @@ public class AccountActivity extends AppCompatActivity {
                             ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         }
 
-                        executeSend(pendingSpend, unspents, isLastSpend);
+                        executeSend(pendingSpend, unspents, isLastSpend, pendingSpendList);
 
                     } else {
                         ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
@@ -1262,7 +1271,8 @@ public class AccountActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final boolean isLastSpend){
+    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents,
+                             final boolean isLastSpend, ArrayList<PendingSpend> pendingSpendList){
 
         final ProgressDialog progress;
         progress = new ProgressDialog(AccountActivity.this);
@@ -1275,55 +1285,132 @@ public class AccountActivity extends AppCompatActivity {
                 pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
                 pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 
-            public void onSuccess() {
-            }
+                    @Override
+                    public void onSuccess() {
+                        // No-op
+                    }
 
-            @Override
-            public void onSuccess(final String hash) {
+                    @Override
+                    public void onSuccess(final String hash) {
 
-                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
-                if(isLastSpend){
-                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
-                        @Override
-                        public void onSaveSuccess() {
+                        if (isLastSpend) {
+                            ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                            PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                                @Override
+                                public void onSaveSuccess() {
+                                    Log.d("onSaveSuccess", "onSaveSuccess: ");
+                                    showArchiveDialog(pendingSpendList);
+                                }
+
+                                @Override
+                                public void onSaveFail() {
+                                    ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+                            });
+
+                            runOnUiThread(() -> {
+                                updateAccountsList();
+                                transferFundsMenuItem.setVisible(false);
+                            });
                         }
 
-                        @Override
-                        public void onSaveFail() {
-                            ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
                         }
-                    });
+                    }
 
-                    runOnUiThread(() -> {
-                        updateAccountsList();
-                        transferFundsMenuItem.setVisible(false);
-                    });
-                }
+                    @Override
+                    public void onFail(String error) {
 
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                }
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void onFailPermanently(String error) {
+
+                        ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                        }
+                    }
+
+                });
+    }
+
+    private void showArchiveDialog(ArrayList<PendingSpend> pendingSpendList) {
+        int numberOfAddresses = pendingSpendList.size();
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.transfer_success_archive_prompt_title)
+                .setMessage(getResources().getQuantityString(R.plurals.transfer_success_archive_prompt_plurals, numberOfAddresses, numberOfAddresses))
+                .setPositiveButton(R.string.archive, (dialogInterface, i) -> {
+                    for (PendingSpend spend : pendingSpendList) {
+                        spend.fromLegacyAddress.setTag(PayloadManager.ARCHIVED_ADDRESS);
+                    }
+
+                    new ArchiveAsync(new WeakReference<>(getAccountActivity()), payloadManager).execute();
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
+
+    private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
+
+        private ProgressDialog progress;
+        private AccountActivity context;
+        private PayloadManager payloadManager;
+
+        ArchiveAsync(WeakReference<AccountActivity> contextWeakReference, PayloadManager manager) {
+            super();
+            context = contextWeakReference.get();
+            payloadManager = manager;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setTitle(R.string.app_name);
+            progress.setMessage(context.getResources().getString(R.string.please_wait));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (progress != null && progress.isShowing()) {
+                progress.dismiss();
+                progress = null;
             }
+        }
 
-            public void onFail(String error) {
-
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if (payloadManager.savePayloadToServer()) {
+                try {
+                    payloadManager.updateBalancesAndTransactions();
+                } catch (Exception e) {
+                    Log.e(ArchiveAsync.class.getSimpleName(), "doInBackground: ", e);
                 }
+
+                context.updateAccountsListFromUiThread();
+
             }
+            return null;
+        }
+    }
 
-            @Override
-            public void onFailPermanently(String error) {
+    private void updateAccountsListFromUiThread() {
+        runOnUiThread(this::updateAccountsList);
+    }
 
-                ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                }
-            }
-
-        });
+    private AccountActivity getAccountActivity() {
+        return this;
     }
 
     @Override
