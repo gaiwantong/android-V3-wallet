@@ -34,9 +34,6 @@ import android.widget.TextView;
 import com.mukesh.countrypicker.fragments.CountryPicker;
 import com.mukesh.countrypicker.models.Country;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import info.blockchain.api.Settings;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
@@ -51,6 +48,10 @@ import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.BackgroundExecutor;
 import info.blockchain.wallet.view.helpers.ToastCustom;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 
@@ -139,100 +140,101 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     @UiThread
     private void refreshList(){
+        if (isAdded() && getActivity() != null) {
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            if (prefScreen != null) prefScreen.removeAll();
+            addPreferencesFromResource(R.xml.settings);
 
-        PreferenceScreen prefScreen = getPreferenceScreen();
-        if(prefScreen != null)prefScreen.removeAll();
-        addPreferencesFromResource(R.xml.settings);
+            //Profile
+            PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
+            guidPref = (Preference) findPreference("guid");
+            guidPref.setSummary(payloadManager.getPayload().getGuid());
+            guidPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        //Profile
-        PreferenceCategory profileCategory = (PreferenceCategory) findPreference("profile");
-        guidPref = (Preference) findPreference("guid");
-        guidPref.setSummary(payloadManager.getPayload().getGuid());
-        guidPref.setOnPreferenceClickListener(SettingsFragment.this);
+            emailPref = (Preference) findPreference("email");
 
-        emailPref = (Preference) findPreference("email");
+            String emailAndStatus = settingsApi.getEmail();
+            if (emailAndStatus == null || emailAndStatus.isEmpty()) {
+                emailAndStatus = getString(R.string.not_specified);
+            } else if (settingsApi.isEmailVerified()) {
+                emailAndStatus += "  (" + getString(R.string.verified) + ")";
+            } else {
+                emailAndStatus += "  (" + getString(R.string.unverified) + ")";
+            }
+            emailPref.setSummary(emailAndStatus);
+            emailPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        String emailAndStatus = settingsApi.getEmail();
-        if(emailAndStatus == null || emailAndStatus.isEmpty()) {
-            emailAndStatus = getString(R.string.not_specified);
-        }else if(settingsApi.isEmailVerified()){
-            emailAndStatus += "  ("+getString(R.string.verified)+")";
-        }else{
-            emailAndStatus += "  ("+getString(R.string.unverified)+")";
-        }
-        emailPref.setSummary(emailAndStatus);
-        emailPref.setOnPreferenceClickListener(SettingsFragment.this);
+            smsPref = (Preference) findPreference("mobile");
+            String smsAndStatus = settingsApi.getSms();
+            if (smsAndStatus == null || smsAndStatus.isEmpty()) {
+                smsAndStatus = getString(R.string.not_specified);
+            } else if (settingsApi.isSmsVerified()) {
+                smsAndStatus += "  (" + getString(R.string.verified) + ")";
+            } else {
+                smsAndStatus += "  (" + getString(R.string.unverified) + ")";
+            }
+            smsPref.setSummary(smsAndStatus);
+            smsPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        smsPref = (Preference) findPreference("mobile");
-        String smsAndStatus = settingsApi.getSms();
-        if(smsAndStatus == null || smsAndStatus.isEmpty()) {
-            smsAndStatus = getString(R.string.not_specified);
-        }else if(settingsApi.isSmsVerified()){
-            smsAndStatus += "  ("+getString(R.string.verified)+")";
-        }else{
-            smsAndStatus += "  ("+getString(R.string.unverified)+")";
-        }
-        smsPref.setSummary(smsAndStatus);
-        smsPref.setOnPreferenceClickListener(SettingsFragment.this);
+            //Preferences
+            PreferenceCategory preferencesCategory = (PreferenceCategory) findPreference("preferences");
+            unitsPref = (Preference) findPreference("units");
+            unitsPref.setSummary(getDisplayUnits());
+            unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        //Preferences
-        PreferenceCategory preferencesCategory = (PreferenceCategory) findPreference("preferences");
-        unitsPref = (Preference) findPreference("units");
-        unitsPref.setSummary(getDisplayUnits());
-        unitsPref.setOnPreferenceClickListener(SettingsFragment.this);
+            fiatPref = (Preference) findPreference("fiat");
+            fiatPref.setSummary(prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
+            fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
 
-        fiatPref = (Preference) findPreference("fiat");
-        fiatPref.setSummary(prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY));
-        fiatPref.setOnPreferenceClickListener(SettingsFragment.this);
+            emailNotificationPref = (SwitchPreferenceCompat) findPreference("email_notifications");
+            if (settingsApi.isEmailVerified()) {
+                emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
+                emailNotificationPref.setOnPreferenceClickListener(this);
+            } else {
+                preferencesCategory.removePreference(emailNotificationPref);
+            }
 
-        emailNotificationPref = (SwitchPreferenceCompat) findPreference("email_notifications");
-        if(settingsApi.isEmailVerified()){
-            emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
-            emailNotificationPref.setOnPreferenceClickListener(this);
-        }else{
-            preferencesCategory.removePreference(emailNotificationPref);
-        }
+            //Security
+            PreferenceCategory securityCategory = (PreferenceCategory) findPreference("security");
+            pinPref = (Preference) findPreference("pin");
+            pinPref.setOnPreferenceClickListener(this);
 
-        //Security
-        PreferenceCategory securityCategory = (PreferenceCategory) findPreference("security");
-        pinPref = (Preference) findPreference("pin");
-        pinPref.setOnPreferenceClickListener(this);
+            twoStepVerificationPref = (SwitchPreferenceCompat) findPreference("2fa");
+            twoStepVerificationPref.setOnPreferenceClickListener(this);
+            twoStepVerificationPref.setChecked(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS);
 
-        twoStepVerificationPref = (SwitchPreferenceCompat) findPreference("2fa");
-        twoStepVerificationPref.setOnPreferenceClickListener(this);
-        twoStepVerificationPref.setChecked(settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS);
+            passwordHint1Pref = (Preference) findPreference("pw_hint1");
+            if (settingsApi.getPasswordHint1() != null && !settingsApi.getPasswordHint1().isEmpty()) {
+                passwordHint1Pref.setSummary(settingsApi.getPasswordHint1());
+            } else {
+                passwordHint1Pref.setSummary("");
+            }
+            passwordHint1Pref.setOnPreferenceClickListener(this);
 
-        passwordHint1Pref = (Preference) findPreference("pw_hint1");
-        if(settingsApi.getPasswordHint1() != null && !settingsApi.getPasswordHint1().isEmpty()){
-            passwordHint1Pref.setSummary(settingsApi.getPasswordHint1());
-        }else{
-            passwordHint1Pref.setSummary("");
-        }
-        passwordHint1Pref.setOnPreferenceClickListener(this);
+            changePasswordPref = (Preference) findPreference("change_pw");
+            changePasswordPref.setOnPreferenceClickListener(this);
 
-        changePasswordPref = (Preference) findPreference("change_pw");
-        changePasswordPref.setOnPreferenceClickListener(this);
+            torPref = (SwitchPreferenceCompat) findPreference("tor");
+            torPref.setChecked(settingsApi.isTorBlocked());
+            torPref.setOnPreferenceClickListener(this);
 
-        torPref = (SwitchPreferenceCompat) findPreference("tor");
-        torPref.setChecked(settingsApi.isTorBlocked());
-        torPref.setOnPreferenceClickListener(this);
+            //App
+            aboutPref = (Preference) findPreference("about");
+            aboutPref.setSummary("v" + BuildConfig.VERSION_NAME);
+            aboutPref.setOnPreferenceClickListener(this);
 
-        //App
-        aboutPref = (Preference) findPreference("about");
-        aboutPref.setSummary("v"+ BuildConfig.VERSION_NAME);
-        aboutPref.setOnPreferenceClickListener(this);
+            tosPref = (Preference) findPreference("tos");
+            tosPref.setOnPreferenceClickListener(this);
 
-        tosPref = (Preference) findPreference("tos");
-        tosPref.setOnPreferenceClickListener(this);
+            privacyPref = (Preference) findPreference("privacy");
+            privacyPref.setOnPreferenceClickListener(this);
 
-        privacyPref = (Preference) findPreference("privacy");
-        privacyPref.setOnPreferenceClickListener(this);
-
-        disableRootWarningPref = (Preference) findPreference("disable_root_warning");
-        if (disableRootWarningPref != null &&
-                !new RootUtil().isDeviceRooted()) {
-            PreferenceCategory appCategory = (PreferenceCategory) findPreference("app");
-            appCategory.removePreference(disableRootWarningPref);
+            disableRootWarningPref = (Preference) findPreference("disable_root_warning");
+            if (disableRootWarningPref != null &&
+                    !new RootUtil().isDeviceRooted()) {
+                PreferenceCategory appCategory = (PreferenceCategory) findPreference("app");
+                appCategory.removePreference(disableRootWarningPref);
+            }
         }
     }
 
