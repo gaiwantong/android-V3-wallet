@@ -1,5 +1,9 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,23 +38,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
-
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.annotation.Nullable;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
@@ -82,6 +69,21 @@ import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
@@ -347,7 +349,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void promptForAccountLabel(@Nullable final String validatedSecondPassword){
         final EditText etLabel = new EditText(this);
-        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
         FrameLayout frameLayout = new FrameLayout(this);
@@ -615,10 +617,17 @@ public class AccountActivity extends AppCompatActivity {
         final EditText password = new EditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        new AlertDialog.Builder(this)
+        FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(password, params);
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.bip38_password_entry)
-                .setView(password)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -667,11 +676,19 @@ public class AccountActivity extends AppCompatActivity {
 
                                         final EditText address_label = new EditText(AccountActivity.this);
                                         address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                                        address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
-                                        new AlertDialog.Builder(AccountActivity.this)
+                                        FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                                        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                                        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                                        frameLayout.addView(address_label, params);
+
+                                        new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                                 .setTitle(R.string.app_name)
                                                 .setMessage(R.string.label_address)
-                                                .setView(address_label)
+                                                .setView(frameLayout)
                                                 .setCancelable(false)
                                                 .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -752,6 +769,14 @@ public class AccountActivity extends AppCompatActivity {
 
             final EditText address_label = new EditText(AccountActivity.this);
             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+            address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+            FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+            params.setMargins(marginInPixels, 0, marginInPixels, 0);
+            frameLayout.addView(address_label, params);
 
             final ECKey scannedKey = key;
 
@@ -763,8 +788,8 @@ public class AccountActivity extends AppCompatActivity {
                     new AlertDialog.Builder(AccountActivity.this)
                             .setTitle(R.string.app_name)
                             .setMessage(R.string.label_address)
-                            .setView(address_label)
                             .setCancelable(false)
+                            .setView(frameLayout)
                             .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -968,11 +993,19 @@ public class AccountActivity extends AppCompatActivity {
                             mHandler.post(() -> {
                                 final EditText address_label = new EditText(AccountActivity.this);
                                 address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                                address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+                                FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                                params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                                frameLayout.addView(address_label, params);
 
                                 new AlertDialog.Builder(AccountActivity.this)
                                         .setTitle(R.string.app_name)
                                         .setMessage(R.string.label_address2)
-                                        .setView(address_label)
+                                        .setView(frameLayout)
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.save_name, (dialog, whichButton) -> {
                                             String label = address_label.getText().toString();
