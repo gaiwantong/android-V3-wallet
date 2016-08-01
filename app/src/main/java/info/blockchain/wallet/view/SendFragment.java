@@ -1,5 +1,8 @@
 package info.blockchain.wallet.view;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,24 +46,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.client.android.CaptureActivity;
-
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -89,6 +74,22 @@ import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
+
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentSendBinding;
 
@@ -1263,7 +1264,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         if (key != null && key.hasPrivKey() && watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
-            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+
+            //Create copy, otherwise pass by ref will override private key in wallet payload
+            LegacyAddress tempLegacyAddress = new LegacyAddress();
+            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
             confirmPayment(watchOnlyPendingSpend, true);
         } else {
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1307,7 +1315,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                     if (key != null && key.hasPrivKey()) {
 
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
-                                            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            
+                                            //Create copy, otherwise pass by ref will override private key in wallet payload
+                                            LegacyAddress tempLegacyAddress = new LegacyAddress();
+                                            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+                                            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+                                            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
                                             confirmPayment(watchOnlyPendingSpend, true);
                                         }else{
                                             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
