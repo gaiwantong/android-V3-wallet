@@ -1,5 +1,7 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,8 +31,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
@@ -39,6 +39,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.EnableGeo;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 
@@ -146,11 +147,11 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
-            if(currentFragment instanceof SendFragment){
-                currentFragment.onActivityResult(requestCode, resultCode, data);
-            }else{
+//            if(currentFragment instanceof SendActivity){
+//                currentFragment.onActivityResult(requestCode, resultCode, data);
+//            }else{
                 doScanInput(strResult);
-            }
+//            }
 
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
             resetNavigationDrawer();
@@ -169,10 +170,12 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).customKeypad != null && ((ReceiveFragment) currentFragment).customKeypad.isVisible()) {
             ((ReceiveFragment) currentFragment).onKeypadClose();
 
-        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).customKeypad != null && ((SendFragment) currentFragment).customKeypad.isVisible()) {
-            ((SendFragment) currentFragment).onKeypadClose();
-
-        } else {
+        }
+//        else if (currentFragment instanceof SendActivity && ((SendActivity) currentFragment).customKeypad != null && ((SendActivity) currentFragment).customKeypad.isVisible()) {
+//            ((SendActivity) currentFragment).onKeypadClose();
+//
+//        }
+        else {
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -190,12 +193,12 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     private void doScanInput(String strResult) {
 
-        Fragment fragment = new SendFragment();
-        Bundle args = new Bundle();
-        args.putString("scan_data", strResult);
-        fragment.setArguments(args);
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//        Fragment fragment = new SendActivity();
+//        Bundle args = new Bundle();
+//        args.putString("scan_data", strResult);
+//        fragment.setArguments(args);
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
     @Override

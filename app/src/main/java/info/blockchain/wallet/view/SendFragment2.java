@@ -1,5 +1,8 @@
 package info.blockchain.wallet.view;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,24 +46,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.client.android.CaptureActivity;
-
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -89,10 +74,26 @@ import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
+
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentSendBinding;
 
-public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener, SendViewModel.DataListener {
+public class SendFragment2 extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener, SendViewModel.DataListener {
 
     private final int SCAN_PRIVX = 301;
     private static Context context = null;
@@ -151,6 +152,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
         }
     };
+
+    @Override
+    public void onSingleFromAddress() {
+
+    }
+
+    @Override
+    public void onSingleToAddress() {
+
+    }
 
     private class PendingSpend {
 
@@ -1197,7 +1208,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                         watchOnlyPendingSpend = pendingSpend;
 
-                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                             PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), MainActivity.currentFragment);
                         }else{
                             startScanActivity();

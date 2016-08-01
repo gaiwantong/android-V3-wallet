@@ -48,15 +48,6 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -71,6 +62,16 @@ import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
@@ -302,10 +303,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private void sendClicked(){
         new SSLVerifyUtil(context).validateSSLThread();
 
-        Fragment fragment = new SendFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-        comm.setNavigationDrawerToggleEnabled(true);
+//        Fragment fragment = new SendActivity();
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+//        comm.setNavigationDrawerToggleEnabled(true);
+
+        startActivity(new Intent(getActivity(), SendActivity.class));
+        binding.fab.collapse();
     }
 
     private void receiveClicked(){
