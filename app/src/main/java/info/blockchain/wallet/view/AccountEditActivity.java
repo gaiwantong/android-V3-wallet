@@ -14,13 +14,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import info.blockchain.wallet.access.AccessState;
@@ -91,7 +91,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptAccountLabel() {
-        final EditText etLabel = new EditText(this);
+        final AppCompatEditText etLabel = new AppCompatEditText(this);
         etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
@@ -205,7 +205,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptBIP38Password(final String data) {
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
