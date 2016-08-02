@@ -1,5 +1,9 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,23 +38,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
-
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.annotation.Nullable;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
@@ -82,6 +69,21 @@ import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
@@ -955,7 +957,7 @@ public class AccountActivity extends AppCompatActivity {
             protected LegacyAddress doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword.toString());
+                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword);
             }
 
             @Override
