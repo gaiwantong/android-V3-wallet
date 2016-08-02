@@ -21,6 +21,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -43,7 +44,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -97,7 +97,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     //
     // accounts list
     //
-    private Spinner accountSpinner = null;//TODO - move to drawer header
+    private AppCompatSpinner accountSpinner = null;//TODO - move to drawer header
     //
     // tx list
     //
@@ -205,8 +205,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (isVisibleToUser) {
             isBottomSheetOpen = false;
             viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
-        } else {
-            ;
         }
     }
 
@@ -356,7 +354,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             }
         });
 
-        accountSpinner = (Spinner) context.findViewById(R.id.account_spinner);
+        accountSpinner = (AppCompatSpinner) context.findViewById(R.id.account_spinner);
         viewModel.updateAccountList();
         accountsAdapter = new AccountAdapter(context, R.layout.spinner_title_bar, viewModel.getActiveAccountAndAddressList());
         accountsAdapter.setDropDownViewResource(R.layout.spinner_title_bar_dropdown);

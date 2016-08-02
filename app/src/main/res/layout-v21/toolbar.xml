@@ -13,7 +13,7 @@
             app:contentInsetStart="72dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <Spinner
+        <android.support.v7.widget.AppCompatSpinner
                 android:id="@+id/account_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
