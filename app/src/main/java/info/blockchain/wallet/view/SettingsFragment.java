@@ -16,6 +16,7 @@ import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.SwitchPreferenceCompat;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -25,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -317,7 +317,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                     public void onSuccess() {
                         handler.post(() -> {
                             refreshList();
-                            new AlertDialog.Builder(getActivity())
+                            new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                     .setTitle(R.string.success)
                                     .setMessage(R.string.sms_verified)
                                     .setPositiveButton(R.string.dialog_continue, null)
@@ -564,7 +564,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogTorEnable() {
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.tor_requests)
                 .setMessage(R.string.tor_summary)
                 .setCancelable(false)
@@ -574,9 +574,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .show();
     }
 
-    private void showDialogEmail(){
+    private void showDialogEmail() {
 
-        final EditText etEmail = new EditText(getActivity());
+        final AppCompatEditText etEmail = new AppCompatEditText(getActivity());
         etEmail.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         etEmail.setText(settingsApi.getEmail());
         etEmail.setSelection(etEmail.getText().length());
@@ -625,7 +625,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void showDialogMobile() {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View smsPickerView = inflater.inflate(R.layout.include_sms_update, null);
-        final EditText etMobile = (EditText)smsPickerView.findViewById(R.id.etSms);
+        final AppCompatEditText etMobile = (AppCompatEditText)smsPickerView.findViewById(R.id.etSms);
         final TextView tvCountry = (TextView)smsPickerView.findViewById(R.id.tvCountry);
         final TextView tvSms = (TextView)smsPickerView.findViewById(R.id.tvSms);
 
@@ -730,7 +730,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void showDialogVerifySms() {
 
-        final EditText etSms = new EditText(getActivity());
+        final AppCompatEditText etSms = new AppCompatEditText(getActivity());
         etSms.setSingleLine(true);
         FrameLayout frameLayout = new FrameLayout(getActivity());
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -757,7 +757,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogPasswordHint() {
-        final EditText etPwHint1 = new EditText(getActivity());
+        final AppCompatEditText etPwHint1 = new AppCompatEditText(getActivity());
         etPwHint1.setText(settingsApi.getPasswordHint1());
         etPwHint1.setSelection(etPwHint1.getText().length());
         etPwHint1.setSingleLine(true);
@@ -789,7 +789,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogChangePin() {
-        final EditText etPin = new EditText(getActivity());
+        final AppCompatEditText etPin = new AppCompatEditText(getActivity());
         etPin.setInputType(InputType.TYPE_CLASS_NUMBER);
         etPin.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
@@ -843,9 +843,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
         final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password2, null);
 
-        EditText etCurrentPw = (EditText) pwLayout.findViewById(R.id.current_password);
-        EditText etNewPw = (EditText) pwLayout.findViewById(R.id.new_password);
-        EditText etNewConfirmedPw = (EditText) pwLayout.findViewById(R.id.confirm_password);
+        AppCompatEditText etCurrentPw = (AppCompatEditText) pwLayout.findViewById(R.id.current_password);
+        AppCompatEditText etNewPw = (AppCompatEditText) pwLayout.findViewById(R.id.new_password);
+        AppCompatEditText etNewConfirmedPw = (AppCompatEditText) pwLayout.findViewById(R.id.confirm_password);
 
         LinearLayout entropyMeter = (LinearLayout) pwLayout.findViewById(R.id.entropy_meter);
         ProgressBar passStrengthBar = (ProgressBar) pwLayout.findViewById(R.id.pass_strength_bar);
