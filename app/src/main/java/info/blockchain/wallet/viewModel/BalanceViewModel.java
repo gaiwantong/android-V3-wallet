@@ -46,7 +46,6 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private List<Tx> transactionList;
     private PrefsUtil prefsUtil;
     private OSUtil osUtil;
-    private MonetaryUtil monetaryUtil;
     private PayloadManager payloadManager;
 
     @Bindable
@@ -76,7 +75,10 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         this.transactionList = new ArrayList<>();
         this.prefsUtil = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
-        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+    }
+
+    public MonetaryUtil getMonetaryUtil() {
+        return new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
     }
 
     @Override
@@ -322,7 +324,6 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
     //TODO refactor isBTC out
     public void updateBalanceAndTransactionList(Intent intent, int accountSpinnerPosition, boolean isBTC) {
-
         ArrayList<Tx> unsortedTransactionList = new ArrayList<>();//We will sort this list by date shortly
         double btc_balance = 0.0;
         double fiat_balance = 0.0;
@@ -409,9 +410,9 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
         String balanceTotal = "";
         if (isBTC) {
-            balanceTotal = (monetaryUtil.getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
+            balanceTotal = (getMonetaryUtil().getDisplayAmountWithFormatting(btc_balance) + " " + getDisplayUnits());
         } else {
-            balanceTotal = (monetaryUtil.getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
+            balanceTotal = (getMonetaryUtil().getFiatFormat(strFiat).format(fiat_balance) + " " + strFiat);
         }
 
         setBalance(balanceTotal);
@@ -439,7 +440,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getDisplayUnits() {
-        return (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
+        return (String) getMonetaryUtil().getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
     }
 
     private class TxDateComparator implements Comparator<Tx> {

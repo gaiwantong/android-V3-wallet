@@ -48,6 +48,20 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.PayloadBridge;
+import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.payload.Transaction;
+import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.DateUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
+import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.ToastCustom;
+import info.blockchain.wallet.viewModel.BalanceViewModel;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,20 +71,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.payload.Transaction;
-import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.DateUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.SSLVerifyUtil;
-import info.blockchain.wallet.util.WebUtil;
-import info.blockchain.wallet.view.helpers.ToastCustom;
-import info.blockchain.wallet.viewModel.BalanceViewModel;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
@@ -111,7 +111,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private View prevRowClicked = null;
     private PrefsUtil prefsUtil;
     private DateUtil dateUtil;
-    private MonetaryUtil monetaryUtil;
     private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -163,7 +162,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         context = getActivity();
         prefsUtil = new PrefsUtil(context);
         dateUtil = new DateUtil(context);
-        monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         appUtil = new AppUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
@@ -602,9 +600,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                                 //Fee
                                 String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-                                String fee = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
+                                String fee = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
                                 if (isBTC)
-                                    fee = (monetaryUtil.getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
+                                    fee = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
                                 tvFee.setText(fee);
 
                                 //Filter non-change addresses
@@ -640,9 +638,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
                                     tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
                                     long amount = item.getValue();
-                                    String amountS = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
+                                    String amountS = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
                                     if (isBTC)
-                                        amountS = (monetaryUtil.getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
+                                        amountS = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
 
                                     tvFee.setText(fee);
                                     tvToAddrTotal.setText(amountS);
@@ -834,10 +832,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     tvDirection.setText(getResources().getString(R.string.SENT));
 
                 if (isBTC) {
-                    span1 = Spannable.Factory.getInstance().newSpannable(monetaryUtil.getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + viewModel.getDisplayUnits());
+                    span1 = Spannable.Factory.getInstance().newSpannable(viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(Math.abs(tx.getAmount())) + " " + viewModel.getDisplayUnits());
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - viewModel.getDisplayUnits().length(), span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 } else {
-                    span1 = Spannable.Factory.getInstance().newSpannable(monetaryUtil.getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
+                    span1 = Spannable.Factory.getInstance().newSpannable(viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(Math.abs(_fiat_balance)) + " " + strFiat);
                     span1.setSpan(new RelativeSizeSpan(0.67f), span1.length() - 3, span1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 if (tx.isMove()) {
