@@ -1,5 +1,7 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,8 +23,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
@@ -31,6 +31,7 @@ import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
@@ -91,7 +92,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
     @Override
     public void onPromptAccountLabel() {
         final EditText etLabel = new EditText(this);
-        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
         FrameLayout frameLayout = new FrameLayout(this);
