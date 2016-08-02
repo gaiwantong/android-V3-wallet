@@ -982,7 +982,7 @@ public class AccountActivity extends AppCompatActivity {
             protected LegacyAddress doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword.toString());
+                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword);
             }
 
             @Override
