@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -35,7 +36,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
@@ -350,7 +350,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void promptForAccountLabel(@Nullable final String validatedSecondPassword){
-        final EditText etLabel = new EditText(this);
+        final AppCompatEditText etLabel = new AppCompatEditText(this);
         etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
@@ -570,6 +570,8 @@ public class AccountActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
         AccessState.getInstance(this).stopLogoutTimer();
+
+        updateAccountsList();
     }
 
     @Override
@@ -616,7 +618,7 @@ public class AccountActivity extends AppCompatActivity {
 
         final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
         FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
@@ -661,7 +663,7 @@ public class AccountActivity extends AppCompatActivity {
                                         setPrivateKey(key);
 
                                     } else if (key != null && key.hasPrivKey() && !payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
-                                        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+                                        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", BuildConfig.VERSION_NAME);
                                                     /*
                                                      * if double encrypted, save encrypted in payload
                                                      */
@@ -676,7 +678,7 @@ public class AccountActivity extends AppCompatActivity {
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
-                                        final EditText address_label = new EditText(AccountActivity.this);
+                                        final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                                         address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
                                         address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
@@ -754,7 +756,7 @@ public class AccountActivity extends AppCompatActivity {
 
             final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
-            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", BuildConfig.VERSION_NAME);
             /*
              * if double encrypted, save encrypted in payload
              */
@@ -769,7 +771,7 @@ public class AccountActivity extends AppCompatActivity {
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
-            final EditText address_label = new EditText(AccountActivity.this);
+            final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
             address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
@@ -787,7 +789,7 @@ public class AccountActivity extends AppCompatActivity {
                 public void run() {
                     Looper.prepare();
 
-                    new AlertDialog.Builder(AccountActivity.this)
+                    new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                             .setTitle(R.string.app_name)
                             .setMessage(R.string.label_address)
                             .setCancelable(false)
@@ -874,7 +876,7 @@ public class AccountActivity extends AppCompatActivity {
         } else {
 
             final String finalAddress = address;
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle(R.string.warning)
                     .setCancelable(false)
                     .setMessage(getString(R.string.watch_only_import_warning))
@@ -888,18 +890,26 @@ public class AccountActivity extends AppCompatActivity {
                             legacyAddress.setCreatedDeviceVersion(BuildConfig.VERSION_NAME);
                             legacyAddress.setWatchOnly(true);
 
-                            final EditText address_label = new EditText(AccountActivity.this);
+                            final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                            address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+                            FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                            params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                            frameLayout.addView(address_label, params);
 
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     Looper.prepare();
 
-                                    new AlertDialog.Builder(AccountActivity.this)
+                                    new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                             .setTitle(R.string.app_name)
                                             .setMessage(R.string.label_address)
-                                            .setView(address_label)
+                                            .setView(frameLayout)
                                             .setCancelable(false)
                                             .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -993,7 +1003,7 @@ public class AccountActivity extends AppCompatActivity {
                     new Thread(() -> {
                         try {
                             mHandler.post(() -> {
-                                final EditText address_label = new EditText(AccountActivity.this);
+                                final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                                 address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
                                 address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
