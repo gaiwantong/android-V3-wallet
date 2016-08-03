@@ -1,6 +1,7 @@
 package info.blockchain.wallet.view;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -87,6 +88,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
     private PayloadManager payloadManager;
+    // Flag for setting 2FA after phone confirmation
+    private boolean show2FaAfterPhoneVerified = false;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -296,6 +299,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
                         @Override
                         public void onFail() {
+                            show2FaAfterPhoneVerified = false;
                             ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         }
 
@@ -320,13 +324,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                             new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                     .setTitle(R.string.success)
                                     .setMessage(R.string.sms_verified)
-                                    .setPositiveButton(R.string.dialog_continue, null)
+                                    .setPositiveButton(R.string.dialog_continue, (dialogInterface, i) -> {
+                                        if (show2FaAfterPhoneVerified) showDialogTwoFA();
+                                    })
                                     .show();
                         });
                     }
 
                     @Override
                     public void onFail() {
+                        show2FaAfterPhoneVerified = false;
                         ToastCustom.makeText(getActivity(), getString(R.string.verification_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                     }
 
@@ -658,26 +665,32 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .setMessage(getString(R.string.mobile_description))
                 .setView(smsPickerView)
                 .setCancelable(false)
-                .setPositiveButton(R.string.update, (dialogInterface, i) -> {
-                    final String sms = tvCountry.getText().toString() + etMobile.getText().toString();
-
-                    if (!FormatsUtil.getInstance().isValidMobileNumber(sms)) {
-                        ToastCustom.makeText(getActivity(), getString(R.string.invalid_mobile), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    } else {
-                        updateSms(sms);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null);
+                .setPositiveButton(R.string.update, null)
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> show2FaAfterPhoneVerified = false);
 
         if (!settingsApi.isSmsVerified() && settingsApi.getSms() != null && !settingsApi.getSms().isEmpty()) {
             alertDialogSmsBuilder.setNeutralButton(R.string.verify, (dialogInterface, i) -> showDialogVerifySms());
         }
 
-        alertDialogSmsBuilder.create()
-                .show();
+        AlertDialog dialog = alertDialogSmsBuilder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positive = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            positive.setOnClickListener(view -> {
+                final String sms = tvCountry.getText().toString() + etMobile.getText().toString();
+
+                if (!FormatsUtil.getInstance().isValidMobileNumber(sms)) {
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_mobile), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                } else {
+                    updateSms(sms);
+                    dialog.dismiss();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
-    private void showDialogGUI(){
+    private void showDialogGUI() {
         new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.guid_to_clipboard)
@@ -739,21 +752,28 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         params.setMargins(marginInPixels, 0, marginInPixels, 0);
         frameLayout.addView(etSms, params);
 
-        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.verify_mobile)
                 .setMessage(R.string.verify_sms_summary)
                 .setView(frameLayout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.verify, (dialogInterface, i) -> {
-                    final String codeS = etSms.getText().toString();
-                    if (codeS.length() > 0) {
-                        verifySms(codeS);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.verify, null)
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> show2FaAfterPhoneVerified = false)
                 .setNeutralButton(R.string.resend, (dialogInterface, i) -> updateSms(settingsApi.getSms()))
-                .create()
-                .show();
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+                    Button positive = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                    positive.setOnClickListener(view -> {
+                        final String codeS = etSms.getText().toString();
+                        if (codeS.length() > 0) {
+                            verifySms(codeS);
+                            dialog.dismiss();
+                        }
+                    });
+                });
+
+        dialog.show();
     }
 
     private void showDialogPasswordHint() {
@@ -938,8 +958,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void showDialogTwoFA() {
         if (!settingsApi.isSmsVerified()) {
             twoStepVerificationPref.setChecked(false);
+            show2FaAfterPhoneVerified = true;
             showDialogMobile();
         } else {
+            show2FaAfterPhoneVerified = false;
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                     .setTitle(R.string.two_fa)
                     .setMessage(R.string.two_fa_summary)
