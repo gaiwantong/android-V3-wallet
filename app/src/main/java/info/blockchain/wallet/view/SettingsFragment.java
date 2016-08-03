@@ -1,6 +1,7 @@
 package info.blockchain.wallet.view;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -860,7 +861,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
     private void showDialogChangePassword() {
 
-        LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password2, null);
 
         AppCompatEditText etCurrentPw = (AppCompatEditText) pwLayout.findViewById(R.id.current_password);
@@ -903,7 +904,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .setTitle(R.string.change_password)
                 .setCancelable(false)
                 .setView(pwLayout)
-                .setPositiveButton(R.string.update, (dialogInterface, i) -> {})
+                .setPositiveButton(R.string.update, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
@@ -933,9 +934,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                                         etNewPw.setText("");
                                         etNewPw.requestFocus();
                                     })
-                                    .setNegativeButton(R.string.polite_no, (dialog1, which) -> {
-                                        updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
-                                    })
+                                    .setNegativeButton(R.string.polite_no, (dialog1, which) ->
+                                            updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword))
                                     .show();
                         } else {
                             updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
@@ -974,13 +974,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                     });
 
             if (settingsApi.getAuthType() == Settings.AUTH_TYPE_SMS) {
-                alertDialogBuilder.setNegativeButton(R.string.disable, (dialogInterface, i) -> {
-                    update2FA(Settings.AUTH_TYPE_OFF);
-                });
+                alertDialogBuilder.setNegativeButton(R.string.disable, (dialogInterface, i) -> update2FA(Settings.AUTH_TYPE_OFF));
             } else {
-                alertDialogBuilder.setPositiveButton(R.string.enable, (dialogInterface, i) -> {
-                    update2FA(Settings.AUTH_TYPE_SMS);
-                });
+                alertDialogBuilder.setPositiveButton(R.string.enable, (dialogInterface, i) -> update2FA(Settings.AUTH_TYPE_SMS));
             }
             alertDialogBuilder.create()
                     .show();
