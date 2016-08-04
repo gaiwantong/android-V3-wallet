@@ -90,11 +90,8 @@ import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-//import android.util.Log;
-
 public class AccountActivity extends AppCompatActivity {
 
-    public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
     private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
     private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
 
@@ -109,7 +106,7 @@ public class AccountActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, final Intent intent) {
 
-            if (ACTION_INTENT.equals(intent.getAction())) {
+            if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
 
                 AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -564,7 +561,7 @@ public class AccountActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        IntentFilter filter = new IntentFilter(ACTION_INTENT);
+        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
         AccessState.getInstance(this).stopLogoutTimer();
