@@ -195,7 +195,7 @@ public class MainViewModel implements ViewModel{
 
         exitClickCount++;
         if (exitClickCount == 2) {
-            AccessState.getInstance().logout();
+            AccessState.getInstance().logout(context);
         } else {
             dataListener.onExitConfirmToast();
         }

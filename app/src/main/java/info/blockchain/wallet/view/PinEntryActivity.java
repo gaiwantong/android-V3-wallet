@@ -1,8 +1,8 @@
 package info.blockchain.wallet.view;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -12,6 +12,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -93,7 +94,7 @@ public class PinEntryActivity extends Activity {
         pinBoxArray[3] = binding.pinBox3;
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
 
             final String message = getString(R.string.check_connectivity_exit);
 
@@ -118,7 +119,7 @@ public class PinEntryActivity extends Activity {
 
             payloadManager.getPayload().stepNumber = 0;
 
-            new AlertDialog.Builder(PinEntryActivity.this)
+            new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.password_or_wipe)
                     .setCancelable(false)
@@ -166,7 +167,7 @@ public class PinEntryActivity extends Activity {
         if (allowExit) {
             exitClickCount++;
             if (exitClickCount == 2) {
-                AccessState.getInstance().logout();
+                AccessState.getInstance().logout(this);
             } else
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
@@ -282,13 +283,13 @@ public class PinEntryActivity extends Activity {
 
                                     if(walletVersion > PayloadManager.SUPPORTED_ENCRYPTION_VERSION){
 
-                                        new AlertDialog.Builder(PinEntryActivity.this)
+                                        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                                 .setTitle(R.string.warning)
                                                 .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
                                                 .setCancelable(false)
                                                 .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                                        AccessState.getInstance().logout();
+                                                        AccessState.getInstance().logout(getActivity());
                                                     }
                                                 })
                                                 .setNegativeButton(R.string.logout, new DialogInterface.OnClickListener() {
@@ -357,6 +358,10 @@ public class PinEntryActivity extends Activity {
                 }
             }
         }).start();
+    }
+
+    private Context getActivity() {
+        return this;
     }
 
     private void createNewPinThread(String pin) {
@@ -449,7 +454,7 @@ public class PinEntryActivity extends Activity {
         final EditText password = new EditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
                 .setView(password)

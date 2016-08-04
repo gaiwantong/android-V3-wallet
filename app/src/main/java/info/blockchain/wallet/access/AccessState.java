@@ -21,23 +21,21 @@ import piuk.blockchain.android.LogoutActivity;
 
 public class AccessState {
 
-    private static final long LOGOUT_TIMEOUT = 1000L * 30L; // 30 seconds in milliseconds
+    private static final long LOGOUT_TIMEOUT_MILLIS = 1000L * 30L;
     public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
 
+    private PrefsUtil prefs;
+    private String mPin;
+    private boolean isLoggedIn = false;
     private Access accessApi;
-
-    private static PrefsUtil prefs;
-
-    private static String pin;
-    private static boolean isLoggedIn = false;
-    private Context mContext;
     private PendingIntent logoutPendingIntent;
+    private AppUtil mAppUtil;
     private static AccessState instance;
 
     public void initAccessState(Context context) {
-        mContext = context;
         prefs = new PrefsUtil(context);
         accessApi = new Access();
+        mAppUtil = new AppUtil(context);
         Intent intent = new Intent(context, LogoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setAction(AccessState.LOGOUT_ACTION);
@@ -56,9 +54,9 @@ public class AccessState {
             return false;
         }
 
-        pin = passedPin;
+        mPin = passedPin;
 
-        new AppUtil(mContext).applyPRNGFixes();
+        mAppUtil.applyPRNGFixes();
 
         try {
             byte[] bytes = new byte[16];
@@ -68,7 +66,7 @@ public class AccessState {
             random.nextBytes(bytes);
             String value = new String(org.spongycastle.util.encoders.Hex.encode(bytes), "UTF-8");
 
-            JSONObject json = accessApi.setAccess(key, value, pin);
+            JSONObject json = accessApi.setAccess(key, value, mPin);
             if (json.get("success") != null) {
                 String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(value), AESUtil.PinPbkdf2Iterations);
                 prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
@@ -89,16 +87,15 @@ public class AccessState {
 
     public CharSequenceX validatePIN(String passedPin) throws Exception {
 
-        pin = passedPin;
+        mPin = passedPin;
 
         String key = prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "");
         String encrypted_password = prefs.getValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, "");
 
         try {
-            final JSONObject json = accessApi.validateAccess(key, pin);
+            final JSONObject json = accessApi.validateAccess(key, mPin);
             String decryptionKey = (String) json.get("success");
-            CharSequenceX password = new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
-            return password;
+            return new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
         } catch (UnsupportedEncodingException uee) {
             throw uee;
         } catch (Exception e) {
@@ -112,11 +109,11 @@ public class AccessState {
     }
 
     public void setPIN(String pin) {
-        this.pin = pin;
+        mPin = pin;
     }
 
     public String getPIN() {
-        return pin;
+        return mPin;
     }
 
     /**
@@ -124,7 +121,7 @@ public class AccessState {
      */
     public void startLogoutTimer() {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT, logoutPendingIntent);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS, logoutPendingIntent);
     }
 
     /**
@@ -135,11 +132,11 @@ public class AccessState {
         alarmManager.cancel(logoutPendingIntent);
     }
 
-    public void logout() {
-        Intent intent = new Intent(mContext, LogoutActivity.class);
+    public void logout(Context context) {
+        Intent intent = new Intent(context, LogoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setAction(LOGOUT_ACTION);
-        mContext.startActivity(intent);
+        context.startActivity(intent);
     }
 
     public boolean isLoggedIn() {
@@ -147,6 +144,6 @@ public class AccessState {
     }
 
     public void setIsLoggedIn(boolean loggedIn) {
-        this.isLoggedIn = loggedIn;
+        isLoggedIn = loggedIn;
     }
 }
