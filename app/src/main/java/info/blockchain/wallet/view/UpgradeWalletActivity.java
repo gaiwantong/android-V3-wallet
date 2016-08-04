@@ -130,7 +130,7 @@ public class UpgradeWalletActivity extends Activity {
 
                                             Looper.prepare();
 
-                                            if (AccessState.getInstance(UpgradeWalletActivity.this).createPIN(payloadManager.getTempPassword(), AccessState.getInstance(UpgradeWalletActivity.this).getPIN())) {
+                                            if (AccessState.getInstance().createPIN(payloadManager.getTempPassword(), AccessState.getInstance().getPIN())) {
                                                 payloadManager.savePayloadToServer();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                             } else {
@@ -179,7 +179,7 @@ public class UpgradeWalletActivity extends Activity {
 
                 if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
-                AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                AccessState.getInstance().setIsLoggedIn(true);
                 appUtil.restartApp("verified", true);
             }
         });
@@ -291,7 +291,7 @@ public class UpgradeWalletActivity extends Activity {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                        AccessState.getInstance().setIsLoggedIn(true);
                         appUtil.restartApp("verified", true);
                     }
                 });
@@ -327,7 +327,7 @@ public class UpgradeWalletActivity extends Activity {
         appUtil.setUpgradeReminder(System.currentTimeMillis());
         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
         prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, true);
-        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+        AccessState.getInstance().setIsLoggedIn(true);
         appUtil.restartApp("verified", true);
     }
 
@@ -371,12 +371,12 @@ public class UpgradeWalletActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 

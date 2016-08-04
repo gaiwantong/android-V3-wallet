@@ -577,7 +577,7 @@ public class AccountActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
 
         updateAccountsList();
     }
@@ -585,7 +585,7 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 

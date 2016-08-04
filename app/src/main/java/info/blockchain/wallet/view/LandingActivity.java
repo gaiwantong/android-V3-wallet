@@ -80,7 +80,7 @@ public class LandingActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
     }
 
     @Override

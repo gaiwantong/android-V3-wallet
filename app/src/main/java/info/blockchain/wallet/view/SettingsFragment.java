@@ -427,7 +427,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             @Override
             protected CharSequenceX doInBackground(Void... params) {
                 try {
-                    return AccessState.getInstance(getActivity()).validatePIN(pin);
+                    return AccessState.getInstance().validatePIN(pin);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
@@ -995,7 +995,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
             payloadManager.setTempPassword(updatedPassword);
 
-            if (AccessState.getInstance(getActivity()).createPIN(updatedPassword, AccessState.getInstance(getActivity()).getPIN())
+            if (AccessState.getInstance().createPIN(updatedPassword, AccessState.getInstance().getPIN())
                     && payloadManager.savePayloadToServer()) {
 
                 ToastCustom.makeText(getActivity(), getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);

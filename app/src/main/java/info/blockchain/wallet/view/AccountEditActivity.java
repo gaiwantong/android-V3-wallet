@@ -74,12 +74,12 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
     @Override
     protected void onResume() {
         super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
     }
 
     @Override
     public void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 

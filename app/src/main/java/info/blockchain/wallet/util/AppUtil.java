@@ -135,7 +135,7 @@ public class AppUtil {
                 PRNGFixes.apply();
             } catch (Exception e1) {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                AccessState.getInstance(context).logout();
+                AccessState.getInstance().logout();
             }
         }
     }

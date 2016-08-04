@@ -350,6 +350,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
         currLocation = location;
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, map.getCameraPosition().zoom);
         map.animateCamera(cameraUpdate);
+        // TODO: 04/08/2016 This needs permission checking, if only for Lint checks
         locationManager.removeUpdates(this);
 
         setProperZoomLevel(latLng, radius, 1);
@@ -373,14 +374,14 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     protected void onResume() {
         super.onResume();
 
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
 
         launchedList = false;
     }
 
     @Override
     protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 

@@ -35,12 +35,12 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
     }
 
     @Override
     protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 

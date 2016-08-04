@@ -8,7 +8,6 @@ import android.os.SystemClock;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
-import info.blockchain.wallet.view.MainActivity;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -18,39 +17,36 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
+import piuk.blockchain.android.LogoutActivity;
+
 public class AccessState {
 
     private static final long LOGOUT_TIMEOUT = 1000L * 30L; // 30 seconds in milliseconds
     public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
 
-    private static Access accessApi;
+    private Access accessApi;
 
-    private static Context context = null;
     private static PrefsUtil prefs;
 
-    private static AccessState instance = null;
-
-    private static String pin = null;
+    private static String pin;
     private static boolean isLoggedIn = false;
-    private static PendingIntent logoutPendingIntent;
+    private Context mContext;
+    private PendingIntent logoutPendingIntent;
+    private static AccessState instance;
 
-    private AccessState() {}
+    public void initAccessState(Context context) {
+        mContext = context;
+        prefs = new PrefsUtil(context);
+        accessApi = new Access();
+        Intent intent = new Intent(context, LogoutActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setAction(AccessState.LOGOUT_ACTION);
+        logoutPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+    }
 
-    public static AccessState getInstance(Context passedContext) {
-
-        if (instance == null) {
+    public static AccessState getInstance() {
+        if (instance == null)
             instance = new AccessState();
-
-            context = passedContext;
-            prefs = new PrefsUtil(context);
-            accessApi = new Access();
-
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.setAction(AccessState.LOGOUT_ACTION);
-            logoutPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        }
-
         return instance;
     }
 
@@ -62,7 +58,7 @@ public class AccessState {
 
         pin = passedPin;
 
-        new AppUtil(context).applyPRNGFixes();
+        new AppUtil(mContext).applyPRNGFixes();
 
         try {
             byte[] bytes = new byte[16];
@@ -127,7 +123,7 @@ public class AccessState {
      * Called from all activities' onPause
      */
     public void startLogoutTimer() {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT, logoutPendingIntent);
     }
 
@@ -135,15 +131,15 @@ public class AccessState {
      * Called from all activities' onResume
      */
     public void stopLogoutTimer() {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(logoutPendingIntent);
     }
 
     public void logout() {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(mContext, LogoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setAction(LOGOUT_ACTION);
-        context.startActivity(intent);
+        mContext.startActivity(intent);
     }
 
     public boolean isLoggedIn() {

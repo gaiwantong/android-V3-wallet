@@ -144,7 +144,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        AccessState.getInstance(this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
 
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
@@ -208,7 +208,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     @Override
     protected void onPause() {
 
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
 
         if (handler != null) {
             handler.quitSynchronously();

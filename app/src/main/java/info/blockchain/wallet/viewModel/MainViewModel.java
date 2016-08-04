@@ -59,18 +59,8 @@ public class MainViewModel implements ViewModel{
 
         this.appUtil.applyPRNGFixes();
 
-        checkIntent();
         checkRooted();
         checkConnectivity();
-    }
-
-    private void checkIntent(){
-        // Log out if started with the logout intent
-        if (((Activity)context).getIntent().getAction() != null && AccessState.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
-            ((Activity)context).finish();
-            System.exit(0);
-            return;
-        }
     }
 
     private void checkRooted(){
@@ -124,12 +114,12 @@ public class MainViewModel implements ViewModel{
                 !prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false) &&
                 prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
 
-            AccessState.getInstance(context).setIsLoggedIn(true);
+            AccessState.getInstance().setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();
         }
         // App has been PIN validated
-        else if (isPinValidated || (AccessState.getInstance(context).isLoggedIn())) {
-            AccessState.getInstance(context).setIsLoggedIn(true);
+        else if (isPinValidated || (AccessState.getInstance().isLoggedIn())) {
+            AccessState.getInstance().setIsLoggedIn(true);
 
             this.dataListener.onFetchTransactionsStart();
 
@@ -205,7 +195,7 @@ public class MainViewModel implements ViewModel{
 
         exitClickCount++;
         if (exitClickCount == 2) {
-            AccessState.getInstance(context).logout();
+            AccessState.getInstance().logout();
         } else {
             dataListener.onExitConfirmToast();
         }

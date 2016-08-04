@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     protected void onResume() {
         super.onResume();
 
-        AccessState.getInstance(MainActivity.this).stopLogoutTimer();
+        AccessState.getInstance().stopLogoutTimer();
         appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
+        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 
