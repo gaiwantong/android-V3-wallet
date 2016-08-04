@@ -12,20 +12,35 @@ android {
 
     defaultConfig {
         applicationId "piuk.blockchain.android"
-        minSdkVersion 14
         targetSdkVersion 23
         versionCode 222
         versionName "6.1.31"
-        multiDexEnabled true
     }
+
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
         }
         debug {
+            multiDexEnabled true
             resValue "string", "google_maps_key", "AIzaSyASTnx7wjsCTkMr_RtLQYTzMAf7A9SWIMw"
+        }
+    }
+
+    productFlavors {
+        prod {
+            // For release and testing on <API21 devices
+            minSdkVersion 14
+        }
+        dev {
+            // For everyday work, setting minSdkVersion to 21 bypasses MultiDex, resulting in
+            // much faster builds
+            minSdkVersion 21
         }
     }
 
@@ -44,10 +59,6 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-    // Include native .so libs
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/resources/lib'
-    }
 
     testOptions {
         unitTests.returnDefaultValues = true
@@ -62,7 +73,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 }
 
-ext{
+ext {
     supportVersion = '24.1.1'
 }
 
