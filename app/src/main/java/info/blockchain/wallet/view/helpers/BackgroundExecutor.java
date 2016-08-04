@@ -8,11 +8,11 @@ import piuk.blockchain.android.R;
 
 public class BackgroundExecutor extends AsyncTask<Void, Void, Void>{
 
-    ProgressDialog progress;
-    Context context;
-    Command command;
-    String title;
-    String message;
+    private ProgressDialog progress;
+    private Context context;
+    private Command command;
+    private String title;
+    private String message;
 
     public interface Command{
         void execute();

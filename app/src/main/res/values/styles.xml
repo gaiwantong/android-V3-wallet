@@ -71,4 +71,26 @@
 		<item name="android:gravity">center_vertical</item>
 	</style>
 
+	<style name="CustomDialogButton" parent="Base.Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:theme">@style/PlainTheme</item>
+        <item name="android:layout_marginBottom">4dp</item>
+	</style>
+
+    <style name="PlainTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- No colors defined here for default styling on AlertDialog buttons -->
+    </style>
+
+    <style name="CustomDialogButtonContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical|right</item>
+    </style>
+
 </resources>

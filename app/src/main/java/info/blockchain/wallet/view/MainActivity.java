@@ -1,5 +1,7 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,8 +31,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.google.zxing.client.android.CaptureActivity;
-
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
@@ -39,6 +39,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.EnableGeo;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 
@@ -234,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URI)));
                 break;
             case R.id.nav_logout:
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                         .setTitle(R.string.unpair_wallet)
                         .setMessage(R.string.ask_you_sure_unpair)
                         .setPositiveButton(R.string.unpair, (dialog, which) -> {
@@ -339,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onRooted() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
             builder.setMessage(getString(R.string.device_rooted))
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue,
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     public void onConnectivityFail() {
 
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         final String message = getString(R.string.check_connectivity_exit);
         builder.setMessage(message)
                 .setCancelable(false)
@@ -385,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onCorruptPayload() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(MainActivity.this.getString(R.string.not_sane_error))
                 .setCancelable(false)
