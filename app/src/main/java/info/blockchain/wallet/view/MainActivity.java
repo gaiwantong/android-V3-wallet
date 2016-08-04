@@ -3,7 +3,6 @@ package info.blockchain.wallet.view;
 import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -21,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     private static String SUPPORT_URI = "http://support.blockchain.com/";
 
     private Toolbar toolbar = null;
-    private AlertDialog rootedAlertDialog;
     private MainViewModel mainViewModel;//MainActivity logic
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
@@ -85,11 +84,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (rootedAlertDialog != null) {
-            rootedAlertDialog.dismiss();
-            rootedAlertDialog = null;
-        }
 
         mainViewModel.stopWebSocketService();
     }
@@ -338,20 +332,16 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onRooted() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-            builder.setMessage(getString(R.string.device_rooted))
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                    .setMessage(getString(R.string.device_rooted))
                     .setCancelable(false)
-                    .setPositiveButton(R.string.dialog_continue,
-                            (d, id) -> {
-                                d.dismiss();
-                            });
-            rootedAlertDialog = builder.create();
-            rootedAlertDialog.show();
+                    .setPositiveButton(R.string.dialog_continue, null)
+                    .create()
+                    .show();
     }
 
     @Override
     public void onConnectivityFail() {
-
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         final String message = getString(R.string.check_connectivity_exit);
