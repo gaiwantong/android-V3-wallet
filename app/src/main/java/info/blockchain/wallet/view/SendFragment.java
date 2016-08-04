@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
@@ -96,10 +97,9 @@ import piuk.blockchain.android.databinding.FragmentSendBinding;
 public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener, SendViewModel.DataListener {
 
     private final int SCAN_PRIVX = 301;
-    private static Context context = null;
 
     private MenuItem btSend;
-    public static CustomKeypad customKeypad;
+    public CustomKeypad customKeypad;
 
     private List<String> sendFromList = null;
     private HashBiMap<Object, Integer> sendFromBiMap = null;
@@ -331,6 +331,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         binding.amountRow.amountBtc.setText("");
         binding.amountRow.amountBtc.requestFocus();
+    }
+
+    @Nullable
+    public CustomKeypad getCustomKeypad() {
+        return customKeypad;
     }
 
     private BigInteger getCustomFee(){
@@ -940,8 +945,6 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public void onResume() {
         super.onResume();
 
-        MainActivity.currentFragment = this;
-
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
@@ -1199,13 +1202,17 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         watchOnlyPendingSpend = pendingSpend;
 
                         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), MainActivity.currentFragment);
+                            PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), getFragment());
                         }else{
                             startScanActivity();
                         }
 
                     }
                 }).setNegativeButton(android.R.string.cancel, null).show();
+    }
+
+    private Fragment getFragment() {
+        return this;
     }
 
     private void startScanActivity(){
@@ -1511,13 +1518,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             progress.setMessage(getString(R.string.sending));
                             progress.show();
 
-                            context = getActivity();
-
                             if (unspentsCoinsBundle != null) {
                                 executeSend(isWatchOnlySpend, pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
-                                ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 closeDialog(alertDialog, false);
                             }
 
@@ -1612,7 +1617,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void executeSend(boolean isWatchOnlySpend, final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
 
-        SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+        SendFactory.getInstance(getActivity()).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
                 unspents.getOutputs(),
                 pendingSpend.destination,
                 pendingSpend.bigIntAmount,
@@ -1629,7 +1634,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             @Override
             public void onSuccess(final String hash) {
 
-                ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
                 playAudio();
 
@@ -1665,16 +1670,16 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
             public void onFail(String error) {
-                ToastCustom.makeText(context, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                ToastCustom.makeText(getActivity(), error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                 if(!ConnectivityStatus.hasConnectivity(getActivity())) {
-                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                    ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                     //Initial send failed - Put send in queue for reattempt
                     String direction = MultiAddrFactory.SENT;
                     if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
 
-                    SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+                    SendFactory.getInstance(getActivity()).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
                             unspents.getOutputs(),
                             pendingSpend.destination,
                             pendingSpend.bigIntAmount,
@@ -1702,7 +1707,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 Thread.sleep(1000);
                             } catch (Exception e) {
                             }//wait for broadcast receiver to register
-                            LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                            LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(intent);
                             Looper.loop();
                         }
                     }).start();
@@ -1743,10 +1748,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void playAudio(){
 
-        AudioManager audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getActivity().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             MediaPlayer mp;
-            mp = MediaPlayer.create(context.getApplicationContext(), R.raw.alert);
+            mp = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alert);
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
                 @Override

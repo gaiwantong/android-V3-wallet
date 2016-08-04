@@ -185,8 +185,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     public void onResume() {
         super.onResume();
 
-        MainActivity.currentFragment = this;
-
         comm.resetNavigationDrawer();
 
         isBottomSheetOpen = false;
@@ -266,6 +264,14 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 comm.setNavigationDrawerToggleEnabled(true);
             }
         });
+    }
+
+    public boolean isFabExpanded() {
+        return isAdded() && binding.fab != null && binding.fab.isExpanded();
+    }
+
+    public void collapseFab() {
+        if (binding.fab != null) binding.fab.collapse();
     }
 
     private void sendClicked(){
@@ -744,7 +750,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     @Override
     public void onRefreshAccounts() {
         //TODO revise
-        if(accountSpinner != null && MainActivity.currentFragment instanceof BalanceFragment)
+        if (accountSpinner != null)
             setAccountSpinner();
 
         context.runOnUiThread(() -> {

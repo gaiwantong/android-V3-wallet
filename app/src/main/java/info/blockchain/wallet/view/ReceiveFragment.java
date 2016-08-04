@@ -1,5 +1,11 @@
 package info.blockchain.wallet.view;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -19,6 +25,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -40,12 +47,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.BitcoinLinkGenerator;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
@@ -67,18 +82,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.BitcoinLinkGenerator;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.helpers.CustomKeypad;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentReceiveBinding;
@@ -87,7 +90,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private Locale locale = null;
 
-    public static CustomKeypad customKeypad;
+    public CustomKeypad customKeypad;
 
     //Drop down
     private ArrayAdapter<String> receiveToAdapter = null;
@@ -459,6 +462,11 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         binding.amountContainer.amountBtc.requestFocus();
     }
 
+    @Nullable
+    public CustomKeypad getCustomKeypad() {
+        return customKeypad;
+    }
+
     private void promptWatchOnlySpendWarning(Object object){
 
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
@@ -569,8 +577,6 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     @Override
     public void onResume() {
         super.onResume();
-
-        MainActivity.currentFragment = this;
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);

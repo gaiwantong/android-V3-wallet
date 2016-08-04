@@ -3,7 +3,6 @@ package info.blockchain.wallet.view;
 import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -11,7 +10,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -48,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     public static final int SCAN_URI = 2007;
     private static final int REQUEST_BACKUP = 2225;
     public static boolean drawerIsOpen = false;
-    public static Fragment currentFragment;
     private static int MERCHANT_ACTIVITY = 1;
     private static String SUPPORT_URI = "http://support.blockchain.com/";
 
@@ -131,25 +128,19 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         }
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    private Fragment getCurrentFragment() {
+        return getFragmentManager().findFragmentById(R.id.content_frame);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
+        if (resultCode == RESULT_OK && requestCode == SCAN_URI
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
-            if(currentFragment instanceof SendFragment){
-                currentFragment.onActivityResult(requestCode, resultCode, data);
-            }else{
+            if (getCurrentFragment() instanceof SendFragment) {
+                getCurrentFragment().onActivityResult(requestCode, resultCode, data);
+            } else {
                 doScanInput(strResult);
             }
 
@@ -163,15 +154,22 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
         if (drawerIsOpen) {
             binding.drawerLayout.closeDrawers();
-        } else if (currentFragment instanceof BalanceFragment) {
 
-            mainViewModel.onBackPressed();
+        } else if (getCurrentFragment() instanceof BalanceFragment) {
+            if (((BalanceFragment) getCurrentFragment()).isFabExpanded()) {
+                ((BalanceFragment) getCurrentFragment()).collapseFab();
+            } else {
+                mainViewModel.onBackPressed();
+            }
+        } else if (getCurrentFragment() instanceof ReceiveFragment
+                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad() != null
+                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
+            ((ReceiveFragment) getCurrentFragment()).onKeypadClose();
 
-        } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).customKeypad != null && ((ReceiveFragment) currentFragment).customKeypad.isVisible()) {
-            ((ReceiveFragment) currentFragment).onKeypadClose();
-
-        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).customKeypad != null && ((SendFragment) currentFragment).customKeypad.isVisible()) {
-            ((SendFragment) currentFragment).onKeypadClose();
+        } else if (getCurrentFragment() instanceof SendFragment
+                && ((SendFragment) getCurrentFragment()).getCustomKeypad() != null
+                && ((SendFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
+            ((SendFragment) getCurrentFragment()).onKeypadClose();
 
         } else {
             Fragment fragment = new BalanceFragment();
