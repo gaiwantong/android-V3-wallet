@@ -332,12 +332,14 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onRooted() {
+        if (!isFinishing()) {
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setMessage(getString(R.string.device_rooted))
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue, null)
                     .create()
                     .show();
+        }
     }
 
     @Override
