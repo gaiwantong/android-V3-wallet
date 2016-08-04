@@ -3,15 +3,13 @@ package info.blockchain.wallet.view;
 import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -23,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -45,18 +44,18 @@ import piuk.blockchain.android.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements BalanceFragment.Communicator, MainViewModel.DataListener {
 
-    public static final int SCAN_URI = 2007;
+    private static final String  SUPPORT_URI = "http://support.blockchain.com/";
     private static final int REQUEST_BACKUP = 2225;
-    public static boolean drawerIsOpen = false;
-    public static Fragment currentFragment;
-    private static int MERCHANT_ACTIVITY = 1;
-    private static String SUPPORT_URI = "http://support.blockchain.com/";
+    private static final int MERCHANT_ACTIVITY = 1;
+    public static final int SCAN_URI = 2007;
+
+    private boolean drawerIsOpen = false;
 
     private Toolbar toolbar = null;
-    private AlertDialog rootedAlertDialog;
     private MainViewModel mainViewModel;//MainActivity logic
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
+    private AlertDialog mRootedDialog;
 
     private AppUtil appUtil;
 
@@ -88,12 +87,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (rootedAlertDialog != null) {
-            rootedAlertDialog.dismiss();
-            rootedAlertDialog = null;
-        }
-
         mainViewModel.stopWebSocketService();
     }
 
@@ -131,25 +124,23 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         }
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
+    private Fragment getCurrentFragment() {
+        return getFragmentManager().findFragmentById(R.id.content_frame);
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    public boolean getDrawerOpen() {
+        return drawerIsOpen;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
+        if (resultCode == RESULT_OK && requestCode == SCAN_URI
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
-            if(currentFragment instanceof SendFragment){
-                currentFragment.onActivityResult(requestCode, resultCode, data);
-            }else{
+            if (getCurrentFragment() instanceof SendFragment) {
+                getCurrentFragment().onActivityResult(requestCode, resultCode, data);
+            } else {
                 doScanInput(strResult);
             }
 
@@ -163,15 +154,22 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
         if (drawerIsOpen) {
             binding.drawerLayout.closeDrawers();
-        } else if (currentFragment instanceof BalanceFragment) {
 
-            mainViewModel.onBackPressed();
+        } else if (getCurrentFragment() instanceof BalanceFragment) {
+            if (((BalanceFragment) getCurrentFragment()).isFabExpanded()) {
+                ((BalanceFragment) getCurrentFragment()).collapseFab();
+            } else {
+                mainViewModel.onBackPressed();
+            }
+        } else if (getCurrentFragment() instanceof ReceiveFragment
+                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad() != null
+                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
+            ((ReceiveFragment) getCurrentFragment()).onKeypadClose();
 
-        } else if (currentFragment instanceof ReceiveFragment && ((ReceiveFragment) currentFragment).customKeypad != null && ((ReceiveFragment) currentFragment).customKeypad.isVisible()) {
-            ((ReceiveFragment) currentFragment).onKeypadClose();
-
-        } else if (currentFragment instanceof SendFragment && ((SendFragment) currentFragment).customKeypad != null && ((SendFragment) currentFragment).customKeypad.isVisible()) {
-            ((SendFragment) currentFragment).onKeypadClose();
+        } else if (getCurrentFragment() instanceof SendFragment
+                && ((SendFragment) getCurrentFragment()).getCustomKeypad() != null
+                && ((SendFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
+            ((SendFragment) getCurrentFragment()).onKeypadClose();
 
         } else {
             Fragment fragment = new BalanceFragment();
@@ -313,6 +311,14 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         super.onPause();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mRootedDialog != null && mRootedDialog.isShowing()) {
+            mRootedDialog.dismiss();
+        }
+    }
+
     private void startSingleActivity(Class clazz) {
         Intent intent = new Intent(MainActivity.this, clazz);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -340,20 +346,26 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onRooted() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-            builder.setMessage(getString(R.string.device_rooted))
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.dialog_continue,
-                            (d, id) -> {
-                                d.dismiss();
-                            });
-            rootedAlertDialog = builder.create();
-            rootedAlertDialog.show();
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            if (!isFinishing()) {
+                mRootedDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                        .setMessage(getString(R.string.device_rooted))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_continue, null)
+                        .create();
+
+                mRootedDialog.show();
+            }
+        }, 500);
+    }
+
+    private Context getActivity() {
+        return this;
     }
 
     @Override
     public void onConnectivityFail() {
-
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         final String message = getString(R.string.check_connectivity_exit);

@@ -31,7 +31,8 @@
                 android:name="info.blockchain.wallet.view.MainActivity"
                 android:label="@string/app_name"
                 android:configChanges="keyboardHidden|orientation|screenSize"
-                android:windowSoftInputMode="adjustPan">
+                android:windowSoftInputMode="adjustPan"
+                android:theme="@style/AppTheme.MainActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

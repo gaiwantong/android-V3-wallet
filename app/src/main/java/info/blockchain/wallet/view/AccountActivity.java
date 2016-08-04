@@ -254,6 +254,17 @@ public class AccountActivity extends AppCompatActivity {
         binding.multipleActions.addButton(actionB);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!isFinishing() && binding.multipleActions != null) {
+            if (binding.multipleActions.isExpanded()) {
+                binding.multipleActions.collapse();
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
     private void onRowClick(int position){
 
         Intent intent = new Intent(this, AccountEditActivity.class);
