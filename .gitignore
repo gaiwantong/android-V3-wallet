@@ -34,3 +34,9 @@ proguard/
 
 # QA
 *credentials_qa.xml
+
+# Migration to Android Studio 2.2 Preview
+projectFilesBackup/
+
+# Captures
+captures

@@ -8,6 +8,7 @@ android {
     // Introduced to prevent crash during DEXing step since SDK 23, but also speeds up DEXing in general
     dexOptions {
         javaMaxHeapSize "2g"
+        incremental true
     }
 
     defaultConfig {
@@ -112,7 +113,7 @@ dependencies {
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -121,7 +122,7 @@ buildscript {
     }
 }
 
-// Required because retrolambda is on maven central
+// Required for RetroLambda
 repositories {
-    mavenCentral()
+    jcenter()
 }

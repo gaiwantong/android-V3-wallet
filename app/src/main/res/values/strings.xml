@@ -411,6 +411,11 @@
     </string>
     <string name="archived_description">This item has been archived, and is unaccessible in the mobile app experience. Though you cannot send funds from this item, any funds will remain safe. Simply unarchive this item to start using it again.</string>
     <string name="not_archived_description">This item is not archived. Archive this item if you do NOT want to use it anymore. Your funds will remain safe, and you can unarchive it at anytime.</string>
+    <string name="transfer_success_archive_prompt_title">Archive swept addresses?</string>
+    <plurals name="transfer_success_archive_prompt_plurals">
+        <item quantity="one">1 address was successfully transferred to My Bitcoin Wallet. Would you like to archive this address now?</item>
+        <item quantity="other">%d addresses were successfully transferred to My Bitcoin Wallet. Would you like to archive these addresses now?</item>
+    </plurals>
     <string name="default_account_description">This item is set as your default and can\'t be archived.</string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>

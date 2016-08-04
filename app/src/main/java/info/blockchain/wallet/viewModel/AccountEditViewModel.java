@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -48,7 +49,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
+
+import static piuk.blockchain.android.R.string.address;
 
 public class AccountEditViewModel implements ViewModel{
 
@@ -95,6 +99,7 @@ public class AccountEditViewModel implements ViewModel{
         this.accountModel = accountModel;
     }
 
+    @SuppressWarnings("unused")
     public void setAccountModel(AccountEditModel accountModel){
         this.accountModel = accountModel;
     }
@@ -150,7 +155,7 @@ public class AccountEditViewModel implements ViewModel{
                 accountModel.setLabel(legacyAddress.getLabel());
                 accountModel.setLabelHeader(context.getString(R.string.name));
                 accountModel.setXpubDescriptionVisibility(View.GONE);
-                accountModel.setXpubText(context.getString(R.string.address));
+                accountModel.setXpubText(context.getString(address));
                 accountModel.setDefaultAccountVisibility(View.GONE);//No default for V2
                 setArchive(legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS);
 
@@ -291,6 +296,7 @@ public class AccountEditViewModel implements ViewModel{
         BigInteger bigIntAmount;
     }
 
+    @SuppressWarnings("unused")
     public void onClickTransferFunds(View view) {
 
         //Only funded legacy address' will see this option
@@ -403,10 +409,12 @@ public class AccountEditViewModel implements ViewModel{
         }
     }
 
+    @SuppressWarnings("unused")
     public void onClickChangeLabel(View view) {
         dataListener.onPromptAccountLabel();
     }
 
+    @SuppressWarnings("unused")
     public void onClickDefault(View view) {
         new AsyncTask<String, Void, Void>() {
 
@@ -456,6 +464,7 @@ public class AccountEditViewModel implements ViewModel{
         }
     }
 
+    @SuppressWarnings("unused")
     public void onClickShowXpub(View view) {
         if (account != null) {
             dataListener.onShowXpubSharingWarning();
@@ -464,6 +473,7 @@ public class AccountEditViewModel implements ViewModel{
         }
     }
 
+    @SuppressWarnings("unused")
     public void onClickArchive(View view) {
         String title = context.getResources().getString(R.string.archive);
         String subTitle = context.getResources().getString(R.string.archive_are_you_sure);
@@ -529,8 +539,8 @@ public class AccountEditViewModel implements ViewModel{
                         if (!legacyAddress.getAddress().equals(keyAddress)) {
                             //Private key does not match this address - warn user but import nevertheless
                             importUnmatchedPrivateKey(key);
-                        }else{
-                            importAddressPrivateKey(key);
+                        } else {
+                            importAddressPrivateKey(key, legacyAddress, true);
                         }
 
                     } else {
@@ -547,83 +557,77 @@ public class AccountEditViewModel implements ViewModel{
         }.execute();
     }
 
-    private void importAddressPrivateKey(ECKey key){
-
-        //if double encrypted, save encrypted in payload
-        if (!payloadManager.getPayload().isDoubleEncrypted()) {
-            legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-            legacyAddress.setWatchOnly(false);
-        } else {
-            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
-                    payloadManager.getPayload().getSharedKey(),
-                    secondPassword,
-                    payloadManager.getPayload().getOptions().getIterations());
-            legacyAddress.setEncryptedKey(encrypted2);
-            legacyAddress.setWatchOnly(false);
-        }
+    private void importAddressPrivateKey(ECKey key, LegacyAddress address, boolean matchesIntendedAddress) {
+        setLegacyAddressKey(key, address, false);
 
         if (payloadManager.savePayloadToServer()) {
 
             dataListener.onSetResult(Activity.RESULT_OK);
             accountModel.setScanPrivateKeyVisibility(View.GONE);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Looper.prepare();
+            new Thread(() -> {
+                Looper.prepare();
+                if (matchesIntendedAddress) {
                     dataListener.onPrivateKeyImportSuccess();
-                    Looper.loop();
-
+                } else {
+                    dataListener.onPrivateKeyImportMismatch();
                 }
+                Looper.loop();
+
             }).start();
         }
     }
 
-    private void importUnmatchedPrivateKey(ECKey key){
+    private void setLegacyAddressKey(ECKey key, LegacyAddress address, boolean watchOnly) {
+        // If double encrypted, save encrypted in payload
+        if (!payloadManager.getPayload().isDoubleEncrypted()) {
+            address.setEncryptedKey(key.getPrivKeyBytes());
+            address.setWatchOnly(watchOnly);
+        } else {
+            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
+            String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(
+                    encryptedKey,
+                    payloadManager.getPayload().getSharedKey(),
+                    secondPassword,
+                    payloadManager.getPayload().getOptions().getIterations());
+            address.setEncryptedKey(encrypted2);
+            address.setWatchOnly(watchOnly);
+        }
+    }
 
+    private void importUnmatchedPrivateKey(ECKey key) {
         if (payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
-            //Wallet already contains private key - silently avoid duplicating
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Looper.prepare();
-                    dataListener.onPrivateKeyImportMismatch();
-                    Looper.loop();
-
+            // Wallet contains address associated with this private key, find & save it with scanned key
+            String foundAddressString = key.toAddress(MainNetParams.get()).toString();
+            for (LegacyAddress legacyAddress : payloadManager.getPayload().getLegacyAddresses()) {
+                if (legacyAddress.getAddress().equals(foundAddressString)) {
+                    importAddressPrivateKey(key, legacyAddress, false);
                 }
-            }).start();
-        }else{
-            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
-            /*
-             * if double encrypted, save encrypted in payload
-             */
-            if (!payloadManager.getPayload().isDoubleEncrypted()) {
-                legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
-            } else {
-                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
-                String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
-                        payloadManager.getPayload().getSharedKey(),
-                        secondPassword,
-                        payloadManager.getPayload().getOptions().getIterations());
-                legacyAddress.setEncryptedKey(encrypted2);
             }
+        } else {
+            // Create new address and store
+            final LegacyAddress legacyAddress = new LegacyAddress(
+                    null,
+                    System.currentTimeMillis() / 1000L,
+                    key.toAddress(MainNetParams.get()).toString(),
+                    "",
+                    0L,
+                    "android",
+                    BuildConfig.VERSION_NAME);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Looper.prepare();
-                    dataListener.onPrivateKeyImportMismatch();
-                    Looper.loop();
-
-                }
-            }).start();
-
+            setLegacyAddressKey(key, legacyAddress, true);
             remoteSaveUnmatchedPrivateKey(legacyAddress);
+
+            new Thread(() -> {
+                Looper.prepare();
+                dataListener.onPrivateKeyImportMismatch();
+                Looper.loop();
+
+            }).start();
         }
     }
 
-    private void remoteSaveUnmatchedPrivateKey(final LegacyAddress legacyAddress){
+    private void remoteSaveUnmatchedPrivateKey(final LegacyAddress legacyAddress) {
 
         Payload updatedPayload = payloadManager.getPayload();
         List<LegacyAddress> updatedLegacyAddresses = updatedPayload.getLegacyAddresses();
@@ -764,7 +768,7 @@ public class AccountEditViewModel implements ViewModel{
 
         }else if (legacyAddress != null){
 
-            heading = context.getString(R.string.address);
+            heading = context.getString(address);
             note = legacyAddress.getAddress();
             copy = context.getString(R.string.copy_address);
             qrString = legacyAddress.getAddress();
@@ -797,7 +801,8 @@ public class AccountEditViewModel implements ViewModel{
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            dataListener.onToast(context.getString(R.string.scan_not_recognized), ToastCustom.TYPE_ERROR);
+            Log.e(AccountEditViewModel.class.getSimpleName(), "handleIncomingScanIntent: ", e);
         }
     }
 
@@ -891,8 +896,8 @@ public class AccountEditViewModel implements ViewModel{
                         if (!legacyAddress.getAddress().equals(keyAddress)) {
                             //Private key does not match this address - warn user but import nevertheless
                             importUnmatchedPrivateKey(key);
-                        }else{
-                            importAddressPrivateKey(key);
+                        } else {
+                            importAddressPrivateKey(key, legacyAddress, true);
                         }
 
                     } else {
