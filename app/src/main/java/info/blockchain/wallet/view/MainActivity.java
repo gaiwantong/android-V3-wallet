@@ -6,6 +6,7 @@ import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -43,16 +44,18 @@ import piuk.blockchain.android.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements BalanceFragment.Communicator, MainViewModel.DataListener {
 
-    public static final int SCAN_URI = 2007;
+    private static final String  SUPPORT_URI = "http://support.blockchain.com/";
     private static final int REQUEST_BACKUP = 2225;
-    public static boolean drawerIsOpen = false;
-    private static int MERCHANT_ACTIVITY = 1;
-    private static String SUPPORT_URI = "http://support.blockchain.com/";
+    private static final int MERCHANT_ACTIVITY = 1;
+    public static final int SCAN_URI = 2007;
+
+    private boolean drawerIsOpen = false;
 
     private Toolbar toolbar = null;
     private MainViewModel mainViewModel;//MainActivity logic
     private ActivityMainBinding binding;
     private ProgressDialog fetchTransactionsProgress;
+    private AlertDialog mRootedDialog;
 
     private AppUtil appUtil;
 
@@ -84,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         mainViewModel.stopWebSocketService();
     }
 
@@ -124,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     private Fragment getCurrentFragment() {
         return getFragmentManager().findFragmentById(R.id.content_frame);
+    }
+
+    public boolean getDrawerOpen() {
+        return drawerIsOpen;
     }
 
     @Override
@@ -305,6 +311,14 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
         super.onPause();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mRootedDialog != null && mRootedDialog.isShowing()) {
+            mRootedDialog.dismiss();
+        }
+    }
+
     private void startSingleActivity(Class clazz) {
         Intent intent = new Intent(MainActivity.this, clazz);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -332,14 +346,22 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 
     @Override
     public void onRooted() {
-        if (!isFinishing()) {
-            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                    .setMessage(getString(R.string.device_rooted))
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.dialog_continue, null)
-                    .create()
-                    .show();
-        }
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            if (!isFinishing()) {
+                mRootedDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                        .setMessage(getString(R.string.device_rooted))
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialog_continue, null)
+                        .create();
+
+                mRootedDialog.show();
+            }
+        }, 500);
+    }
+
+    private Context getActivity() {
+        return this;
     }
 
     @Override

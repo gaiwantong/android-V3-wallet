@@ -341,13 +341,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         accountSpinner.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP && MainActivity.drawerIsOpen) {
-                    return true;
-                } else if (isBottomSheetOpen) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return event.getAction() == MotionEvent.ACTION_UP && ((MainActivity) getActivity()).getDrawerOpen() || isBottomSheetOpen;
             }
         });
         accountSpinner.post(new Runnable() {
