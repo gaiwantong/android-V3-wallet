@@ -111,6 +111,7 @@
                                     android:textColor="@color/primary_text_default_material_light"
                                     android:textCursorDrawable="@null"
                                     android:textSize="16sp"
+                                    android:text="@{viewModel.sendModel.destinationAddress}"
                                     android:hint="@string/to_field_helper"
                             />
 
@@ -145,8 +146,10 @@
                                 android:gravity="center_horizontal|center_vertical"
                                 android:paddingTop="16dp"
                                 android:paddingBottom="16dp"
-                                android:textColor="@color/primary_text_default_material_light"
+                                android:textColor="@{viewModel.sendModel.maxAvailableColor}"
                                 android:alpha="0.7"
+                                android:text="@{viewModel.sendModel.maxAviable}"
+                                android:visibility="@{viewModel.sendModel.maxAvailableVisibility}"
                                 android:textAlignment="gravity"
                         />
 
@@ -157,7 +160,7 @@
                                 android:gravity="center_horizontal|center_vertical"
                                 android:paddingTop="16dp"
                                 android:paddingBottom="16dp"
-                                android:visibility="gone"
+                                android:visibility="@{viewModel.sendModel.maxAvailableProgressVisibility}"
                                 android:id="@+id/progressBarMaxAvailable"
                                 android:layout_gravity="center"/>
 
@@ -247,8 +250,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:gravity="center_vertical"
-                                    android:text="Estimated confirmation time: ~20 minutes (2 blocks)"
-                                    android:textColor="@color/blockchain_blue"
+                                    android:text="@{viewModel.sendModel.estimate}"
+                                    android:textColor="@{viewModel.sendModel.estimateColor}"
                             />
 
                         </LinearLayout>

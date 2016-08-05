@@ -50,6 +50,7 @@ import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.model.PaymentConfirmationDetails;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
@@ -58,7 +59,6 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
-import info.blockchain.wallet.send.SendMethods;
 import info.blockchain.wallet.send.SuggestedFee;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AppUtil;
@@ -160,6 +160,86 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
 
     @Override
     public void onSingleToAddress() {
+
+    }
+
+    @Override
+    public void onInvalidAmount() {
+
+    }
+
+    @Override
+    public void onUpdateBtcAmount(String amount) {
+
+    }
+
+    @Override
+    public void onRemoveBtcTextChangeListener() {
+
+    }
+
+    @Override
+    public void onAddBtcTextChangeListener() {
+
+    }
+
+    @Override
+    public void onUpdateFiatAmount(String amount) {
+
+    }
+
+    @Override
+    public void onRemoveFiatTextChangeListener() {
+
+    }
+
+    @Override
+    public void onAddFiatTextChangeListener() {
+
+    }
+
+    @Override
+    public void onUpdateBtcUnit(String unit) {
+
+    }
+
+    @Override
+    public void onUpdateFiatUnit(String unit) {
+
+    }
+
+    @Override
+    public void onSetBtcUnit(int unitBtc) {
+
+    }
+
+    @Override
+    public void onSetSpendAllAmount(String textFromSatoshis) {
+
+    }
+
+    @Override
+    public void onPromptWatchOnlySpend(String receivingAddress) {
+
+    }
+
+    @Override
+    public void onConfirmPaymentDetails(PaymentConfirmationDetails confirmationDetails) {
+
+    }
+
+    @Override
+    public void onPromptWatchOnlySpendWarning(String address) {
+
+    }
+
+    @Override
+    public void onPromptAlterFee(String absoluteFeeSuggested, String body, int positiveAction, int negativeAction) {
+
+    }
+
+    @Override
+    public void onErrorMessage(String message) {
 
     }
 
@@ -312,14 +392,14 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
                     String unlikelyToConfirmMessage = getText(R.string.fee_too_low_no_confirm).toString();
 
                     // TODO - MonetaryUtil has small rounding bug so + 1 to show correct block
-                    String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
-                    binding.tvEstimate.setText(estimateText);
-
-                    if (estimateText.equals(unlikelyToConfirmMessage)) {
-                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_send_red));
-                    } else {
-                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_blue));
-                    }
+//                    String estimateText = SendMethods.getEstimatedConfirmationMessage(getLongValue(customizedFee.toString()) + 1, absoluteFeeSuggestedEstimates, likelyToConfirmMessage, unlikelyToConfirmMessage);
+//                    binding.tvEstimate.setText(estimateText);
+//
+//                    if (estimateText.equals(unlikelyToConfirmMessage)) {
+//                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_send_red));
+//                    } else {
+//                        binding.tvEstimate.setTextColor(getResources().getColor(R.color.blockchain_blue));
+//                    }
 
                     displaySweepAmount();
                 }

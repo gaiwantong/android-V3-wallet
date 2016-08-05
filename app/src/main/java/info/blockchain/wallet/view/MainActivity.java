@@ -199,6 +199,10 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
 //        fragment.setArguments(args);
 //        FragmentManager fragmentManager = getFragmentManager();
 //        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        Intent intent = new Intent(this, SendActivity.class);
+        intent.putExtra("scan_data", strResult);
+        startActivity(intent);
     }
 
     @Override

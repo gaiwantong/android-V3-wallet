@@ -553,4 +553,6 @@
     <string name="common_pin_dialog_try_again">Try again</string>
     <string name="common_pin_dialog_continue">Continue</string>
 
+    <string name="api_fail">Unable connect to server. Please try again later.</string>
+
 </resources>
