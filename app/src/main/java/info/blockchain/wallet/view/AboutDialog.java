@@ -1,5 +1,6 @@
 package info.blockchain.wallet.view;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -7,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,18 +37,26 @@ public class AboutDialog extends AppCompatDialogFragment {
         about.setText(getString(R.string.about, BuildConfig.VERSION_NAME, "2015"));
 
         rateUs.setOnClickListener(v -> {
-            String appPackageName = getActivity().getPackageName();
-            Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
-            marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            startActivity(marketIntent);
+            try {
+                String appPackageName = getActivity().getPackageName();
+                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName));
+                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                startActivity(marketIntent);
+            } catch (ActivityNotFoundException e) {
+                Log.e(AboutDialog.class.getSimpleName(), "Google Play Store not found", e);
+            }
         });
 
         if (hasWallet()) {
             freeWallet.setVisibility(View.GONE);
         } else {
             freeWallet.setOnClickListener(v -> {
-                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
-                startActivity(marketIntent);
+                try {
+                    Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + strMerchantPackage));
+                    startActivity(marketIntent);
+                } catch (ActivityNotFoundException e) {
+                    Log.e(AboutDialog.class.getSimpleName(), "Google Play Store not found", e);
+                }
             });
         }
 
