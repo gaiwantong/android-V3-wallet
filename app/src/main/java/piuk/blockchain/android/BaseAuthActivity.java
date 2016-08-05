@@ -1,5 +1,6 @@
 package piuk.blockchain.android;
 
+import android.support.annotation.CallSuper;
 import android.support.v7.app.AppCompatActivity;
 
 import info.blockchain.wallet.access.AccessState;
@@ -12,12 +13,14 @@ import info.blockchain.wallet.access.AccessState;
 
 public class BaseAuthActivity extends AppCompatActivity {
 
+    @CallSuper
     @Override
     protected void onResume() {
         super.onResume();
         stopLogoutTimer();
     }
 
+    @CallSuper
     @Override
     protected void onPause() {
         super.onPause();
