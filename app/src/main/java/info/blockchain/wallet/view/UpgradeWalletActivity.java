@@ -1,7 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +11,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,11 +35,12 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityUpgradeWalletBinding;
 import piuk.blockchain.android.databinding.ActivityUpgradeWalletConfirmBinding;
 
-public class UpgradeWalletActivity extends Activity {
+public class UpgradeWalletActivity extends BaseAuthActivity {
 
     private AlertDialog alertDialog = null;
     private CustomPagerAdapter mCustomPagerAdapter = null;
@@ -101,7 +101,7 @@ public class UpgradeWalletActivity extends Activity {
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password, null);
 
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.weak_password)
                     .setCancelable(false)
@@ -159,7 +159,7 @@ public class UpgradeWalletActivity extends Activity {
     }
 
     public void upgradeClicked(View view) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.activity_upgrade_wallet_confirm, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
@@ -355,29 +355,12 @@ public class UpgradeWalletActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-
             appUtil.restartApp();
-
             return true;
-        } else {
-            ;
         }
 
         return false;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
     }
 
     class CustomPagerAdapter extends PagerAdapter {

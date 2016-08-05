@@ -6,7 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
@@ -194,7 +194,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             @Override
             public void onClick(View v) {
 
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.receive_address_to_clipboard)
                         .setCancelable(false)
@@ -436,7 +436,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(getString(R.string.why_has_my_address_changed))
                 .setMessage(getString(R.string.new_address_info))
                 .setPositiveButton(R.string.learn_more, (dialog, which) -> {
@@ -471,7 +471,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
             AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
                     R.layout.alert_watch_only_spend, null, false);
             dialogBuilder.setView(dialogBinding.getRoot());
@@ -776,7 +776,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 binding.receiveMainContentShadow.setVisibility(View.GONE);
             } else {
 
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.receive_address_to_share)
                         .setCancelable(false)

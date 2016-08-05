@@ -1,6 +1,6 @@
 package info.blockchain.wallet.view;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -144,7 +144,7 @@ public class CreateWalletFragment extends Fragment {
                     ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 } else if (pwStrength < 50) {
 
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                             .setTitle(R.string.app_name)
                             .setMessage(R.string.weak_password)
                             .setCancelable(false)

@@ -9,20 +9,20 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.viewModel.PairingViewModel;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
-public class PairOrCreateWalletActivity extends ActionBarActivity {
+public class PairOrCreateWalletActivity extends BaseAuthActivity {
 
     public static final int PAIRING_QR = 2005;
+    // TODO: 05/08/2016 Static context == bad
     public static Fragment fragment;
 
     @Override
@@ -47,9 +47,9 @@ public class PairOrCreateWalletActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
+    protected void startLogoutTimer() {
+        super.startLogoutTimer();
+        // No-op
     }
 
     @Override

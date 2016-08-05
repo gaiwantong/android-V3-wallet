@@ -6,7 +6,7 @@ import com.google.zxing.client.android.Intents;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,7 +23,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
@@ -40,7 +39,6 @@ import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -86,13 +84,14 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-public class AccountActivity extends AppCompatActivity {
+public class AccountActivity extends BaseAuthActivity {
 
     private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
     private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
@@ -577,15 +576,12 @@ public class AccountActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        AccessState.getInstance().stopLogoutTimer();
-
         updateAccountsList();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        AccessState.getInstance().startLogoutTimer();
         super.onPause();
     }
 
@@ -1123,7 +1119,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void promptToTransferFunds(boolean isPopup){
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertPromptTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_prompt_transfer_funds, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
@@ -1192,7 +1188,7 @@ public class AccountActivity extends AppCompatActivity {
     private void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
 
         //Only funded legacy address' will see this option
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.alert_transfer_funds, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
 

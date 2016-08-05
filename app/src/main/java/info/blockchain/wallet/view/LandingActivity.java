@@ -1,7 +1,6 @@
 package info.blockchain.wallet.view;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -11,14 +10,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.AppUtil;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityLandingBinding;
 
-public class LandingActivity extends Activity {
+public class LandingActivity extends BaseAuthActivity {
 
     private ActivityLandingBinding binding;
 
@@ -56,7 +55,7 @@ public class LandingActivity extends Activity {
         });
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
 
             final String message = getString(R.string.check_connectivity_exit);
 
@@ -78,19 +77,14 @@ public class LandingActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
+    public void startLogoutTimer() {
+        // No-op
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-
-        //Test for screen overlays before user creates a new wallet or enters confidential information
-        if(new AppUtil(this).detectObscuredWindow(event)){
-            return true;//consume event
-        }else{
-            return super.dispatchTouchEvent(event);
-        }
+        // Test for screen overlays before user creates a new wallet or enters confidential information
+        // consume event
+        return new AppUtil(this).detectObscuredWindow(event) || super.dispatchTouchEvent(event);
     }
 }

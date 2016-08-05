@@ -1,6 +1,6 @@
 package info.blockchain.wallet.view.helpers;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;

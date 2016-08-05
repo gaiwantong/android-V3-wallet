@@ -1,6 +1,6 @@
 package info.blockchain.wallet.view;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -8,19 +8,18 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivitySupportBinding;
 
-public class SupportActivity extends AppCompatActivity {
+public class SupportActivity extends BaseAuthActivity {
 
     private ActivitySupportBinding binding;
 
@@ -47,7 +46,7 @@ public class SupportActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                new AlertDialog.Builder(SupportActivity.this)
+                new AlertDialog.Builder(SupportActivity.this, R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.guid_to_clipboard)
                         .setCancelable(false)
@@ -74,7 +73,7 @@ public class SupportActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                new AlertDialog.Builder(SupportActivity.this)
+                new AlertDialog.Builder(SupportActivity.this, R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(getString(R.string.support_guide))
                         .setCancelable(false)
@@ -111,17 +110,5 @@ public class SupportActivity extends AppCompatActivity {
                         "Version: " + Build.VERSION.RELEASE);
         startActivity(Intent.createChooser(emailIntent, SupportActivity.this.getResources().getText(R.string.email_chooser)));
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
     }
 }

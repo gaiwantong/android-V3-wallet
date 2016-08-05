@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -12,13 +11,12 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.access.AccessState;
-
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAboutBinding;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends BaseAuthActivity {
 
     private String strMerchantPackage = "info.blockchain.merchant";
 
@@ -63,17 +61,5 @@ public class AboutActivity extends Activity {
         } catch (NameNotFoundException nnfe) {
             return false;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
     }
 }

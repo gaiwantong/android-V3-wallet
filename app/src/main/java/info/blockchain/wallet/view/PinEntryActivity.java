@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,10 +34,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
 
-public class PinEntryActivity extends Activity {
+public class PinEntryActivity extends BaseAuthActivity {
 
     final int PIN_LENGTH = 4;
     final int maxAttempts = 4;
@@ -159,7 +159,11 @@ public class PinEntryActivity extends Activity {
         super.onResume();
         userEnteredPIN = "";
         clearPinBoxes();
-        AccessState.getInstance().stopLogoutTimer();
+    }
+
+    @Override
+    protected void startLogoutTimer() {
+        // No-op
     }
 
     @Override

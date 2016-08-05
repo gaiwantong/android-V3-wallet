@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.LogoutActivity;
 
 public class AccessState {
@@ -117,18 +118,18 @@ public class AccessState {
     }
 
     /**
-     * Called from all activities' onPause
+     * Called from {@link BaseAuthActivity#onPause()} ()}
      */
-    public void startLogoutTimer() {
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+    public void startLogoutTimer(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + LOGOUT_TIMEOUT_MILLIS, logoutPendingIntent);
     }
 
     /**
-     * Called from all activities' onResume
+     * Called from {@link BaseAuthActivity#onResume()}
      */
-    public void stopLogoutTimer() {
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+    public void stopLogoutTimer(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(logoutPendingIntent);
     }
 

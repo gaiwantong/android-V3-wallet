@@ -47,11 +47,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class MapActivity extends ActionBarActivity implements LocationListener {
+public class MapActivity extends BaseAuthActivity implements LocationListener {
 
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
@@ -373,16 +374,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     @Override
     protected void onResume() {
         super.onResume();
-
-        AccessState.getInstance().stopLogoutTimer();
-
         launchedList = false;
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
     }
 
     @Override

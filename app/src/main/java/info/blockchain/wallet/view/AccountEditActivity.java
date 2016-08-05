@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -23,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
@@ -32,12 +30,13 @@ import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-public class AccountEditActivity extends AppCompatActivity implements AccountEditViewModel.DataListener{
+public class AccountEditActivity extends BaseAuthActivity implements AccountEditViewModel.DataListener{
 
     private final int ADDRESS_LABEL_MAX_LENGTH = 17;
     private final int SCAN_PRIVX = 302;
@@ -71,20 +70,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance().stopLogoutTimer();
-    }
-
-    @Override
-    public void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
-    }
-
     private void setupToolbar() {
-
         binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.edit));
         setSupportActionBar(binding.toolbarContainer.toolbarGeneral);
     }
@@ -266,7 +252,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onShowAddressDetails(String heading, String note, String copy, Bitmap bitmap, String qrString) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertShowExtendedPublicKeyBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_show_extended_public_key, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());

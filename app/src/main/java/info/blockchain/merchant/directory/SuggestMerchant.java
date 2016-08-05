@@ -40,9 +40,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
-public class SuggestMerchant extends ActionBarActivity {
+public class SuggestMerchant extends BaseAuthActivity {
 
     private static final String SUGGEST_MERCHANT_URL = "https://merchant-directory.blockchain.info/api/suggest_merchant.php";
     TextView commandSave;
@@ -231,19 +232,6 @@ public class SuggestMerchant extends ActionBarActivity {
             currLocation.setLongitude(strULon);
             currLocation.setLatitude(strULat);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        AccessState.getInstance().stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance().startLogoutTimer();
-        super.onPause();
     }
 
     @Override
