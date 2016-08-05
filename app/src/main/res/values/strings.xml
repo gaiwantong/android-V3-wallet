@@ -211,6 +211,7 @@
     <string name="merchant_info">Merchant Info</string>
     <string name="directions">Directions</string>
     <string name="call">Call</string>
+    <string name="navigate">Navigate</string>
     <string name="enable_geo">Enable either GPS or any other location service to find current location. Click OK to go to location services settings to let you do so.</string>
 
     <string-array name="menus_merchantDirectory">

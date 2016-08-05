@@ -5,7 +5,6 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -27,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +34,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,7 +89,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -109,7 +109,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> receiveToBiMap = null;
     private ReceiveToAdapter receiveToAdapter = null;
-    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
+    private SparseIntArray spinnerIndexAccountIndexMap = null;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
@@ -205,7 +205,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         sendFromBiMap = HashBiMap.create();
         receiveToList = new ArrayList<>();
         receiveToBiMap = HashBiMap.create();
-        spinnerIndexAccountIndexMap = new HashMap<>();
+        spinnerIndexAccountIndexMap = new SparseIntArray();
 
         updateSendFromSpinnerList();
         updateReceiveToSpinnerList();

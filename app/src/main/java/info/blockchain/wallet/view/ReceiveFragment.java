@@ -6,7 +6,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
@@ -27,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -34,6 +34,7 @@ import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -96,7 +97,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     private ArrayAdapter<String> receiveToAdapter = null;
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> accountBiMap = null;
-    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
+    private SparseIntArray spinnerIndexAccountIndexMap = null;
 
     //text
     private boolean textChangeAllowed = true;
@@ -355,7 +356,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         receiveToList = new ArrayList<>();
         accountBiMap = HashBiMap.create();
-        spinnerIndexAccountIndexMap = new HashMap<>();
+        spinnerIndexAccountIndexMap = new SparseIntArray();
         updateSpinnerList();
 
         if (receiveToList.size() == 1)

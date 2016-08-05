@@ -674,10 +674,10 @@ public class AccountActivity extends BaseAuthActivity {
                                         if (!payloadManager.getPayload().isDoubleEncrypted()) {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
-                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                                             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                                                     payloadManager.getPayload().getSharedKey(),
-                                                    secondPassword.toString(),
+                                                    secondPassword,
                                                     payloadManager.getPayload().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
@@ -767,10 +767,10 @@ public class AccountActivity extends BaseAuthActivity {
             if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
-                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                 String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                         payloadManager.getPayload().getSharedKey(),
-                        secondPassword.toString(),
+                        secondPassword,
                         payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
@@ -838,10 +838,10 @@ public class AccountActivity extends BaseAuthActivity {
         if (!payload.isDoubleEncrypted()) {
             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
         } else {
-            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                     payload.getSharedKey(),
-                    secondPassword.toString(),
+                    secondPassword,
                     payload.getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
         }
