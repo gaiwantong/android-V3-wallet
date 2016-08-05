@@ -246,7 +246,7 @@ public class SendFactory {
                     } else {
                         // Queue tx
                         Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
-                        TxQueue.getInstance(context).add(spendable);
+                        TxQueue.getInstance().add(context, spendable);
                     }
 
 //					progress.onSend(tx, response);
