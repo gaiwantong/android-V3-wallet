@@ -9,6 +9,7 @@ public class PrefsUtil implements PersistantPrefs {
 
     private SharedPreferences preferenceManager;
 
+    // TODO: 05/08/2016 Inject context into this class
     public PrefsUtil(Context context) {
         this.preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
     }

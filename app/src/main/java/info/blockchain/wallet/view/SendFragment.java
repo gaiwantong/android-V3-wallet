@@ -705,7 +705,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         binding.amountRow.currencyBtc.setText(strBTC);
         binding.tvFeeUnit.setText(strBTC);
@@ -767,7 +767,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             if (strFiat == null) {
                 strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             }
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
             double fiat_amount = btc_fx * btc_amount;
             binding.amountRow.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
@@ -935,7 +935,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if (isVisibleToUser) {
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
             binding.amountRow.currencyBtc.setText(strBTC);
             binding.tvFeeUnit.setText(strBTC);
             binding.amountRow.currencyFiat.setText(strFiat);
@@ -948,7 +948,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
         binding.amountRow.currencyBtc.setText(strBTC);
         binding.tvFeeUnit.setText(strBTC);
         binding.amountRow.currencyFiat.setText(strFiat);
@@ -1432,7 +1432,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 tvTotlaBtc.setText(monetaryUtil.getDisplayAmount(totalBtc.longValue()));
 
                 //Fiat Amount
-                btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+                btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
                 String amountFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
                 TextView tvAmountFiat = (TextView) dialogView.findViewById(R.id.confirm_amount_fiat);
                 tvAmountFiat.setText(amountFiat);

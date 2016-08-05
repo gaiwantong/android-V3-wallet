@@ -405,7 +405,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         binding.amountContainer.currencyBtc.setText(strBTC);
         binding.amountContainer.currencyFiat.setText(strFiat);
@@ -566,7 +566,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         if (isVisibleToUser) {
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
             binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
             binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
         } else {
@@ -580,7 +580,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
         binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
         binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
 

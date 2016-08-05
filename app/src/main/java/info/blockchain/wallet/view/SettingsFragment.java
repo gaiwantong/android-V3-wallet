@@ -723,7 +723,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogFiatUnits() {
-        final String[] currencies = ExchangeRateFactory.getInstance(getActivity()).getCurrencyLabels();
+        final String[] currencies = ExchangeRateFactory.getInstance().getCurrencyLabels();
         String strCurrency = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         int selected = 0;
         for (int i = 0; i < currencies.length; i++) {
