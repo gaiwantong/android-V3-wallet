@@ -40,7 +40,7 @@
                         android:alpha="0.6"
                         android:fontFamily="sans-serif"
                         android:gravity="center_vertical"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:marqueeRepeatLimit="marquee_forever"
                         android:text="ugasdi7asdua75dai75viav5fiaasda"
                         android:textColor="@color/primary_text_default_material_light"

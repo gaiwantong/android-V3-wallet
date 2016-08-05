@@ -35,7 +35,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
@@ -71,7 +71,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
@@ -107,7 +107,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
@@ -143,7 +143,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
@@ -179,7 +179,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
@@ -215,7 +215,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:paddingLeft="16dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textCursorDrawable="@null"
             />
