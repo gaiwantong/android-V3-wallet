@@ -22,8 +22,6 @@ import piuk.blockchain.android.R;
 public class PairOrCreateWalletActivity extends BaseAuthActivity {
 
     public static final int PAIRING_QR = 2005;
-    // TODO: 05/08/2016 Static context == bad
-    public static Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,22 +31,27 @@ public class PairOrCreateWalletActivity extends BaseAuthActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.blockchain_blue)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.blockchain_blue);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         findViewById(R.id.account_spinner).setVisibility(View.GONE);
 
-        fragment = new CreateWalletFragment();
-        if (getIntent().getIntExtra("starting_fragment", 1) == 1)
+        Fragment fragment;
+
+        if (getIntent().getIntExtra("starting_fragment", 1) == 1) {
             fragment = new PairWalletFragment();
+        } else {
+            fragment = new CreateWalletFragment();
+        }
 
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
     }
 
     @Override
     protected void startLogoutTimer() {
-        super.startLogoutTimer();
         // No-op
     }
 
@@ -56,16 +59,7 @@ public class PairOrCreateWalletActivity extends BaseAuthActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                FragmentManager fragmentManager = getFragmentManager();
-
-                if (fragmentManager.getBackStackEntryCount() > 0)
-                    fragmentManager.popBackStack();
-                else {
-                    Intent intent = new Intent(PairOrCreateWalletActivity.this, LandingActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-                return true;
+                onBackPressed();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -73,19 +67,17 @@ public class PairOrCreateWalletActivity extends BaseAuthActivity {
 
     @Override
     public void onBackPressed() {
+        Fragment fragment = getFragmentManager().findFragmentById(R.id.content_frame);
 
         if (fragment != null && fragment instanceof ManualPairingFragment) {
-            fragment = null;
             getFragmentManager().popBackStack();
         } else {
-            new AppUtil(PairOrCreateWalletActivity.this).restartApp();
+            new AppUtil(this).restartApp();
         }
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (resultCode == Activity.RESULT_OK && requestCode == PAIRING_QR) {
             if (data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
                 PairingViewModel viewModel = new PairingViewModel(PairOrCreateWalletActivity.this);

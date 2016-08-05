@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +8,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -51,17 +51,15 @@ public class CreateWalletFragment extends Fragment {
         binding.commandNext.setClickable(false);
         binding.entropyContainer.passStrengthBar.setMax(100);
 
-        binding.emailAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) setEntropyMeterVisible(View.GONE);
+        binding.emailAddress.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && getActivity() != null && !getActivity().isFinishing()) {
+                setEntropyMeterVisible(View.GONE);
             }
         });
 
-        binding.walletPassConfrirm.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) setEntropyMeterVisible(View.GONE);
+        binding.walletPassConfrirm.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && getActivity() != null && !getActivity().isFinishing()) {
+                setEntropyMeterVisible(View.GONE);
             }
         });
 
@@ -185,12 +183,7 @@ public class CreateWalletFragment extends Fragment {
                 text.length(), text.length() + text2.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         binding.tos.setText(spannable, TextView.BufferType.SPANNABLE);
 
-        binding.tos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingsFragment.URL_TOS_POLICY)));
-            }
-        });
+        binding.tos.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingsFragment.URL_TOS_POLICY))));
 
         return binding.getRoot();
     }
@@ -204,11 +197,6 @@ public class CreateWalletFragment extends Fragment {
     }
 
     private void setEntropyMeterVisible(final int visible) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                binding.entropyContainer.entropyMeter.setVisibility(visible);
-            }
-        });
+        getActivity().runOnUiThread(() -> binding.entropyContainer.entropyMeter.setVisibility(visible));
     }
 }
