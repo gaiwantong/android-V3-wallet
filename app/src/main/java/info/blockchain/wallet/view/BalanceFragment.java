@@ -275,7 +275,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void sendClicked(){
-        new SSLVerifyUtil(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSL();
 
         Fragment fragment = new SendFragment();
         FragmentManager fragmentManager = getFragmentManager();

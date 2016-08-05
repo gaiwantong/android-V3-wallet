@@ -81,7 +81,7 @@ public class MainViewModel implements ViewModel{
 
     private void preLaunchChecks(){
         exchangeRateThread();
-        new SSLVerifyUtil(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSL();
 
         boolean isPinValidated = false;
         Bundle extras = ((Activity)context).getIntent().getExtras();

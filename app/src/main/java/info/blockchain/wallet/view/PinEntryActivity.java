@@ -377,24 +377,27 @@ public class PinEntryActivity extends BaseAuthActivity {
         progress.setMessage(getString(R.string.creating_pin));
         if(!isFinishing())progress.show();
 
-        new Thread(() -> {
-            Looper.prepare();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
 
-            if (AccessState.getInstance().createPIN(payloadManager.getTempPassword(), pin)) {
-                prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                updatePayloadThread(payloadManager.getTempPassword());
-            } else {
-                ToastCustom.makeText(PinEntryActivity.this, getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                prefs.clear();
-                appUtil.restartApp();
+                if (AccessState.getInstance().createPIN(payloadManager.getTempPassword(), pin)) {
+                    prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                    PinEntryActivity.this.updatePayloadThread(payloadManager.getTempPassword());
+                } else {
+                    ToastCustom.makeText(PinEntryActivity.this, PinEntryActivity.this.getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    prefs.clear();
+                    appUtil.restartApp();
+                }
+
+                PinEntryActivity.this.dismissProgressView();
+                handler.post(() -> {
+                    // No-op
+                });
+
+                Looper.loop();
             }
-
-            dismissProgressView();
-            handler.post(() -> {
-                // No-op
-            });
-
-            Looper.loop();
         }).start();
     }
 
@@ -463,24 +466,16 @@ public class PinEntryActivity extends BaseAuthActivity {
                 .setMessage(PinEntryActivity.this.getString(R.string.password_entry))
                 .setView(password)
                 .setCancelable(false)
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setNegativeButton(android.R.string.cancel, (dialog, whichButton) -> appUtil.restartApp())
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
+                    final String pw = password.getText().toString();
 
-                        appUtil.restartApp();
+                    if (pw.length() > 0) {
+                        validatePasswordThread(new CharSequenceX(pw));
+                    } else {
+                        incrementFailureCount();
                     }
-                })
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
 
-                        final String pw = password.getText().toString();
-
-                        if (pw.length() > 0) {
-                            validatePasswordThread(new CharSequenceX(pw));
-                        } else {
-                            incrementFailureCount();
-                        }
-
-                    }
                 }).show();
     }
 
