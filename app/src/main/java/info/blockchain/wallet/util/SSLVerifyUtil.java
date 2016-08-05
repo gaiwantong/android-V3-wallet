@@ -1,7 +1,7 @@
 package info.blockchain.wallet.util;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
@@ -85,7 +85,7 @@ public class SSLVerifyUtil {
 
             if(alertDialog != null)alertDialog.dismiss();
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogStyle);
             builder.setMessage(message);
             builder.setCancelable(false);
 

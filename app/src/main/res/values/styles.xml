@@ -1,16 +1,18 @@
 <resources>
 
-	<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+	<style name="AppTheme" parent="BaseTheme">
+		<!-- <v21 specific stuff here -->
+		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+	</style>
+
+	<style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+		<!-- Common styles across all res qualifiers resides here, anything specific can inherit from this -->
 		<item name="colorPrimary">@color/blockchain_blue</item>
 		<item name="colorPrimaryDark">@color/blockchain_dark_blue</item>
 		<item name="colorAccent">@color/blockchain_blue</item>
 
 		<item name="android:textColorPrimary">@color/textColorPrimary</item>
-		<item name="android:navigationBarColor">@color/blockchain_navigation_bar</item>
 		<item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-
-		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
-		<item name="android:statusBarColor">@color/blockchain_dark_blue</item>
 
 		<item name="android:windowBackground">@color/blockchain_pearl_white</item>
 		<item name="android:windowContentTransitions">true</item>
@@ -21,8 +23,6 @@
 
 		<item name="colorControlActivated">@color/blockchain_transfer_blue</item>
 		<item name="colorControlHighlight">@color/blockchain_transfer_blue</item>
-
-		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 	</style>
 
 	<style name="AppTheme.MainActivity">

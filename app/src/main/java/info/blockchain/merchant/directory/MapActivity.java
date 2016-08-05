@@ -47,11 +47,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
 //import android.util.Log;
 
-public class MapActivity extends ActionBarActivity implements LocationListener {
+public class MapActivity extends BaseAuthActivity implements LocationListener {
 
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
@@ -350,6 +351,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
         currLocation = location;
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, map.getCameraPosition().zoom);
         map.animateCamera(cameraUpdate);
+        // TODO: 04/08/2016 This needs permission checking, if only for Lint checks
         locationManager.removeUpdates(this);
 
         setProperZoomLevel(latLng, radius, 1);
@@ -372,16 +374,7 @@ public class MapActivity extends ActionBarActivity implements LocationListener {
     @Override
     protected void onResume() {
         super.onResume();
-
-        AccessState.getInstance(this).stopLogoutTimer();
-
         launchedList = false;
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
     }
 
     @Override

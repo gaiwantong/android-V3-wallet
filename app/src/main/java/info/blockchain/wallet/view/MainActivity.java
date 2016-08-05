@@ -22,7 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
@@ -39,10 +37,11 @@ import info.blockchain.wallet.view.helpers.EnableGeo;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity implements BalanceFragment.Communicator, MainViewModel.DataListener {
+public class MainActivity extends BaseAuthActivity implements BalanceFragment.Communicator, MainViewModel.DataListener {
 
     private static final String  SUPPORT_URI = "http://support.blockchain.com/";
     private static final int REQUEST_BACKUP = 2225;
@@ -77,8 +76,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
     @Override
     protected void onResume() {
         super.onResume();
-
-        AccessState.getInstance(MainActivity.this).stopLogoutTimer();
         appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
@@ -303,12 +300,6 @@ public class MainActivity extends AppCompatActivity implements BalanceFragment.C
                 startActivityForResult(intent, MERCHANT_ACTIVITY);
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
     }
 
     @Override

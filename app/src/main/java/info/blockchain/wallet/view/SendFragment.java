@@ -5,7 +5,7 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -635,7 +635,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.alert_watch_only_spend, null);
             dialogBuilder.setView(dialogView);
@@ -1192,7 +1192,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void promptWatchOnlySpend(final PendingSpend pendingSpend){
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.privx_required)
                 .setMessage(String.format(getString(R.string.watch_only_spend_instructionss), pendingSpend.fromLegacyAddress.getAddress()))
                 .setCancelable(false)
@@ -1290,7 +1290,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         final EditText password = new EditText(getActivity());
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
@@ -1391,7 +1391,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 Looper.prepare();
 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
                 dialogBuilder.setView(dialogView);
@@ -1445,7 +1445,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 ivFeeInfo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        new AlertDialog.Builder(getActivity())
+                        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                 .setTitle(R.string.transaction_fee)
                                 .setMessage(getText(R.string.recommended_fee).toString()+"\n\n"+getText(R.string.transaction_surge).toString())
                                 .setPositiveButton(android.R.string.ok, null).show();
@@ -1553,7 +1553,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void promptAlterFee(boolean isWatchOnlySpend, BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int positiveAction, int negativeAction, final AlertDialog confirmDialog) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.alert_generic_warning, null);
         dialogBuilder.setView(dialogView);
@@ -1609,7 +1609,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 +monetaryUtil.getDisplayAmount(fee.longValue())
                 +" "+strBTC;
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.transaction_fee)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null).show();

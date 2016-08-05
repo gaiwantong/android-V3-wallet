@@ -22,7 +22,7 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
 /**
@@ -64,7 +65,7 @@ import piuk.blockchain.android.R;
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-public final class CaptureActivity extends ActionBarActivity implements SurfaceHolder.Callback {
+public final class CaptureActivity extends BaseAuthActivity implements SurfaceHolder.Callback {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
     public static final String SCAN_RESULT = "SCAN_RESULT";
@@ -144,8 +145,6 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        AccessState.getInstance(this).stopLogoutTimer();
-
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
         // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
@@ -207,8 +206,6 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
 
     @Override
     protected void onPause() {
-
-        AccessState.getInstance(this).startLogoutTimer();
 
         if (handler != null) {
             handler.quitSynchronously();
@@ -382,7 +379,7 @@ public final class CaptureActivity extends ActionBarActivity implements SurfaceH
     }
 
     private void displayFrameworkBugMessageAndExit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         builder.setTitle(getString(R.string.app_name));
         builder.setMessage("There was a camera error.");
         builder.setPositiveButton(android.R.string.ok, new FinishListener(this));
