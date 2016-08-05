@@ -1257,7 +1257,7 @@ public class AccountActivity extends BaseAuthActivity {
                     UnspentOutputsBundle unspents = null;
                     try {
                         String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                        unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1295,7 +1295,7 @@ public class AccountActivity extends BaseAuthActivity {
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(this).execSend(false, -1, unspents.getOutputs(), pendingSpend.destination,
+        SendFactory.getInstance().execSend(this, false, -1, unspents.getOutputs(), pendingSpend.destination,
                 pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
                 pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 

@@ -4,7 +4,6 @@ import android.content.Context;
 
 import info.blockchain.credentials.WalletUtil;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.send.SendCoins;
@@ -24,10 +23,6 @@ public class SendTest extends BlockchainTest {
     PrefsUtil prefsUtil;
     MonetaryUtil monetaryUtil;
 
-    /**
-     * @param String  name
-     * @param Context ctx
-     */
     public SendTest(String name, Context ctx) {
         super(name, ctx);
     }
@@ -54,7 +49,7 @@ public class SendTest extends BlockchainTest {
     public void test() {
 
         PayloadManager payloadManager = PayloadManager.getInstance();
-        String payload = WalletUtil.getInstance(context).getPayload();
+        String payload = WalletUtil.getInstance().getPayload();
         payloadManager.setPayload(new Payload(payload));
         try {
             payloadManager.getPayload().parseJSON();
@@ -67,7 +62,7 @@ public class SendTest extends BlockchainTest {
             e.printStackTrace();
         }
 
-        SendFactory sf = getFactoryInstance(context);
+        SendFactory sf = getFactoryInstance();
 
         UnspentOutputsBundle unspents = unspentOutputsHD(sf);
         makeTransactionHD(sf, unspents);
@@ -77,8 +72,8 @@ public class SendTest extends BlockchainTest {
 
     }
 
-    public SendFactory getFactoryInstance(Context ctx) {
-        SendFactory factory = SendFactory.getInstance(context);
+    public SendFactory getFactoryInstance() {
+        SendFactory factory = SendFactory.getInstance();
         AssertUtil.getInstance().assert_true(this, "SendFactory instance returned", factory != null);
         return factory;
     }
@@ -102,10 +97,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionHD(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
+        receivers.put(WalletUtil.getInstance().getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
-            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
+            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance().getHdSpendAddress());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,10 +125,10 @@ public class SendTest extends BlockchainTest {
     public void makeTransactionLegacy(SendFactory sf, UnspentOutputsBundle unspents) {
 
         HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
-        receivers.put(WalletUtil.getInstance(context).getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
+        receivers.put(WalletUtil.getInstance().getHdReceiveAddress(), monetaryUtil.getUndenominatedAmount(lamount));
         org.apache.commons.lang3.tuple.Pair<Transaction, Long> pair = null;
         try {
-            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance(context).getHdSpendAddress());
+            pair = SendCoins.getInstance().makeTransaction(true, unspents.getOutputs(), receivers, monetaryUtil.getUndenominatedAmount(lamount), WalletUtil.getInstance().getHdSpendAddress());
         } catch (Exception e) {
             e.printStackTrace();
         }

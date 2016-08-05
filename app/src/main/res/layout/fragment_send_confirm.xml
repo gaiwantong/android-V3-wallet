@@ -243,17 +243,16 @@
 
             </LinearLayout>
 
-            <TextView
+            <android.support.v7.widget.AppCompatButton
+                    android:theme="@style/SendButtonGreen"
                     android:id="@+id/confirm_send"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginLeft="24dp"
                     android:layout_marginRight="24dp"
                     android:layout_marginBottom="16dp"
                     android:gravity="center"
-                    android:elevation="4dp"
-                    android:background="@color/blockchain_receive_green"
                     android:textColor="@color/white"
                     android:text="@string/SEND"/>
 

@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
@@ -214,7 +215,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         initVars();
 
-        SendFactory.getInstance(getActivity()).getSuggestedFee(this);
+        SendFactory.getInstance().getSuggestedFee(this);
 
         binding.accounts.spinner.setSelection(0);
 
@@ -1069,7 +1070,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 //This should be called just before tx confirmation but not possible with prepareSend()'s current state - TODO prepareSend() needs refactor
                 setEstimatedBlocks(fromAddress, unspentApiString);
 
-                unspentsBundle = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
+                unspentsBundle = SendFactory.getInstance().prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
                 if(unspentsBundle != null) {
                     if (feePerKb.compareTo(BigInteger.ZERO) != 0) {
                         //An absolute fee was calculated fromAddresses fee per kb, and was set in prepareSend()
@@ -1099,7 +1100,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 BigInteger feePerKb = suggestedFeeBundle.estimateList.get(i).fee;
 
-                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
+                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance().prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
                 if(unspentsBundleFirstBlock != null){
                     absoluteFeeSuggestedEstimates[i] = unspentsBundleFirstBlock.getRecommendedFee();
                 }
@@ -1500,7 +1501,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     }
                 });
 
-                TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+                AppCompatButton confirmSend = (AppCompatButton) dialogView.findViewById(R.id.confirm_send);
                 confirmSend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1617,7 +1618,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void executeSend(boolean isWatchOnlySpend, final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
 
-        SendFactory.getInstance(getActivity()).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+        SendFactory.getInstance().execSend(
+                getActivity(),
+                isWatchOnlySpend,
+                pendingSpend.fromXpubIndex,
                 unspents.getOutputs(),
                 pendingSpend.destination,
                 pendingSpend.bigIntAmount,
@@ -1679,7 +1683,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     String direction = MultiAddrFactory.SENT;
                     if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
 
-                    SendFactory.getInstance(getActivity()).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+                    SendFactory.getInstance().execSend(
+                            getActivity(),
+                            isWatchOnlySpend,
+                            pendingSpend.fromXpubIndex,
                             unspents.getOutputs(),
                             pendingSpend.destination,
                             pendingSpend.bigIntAmount,

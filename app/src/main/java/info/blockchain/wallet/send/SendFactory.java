@@ -10,7 +10,6 @@ import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
@@ -40,28 +39,22 @@ import java.util.Map;
 import piuk.blockchain.android.R;
 
 /**
- * SendFactory.java : singleton class for spending fromAddresses Blockchain Android HD wallet
+ * SendFactory.java : Oddly named singleton class for spending fromAddresses Blockchain Android HD wallet
  */
 public class SendFactory {
 
     private static PushTx pushTxApi;
-    private static SendFactory instance = null;
-    private static Context context = null;
-    private String[] fromAddresses = null;
-    public HashMap<String, String> fromAddressPathMap = null;
+    private static SendFactory instance;
+    private String[] fromAddresses;
+    public HashMap<String, String> fromAddressPathMap;
     private boolean sentChange = false;
-    private static AppUtil appUtil;
     private static PayloadManager payloadManager;
 
     private SendFactory() {
-        ;
+        // No-op
     }
 
-    public static SendFactory getInstance(Context ctx) {
-
-        context = ctx.getApplicationContext();
-        appUtil = new AppUtil(ctx);
-
+    public static SendFactory getInstance() {
         if (instance == null) {
             instance = new SendFactory();
             pushTxApi = new PushTx();
@@ -89,7 +82,7 @@ public class SendFactory {
 
             HashMap<String, List<String>> unspentOutputs = MultiAddrFactory.getInstance().getUnspentOuts();
             List<String> data = unspentOutputs.get(address);
-            fromAddressPathMap = new HashMap<String, String>();
+            fromAddressPathMap = new HashMap<>();
             if (data == null) {
                 return null;
             }
@@ -103,7 +96,7 @@ public class SendFactory {
 
             fromAddresses = fromAddressPathMap.keySet().toArray(new String[fromAddressPathMap.keySet().size()]);
         } else {
-            fromAddressPathMap = new HashMap<String, String>();
+            fromAddressPathMap = new HashMap<>();
             fromAddresses = new String[1];
             fromAddresses[0] = address;
         }
@@ -130,6 +123,7 @@ public class SendFactory {
     /**
      * Send coins fromAddresses this wallet. <p> Creates transaction Assigns change address Signs tx
      *
+     * @param context The current application context
      * @param accountIdx HD account index, -1 if legacy spend
      * @param unspent List of unspent outpoints
      * @param toAddress Receiving public address
@@ -139,11 +133,11 @@ public class SendFactory {
      * @param note Note to be attached to this tx
      * @param opc
      */
-    public void execSend(boolean isWatchOnlySpend, final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress,
+    public void execSend(Context context, boolean isWatchOnlySpend, final int accountIdx, final List<MyTransactionOutPoint> unspent, final String toAddress,
                          final BigInteger amount, final LegacyAddress legacyAddress, final BigInteger fee,
                          final String note, final boolean isQueueSend, final String secondPassword, final OpCallback opc) {
 
-        final boolean isHD = accountIdx == -1 ? false : true;
+        final boolean isHD = accountIdx != -1;
 
         final HashMap<String, BigInteger> receivers = new HashMap<String, BigInteger>();
         receivers.put(toAddress, amount);
@@ -316,7 +310,7 @@ public class SendFactory {
                 String address = new BitcoinScript(scriptBytes).getAddress().toString();
                 String path = null;
                 if (unspentJson.has("xpub")) {
-                    JSONObject obj = (JSONObject) unspentJson.getJSONObject("xpub");
+                    JSONObject obj = unspentJson.getJSONObject("xpub");
                     if (obj.has("path")) {
                         path = (String) obj.get("path");
                         fromAddressPathMap.put(address, path);
@@ -383,19 +377,19 @@ public class SendFactory {
 
     private interface SendProgress {
 
-        public void onStart();
+        void onStart();
 
         // Return false to cancel
-        public boolean onReady(Transaction tx, BigInteger fee, long priority);
+        boolean onReady(Transaction tx, BigInteger fee, long priority);
 
-        public void onSend(Transaction tx, String message);
+        void onSend(Transaction tx, String message);
 
         // Return true to cancel the transaction or false to continue without it
-        public ECKey onPrivateKeyMissing(String address);
+        ECKey onPrivateKeyMissing(String address);
 
-        public void onError(String message);
+        void onError(String message);
 
-        public void onProgress(String message);
+        void onProgress(String message);
     }
 
     /**
@@ -447,7 +441,7 @@ public class SendFactory {
                         suggestedFee.isSurge = defaultJson.getBoolean("surge");
 
                         JSONArray estimateArray = dynamicFeeJson.getJSONArray("estimate");
-                        suggestedFee.estimateList = new ArrayList<SuggestedFee.Estimates>();
+                        suggestedFee.estimateList = new ArrayList<>();
                         for(int i = 0; i < estimateArray.length(); i++){
 
                             JSONObject estimateJson = estimateArray.getJSONObject(i);

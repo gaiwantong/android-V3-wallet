@@ -666,7 +666,7 @@ public class AccountEditViewModel implements ViewModel{
                 try {
 
                     String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                    unspents = SendFactory.getInstance(context).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                    unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -700,7 +700,7 @@ public class AccountEditViewModel implements ViewModel{
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(context).execSend(false, -1, unspents.getOutputs(),
+        SendFactory.getInstance().execSend(context, false, -1, unspents.getOutputs(),
                 pendingSpend.destination, pendingSpend.bigIntAmount,
                 pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 
