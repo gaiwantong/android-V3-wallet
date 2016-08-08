@@ -37,6 +37,9 @@ import java.util.TimerTask;
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class PinEntryActivity extends BaseAuthActivity {
 
@@ -198,18 +201,14 @@ public class PinEntryActivity extends BaseAuthActivity {
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getText(R.string.create_wallet) + "...");
-        if(!isFinishing())progress.show();
+        if (!isFinishing()) progress.show();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                try {
-                    // New wallet
+        createWalletObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate(this::dismissProgressView)
+                .subscribe(payload -> {
                     appUtil.setNewlyCreated(true);
-
-                    Payload payload = payloadManager.createHDWallet(strPassword, getString(R.string.default_wallet_name));
                     if (payload != null) {
                         //Successfully created and saved
                         prefs.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
@@ -218,17 +217,14 @@ public class PinEntryActivity extends BaseAuthActivity {
                         ToastCustom.makeText(getApplicationContext(), getApplicationContext().getString(R.string.remote_save_ko),
                                 ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-
-                }catch(Exception e) {
+                }, throwable -> {
                     ToastCustom.makeText(getApplicationContext(), getString(R.string.hd_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     appUtil.clearCredentialsAndRestart();
-                } finally {
-                    dismissProgressView();
-                }
+                });
+    }
 
-                Looper.loop();
-            }
-        }).start();
+    private Observable<Payload> createWalletObservable() {
+        return Observable.fromCallable(() -> payloadManager.createHDWallet(strPassword, getString(R.string.default_wallet_name)));
     }
 
     private void getBundleData() {

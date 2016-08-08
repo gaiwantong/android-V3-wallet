@@ -12,6 +12,7 @@ import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
 
+import rx.plugins.RxJavaHooks;
 /**
  * Created by adambennett on 04/08/2016.
  */
@@ -19,6 +20,7 @@ import info.blockchain.wallet.access.AccessState;
 public class BlockchainApplication extends Application {
 
     private static final String TAG = BlockchainApplication.class.getSimpleName();
+    private static final String RX_ERROR_TAG = "RxJava Error";
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -40,6 +42,11 @@ public class BlockchainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        RxJavaHooks.enableAssemblyTracking();
+        RxJavaHooks.setOnError(throwable -> {
+            Log.d(RX_ERROR_TAG, throwable.getMessage());
+            throwable.printStackTrace();
+        });
         AccessState.getInstance().initAccessState(this);
 
         checkSecurityProviderAndPatchIfNeeded();
