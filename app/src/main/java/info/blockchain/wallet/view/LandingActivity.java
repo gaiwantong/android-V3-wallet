@@ -37,15 +37,8 @@ public class LandingActivity extends BaseAuthActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.app_name);
 
-        binding.create.setOnTouchListener((v, event) -> {
-            startLandingActivity(CREATE_FRAGMENT);
-            return false;
-        });
-
-        binding.login.setOnTouchListener((v, event) -> {
-            startLandingActivity(LOGIN_FRAGMENT);
-            return false;
-        });
+        binding.create.setOnClickListener((v) -> startLandingActivity(CREATE_FRAGMENT));
+        binding.login.setOnClickListener((v) -> startLandingActivity(LOGIN_FRAGMENT));
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
