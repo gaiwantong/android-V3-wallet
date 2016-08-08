@@ -90,6 +90,7 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
+import piuk.blockchain.android.di.Injector;
 
 public class AccountActivity extends BaseAuthActivity {
 

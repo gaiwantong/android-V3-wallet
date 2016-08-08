@@ -17,26 +17,28 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
+import javax.inject.Inject;
+
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.LogoutActivity;
+import piuk.blockchain.android.di.Injector;
 
 public class AccessState {
 
     private static final long LOGOUT_TIMEOUT_MILLIS = 1000L * 30L;
     public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
 
-    private PrefsUtil prefs;
+    @Inject protected PrefsUtil prefs;
+    @Inject protected Access accessApi;
+    @Inject protected AppUtil mAppUtil;
     private String mPin;
     private boolean isLoggedIn = false;
-    private Access accessApi;
     private PendingIntent logoutPendingIntent;
-    private AppUtil mAppUtil;
     private static AccessState instance;
 
     public void initAccessState(Context context) {
-        prefs = new PrefsUtil(context);
-        accessApi = new Access();
-        mAppUtil = new AppUtil(context);
+        Injector.getInstance().getAppComponent().inject(this);
+
         Intent intent = new Intent(context, LogoutActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setAction(AccessState.LOGOUT_ACTION);

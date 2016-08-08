@@ -12,6 +12,7 @@ public enum Injector {
     INSTANCE;
 
     private ApplicationComponent mAppComponent;
+    private ApiComponent mApiComponent;
 
     public static Injector getInstance() {
         return INSTANCE;
@@ -20,9 +21,10 @@ public enum Injector {
     public void init(Context applicationContext) {
 
         ApplicationModule applicationModule = new ApplicationModule((Application) applicationContext);
+        ApiModule apiModule = new ApiModule();
 
         initAppComponent(applicationModule);
-
+        initApiComponent(apiModule);
     }
 
     protected void initAppComponent(ApplicationModule applicationModule) {
@@ -32,7 +34,19 @@ public enum Injector {
                 .build();
     }
 
+    protected void initApiComponent(ApiModule apiModule) {
+
+        mApiComponent = DaggerApiComponent.builder()
+                .apiModule(apiModule)
+                .build();
+    }
+
+
     public ApplicationComponent getAppComponent() {
         return mAppComponent;
+    }
+
+    public ApiComponent getApiComponent() {
+        return mApiComponent;
     }
 }

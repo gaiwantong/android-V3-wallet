@@ -12,12 +12,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
@@ -27,6 +29,7 @@ import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.util.ArrayList;
@@ -99,19 +102,13 @@ public class PinEntryActivity extends BaseAuthActivity {
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-
-            final String message = getString(R.string.check_connectivity_exit);
-
-            builder.setMessage(message)
+            builder.setMessage(getString(R.string.check_connectivity_exit))
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                }
+                            (dialog, id) -> {
+                                Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
                             });
 
             builder.create().show();
@@ -127,19 +124,9 @@ public class PinEntryActivity extends BaseAuthActivity {
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.password_or_wipe)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.use_password, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                            validationDialog();
-
-                        }
-                    }).setNegativeButton(R.string.wipe_wallet, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-
-                    appUtil.clearCredentialsAndRestart();
-
-                }
-            }).show();
+                    .setPositiveButton(R.string.use_password, (dialog, whichButton) -> validationDialog())
+                    .setNegativeButton(R.string.wipe_wallet, (dialog, whichButton) -> appUtil.clearCredentialsAndRestart())
+                    .show();
         }
     }
 
@@ -149,13 +136,9 @@ public class PinEntryActivity extends BaseAuthActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-
-        //Test for screen overlays before user enters PIN
-        if(appUtil.detectObscuredWindow(event)){
-            return true;//consume event
-        }else{
-            return super.dispatchTouchEvent(event);
-        }
+        // Test for screen overlays before user enters PIN
+        // consume event
+        return appUtil.detectObscuredWindow(event) || super.dispatchTouchEvent(event);
     }
 
     @Override
@@ -340,7 +323,7 @@ public class PinEntryActivity extends BaseAuthActivity {
         return this;
     }
 
-    private void createNewPinThread(String pin) {
+    private void createNewPin(String pin) {
         showProgressDialog(getString(R.string.creating_pin));
 
         createNewPinObservable(pin)
@@ -401,20 +384,27 @@ public class PinEntryActivity extends BaseAuthActivity {
     }
 
     private void validationDialog() {
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        FrameLayout frameLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(password, params);
 
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(getActivity().getString(R.string.password_entry))
-                .setView(password)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setNegativeButton(android.R.string.cancel, (dialog, whichButton) -> appUtil.restartApp())
                 .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                     final String pw = password.getText().toString();
 
                     if (pw.length() > 0) {
-                        validatePasswordThread(new CharSequenceX(pw));
+                        validatePassword(new CharSequenceX(pw));
                     } else {
                         incrementFailureCount();
                     }
@@ -422,58 +412,59 @@ public class PinEntryActivity extends BaseAuthActivity {
                 }).show();
     }
 
-    private void validatePasswordThread(final CharSequenceX pw) {
+    private void validatePassword(final CharSequenceX password) {
         showProgressDialog(getString(R.string.validating_password));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Looper.prepare();
+        createValidatePasswordObservable(password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate(this::dismissProgressDialog)
+                .subscribe(o -> {
+                    ToastCustom.makeText(getActivity(), getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
-                    payloadManager.setTempPassword(new CharSequenceX(""));
-                    payloadManager.initiatePayload(
-                            prefs.getValue(PrefsUtil.KEY_SHARED_KEY, "")
-                            , prefs.getValue(PrefsUtil.KEY_GUID, ""), pw, new PayloadManager.InitiatePayloadListener() {
-                                @Override
-                                public void onInitSuccess() {
-                                    ToastCustom.makeText(getActivity(), getString(R.string.pin_4_strikes_password_accepted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                    payloadManager.setTempPassword(password);
+                    prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
+                    prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-                                    payloadManager.setTempPassword(pw);
-                                    prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
-                                    prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
+                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }, throwable -> {
+                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                    dismissProgressDialog();
+                    validationDialog();
+                });
+    }
 
-                                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                }
+    private Observable<Void> createValidatePasswordObservable(CharSequenceX password) {
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            try {
+                payloadManager.setTempPassword(new CharSequenceX(""));
+                payloadManager.initiatePayload(
+                        prefs.getValue(PrefsUtil.KEY_SHARED_KEY, ""),
+                        prefs.getValue(PrefsUtil.KEY_GUID, ""),
+                        password,
+                        new PayloadManager.InitiatePayloadListener() {
+                            @Override
+                            public void onInitSuccess() {
+                                subscriber.onNext(null);
+                                subscriber.onCompleted();
+                            }
 
-                                @Override
-                                public void onInitPairFail() {
-                                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    dismissProgressDialog();
-                                    validationDialog();
-                                }
+                            @Override
+                            public void onInitPairFail() {
+                                subscriber.onError(new Throwable("onInitPairFail"));
+                            }
 
-                                @Override
-                                public void onInitCreateFail(String s) {
-                                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                    dismissProgressDialog();
-                                    validationDialog();
-                                }
-                            });
-
-                    Looper.loop();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
-                }
+                            @Override
+                            public void onInitCreateFail(String s) {
+                                subscriber.onError(new Throwable("onInitCreateFail: " + s));
+                            }
+                        });
+            } catch (Exception e) {
+                subscriber.onError(new Throwable("Create password failed: " + e));
             }
-        }).start();
+        }));
     }
 
     public void padClicked(View view) {
@@ -542,7 +533,7 @@ public class PinEntryActivity extends BaseAuthActivity {
 
         } else if (userEnteredPINConfirm.equals(userEnteredPIN)) {
             // End of Confirm - Pin is confirmed
-            createNewPinThread(userEnteredPIN); // Pin is confirmed. Save to server.
+            createNewPin(userEnteredPIN); // Pin is confirmed. Save to server.
 
         } else {
             // End of Confirm - Pin Mismatch
