@@ -40,15 +40,15 @@ import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
 
 public class PinEntryActivity extends BaseAuthActivity {
 
-    final int PIN_LENGTH = 4;
-    final int maxAttempts = 4;
+    private static final int COOL_DOWN = 2000;
+    private static final int PIN_LENGTH = 4;
+    private static final int maxAttempts = 4;
     String userEnteredPIN = "";
     String userEnteredPINConfirm = null;
 
     TextView[] pinBoxArray = null;
     boolean allowExit = true;
-    int exitClickCount = 0;
-    int exitClickCooldown = 2; // in seconds
+    private long mBackPressed;
     private ProgressDialog progress = null;
     private String strEmail = null;
     private String strPassword = null;
@@ -169,27 +169,14 @@ public class PinEntryActivity extends BaseAuthActivity {
     @Override
     public void onBackPressed() {
         if (allowExit) {
-            exitClickCount++;
-            if (exitClickCount == 2) {
-                AccessState.getInstance().logout(this);
-            } else
+            if (mBackPressed + COOL_DOWN > System.currentTimeMillis()) {
+                super.onBackPressed();
+                return;
+            } else {
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+            }
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int j = 0; j <= exitClickCooldown; j++) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (j >= exitClickCooldown) exitClickCount = 0;
-                    }
-                }
-            }).start();
-        } else {
-            super.onBackPressed();
+            mBackPressed = System.currentTimeMillis();
         }
     }
 
