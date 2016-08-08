@@ -39,6 +39,7 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityPinEntryBinding;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.Exceptions;
 import rx.schedulers.Schedulers;
 
 public class PinEntryActivity extends BaseAuthActivity {
@@ -352,36 +353,34 @@ public class PinEntryActivity extends BaseAuthActivity {
     }
 
     private void createNewPinThread(String pin) {
-        final Handler handler = new Handler();
         dismissProgressView();
-        progress = new ProgressDialog(PinEntryActivity.this);
+        progress = new ProgressDialog(getActivity());
         progress.setCancelable(false);
         progress.setTitle(R.string.app_name);
         progress.setMessage(getString(R.string.creating_pin));
-        if(!isFinishing())progress.show();
+        if (!isFinishing()) progress.show();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-
-                if (AccessState.getInstance().createPIN(payloadManager.getTempPassword(), pin)) {
-                    prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                    PinEntryActivity.this.updatePayloadThread(payloadManager.getTempPassword());
-                } else {
-                    ToastCustom.makeText(PinEntryActivity.this, PinEntryActivity.this.getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+        createNewPinObservable(pin)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(this::dismissProgressView)
+                .subscribe(createSuccessful -> {
+                    if (createSuccessful) {
+                        prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
+                        updatePayloadThread(payloadManager.getTempPassword());
+                    } else {
+                        throw Exceptions.propagate(new Throwable("Pin create failed"));
+                    }
+                }, throwable -> {
+                    ToastCustom.makeText(getActivity(), getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     prefs.clear();
                     appUtil.restartApp();
-                }
-
-                PinEntryActivity.this.dismissProgressView();
-                handler.post(() -> {
-                    // No-op
                 });
+    }
 
-                Looper.loop();
-            }
-        }).start();
+    private Observable<Boolean> createNewPinObservable(String pin) {
+        // Defer creation of Observable until subscribed to - creates fresh Observable with each subscription
+        return Observable.defer(() -> Observable.just(AccessState.getInstance().createPIN(payloadManager.getTempPassword(), pin)));
     }
 
     private void validatePIN(final String PIN) {
