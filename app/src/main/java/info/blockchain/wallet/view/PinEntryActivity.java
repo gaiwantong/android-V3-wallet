@@ -105,9 +105,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                     .setCancelable(false)
                     .setPositiveButton(R.string.dialog_continue,
                             (dialog, id) -> {
-                                Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
+                                restartPage();
                             });
 
             builder.create().show();
@@ -318,9 +316,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                     }
                 }, throwable -> {
                     ToastCustom.makeText(getActivity(), getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    restartPage();
                 });
     }
 
@@ -339,9 +335,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                     prefs.removeValue(PrefsUtil.KEY_PIN_FAILS);
                     prefs.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
 
-                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    restartPage();
                 }, throwable -> {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     dismissProgressDialog();
@@ -452,6 +446,10 @@ public class PinEntryActivity extends BaseAuthActivity {
 
         ToastCustom.makeText(getActivity(), getString(R.string.invalid_pin), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 
+        restartPage();
+    }
+
+    private void restartPage() {
         Intent intent = new Intent(getActivity(), PinEntryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

@@ -23,6 +23,8 @@ public class RxTest {
     @CallSuper
     public void setUp() throws Exception {
         RxAndroidPlugins.getInstance().reset();
+        RxJavaHooks.reset();
+
         RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
             @Override
             public Scheduler getMainThreadScheduler() {

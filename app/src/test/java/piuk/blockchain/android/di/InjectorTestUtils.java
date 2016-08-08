@@ -11,4 +11,8 @@ public class InjectorTestUtils {
         injector.initAppComponent(applicationModule);
     }
 
+    public static void initApiComponent(Injector injector, ApiModule apiModule) {
+        injector.initApiComponent(apiModule);
+    }
+
 }
