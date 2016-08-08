@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.UiThread;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
@@ -552,8 +553,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 break;
 
             case "about":
-                Intent intent = new Intent(getActivity(), AboutActivity.class);
-                startActivity(intent);
+                DialogFragment aboutDialog = new AboutDialog();
+                aboutDialog.show(getFragmentManager(), "ABOUT_DIALOG");
                 break;
 
             case "tos":
@@ -722,7 +723,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void showDialogFiatUnits() {
-        final String[] currencies = ExchangeRateFactory.getInstance(getActivity()).getCurrencyLabels();
+        final String[] currencies = ExchangeRateFactory.getInstance().getCurrencyLabels();
         String strCurrency = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         int selected = 0;
         for (int i = 0; i < currencies.length; i++) {

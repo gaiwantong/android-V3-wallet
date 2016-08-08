@@ -97,4 +97,8 @@
         <item name="android:gravity">center_vertical|right</item>
     </style>
 
+	<style name="SendButtonGreen">
+		<item name="colorButtonNormal">@color/blockchain_receive_green</item>
+	</style>
+
 </resources>

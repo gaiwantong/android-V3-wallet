@@ -12,6 +12,9 @@ import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
 
+import piuk.blockchain.android.di.Injector;
+import rx.plugins.RxJavaHooks;
+
 /**
  * Created by adambennett on 04/08/2016.
  */
@@ -19,6 +22,7 @@ import info.blockchain.wallet.access.AccessState;
 public class BlockchainApplication extends Application {
 
     private static final String TAG = BlockchainApplication.class.getSimpleName();
+    private static final String RX_ERROR_TAG = "RxJava Error";
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -28,17 +32,14 @@ public class BlockchainApplication extends Application {
             MultiDex.install(base);
         }
     }
-
-    /**
-     * This method is likely to get quite bloated with initializing core components with
-     * application context over time. It's fine for now, but we should eventually start
-     * using dependency injection to keep this clean and make these classes easier to test.
-     *
-     * @see <a href="http://google.github.io/dagger/">Dagger2</a>
-     */
+    
     @Override
     public void onCreate() {
         super.onCreate();
+        Injector.getInstance().init(this);
+
+        RxJavaHooks.enableAssemblyTracking();
+        RxJavaHooks.setOnError(throwable -> Log.d(RX_ERROR_TAG, throwable.getMessage(), throwable));
 
         AccessState.getInstance().initAccessState(this);
 

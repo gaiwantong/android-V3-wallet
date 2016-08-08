@@ -90,6 +90,7 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
+import piuk.blockchain.android.di.Injector;
 
 public class AccountActivity extends BaseAuthActivity {
 
@@ -674,10 +675,10 @@ public class AccountActivity extends BaseAuthActivity {
                                         if (!payloadManager.getPayload().isDoubleEncrypted()) {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
-                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                                             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                                                     payloadManager.getPayload().getSharedKey(),
-                                                    secondPassword.toString(),
+                                                    secondPassword,
                                                     payloadManager.getPayload().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
@@ -767,10 +768,10 @@ public class AccountActivity extends BaseAuthActivity {
             if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
-                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                 String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                         payloadManager.getPayload().getSharedKey(),
-                        secondPassword.toString(),
+                        secondPassword,
                         payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
@@ -838,10 +839,10 @@ public class AccountActivity extends BaseAuthActivity {
         if (!payload.isDoubleEncrypted()) {
             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
         } else {
-            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                     payload.getSharedKey(),
-                    secondPassword.toString(),
+                    secondPassword,
                     payload.getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
         }
@@ -1257,7 +1258,7 @@ public class AccountActivity extends BaseAuthActivity {
                     UnspentOutputsBundle unspents = null;
                     try {
                         String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                        unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1295,7 +1296,7 @@ public class AccountActivity extends BaseAuthActivity {
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(this).execSend(false, -1, unspents.getOutputs(), pendingSpend.destination,
+        SendFactory.getInstance().execSend(this, false, -1, unspents.getOutputs(), pendingSpend.destination,
                 pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
                 pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 

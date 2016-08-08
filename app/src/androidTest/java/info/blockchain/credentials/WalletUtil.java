@@ -19,27 +19,19 @@ public class WalletUtil {
     private static String hd_receive_address = "-- REDACTED --";
     private static String legacy_spend_address = "-- REDACTED --";
 
-    private static Context context = null;
-
     private static WalletUtil instance = null;
 
     private WalletUtil() {
-        ;
+        // No-op
     }
 
-    public static WalletUtil getInstance(Context ctx) {
-
-        if (instance == null) {
-
-            context = ctx;
-
+    public static WalletUtil getInstance() {
+        if (instance == null)
             instance = new WalletUtil();
-        }
-
         return instance;
     }
 
-    public void setValidCredentials() {
+    public void setValidCredentials(Context context) {
         PrefsUtil prefs = new PrefsUtil(context);
         prefs.setValue(PrefsUtil.KEY_GUID, guid);
         prefs.setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);

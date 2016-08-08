@@ -9,10 +9,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 public class BlockchainWalletTest extends BlockchainTest {
 
-    /**
-     * @param String  name
-     * @param Context ctx
-     */
     public BlockchainWalletTest(String name, Context ctx) {
         super(name, ctx);
     }
@@ -45,13 +41,13 @@ public class BlockchainWalletTest extends BlockchainTest {
          * during an actual login.
          */
         PrefsUtil prefs = new PrefsUtil(context);
-        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
-        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
+        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance().getGuid());
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance().getSharedKey());
 
-        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
-        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
+        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance().getPinIdentifier());
+        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance().getEncryptedPassword());
 
-        CharSequenceX pw = new CharSequenceX(WalletUtil.getInstance(context).getValidPassword());
+        CharSequenceX pw = new CharSequenceX(WalletUtil.getInstance().getValidPassword());
 
         loginGoodParams(pw);
 
@@ -65,11 +61,11 @@ public class BlockchainWalletTest extends BlockchainTest {
         //
         // login w/ PIN tests
         //
-        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance(context).getGuid());
-        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance(context).getSharedKey());
+        prefs.setValue(PrefsUtil.KEY_GUID, WalletUtil.getInstance().getGuid());
+        prefs.setValue(PrefsUtil.KEY_SHARED_KEY, WalletUtil.getInstance().getSharedKey());
 
-        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance(context).getPinIdentifier());
-        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance(context).getEncryptedPassword());
+        prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, WalletUtil.getInstance().getPinIdentifier());
+        prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, WalletUtil.getInstance().getEncryptedPassword());
 
         loginGoodPIN();
 
@@ -121,7 +117,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     public void loginGoodPIN() {
         CharSequenceX password = null;
         try {
-            password = AccessState.getInstance(context).validatePIN(WalletUtil.getInstance(context).getValidPin());
+            password = AccessState.getInstance().validatePIN(WalletUtil.getInstance().getValidPin());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -132,7 +128,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     public void loginBadPIN() {
         CharSequenceX password = null;
         try {
-            password = AccessState.getInstance(context).validatePIN("9999");
+            password = AccessState.getInstance().validatePIN("9999");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

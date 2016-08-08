@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -34,20 +33,20 @@ import piuk.blockchain.android.R;
 
 public class WebSocketHandler {
 
-    private static String guid = null;
-    private static String[] xpubs = null;
-    private static String[] addrs = null;
-    private static Context context = null;
+    private static String guid;
+    private static String[] xpubs;
+    private static String[] addrs;
     private final long pingInterval = 20000L;//ping pong every 20 seconds
     private final long pongTimeout = 5000L;//pong timeout after 5 seconds
-    private WebSocket mConnection = null;
-    private HashSet<String> subHashSet = new HashSet<String>();
-    private HashSet<String> onChangeHashSet = new HashSet<String>();
-    private Timer pingTimer = null;
+    private WebSocket mConnection;
+    private HashSet<String> subHashSet = new HashSet<>();
+    private HashSet<String> onChangeHashSet = new HashSet<>();
+    private Timer pingTimer;
     private boolean pingPongSuccess = false;
     private PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
     private PayloadManager payloadManager;
+    private Context context;
 
     public WebSocketHandler(Context ctx, String guid, String[] xpubs, String[] addrs) {
         this.context = ctx;

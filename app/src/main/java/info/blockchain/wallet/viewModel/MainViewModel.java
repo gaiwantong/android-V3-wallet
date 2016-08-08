@@ -81,7 +81,7 @@ public class MainViewModel implements ViewModel{
 
     private void preLaunchChecks(){
         exchangeRateThread();
-        new SSLVerifyUtil(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSL();
 
         boolean isPinValidated = false;
         Bundle extras = ((Activity)context).getIntent().getExtras();
@@ -159,7 +159,7 @@ public class MainViewModel implements ViewModel{
 
     private void exchangeRateThread() {
 
-        List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance(context).getCurrencies());
+        List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance().getCurrencies());
         String strCurrentSelectedFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, "");
         if (!currencies.contains(strCurrentSelectedFiat)) {
             prefs.setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -172,8 +172,8 @@ public class MainViewModel implements ViewModel{
             try {
                 response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
 
-                ExchangeRateFactory.getInstance(context).setData(response);
-                ExchangeRateFactory.getInstance(context).updateFxPricesForEnabledCurrencies();
+                ExchangeRateFactory.getInstance().setData(response);
+                ExchangeRateFactory.getInstance().updateFxPricesForEnabledCurrencies();
             } catch (Exception e) {
                 e.printStackTrace();
             }

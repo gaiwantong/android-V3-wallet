@@ -29,7 +29,7 @@
                 android:alpha=".35"
                 android:gravity="center"
                 android:text="Word 0 of 12"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:textColor="@color/white"/>
 
         <LinearLayout
