@@ -1,6 +1,8 @@
 package info.blockchain.wallet.viewModel;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -9,7 +11,7 @@ import android.view.View;
 import info.blockchain.api.DynamicFee;
 import info.blockchain.api.Unspent;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
-import info.blockchain.wallet.model.ItemSendAddress;
+import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
 import info.blockchain.wallet.model.PendingTransaction;
 import info.blockchain.wallet.model.SendModel;
@@ -17,6 +19,7 @@ import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.AddressBookEntry;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payment.Payment;
 import info.blockchain.wallet.payment.data.SpendableUnspentOutputs;
@@ -28,6 +31,7 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONObject;
 
@@ -91,30 +95,34 @@ public class SendViewModel implements ViewModel {
     }
 
     public interface DataListener {
-        void onSingleFromAddress();
-        void onSingleToAddress();
-        void onInvalidAmount();
-        void onUpdateBtcAmount(String amount);
+        void onHideSendingAddressField();
+        void onHideReceivingAddressField();
+
         void onRemoveBtcTextChangeListener();
-        void onAddBtcTextChangeListener();
-        void onUpdateFiatAmount(String amount);
         void onRemoveFiatTextChangeListener();
+
+        void onAddBtcTextChangeListener();
         void onAddFiatTextChangeListener();
+
+        void onUpdateBtcAmount(String amount);
+        void onUpdateFiatAmount(String amount);
         void onUpdateBtcUnit(String unit);
         void onUpdateFiatUnit(String unit);
+
         void onSetBtcUnit(int unitBtc);
         void onSetSpendAllAmount(String textFromSatoshis);
-        void onPromptWatchOnlySpend(String receivingAddress);
-        void onConfirmPaymentDetails(PaymentConfirmationDetails confirmationDetails);
-        void onPromptWatchOnlySpendWarning(String address);
-        void onPromptAlterFee(String absoluteFeeSuggested,
-                              String body, int positiveAction, int negativeAction);
-        void onErrorMessage(String message);
+
+        void onShowInvalidAmount();
+        void onShowWatchOnlySpend(String receivingAddress);
+        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword);
+        void onShowWatchOnlySpendWarning(String address);
+        void onShowAlterFee(String absoluteFeeSuggested,String body, int positiveAction, int negativeAction);
+        void onShowErrorMessage(String message);
     }
 
-    public List<ItemSendAddress> getAddressList(boolean includeAddressBookEntries) {
+    public List<ItemAccount> getAddressList(boolean includeAddressBookEntries) {
 
-        ArrayList<ItemSendAddress> result = new ArrayList<>();
+        ArrayList<ItemAccount> result = new ArrayList<>();
 
         //V3
         if (payloadManager.getPayload().isUpgraded()) {
@@ -128,7 +136,7 @@ public class SendViewModel implements ViewModel {
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(account.getXpub())) {
                     long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub());
                     String balance = "(" + monetaryUtil.getDisplayAmount(amount) + " " + sendModel.btcUnit + ")";
-                    result.add(new ItemSendAddress(account.getLabel(), balance, null, account));
+                    result.add(new ItemAccount(account.getLabel(), balance, null, account));
                 }
             }
         }
@@ -154,12 +162,12 @@ public class SendViewModel implements ViewModel {
 
             long amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
             String balance = "(" + monetaryUtil.getDisplayAmount(amount) + " " + sendModel.btcUnit + ")";
-            result.add(new ItemSendAddress(labelOrAddress, balance, tag, legacyAddress));
+            result.add(new ItemAccount(labelOrAddress, balance, tag, legacyAddress));
         }
 
         if(result.size() == 1){
             //Only a single account/address available in wallet
-            dataListener.onSingleFromAddress();
+            dataListener.onHideSendingAddressField();
         }
 
         //Address Book (only included in receiving)
@@ -170,13 +178,13 @@ public class SendViewModel implements ViewModel {
                 //If address has no label, we'll display address
                 String labelOrAddress = addressBookEntry.getLabel() == null || addressBookEntry.getLabel().length() == 0 ? addressBookEntry.getAddress() : addressBookEntry.getLabel();
 
-                result.add(new ItemSendAddress(labelOrAddress, "", context.getResources().getString(R.string.address_book_label), addressBookEntry));
+                result.add(new ItemAccount(labelOrAddress, "", context.getResources().getString(R.string.address_book_label), addressBookEntry));
             }
         }
 
         if (result.size() == 1) {
             //Only a single account/address available in wallet and no addressBook entries
-            dataListener.onSingleToAddress();
+            dataListener.onHideReceivingAddressField();
         }
 
         return result;
@@ -197,7 +205,7 @@ public class SendViewModel implements ViewModel {
             lamount = (BigDecimal.valueOf(undenominatedAmount).multiply(BigDecimal.valueOf(100000000)).longValue());
 
             if (BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
-                dataListener.onInvalidAmount();
+                dataListener.onShowInvalidAmount();
                 return;
             }
         } catch (NumberFormatException nfe) {
@@ -330,7 +338,7 @@ public class SendViewModel implements ViewModel {
             }
 
         } else {
-            dataListener.onErrorMessage(context.getString(R.string.invalid_bitcoin_address));
+            dataListener.onShowErrorMessage(context.getString(R.string.invalid_bitcoin_address));
             return;
         }
 
@@ -386,11 +394,11 @@ public class SendViewModel implements ViewModel {
         }).start();
     }
 
-    public void spendAllClicked(ItemSendAddress sendAddressItem, String customFeeText) {
+    public void spendAllClicked(ItemAccount sendAddressItem, String customFeeText) {
         calculateTransactionAmounts(true, sendAddressItem, null, customFeeText, null);
     }
 
-    public void calculateTransactionAmounts(ItemSendAddress sendAddressItem, String amountToSendText, String customFeeText, TransactionDataListener listener) {
+    public void calculateTransactionAmounts(ItemAccount sendAddressItem, String amountToSendText, String customFeeText, TransactionDataListener listener) {
         calculateTransactionAmounts(false, sendAddressItem, amountToSendText, customFeeText, listener);
     }
 
@@ -398,7 +406,7 @@ public class SendViewModel implements ViewModel {
         void onReady();
     }
 
-    private void calculateTransactionAmounts(boolean spendAll, ItemSendAddress sendAddressItem,
+    private void calculateTransactionAmounts(boolean spendAll, ItemAccount sendAddressItem,
                                              String amountToSendText, String customFeeText, TransactionDataListener listener) {
 
         sendModel.setMaxAvailableProgressVisibility(View.VISIBLE);
@@ -469,6 +477,11 @@ public class SendViewModel implements ViewModel {
                         updateEstimateConfirmationTime(amountToSend, customFee.longValue(), coins);
                     }
 
+                    //Warn user of unconfirmed funds - but don't block payment
+                    if(coins.getNotice() != null){
+                        dataListener.onShowErrorMessage(coins.getNotice());
+                    }
+
                 }else{
                     sendModel.pendingTransaction.unspentOutputBundle = null;
                 }
@@ -478,7 +491,7 @@ public class SendViewModel implements ViewModel {
             } catch (Exception e) {
                 e.printStackTrace();
                 updateMaxAvailable(0);
-                dataListener.onErrorMessage(context.getString(R.string.api_fail));
+                dataListener.onShowErrorMessage(context.getString(R.string.api_fail));
             }
 
             Looper.loop();
@@ -598,9 +611,10 @@ public class SendViewModel implements ViewModel {
 
     public void sendClicked(boolean bypassFeeCheck, String address) {
 
-        //is address or object
         if(FormatsUtil.getInstance().isValidBitcoinAddress(address)){
+            //Receiving address manual or scanned input
             sendModel.pendingTransaction.receivingAddress = address;
+            sendModel.pendingTransaction.receivingObject = null;
         }
 
         if(bypassFeeCheck || isFeeAdequate()) {
@@ -613,24 +627,24 @@ public class SendViewModel implements ViewModel {
                     //Currently only v2 has watch-only
                     if (!sendModel.pendingTransaction.isHD() &&
                             ((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject).isWatchOnly()) {
-                        dataListener.onPromptWatchOnlySpend(sendModel.pendingTransaction.receivingAddress);
+                        dataListener.onShowWatchOnlySpend(sendModel.pendingTransaction.receivingAddress);
                     } else {
                         new SecondPasswordHandler(context).validate(new SecondPasswordHandler.ResultListener() {
                             @Override
                             public void onNoSecondPassword() {
-                                confirmPayment(sendModel.pendingTransaction);
+                                confirmPayment(sendModel.pendingTransaction, null);
                             }
 
                             @Override
-                            public void onSecondPasswordValidated(String validateSecondPassword) {
-                                confirmPayment(sendModel.pendingTransaction);
+                            public void onSecondPasswordValidated(String validatedSecondPassword) {
+                                confirmPayment(sendModel.pendingTransaction, validatedSecondPassword);
                             }
                         });
                     }
                 }
 
             } else {
-                dataListener.onErrorMessage(context.getString(R.string.check_connectivity_exit));
+                dataListener.onShowErrorMessage(context.getString(R.string.check_connectivity_exit));
             }
         }
     }
@@ -648,7 +662,7 @@ public class SendViewModel implements ViewModel {
                         monetaryUtil.getDisplayAmount(sendModel.pendingTransaction.bigIntFee.longValue()) + " " + sendModel.btcUnit,
                         monetaryUtil.getDisplayAmount(sendModel.absoluteFeeSuggestedEstimates[0].longValue()) + " " + sendModel.btcUnit);
 
-                dataListener.onPromptAlterFee(
+                dataListener.onShowAlterFee(
                         getTextFromSatoshis(sendModel.absoluteFeeSuggestedEstimates[0].longValue()),
                         message,
                         R.string.lower_fee,
@@ -664,7 +678,7 @@ public class SendViewModel implements ViewModel {
                         monetaryUtil.getDisplayAmount(sendModel.pendingTransaction.bigIntFee.longValue()) + " " + sendModel.btcUnit,
                         monetaryUtil.getDisplayAmount(sendModel.absoluteFeeSuggestedEstimates[5].longValue()) + " " + sendModel.btcUnit);
 
-                dataListener.onPromptAlterFee(
+                dataListener.onShowAlterFee(
                         getTextFromSatoshis(sendModel.absoluteFeeSuggestedEstimates[5].longValue()),
                         message,
                         R.string.raise_fee,
@@ -679,7 +693,7 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
-    private void confirmPayment(PendingTransaction pendingTransaction){
+    private void confirmPayment(PendingTransaction pendingTransaction, String validatedSecondPassword){
 
         PaymentConfirmationDetails details = new PaymentConfirmationDetails();
         details.fromLabel = pendingTransaction.sendingObject.label;
@@ -707,7 +721,7 @@ public class SendViewModel implements ViewModel {
         details.fiatTotal = (monetaryUtil.getFiatFormat(sendModel.fiatUnit)
                 .format(sendModel.exchangeRate * (totalFiat.doubleValue() / 1e8)));
 
-        dataListener.onConfirmPaymentDetails(details);
+        dataListener.onShowPaymentDetails(details, validatedSecondPassword);
     }
 
     private boolean isValidSpend(PendingTransaction pendingTransaction) {
@@ -715,13 +729,13 @@ public class SendViewModel implements ViewModel {
         Log.d(TAG, "isValidSpend pendingTransaction: "+pendingTransaction.toString());
         //Validate amount
         if(!isValidAmount(pendingTransaction.bigIntAmount)){
-            dataListener.onInvalidAmount();
+            dataListener.onShowInvalidAmount();
             return false;
         }
 
         //Validate sufficient funds
         if(pendingTransaction.unspentOutputBundle == null || pendingTransaction.unspentOutputBundle.getSpendableOutputs() == null){
-            dataListener.onErrorMessage(context.getString(R.string.no_confirmed_funds));
+            dataListener.onShowErrorMessage(context.getString(R.string.no_confirmed_funds));
             return false;
         }
         long amountToSendIncludingFee = pendingTransaction.bigIntAmount.longValue() + pendingTransaction.bigIntFee.longValue();
@@ -729,7 +743,7 @@ public class SendViewModel implements ViewModel {
 
             String xpub = ((Account)pendingTransaction.sendingObject.accountObject).getXpub();
             if(!hasSufficientFunds(xpub, null, amountToSendIncludingFee)){
-                dataListener.onErrorMessage(context.getString(R.string.insufficient_funds));
+                dataListener.onShowErrorMessage(context.getString(R.string.insufficient_funds));
                 sendModel.setCustomFeeColor(R.color.blockchain_send_red);
                 return false;
             }else{
@@ -739,7 +753,7 @@ public class SendViewModel implements ViewModel {
         }else{
 
             if(!hasSufficientFunds(null, ((LegacyAddress)pendingTransaction.sendingObject.accountObject).getAddress(), amountToSendIncludingFee)){
-                dataListener.onErrorMessage(context.getString(R.string.insufficient_funds));
+                dataListener.onShowErrorMessage(context.getString(R.string.insufficient_funds));
                 sendModel.setCustomFeeColor(R.color.blockchain_send_red);
                 return false;
             }else{
@@ -750,57 +764,44 @@ public class SendViewModel implements ViewModel {
 
         //Validate addresses
         if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingTransaction.receivingAddress)){
-            dataListener.onErrorMessage(context.getString(R.string.invalid_bitcoin_address));
+            dataListener.onShowErrorMessage(context.getString(R.string.invalid_bitcoin_address));
             return false;
         }
 
         //Validate send and receive not same addresses
         if(pendingTransaction.sendingObject == pendingTransaction.receivingObject){
-            dataListener.onErrorMessage(context.getString(R.string.send_to_same_address_warning));
+            dataListener.onShowErrorMessage(context.getString(R.string.send_to_same_address_warning));
             return false;
         }
 
         //Validate sufficient fee
         //TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
         if(pendingTransaction.bigIntFee.longValue() < 1000){
-            dataListener.onErrorMessage(context.getString(R.string.insufficient_fee));
+            dataListener.onShowErrorMessage(context.getString(R.string.insufficient_fee));
             return false;
         }
 
         if(pendingTransaction.unspentOutputBundle == null){
-            dataListener.onErrorMessage(context.getString(R.string.no_confirmed_funds));
+            dataListener.onShowErrorMessage(context.getString(R.string.no_confirmed_funds));
             return false;
         }
-
-        //Warn user of unconfirmed funds - but don't block payment
-        //TODO - get unspent message from api response
-//        if(pendingTransaction.unspentOutputBundle.getNotice() != null){
-//            ToastCustom.makeText(getActivity(), unspentsCoinsBundle.getNotice(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-//        }
 
         if(pendingTransaction.unspentOutputBundle.getSpendableOutputs().size() == 0){
-            dataListener.onErrorMessage(context.getString(R.string.insufficient_funds));
-            return false;
-        }
-
-        //Check after user edits fee (fee could bring balance into negative)
-        long balanceAfterFee = sendModel.pendingTransaction.bigIntAmount.longValue() - sendModel.pendingTransaction.bigIntFee.longValue();
-        if(balanceAfterFee < 0){
-            dataListener.onErrorMessage(context.getString(R.string.insufficient_funds));
+            dataListener.onShowErrorMessage(context.getString(R.string.insufficient_funds));
             return false;
         }
 
         return true;
     }
 
-    public void setSendingAddress(ItemSendAddress selectedItem) {
+    public void setSendingAddress(ItemAccount selectedItem) {
         sendModel.pendingTransaction.sendingObject = selectedItem;
     }
 
     /*
     Account or legacyAddress selected
      */
-    public void setReceivingAddress(ItemSendAddress selectedItem) {
+    public void setReceivingAddress(ItemAccount selectedItem) {
 
         sendModel.pendingTransaction.receivingObject = selectedItem;
 
@@ -818,7 +819,7 @@ public class SendViewModel implements ViewModel {
 
             if(legacyAddress.isWatchOnly())
                 if (legacyAddress.isWatchOnly()) {
-                    dataListener.onPromptWatchOnlySpendWarning(legacyAddress.getAddress());
+                    dataListener.onShowWatchOnlySpendWarning(legacyAddress.getAddress());
                 }
         }else{
 
@@ -870,32 +871,118 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
-    public void submitPayment() {
-        Log.d(TAG, "submitPayment PAYMENT GO! "+sendModel.pendingTransaction.toString());
-        //                    if (!spendInProgress) {
-//                        spendInProgress = true;
+    public void submitPayment(String validatedSecondPassword) {
+
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "--------------------------------------------------------------");
+                Log.d(TAG, "validatedSecondPassword: " + validatedSecondPassword);
+                Log.d(TAG, "submitPayment PAYMENT GO! " + sendModel.pendingTransaction.toString());
+                Log.d(TAG, "--------------------------------------------------------------");
+
+                //sign
+
+                if (ConnectivityStatus.hasConnectivity(context)) {
+
+                    boolean isWatchOnly = false;
+
+                    String changeAddress;
+                    Account account = null;
+                    LegacyAddress legacyAddress = null;
+
+                    if (sendModel.pendingTransaction.isHD()) {
+                        account = ((Account) sendModel.pendingTransaction.sendingObject.accountObject);
+                        changeAddress = payloadManager.getChangeAddress(account.getRealIdx());
+                    } else {
+                        legacyAddress = ((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject);
+                        changeAddress = legacyAddress.getAddress();
+                    }
+
+                    payment.submitPayment(sendModel.pendingTransaction.unspentOutputBundle,
+                            account,
+                            legacyAddress,
+                            sendModel.pendingTransaction.receivingAddress,
+                            changeAddress,
+                            sendModel.pendingTransaction.note,
+                            sendModel.pendingTransaction.bigIntFee,
+                            sendModel.pendingTransaction.bigIntAmount,
+                            isWatchOnly,
+                            validatedSecondPassword,
+                            new Payment.SubmitPaymentListener() {
+                                @Override
+                                public void onSuccess(String s) {
+                                    ToastCustom.makeText(context, context.getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+
+                                    playAudio();
+
+//                                    if (sendModel.pendingTransaction.isHD()) {
 //
-//                        if (progress != null && progress.isShowing()) {
-//                            progress.dismiss();
-//                            progress = null;
-//                        }
-//                        progress = new ProgressDialog(getActivity());
-//                        progress.setCancelable(false);
-//                        progress.setTitle(R.string.app_name);
-//                        progress.setMessage(getString(R.string.sending));
-//                        progress.show();
+//                                        //Update v3 balance immediately after spend - until refresh from server
+//                                        MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+//                                        MultiAddrFactory.getInstance().setXpubAmount(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 //
-//                        context = getActivity();
+//                                    } else {
 //
-//                        if (unspentsCoinsBundle != null) {
-//                            executeSend(isWatchOnlySpend, pendingSpend, unspentsCoinsBundle, alertDialog);
-//                        } else {
-//
-//                            ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-//                            closeDialog(alertDialog, false);
-//                        }
-//
-//                        spendInProgress = false;
-//                    }
+//                                        //Update v2 balance immediately after spend - until refresh from server
+//                                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+//                                        //TODO - why are we not setting individual address balance as well, was this over looked?
+//                                    }
+
+                                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                                        @Override
+                                        public void onSaveSuccess() {
+                                        }
+
+                                        @Override
+                                        public void onSaveFail() {
+//                                            ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                        }
+                                    });
+//                                    closeDialog(alertDialog, true);
+
+//                                    new AppRate(getActivity())
+//                                            .setMinTransactionsUntilPrompt(3)
+//                                            .incrementTransactionCount()
+//                                            .init();
+                                }
+
+                                @Override
+                                public void onFail(String s) {
+
+                                }
+                            });
+
+                } else {
+                    //add to queue
+                    dataListener.onShowErrorMessage(context.getString(R.string.check_connectivity_exit));
+
+//            // Queue tx
+//            Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
+//            TxQueue.getInstance(context).add(spendable);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }).start();
+
+    }
+
+    private void playAudio(){
+
+        AudioManager audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+            MediaPlayer mp;
+            mp = MediaPlayer.create(context.getApplicationContext(), R.raw.alert);
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.reset();
+                    mp.release();
+                }
+
+            });
+            mp.start();
+        }
     }
 }

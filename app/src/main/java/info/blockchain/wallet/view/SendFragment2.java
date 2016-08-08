@@ -154,17 +154,17 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
     };
 
     @Override
-    public void onSingleFromAddress() {
+    public void onHideSendingAddressField() {
 
     }
 
     @Override
-    public void onSingleToAddress() {
+    public void onHideReceivingAddressField() {
 
     }
 
     @Override
-    public void onInvalidAmount() {
+    public void onShowInvalidAmount() {
 
     }
 
@@ -219,27 +219,27 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
     }
 
     @Override
-    public void onPromptWatchOnlySpend(String receivingAddress) {
+    public void onShowWatchOnlySpend(String receivingAddress) {
 
     }
 
     @Override
-    public void onConfirmPaymentDetails(PaymentConfirmationDetails confirmationDetails) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword) {
 
     }
 
     @Override
-    public void onPromptWatchOnlySpendWarning(String address) {
+    public void onShowWatchOnlySpendWarning(String address) {
 
     }
 
     @Override
-    public void onPromptAlterFee(String absoluteFeeSuggested, String body, int positiveAction, int negativeAction) {
+    public void onShowAlterFee(String absoluteFeeSuggested, String body, int positiveAction, int negativeAction) {
 
     }
 
     @Override
-    public void onErrorMessage(String message) {
+    public void onShowErrorMessage(String message) {
 
     }
 

@@ -3,17 +3,17 @@ package info.blockchain.wallet.viewModel;
 import android.content.Context;
 import android.databinding.BaseObservable;
 
-import info.blockchain.wallet.model.ItemSendAddress;
+import info.blockchain.wallet.model.ItemAccount;
 
 /**
  * Created by riaanvos on 01/08/16.
  */
 public class ItemSendAddressViewModel extends BaseObservable implements ViewModel{
 
-    private ItemSendAddress addressItem;
+    private ItemAccount addressItem;
     private Context context;
 
-    public ItemSendAddressViewModel(Context context, ItemSendAddress address) {
+    public ItemSendAddressViewModel(Context context, ItemAccount address) {
         this.addressItem = address;
         this.context = context;
     }
@@ -26,7 +26,7 @@ public class ItemSendAddressViewModel extends BaseObservable implements ViewMode
         return addressItem.balance;
     }
 
-    public void setAddress(ItemSendAddress address) {
+    public void setAddress(ItemAccount address) {
         this.addressItem = address;
         notifyChange();
     }

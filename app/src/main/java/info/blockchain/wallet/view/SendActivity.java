@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.model.ItemSendAddress;
+import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
 import info.blockchain.wallet.model.SendModel;
 import info.blockchain.wallet.util.AppUtil;
@@ -155,7 +155,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
             case R.id.action_send:
                 customKeypad.setNumpadVisibility(View.GONE);
 
-                ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+                ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
                 viewModel.setSendingAddress(selectedItem);
                 viewModel.calculateTransactionAmounts(selectedItem,
                         binding.amountRow.amountBtc.getText().toString(),
@@ -256,7 +256,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
 
             @Override
             public void afterTextChanged(Editable customizedFee) {
-                ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+                ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
                 viewModel.calculateTransactionAmounts(selectedItem,
                         binding.amountRow.amountBtc.getText().toString(),
                         customizedFee.toString(),
@@ -265,7 +265,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
         });
 
         binding.max.setOnClickListener(view -> {
-            ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+            ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
             viewModel.spendAllClicked(selectedItem, binding.customFee.getText().toString());
         });
     }
@@ -307,7 +307,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
         binding.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+                ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
                 viewModel.setSendingAddress(selectedItem);
                 viewModel.calculateTransactionAmounts(selectedItem,
                         binding.amountRow.amountBtc.getText().toString(),
@@ -346,7 +346,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
                 new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        ItemSendAddress selectedItem = (ItemSendAddress) binding.spDestination.getSelectedItem();
+                        ItemAccount selectedItem = (ItemAccount) binding.spDestination.getSelectedItem();
                         binding.destination.setText(selectedItem.label);
                         viewModel.setReceivingAddress(selectedItem);
                     }
@@ -359,17 +359,17 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onSingleFromAddress() {
+    public void onHideSendingAddressField() {
         binding.fromRow.setVisibility(View.GONE);
     }
 
     @Override
-    public void onSingleToAddress() {
+    public void onHideReceivingAddressField() {
         binding.spDestination.setVisibility(View.GONE);
     }
 
     @Override
-    public void onInvalidAmount() {
+    public void onShowInvalidAmount() {
         ToastCustom.makeText(this, getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
         binding.amountRow.amountBtc.setText("0.0");
     }
@@ -407,7 +407,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onErrorMessage(String message) {
+    public void onShowErrorMessage(String message) {
         ToastCustom.makeText(this, message, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
     }
 
@@ -433,7 +433,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onPromptWatchOnlySpend(String receivingAddress) {
+    public void onShowWatchOnlySpend(String receivingAddress) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -500,7 +500,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onConfirmPaymentDetails(PaymentConfirmationDetails details) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails details, final String validatedSecondPassword) {
 
         new Thread(() -> {
 
@@ -562,7 +562,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
             });
 
             dialogBinding.confirmSend.setOnClickListener(v -> {
-                viewModel.submitPayment();
+                viewModel.submitPayment(validatedSecondPassword);
             });
 
             alertDialog.show();
@@ -573,7 +573,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onPromptWatchOnlySpendWarning(String address) {
+    public void onShowWatchOnlySpendWarning(String address) {
 
         if(prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)){
 
@@ -603,10 +603,10 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     }
 
     @Override
-    public void onPromptAlterFee(String absoluteFeeSuggested,
-                                 String body,
-                                 int positiveAction,
-                                 int negativeAction) {
+    public void onShowAlterFee(String absoluteFeeSuggested,
+                               String body,
+                               int positiveAction,
+                               int negativeAction) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         AlertGenericWarningBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
@@ -626,7 +626,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
         dialogBinding.confirmKeep.setOnClickListener(v -> {
             if (alertDialogFee.isShowing()) alertDialogFee.cancel();
 
-            ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+            ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
             viewModel.setSendingAddress(selectedItem);
             viewModel.calculateTransactionAmounts(selectedItem,
                     binding.amountRow.amountBtc.getText().toString(),
@@ -638,7 +638,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
         dialogBinding.confirmChange.setOnClickListener(v -> {
             if (alertDialogFee.isShowing()) alertDialogFee.cancel();
 
-            ItemSendAddress selectedItem = (ItemSendAddress) binding.accounts.spinner.getSelectedItem();
+            ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
             viewModel.setSendingAddress(selectedItem);
             viewModel.calculateTransactionAmounts(selectedItem,
                     binding.amountRow.amountBtc.getText().toString(),

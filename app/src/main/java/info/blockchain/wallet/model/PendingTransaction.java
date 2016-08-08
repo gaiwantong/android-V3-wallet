@@ -11,8 +11,8 @@ import java.math.BigInteger;
 public class PendingTransaction {
 
     public SpendableUnspentOutputs unspentOutputBundle;
-    public ItemSendAddress sendingObject;
-    public ItemSendAddress receivingObject;
+    public ItemAccount sendingObject;
+    public ItemAccount receivingObject;
     public String note;
     public String receivingAddress;
     public BigInteger bigIntFee;

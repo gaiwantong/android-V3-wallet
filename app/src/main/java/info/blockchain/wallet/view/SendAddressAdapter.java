@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-import info.blockchain.wallet.model.ItemSendAddress;
+import info.blockchain.wallet.model.ItemAccount;
 
 import java.util.List;
 
@@ -18,13 +18,13 @@ import piuk.blockchain.android.databinding.SpinnerItemBinding;
 /**
  * Created by riaanvos on 01/08/16.
  */
-public class SendAddressAdapter extends ArrayAdapter<ItemSendAddress> {
+public class SendAddressAdapter extends ArrayAdapter<ItemAccount> {
 
-    public SendAddressAdapter(Context context, int textViewResourceId, List<ItemSendAddress> accountList) {
+    public SendAddressAdapter(Context context, int textViewResourceId, List<ItemAccount> accountList) {
         super(context, textViewResourceId, accountList);
     }
 
-    public void updateData(List<ItemSendAddress> accountList){
+    public void updateData(List<ItemAccount> accountList){
         clear();
         addAll(accountList);
         notifyDataSetChanged();
@@ -49,7 +49,7 @@ public class SendAddressAdapter extends ArrayAdapter<ItemSendAddress> {
                     parent,
                     false);
 
-            ItemSendAddress item = getItem(position);
+            ItemAccount item = getItem(position);
             if(item.tag == null || item.tag.isEmpty()){
                 binding.tvTag.setVisibility(View.GONE);
             }else{
@@ -66,7 +66,7 @@ public class SendAddressAdapter extends ArrayAdapter<ItemSendAddress> {
                     parent,
                     false);
 
-            ItemSendAddress item = getItem(position);
+            ItemAccount item = getItem(position);
             binding.text.setText(item.label);
             return binding.getRoot();
         }

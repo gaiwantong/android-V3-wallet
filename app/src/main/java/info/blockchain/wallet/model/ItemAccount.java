@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 /**
  * Created by riaanvos on 01/08/16.
  */
-public class ItemSendAddress {
+public class ItemAccount {
 
     public String label;
     public String balance;
@@ -14,7 +14,7 @@ public class ItemSendAddress {
 
     public Object accountObject;
 
-    public ItemSendAddress(@NonNull String label, @NonNull String balance, @NonNull String tag, @Nullable Object accountObject) {
+    public ItemAccount(@NonNull String label, @NonNull String balance, @NonNull String tag, @Nullable Object accountObject) {
         this.label = label;
         this.balance = balance;
         this.tag = tag;
