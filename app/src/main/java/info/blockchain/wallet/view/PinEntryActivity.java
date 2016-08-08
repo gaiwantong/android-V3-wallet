@@ -78,7 +78,7 @@ public class PinEntryActivity extends BaseAuthActivity {
         appUtil = new AppUtil(this);
         payloadManager = PayloadManager.getInstance();
 
-        //Coming from CreateWalletFragment
+        // Coming from CreateWalletFragment
         getBundleData();
         if (strPassword != null && strEmail != null) {
             allowExit = false;
@@ -156,13 +156,15 @@ public class PinEntryActivity extends BaseAuthActivity {
     public void onBackPressed() {
         if (allowExit) {
             if (mBackPressed + COOL_DOWN > System.currentTimeMillis()) {
-                super.onBackPressed();
+                AccessState.getInstance().logout(this);
                 return;
             } else {
                 ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
             }
 
             mBackPressed = System.currentTimeMillis();
+        } else {
+            super.onBackPressed();
         }
     }
 
