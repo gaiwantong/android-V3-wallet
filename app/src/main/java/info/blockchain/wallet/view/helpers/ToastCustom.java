@@ -3,15 +3,24 @@ package info.blockchain.wallet.view.helpers;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
+import android.support.annotation.StringDef;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import piuk.blockchain.android.R;
 
 public class ToastCustom {
 
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({
+            TYPE_ERROR, TYPE_GENERAL, TYPE_OK
+    })
+    public @interface ToastType{}
     public static final String TYPE_ERROR = "TYPE_ERROR";
     public static final String TYPE_GENERAL = "TYPE_GENERAL";
     public static final String TYPE_OK = "TYPE_OK";
@@ -21,7 +30,7 @@ public class ToastCustom {
 
     private static Toast toast = null;
 
-    public static void makeText(final Context context, final CharSequence text, final int duration, final String type) {
+    public static void makeText(final Context context, final CharSequence text, final int duration, final @ToastType String type) {
 
         new Thread(new Runnable() {
             @Override

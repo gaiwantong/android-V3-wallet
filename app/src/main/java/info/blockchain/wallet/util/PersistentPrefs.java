@@ -21,6 +21,7 @@ interface PersistentPrefs {
     String KEY_SCHEME_URL = "scheme_url";
     String KEY_CURRENT_APP_VERSION = "KEY_CURRENT_APP_VERSION";
     String KEY_NEWLY_CREATED_WALLET = "newly_created_wallet";
+    String LOGGED_OUT = "logged_out";
 
     String getValue(String name, String value);
     boolean setValue(String name, String value);
@@ -33,5 +34,7 @@ interface PersistentPrefs {
     boolean has(String name);
     boolean removeValue(String name);
     boolean clear();
+    boolean logOut();
+    boolean logIn();
 
 }

@@ -226,16 +226,13 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_support:
-//                startActivity(new Intent(MainActivity.this, SupportActivity.class));
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URI)));
                 break;
             case R.id.nav_logout:
                 new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                         .setTitle(R.string.unpair_wallet)
                         .setMessage(R.string.ask_you_sure_unpair)
-                        .setPositiveButton(R.string.unpair, (dialog, which) -> {
-                            mainViewModel.unpair();
-                        })
+                        .setPositiveButton(R.string.unpair, (dialog, which) -> mainViewModel.unpair())
                         .setNegativeButton(android.R.string.cancel,null)
                         .show();
                 break;

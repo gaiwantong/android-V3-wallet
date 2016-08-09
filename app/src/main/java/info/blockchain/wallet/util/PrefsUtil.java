@@ -89,4 +89,29 @@ public class PrefsUtil implements PersistentPrefs {
         return editor.commit();
     }
 
+    /**
+     * Clears everything but the GUID. Returns false if GUID is not present
+     *
+     * @return boolean  GUID present/not present or could not be written to prefs
+     */
+    @Override
+    public boolean logOut() {
+        String guid = preferenceManager.getString(PrefsUtil.KEY_GUID, "");
+        clear();
+
+        setValue(PrefsUtil.LOGGED_OUT, true);
+
+        // TODO: 09/08/2016 This currently doesn't work - why? 
+        return !guid.isEmpty() & setValue(PrefsUtil.KEY_GUID, guid);
+    }
+
+    /**
+     * Reset value once user logged in
+     *
+     * @return boolean  Successful write or not
+     */
+    @Override
+    public boolean logIn() {
+        return setValue(PrefsUtil.LOGGED_OUT, false);
+    }
 }

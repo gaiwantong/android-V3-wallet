@@ -147,6 +147,7 @@ public class AccessState {
     }
 
     public void setIsLoggedIn(boolean loggedIn) {
+        prefs.logIn();
         isLoggedIn = loggedIn;
     }
 }

@@ -146,11 +146,10 @@ public class MainViewModel implements ViewModel {
         }).start();
     }
 
-    public void unpair(){
+    public void unpair() {
         payloadManager.wipe();
         MultiAddrFactory.getInstance().wipe();
-        prefs.clear();
-
+        prefs.logOut();
         appUtil.restartApp();
     }
 

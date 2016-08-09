@@ -23,14 +23,10 @@ public class LauncherViewModel implements ViewModel {
 
     public static final String INTENT_EXTRA_VERIFIED = "verified";
 
-    @Inject
-    protected AppUtil mAppUtil;
-    @Inject
-    protected PayloadManager mPayloadManager;
-    @Inject
-    protected PrefsUtil mPrefsUtil;
-    @Inject
-    protected AccessState mAccessState;
+    @Inject protected AppUtil mAppUtil;
+    @Inject protected PayloadManager mPayloadManager;
+    @Inject protected PrefsUtil mPrefsUtil;
+    @Inject protected AccessState mAccessState;
     private DataListener mDataListener;
 
     public interface DataListener {
@@ -47,6 +43,8 @@ public class LauncherViewModel implements ViewModel {
 
         void onStartMainActivity();
 
+        void onReEnterPassword();
+
     }
 
     public LauncherViewModel(DataListener listener) {
@@ -62,10 +60,16 @@ public class LauncherViewModel implements ViewModel {
             isPinValidated = extras.getBoolean(INTENT_EXTRA_VERIFIED);
         }
 
+        boolean hasLoggedOut = mPrefsUtil.getValue(PrefsUtil.LOGGED_OUT, false);
+
         // No GUID? Treat as new installation
         if (mPrefsUtil.getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
             mPayloadManager.setTempPassword(new CharSequenceX(""));
             mDataListener.onNoGuid();
+
+        } else if (hasLoggedOut) {
+            // User has logged out recently. Show password reentry page
+            mDataListener.onReEnterPassword();
 
         } else if (mPrefsUtil.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
             // No PIN ID? Treat as installed app without confirmed PIN
@@ -76,10 +80,10 @@ public class LauncherViewModel implements ViewModel {
             mDataListener.onCorruptPayload();
 
         } else if (isPinValidated
-                // Legacy app has not been prompted for upgrade
                 && !mPayloadManager.getPayload().isUpgraded()
                 && !mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false)
                 && mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
+            // Legacy app has not been prompted for upgrade
 
             mAccessState.setIsLoggedIn(true);
             mDataListener.onRequestUpgrade();
