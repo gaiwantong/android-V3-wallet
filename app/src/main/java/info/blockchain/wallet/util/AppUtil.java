@@ -1,11 +1,11 @@
 package info.blockchain.wallet.util;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.support.v7.app.AlertDialog;
 import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
@@ -135,7 +135,7 @@ public class AppUtil {
                 PRNGFixes.apply();
             } catch (Exception e1) {
                 ToastCustom.makeText(context, context.getString(R.string.cannot_launch_app), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                AccessState.getInstance(context).logout();
+                AccessState.getInstance().logout(context);
             }
         }
     }
@@ -148,7 +148,7 @@ public class AppUtil {
             if(alertDialog != null)
                 alertDialog.dismiss();
 
-            alertDialog = new AlertDialog.Builder(context)
+            alertDialog = new AlertDialog.Builder(context, R.style.AlertDialogStyle)
                     .setTitle(R.string.screen_overlay_warning)
                     .setMessage(R.string.screen_overlay_note)
                     .setCancelable(false)

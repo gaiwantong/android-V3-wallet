@@ -76,7 +76,7 @@ public class SendMethodsTest {
     public void getUnspentOutputPointsTest(){
 
         try {
-            SendFactory instance = SendFactory.getInstance(mMockContext);
+            SendFactory instance = SendFactory.getInstance();
             instance.fromAddressPathMap = new HashMap<>();
 
             UnspentOutputsBundle unspentOutputPoints = null;

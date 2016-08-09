@@ -13,7 +13,7 @@
             android:paddingRight="16dip"
             android:paddingTop="5dip"
             android:paddingBottom="5dip"
-            android:singleLine="true"
+            android:maxLines="1"
             android:marqueeRepeatLimit="marquee_forever"
             android:background="@drawable/selector_pearl_white"
             android:drawablePadding="8dp"

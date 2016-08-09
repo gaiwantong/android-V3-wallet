@@ -24,22 +24,18 @@ public class TxQueue {
     private static PushTx pushTxApi;
     private static Timer timer = null;
     private static Handler handler = null;
-    private static Context context = null;
     private static ConcurrentLinkedQueue<Spendable> queue = null;
     private static TxQueue instance = null;
     private static PayloadManager payloadManager;
 
     private TxQueue() {
-        ;
+        // No-op
     }
 
-    public static TxQueue getInstance(Context ctx) {
-
-        context = ctx.getApplicationContext();
-
+    public static TxQueue getInstance() {
         if (instance == null) {
 
-            queue = new ConcurrentLinkedQueue<Spendable>();
+            queue = new ConcurrentLinkedQueue<>();
 
             instance = new TxQueue();
             pushTxApi = new PushTx();
@@ -49,9 +45,9 @@ public class TxQueue {
         return instance;
     }
 
-    public void add(Spendable sp) {
+    public void add(Context context, Spendable sp) {
         queue.add(sp);
-        doTimer();
+        doTimer(context.getApplicationContext());
     }
 
     public Spendable peek() {
@@ -86,7 +82,7 @@ public class TxQueue {
 
     }
 
-    private void doTimer() {
+    private void doTimer(Context context) {
 
         if (timer == null) {
             timer = new Timer();
@@ -133,14 +129,14 @@ public class TxQueue {
                                             }
 
                                         } else {
-                                            add(sp);
+                                            add(context, sp);
 
                                             ToastCustom.makeText(context, response, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
 //                                            sp.getOpCallback().onFail();
                                         }
 
                                     } catch (Exception e) {
-                                        add(sp);
+                                        add(context, sp);
 
                                         e.printStackTrace();
 //                                        sp.getOpCallback().onFail();

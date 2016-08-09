@@ -59,18 +59,8 @@ public class MainViewModel implements ViewModel{
 
         this.appUtil.applyPRNGFixes();
 
-        checkIntent();
         checkRooted();
         checkConnectivity();
-    }
-
-    private void checkIntent(){
-        // Log out if started with the logout intent
-        if (((Activity)context).getIntent().getAction() != null && AccessState.LOGOUT_ACTION.equals(((Activity)context).getIntent().getAction())) {
-            ((Activity)context).finish();
-            System.exit(0);
-            return;
-        }
     }
 
     private void checkRooted(){
@@ -91,7 +81,7 @@ public class MainViewModel implements ViewModel{
 
     private void preLaunchChecks(){
         exchangeRateThread();
-        new SSLVerifyUtil(context).validateSSLThread();
+        new SSLVerifyUtil(context).validateSSL();
 
         boolean isPinValidated = false;
         Bundle extras = ((Activity)context).getIntent().getExtras();
@@ -121,12 +111,12 @@ public class MainViewModel implements ViewModel{
         // Legacy app has not been prompted for upgrade
         else if (isPinValidated && !payloadManager.getPayload().isUpgraded()) {
 
-            AccessState.getInstance(context).setIsLoggedIn(true);
+            AccessState.getInstance().setIsLoggedIn(true);
             this.dataListener.onRequestUpgrade();
         }
         // App has been PIN validated
-        else if (isPinValidated || (AccessState.getInstance(context).isLoggedIn())) {
-            AccessState.getInstance(context).setIsLoggedIn(true);
+        else if (isPinValidated || (AccessState.getInstance().isLoggedIn())) {
+            AccessState.getInstance().setIsLoggedIn(true);
 
             this.dataListener.onFetchTransactionsStart();
 
@@ -166,7 +156,7 @@ public class MainViewModel implements ViewModel{
 
     private void exchangeRateThread() {
 
-        List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance(context).getCurrencies());
+        List<String> currencies = Arrays.asList(ExchangeRateFactory.getInstance().getCurrencies());
         String strCurrentSelectedFiat = prefs.getValue(PrefsUtil.KEY_SELECTED_FIAT, "");
         if (!currencies.contains(strCurrentSelectedFiat)) {
             prefs.setValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
@@ -179,8 +169,8 @@ public class MainViewModel implements ViewModel{
             try {
                 response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
 
-                ExchangeRateFactory.getInstance(context).setData(response);
-                ExchangeRateFactory.getInstance(context).updateFxPricesForEnabledCurrencies();
+                ExchangeRateFactory.getInstance().setData(response);
+                ExchangeRateFactory.getInstance().updateFxPricesForEnabledCurrencies();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -202,7 +192,7 @@ public class MainViewModel implements ViewModel{
 
         exitClickCount++;
         if (exitClickCount == 2) {
-            AccessState.getInstance(context).logout();
+            AccessState.getInstance().logout(context);
         } else {
             dataListener.onExitConfirmToast();
         }

@@ -1,13 +1,12 @@
 package info.blockchain.merchant.directory;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,14 +19,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessState;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
-public class ListActivity extends ActionBarActivity {
+public class ListActivity extends BaseAuthActivity {
 
     private static final int HEADING_CAFE = 1;
     private static final int HEADING_BAR = 2;
@@ -76,7 +74,7 @@ public class ListActivity extends ActionBarActivity {
 
                 final BTCBusiness b = businesses.get(position);
 
-                AlertDialog.Builder alert = new AlertDialog.Builder(ListActivity.this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(ListActivity.this, R.style.AlertDialogStyle);
                 alert.setTitle(R.string.merchant_info);
                 alert.setPositiveButton(R.string.directions,
                         new DialogInterface.OnClickListener() {
@@ -107,19 +105,6 @@ public class ListActivity extends ActionBarActivity {
 
         setAdapterContent();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        AccessState.getInstance(this).stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
     }
 
     public void setAdapterContent() {

@@ -4,7 +4,6 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -14,28 +13,30 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
+import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-public class AccountEditActivity extends AppCompatActivity implements AccountEditViewModel.DataListener{
+public class AccountEditActivity extends BaseAuthActivity implements AccountEditViewModel.DataListener{
 
     private final int ADDRESS_LABEL_MAX_LENGTH = 17;
     private final int SCAN_PRIVX = 302;
@@ -69,40 +70,32 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
-    }
-
-    @Override
-    public void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
-    }
-
     private void setupToolbar() {
-
         binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.edit));
         setSupportActionBar(binding.toolbarContainer.toolbarGeneral);
     }
 
     @Override
     public void onPromptAccountLabel() {
-        final EditText etLabel = new EditText(this);
-        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
-        etLabel.setPadding(46, 16, 46, 16);
+        final AppCompatEditText etLabel = new AppCompatEditText(this);
+        etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
-        new AlertDialog.Builder(this)
+
+        FrameLayout frameLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+
+        frameLayout.addView(etLabel, params);
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.name)
                 .setMessage(R.string.assign_display_name)
-                .setView(etLabel)
+                .setView(frameLayout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.save_name, (dialog, whichButton) -> {
-                    viewModel.updateAccountLabel(etLabel.getText().toString());
-                }
-                ).
-                setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.save_name, (dialog, whichButton) ->
+                        viewModel.updateAccountLabel(etLabel.getText().toString()))
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
@@ -138,30 +131,30 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptPrivateKey(String message) {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.privx_required)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-                    new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
-                        @Override
-                        public void onNoSecondPassword() {
-                            onStartScanActivity();
-                        }
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) ->
+                        new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
+                    @Override
+                    public void onNoSecondPassword() {
+                        onStartScanActivity();
+                    }
 
-                        @Override
-                        public void onSecondPasswordValidated(String validateSecondPassword) {
-                            viewModel.setSecondPassword(validateSecondPassword);
-                            onStartScanActivity();
-                        }
-                    });
-                }).setNegativeButton(R.string.cancel, null).show();
+                    @Override
+                    public void onSecondPasswordValidated(String validateSecondPassword) {
+                        viewModel.setSecondPassword(validateSecondPassword);
+                        onStartScanActivity();
+                    }
+                }))
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     @Override
     public void onPromptTransferFunds(String fromLabel, String toLabel, String fee, String totalToSend) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_transfer_funds, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
@@ -187,53 +180,46 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptArchive(String title, String message) {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                viewModel.archiveAccount();
-                            }
-                        }
-                ).
-                setNegativeButton(R.string.no, null)
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> viewModel.archiveAccount())
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
     @Override
     public void onPromptBIP38Password(final String data) {
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-                    viewModel.importBIP38Address(data, password.getText().toString());
-                }).setNegativeButton(R.string.cancel, null).show();
+                .setPositiveButton(android.R.string.ok, (dialog, whichButton) ->
+                        viewModel.importBIP38Address(data, password.getText().toString()))
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     @Override
     public void onPrivateKeyImportMismatch() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle(getString(R.string.warning));
-        alert.setMessage(getString(R.string.private_key_successfully_imported)+"\n\n"+getString(R.string.private_key_not_matching_address));
-        alert.setPositiveButton(R.string.try_again, (dialog, whichButton) -> {
-            viewModel.onClickScanXpriv(null);
-        });
-        alert.setNegativeButton(R.string.cancel, null);
-        alert.show();
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(getString(R.string.warning))
+                .setMessage(getString(R.string.private_key_successfully_imported)+"\n\n"+getString(R.string.private_key_not_matching_address))
+                .setPositiveButton(R.string.try_again, (dialog, whichButton) -> viewModel.onClickScanXpriv(null))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     @Override
     public void onPrivateKeyImportSuccess() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.success)
                 .setMessage(R.string.private_key_successfully_imported)
-                .setPositiveButton(R.string.ok, null).show();
+                .setPositiveButton(android.R.string.ok, null).show();
     }
 
     @Override
@@ -255,22 +241,18 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onShowXpubSharingWarning() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(R.string.xpub_sharing_warning)
                 .setCancelable(false)
-                .setPositiveButton(R.string.dialog_continue, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        viewModel.showAddressDetails();
-                    }
-
-                }).setNegativeButton(R.string.dialog_cancel, null).show();
+                .setPositiveButton(R.string.dialog_continue, (dialog, whichButton) ->
+                        viewModel.showAddressDetails()).setNegativeButton(R.string.dialog_cancel, null)
+                .show();
     }
 
     @Override
     public void onShowAddressDetails(String heading, String note, String copy, Bitmap bitmap, String qrString) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertShowExtendedPublicKeyBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_show_extended_public_key, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());

@@ -8,14 +8,10 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-//import android.util.Log;
-
 /**
  * This class obtains info on the currencies communicated via https://blockchain.info/ticker
  */
 public class ExchangeRateFactory {
-
-    private static Context context = null;
 
     private static String strData = null;
 
@@ -58,16 +54,13 @@ public class ExchangeRateFactory {
 
 
     private ExchangeRateFactory() {
-        ;
+        // No-op
     }
 
-    public static ExchangeRateFactory getInstance(Context ctx) {
-
-        context = ctx;
-
+    public static ExchangeRateFactory getInstance() {
         if (instance == null) {
-            fxRates = new HashMap<String, Double>();
-            fxSymbols = new HashMap<String, String>();
+            fxRates = new HashMap<>();
+            fxSymbols = new HashMap<>();
 
             instance = new ExchangeRateFactory();
         }
@@ -75,7 +68,7 @@ public class ExchangeRateFactory {
         return instance;
     }
 
-    public double getLastPrice(String currency) {
+    public double getLastPrice(Context context, String currency) {
 
         PrefsUtil prefs = new PrefsUtil(context);
 

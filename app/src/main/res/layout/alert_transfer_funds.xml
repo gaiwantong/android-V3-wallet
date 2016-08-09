@@ -98,33 +98,18 @@
         </LinearLayout>
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical|right">
+                style="@style/CustomDialogButtonContainer">
 
-            <TextView
+            <android.support.v7.widget.AppCompatButton
+                    style="@style/CustomDialogButton"
                     android:id="@+id/confirm_cancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
                     android:text="@string/cancel"
-                    android:textAllCaps="true"
-                    android:gravity="center"
-                    android:layout_marginRight="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:textColor="@color/primary_text_default_material_light"/>
 
-            <TextView
+            <android.support.v7.widget.AppCompatButton
+                    style="@style/CustomDialogButton"
                     android:id="@+id/confirm_send"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
                     android:text="@string/transfer"
-                    android:textAllCaps="true"
-                    android:gravity="center"
-                    android:layout_marginRight="16dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:textColor="@color/blockchain_blue"/>
 
         </LinearLayout>

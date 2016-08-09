@@ -23,7 +23,7 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentPairWalletBinding;
 
-public class PairWalletFragment extends Fragment implements FragmentCompat.OnRequestPermissionsResultCallback{
+public class PairWalletFragment extends Fragment implements FragmentCompat.OnRequestPermissionsResultCallback {
 
     private FragmentPairWalletBinding binding;
 
@@ -34,30 +34,27 @@ public class PairWalletFragment extends Fragment implements FragmentCompat.OnReq
 
         getActivity().setTitle(getResources().getString(R.string.pair_your_wallet));
 
-        binding.commandScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), PairOrCreateWalletActivity.fragment);
-                }else{
-                    startScanActivity();
-                }
+        binding.commandScan.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), this);
+            } else {
+                startScanActivity();
             }
         });
 
-        binding.commandManual.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PairOrCreateWalletActivity.fragment = new ManualPairingFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, PairOrCreateWalletActivity.fragment).addToBackStack(null).commit();
-            }
+        binding.commandManual.setOnClickListener(v -> {
+            Fragment fragment = new ManualPairingFragment();
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, fragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return binding.getRoot();
     }
 
-    private void startScanActivity(){
+    private void startScanActivity() {
         if (!new AppUtil(getActivity()).isCameraOpen()) {
             Intent intent = new Intent(getActivity(), CaptureActivity.class);
             intent.putExtra("SCAN_FORMATS", "QR_CODE");

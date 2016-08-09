@@ -1,8 +1,10 @@
 package info.blockchain.wallet.view;
 
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -20,15 +22,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,24 +48,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.client.android.CaptureActivity;
-
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
@@ -89,16 +77,30 @@ import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
+
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentSendBinding;
 
 public class SendFragment extends Fragment implements CustomKeypadCallback, SendFactory.OnFeeSuggestListener, SendViewModel.DataListener {
 
     private final int SCAN_PRIVX = 301;
-    private static Context context = null;
 
     private MenuItem btSend;
-    public static CustomKeypad customKeypad;
+    public CustomKeypad customKeypad;
 
     private List<String> sendFromList = null;
     private HashBiMap<Object, Integer> sendFromBiMap = null;
@@ -107,7 +109,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> receiveToBiMap = null;
     private ReceiveToAdapter receiveToAdapter = null;
-    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
+    private SparseIntArray spinnerIndexAccountIndexMap = null;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
@@ -203,7 +205,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         sendFromBiMap = HashBiMap.create();
         receiveToList = new ArrayList<>();
         receiveToBiMap = HashBiMap.create();
-        spinnerIndexAccountIndexMap = new HashMap<>();
+        spinnerIndexAccountIndexMap = new SparseIntArray();
 
         updateSendFromSpinnerList();
         updateReceiveToSpinnerList();
@@ -213,7 +215,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         initVars();
 
-        SendFactory.getInstance(getActivity()).getSuggestedFee(this);
+        SendFactory.getInstance().getSuggestedFee(this);
 
         binding.accounts.spinner.setSelection(0);
 
@@ -330,6 +332,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         binding.amountRow.amountBtc.setText("");
         binding.amountRow.amountBtc.requestFocus();
+    }
+
+    @Nullable
+    public CustomKeypad getCustomKeypad() {
+        return customKeypad;
     }
 
     private BigInteger getCustomFee(){
@@ -629,7 +636,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.alert_watch_only_spend, null);
             dialogBuilder.setView(dialogView);
@@ -698,7 +705,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         binding.amountRow.currencyBtc.setText(strBTC);
         binding.tvFeeUnit.setText(strBTC);
@@ -760,7 +767,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             if (strFiat == null) {
                 strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
             }
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
             double fiat_amount = btc_fx * btc_amount;
             binding.amountRow.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
@@ -928,7 +935,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         if (isVisibleToUser) {
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
             binding.amountRow.currencyBtc.setText(strBTC);
             binding.tvFeeUnit.setText(strBTC);
             binding.amountRow.currencyFiat.setText(strFiat);
@@ -939,11 +946,9 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
     public void onResume() {
         super.onResume();
 
-        MainActivity.currentFragment = this;
-
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
         binding.amountRow.currencyBtc.setText(strBTC);
         binding.tvFeeUnit.setText(strBTC);
         binding.amountRow.currencyFiat.setText(strFiat);
@@ -1065,7 +1070,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 //This should be called just before tx confirmation but not possible with prepareSend()'s current state - TODO prepareSend() needs refactor
                 setEstimatedBlocks(fromAddress, unspentApiString);
 
-                unspentsBundle = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
+                unspentsBundle = SendFactory.getInstance().prepareSend(fromAddress, spendAmount, feePerKb, unspentApiString);
                 if(unspentsBundle != null) {
                     if (feePerKb.compareTo(BigInteger.ZERO) != 0) {
                         //An absolute fee was calculated fromAddresses fee per kb, and was set in prepareSend()
@@ -1095,7 +1100,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 BigInteger feePerKb = suggestedFeeBundle.estimateList.get(i).fee;
 
-                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance(getActivity()).prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
+                UnspentOutputsBundle unspentsBundleFirstBlock = SendFactory.getInstance().prepareSend(fromAddress, getSpendAmount(), feePerKb, unspentApiString);
                 if(unspentsBundleFirstBlock != null){
                     absoluteFeeSuggestedEstimates[i] = unspentsBundleFirstBlock.getRecommendedFee();
                 }
@@ -1188,7 +1193,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void promptWatchOnlySpend(final PendingSpend pendingSpend){
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.privx_required)
                 .setMessage(String.format(getString(R.string.watch_only_spend_instructionss), pendingSpend.fromLegacyAddress.getAddress()))
                 .setCancelable(false)
@@ -1198,13 +1203,17 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         watchOnlyPendingSpend = pendingSpend;
 
                         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED  && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), MainActivity.currentFragment);
+                            PermissionUtil.requestCameraPermissionFromFragment(binding.mainLayout, getActivity(), getFragment());
                         }else{
                             startScanActivity();
                         }
 
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
+    }
+
+    private Fragment getFragment() {
+        return this;
     }
 
     private void startScanActivity(){
@@ -1263,7 +1272,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         }
 
         if (key != null && key.hasPrivKey() && watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
-            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+
+            //Create copy, otherwise pass by ref will override private key in wallet payload
+            LegacyAddress tempLegacyAddress = new LegacyAddress();
+            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
             confirmPayment(watchOnlyPendingSpend, true);
         } else {
             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1275,12 +1291,12 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
         final EditText password = new EditText(getActivity());
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.bip38_password_entry)
                 .setView(password)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         final String pw = password.getText().toString();
@@ -1307,7 +1323,14 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                     if (key != null && key.hasPrivKey()) {
 
                                         if(watchOnlyPendingSpend.fromLegacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())){
-                                            watchOnlyPendingSpend.fromLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            
+                                            //Create copy, otherwise pass by ref will override private key in wallet payload
+                                            LegacyAddress tempLegacyAddress = new LegacyAddress();
+                                            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+                                            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+                                            tempLegacyAddress.setLabel(watchOnlyPendingSpend.fromLegacyAddress.getLabel());
+                                            watchOnlyPendingSpend.fromLegacyAddress = tempLegacyAddress;
+
                                             confirmPayment(watchOnlyPendingSpend, true);
                                         }else{
                                             ToastCustom.makeText(getActivity(), getString(R.string.invalid_private_key), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -1332,7 +1355,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                         }).start();
 
                     }
-                }).setNegativeButton(R.string.cancel, null).show();
+                }).setNegativeButton(android.R.string.cancel, null).show();
 
     }
 
@@ -1369,7 +1392,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
                 Looper.prepare();
 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.fragment_send_confirm, null);
                 dialogBuilder.setView(dialogView);
@@ -1409,7 +1432,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 tvTotlaBtc.setText(monetaryUtil.getDisplayAmount(totalBtc.longValue()));
 
                 //Fiat Amount
-                btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+                btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
                 String amountFiat = (monetaryUtil.getFiatFormat(strFiat).format(btc_fx * (pendingSpend.bigIntAmount.doubleValue() / 1e8)));
                 TextView tvAmountFiat = (TextView) dialogView.findViewById(R.id.confirm_amount_fiat);
                 tvAmountFiat.setText(amountFiat);
@@ -1423,10 +1446,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 ivFeeInfo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        new AlertDialog.Builder(getActivity())
+                        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                                 .setTitle(R.string.transaction_fee)
                                 .setMessage(getText(R.string.recommended_fee).toString()+"\n\n"+getText(R.string.transaction_surge).toString())
-                                .setPositiveButton(R.string.ok, null).show();
+                                .setPositiveButton(android.R.string.ok, null).show();
                     }
                 });
 
@@ -1478,7 +1501,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                     }
                 });
 
-                TextView confirmSend = (TextView) dialogView.findViewById(R.id.confirm_send);
+                AppCompatButton confirmSend = (AppCompatButton) dialogView.findViewById(R.id.confirm_send);
                 confirmSend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1496,13 +1519,11 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                             progress.setMessage(getString(R.string.sending));
                             progress.show();
 
-                            context = getActivity();
-
                             if (unspentsCoinsBundle != null) {
                                 executeSend(isWatchOnlySpend, pendingSpend, unspentsCoinsBundle, alertDialog);
                             } else {
 
-                                ToastCustom.makeText(context.getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(getActivity().getApplicationContext(), getResources().getString(R.string.transaction_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                                 closeDialog(alertDialog, false);
                             }
 
@@ -1533,7 +1554,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void promptAlterFee(boolean isWatchOnlySpend, BigInteger customFee, final BigInteger absoluteFeeSuggested, int body, int positiveAction, int negativeAction, final AlertDialog confirmDialog) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.alert_generic_warning, null);
         dialogBuilder.setView(dialogView);
@@ -1589,15 +1610,18 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                 +monetaryUtil.getDisplayAmount(fee.longValue())
                 +" "+strBTC;
 
-        new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(R.string.transaction_fee)
                 .setMessage(message)
-                .setPositiveButton(R.string.ok, null).show();
+                .setPositiveButton(android.R.string.ok, null).show();
     }
 
     private void executeSend(boolean isWatchOnlySpend, final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final AlertDialog alertDialog){
 
-        SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+        SendFactory.getInstance().execSend(
+                getActivity(),
+                isWatchOnlySpend,
+                pendingSpend.fromXpubIndex,
                 unspents.getOutputs(),
                 pendingSpend.destination,
                 pendingSpend.bigIntAmount,
@@ -1614,7 +1638,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             @Override
             public void onSuccess(final String hash) {
 
-                ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
                 playAudio();
 
@@ -1650,16 +1674,19 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
             }
 
             public void onFail(String error) {
-                ToastCustom.makeText(context, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                ToastCustom.makeText(getActivity(), error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                 if(!ConnectivityStatus.hasConnectivity(getActivity())) {
-                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                    ToastCustom.makeText(getActivity(), getResources().getString(R.string.transaction_queued), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
 
                     //Initial send failed - Put send in queue for reattempt
                     String direction = MultiAddrFactory.SENT;
                     if (spDestinationSelected) direction = MultiAddrFactory.MOVED;
 
-                    SendFactory.getInstance(context).execSend(isWatchOnlySpend, pendingSpend.fromXpubIndex,
+                    SendFactory.getInstance().execSend(
+                            getActivity(),
+                            isWatchOnlySpend,
+                            pendingSpend.fromXpubIndex,
                             unspents.getOutputs(),
                             pendingSpend.destination,
                             pendingSpend.bigIntAmount,
@@ -1687,7 +1714,7 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
                                 Thread.sleep(1000);
                             } catch (Exception e) {
                             }//wait for broadcast receiver to register
-                            LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                            LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(intent);
                             Looper.loop();
                         }
                     }).start();
@@ -1728,10 +1755,10 @@ public class SendFragment extends Fragment implements CustomKeypadCallback, Send
 
     private void playAudio(){
 
-        AudioManager audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getActivity().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             MediaPlayer mp;
-            mp = MediaPlayer.create(context.getApplicationContext(), R.raw.alert);
+            mp = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alert);
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
                 @Override

@@ -211,6 +211,7 @@
     <string name="merchant_info">Merchant Info</string>
     <string name="directions">Directions</string>
     <string name="call">Call</string>
+    <string name="navigate">Navigate</string>
     <string name="enable_geo">Enable either GPS or any other location service to find current location. Click OK to go to location services settings to let you do so.</string>
 
     <string-array name="menus_merchantDirectory">
@@ -405,6 +406,11 @@
     </string>
     <string name="archived_description">This item has been archived, and is unaccessible in the mobile app experience. Though you cannot send funds from this item, any funds will remain safe. Simply unarchive this item to start using it again.</string>
     <string name="not_archived_description">This item is not archived. Archive this item if you do NOT want to use it anymore. Your funds will remain safe, and you can unarchive it at anytime.</string>
+    <string name="transfer_success_archive_prompt_title">Archive swept addresses?</string>
+    <plurals name="transfer_success_archive_prompt_plurals">
+        <item quantity="one">1 address was successfully transferred to My Bitcoin Wallet. Would you like to archive this address now?</item>
+        <item quantity="other">%d addresses were successfully transferred to My Bitcoin Wallet. Would you like to archive these addresses now?</item>
+    </plurals>
     <string name="default_account_description">This item is set as your default and can\'t be archived.</string>
     <string name="extended_public_key">Extended Public Key</string>
     <string name="address">Address</string>
@@ -540,5 +546,11 @@
     <string name="email_request_subject">Bitcoin payment request</string>
     <string name="email_request_body">Please send%1$s BTC to the Bitcoin address %2$s.</string>
     <string name="email_request_body_fallback">attached</string>
+
+    <!-- COMMON PIN CODES -->
+    <string name="common_pin_dialog_title">Warning</string>
+    <string name="common_pin_dialog_message">The PIN you have selected is extremely common and may be easily guessed by someone with access to your phone within 3 tries. Would you like to use this PIN anyway?</string>
+    <string name="common_pin_dialog_try_again">Try again</string>
+    <string name="common_pin_dialog_continue">Continue</string>
 
 </resources>

@@ -13,7 +13,7 @@
               android:marqueeRepeatLimit="marquee_forever"
               android:minHeight="?android:attr/listPreferredItemHeightSmall"
               android:paddingRight="8dp"
-              android:singleLine="true"
+              android:maxLines="1"
               android:textColor="@color/white"
               android:textSize="20sp"/>
 </layout>

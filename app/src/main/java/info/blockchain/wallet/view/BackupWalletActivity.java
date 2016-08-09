@@ -3,16 +3,14 @@ package info.blockchain.wallet.view;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.access.AccessState;
-
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityBackupWalletBinding;
 
-public class BackupWalletActivity extends AppCompatActivity {
+public class BackupWalletActivity extends BaseAuthActivity {
 
     public static final String BACKUP_DATE_KEY = "BACKUP_DATE_KEY";
 
@@ -41,13 +39,6 @@ public class BackupWalletActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        AccessState.getInstance(this).stopLogoutTimer();
-    }
-
-    @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() <= 1)
             finish();
@@ -59,11 +50,5 @@ public class BackupWalletActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
     }
 }

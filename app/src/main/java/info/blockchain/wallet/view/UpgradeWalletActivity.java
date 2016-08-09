@@ -1,7 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +11,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,10 +34,11 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityUpgradeWalletBinding;
 
-public class UpgradeWalletActivity extends Activity {
+public class UpgradeWalletActivity extends BaseAuthActivity {
 
     private AlertDialog alertDialog = null;
     private CustomPagerAdapter mCustomPagerAdapter = null;
@@ -98,7 +98,7 @@ public class UpgradeWalletActivity extends Activity {
             LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             final LinearLayout pwLayout = (LinearLayout) inflater.inflate(R.layout.modal_change_password, null);
 
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle(R.string.app_name)
                     .setMessage(R.string.weak_password)
                     .setCancelable(false)
@@ -127,7 +127,7 @@ public class UpgradeWalletActivity extends Activity {
 
                                             Looper.prepare();
 
-                                            if (AccessState.getInstance(UpgradeWalletActivity.this).createPIN(payloadManager.getTempPassword(), AccessState.getInstance(UpgradeWalletActivity.this).getPIN())) {
+                                            if (AccessState.getInstance().createPIN(payloadManager.getTempPassword(), AccessState.getInstance().getPIN())) {
                                                 payloadManager.savePayloadToServer();
                                                 ToastCustom.makeText(UpgradeWalletActivity.this, getString(R.string.password_changed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                             } else {
@@ -254,7 +254,7 @@ public class UpgradeWalletActivity extends Activity {
                         if (alertDialog != null && alertDialog.isShowing()) alertDialog.cancel();
 
                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                        AccessState.getInstance(UpgradeWalletActivity.this).setIsLoggedIn(true);
+                        AccessState.getInstance().setIsLoggedIn(true);
                         appUtil.restartApp("verified", true);
                     }
                 });
@@ -306,18 +306,6 @@ public class UpgradeWalletActivity extends Activity {
                 binding.pageBox2.setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_view_upgrade_wallet_blue));
                 break;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
-    }
-
-    @Override
-    protected void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
     }
 
     class CustomPagerAdapter extends PagerAdapter {
