@@ -352,6 +352,7 @@ public class SendViewModel implements ViewModel {
 
         if (!btcAddress.equals("")) {
             sendModel.setDestinationAddress(btcAddress);
+            sendModel.pendingTransaction.receivingObject = null;
         }
         if (btcAmount != null && !btcAmount.equals("")) {
             dataListener.onRemoveBtcTextChangeListener();
@@ -623,7 +624,6 @@ public class SendViewModel implements ViewModel {
         if(FormatsUtil.getInstance().isValidBitcoinAddress(address)){
             //Receiving address manual or scanned input
             sendModel.pendingTransaction.receivingAddress = address;
-            sendModel.pendingTransaction.receivingObject = null;
         }
 
         if(bypassFeeCheck || isFeeAdequate()) {
@@ -815,6 +815,11 @@ public class SendViewModel implements ViewModel {
 
         if(pendingTransaction.unspentOutputBundle.getSpendableOutputs().size() == 0){
             dataListener.onShowErrorMessage(context.getString(R.string.insufficient_funds));
+            return false;
+        }
+
+        if(sendModel.pendingTransaction.receivingObject.accountObject == sendModel.pendingTransaction.sendingObject.accountObject){
+            dataListener.onShowErrorMessage(context.getString(R.string.send_to_same_address_warning));
             return false;
         }
 

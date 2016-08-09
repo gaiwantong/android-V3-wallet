@@ -21,7 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,8 +55,6 @@ import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
 public class SendActivity extends BaseAuthActivity implements SendViewModel.DataListener, CustomKeypadCallback {
 
-    //TODO - select default account
-    //TODO - same address
     //TODO - spend from watch-only (with pw)
 
     private final String TAG = getClass().getSimpleName();
