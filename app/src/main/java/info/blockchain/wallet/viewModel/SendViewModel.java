@@ -119,6 +119,15 @@ public class SendViewModel implements ViewModel {
         void onShowTransactionSuccess();
     }
 
+    public int getDefaultAccount(){
+
+        int result = 0;
+        if (payloadManager.getPayload().isUpgraded()) {
+            result = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+        }
+        return Math.max(result,0);
+    }
+
     public List<ItemAccount> getAddressList(boolean includeAddressBookEntries) {
 
         ArrayList<ItemAccount> result = new ArrayList<>();
@@ -482,6 +491,7 @@ public class SendViewModel implements ViewModel {
                     }
 
                 }else{
+                    updateMaxAvailable(0);
                     sendModel.pendingTransaction.unspentOutputBundle = null;
                 }
 
