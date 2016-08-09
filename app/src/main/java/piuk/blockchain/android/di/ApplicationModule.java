@@ -3,6 +3,7 @@ package piuk.blockchain.android.di;
 import android.app.Application;
 import android.content.Context;
 
+import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -20,25 +21,31 @@ public class ApplicationModule {
 
     private final Application mApplication;
 
-    ApplicationModule(Application application) {
+    public ApplicationModule(Application application) {
         mApplication = application;
     }
 
     @Provides
     @Singleton
-    Context provideApplicationContext() {
+    protected Context provideApplicationContext() {
         return mApplication;
     }
 
     @Provides
     @Singleton
-    PrefsUtil providePrefsUtil() {
+    protected PrefsUtil providePrefsUtil() {
         return new PrefsUtil(mApplication);
     }
 
     @Provides
     @Singleton
-    AppUtil provideAppUtil() {
+    protected AppUtil provideAppUtil() {
         return new AppUtil(mApplication);
+    }
+
+    @Provides
+    @Singleton
+    protected AccessState provideAccessState() {
+        return AccessState.getInstance();
     }
 }

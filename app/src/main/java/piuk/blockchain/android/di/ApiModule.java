@@ -17,13 +17,13 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    Access provideAccess() {
+    protected Access provideAccess() {
         return new Access();
     }
 
     @Provides
     @Singleton
-    PayloadManager providePayloadManager() {
+    protected PayloadManager providePayloadManager() {
         return PayloadManager.getInstance();
     }
 }

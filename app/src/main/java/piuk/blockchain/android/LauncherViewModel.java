@@ -29,6 +29,8 @@ public class LauncherViewModel implements ViewModel {
     protected PayloadManager mPayloadManager;
     @Inject
     protected PrefsUtil mPrefsUtil;
+    @Inject
+    protected AccessState mAccessState;
     private DataListener mDataListener;
 
     public interface DataListener {
@@ -79,12 +81,12 @@ public class LauncherViewModel implements ViewModel {
                 && !mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false)
                 && mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
 
-            AccessState.getInstance().setIsLoggedIn(true);
+            mAccessState.setIsLoggedIn(true);
             mDataListener.onRequestUpgrade();
 
-        } else if (isPinValidated || (AccessState.getInstance().isLoggedIn())) {
+        } else if (isPinValidated || (mAccessState.isLoggedIn())) {
             // App has been PIN validated
-            AccessState.getInstance().setIsLoggedIn(true);
+            mAccessState.setIsLoggedIn(true);
             mDataListener.onStartMainActivity();
         } else {
             mDataListener.onRequestPin();
