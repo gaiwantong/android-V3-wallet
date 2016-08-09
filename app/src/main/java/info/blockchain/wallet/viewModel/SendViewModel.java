@@ -1,11 +1,9 @@
 package info.blockchain.wallet.viewModel;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 
 import info.blockchain.api.DynamicFee;
@@ -31,7 +29,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONObject;
 
@@ -118,6 +115,7 @@ public class SendViewModel implements ViewModel {
         void onShowWatchOnlySpendWarning(String address);
         void onShowAlterFee(String absoluteFeeSuggested,String body, int positiveAction, int negativeAction);
         void onShowErrorMessage(String message);
+        void onShowTransactionSuccess();
     }
 
     public List<ItemAccount> getAddressList(boolean includeAddressBookEntries) {
@@ -628,7 +626,11 @@ public class SendViewModel implements ViewModel {
                     if (!sendModel.pendingTransaction.isHD() &&
                             ((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject).isWatchOnly()) {
                         dataListener.onShowWatchOnlySpend(sendModel.pendingTransaction.receivingAddress);
-                    } else {
+
+                    } else if(sendModel.secondPasswordVerified) {
+                        confirmPayment(sendModel.pendingTransaction, null);
+
+                    }else{
                         new SecondPasswordHandler(context).validate(new SecondPasswordHandler.ResultListener() {
                             @Override
                             public void onNoSecondPassword() {
@@ -637,6 +639,8 @@ public class SendViewModel implements ViewModel {
 
                             @Override
                             public void onSecondPasswordValidated(String validatedSecondPassword) {
+                                payloadManager.decryptDoubleEncryptedWallet(validatedSecondPassword);
+                                sendModel.secondPasswordVerified = true;
                                 confirmPayment(sendModel.pendingTransaction, validatedSecondPassword);
                             }
                         });
@@ -652,8 +656,6 @@ public class SendViewModel implements ViewModel {
     private boolean isFeeAdequate(){
 
         if(sendModel.suggestedFee !=null && sendModel.suggestedFee.estimateList != null){
-
-            Log.d(TAG, "isFeeAdequate sendModel.pendingTransaction.bigIntFee: "+sendModel.pendingTransaction.bigIntFee);
 
             if (sendModel.absoluteFeeSuggestedEstimates != null
                     && sendModel.pendingTransaction.bigIntFee.compareTo(sendModel.absoluteFeeSuggestedEstimates[0]) > 0) {
@@ -726,7 +728,6 @@ public class SendViewModel implements ViewModel {
 
     private boolean isValidSpend(PendingTransaction pendingTransaction) {
 
-        Log.d(TAG, "isValidSpend pendingTransaction: "+pendingTransaction.toString());
         //Validate amount
         if(!isValidAmount(pendingTransaction.bigIntAmount)){
             dataListener.onShowInvalidAmount();
@@ -871,16 +872,10 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
-    public void submitPayment(String validatedSecondPassword) {
+    public void submitPayment(String validatedSecondPassword, AlertDialog alertDialog) {
 
         new Thread(() -> {
             try {
-                Log.d(TAG, "--------------------------------------------------------------");
-                Log.d(TAG, "validatedSecondPassword: " + validatedSecondPassword);
-                Log.d(TAG, "submitPayment PAYMENT GO! " + sendModel.pendingTransaction.toString());
-                Log.d(TAG, "--------------------------------------------------------------");
-
-                //sign
 
                 if (ConnectivityStatus.hasConnectivity(context)) {
 
@@ -911,54 +906,25 @@ public class SendViewModel implements ViewModel {
                             new Payment.SubmitPaymentListener() {
                                 @Override
                                 public void onSuccess(String s) {
-                                    ToastCustom.makeText(context, context.getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
 
-                                    playAudio();
+                                    if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+                                    updateInternalBalances();
+                                    PayloadBridge.getInstance().remoteSaveThread(null);
+                                    dataListener.onShowTransactionSuccess();
 
-//                                    if (sendModel.pendingTransaction.isHD()) {
-//
-//                                        //Update v3 balance immediately after spend - until refresh from server
-//                                        MultiAddrFactory.getInstance().setXpubBalance(MultiAddrFactory.getInstance().getXpubBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-//                                        MultiAddrFactory.getInstance().setXpubAmount(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex), MultiAddrFactory.getInstance().getXpubAmounts().get(payloadManager.getXpubFromAccountIndex(pendingSpend.fromXpubIndex)) - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-//
-//                                    } else {
-//
-//                                        //Update v2 balance immediately after spend - until refresh from server
-//                                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-//                                        //TODO - why are we not setting individual address balance as well, was this over looked?
-//                                    }
-
-                                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
-                                        @Override
-                                        public void onSaveSuccess() {
-                                        }
-
-                                        @Override
-                                        public void onSaveFail() {
-//                                            ToastCustom.makeText(getActivity(), getActivity().getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                        }
-                                    });
-//                                    closeDialog(alertDialog, true);
-
-//                                    new AppRate(getActivity())
-//                                            .setMinTransactionsUntilPrompt(3)
-//                                            .incrementTransactionCount()
-//                                            .init();
                                 }
 
                                 @Override
                                 public void onFail(String s) {
-
+                                    dataListener.onShowErrorMessage(context.getString(R.string.transaction_failed));
                                 }
                             });
 
                 } else {
-                    //add to queue
                     dataListener.onShowErrorMessage(context.getString(R.string.check_connectivity_exit));
-
-//            // Queue tx
-//            Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
-//            TxQueue.getInstance(context).add(spendable);
+                    // Queue tx
+//                    Spendable spendable = new Spendable(tx, opc, note, isHD, sentChange, accountIdx);
+//                    TxQueue.getInstance(context).add(spendable);
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -967,22 +933,30 @@ public class SendViewModel implements ViewModel {
 
     }
 
-    private void playAudio(){
+    /*
+    Update balance immediately after spend - until refresh from server
+     */
+    private void updateInternalBalances(){
 
-        AudioManager audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-            MediaPlayer mp;
-            mp = MediaPlayer.create(context.getApplicationContext(), R.raw.alert);
-            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        BigInteger totalSent = sendModel.pendingTransaction.bigIntAmount.add(sendModel.pendingTransaction.bigIntFee);
 
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.reset();
-                    mp.release();
-                }
+        if (sendModel.pendingTransaction.isHD()) {
 
-            });
-            mp.start();
+            Account account = (Account)sendModel.pendingTransaction.sendingObject.accountObject;
+
+
+            long updatedBalance = MultiAddrFactory.getInstance().getXpubBalance() - totalSent.longValue();
+
+            //Set total balance
+            MultiAddrFactory.getInstance().setXpubBalance(updatedBalance);
+
+            //Set individual xpub balance
+            MultiAddrFactory.getInstance().setXpubAmount(
+                    account.getXpub(),
+                    MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub()) - updatedBalance);
+
+        } else {
+            MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - totalSent.longValue());
         }
     }
 }

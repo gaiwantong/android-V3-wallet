@@ -1,6 +1,7 @@
 package info.blockchain.wallet.payload;
 
 import android.os.Looper;
+import android.support.annotation.Nullable;
 
 /**
  * PayloadBridge.java : singleton class for remote save of payload
@@ -31,15 +32,15 @@ public class PayloadBridge {
     /**
      * Thread for remote save of payload to server.
      */
-    public void remoteSaveThread(PayloadSaveListener listener) {
+    public void remoteSaveThread(@Nullable PayloadSaveListener listener) {
 
         new Thread(() -> {
             Looper.prepare();
 
             if (payloadManager.savePayloadToServer()) {
-                listener.onSaveSuccess();
+                if(listener != null)listener.onSaveSuccess();
             } else {
-                listener.onSaveFail();
+                if(listener != null)listener.onSaveFail();
             }
 
             Looper.loop();

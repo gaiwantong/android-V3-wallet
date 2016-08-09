@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -31,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
@@ -408,6 +411,27 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
+    public void onShowTransactionSuccess() {
+
+        runOnUiThread(() -> {
+
+            playAudio();
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.modal_transaction_success, null);
+            final AlertDialog alertDialog = dialogBuilder.setView(dialogView).create();
+            alertDialog.setOnDismissListener(dialogInterface -> finish());
+            alertDialog.show();
+
+            new AppRate(SendActivity.this)
+                    .setMinTransactionsUntilPrompt(3)
+                    .incrementTransactionCount()
+                    .init();
+        });
+    }
+
+    @Override
     public void onUpdateBtcUnit(String unit) {
         binding.amountRow.currencyBtc.setText(unit);
         binding.tvFeeUnit.setText(unit);
@@ -558,7 +582,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
             });
 
             dialogBinding.confirmSend.setOnClickListener(v -> {
-                viewModel.submitPayment(validatedSecondPassword);
+                viewModel.submitPayment(validatedSecondPassword, alertDialog);
             });
 
             alertDialog.show();
@@ -656,5 +680,18 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                 .setTitle(R.string.transaction_fee)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null).show();
+    }
+
+    private void playAudio(){
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+            MediaPlayer mp;
+            mp = MediaPlayer.create(getApplicationContext(), R.raw.beep);
+            mp.setOnCompletionListener(mp1 -> {
+                mp1.reset();
+                mp1.release();
+            });
+            mp.start();
+        }
     }
 }

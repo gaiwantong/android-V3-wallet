@@ -89,7 +89,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -242,6 +241,11 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
 
     @Override
     public void onShowErrorMessage(String message) {
+
+    }
+
+    @Override
+    public void onShowTransactionSuccess() {
 
     }
 
@@ -1849,7 +1853,7 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
         AudioManager audioManager = (AudioManager) getActivity().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             MediaPlayer mp;
-            mp = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alert);
+            mp = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.beep);
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
                 @Override

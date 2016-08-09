@@ -41,6 +41,7 @@ public class SendModel extends BaseObservable {
     public PendingTransaction pendingTransaction;
     public BigInteger[] absoluteFeeSuggestedEstimates;
     public BigInteger absoluteFeeSuggested;//Fee for 2nd block inclusion
+    public boolean secondPasswordVerified = false;
 
     @Bindable
     public String getDestinationAddress() {
