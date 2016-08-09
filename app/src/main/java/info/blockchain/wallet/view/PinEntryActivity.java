@@ -46,7 +46,7 @@ import rx.schedulers.Schedulers;
 
 public class PinEntryActivity extends BaseAuthActivity {
 
-    private static final int COOL_DOWN = 2000;
+    private static final int COOL_DOWN_MILLIS = 2 * 1000;
     private static final int PIN_LENGTH = 4;
     private static final int maxAttempts = 4;
     String userEnteredPIN = "";
@@ -153,7 +153,7 @@ public class PinEntryActivity extends BaseAuthActivity {
     @Override
     public void onBackPressed() {
         if (allowExit) {
-            if (mBackPressed + COOL_DOWN > System.currentTimeMillis()) {
+            if (mBackPressed + COOL_DOWN_MILLIS > System.currentTimeMillis()) {
                 AccessState.getInstance().logout(this);
                 return;
             } else {

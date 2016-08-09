@@ -11,6 +11,7 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 
 import piuk.blockchain.android.di.Injector;
 import rx.plugins.RxJavaHooks;
@@ -44,6 +45,7 @@ public class BlockchainApplication extends Application {
         AccessState.getInstance().initAccessState(this);
 
         checkSecurityProviderAndPatchIfNeeded();
+        verifySsslPinning();
     }
 
     /**
@@ -95,5 +97,9 @@ public class BlockchainApplication extends Application {
     private void onProviderInstallerNotAvailable() {
         // TODO: 05/08/2016 Decide if we should take action here or not
         Log.wtf(TAG, "Security Provider Installer not available");
+    }
+
+    private void verifySsslPinning() {
+        new SSLVerifyUtil(this).validateSSL();
     }
 }

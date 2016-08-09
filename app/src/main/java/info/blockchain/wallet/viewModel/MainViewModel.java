@@ -3,7 +3,6 @@ package info.blockchain.wallet.viewModel;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Looper;
 
 import info.blockchain.wallet.access.AccessState;
@@ -11,18 +10,16 @@ import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
-import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainViewModel implements ViewModel{
+public class MainViewModel implements ViewModel {
 
     private Context context;
     private DataListener dataListener;
@@ -31,22 +28,18 @@ public class MainViewModel implements ViewModel{
     private AppUtil appUtil;
     private PayloadManager payloadManager;
 
-    private int exitClickCount = 0;
-    private int exitClickCooldown = 2;//seconds
+    private long mBackPressed;
+    private static final int COOL_DOWN_MILLIS = 2 * 1000;
 
     public interface DataListener {
         void onRooted();
         void onConnectivityFail();
-        void onNoGUID();
-        void onRequestPin();
-        void onCorruptPayload();
-        void onRequestUpgrade();
         void onFetchTransactionsStart();
         void onFetchTransactionCompleted();
         void onScanInput(String strUri);
         void onStartBalanceFragment();
         void onExitConfirmToast();
-        void onRequestBackup();
+        void kickToLauncherPage();
     }
 
     public MainViewModel(Context context, DataListener dataListener) {
@@ -81,13 +74,6 @@ public class MainViewModel implements ViewModel{
 
     private void preLaunchChecks(){
         exchangeRateThread();
-        new SSLVerifyUtil(context).validateSSL();
-
-        boolean isPinValidated = false;
-        Bundle extras = ((Activity)context).getIntent().getExtras();
-        if (extras != null && extras.containsKey("verified")) {
-            isPinValidated = extras.getBoolean("verified");
-        }
 
         String action = ((Activity)context).getIntent().getAction();
         String scheme = ((Activity)context).getIntent().getScheme();
@@ -95,33 +81,8 @@ public class MainViewModel implements ViewModel{
             prefs.setValue(PrefsUtil.KEY_SCHEME_URL, ((Activity)context).getIntent().getData().toString());
         }
 
-        // No GUID? Treat as new installation
-        if (prefs.getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
-            payloadManager.setTempPassword(new CharSequenceX(""));
-            this.dataListener.onNoGUID();
-        }
-        // No PIN ID? Treat as installed app without confirmed PIN
-        else if (prefs.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
-            this.dataListener.onRequestPin();
-        }
-        // Installed app, check sanity
-        else if (!appUtil.isSane()) {
-            this.dataListener.onCorruptPayload();
-        }
-        // Legacy app has not been prompted for upgrade
-        else if (isPinValidated &&
-                !payloadManager.getPayload().isUpgraded() &&
-                !prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false) &&
-                prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
-
-            AccessState.getInstance().setIsLoggedIn(true);
-            this.dataListener.onRequestUpgrade();
-        }
-        // App has been PIN validated
-        else if (isPinValidated || (AccessState.getInstance().isLoggedIn())) {
-            AccessState.getInstance().setIsLoggedIn(true);
-
-            this.dataListener.onFetchTransactionsStart();
+        if (AccessState.getInstance().isLoggedIn()) {
+            dataListener.onFetchTransactionsStart();
 
             new Thread(() -> {
 
@@ -146,7 +107,9 @@ public class MainViewModel implements ViewModel{
                 Looper.loop();
             }).start();
         } else {
-            this.dataListener.onRequestPin();
+            // This should never happen, but handle the scenario anyway by starting the launcher
+            // activity, which handles all login/auth/corruption scenarios itself
+            dataListener.kickToLauncherPage();
         }
     }
 
@@ -191,26 +154,15 @@ public class MainViewModel implements ViewModel{
         appUtil.restartApp();
     }
 
-    public void onBackPressed(){
-
-        exitClickCount++;
-        if (exitClickCount == 2) {
+    public void onBackPressed() {
+        if (mBackPressed + COOL_DOWN_MILLIS > System.currentTimeMillis()) {
             AccessState.getInstance().logout(context);
+            return;
         } else {
             dataListener.onExitConfirmToast();
         }
 
-        new Thread(() -> {
-            for (int j = 0; j <= exitClickCooldown; j++) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (j >= exitClickCooldown) exitClickCount = 0;
-            }
-        }).start();
-
+        mBackPressed = System.currentTimeMillis();
     }
 
     public void startWebSocketService(){

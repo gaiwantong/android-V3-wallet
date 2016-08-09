@@ -378,30 +378,8 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     }
 
     @Override
-    public void onNoGUID() {
+    public void kickToLauncherPage() {
         startSingleActivity(LandingActivity.class);
-    }
-
-    @Override
-    public void onRequestPin() {
-        startSingleActivity(PinEntryActivity.class);
-    }
-
-    @Override
-    public void onCorruptPayload() {
-        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(MainActivity.this.getString(R.string.not_sane_error))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
-                    appUtil.clearCredentialsAndRestart();
-                    appUtil.restartApp();
-                }).show();
-    }
-
-    @Override
-    public void onRequestUpgrade() {
-        startActivity(new Intent(MainActivity.this, UpgradeWalletActivity.class));
     }
 
     @Override
@@ -442,10 +420,5 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     @Override
     public void onExitConfirmToast() {
         ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-    }
-
-    @Override
-    public void onRequestBackup() {
-        startActivityForResult(new Intent(this, BackupWalletActivity.class), REQUEST_BACKUP);
     }
 }

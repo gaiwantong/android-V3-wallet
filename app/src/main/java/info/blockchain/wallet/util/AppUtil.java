@@ -10,12 +10,12 @@ import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.MainActivity;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.io.File;
 import java.security.Security;
 
+import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
 
 public class AppUtil {
@@ -44,13 +44,13 @@ public class AppUtil {
     }
 
     public void restartApp() {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, LauncherActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
     public void restartApp(String name, boolean value) {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, LauncherActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         if (name != null) {
             intent.putExtra(name, value);
