@@ -8,6 +8,7 @@ import android.view.View;
 
 import info.blockchain.api.DynamicFee;
 import info.blockchain.api.Unspent;
+import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
@@ -111,7 +112,7 @@ public class SendViewModel implements ViewModel {
 
         void onShowInvalidAmount();
         void onShowWatchOnlySpend(String receivingAddress);
-        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword);
+        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword, boolean isLargeTransaction);
         void onShowWatchOnlySpendWarning(String address);
         void onShowAlterFee(String absoluteFeeSuggested,String body, int positiveAction, int negativeAction);
         void onShowErrorMessage(String message);
@@ -723,7 +724,22 @@ public class SendViewModel implements ViewModel {
         details.fiatTotal = (monetaryUtil.getFiatFormat(sendModel.fiatUnit)
                 .format(sendModel.exchangeRate * (totalFiat.doubleValue() / 1e8)));
 
-        dataListener.onShowPaymentDetails(details, validatedSecondPassword);
+        dataListener.onShowPaymentDetails(details, validatedSecondPassword, isLargeTransaction());
+    }
+
+    public boolean isLargeTransaction(){
+
+        int txSize = FeeUtil.estimatedSize(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(), 2);//assume change
+        double relativeFee = sendModel.absoluteFeeSuggested.doubleValue()/sendModel.pendingTransaction.bigIntAmount.doubleValue()*100.0;
+
+        if(sendModel.absoluteFeeSuggested.longValue() > SendModel.LARGE_TX_FEE
+                && txSize > SendModel.LARGE_TX_SIZE
+                && relativeFee > SendModel.LARGE_TX_PERCENTAGE){
+
+            return true;
+        }else{
+            return false;
+        }
     }
 
     private boolean isValidSpend(PendingTransaction pendingTransaction) {

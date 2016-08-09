@@ -225,7 +225,7 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
     }
 
     @Override
-    public void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword, boolean isLargeTransaction) {
 
     }
 

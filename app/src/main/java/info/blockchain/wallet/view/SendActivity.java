@@ -16,7 +16,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -431,6 +430,36 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         });
     }
 
+    private void onShowLargeTransactionWarning(AlertDialog alertDialog) {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
+        AlertGenericWarningBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
+                R.layout.alert_generic_warning, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
+
+        final AlertDialog alertDialogFee = dialogBuilder.create();
+        alertDialogFee.setCanceledOnTouchOutside(false);
+
+        dialogBinding.tvBody.setText(R.string.large_tx_warning);
+
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialogFee.isShowing()) alertDialogFee.cancel();
+        });
+
+        dialogBinding.confirmKeep.setText(getResources().getString(R.string.go_back));
+        dialogBinding.confirmKeep.setOnClickListener(v -> {
+            alertDialogFee.dismiss();
+            alertDialog.dismiss();
+        });
+
+        dialogBinding.confirmChange.setText(getResources().getString(R.string.accept_higher_fee));
+        dialogBinding.confirmChange.setOnClickListener(v -> {
+            alertDialogFee.dismiss();
+        });
+
+        alertDialogFee.show();
+    }
+
     @Override
     public void onUpdateBtcUnit(String unit) {
         binding.amountRow.currencyBtc.setText(unit);
@@ -520,11 +549,9 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowPaymentDetails(PaymentConfirmationDetails details, final String validatedSecondPassword) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails details, final String validatedSecondPassword, boolean isLargeTransaction) {
 
-        new Thread(() -> {
-
-            Looper.prepare();
+        runOnUiThread(() -> {
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
             FragmentSendConfirmBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
@@ -587,9 +614,11 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
             alertDialog.show();
 
-            Looper.loop();
+            if(viewModel.isLargeTransaction()){
+                onShowLargeTransactionWarning(alertDialog);
+            }
 
-        }).start();
+        });
     }
 
     @Override

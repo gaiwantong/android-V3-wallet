@@ -43,6 +43,11 @@ public class SendModel extends BaseObservable {
     public BigInteger absoluteFeeSuggested;//Fee for 2nd block inclusion
     public boolean secondPasswordVerified = false;
 
+    //Vars used for warning user of large tx
+    public static final int LARGE_TX_SIZE = 516;//kb
+    public static final long LARGE_TX_FEE = 80000;//USD
+    public static final double LARGE_TX_PERCENTAGE = 1.0;//%
+
     @Bindable
     public String getDestinationAddress() {
         return destinationAddress;
