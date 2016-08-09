@@ -18,7 +18,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -32,7 +31,6 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
@@ -46,13 +44,14 @@ import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
 
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivitySendBinding;
 import piuk.blockchain.android.databinding.AlertGenericWarningBinding;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
-public class SendActivity extends AppCompatActivity implements SendViewModel.DataListener, CustomKeypadCallback {
+public class SendActivity extends BaseAuthActivity implements SendViewModel.DataListener, CustomKeypadCallback {
 
     private final String TAG = getClass().getSimpleName();
     private final int SCAN_URI = 2007;
@@ -87,7 +86,7 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
         String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         viewModel = new SendViewModel(new SendModel(),
                 this,
-                ExchangeRateFactory.getInstance(this).getLastPrice(fiatUnit),
+                ExchangeRateFactory.getInstance().getLastPrice(this, fiatUnit),
                 prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC),
                 fiatUnit,
                 this);
@@ -110,15 +109,12 @@ public class SendActivity extends AppCompatActivity implements SendViewModel.Dat
     @Override
     protected void onResume() {
         super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
-
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
     }
 
     @Override
     public void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onPause();
     }

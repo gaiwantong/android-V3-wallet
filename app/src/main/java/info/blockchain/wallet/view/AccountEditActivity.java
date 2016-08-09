@@ -1,5 +1,7 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.client.android.CaptureActivity;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -11,19 +13,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
-import com.google.zxing.client.android.CaptureActivity;
-
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
@@ -31,12 +29,14 @@ import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
+
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-public class AccountEditActivity extends AppCompatActivity implements AccountEditViewModel.DataListener{
+public class AccountEditActivity extends BaseAuthActivity implements AccountEditViewModel.DataListener{
 
     private final int ADDRESS_LABEL_MAX_LENGTH = 17;
     private final int SCAN_PRIVX = 302;
@@ -70,28 +70,15 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AccessState.getInstance(this).stopLogoutTimer();
-    }
-
-    @Override
-    public void onPause() {
-        AccessState.getInstance(this).startLogoutTimer();
-        super.onPause();
-    }
-
     private void setupToolbar() {
-
         binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.edit));
         setSupportActionBar(binding.toolbarContainer.toolbarGeneral);
     }
 
     @Override
     public void onPromptAccountLabel() {
-        final EditText etLabel = new EditText(this);
-        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        final AppCompatEditText etLabel = new AppCompatEditText(this);
+        etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
         FrameLayout frameLayout = new FrameLayout(this);
@@ -204,7 +191,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onPromptBIP38Password(final String data) {
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -265,7 +252,7 @@ public class AccountEditActivity extends AppCompatActivity implements AccountEdi
 
     @Override
     public void onShowAddressDetails(String heading, String note, String copy, Bitmap bitmap, String qrString) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertShowExtendedPublicKeyBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_show_extended_public_key, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());

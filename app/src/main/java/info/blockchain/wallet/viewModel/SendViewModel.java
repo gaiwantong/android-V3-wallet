@@ -363,7 +363,7 @@ public class SendViewModel implements ViewModel {
                 btc_amount = 0.0;
             }
 
-            sendModel.exchangeRate = ExchangeRateFactory.getInstance(context).getLastPrice(sendModel.fiatUnit);
+            sendModel.exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, sendModel.fiatUnit);
 
             double fiat_amount = sendModel.exchangeRate * btc_amount;
 

@@ -30,7 +30,7 @@
                 android:textCursorDrawable="@null"
                 android:background="@android:color/transparent"
                 android:textColor="@color/white"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:inputType="textFilter|textNoSuggestions"
                 android:textColorHint="@color/white_50">
 
@@ -51,7 +51,7 @@
                 android:textCursorDrawable="@null"
                 android:background="@android:color/transparent"
                 android:textColor="@color/white"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:inputType="textFilter|textNoSuggestions"
                 android:textColorHint="@color/white_50">
         </EditText>
@@ -70,7 +70,7 @@
                 android:textCursorDrawable="@null"
                 android:background="@android:color/transparent"
                 android:textColor="@color/white"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:inputType="textFilter|textNoSuggestions"
                 android:textColorHint="@color/white_50">
         </EditText>

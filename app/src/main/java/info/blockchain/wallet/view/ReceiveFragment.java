@@ -1,6 +1,11 @@
 package info.blockchain.wallet.view;
 
-import android.app.AlertDialog;
+import com.google.common.collect.HashBiMap;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.android.Contents;
+import com.google.zxing.client.android.encode.QRCodeEncoder;
+
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
@@ -19,7 +24,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -27,6 +34,7 @@ import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,12 +48,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.collect.HashBiMap;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.payload.Account;
+import info.blockchain.wallet.payload.ImportedAccount;
+import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.BitcoinLinkGenerator;
+import info.blockchain.wallet.util.ExchangeRateFactory;
+import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.helpers.CustomKeypad;
+import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
@@ -67,18 +83,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import info.blockchain.wallet.callbacks.CustomKeypadCallback;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.ImportedAccount;
-import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.BitcoinLinkGenerator;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.helpers.CustomKeypad;
-import info.blockchain.wallet.view.helpers.ToastCustom;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentReceiveBinding;
@@ -87,13 +91,13 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private Locale locale = null;
 
-    public static CustomKeypad customKeypad;
+    public CustomKeypad customKeypad;
 
     //Drop down
     private ArrayAdapter<String> receiveToAdapter = null;
     private List<String> receiveToList = null;
     private HashBiMap<Object, Integer> accountBiMap = null;
-    private HashMap<Integer, Integer> spinnerIndexAccountIndexMap = null;
+    private SparseIntArray spinnerIndexAccountIndexMap = null;
 
     //text
     private boolean textChangeAllowed = true;
@@ -191,7 +195,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             @Override
             public void onClick(View v) {
 
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.receive_address_to_clipboard)
                         .setCancelable(false)
@@ -352,7 +356,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         receiveToList = new ArrayList<>();
         accountBiMap = HashBiMap.create();
-        spinnerIndexAccountIndexMap = new HashMap<>();
+        spinnerIndexAccountIndexMap = new SparseIntArray();
         updateSpinnerList();
 
         if (receiveToList.size() == 1)
@@ -402,7 +406,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         binding.amountContainer.currencyBtc.setText(strBTC);
         binding.amountContainer.currencyFiat.setText(strFiat);
@@ -433,7 +437,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity())
+        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                 .setTitle(getString(R.string.why_has_my_address_changed))
                 .setMessage(getString(R.string.new_address_info))
                 .setPositiveButton(R.string.learn_more, (dialog, which) -> {
@@ -459,11 +463,16 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         binding.amountContainer.amountBtc.requestFocus();
     }
 
+    @Nullable
+    public CustomKeypad getCustomKeypad() {
+        return customKeypad;
+    }
+
     private void promptWatchOnlySpendWarning(Object object){
 
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
             AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
                     R.layout.alert_watch_only_spend, null, false);
             dialogBuilder.setView(dialogBinding.getRoot());
@@ -558,7 +567,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         if (isVisibleToUser) {
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-            btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
             binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
             binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
         } else {
@@ -570,11 +579,9 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     public void onResume() {
         super.onResume();
 
-        MainActivity.currentFragment = this;
-
         strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
         strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance(getActivity()).getLastPrice(strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
         binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
         binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
 
@@ -770,7 +777,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 binding.receiveMainContentShadow.setVisibility(View.GONE);
             } else {
 
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.receive_address_to_share)
                         .setCancelable(false)

@@ -1,8 +1,11 @@
 package info.blockchain.wallet.view;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.Intents;
+
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,10 +22,12 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,29 +35,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.Intents;
 
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.bitcoinj.params.MainNetParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -82,17 +68,31 @@ import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
+
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
 
-//import android.util.Log;
+public class AccountActivity extends BaseAuthActivity {
 
-public class AccountActivity extends AppCompatActivity {
-
-    public static final String ACTION_INTENT = BalanceFragment.ACTION_INTENT;
     private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
     private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
 
@@ -107,7 +107,7 @@ public class AccountActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, final Intent intent) {
 
-            if (ACTION_INTENT.equals(intent.getAction())) {
+            if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
 
                 AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -253,6 +253,17 @@ public class AccountActivity extends AppCompatActivity {
         binding.multipleActions.addButton(actionB);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!isFinishing() && binding.multipleActions != null) {
+            if (binding.multipleActions.isExpanded()) {
+                binding.multipleActions.collapse();
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
     private void onRowClick(int position){
 
         Intent intent = new Intent(this, AccountEditActivity.class);
@@ -346,8 +357,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void promptForAccountLabel(@Nullable final String validatedSecondPassword){
-        final EditText etLabel = new EditText(this);
-        etLabel.setInputType(InputType.TYPE_CLASS_TEXT);
+        final AppCompatEditText etLabel = new AppCompatEditText(this);
+        etLabel.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         etLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
 
         FrameLayout frameLayout = new FrameLayout(this);
@@ -562,16 +573,15 @@ public class AccountActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        IntentFilter filter = new IntentFilter(ACTION_INTENT);
+        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        AccessState.getInstance(this).stopLogoutTimer();
+        updateAccountsList();
     }
 
     @Override
     public void onPause() {
         LocalBroadcastManager.getInstance(AccountActivity.this).unregisterReceiver(receiver);
-        AccessState.getInstance(this).startLogoutTimer();
         super.onPause();
     }
 
@@ -612,13 +622,20 @@ public class AccountActivity extends AppCompatActivity {
 
         final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
-        final EditText password = new EditText(this);
+        final AppCompatEditText password = new AppCompatEditText(this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        new AlertDialog.Builder(this)
+        FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(password, params);
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.bip38_password_entry)
-                .setView(password)
+                .setView(frameLayout)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -650,28 +667,36 @@ public class AccountActivity extends AppCompatActivity {
                                         setPrivateKey(key);
 
                                     } else if (key != null && key.hasPrivKey() && !payloadManager.getPayload().getLegacyAddressStrings().contains(key.toAddress(MainNetParams.get()).toString())) {
-                                        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+                                        final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", BuildConfig.VERSION_NAME);
                                                     /*
                                                      * if double encrypted, save encrypted in payload
                                                      */
                                         if (!payloadManager.getPayload().isDoubleEncrypted()) {
                                             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
                                         } else {
-                                            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                                            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                                             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                                                     payloadManager.getPayload().getSharedKey(),
-                                                    secondPassword.toString(),
+                                                    secondPassword,
                                                     payloadManager.getPayload().getOptions().getIterations());
                                             legacyAddress.setEncryptedKey(encrypted2);
                                         }
 
-                                        final EditText address_label = new EditText(AccountActivity.this);
+                                        final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                                         address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                                        address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
-                                        new AlertDialog.Builder(AccountActivity.this)
+                                        FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                                        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                                        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                                        frameLayout.addView(address_label, params);
+
+                                        new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                                 .setTitle(R.string.app_name)
                                                 .setMessage(R.string.label_address)
-                                                .setView(address_label)
+                                                .setView(frameLayout)
                                                 .setCancelable(false)
                                                 .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -735,23 +760,31 @@ public class AccountActivity extends AppCompatActivity {
 
             final List<LegacyAddress> rollbackLegacyAddresses = payloadManager.getPayload().getLegacyAddresses();
 
-            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", "");
+            final LegacyAddress legacyAddress = new LegacyAddress(null, System.currentTimeMillis() / 1000L, key.toAddress(MainNetParams.get()).toString(), "", 0L, "android", BuildConfig.VERSION_NAME);
             /*
              * if double encrypted, save encrypted in payload
              */
             if (!payloadManager.getPayload().isDoubleEncrypted()) {
                 legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             } else {
-                String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+                String encryptedKey = Base58.encode(key.getPrivKeyBytes());
                 String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                         payloadManager.getPayload().getSharedKey(),
-                        secondPassword.toString(),
+                        secondPassword,
                         payloadManager.getPayload().getOptions().getIterations());
                 legacyAddress.setEncryptedKey(encrypted2);
             }
 
-            final EditText address_label = new EditText(AccountActivity.this);
+            final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+            address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+            FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+            params.setMargins(marginInPixels, 0, marginInPixels, 0);
+            frameLayout.addView(address_label, params);
 
             final ECKey scannedKey = key;
 
@@ -760,11 +793,11 @@ public class AccountActivity extends AppCompatActivity {
                 public void run() {
                     Looper.prepare();
 
-                    new AlertDialog.Builder(AccountActivity.this)
+                    new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                             .setTitle(R.string.app_name)
                             .setMessage(R.string.label_address)
-                            .setView(address_label)
                             .setCancelable(false)
+                            .setView(frameLayout)
                             .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -805,10 +838,10 @@ public class AccountActivity extends AppCompatActivity {
         if (!payload.isDoubleEncrypted()) {
             legacyAddress.setEncryptedKey(key.getPrivKeyBytes());
         } else {
-            String encryptedKey = new String(Base58.encode(key.getPrivKeyBytes()));
+            String encryptedKey = Base58.encode(key.getPrivKeyBytes());
             String encrypted2 = DoubleEncryptionFactory.getInstance().encrypt(encryptedKey,
                     payload.getSharedKey(),
-                    secondPassword.toString(),
+                    secondPassword,
                     payload.getOptions().getIterations());
             legacyAddress.setEncryptedKey(encrypted2);
         }
@@ -847,7 +880,7 @@ public class AccountActivity extends AppCompatActivity {
         } else {
 
             final String finalAddress = address;
-            new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle(R.string.warning)
                     .setCancelable(false)
                     .setMessage(getString(R.string.watch_only_import_warning))
@@ -861,18 +894,26 @@ public class AccountActivity extends AppCompatActivity {
                             legacyAddress.setCreatedDeviceVersion(BuildConfig.VERSION_NAME);
                             legacyAddress.setWatchOnly(true);
 
-                            final EditText address_label = new EditText(AccountActivity.this);
+                            final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                             address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                            address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+                            FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                            params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                            frameLayout.addView(address_label, params);
 
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     Looper.prepare();
 
-                                    new AlertDialog.Builder(AccountActivity.this)
+                                    new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                             .setTitle(R.string.app_name)
                                             .setMessage(R.string.label_address)
-                                            .setView(address_label)
+                                            .setView(frameLayout)
                                             .setCancelable(false)
                                             .setPositiveButton(R.string.save_name, new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -955,7 +996,7 @@ public class AccountActivity extends AppCompatActivity {
             protected LegacyAddress doInBackground(Void... params) {
 
                 new AppUtil(context).applyPRNGFixes();
-                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword.toString());
+                return payloadManager.generateLegacyAddress("android", BuildConfig.VERSION_NAME, secondPassword);
             }
 
             @Override
@@ -966,13 +1007,21 @@ public class AccountActivity extends AppCompatActivity {
                     new Thread(() -> {
                         try {
                             mHandler.post(() -> {
-                                final EditText address_label = new EditText(AccountActivity.this);
+                                final AppCompatEditText address_label = new AppCompatEditText(AccountActivity.this);
                                 address_label.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ADDRESS_LABEL_MAX_LENGTH)});
+                                address_label.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
-                                new AlertDialog.Builder(AccountActivity.this)
+                                FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
+                                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
+                                params.setMargins(marginInPixels, 0, marginInPixels, 0);
+                                frameLayout.addView(address_label, params);
+
+                                new AlertDialog.Builder(AccountActivity.this, R.style.AlertDialogStyle)
                                         .setTitle(R.string.app_name)
                                         .setMessage(R.string.label_address2)
-                                        .setView(address_label)
+                                        .setView(frameLayout)
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.save_name, (dialog, whichButton) -> {
                                             String label = address_label.getText().toString();
@@ -1070,7 +1119,7 @@ public class AccountActivity extends AppCompatActivity {
 
     private void promptToTransferFunds(boolean isPopup){
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertPromptTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
                 R.layout.alert_prompt_transfer_funds, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
@@ -1094,6 +1143,13 @@ public class AccountActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
+
+        // This corrects the layout size after view drawn
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(alertDialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        alertDialog.getWindow().setAttributes(lp);
     }
 
     /*
@@ -1129,10 +1185,10 @@ public class AccountActivity extends AppCompatActivity {
         transferSpendableFunds(pendingSpendList, totalToSend);
     }
 
-    public void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
+    private void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
 
         //Only funded legacy address' will see this option
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.alert_transfer_funds, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
 
@@ -1201,7 +1257,7 @@ public class AccountActivity extends AppCompatActivity {
                     UnspentOutputsBundle unspents = null;
                     try {
                         String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                        unspents = SendFactory.getInstance(AccountActivity.this).prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1215,7 +1271,7 @@ public class AccountActivity extends AppCompatActivity {
                             ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         }
 
-                        executeSend(pendingSpend, unspents, isLastSpend);
+                        executeSend(pendingSpend, unspents, isLastSpend, pendingSpendList);
 
                     } else {
                         ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
@@ -1229,7 +1285,8 @@ public class AccountActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents, final boolean isLastSpend){
+    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents,
+                             final boolean isLastSpend, ArrayList<PendingSpend> pendingSpendList){
 
         final ProgressDialog progress;
         progress = new ProgressDialog(AccountActivity.this);
@@ -1238,59 +1295,136 @@ public class AccountActivity extends AppCompatActivity {
         progress.setCancelable(false);
         progress.show();
 
-        SendFactory.getInstance(this).execSend(false, -1, unspents.getOutputs(), pendingSpend.destination,
+        SendFactory.getInstance().execSend(this, false, -1, unspents.getOutputs(), pendingSpend.destination,
                 pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
                 pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
 
-            public void onSuccess() {
-            }
+                    @Override
+                    public void onSuccess() {
+                        // No-op
+                    }
 
-            @Override
-            public void onSuccess(final String hash) {
+                    @Override
+                    public void onSuccess(final String hash) {
 
-                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
+                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
 
-                if(isLastSpend){
-                    ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                    PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
-                        @Override
-                        public void onSaveSuccess() {
+                        if (isLastSpend) {
+                            ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                            PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
+                                @Override
+                                public void onSaveSuccess() {
+                                    Log.d("onSaveSuccess", "onSaveSuccess: ");
+                                    showArchiveDialog(pendingSpendList);
+                                }
+
+                                @Override
+                                public void onSaveFail() {
+                                    ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                }
+                            });
+
+                            runOnUiThread(() -> {
+                                updateAccountsList();
+                                transferFundsMenuItem.setVisible(false);
+                            });
                         }
 
-                        @Override
-                        public void onSaveFail() {
-                            ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
                         }
-                    });
+                    }
 
-                    runOnUiThread(() -> {
-                        updateAccountsList();
-                        transferFundsMenuItem.setVisible(false);
-                    });
-                }
+                    @Override
+                    public void onFail(String error) {
 
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                }
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void onFailPermanently(String error) {
+
+                        ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        if (progress != null && progress.isShowing()) {
+                            progress.dismiss();
+                        }
+                    }
+
+                });
+    }
+
+    private void showArchiveDialog(ArrayList<PendingSpend> pendingSpendList) {
+        int numberOfAddresses = pendingSpendList.size();
+
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.transfer_success_archive_prompt_title)
+                .setMessage(getResources().getQuantityString(R.plurals.transfer_success_archive_prompt_plurals, numberOfAddresses, numberOfAddresses))
+                .setPositiveButton(R.string.archive, (dialogInterface, i) -> {
+                    for (PendingSpend spend : pendingSpendList) {
+                        spend.fromLegacyAddress.setTag(PayloadManager.ARCHIVED_ADDRESS);
+                    }
+
+                    new ArchiveAsync(new WeakReference<>(getAccountActivity()), payloadManager).execute();
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
+
+    private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
+
+        private ProgressDialog progress;
+        private AccountActivity context;
+        private PayloadManager payloadManager;
+
+        ArchiveAsync(WeakReference<AccountActivity> contextWeakReference, PayloadManager manager) {
+            super();
+            context = contextWeakReference.get();
+            payloadManager = manager;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setTitle(R.string.app_name);
+            progress.setMessage(context.getResources().getString(R.string.please_wait));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (progress != null && progress.isShowing()) {
+                progress.dismiss();
+                progress = null;
             }
+        }
 
-            public void onFail(String error) {
-
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if (payloadManager.savePayloadToServer()) {
+                try {
+                    payloadManager.updateBalancesAndTransactions();
+                } catch (Exception e) {
+                    Log.e(ArchiveAsync.class.getSimpleName(), "doInBackground: ", e);
                 }
+
+                context.updateAccountsListFromUiThread();
+
             }
+            return null;
+        }
+    }
 
-            @Override
-            public void onFailPermanently(String error) {
+    private void updateAccountsListFromUiThread() {
+        runOnUiThread(this::updateAccountsList);
+    }
 
-                ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                }
-            }
-
-        });
+    private AccountActivity getAccountActivity() {
+        return this;
     }
 
     @Override

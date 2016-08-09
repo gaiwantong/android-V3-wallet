@@ -58,7 +58,7 @@
                             android:paddingBottom="4dp"
                             android:fontFamily="sans-serif"
                             android:text="Label"
-                            android:singleLine="true"
+                            android:maxLines="1"
                             android:marqueeRepeatLimit="marquee_forever"
                             android:textColor="@color/primary_text_default_material_light"
                             android:textSize="14sp"/>
@@ -73,7 +73,7 @@
                                 android:layout_gravity="bottom"
                                 android:fontFamily="sans-serif"
                                 android:text="0.0 BTC"
-                                android:singleLine="true"
+                                android:maxLines="1"
                                 android:paddingRight="8dp"
                                 android:textColor="@color/blockchain_receive_green"
                                 android:textSize="12sp"/>
@@ -86,7 +86,7 @@
                                 android:fontFamily="sans-serif"
                                 android:text="@string/default_label_brackets"
                                 android:paddingRight="8dp"
-                                android:singleLine="true"
+                                android:maxLines="1"
                                 android:alpha="0.8"
                                 android:textColor="@color/primary_text_default_material_light"
                                 android:textSize="12sp"/>
@@ -99,7 +99,7 @@
                                 android:fontFamily="sans-serif"
                                 android:text="@string/archived_label"
                                 android:paddingRight="8dp"
-                                android:singleLine="true"
+                                android:maxLines="1"
                                 android:textColor="@color/blockchain_transfer_blue"
                                 android:textSize="12sp"/>
 
@@ -111,7 +111,7 @@
                                 android:fontFamily="sans-serif"
                                 android:text="@string/watch_only_label"
                                 android:paddingRight="8dp"
-                                android:singleLine="true"
+                                android:maxLines="1"
                                 android:textColor="@color/blockchain_send_red"
                                 android:textSize="12sp"/>
                     </LinearLayout>
