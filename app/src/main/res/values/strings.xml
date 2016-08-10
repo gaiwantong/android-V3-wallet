@@ -553,4 +553,8 @@
     <string name="common_pin_dialog_try_again">Try again</string>
     <string name="common_pin_dialog_continue">Continue</string>
 
+    <!-- PASSWORD REENTRY ACTIVITY -->
+    <string name="logged_out_enter_password">You have logged out or there was an error decrypting your wallet. Enter your password below to login.</string>
+    <string name="logged_out_forget_wallet">If you would like to forget this wallet and start over, press \'Forget Wallet\'.</string>
+
 </resources>
