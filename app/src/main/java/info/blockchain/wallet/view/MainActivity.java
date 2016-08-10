@@ -38,6 +38,7 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
 
 import piuk.blockchain.android.BaseAuthActivity;
+import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 
@@ -377,7 +378,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
 
     @Override
     public void kickToLauncherPage() {
-        startSingleActivity(LandingActivity.class);
+        startSingleActivity(LauncherActivity.class);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class BlockchainApplication extends Application {
         AccessState.getInstance().initAccessState(this);
 
         checkSecurityProviderAndPatchIfNeeded();
-        verifySsslPinning();
+        verifySslPinning();
     }
 
     /**
@@ -99,7 +99,7 @@ public class BlockchainApplication extends Application {
         Log.wtf(TAG, "Security Provider Installer not available");
     }
 
-    private void verifySsslPinning() {
+    private void verifySslPinning() {
         new SSLVerifyUtil(this).validateSSL();
     }
 }

@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.view.MainActivity;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.io.File;
@@ -53,24 +52,12 @@ public class AppUtil {
         context.startActivity(intent);
     }
 
-    public void restartApp(String name, boolean value) {
+    public void restartAppWithVerifiedPin() {
         Intent intent = new Intent(context, LauncherActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (name != null) {
-            intent.putExtra(name, value);
-        }
+        intent.putExtra("verified", true);
         context.startActivity(intent);
-
-        if (name != null && name.equals("verified")) {
-            prefs.logIn();
-        }
-    }
-
-    // TODO: 09/08/2016 Replace the above method with this
-    public void goToMainPageWithVerifiedPin() {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        prefs.logIn();
     }
 
     public String getReceiveQRFilename() {
