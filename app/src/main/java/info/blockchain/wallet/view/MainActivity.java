@@ -79,6 +79,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
         appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
+        resetNavigationDrawer();
     }
 
     @Override

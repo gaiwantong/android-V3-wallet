@@ -1,6 +1,5 @@
 package info.blockchain.wallet.viewModel;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
@@ -74,12 +73,6 @@ public class MainViewModel implements ViewModel {
 
     private void preLaunchChecks(){
         exchangeRateThread();
-
-        String action = ((Activity)context).getIntent().getAction();
-        String scheme = ((Activity)context).getIntent().getScheme();
-        if (action != null && Intent.ACTION_VIEW.equals(action) && scheme.equals("bitcoin")) {
-            prefs.setValue(PrefsUtil.KEY_SCHEME_URL, ((Activity)context).getIntent().getData().toString());
-        }
 
         if (AccessState.getInstance().isLoggedIn()) {
             dataListener.onFetchTransactionsStart();
