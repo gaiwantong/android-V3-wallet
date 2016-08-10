@@ -7,12 +7,10 @@ package piuk.blockchain.android.di;
  */
 public class InjectorTestUtils {
 
-    public static void initApplicationComponent(Injector injector, ApplicationModule applicationModule) {
-        injector.initAppComponent(applicationModule);
-    }
-
-    public static void initApiComponent(Injector injector, ApiModule apiModule) {
-        injector.initApiComponent(apiModule);
+    public static void initApplicationComponent(Injector injector,
+                                                ApplicationModule applicationModule,
+                                                ApiModule apiModule) {
+        injector.initAppComponent(applicationModule, apiModule);
     }
 
 }

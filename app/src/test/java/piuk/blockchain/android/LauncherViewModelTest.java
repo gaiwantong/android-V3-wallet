@@ -49,13 +49,10 @@ public class LauncherViewModelTest {
 
     @Before
     public void setUp() throws Exception {
-
         MockitoAnnotations.initMocks(this);
 
         InjectorTestUtils.initApplicationComponent(
-                Injector.getInstance(), new MockApplicationModule(new BlockchainTestApplication()));
-
-        InjectorTestUtils.initApiComponent(Injector.getInstance(), new MockApiModule());
+                Injector.getInstance(), new MockApplicationModule(new BlockchainTestApplication()), new MockApiModule());
 
         mSubject = new LauncherViewModel(mLauncherActivity);
     }
@@ -71,10 +68,11 @@ public class LauncherViewModelTest {
         when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(true);
         when(mExtras.getBoolean(INTENT_EXTRA_VERIFIED)).thenReturn(true);
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(false);
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(true);
-        when(mPrefsUtil.getValue(anyString(), anyBoolean())).thenReturn(true);
+        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(true);
         when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         when(mAccessState.isLoggedIn()).thenReturn(true);
         // Act
@@ -94,10 +92,11 @@ public class LauncherViewModelTest {
         when(mIntent.getExtras()).thenReturn(mExtras);
         when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(false);
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(false);
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(true);
-        when(mPrefsUtil.getValue(anyString(), anyBoolean())).thenReturn(true);
+        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(true);
         when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         when(mAccessState.isLoggedIn()).thenReturn(false);
         // Act
@@ -171,16 +170,35 @@ public class LauncherViewModelTest {
         when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(true);
         when(mExtras.getBoolean(INTENT_EXTRA_VERIFIED)).thenReturn(true);
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(false);
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(false);
-        when(mPrefsUtil.getValue(anyString(), anyBoolean())).thenReturn(false);
+        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(false);
         when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         // Act
         mSubject.onViewReady();
         // Assert
         verify(mLauncherActivity, times(1)).getPageIntent();
         verify(mLauncherActivity, times(1)).onRequestUpgrade();
+    }
+
+    /**
+     * GUID exists, Shared Key exists but user logged out. Expected output is {@link LauncherActivity#onReEnterPassword()}
+     */
+    @Test
+    public void onViewReadyUserLoggedOut() throws Exception {
+        // Arrange
+        when(mLauncherActivity.getPageIntent()).thenReturn(mIntent);
+        when(mIntent.getExtras()).thenReturn(mExtras);
+        when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(false);
+        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(true);
+        // Act
+        mSubject.onViewReady();
+        // Assert
+        verify(mLauncherActivity, times(1)).getPageIntent();
+        verify(mLauncherActivity, times(1)).onReEnterPassword();
     }
 
     /**

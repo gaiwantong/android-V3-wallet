@@ -2,6 +2,7 @@ package info.blockchain.wallet.viewModel;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
@@ -28,7 +29,7 @@ public class PasswordRequiredViewModel implements ViewModel {
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected PayloadManager mPayloadManager;
     private DataListener mDataListener;
-    private CompositeSubscription mCompositeSubscription;
+    @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     public interface DataListener {
 
