@@ -4,7 +4,6 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +18,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,8 +30,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
@@ -55,10 +55,9 @@ import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
 public class SendActivity extends BaseAuthActivity implements SendViewModel.DataListener, CustomKeypadCallback {
 
-    //TODO - spend from watch-only (with pw)
-
     private final String TAG = getClass().getSimpleName();
     private final int SCAN_URI = 2007;
+    private final int SCAN_PRIVX = 2008;
 
     private ActivitySendBinding binding;
     private SendViewModel viewModel;
@@ -79,6 +78,10 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
             }
         }
     };
+
+    private Activity getActivity(){
+        return this;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +152,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     PermissionUtil.requestCameraPermissionFromActivity(binding.getRoot(), this);
                 } else {
-                    startScanActivity();
+                    startScanActivity(SCAN_URI);
                 }
                 return true;
             case R.id.action_send:
@@ -167,10 +170,10 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         }
     }
 
-    private void startScanActivity() {
+    private void startScanActivity(int code) {
         if (!new AppUtil(this).isCameraOpen()) {
             Intent intent = new Intent(this, CaptureActivity.class);
-            startActivityForResult(intent, SCAN_URI);
+            startActivityForResult(intent, code);
         } else {
             ToastCustom.makeText(this, getString(R.string.camera_unavailable), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
@@ -180,7 +183,12 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == SCAN_URI
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
+
             viewModel.handleIncomingQRScan(data.getStringExtra(CaptureActivity.SCAN_RESULT));
+
+        }else if(requestCode == SCAN_PRIVX && resultCode == Activity.RESULT_OK){
+            final String scanData = data.getStringExtra(CaptureActivity.SCAN_RESULT);
+            viewModel.handleScannedDataForWatchOnlySpend(scanData);
         }
     }
 
@@ -197,7 +205,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.PERMISSION_REQUEST_CAMERA) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startScanActivity();
+                startScanActivity(SCAN_URI);
             } else {
                 // Permission request was denied.
             }
@@ -420,24 +428,42 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
             playAudio();
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
             LayoutInflater inflater = getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.modal_transaction_success, null);
             final AlertDialog alertDialog = dialogBuilder.setView(dialogView).create();
             alertDialog.setOnDismissListener(dialogInterface -> finish());
             alertDialog.show();
 
-            new AppRate(SendActivity.this)
+            new AppRate(getActivity())
                     .setMinTransactionsUntilPrompt(3)
                     .incrementTransactionCount()
                     .init();
         });
     }
 
+    @Override
+    public void onShowBIP38PassphrasePrompt(String scanData) {
+
+        runOnUiThread(() -> {
+            final EditText password = new EditText(getActivity());
+            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+            new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.bip38_password_entry)
+                    .setView(password)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
+                        viewModel.spendFromWatchOnlyBIP38(password.getText().toString(), scanData);
+                    }).setNegativeButton(android.R.string.cancel, null).show();
+        });
+    }
+
     private void onShowLargeTransactionWarning(AlertDialog alertDialog) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
-        AlertGenericWarningBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        AlertGenericWarningBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
                 R.layout.alert_generic_warning, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
 
@@ -486,34 +512,22 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowWatchOnlySpend(String receivingAddress) {
+    public void onShowSpendFromWatchOnly(String address) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.alert_watch_only_spend, null);
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setCancelable(false);
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.privx_required)
+                .setMessage(String.format(getString(R.string.watch_only_spend_instructionss), address))
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_continue, (dialog, whichButton) -> {
 
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setCanceledOnTouchOutside(false);
+                    if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        PermissionUtil.requestCameraPermissionFromActivity(binding.getRoot(), getActivity());
+                    } else {
+                        startScanActivity(SCAN_PRIVX);
+                    }
 
-        final CheckBox confirmDismissForever = (CheckBox) dialogView.findViewById(R.id.confirm_dont_ask_again);
+                }).setNegativeButton(android.R.string.cancel, null).show();
 
-        TextView confirmCancel = (TextView) dialogView.findViewById(R.id.confirm_cancel);
-        confirmCancel.setOnClickListener(v -> {
-            binding.destination.setText("");
-            if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-            alertDialog.dismiss();
-        });
-
-        TextView confirmContinue = (TextView) dialogView.findViewById(R.id.confirm_continue);
-        confirmContinue.setOnClickListener(v -> {
-            binding.destination.setText(receivingAddress);
-            if(confirmDismissForever.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-            alertDialog.dismiss();
-        });
-
-        alertDialog.show();
     }
 
     private void setBtcTextWatcher(){
@@ -553,7 +567,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowPaymentDetails(PaymentConfirmationDetails details, final String validatedSecondPassword, boolean isLargeTransaction) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails details, boolean isLargeTransaction) {
 
         runOnUiThread(() -> {
 
@@ -613,7 +627,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
             });
 
             dialogBinding.confirmSend.setOnClickListener(v -> {
-                viewModel.submitPayment(validatedSecondPassword, alertDialog);
+                viewModel.submitPayment(alertDialog);
             });
 
             alertDialog.show();
@@ -626,12 +640,12 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowWatchOnlySpendWarning(String address) {
+    public void onShowReceiveToWatchOnlyWarning(String address) {
 
         if(prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)){
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
+            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
                     R.layout.alert_watch_only_spend, null, false);
             dialogBuilder.setView(dialogBinding.getRoot());
             dialogBuilder.setCancelable(false);

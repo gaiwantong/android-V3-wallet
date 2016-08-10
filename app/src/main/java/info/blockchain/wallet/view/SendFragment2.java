@@ -220,17 +220,17 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
     }
 
     @Override
-    public void onShowWatchOnlySpend(String receivingAddress) {
+    public void onShowSpendFromWatchOnly(String receivingAddress) {
 
     }
 
     @Override
-    public void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword, boolean isLargeTransaction) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, boolean isLargeTransaction) {
 
     }
 
     @Override
-    public void onShowWatchOnlySpendWarning(String address) {
+    public void onShowReceiveToWatchOnlyWarning(String address) {
 
     }
 
@@ -246,6 +246,11 @@ public class SendFragment2 extends Fragment implements CustomKeypadCallback, Sen
 
     @Override
     public void onShowTransactionSuccess() {
+
+    }
+
+    @Override
+    public void onShowBIP38PassphrasePrompt(String scanData) {
 
     }
 

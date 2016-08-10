@@ -1,9 +1,9 @@
 package info.blockchain.wallet.viewModel;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import info.blockchain.api.DynamicFee;
@@ -29,8 +29,12 @@ import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
+import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.crypto.BIP38PrivateKey;
+import org.bitcoinj.params.MainNetParams;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
@@ -111,12 +115,13 @@ public class SendViewModel implements ViewModel {
         void onSetSpendAllAmount(String textFromSatoshis);
 
         void onShowInvalidAmount();
-        void onShowWatchOnlySpend(String receivingAddress);
-        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, String validatedSecondPassword, boolean isLargeTransaction);
-        void onShowWatchOnlySpendWarning(String address);
+        void onShowSpendFromWatchOnly(String address);
+        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, boolean isLargeTransaction);
+        void onShowReceiveToWatchOnlyWarning(String address);
         void onShowAlterFee(String absoluteFeeSuggested,String body, int positiveAction, int negativeAction);
         void onShowErrorMessage(String message);
         void onShowTransactionSuccess();
+        void onShowBIP38PassphrasePrompt(String scanData);
     }
 
     public int getDefaultAccount(){
@@ -636,23 +641,24 @@ public class SendViewModel implements ViewModel {
                     //Currently only v2 has watch-only
                     if (!sendModel.pendingTransaction.isHD() &&
                             ((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject).isWatchOnly()) {
-                        dataListener.onShowWatchOnlySpend(sendModel.pendingTransaction.receivingAddress);
 
-                    } else if(sendModel.secondPasswordVerified) {
-                        confirmPayment(sendModel.pendingTransaction, null);
+                        dataListener.onShowSpendFromWatchOnly(((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject).getAddress());
+
+                    } else if(sendModel.verifiedSecondPassword != null) {
+                        confirmPayment();
 
                     }else{
                         new SecondPasswordHandler(context).validate(new SecondPasswordHandler.ResultListener() {
                             @Override
                             public void onNoSecondPassword() {
-                                confirmPayment(sendModel.pendingTransaction, null);
+                                confirmPayment();
                             }
 
                             @Override
                             public void onSecondPasswordValidated(String validatedSecondPassword) {
                                 payloadManager.decryptDoubleEncryptedWallet(validatedSecondPassword);
-                                sendModel.secondPasswordVerified = true;
-                                confirmPayment(sendModel.pendingTransaction, validatedSecondPassword);
+                                sendModel.verifiedSecondPassword = validatedSecondPassword;
+                                confirmPayment();
                             }
                         });
                     }
@@ -706,7 +712,9 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
-    private void confirmPayment(PendingTransaction pendingTransaction, String validatedSecondPassword){
+    private void confirmPayment(){
+
+        PendingTransaction pendingTransaction = sendModel.pendingTransaction;
 
         PaymentConfirmationDetails details = new PaymentConfirmationDetails();
         details.fromLabel = pendingTransaction.sendingObject.label;
@@ -734,7 +742,7 @@ public class SendViewModel implements ViewModel {
         details.fiatTotal = (monetaryUtil.getFiatFormat(sendModel.fiatUnit)
                 .format(sendModel.exchangeRate * (totalFiat.doubleValue() / 1e8)));
 
-        dataListener.onShowPaymentDetails(details, validatedSecondPassword, isLargeTransaction());
+        dataListener.onShowPaymentDetails(details, isLargeTransaction());
     }
 
     public boolean isLargeTransaction(){
@@ -851,7 +859,7 @@ public class SendViewModel implements ViewModel {
 
             if(legacyAddress.isWatchOnly())
                 if (legacyAddress.isWatchOnly()) {
-                    dataListener.onShowWatchOnlySpendWarning(legacyAddress.getAddress());
+                    dataListener.onShowReceiveToWatchOnlyWarning(legacyAddress.getAddress());
                 }
         }else{
 
@@ -903,7 +911,7 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
-    public void submitPayment(String validatedSecondPassword, AlertDialog alertDialog) {
+    public void submitPayment(AlertDialog alertDialog) {
 
         new Thread(() -> {
             try {
@@ -933,7 +941,7 @@ public class SendViewModel implements ViewModel {
                             sendModel.pendingTransaction.bigIntFee,
                             sendModel.pendingTransaction.bigIntAmount,
                             isWatchOnly,
-                            validatedSecondPassword,
+                            sendModel.verifiedSecondPassword,
                             new Payment.SubmitPaymentListener() {
                                 @Override
                                 public void onSuccess(String s) {
@@ -989,5 +997,74 @@ public class SendViewModel implements ViewModel {
         } else {
             MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - totalSent.longValue());
         }
+    }
+
+    public void handleScannedDataForWatchOnlySpend(String scanData) {
+        try {
+            final String format = PrivateKeyFactory.getInstance().getFormat(scanData);
+            if (format != null) {
+                if (!format.equals(PrivateKeyFactory.BIP38)) {
+                    spendFromWatchOnlyNonBIP38(format, scanData);
+                } else {
+                    //BIP38 needs passphrase
+                    dataListener.onShowBIP38PassphrasePrompt(scanData);
+                }
+            } else {
+                dataListener.onShowErrorMessage(context.getString(R.string.privkey_error));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void spendFromWatchOnlyNonBIP38(final String format, final String scanData){
+
+        try {
+            ECKey key = PrivateKeyFactory.getInstance().getKey(format, scanData);
+            LegacyAddress legacyAddress = (LegacyAddress)sendModel.pendingTransaction.sendingObject.accountObject;
+            setTempLegacyAddressPrivateKey(legacyAddress, key);
+
+        } catch (Exception e) {
+            dataListener.onShowErrorMessage(context.getString(R.string.no_private_key));
+            e.printStackTrace();
+        }
+    }
+
+    private void setTempLegacyAddressPrivateKey(LegacyAddress legacyAddress, ECKey key){
+        if (key != null && key.hasPrivKey() && legacyAddress.getAddress().equals(key.toAddress(MainNetParams.get()).toString())) {
+
+            //Create copy, otherwise pass by ref will override private key in wallet payload
+            LegacyAddress tempLegacyAddress = new LegacyAddress();
+            tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
+            tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
+            tempLegacyAddress.setLabel(legacyAddress.getLabel());
+            sendModel.pendingTransaction.sendingObject.accountObject = tempLegacyAddress;
+
+            confirmPayment();
+        } else {
+            dataListener.onShowErrorMessage(context.getString(R.string.invalid_private_key));
+        }
+    }
+
+    public void spendFromWatchOnlyBIP38(String pw, String scanData) {
+        new Thread(() -> {
+
+            Looper.prepare();
+
+            try {
+                BIP38PrivateKey bip38 = new BIP38PrivateKey(MainNetParams.get(), scanData);
+                final ECKey key = bip38.decrypt(pw);
+
+                LegacyAddress legacyAddress = (LegacyAddress)sendModel.pendingTransaction.sendingObject.accountObject;
+                setTempLegacyAddressPrivateKey(legacyAddress, key);
+
+            } catch (Exception e) {
+                dataListener.onShowErrorMessage(context.getString(R.string.bip38_error));
+            }
+
+            Looper.loop();
+
+        }).start();
     }
 }

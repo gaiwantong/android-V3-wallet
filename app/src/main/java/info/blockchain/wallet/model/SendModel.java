@@ -41,7 +41,8 @@ public class SendModel extends BaseObservable {
     public PendingTransaction pendingTransaction;
     public BigInteger[] absoluteFeeSuggestedEstimates;
     public BigInteger absoluteFeeSuggested;//Fee for 2nd block inclusion
-    public boolean secondPasswordVerified = false;
+
+    public String verifiedSecondPassword;
 
     //Vars used for warning user of large tx
     public static final int LARGE_TX_SIZE = 516;//kb
