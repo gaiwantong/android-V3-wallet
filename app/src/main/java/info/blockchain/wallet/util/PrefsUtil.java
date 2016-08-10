@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 
 public class PrefsUtil implements PersistentPrefs {
 
-    // TODO: 08/08/2016 Inject preference manager through constructor
     private SharedPreferences preferenceManager;
 
     public PrefsUtil(Context context) {
@@ -20,10 +19,10 @@ public class PrefsUtil implements PersistentPrefs {
     }
 
     @Override
-    public boolean setValue(String name, String value) {
+    public void setValue(String name, String value) {
         Editor editor = preferenceManager.edit();
         editor.putString(name, (value == null || value.isEmpty()) ? "" : value);
-        return editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -32,17 +31,17 @@ public class PrefsUtil implements PersistentPrefs {
     }
 
     @Override
-    public boolean setValue(String name, int value) {
+    public void setValue(String name, int value) {
         Editor editor = preferenceManager.edit();
         editor.putInt(name, (value < 0) ? 0 : value);
-        return editor.commit();
+        editor.apply();
     }
 
     @Override
-    public boolean setValue(String name, long value) {
+    public void setValue(String name, long value) {
         Editor editor = preferenceManager.edit();
         editor.putLong(name, (value < 0L) ? 0L : value);
-        return editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -64,10 +63,10 @@ public class PrefsUtil implements PersistentPrefs {
     }
 
     @Override
-    public boolean setValue(String name, boolean value) {
+    public void setValue(String name, boolean value) {
         Editor editor = preferenceManager.edit();
         editor.putBoolean(name, value);
-        return editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -76,42 +75,38 @@ public class PrefsUtil implements PersistentPrefs {
     }
 
     @Override
-    public boolean removeValue(String name) {
+    public void removeValue(String name) {
         Editor editor = preferenceManager.edit();
         editor.remove(name);
-        return editor.commit();
+        editor.apply();
     }
 
     @Override
-    public boolean clear() {
+    public void clear() {
         Editor editor = preferenceManager.edit();
         editor.clear();
-        return editor.commit();
+        editor.apply();
     }
 
     /**
-     * Clears everything but the GUID. Returns false if GUID is not present
-     *
-     * @return boolean  GUID present/not present or could not be written to prefs
+     * Clears everything but the GUID & Shared Key for logging back in
      */
     @Override
-    public boolean logOut() {
-        String guid = preferenceManager.getString(PrefsUtil.KEY_GUID, "");
+    public void logOut() {
+        String guid = getValue(PrefsUtil.KEY_GUID, "");
+        String sharedKey = getValue(PrefsUtil.KEY_SHARED_KEY, "");
         clear();
 
         setValue(PrefsUtil.LOGGED_OUT, true);
-
-        // TODO: 09/08/2016 This currently doesn't work - why? 
-        return !guid.isEmpty() & setValue(PrefsUtil.KEY_GUID, guid);
+        setValue(PrefsUtil.KEY_GUID, guid);
+        setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
 
     /**
      * Reset value once user logged in
-     *
-     * @return boolean  Successful write or not
      */
     @Override
-    public boolean logIn() {
-        return setValue(PrefsUtil.LOGGED_OUT, false);
+    public void logIn() {
+        setValue(PrefsUtil.LOGGED_OUT, false);
     }
 }

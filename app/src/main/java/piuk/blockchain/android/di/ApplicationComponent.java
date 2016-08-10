@@ -1,6 +1,7 @@
 package piuk.blockchain.android.di;
 
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 
 import javax.inject.Singleton;
@@ -21,4 +22,6 @@ public interface ApplicationComponent {
     void inject(LauncherViewModel launcherViewModel);
 
     void inject(PasswordRequiredViewModel passwordRequiredViewModel);
+
+    void inject(AppUtil appUtil);
 }

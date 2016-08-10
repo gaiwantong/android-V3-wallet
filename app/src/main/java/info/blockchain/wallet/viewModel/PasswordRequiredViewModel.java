@@ -1,5 +1,6 @@
 package info.blockchain.wallet.viewModel;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import info.blockchain.wallet.payload.PayloadManager;
@@ -124,6 +125,10 @@ public class PasswordRequiredViewModel implements ViewModel {
         }));
     }
 
+    @NonNull
+    public AppUtil getAppUtil() {
+        return mAppUtil;
+    }
 
     @Override
     public void destroy() {

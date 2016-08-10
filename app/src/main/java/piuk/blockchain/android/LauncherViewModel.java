@@ -63,15 +63,15 @@ public class LauncherViewModel implements ViewModel {
         boolean hasLoggedOut = mPrefsUtil.getValue(PrefsUtil.LOGGED_OUT, false);
 
         // No GUID? Treat as new installation
-        if (mPrefsUtil.getValue(PrefsUtil.KEY_GUID, "").length() < 1) {
+        if (mPrefsUtil.getValue(PrefsUtil.KEY_GUID, "").isEmpty()) {
             mPayloadManager.setTempPassword(new CharSequenceX(""));
             mDataListener.onNoGuid();
 
-        } else if (hasLoggedOut) {
+        } else if (hasLoggedOut && !mPrefsUtil.getValue(PrefsUtil.KEY_SHARED_KEY, "").isEmpty()) {
             // User has logged out recently. Show password reentry page
             mDataListener.onReEnterPassword();
 
-        } else if (mPrefsUtil.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").length() < 1) {
+        } else if (mPrefsUtil.getValue(PrefsUtil.KEY_PIN_IDENTIFIER, "").isEmpty()) {
             // No PIN ID? Treat as installed app without confirmed PIN
             mDataListener.onRequestPin();
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -99,6 +100,13 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
         super.onDestroy();
         mViewModel.destroy();
         dismissProgressDialog();
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        // Test for screen overlays before user enters PIN
+        return mViewModel.getAppUtil().detectObscuredWindow(event)
+                || super.dispatchTouchEvent(event);
     }
 
     @Override

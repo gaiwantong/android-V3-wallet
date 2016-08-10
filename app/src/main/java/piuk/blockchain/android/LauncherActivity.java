@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import info.blockchain.wallet.view.LandingActivity;
 import info.blockchain.wallet.view.MainActivity;
+import info.blockchain.wallet.view.PasswordRequiredActivity;
 import info.blockchain.wallet.view.PinEntryActivity;
 import info.blockchain.wallet.view.UpgradeWalletActivity;
 
@@ -27,7 +28,6 @@ public class LauncherActivity extends AppCompatActivity implements LauncherViewM
 
         mViewModel = new LauncherViewModel(this);
 
-        // TODO: 09/08/2016 Probably remove this, it's just for testing
         Handler handler = new Handler();
         handler.postDelayed(new DelayStartRunnable(this), 500);
     }
@@ -72,6 +72,11 @@ public class LauncherActivity extends AppCompatActivity implements LauncherViewM
     @Override
     public void onStartMainActivity() {
         startSingleActivity(MainActivity.class);
+    }
+
+    @Override
+    public void onReEnterPassword() {
+        startSingleActivity(PasswordRequiredActivity.class);
     }
 
     private void startSingleActivity(Class clazz) {

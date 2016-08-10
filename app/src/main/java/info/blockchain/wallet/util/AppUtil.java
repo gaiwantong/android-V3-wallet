@@ -10,26 +10,30 @@ import android.view.MotionEvent;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.view.MainActivity;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import java.io.File;
 import java.security.Security;
 
+import javax.inject.Inject;
+
 import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.di.Injector;
 
 public class AppUtil {
 
     private static final String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
-    private Context context = null;
-    private AlertDialog alertDialog = null;
-    private PrefsUtil prefs;
+    @Inject protected PrefsUtil prefs;
+    private Context context;
+    private AlertDialog alertDialog;
     private String receiveQRFileName;
 
     public AppUtil(Context context) {
+        Injector.getInstance().getAppComponent().inject(this);
         this.context = context;
-        this.prefs = new PrefsUtil(context);
         this.receiveQRFileName = context.getExternalCacheDir() + File.separator + "qr.png";
     }
 
@@ -55,6 +59,17 @@ public class AppUtil {
         if (name != null) {
             intent.putExtra(name, value);
         }
+        context.startActivity(intent);
+
+        if (name != null && name.equals("verified")) {
+            prefs.logIn();
+        }
+    }
+
+    // TODO: 09/08/2016 Replace the above method with this
+    public void goToMainPageWithVerifiedPin() {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
