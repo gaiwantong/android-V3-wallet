@@ -6,7 +6,6 @@ import com.google.zxing.client.android.Intents;
 
 import android.Manifest;
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,6 +22,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
@@ -90,7 +90,6 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
 import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
-import piuk.blockchain.android.di.Injector;
 
 public class AccountActivity extends BaseAuthActivity {
 
