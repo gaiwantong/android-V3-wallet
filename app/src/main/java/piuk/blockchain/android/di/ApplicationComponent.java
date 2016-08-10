@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import piuk.blockchain.android.LauncherViewModel;
+import piuk.blockchain.android.exceptions.LoggingExceptionHandler;
 
 /**
  * Created by adambennett on 08/08/2016.
@@ -24,4 +25,6 @@ public interface ApplicationComponent {
     void inject(PasswordRequiredViewModel passwordRequiredViewModel);
 
     void inject(AppUtil appUtil);
+
+    void inject(LoggingExceptionHandler loggingExceptionHandler);
 }

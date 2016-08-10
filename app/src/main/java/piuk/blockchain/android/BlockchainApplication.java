@@ -14,6 +14,7 @@ import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.SSLVerifyUtil;
 
 import piuk.blockchain.android.di.Injector;
+import piuk.blockchain.android.exceptions.LoggingExceptionHandler;
 import rx.plugins.RxJavaHooks;
 
 /**
@@ -38,6 +39,10 @@ public class BlockchainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Injector.getInstance().init(this);
+
+        if (BuildConfig.DEBUG) {
+            new LoggingExceptionHandler();
+        }
 
         RxJavaHooks.enableAssemblyTracking();
         RxJavaHooks.setOnError(throwable -> Log.d(RX_ERROR_TAG, throwable.getMessage(), throwable));
