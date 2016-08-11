@@ -380,8 +380,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
     @Override
     public void onShowInvalidAmount() {
-        ToastCustom.makeText(this, getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-        binding.amountRow.amountBtc.setText("0.0");
+        ToastCustom.makeText(getActivity(), getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
     }
 
     @Override
@@ -567,76 +566,90 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowPaymentDetails(PaymentConfirmationDetails details, boolean isLargeTransaction) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails details) {
 
-        runOnUiThread(() -> {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
+        FragmentSendConfirmBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
+                R.layout.fragment_send_confirm, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SendActivity.this);
-            FragmentSendConfirmBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(SendActivity.this),
-                    R.layout.fragment_send_confirm, null, false);
-            dialogBuilder.setView(dialogBinding.getRoot());
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
 
-            final AlertDialog alertDialog = dialogBuilder.create();
-            alertDialog.setCanceledOnTouchOutside(false);
+        dialogBinding.confirmFromLabel.setText(details.fromLabel);
+        dialogBinding.confirmToLabel.setText(details.toLabel);
+        dialogBinding.confirmAmountBtcUnit.setText(details.btcUnit);
+        dialogBinding.confirmAmountFiatUnit.setText(details.fiatUnit);
+        dialogBinding.confirmAmountBtc.setText(details.btcAmount);
+        dialogBinding.confirmAmountFiat.setText(details.fiatAmount);
+        dialogBinding.confirmFeeBtc.setText(details.btcFee);
+        dialogBinding.confirmFeeFiat.setText(details.fiatFee);
+        dialogBinding.confirmTotalBtc.setText(details.btcTotal);
+        dialogBinding.confirmTotalFiat.setText(details.fiatTotal);
 
-            dialogBinding.confirmFromLabel.setText(details.fromLabel);
-            dialogBinding.confirmToLabel.setText(details.toLabel);
-            dialogBinding.confirmAmountBtcUnit.setText(details.btcUnit);
-            dialogBinding.confirmAmountFiatUnit.setText(details.fiatUnit);
-            dialogBinding.confirmAmountBtc.setText(details.btcAmount);
-            dialogBinding.confirmAmountFiat.setText(details.fiatAmount);
-            dialogBinding.confirmFeeBtc.setText(details.btcFee);
-            dialogBinding.confirmFeeFiat.setText(details.fiatFee);
-            dialogBinding.confirmTotalBtc.setText(details.btcTotal);
-            dialogBinding.confirmTotalFiat.setText(details.fiatTotal);
+        String feeMessage = "";
+        if(details.isSurge){
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+            feeMessage += getString(R.string.transaction_surge);
 
-            dialogBinding.ivFeeInfo.setOnClickListener(view -> new AlertDialog.Builder(SendActivity.this)
-                    .setTitle(R.string.transaction_fee)
-                    .setMessage(getText(R.string.recommended_fee).toString()+"\n\n"+getText(R.string.transaction_surge).toString())
-                    .setPositiveButton(android.R.string.ok, null).show());
+        }
 
-            if(details.isSurge){
-                dialogBinding.confirmFeeBtc.setTextColor(ContextCompat.getColor(SendActivity.this, R.color.blockchain_send_red));
-                dialogBinding.confirmFeeFiat.setTextColor(ContextCompat.getColor(SendActivity.this, R.color.blockchain_send_red));
-                dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+        if(details.hasConsumedAmounts){
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+
+            if(details.hasConsumedAmounts){
+                if(details.isSurge) feeMessage += "\n\n";
+                feeMessage += getString(R.string.large_tx_high_fee_warning);
             }
 
-            dialogBinding.tvCustomizeFee.setOnClickListener(v -> {
-                if (alertDialog != null && alertDialog.isShowing()) {
-                    alertDialog.cancel();
-                }
+        }
 
-                runOnUiThread(() -> {
-                    binding.customFeeContainer.setVisibility(View.VISIBLE);
+        final String finalFeeMessage = feeMessage;
+        dialogBinding.ivFeeInfo.setOnClickListener(view -> new AlertDialog.Builder(SendActivity.this)
+                .setTitle(R.string.transaction_fee)
+                .setMessage(finalFeeMessage)
+                .setPositiveButton(android.R.string.ok, null).show());
 
-                    binding.customFee.setText(details.btcFee);
-                    binding.customFee.setHint(details.btcSuggestedFee);
-                    binding.customFee.requestFocus();
-                    binding.customFee.setSelection(binding.customFee.getText().length());
-                    customKeypad.setNumpadVisibility(View.GONE);
-                });
+        if(details.isSurge){
+            dialogBinding.confirmFeeBtc.setTextColor(ContextCompat.getColor(SendActivity.this, R.color.blockchain_send_red));
+            dialogBinding.confirmFeeFiat.setTextColor(ContextCompat.getColor(SendActivity.this, R.color.blockchain_send_red));
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+        }
 
-                alertCustomSpend(details.btcSuggestedFee, details.btcUnit);
-
-            });
-
-            dialogBinding.confirmCancel.setOnClickListener(v -> {
-                if (alertDialog != null && alertDialog.isShowing()) {
-                    alertDialog.cancel();
-                }
-            });
-
-            dialogBinding.confirmSend.setOnClickListener(v -> {
-                viewModel.submitPayment(alertDialog);
-            });
-
-            alertDialog.show();
-
-            if(viewModel.isLargeTransaction()){
-                onShowLargeTransactionWarning(alertDialog);
+        dialogBinding.tvCustomizeFee.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.cancel();
             }
+
+            runOnUiThread(() -> {
+                binding.customFeeContainer.setVisibility(View.VISIBLE);
+
+                binding.customFee.setText(details.btcFee);
+                binding.customFee.setHint(details.btcSuggestedFee);
+                binding.customFee.requestFocus();
+                binding.customFee.setSelection(binding.customFee.getText().length());
+                customKeypad.setNumpadVisibility(View.GONE);
+            });
+
+            alertCustomSpend(details.btcSuggestedFee, details.btcUnit);
 
         });
+
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.cancel();
+            }
+        });
+
+        dialogBinding.confirmSend.setOnClickListener(v -> {
+            viewModel.submitPayment(alertDialog);
+        });
+
+        alertDialog.show();
+
+        if(viewModel.isLargeTransaction()){
+            onShowLargeTransactionWarning(alertDialog);
+        }
     }
 
     @Override

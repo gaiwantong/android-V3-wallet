@@ -116,7 +116,7 @@ public class SendViewModel implements ViewModel {
 
         void onShowInvalidAmount();
         void onShowSpendFromWatchOnly(String address);
-        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails, boolean isLargeTransaction);
+        void onShowPaymentDetails(PaymentConfirmationDetails confirmationDetails);
         void onShowReceiveToWatchOnlyWarning(String address);
         void onShowAlterFee(String absoluteFeeSuggested,String body, int positiveAction, int negativeAction);
         void onShowErrorMessage(String message);
@@ -453,6 +453,7 @@ public class SendViewModel implements ViewModel {
 
                     //Check customized fee
                     customFee = getSatoshisFromText(customFeeText);
+
                     if(!customFeeText.isEmpty()) {
                         //Fee has been customized, use absolute fee
                         SweepBundle sweepBundle = payment.getSweepBundle(coins, BigInteger.ZERO);
@@ -460,27 +461,23 @@ public class SendViewModel implements ViewModel {
                         balanceAfterFee -= customFee.longValue();
 
                         amountToSend = amountToSend.add(customFee);
-
-                        SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
-                                amountToSend,
-                                BigInteger.ZERO);
-                        //Include custom fee in amount sent
-                        setPendingTransactionAmounts(unspentOutputBundle, amountToSend, customFee);
+                        feePerKb = BigInteger.ZERO;
 
                     }else{
                         //Use default fee per kb
                         SweepBundle sweepBundle = payment.getSweepBundle(coins, sendModel.suggestedFee.defaultFeePerKb);
                         balanceAfterFee = sweepBundle.getSweepAmount().longValue();
 
+                        customFee = BigInteger.valueOf(-1);//No custom fee used
                         feePerKb = sendModel.suggestedFee.defaultFeePerKb;
-
-                        SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
-                                amountToSend,
-                                feePerKb);
-                        sendModel.absoluteFeeSuggested = unspentOutputBundle.getAbsoluteFee();
-
-                        setPendingTransactionAmounts(unspentOutputBundle, amountToSend, BigInteger.valueOf(-1));
                     }
+
+                    SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
+                            amountToSend,
+                            feePerKb);
+                    sendModel.absoluteFeeSuggested = unspentOutputBundle.getAbsoluteFee();
+
+                    setPendingTransactionAmounts(unspentOutputBundle, amountToSend, customFee);
 
                     if(spendAll){
                         dataListener.onSetSpendAllAmount(getTextFromSatoshis(balanceAfterFee));
@@ -742,7 +739,11 @@ public class SendViewModel implements ViewModel {
         details.fiatTotal = (monetaryUtil.getFiatFormat(sendModel.fiatUnit)
                 .format(sendModel.exchangeRate * (totalFiat.doubleValue() / 1e8)));
 
-        dataListener.onShowPaymentDetails(details, isLargeTransaction());
+        details.isSurge = sendModel.suggestedFee.isSurge;
+        details.isLargeTransaction = isLargeTransaction();
+        details.hasConsumedAmounts = pendingTransaction.unspentOutputBundle.getConsumedAmount().compareTo(BigInteger.ZERO) == 1;
+
+        dataListener.onShowPaymentDetails(details);
     }
 
     public boolean isLargeTransaction(){
