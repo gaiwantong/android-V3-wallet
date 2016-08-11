@@ -135,6 +135,11 @@ public class SendViewModel implements ViewModel {
         return Math.max(result,0);
     }
 
+    /**
+     * Returns a list of accounts, legacy addresses and optionally Address Book entries
+     * @param includeAddressBookEntries
+     * @return List of account details (balance, label, tag, account/address/address_book object)
+     */
     public List<ItemAccount> getAddressList(boolean includeAddressBookEntries) {
 
         ArrayList<ItemAccount> result = new ArrayList<>();
@@ -205,13 +210,21 @@ public class SendViewModel implements ViewModel {
         return result;
     }
 
+    /**
+     * Gets device's specified locale decimal separator
+     * @return decimal separator
+     */
     private String getDefaultDecimalSeparator() {
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
         DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
         return Character.toString(symbols.getDecimalSeparator());
     }
 
-    public void checkMaximumBTCAmount(String btc) {
+    /**
+     * Checks btc amount. Warns user when exceeding maximum and resets entered value field
+     * @param btc
+     */
+    private boolean isExceedingMaximumBTCAmount(String btc) {
         long lamount = 0L;
         try {
             //Long is safe to use, but double can lead to ugly rounding issues..
@@ -221,16 +234,24 @@ public class SendViewModel implements ViewModel {
 
             if (BigInteger.valueOf(lamount).compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
                 dataListener.onShowInvalidAmount();
-                return;
+                dataListener.onUpdateBtcAmount("");
+                return true;
             }
         } catch (NumberFormatException nfe) {
-            ;
+            return false;
         }
+        return false;
     }
 
+    /**
+     * Update fiat text field with converted btc amount
+     * @param btcAmountText (btc, mbtc or bits)
+     */
     public void afterBtcTextChanged(String btcAmountText) {
 
-        checkMaximumBTCAmount(btcAmountText);
+        if(isExceedingMaximumBTCAmount(btcAmountText)){
+            return;
+        }
 
         dataListener.onRemoveBtcTextChangeListener();
 
@@ -286,6 +307,10 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Update btc text field with converted fiat amount
+     * @param fiatAmountText (any currency)
+     */
     public void afterFiatTextChanged(String fiatAmountText) {
 
         dataListener.onRemoveFiatTextChangeListener();
@@ -327,6 +352,10 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Handle incoming scan data or bitcoin links
+     * @param scanData
+     */
     public void handleIncomingQRScan(String scanData){
 
         scanData = scanData.trim();
@@ -396,6 +425,10 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Get dynamic fee from Bci dynamic fee API
+     * TODO - would be nice to cache this earlier on to speed up
+     */
     public void getSuggestedFee(){
 
         DynamicFee dynamicFeeApi = new DynamicFee();
@@ -410,10 +443,20 @@ public class SendViewModel implements ViewModel {
         }).start();
     }
 
+    /**
+     * Wrapper for calculateTransactionAmounts
+     * @param sendAddressItem
+     * @param customFeeText
+     */
     public void spendAllClicked(ItemAccount sendAddressItem, String customFeeText) {
         calculateTransactionAmounts(true, sendAddressItem, null, customFeeText, null);
     }
 
+    /**
+     * Wrapper for calculateTransactionAmounts
+     * @param sendAddressItem
+     * @param customFeeText
+     */
     public void calculateTransactionAmounts(ItemAccount sendAddressItem, String amountToSendText, String customFeeText, TransactionDataListener listener) {
         calculateTransactionAmounts(false, sendAddressItem, amountToSendText, customFeeText, listener);
     }
@@ -422,6 +465,19 @@ public class SendViewModel implements ViewModel {
         void onReady();
     }
 
+    /**
+     * TODO - could be cleaned up more (kept this mostly in tact from previous send code)
+     *
+     * Fetches unspent data
+     * Gets spendable coins
+     * Mixed checks and updates
+     *
+     * @param spendAll
+     * @param sendAddressItem
+     * @param amountToSendText
+     * @param customFeeText
+     * @param listener
+     */
     private void calculateTransactionAmounts(boolean spendAll, ItemAccount sendAddressItem,
                                              String amountToSendText, String customFeeText, TransactionDataListener listener) {
 
@@ -515,8 +571,10 @@ public class SendViewModel implements ViewModel {
 
     }
 
-    /*
-    If user set customized fee that exceeds available amount, disable send button
+    /**
+     * If user set customized fee that exceeds available amount, disable send button
+     * @param totalToSend
+     * @param totalAvailable
      */
     private void validateCustomFee(BigInteger totalToSend, BigInteger totalAvailable){
         if(totalToSend.compareTo(totalAvailable) == 1 ){
@@ -528,6 +586,12 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Sets the transaction data
+     * @param unspentOutputBundle
+     * @param amountToSend
+     * @param absoluteCustomFee
+     */
     private void setPendingTransactionAmounts(SpendableUnspentOutputs unspentOutputBundle, BigInteger amountToSend, BigInteger absoluteCustomFee){
 
         sendModel.pendingTransaction.bigIntAmount = amountToSend;
@@ -540,6 +604,11 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Update max available.
+     * Values are bound to UI, so UI will apdate automatically
+     * @param balanceAfterFee
+     */
     private void updateMaxAvailable(long balanceAfterFee){
         sendModel.setMaxAvailableProgressVisibility(View.GONE);
         sendModel.setMaxAvailableVisibility(View.VISIBLE);
@@ -556,6 +625,13 @@ public class SendViewModel implements ViewModel {
         sendModel.setMaxAviable(context.getString(R.string.max_available) + " " + btcAmountFormatted + " " + sendModel.btcUnit);
     }
 
+    /**
+     * Calculate estimated fees needed for tx to be included in blocks
+     * @param amountToSend
+     * @param estimates
+     * @param coins
+     * @return List of fees needed to be included in co-responding blocks
+     */
     private BigInteger[] getEstimatedBlocks(BigInteger amountToSend, ArrayList<SuggestedFee.Estimates> estimates, UnspentOutputs coins) {
         BigInteger[] absoluteFeeSuggestedEstimates = new BigInteger[estimates.size()];
 
@@ -572,6 +648,12 @@ public class SendViewModel implements ViewModel {
         return absoluteFeeSuggestedEstimates;
     }
 
+    /**
+     * Retrieves unspent api data in memory. If not in memory yet, it will be retrieved and added.
+     * @param address
+     * @return
+     * @throws Exception
+     */
     private JSONObject getUnspentApiResponse(String address) throws Exception {
         if(sendModel.unspentApiResponse.containsKey(address)) {
             return sendModel.unspentApiResponse.get(address);
@@ -582,6 +664,11 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Returns amount of satoshis from btc amount. This could be btc, mbtc or bits.
+     * @param text
+     * @return satoshis
+     */
     private BigInteger getSatoshisFromText(String text){
 
         if(text == null || text.isEmpty())return BigInteger.ZERO;
@@ -600,6 +687,11 @@ public class SendViewModel implements ViewModel {
         return BigInteger.valueOf(amountL);
     }
 
+    /**
+     * Returns btc amount from satoshis.
+     * @param satoshis
+     * @return btc, mbtc or bits relative to what is set in monetaryUtil
+     */
     private String getTextFromSatoshis(long satoshis){
 
         String displayAmount = monetaryUtil.getDisplayAmount(satoshis);
@@ -607,6 +699,13 @@ public class SendViewModel implements ViewModel {
         return displayAmount;
     }
 
+    /**
+     * Updates text displaying what block tx will be included in
+     * @param amountToSend
+     * @param fee
+     * @param coins
+     * @return
+     */
     private String updateEstimateConfirmationTime(BigInteger amountToSend, long fee, UnspentOutputs coins){
 
         sendModel.absoluteFeeSuggestedEstimates = getEstimatedBlocks(amountToSend, sendModel.suggestedFee.estimateList, coins);
@@ -638,6 +737,12 @@ public class SendViewModel implements ViewModel {
         return estimateText;
     }
 
+    /**
+     * //TODO could be improved
+     * Sanity checks before prompting confirmation
+     * @param bypassFeeCheck
+     * @param address
+     */
     public void sendClicked(boolean bypassFeeCheck, String address) {
 
         if(FormatsUtil.getInstance().isValidBitcoinAddress(address)){
@@ -684,6 +789,11 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Checks that fee is not smaller than what push_tx api will accept.
+     * Checks and alerts if customized fee is too small or too large.
+     * @return
+     */
     private boolean isFeeAdequate(){
 
         //TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
@@ -732,6 +842,9 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
+    /**
+     * Sets payment confirmation details to be displayed to user and fires callback to display this.
+     */
     private void confirmPayment(){
 
         PendingTransaction pendingTransaction = sendModel.pendingTransaction;
@@ -769,6 +882,11 @@ public class SendViewModel implements ViewModel {
         dataListener.onShowPaymentDetails(details);
     }
 
+    /**
+     * Returns true if transaction is large by checking if fee > USD 0.50, size > 516, fee > 1% of total
+     *
+     * @return
+     */
     public boolean isLargeTransaction(){
 
         int txSize = FeeUtil.estimatedSize(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(), 2);//assume change
@@ -784,6 +902,11 @@ public class SendViewModel implements ViewModel {
         }
     }
 
+    /**
+     * Various checks on validity of transaction details
+     * @param pendingTransaction
+     * @return
+     */
     private boolean isValidSpend(PendingTransaction pendingTransaction) {
 
         //Validate amount
@@ -928,6 +1051,11 @@ public class SendViewModel implements ViewModel {
         return true;
     }
 
+    /**
+     * Executes transaction
+     * //TODO implement transaction queue for when transaction fails
+     * @param alertDialog
+     */
     public void submitPayment(AlertDialog alertDialog) {
 
         new Thread(() -> {
@@ -989,8 +1117,8 @@ public class SendViewModel implements ViewModel {
 
     }
 
-    /*
-    Update balance immediately after spend - until refresh from server
+    /**
+     * Update balance immediately after spend - until refresh from server
      */
     private void updateInternalBalances(){
 
