@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 
 import info.blockchain.api.DynamicFee;
@@ -453,8 +454,9 @@ public class SendViewModel implements ViewModel {
 
                     //Check customized fee
                     customFee = getSatoshisFromText(customFeeText);
+                    boolean hasCustomFee = !customFeeText.isEmpty() || customFee.compareTo(BigInteger.ZERO) == 1;
 
-                    if(!customFeeText.isEmpty()) {
+                    if(hasCustomFee) {
                         //Fee has been customized, use absolute fee
                         SweepBundle sweepBundle = payment.getSweepBundle(coins, BigInteger.ZERO);
                         balanceAfterFee = sweepBundle.getSweepAmount().longValue();
@@ -669,6 +671,12 @@ public class SendViewModel implements ViewModel {
 
     private boolean isFeeAdequate(){
 
+        //TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
+        if(sendModel.pendingTransaction.bigIntFee.longValue() < 1000){
+            dataListener.onShowErrorMessage(context.getString(R.string.insufficient_fee));
+            return false;
+        }
+
         if(sendModel.suggestedFee !=null && sendModel.suggestedFee.estimateList != null){
 
             if (sendModel.absoluteFeeSuggestedEstimates != null
@@ -807,13 +815,6 @@ public class SendViewModel implements ViewModel {
         //Validate send and receive not same addresses
         if(pendingTransaction.sendingObject == pendingTransaction.receivingObject){
             dataListener.onShowErrorMessage(context.getString(R.string.send_to_same_address_warning));
-            return false;
-        }
-
-        //Validate sufficient fee
-        //TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
-        if(pendingTransaction.bigIntFee.longValue() < 1000){
-            dataListener.onShowErrorMessage(context.getString(R.string.insufficient_fee));
             return false;
         }
 
