@@ -188,29 +188,62 @@ public class PasswordRequiredViewModel implements ViewModel {
         mAppUtil.clearCredentialsAndRestart();
     }
 
+    private Observable<String> getEncryptedPayload(String guid, String sessionId) {
+        return Observable.fromCallable(() -> mAccess.getEncryptedPayload(guid, sessionId))
+                .compose(applySchedulers());
+    }
+
+    private Observable<String> getSessionId(String guid) {
+        return Observable.fromCallable(() -> mAccess.getSessionId(guid))
+                .compose(applySchedulers());
+    }
+
+    private Observable<Void> initiatePayload(String sharedkey, String guid, CharSequenceX password) {
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            try {
+                mPayloadManager.initiatePayload(
+                        sharedkey,
+                        guid,
+                        password,
+                        new PayloadManager.InitiatePayloadListener() {
+                            @Override
+                            public void onInitSuccess() {
+                                mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
+                                mPayloadManager.setTempPassword(password);
+                                subscriber.onCompleted();
+                            }
+
+                            @Override
+                            public void onInitPairFail() {
+                                subscriber.onError(new Throwable("onInitPairFail"));
+                            }
+
+                            @Override
+                            public void onInitCreateFail(String s) {
+                                subscriber.onError(new Throwable("onInitCreateFail: " + s));
+                            }
+                        });
+            } catch (Exception e) {
+                // R.string.pairing_failed
+                subscriber.onError(new Throwable("Create password failed: " + e));
+            }
+        }));
+    }
+
     private Observable<String> waitForAuth(String guid) {
         mDataListener.showProgressDialog(R.string.validating_password, null, true);
 
         showCheckEmailDialog()
                 .compose(applySchedulers())
-                .subscribe(new Subscriber<Integer>() {
-                    @Override
-                    public void onCompleted() {
-                        // Only called if timer has run out
-                        mDataListener.dismissProgressDialog();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        mDataListener.dismissProgressDialog();
-                        mDataListener.showToast(R.string.pairing_failed, ToastCustom.TYPE_ERROR);
-                    }
-
-                    @Override
-                    public void onNext(Integer timer) {
-                        mDataListener.updateWaitingForAuthDialog(timer);
-                    }
-                });
+                .doOnError(throwable -> {
+                    mDataListener.dismissProgressDialog();
+                    mDataListener.showToast(R.string.auth_failed, ToastCustom.TYPE_ERROR);
+                })
+                // Only called if timer has run out
+                .doOnCompleted(() -> mDataListener.dismissProgressDialog())
+                // Called every time the timer counts down
+                .doOnNext(integer -> mDataListener.updateWaitingForAuthDialog(timer))
+                .subscribe();
 
         return pollForAuthStatus(guid)
                 .compose(applySchedulers())
@@ -274,48 +307,6 @@ public class PasswordRequiredViewModel implements ViewModel {
             }
 
             subscriber.onCompleted();
-        }));
-    }
-
-    private Observable<String> getEncryptedPayload(String guid, String sessionId) {
-        return Observable.fromCallable(() -> mAccess.getEncryptedPayload(guid, sessionId))
-                .compose(applySchedulers());
-    }
-
-    private Observable<String> getSessionId(String guid) {
-        return Observable.fromCallable(() -> mAccess.getSessionId(guid))
-                .compose(applySchedulers());
-    }
-
-    private Observable<Void> initiatePayload(String sharedkey, String guid, CharSequenceX password) {
-        return Observable.defer(() -> Observable.create(subscriber -> {
-            try {
-                mPayloadManager.initiatePayload(
-                        sharedkey,
-                        guid,
-                        password,
-                        new PayloadManager.InitiatePayloadListener() {
-                            @Override
-                            public void onInitSuccess() {
-                                mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
-                                mPayloadManager.setTempPassword(password);
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onInitPairFail() {
-                                subscriber.onError(new Throwable("onInitPairFail"));
-                            }
-
-                            @Override
-                            public void onInitCreateFail(String s) {
-                                subscriber.onError(new Throwable("onInitCreateFail: " + s));
-                            }
-                        });
-            } catch (Exception e) {
-                // R.string.pairing_failed
-                subscriber.onError(new Throwable("Create password failed: " + e));
-            }
         }));
     }
 
