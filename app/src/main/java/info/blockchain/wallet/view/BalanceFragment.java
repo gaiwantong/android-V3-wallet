@@ -277,10 +277,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private void sendClicked(){
         new SSLVerifyUtil(context).validateSSL();
 
-        Fragment fragment = new SendFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-        comm.setNavigationDrawerToggleEnabled(true);
+//        Fragment fragment = new SendActivity();
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+//        comm.setNavigationDrawerToggleEnabled(true);
+
+        startActivity(new Intent(getActivity(), SendActivity.class));
+        binding.fab.collapse();
     }
 
     private void receiveClicked(){
