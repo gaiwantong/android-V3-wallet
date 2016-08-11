@@ -74,7 +74,7 @@ public class LauncherViewModel implements ViewModel {
             mPayloadManager.setTempPassword(new CharSequenceX(""));
             mDataListener.onNoGuid();
 
-        } else if (hasLoggedOut && !mPrefsUtil.getValue(PrefsUtil.KEY_SHARED_KEY, "").isEmpty()) {
+        } else if (hasLoggedOut) {
             // User has logged out recently. Show password reentry page
             mDataListener.onReEnterPassword();
 
