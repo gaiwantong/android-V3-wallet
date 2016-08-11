@@ -13,6 +13,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ import rx.schedulers.Schedulers;
 
 public class LoggingExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-    private static final String URL = "https://blockchain.info/exception_log?device=android&message=";
+    private static final String URL = "https://blockchain.info/exception_log?device=Android&message=";
     private static final String LINEBREAK = "\n";
     private final Thread.UncaughtExceptionHandler mRootHandler;
     @SuppressWarnings("WeakerAccess")
@@ -61,10 +62,11 @@ public class LoggingExceptionHandler implements Thread.UncaughtExceptionHandler 
                 + LINEBREAK + "Device: " + Build.MANUFACTURER + " " + Build.MODEL
                 + LINEBREAK + "Language: " + Locale.getDefault().getDisplayLanguage()
                 + LINEBREAK + "GUID Hash: " + getStringHash(mPrefsUtil.getValue(PrefsUtil.KEY_GUID, ""))
-                + LINEBREAK + "Reason: " + throwable.getCause()
+                + LINEBREAK + "Reason: " + throwable.getLocalizedMessage()
+                + LINEBREAK
                 + LINEBREAK + "Stacktrace: " + ExceptionUtils.getStackTrace(throwable);
 
-        return URLEncoder.encode(message, "utf-8");
+        return URLEncoder.encode(message, StandardCharsets.UTF_8.displayName());
     }
 
     private String getStringHash(String string) {
