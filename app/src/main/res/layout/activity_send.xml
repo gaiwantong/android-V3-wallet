@@ -233,7 +233,7 @@
                                     android:imeOptions="actionDone"
                                     android:inputType="number|numberDecimal"
                                     android:numeric="decimal"
-                                    android:textColor="@color/primary_text_default_material_light"
+                                    android:textColor="@{viewModel.sendModel.customFeeColor}"
                                     android:textColorHint="@color/blockchain_light_grey"
                                     android:textCursorDrawable="@null"
                                     android:maxLength="17"

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 
 import info.blockchain.api.DynamicFee;
@@ -123,6 +122,8 @@ public class SendViewModel implements ViewModel {
         void onShowErrorMessage(String message);
         void onShowTransactionSuccess();
         void onShowBIP38PassphrasePrompt(String scanData);
+
+        void onDisableSend(boolean disable);
     }
 
     public int getDefaultAccount(){
@@ -459,10 +460,9 @@ public class SendViewModel implements ViewModel {
                     if(hasCustomFee) {
                         //Fee has been customized, use absolute fee
                         SweepBundle sweepBundle = payment.getSweepBundle(coins, BigInteger.ZERO);
-                        balanceAfterFee = sweepBundle.getSweepAmount().longValue();
-                        balanceAfterFee -= customFee.longValue();
+                        balanceAfterFee = sweepBundle.getSweepAmount().longValue() - customFee.longValue();
 
-                        amountToSend = amountToSend.add(customFee);
+                        validateCustomFee(amountToSend.add(customFee), sweepBundle.getSweepAmount());
                         feePerKb = BigInteger.ZERO;
 
                     }else{
@@ -496,6 +496,7 @@ public class SendViewModel implements ViewModel {
                     }
 
                 }else{
+                    //No unspent outputs
                     updateMaxAvailable(0);
                     sendModel.pendingTransaction.unspentOutputBundle = null;
                 }
@@ -503,6 +504,7 @@ public class SendViewModel implements ViewModel {
                 if(listener != null)listener.onReady();
 
             } catch (Exception e) {
+                //Failed to retrieve unspent data
                 e.printStackTrace();
                 updateMaxAvailable(0);
                 dataListener.onShowErrorMessage(context.getString(R.string.api_fail));
@@ -511,6 +513,19 @@ public class SendViewModel implements ViewModel {
             Looper.loop();
         }).start();
 
+    }
+
+    /*
+    If user set customized fee that exceeds available amount, disable send button
+     */
+    private void validateCustomFee(BigInteger totalToSend, BigInteger totalAvailable){
+        if(totalToSend.compareTo(totalAvailable) == 1 ){
+            dataListener.onDisableSend(true);
+            sendModel.setCustomFeeColor(ContextCompat.getColor(context, R.color.blockchain_send_red));
+        }else{
+            sendModel.setCustomFeeColor(ContextCompat.getColor(context, R.color.textColorPrimary));
+            dataListener.onDisableSend(false);
+        }
     }
 
     private void setPendingTransactionAmounts(SpendableUnspentOutputs unspentOutputBundle, BigInteger amountToSend, BigInteger absoluteCustomFee){

@@ -68,6 +68,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
 
+    private MenuItem sendButton;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -137,6 +139,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.send_activity_actions, menu);
+        sendButton = menu.findItem(R.id.action_send);
+        onDisableSend(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -456,6 +460,20 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                     .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                         viewModel.spendFromWatchOnlyBIP38(password.getText().toString(), scanData);
                     }).setNegativeButton(android.R.string.cancel, null).show();
+        });
+    }
+
+    @Override
+    public void onDisableSend(boolean disable) {
+        runOnUiThread(() -> {
+            if (disable) {
+                sendButton.setEnabled(false);
+                sendButton.getIcon().setAlpha(130);
+
+            } else {
+                sendButton.setEnabled(true);
+                sendButton.getIcon().setAlpha(255);
+            }
         });
     }
 
