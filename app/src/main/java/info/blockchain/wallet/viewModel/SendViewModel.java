@@ -2,6 +2,7 @@ package info.blockchain.wallet.viewModel;
 
 import android.content.Context;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -983,7 +984,7 @@ public class SendViewModel implements ViewModel {
         }
 
         //Validate addresses
-        if(!FormatsUtil.getInstance().isValidBitcoinAddress(pendingTransaction.receivingAddress)){
+        if(pendingTransaction.receivingAddress == null || !FormatsUtil.getInstance().isValidBitcoinAddress(pendingTransaction.receivingAddress)){
             dataListener.onShowErrorMessage(context.getString(R.string.invalid_bitcoin_address));
             return false;
         }
@@ -1004,7 +1005,9 @@ public class SendViewModel implements ViewModel {
             return false;
         }
 
-        if(sendModel.pendingTransaction.receivingObject.accountObject == sendModel.pendingTransaction.sendingObject.accountObject){
+
+        if(sendModel.pendingTransaction.receivingObject != null
+                && sendModel.pendingTransaction.receivingObject.accountObject == sendModel.pendingTransaction.sendingObject.accountObject){
             dataListener.onShowErrorMessage(context.getString(R.string.send_to_same_address_warning));
             return false;
         }
@@ -1016,34 +1019,40 @@ public class SendViewModel implements ViewModel {
         sendModel.pendingTransaction.sendingObject = selectedItem;
     }
 
-    /*
-    Account or legacyAddress selected
+    /**
+     * Set the receiving object.
+     * Null can be passed to reset receiving address for when user customizes address
+     * @param selectedItem
      */
-    public void setReceivingAddress(ItemAccount selectedItem) {
+    public void setReceivingAddress(@Nullable ItemAccount selectedItem) {
 
         sendModel.pendingTransaction.receivingObject = selectedItem;
 
-        if(selectedItem.accountObject instanceof Account) {
+        if(selectedItem != null) {
+            if (selectedItem.accountObject instanceof Account) {
 
-            //V3
-            Account account = ((Account)selectedItem.accountObject);
-            sendModel.pendingTransaction.receivingAddress = payloadManager.getReceiveAddress(account.getRealIdx());
+                //V3
+                Account account = ((Account) selectedItem.accountObject);
+                sendModel.pendingTransaction.receivingAddress = payloadManager.getReceiveAddress(account.getRealIdx());
 
-        }else if(selectedItem.accountObject instanceof LegacyAddress){
+            } else if (selectedItem.accountObject instanceof LegacyAddress) {
 
-            //V2
-            LegacyAddress legacyAddress = ((LegacyAddress)selectedItem.accountObject);
-            sendModel.pendingTransaction.receivingAddress = legacyAddress.getAddress();
+                //V2
+                LegacyAddress legacyAddress = ((LegacyAddress) selectedItem.accountObject);
+                sendModel.pendingTransaction.receivingAddress = legacyAddress.getAddress();
 
-            if(legacyAddress.isWatchOnly())
-                if (legacyAddress.isWatchOnly()) {
-                    dataListener.onShowReceiveToWatchOnlyWarning(legacyAddress.getAddress());
-                }
+                if (legacyAddress.isWatchOnly())
+                    if (legacyAddress.isWatchOnly()) {
+                        dataListener.onShowReceiveToWatchOnlyWarning(legacyAddress.getAddress());
+                    }
+            } else {
+
+                //Address book
+                AddressBookEntry addressBook = ((AddressBookEntry) selectedItem.accountObject);
+                sendModel.pendingTransaction.receivingAddress = addressBook.getAddress();
+            }
         }else{
-
-            //Address book
-            AddressBookEntry addressBook = ((AddressBookEntry)selectedItem.accountObject);
-            sendModel.pendingTransaction.receivingAddress = addressBook.getAddress();
+            sendModel.pendingTransaction.receivingAddress = "";
         }
     }
 

@@ -287,6 +287,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         binding.destination.setLines(3);
         binding.destination.setOnTouchListener((view, motionEvent) -> {
             binding.destination.setText("");
+            viewModel.setReceivingAddress(null);
             return false;
         });
         binding.destination.setOnFocusChangeListener((v, hasFocus) -> {
