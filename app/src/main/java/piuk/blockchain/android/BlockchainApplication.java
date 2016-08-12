@@ -40,7 +40,7 @@ public class BlockchainApplication extends Application {
         super.onCreate();
         Injector.getInstance().init(this);
 
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.DEBUG) {
             new LoggingExceptionHandler();
         }
 
