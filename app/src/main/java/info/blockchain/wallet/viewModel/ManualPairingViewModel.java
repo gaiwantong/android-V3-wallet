@@ -8,6 +8,7 @@ import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
+import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.rxjava.RxUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -22,10 +23,12 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
-public class PasswordRequiredViewModel implements ViewModel {
+public class ManualPairingViewModel implements ViewModel {
 
     @Inject protected AppUtil mAppUtil;
     @Inject protected PrefsUtil mPrefsUtil;
+    @Inject protected PayloadManager mPayloadManager;
+    @Inject protected Access mAccess;
     @Inject protected AuthDataManager mAuthDataManager;
     private DataListener mDataListener;
     private int timer = 0;
@@ -35,9 +38,9 @@ public class PasswordRequiredViewModel implements ViewModel {
 
     public interface DataListener {
 
-        String getPassword();
+        String getGuid();
 
-        void resetPasswordField();
+        String getPassword();
 
         void goToPinPage();
 
@@ -51,9 +54,11 @@ public class PasswordRequiredViewModel implements ViewModel {
 
         void dismissProgressDialog();
 
+        void resetPasswordField();
+
     }
 
-    public PasswordRequiredViewModel(DataListener listener) {
+    public ManualPairingViewModel(DataListener listener) {
         Injector.getInstance().getAppComponent().inject(this);
         mDataListener = listener;
         mCompositeSubscription = new CompositeSubscription();
@@ -64,22 +69,22 @@ public class PasswordRequiredViewModel implements ViewModel {
     }
 
     public void onContinueClicked() {
-        if (mDataListener.getPassword().length() > 1) {
-            verifyPassword(new CharSequenceX(mDataListener.getPassword()));
-        } else {
+
+        String guid = mDataListener.getGuid();
+        String password = mDataListener.getPassword();
+
+        if (guid == null || guid.isEmpty()) {
+            mDataListener.showToast(R.string.invalid_guid, ToastCustom.TYPE_ERROR);
+        } else if (password == null || password.isEmpty()) {
             mDataListener.showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR);
-            mDataListener.restartApp();
+        } else {
+            verifyPassword(new CharSequenceX(password), guid);
         }
     }
 
-    public void onForgetWalletClicked() {
-        mAppUtil.clearCredentialsAndRestart();
-    }
-
-    private void verifyPassword(CharSequenceX password) {
+    private void verifyPassword(CharSequenceX password, String guid) {
         mDataListener.showProgressDialog(R.string.validating_password, null, false);
 
-        String guid = mPrefsUtil.getValue(PrefsUtil.KEY_GUID, "");
         mWaitingForAuth = true;
 
         mCompositeSubscription.add(

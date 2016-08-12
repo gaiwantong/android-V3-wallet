@@ -67,13 +67,13 @@ public class PairOrCreateWalletActivity extends BaseAuthActivity {
 
     @Override
     public void onBackPressed() {
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.content_frame);
-
-        if (fragment != null && fragment instanceof ManualPairingFragment) {
-            getFragmentManager().popBackStack();
-        } else {
+//        Fragment fragment = getFragmentManager().findFragmentById(R.id.content_frame);
+//
+//        if (fragment != null && fragment instanceof ManualPairingActivity) {
+//            getFragmentManager().popBackStack();
+//        } else {
             new AppUtil(this).restartApp();
-        }
+//        }
     }
 
     @Override
