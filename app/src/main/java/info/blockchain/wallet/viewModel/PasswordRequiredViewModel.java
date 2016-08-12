@@ -9,6 +9,7 @@ import android.support.annotation.VisibleForTesting;
 import info.blockchain.api.Access;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.rxjava.RxUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -23,8 +24,6 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.di.Injector;
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -38,8 +37,9 @@ public class PasswordRequiredViewModel implements ViewModel {
     @Inject protected PayloadManager mPayloadManager;
     @Inject protected Access mAccess;
     private DataListener mDataListener;
-    private boolean mWaitingForAuth = false;
     private int timer = 0;
+    private String payload;
+    @VisibleForTesting boolean mWaitingForAuth = false;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     public interface DataListener {
@@ -91,36 +91,38 @@ public class PasswordRequiredViewModel implements ViewModel {
         mDataListener.showProgressDialog(R.string.validating_password, null, false);
 
         String guid = mPrefsUtil.getValue(PrefsUtil.KEY_GUID, "");
-        final String[] payload = new String[1];
         mWaitingForAuth = true;
 
-        getSessionId(guid)
-                .flatMap(sessionId -> getEncryptedPayload(guid, sessionId))
-                .compose(applySchedulers())
-                .subscribe(response -> {
-                    payload[0] = response;
-                    if (response.equals(Access.KEY_AUTH_REQUIRED)) {
-                        waitForAuth(guid).subscribe(s -> {
-                            payload[0] = s;
+        mCompositeSubscription.add(
+                getSessionId(guid)
+                        .flatMap(sessionId -> getEncryptedPayload(guid, sessionId))
+                        .compose(RxUtil.applySchedulers())
+                        .subscribe(response -> {
+                            payload = response;
+                            if (response.equals(Access.KEY_AUTH_REQUIRED)) {
+                                mDataListener.showProgressDialog(R.string.validating_password, null, true);
 
-                            if (payload[0] == null || payload[0].equals("Authorization Required")) {
-                                showErrorToastAndRestart(R.string.auth_failed);
-                                return;
+                                mCompositeSubscription.add(
+                                        waitForAuth(guid).subscribe(s -> {
+                                            payload = s;
 
+                                            if (payload == null || payload.equals(Access.KEY_AUTH_REQUIRED)) {
+                                                showErrorToastAndRestart(R.string.auth_failed);
+                                                return;
+
+                                            }
+                                            attemptDecryptPayload(password, guid, payload);
+
+                                        }, throwable -> {
+                                            showErrorToastAndRestart(R.string.auth_failed);
+                                        }));
+                            } else {
+                                attemptDecryptPayload(password, guid, payload);
                             }
-                            attemptDecryptPayload(password, guid, payload[0]);
-
                         }, throwable -> {
+                            throwable.printStackTrace();
                             showErrorToastAndRestart(R.string.auth_failed);
-                        });
-                    } else {
-                        attemptDecryptPayload(password, guid, payload[0]);
-                    }
-                    // No op
-                }, throwable -> {
-                    throwable.printStackTrace();
-                    showErrorToastAndRestart(R.string.auth_failed);
-                });
+                        }));
     }
 
     private void attemptDecryptPayload(CharSequenceX password, String guid, String payload) {
@@ -152,24 +154,26 @@ public class PasswordRequiredViewModel implements ViewModel {
                         String sharedKey = decryptedJsonObject.getString("sharedKey");
                         mAppUtil.setSharedKey(sharedKey);
 
-                        initiatePayload(sharedKey, guid, password)
-                                .compose(applySchedulers())
-                                .subscribe(new Subscriber<Void>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        mDataListener.goToPinPage();
-                                    }
+                        mCompositeSubscription.add(
+                                initiatePayload(sharedKey, guid, password)
+                                        .compose(RxUtil.applySchedulers())
+                                        .subscribe(new Subscriber<Void>() {
+                                            @Override
+                                            public void onCompleted() {
+                                                mDataListener.goToPinPage();
+                                            }
 
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        mDataListener.showToast(R.string.pairing_failed, ToastCustom.TYPE_ERROR);
-                                    }
+                                            @Override
+                                            public void onError(Throwable e) {
+                                                mDataListener.showToast(R.string.pairing_failed, ToastCustom.TYPE_ERROR);
+                                            }
 
-                                    @Override
-                                    public void onNext(Void aVoid) {
-                                        mDataListener.showToast(R.string.double_encryption_password_error, ToastCustom.TYPE_ERROR);
-                                    }
-                                });
+                                            @Override
+                                            public void onNext(Void aVoid) {
+                                                // onNext in this case is an error, treat as such
+                                                mDataListener.showToast(R.string.double_encryption_password_error, ToastCustom.TYPE_ERROR);
+                                            }
+                                        }));
                     }
                 } else {
                     // Decryption failed
@@ -188,14 +192,15 @@ public class PasswordRequiredViewModel implements ViewModel {
         mAppUtil.clearCredentialsAndRestart();
     }
 
+    // TODO: 11/08/2016 All Observables should be moved out into a data manager for easier testing
     private Observable<String> getEncryptedPayload(String guid, String sessionId) {
         return Observable.fromCallable(() -> mAccess.getEncryptedPayload(guid, sessionId))
-                .compose(applySchedulers());
+                .compose(RxUtil.applySchedulers());
     }
 
     private Observable<String> getSessionId(String guid) {
         return Observable.fromCallable(() -> mAccess.getSessionId(guid))
-                .compose(applySchedulers());
+                .compose(RxUtil.applySchedulers());
     }
 
     private Observable<Void> initiatePayload(String sharedkey, String guid, CharSequenceX password) {
@@ -220,33 +225,42 @@ public class PasswordRequiredViewModel implements ViewModel {
 
                             @Override
                             public void onInitCreateFail(String s) {
-                                subscriber.onError(new Throwable("onInitCreateFail: " + s));
+                                // This syntactically incorrect, but also convenient in this case
+                                subscriber.onNext(null);
                             }
                         });
             } catch (Exception e) {
-                // R.string.pairing_failed
                 subscriber.onError(new Throwable("Create password failed: " + e));
             }
         }));
     }
 
     private Observable<String> waitForAuth(String guid) {
-        mDataListener.showProgressDialog(R.string.validating_password, null, true);
+        mCompositeSubscription.add(
+                showCheckEmailDialog()
+                        .compose(RxUtil.applySchedulers())
+                        .subscribe(new Subscriber<Integer>() {
+                            @Override
+                            public void onCompleted() {
+                                // Only called if timer has run out
+                                mDataListener.dismissProgressDialog();
+                            }
 
-        showCheckEmailDialog()
-                .compose(applySchedulers())
-                .doOnError(throwable -> {
-                    mDataListener.dismissProgressDialog();
-                    mDataListener.showToast(R.string.auth_failed, ToastCustom.TYPE_ERROR);
-                })
-                // Only called if timer has run out
-                .doOnCompleted(() -> mDataListener.dismissProgressDialog())
-                // Called every time the timer counts down
-                .doOnNext(integer -> mDataListener.updateWaitingForAuthDialog(timer))
-                .subscribe();
+                            @Override
+                            public void onError(Throwable e) {
+                                mDataListener.dismissProgressDialog();
+                                mDataListener.showToast(R.string.auth_failed, ToastCustom.TYPE_ERROR);
+                            }
+
+                            @Override
+                            public void onNext(Integer integer) {
+                                // Called every time the timer counts down
+                                mDataListener.updateWaitingForAuthDialog(timer);
+                            }
+                        }));
 
         return pollForAuthStatus(guid)
-                .compose(applySchedulers())
+                .compose(RxUtil.applySchedulers())
                 .first();
     }
 
@@ -310,17 +324,9 @@ public class PasswordRequiredViewModel implements ViewModel {
         }));
     }
 
-    /**
-     * Applies standard Schedulers to an Observable, ie IO for subscription, Main Thread for
-     * Observing
-     */
-    private <T> Observable.Transformer<T, T> applySchedulers() {
-        return observable -> observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
     public void onProgressCancelled() {
         mWaitingForAuth = false;
+        destroy();
     }
 
     @NonNull
@@ -330,6 +336,10 @@ public class PasswordRequiredViewModel implements ViewModel {
 
     @Override
     public void destroy() {
+        // Clear all subscriptions so that:
+        // 1) all processes stop and no memory is leaked
+        // 2) processes don't try to update a null View
+        // 3) background processes don't leak memory
         mCompositeSubscription.clear();
     }
 }
