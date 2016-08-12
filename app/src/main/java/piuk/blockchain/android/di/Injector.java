@@ -12,7 +12,6 @@ public enum Injector {
     INSTANCE;
 
     private ApplicationComponent mAppComponent;
-    private ApiComponent mApiComponent;
 
     public static Injector getInstance() {
         return INSTANCE;
@@ -23,30 +22,18 @@ public enum Injector {
         ApplicationModule applicationModule = new ApplicationModule((Application) applicationContext);
         ApiModule apiModule = new ApiModule();
 
-        initAppComponent(applicationModule);
-        initApiComponent(apiModule);
+        initAppComponent(applicationModule, apiModule);
     }
 
-    protected void initAppComponent(ApplicationModule applicationModule) {
+    protected void initAppComponent(ApplicationModule applicationModule, ApiModule apiModule) {
 
         mAppComponent = DaggerApplicationComponent.builder()
                 .applicationModule(applicationModule)
-                .build();
-    }
-
-    protected void initApiComponent(ApiModule apiModule) {
-
-        mApiComponent = DaggerApiComponent.builder()
                 .apiModule(apiModule)
                 .build();
     }
 
-
     public ApplicationComponent getAppComponent() {
         return mAppComponent;
-    }
-
-    public ApiComponent getApiComponent() {
-        return mApiComponent;
     }
 }

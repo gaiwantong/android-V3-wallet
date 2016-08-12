@@ -17,6 +17,7 @@ android {
         targetSdkVersion 23
         versionCode 222
         versionName "6.1.31"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {

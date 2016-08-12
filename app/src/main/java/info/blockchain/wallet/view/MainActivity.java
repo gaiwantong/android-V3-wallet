@@ -38,6 +38,7 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
 
 import piuk.blockchain.android.BaseAuthActivity;
+import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityMainBinding;
 
@@ -79,6 +80,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
         appUtil.deleteQR();
 
         mainViewModel.startWebSocketService();
+        resetNavigationDrawer();
     }
 
     @Override
@@ -215,16 +217,13 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_support:
-//                startActivity(new Intent(MainActivity.this, SupportActivity.class));
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URI)));
                 break;
             case R.id.nav_logout:
                 new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                         .setTitle(R.string.unpair_wallet)
                         .setMessage(R.string.ask_you_sure_unpair)
-                        .setPositiveButton(R.string.unpair, (dialog, which) -> {
-                            mainViewModel.unpair();
-                        })
+                        .setPositiveButton(R.string.unpair, (dialog, which) -> mainViewModel.unpair())
                         .setNegativeButton(android.R.string.cancel,null)
                         .show();
                 break;
@@ -367,30 +366,8 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     }
 
     @Override
-    public void onNoGUID() {
-        startSingleActivity(LandingActivity.class);
-    }
-
-    @Override
-    public void onRequestPin() {
-        startSingleActivity(PinEntryActivity.class);
-    }
-
-    @Override
-    public void onCorruptPayload() {
-        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(MainActivity.this.getString(R.string.not_sane_error))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
-                    appUtil.clearCredentialsAndRestart();
-                    appUtil.restartApp();
-                }).show();
-    }
-
-    @Override
-    public void onRequestUpgrade() {
-        startActivity(new Intent(MainActivity.this, UpgradeWalletActivity.class));
+    public void kickToLauncherPage() {
+        startSingleActivity(LauncherActivity.class);
     }
 
     @Override
@@ -431,10 +408,5 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     @Override
     public void onExitConfirmToast() {
         ToastCustom.makeText(this, getString(R.string.exit_confirm), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-    }
-
-    @Override
-    public void onRequestBackup() {
-        startActivityForResult(new Intent(this, BackupWalletActivity.class), REQUEST_BACKUP);
     }
 }

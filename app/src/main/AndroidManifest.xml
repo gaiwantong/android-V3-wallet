@@ -28,12 +28,9 @@
             android:allowBackup="false"
             android:theme="@style/AppTheme">
 
-        <activity
-                android:name="info.blockchain.wallet.view.MainActivity"
-                android:label="@string/app_name"
-                android:configChanges="keyboardHidden|orientation|screenSize"
-                android:windowSoftInputMode="adjustPan"
-                android:theme="@style/AppTheme.MainActivity">
+        <activity android:name=".LauncherActivity"
+                  android:label="@string/blockchain"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -48,6 +45,13 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+                android:name="info.blockchain.wallet.view.MainActivity"
+                android:label="@string/app_name"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:windowSoftInputMode="adjustPan"
+                android:theme="@style/AppTheme.MainActivity"/>
 
         <activity android:name="info.blockchain.wallet.view.SettingsActivity"
                   android:label="@string/app_name"
@@ -99,6 +103,10 @@
                   android:theme="@android:style/Theme.NoDisplay"
                   android:noHistory="true"
                   android:excludeFromRecents="true"/>
+
+        <activity android:name="info.blockchain.wallet.view.PasswordRequiredActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation|screenSize"/>
 
         <activity android:name="com.google.zxing.client.android.CaptureActivity"
                   android:label="@string/app_name"

@@ -21,17 +21,20 @@ interface PersistentPrefs {
     String KEY_SCHEME_URL = "scheme_url";
     String KEY_CURRENT_APP_VERSION = "KEY_CURRENT_APP_VERSION";
     String KEY_NEWLY_CREATED_WALLET = "newly_created_wallet";
+    String LOGGED_OUT = "logged_out";
 
     String getValue(String name, String value);
-    boolean setValue(String name, String value);
+    void setValue(String name, String value);
     int getValue(String name, int value);
-    boolean setValue(String name, int value);
-    boolean setValue(String name, long value);
+    void setValue(String name, int value);
+    void setValue(String name, long value);
     long getValue(String name, long value);
     boolean getValue(String name, boolean value);
-    boolean setValue(String name, boolean value);
+    void setValue(String name, boolean value);
     boolean has(String name);
-    boolean removeValue(String name);
-    boolean clear();
+    void removeValue(String name);
+    void clear();
+    void logOut();
+    void logIn();
 
 }
