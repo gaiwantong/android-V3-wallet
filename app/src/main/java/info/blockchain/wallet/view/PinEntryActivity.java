@@ -46,7 +46,7 @@ import rx.schedulers.Schedulers;
 
 public class PinEntryActivity extends BaseAuthActivity {
 
-    private static final int COOL_DOWN = 2000;
+    private static final int COOL_DOWN_MILLIS = 2 * 1000;
     private static final int PIN_LENGTH = 4;
     private static final int maxAttempts = 4;
     String userEnteredPIN = "";
@@ -153,7 +153,7 @@ public class PinEntryActivity extends BaseAuthActivity {
     @Override
     public void onBackPressed() {
         if (allowExit) {
-            if (mBackPressed + COOL_DOWN > System.currentTimeMillis()) {
+            if (mBackPressed + COOL_DOWN_MILLIS > System.currentTimeMillis()) {
                 AccessState.getInstance().logout(this);
                 return;
             } else {
@@ -212,7 +212,7 @@ public class PinEntryActivity extends BaseAuthActivity {
         }
     }
 
-    private void updatePayloadThread(final CharSequenceX password) {
+    private void updatePayload(final CharSequenceX password) {
         showProgressDialog(getString(R.string.decrypting_wallet));
 
         createUpdatePayloadObservable(password)
@@ -220,6 +220,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(this::dismissProgressDialog)
                 .subscribe(aVoid -> {
+
                     payloadManager.setTempPassword(password);
                     appUtil.setSharedKey(payloadManager.getPayload().getSharedKey());
 
@@ -250,7 +251,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                             }
 
                         } catch (PackageManager.NameNotFoundException e) {
-                            Log.e(PinEntryActivity.class.getSimpleName(), "updatePayloadThread: ", e);
+                            Log.e(PinEntryActivity.class.getSimpleName(), "updatePayload: ", e);
                         }
 
                         if (prefs.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L && !payloadManager.getPayload().isUpgraded()) {
@@ -258,7 +259,7 @@ public class PinEntryActivity extends BaseAuthActivity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                         } else {
-                            appUtil.restartApp("verified", true);
+                            appUtil.restartAppWithVerifiedPin();
                         }
                     }
 
@@ -285,15 +286,16 @@ public class PinEntryActivity extends BaseAuthActivity {
         createNewPinObservable(pin)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate(this::dismissProgressDialog)
                 .subscribe(createSuccessful -> {
+                    dismissProgressDialog();
                     if (createSuccessful) {
                         prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                        updatePayloadThread(payloadManager.getTempPassword());
+                        updatePayload(payloadManager.getTempPassword());
                     } else {
                         throw Exceptions.propagate(new Throwable("Pin create failed"));
                     }
                 }, throwable -> {
+                    dismissProgressDialog();
                     ToastCustom.makeText(getActivity(), getString(R.string.create_pin_failed), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     prefs.clear();
                     appUtil.restartApp();
@@ -306,15 +308,16 @@ public class PinEntryActivity extends BaseAuthActivity {
         createValidatePinObservable(pin)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate(this::dismissProgressDialog)
                 .subscribe(password -> {
+                    dismissProgressDialog();
                     if (password != null) {
                         prefs.setValue(PrefsUtil.KEY_PIN_FAILS, 0);
-                        updatePayloadThread(password);
+                        updatePayload(password);
                     } else {
                         incrementFailureCount();
                     }
                 }, throwable -> {
+                    dismissProgressDialog();
                     ToastCustom.makeText(getActivity(), getString(R.string.unexpected_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     restartPage();
                 });

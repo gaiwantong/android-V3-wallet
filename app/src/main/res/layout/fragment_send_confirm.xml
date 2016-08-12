@@ -253,7 +253,7 @@
             </LinearLayout>
 
             <android.support.v7.widget.AppCompatButton
-                    android:theme="@style/SendButtonGreen"
+                    android:theme="@style/ButtonGreen"
                     android:id="@+id/confirm_send"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

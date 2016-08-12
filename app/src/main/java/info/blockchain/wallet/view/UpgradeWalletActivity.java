@@ -255,7 +255,7 @@ public class UpgradeWalletActivity extends BaseAuthActivity {
 
                         prefs.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                         AccessState.getInstance().setIsLoggedIn(true);
-                        appUtil.restartApp("verified", true);
+                        appUtil.restartAppWithVerifiedPin();
                     }
                 });
             }
