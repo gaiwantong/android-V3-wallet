@@ -266,9 +266,9 @@
     <string name="VERIFY_BACKUP">VÉRIFIER LA SAUVEGARDE</string>
     <string name="Word">Mot</string>
     <string name="of">de</string>
-    <string name="backup_confirmed">Sauvegarde confirmé</string>
+    <string name="backup_confirmed">Sauvegarde confirmée</string>
     <string name="backup_word_mismatch">Mot non concordant</string>
-    <string name="backup_days_ago">Vous avez sauvegardé votre portefeuille il y a  %1$s %2$s</string>
+    <string name="backup_days_ago">Vous avez sauvegardé votre portefeuille il y a %1$s %2$s</string>
     <string name="day">jour</string>
     <string name="days">jours</string>
     <string name="backup_only_need_to_once_reminder">Bien joué ! Si vous perdez votre mot de passe, vous pouvez restaurer les fonds dans ce portefeuille même s’ils ont été reçus plus tard (à l’exception des adresses importées) à l’aide des 12 mots de la phrase de récupération N’oubliez pas de conserver votre phrase de récupération hors ligne dans un endroit très sûr et discret. Toute personne ayant accès à votre phrase de récupération a également accès à vos fonds.</string>
@@ -415,7 +415,7 @@
     <string name="send_to_same_address_warning">Peut ne peut pas envoyer à la même adresse.</string>
     <string name="make_default">Faire défaut</string>
     <string name="privx_required">Clé privée nécessaire</string>
-    <string name="watch_only_spend_instructionss">Cette action nécessite la clé privée pour l\'adresse Bitcoin  %1$s. Veuillez scanner le code QR.</string>
+    <string name="watch_only_spend_instructionss">Cette action nécessite la clé privée pour l\'adresse Bitcoin %1$s. Veuillez scanner le code QR.</string>
     <string name="invalid_private_key">Clé privée non valide</string>
     <string name="watch_only_import_warning">Vous êtes sur le point d\'importer une adresse qui n’est que pour consultation, une adresse (ou le script de la clé publique) stockée dans le portefeuille sans la clé privée correspondante. Cela signifie que les fonds pourront être utilisés UNIQUEMENT si vous avez la clé privée stockée ailleurs. Si vous n\'avez pas de clé privée stockée, NE PAS demander à quelqu’un de vous envoyer des bitcoin à l’adresse qui n’est que pour consultation.\n\n Ces options sont recommandées uniquement pour les utilisateurs avancés. Continuer ?</string>
     <string name="scan_private_key">Scannez la clé privée</string>
