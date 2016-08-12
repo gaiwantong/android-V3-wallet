@@ -165,18 +165,21 @@ public class PasswordRequiredViewModel implements ViewModel {
 
                                             @Override
                                             public void onError(Throwable e) {
+                                                mDataListener.dismissProgressDialog();
                                                 mDataListener.showToast(R.string.pairing_failed, ToastCustom.TYPE_ERROR);
                                             }
 
                                             @Override
                                             public void onNext(Void aVoid) {
                                                 // onNext in this case is an error, treat as such
+                                                mDataListener.dismissProgressDialog();
                                                 mDataListener.showToast(R.string.double_encryption_password_error, ToastCustom.TYPE_ERROR);
                                             }
                                         }));
                     }
                 } else {
                     // Decryption failed
+                    mDataListener.dismissProgressDialog();
                     mDataListener.showToast(R.string.auth_failed, ToastCustom.TYPE_ERROR);
                 }
             }
