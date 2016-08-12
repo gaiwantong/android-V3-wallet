@@ -9,6 +9,7 @@ import android.view.View;
 import info.blockchain.api.DynamicFee;
 import info.blockchain.api.Unspent;
 import info.blockchain.util.FeeUtil;
+import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
 import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.ItemAccount;
@@ -648,6 +649,7 @@ public class SendViewModel implements ViewModel {
 
     /**
      * Retrieves unspent api data in memory. If not in memory yet, it will be retrieved and added.
+     * Default account will be retrieved from cache to speed up loading
      * @param address
      * @return
      * @throws Exception
@@ -656,7 +658,26 @@ public class SendViewModel implements ViewModel {
         if(sendModel.unspentApiResponse.containsKey(address)) {
             return sendModel.unspentApiResponse.get(address);
         }else{
-            JSONObject unspentResponse = new Unspent().getUnspentOutputs(address);
+
+            JSONObject unspentResponse;
+
+            //Get cache if is default account
+            DefaultAccountUnspentCache cache = DefaultAccountUnspentCache.getInstance();
+            if(payloadManager.getPayload().getHdWallet() != null && address.equals(cache.getXpub())){
+                unspentResponse = cache.getUnspentApiResponse();
+
+                //Refresh default account cache
+                new Thread(() -> {
+                    try {
+                        cache.setUnspentApiResponse(address, new Unspent().getUnspentOutputs(address));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }else{
+                unspentResponse = new Unspent().getUnspentOutputs(address);
+            }
+
             sendModel.unspentApiResponse.put(address, unspentResponse);
             return unspentResponse;
         }

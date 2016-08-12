@@ -7,19 +7,24 @@ import android.os.Bundle;
 import android.os.Looper;
 
 import info.blockchain.api.DynamicFee;
+import info.blockchain.api.Unspent;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
+import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
+
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -125,10 +130,15 @@ public class MainViewModel implements ViewModel{
             this.dataListener.onFetchTransactionsStart();
 
             new Thread(() -> {
+                Looper.prepare();
+                cacheDynamicFee();
+                cacheDefaultAccountUnspentData();
+                Looper.loop();
+            }).start();
+
+            new Thread(() -> {
 
                 Looper.prepare();
-
-                cacheDynamicFee();
 
                 try {
                     payloadManager.updateBalancesAndTransactions();
@@ -153,8 +163,28 @@ public class MainViewModel implements ViewModel{
         }
     }
 
-    public void cacheDynamicFee(){
+    private void cacheDynamicFee(){
         DynamicFeeCache.getInstance().setSuggestedFee(new DynamicFee().getDynamicFee());
+    }
+
+    private void cacheDefaultAccountUnspentData(){
+
+        if(payloadManager.getPayload().getHdWallet() != null) {
+
+            int defaultAccountIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+
+            Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultAccountIndex);
+            String xpub = defaultAccount.getXpub();
+
+            try {
+                JSONObject unspentResponse = new Unspent().getUnspentOutputs(xpub);
+                if(unspentResponse != null) {
+                    DefaultAccountUnspentCache.getInstance().setUnspentApiResponse(xpub, unspentResponse);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
