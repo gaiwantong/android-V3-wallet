@@ -31,6 +31,8 @@ public class LoggingExceptionHandler implements Thread.UncaughtExceptionHandler 
 
     private static final String URL = "https://blockchain.info/exception_log?device=Android&message=";
     private static final String LINEBREAK = "\n";
+    private static final String OPENING_TAG = "<pre>";
+    private static final String ENCLOSING_TAG = "</pre>";
     private final Thread.UncaughtExceptionHandler mRootHandler;
     @SuppressWarnings("WeakerAccess")
     @Inject protected PrefsUtil mPrefsUtil;
@@ -57,14 +59,16 @@ public class LoggingExceptionHandler implements Thread.UncaughtExceptionHandler 
 
     private String getMessageString(Throwable throwable) throws UnsupportedEncodingException {
 
-        String message = "App Version: " + BuildConfig.VERSION_NAME + " " + BuildConfig.VERSION_CODE
+        String message = OPENING_TAG
+                + "App Version: " + BuildConfig.VERSION_NAME + " " + BuildConfig.VERSION_CODE
                 + LINEBREAK + "System Name: " + Build.VERSION.SDK_INT
                 + LINEBREAK + "Device: " + Build.MANUFACTURER + " " + Build.MODEL
                 + LINEBREAK + "Language: " + Locale.getDefault().getDisplayLanguage()
                 + LINEBREAK + "GUID Hash: " + getStringHash(mPrefsUtil.getValue(PrefsUtil.KEY_GUID, ""))
                 + LINEBREAK + "Reason: " + throwable.getLocalizedMessage()
                 + LINEBREAK
-                + LINEBREAK + "Stacktrace: " + ExceptionUtils.getStackTrace(throwable);
+                + LINEBREAK + "Stacktrace: " + ExceptionUtils.getStackTrace(throwable)
+                + ENCLOSING_TAG;
 
         return URLEncoder.encode(message, StandardCharsets.UTF_8.displayName());
     }
