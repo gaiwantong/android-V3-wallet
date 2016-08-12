@@ -17,10 +17,12 @@ public class PaymentConfirmationDetails {
     public String fiatTotal;
     public String btcSuggestedFee;
     public boolean isSurge;
+    public boolean isLargeTransaction;
+    public boolean hasConsumedAmounts;
 
     @Override
     public String toString() {
-        return "ConfirmationDetails{" +
+        return "PaymentConfirmationDetails{" +
                 "fromLabel='" + fromLabel + '\'' +
                 ", toLabel='" + toLabel + '\'' +
                 ", btcUnit='" + btcUnit + '\'' +
@@ -33,7 +35,8 @@ public class PaymentConfirmationDetails {
                 ", fiatTotal='" + fiatTotal + '\'' +
                 ", btcSuggestedFee='" + btcSuggestedFee + '\'' +
                 ", isSurge=" + isSurge +
+                ", isLargeTransaction=" + isLargeTransaction +
+                ", hasConsumedAmounts=" + hasConsumedAmounts +
                 '}';
     }
-
 }

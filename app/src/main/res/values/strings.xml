@@ -567,5 +567,5 @@
     </string>
     <string name="go_back">Go back</string>
     <string name="accept_higher_fee">Accept higher fee</string>
-
+    <string name="large_tx_high_fee_warning">"This transaction requires a higher fee for dust consumption due to the small amount of change to be returned."</string>
 </resources>

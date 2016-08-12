@@ -51,7 +51,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        tools:text="Account 1"/>
 
 
                 <ImageView android:layout_width="32dp"
@@ -65,7 +66,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        tools:text="Account 2"/>
 
                 <LinearLayout android:layout_width="match_parent"
                               android:layout_height="wrap_content"
@@ -85,7 +87,8 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="BTC"/>
 
                     <TextView
                             android:id="@+id/confirm_amount_fiat_unit"
@@ -93,7 +96,8 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:paddingRight="8dp"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="USD"/>
 
                 </LinearLayout>
 
@@ -120,7 +124,8 @@
                             android:layout_height="wrap_content"
                             android:alpha="0.7"
                             android:textSize="14sp"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="0.00011"/>
 
                     <TextView
                             android:id="@+id/confirm_amount_fiat"
@@ -130,7 +135,8 @@
                             android:paddingRight="8dp"
                             android:alpha="0.7"
                             android:textSize="14sp"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="0.90"/>
 
                 </LinearLayout>
 
@@ -160,7 +166,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="14sp"
-                                android:alpha="0.7"/>
+                                android:alpha="0.7"
+                                tools:text="0.0001"/>
 
                         <TextView
                                 android:id="@+id/tv_customize_fee"
@@ -185,15 +192,15 @@
                                 android:layout_height="wrap_content"
                                 android:paddingRight="8dp"
                                 android:textSize="14sp"
-                                android:alpha="0.7"/>
+                                android:alpha="0.7"
+                                tools:text="0.84"/>
 
                         <ImageView
                                 android:id="@+id/iv_fee_info"
                                 android:visibility="invisible"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:layout_marginLeft="8dp"
-                                android:layout_gravity="center_horizontal|left"
+                                android:layout_marginRight="8dp"
                                 android:tint="@color/blockchain_blue"
                                 android:src="@drawable/ic_help_outline_white_24dp"/>
 
@@ -228,7 +235,8 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="0.00021"/>
 
                     <TextView
                             android:id="@+id/confirm_total_fiat"
@@ -237,7 +245,8 @@
                             android:layout_height="wrap_content"
                             android:paddingRight="8dp"
                             android:textSize="14sp"
-                            android:gravity="right"/>
+                            android:gravity="right"
+                            tools:text="1.74"/>
 
                 </LinearLayout>
 
