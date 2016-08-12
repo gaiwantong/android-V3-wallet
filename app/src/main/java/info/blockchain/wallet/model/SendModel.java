@@ -39,8 +39,8 @@ public class SendModel extends BaseObservable {
     public HashMap<String, JSONObject> unspentApiResponse;//current selected <from address, unspent api response> - so we don't need to call api repeatedly
 
     public PendingTransaction pendingTransaction;
-    public BigInteger[] absoluteFeeSuggestedEstimates;
-    public BigInteger absoluteFeeSuggested;//Fee for 2nd block inclusion
+    public BigInteger[] absoluteSuggestedFeeEstimates;
+    public BigInteger absoluteSuggestedFee;//Fee for 2nd block inclusion
 
     public String verifiedSecondPassword;
 

@@ -184,31 +184,6 @@
 
                         <LinearLayout android:layout_width="match_parent"
                                       android:layout_height="wrap_content"
-
-                                      android:paddingTop="16dp"
-                                      android:gravity="center_vertical"
-                                      android:orientation="horizontal">
-
-                            <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/transaction_fee"
-                                    android:textColor="@color/blockchain_grey"/>
-
-                            <ImageView
-                                    android:id="@+id/iv_fee_info"
-                                    android:visibility="invisible"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_marginLeft="16dp"
-                                    android:tint="@color/blockchain_grey"
-                                    android:alpha="0.7"
-                                    android:src="@drawable/ic_help_outline_white_24dp"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="match_parent"
-                                      android:layout_height="48dp"
                                       android:gravity="center_vertical"
                                       android:orientation="horizontal">
 
@@ -221,23 +196,25 @@
                                     android:textColor="@color/blockchain_grey"
                             />
 
-                            <EditText
-                                    android:id="@+id/custom_fee"
+                            <android.support.design.widget.TextInputLayout
                                     android:layout_width="0dp"
                                     android:layout_weight="1"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/underline"
-                                    android:focusable="true"
-                                    android:focusableInTouchMode="true"
-                                    android:hint="0.00"
-                                    android:imeOptions="actionDone"
-                                    android:inputType="number|numberDecimal"
-                                    android:numeric="decimal"
-                                    android:textColor="@{viewModel.sendModel.customFeeColor}"
-                                    android:textColorHint="@color/blockchain_light_grey"
-                                    android:textCursorDrawable="@null"
-                                    android:maxLength="17"
-                            />
+                                    android:layout_marginTop="8dp"
+                                    android:layout_marginLeft="16dp"
+                                    android:layout_marginRight="16dp"
+                                    android:layout_marginBottom="16dp">
+
+                                <android.support.v7.widget.AppCompatEditText
+                                        android:id="@+id/custom_fee"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:maxLines="1"
+                                        android:hint="@string/transaction_fee"
+                                        android:inputType="number|numberDecimal"
+                                        android:textColor="@{viewModel.sendModel.customFeeColor}"/>
+
+                            </android.support.design.widget.TextInputLayout>
 
                         </LinearLayout>
 

@@ -65,9 +65,7 @@ public class SendAddressAdapter extends ArrayAdapter<ItemAccount> {
                     R.layout.spinner_item,
                     parent,
                     false);
-
-            ItemAccount item = getItem(position);
-            binding.text.setText(item.label);
+            //No op
             return binding.getRoot();
         }
     }

@@ -502,52 +502,21 @@ public class SendViewModel implements ViewModel {
 
                 if(unspentResponse != null){
 
-                    final UnspentOutputs coins = payment.getCoins(unspentResponse);
                     BigInteger amountToSend = getSatoshisFromText(amountToSendText);
-                    BigInteger customFee = BigInteger.ZERO;
-                    BigInteger feePerKb = BigInteger.ZERO;
-                    long balanceAfterFee = 0l;
+                    BigInteger customFee = getSatoshisFromText(customFeeText);
 
-                    //Check customized fee
-                    customFee = getSatoshisFromText(customFeeText);
-                    boolean hasCustomFee = !customFeeText.isEmpty() || customFee.compareTo(BigInteger.ZERO) == 1;
-
-                    if(hasCustomFee) {
-                        //Fee has been customized, use absolute fee
-                        SweepBundle sweepBundle = payment.getSweepBundle(coins, BigInteger.ZERO);
-                        balanceAfterFee = sweepBundle.getSweepAmount().longValue() - customFee.longValue();
-
-                        validateCustomFee(amountToSend.add(customFee), sweepBundle.getSweepAmount());
-                        feePerKb = BigInteger.ZERO;
-
-                    }else{
-                        //Use default fee per kb
-                        SweepBundle sweepBundle = payment.getSweepBundle(coins, sendModel.suggestedFee.defaultFeePerKb);
-                        balanceAfterFee = sweepBundle.getSweepAmount().longValue();
-
-                        customFee = BigInteger.valueOf(-1);//No custom fee used
-                        feePerKb = sendModel.suggestedFee.defaultFeePerKb;
-                    }
-
-                    SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
-                            amountToSend,
-                            feePerKb);
-                    sendModel.absoluteFeeSuggested = unspentOutputBundle.getAbsoluteFee();
-
-                    setPendingTransactionAmounts(unspentOutputBundle, amountToSend, customFee);
-
-                    if(spendAll){
-                        dataListener.onSetSpendAllAmount(getTextFromSatoshis(balanceAfterFee));
-                    }
-                    updateMaxAvailable(balanceAfterFee);
-
-                    if(sendModel.suggestedFee != null && sendModel.suggestedFee.estimateList != null){
-                        updateEstimateConfirmationTime(amountToSend, customFee.longValue(), coins);
-                    }
-
+                    final UnspentOutputs coins = payment.getCoins(unspentResponse);
                     //Warn user of unconfirmed funds - but don't block payment
                     if(coins.getNotice() != null){
                         dataListener.onShowErrorMessage(coins.getNotice());
+                    }
+
+                    sendModel.absoluteSuggestedFee = getSuggestedAbsoluteFee(coins, amountToSend);
+
+                    if(!customFeeText.isEmpty() || customFee.compareTo(BigInteger.ZERO) == 1) {
+                        customFeePayment(coins, amountToSend, customFee, spendAll);
+                    }else{
+                        suggestedFeePayment(coins, amountToSend, spendAll);
                     }
 
                 }else{
@@ -570,6 +539,74 @@ public class SendViewModel implements ViewModel {
 
     }
 
+    private BigInteger getSuggestedAbsoluteFee(final UnspentOutputs coins, BigInteger amountToSend){
+        SpendableUnspentOutputs spendableCoins = payment.getSpendableCoins(coins, amountToSend, sendModel.suggestedFee.defaultFeePerKb);
+        return spendableCoins.getAbsoluteFee();
+    }
+
+    /**
+     * Payment will use customized fee
+     * @param coins
+     * @param amount
+     * @param customFee
+     * @param spendAll
+     */
+    private void customFeePayment(final UnspentOutputs coins, BigInteger amount, BigInteger customFee, boolean spendAll){
+
+        SweepBundle sweepBundle = payment.getSweepBundle(coins, BigInteger.ZERO);
+        long balanceAfterFee = sweepBundle.getSweepAmount().longValue() - customFee.longValue();
+
+        if(spendAll){
+            dataListener.onSetSpendAllAmount(getTextFromSatoshis(balanceAfterFee));
+        }
+        updateMaxAvailable(balanceAfterFee);
+
+        validateCustomFee(amount.add(customFee), sweepBundle.getSweepAmount());
+
+        SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
+                amount,//TODO add fee?
+                BigInteger.ZERO);
+
+        sendModel.pendingTransaction.bigIntAmount = amount;
+        sendModel.pendingTransaction.unspentOutputBundle = unspentOutputBundle;
+        sendModel.pendingTransaction.bigIntFee = customFee;
+
+        if(sendModel.suggestedFee != null && sendModel.suggestedFee.estimateList != null){
+            updateEstimateConfirmationTime(amount, customFee.longValue(), coins);
+        }
+    }
+
+    /**
+     * Payment will use suggested dynamic fee
+     * @param coins
+     * @param amount
+     * @param spendAll
+     */
+    private void suggestedFeePayment(final UnspentOutputs coins, BigInteger amount, boolean spendAll){
+
+        SweepBundle sweepBundle = payment.getSweepBundle(coins, sendModel.suggestedFee.defaultFeePerKb);
+        long balanceAfterFee = sweepBundle.getSweepAmount().longValue();
+
+        if(spendAll){
+            dataListener.onSetSpendAllAmount(getTextFromSatoshis(balanceAfterFee));
+        }
+        updateMaxAvailable(balanceAfterFee);
+
+        BigInteger feePerKb = sendModel.suggestedFee.defaultFeePerKb;
+
+        SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
+                amount,
+                feePerKb);
+
+        sendModel.pendingTransaction.bigIntAmount = amount;
+        sendModel.pendingTransaction.unspentOutputBundle = unspentOutputBundle;
+        sendModel.pendingTransaction.bigIntFee = sendModel.pendingTransaction.unspentOutputBundle.getAbsoluteFee();
+
+        if(sendModel.suggestedFee != null && sendModel.suggestedFee.estimateList != null){
+            updateEstimateConfirmationTime(amount, sendModel.pendingTransaction.bigIntFee.longValue(), coins);
+        }
+    }
+
     /**
      * If user set customized fee that exceeds available amount, disable send button
      * @param totalToSend
@@ -582,24 +619,6 @@ public class SendViewModel implements ViewModel {
         }else{
             sendModel.setCustomFeeColor(ContextCompat.getColor(context, R.color.textColorPrimary));
             dataListener.onDisableSend(false);
-        }
-    }
-
-    /**
-     * Sets the transaction data
-     * @param unspentOutputBundle
-     * @param amountToSend
-     * @param absoluteCustomFee
-     */
-    private void setPendingTransactionAmounts(SpendableUnspentOutputs unspentOutputBundle, BigInteger amountToSend, BigInteger absoluteCustomFee){
-
-        sendModel.pendingTransaction.bigIntAmount = amountToSend;
-        sendModel.pendingTransaction.unspentOutputBundle = unspentOutputBundle;
-
-        if(absoluteCustomFee.compareTo(BigInteger.ZERO) > 0) {
-            sendModel.pendingTransaction.bigIntFee = absoluteCustomFee;
-        }else {
-            sendModel.pendingTransaction.bigIntFee = sendModel.pendingTransaction.unspentOutputBundle.getAbsoluteFee();
         }
     }
 
@@ -727,18 +746,18 @@ public class SendViewModel implements ViewModel {
      */
     private String updateEstimateConfirmationTime(BigInteger amountToSend, long fee, UnspentOutputs coins){
 
-        sendModel.absoluteFeeSuggestedEstimates = getEstimatedBlocks(amountToSend, sendModel.suggestedFee.estimateList, coins);
+        sendModel.absoluteSuggestedFeeEstimates = getEstimatedBlocks(amountToSend, sendModel.suggestedFee.estimateList, coins);
 
         String likelyToConfirmMessage = context.getText(R.string.estimate_confirm_block_count).toString();
         String unlikelyToConfirmMessage = context.getText(R.string.fee_too_low_no_confirm).toString();
 
         long minutesPerBlock = 10;
-        Arrays.sort(sendModel.absoluteFeeSuggestedEstimates, Collections.reverseOrder());
+        Arrays.sort(sendModel.absoluteSuggestedFeeEstimates, Collections.reverseOrder());
 
         String estimateText = unlikelyToConfirmMessage;
 
-        for(int i = 0; i < sendModel.absoluteFeeSuggestedEstimates.length; i++){
-            if(fee >= sendModel.absoluteFeeSuggestedEstimates[i].longValue()){
+        for(int i = 0; i < sendModel.absoluteSuggestedFeeEstimates.length; i++){
+            if(fee >= sendModel.absoluteSuggestedFeeEstimates[i].longValue()){
                 estimateText = likelyToConfirmMessage;
                 estimateText = String.format(estimateText, ((i+1) * minutesPerBlock), (i+1));
                 break;
@@ -823,15 +842,15 @@ public class SendViewModel implements ViewModel {
 
         if(sendModel.suggestedFee !=null && sendModel.suggestedFee.estimateList != null){
 
-            if (sendModel.absoluteFeeSuggestedEstimates != null
-                    && sendModel.pendingTransaction.bigIntFee.compareTo(sendModel.absoluteFeeSuggestedEstimates[0]) > 0) {
+            if (sendModel.absoluteSuggestedFeeEstimates != null
+                    && sendModel.pendingTransaction.bigIntFee.compareTo(sendModel.absoluteSuggestedFeeEstimates[0]) > 0) {
 
                 String message = String.format(context.getString(R.string.high_fee_not_necessary_info),
                         monetaryUtil.getDisplayAmount(sendModel.pendingTransaction.bigIntFee.longValue()) + " " + sendModel.btcUnit,
-                        monetaryUtil.getDisplayAmount(sendModel.absoluteFeeSuggestedEstimates[0].longValue()) + " " + sendModel.btcUnit);
+                        monetaryUtil.getDisplayAmount(sendModel.absoluteSuggestedFeeEstimates[0].longValue()) + " " + sendModel.btcUnit);
 
                 dataListener.onShowAlterFee(
-                        getTextFromSatoshis(sendModel.absoluteFeeSuggestedEstimates[0].longValue()),
+                        getTextFromSatoshis(sendModel.absoluteSuggestedFeeEstimates[0].longValue()),
                         message,
                         R.string.lower_fee,
                         R.string.keep_high_fee);
@@ -839,15 +858,15 @@ public class SendViewModel implements ViewModel {
                 return false;
             }
 
-            if (sendModel.absoluteFeeSuggestedEstimates != null
-                    && sendModel.pendingTransaction.bigIntFee.compareTo(sendModel.absoluteFeeSuggestedEstimates[5]) < 0) {
+            if (sendModel.absoluteSuggestedFeeEstimates != null
+                    && sendModel.pendingTransaction.bigIntFee.compareTo(sendModel.absoluteSuggestedFeeEstimates[5]) < 0) {
 
                 String message = String.format(context.getString(R.string.low_fee_suggestion),
                         monetaryUtil.getDisplayAmount(sendModel.pendingTransaction.bigIntFee.longValue()) + " " + sendModel.btcUnit,
-                        monetaryUtil.getDisplayAmount(sendModel.absoluteFeeSuggestedEstimates[5].longValue()) + " " + sendModel.btcUnit);
+                        monetaryUtil.getDisplayAmount(sendModel.absoluteSuggestedFeeEstimates[5].longValue()) + " " + sendModel.btcUnit);
 
                 dataListener.onShowAlterFee(
-                        getTextFromSatoshis(sendModel.absoluteFeeSuggestedEstimates[5].longValue()),
+                        getTextFromSatoshis(sendModel.absoluteSuggestedFeeEstimates[5].longValue()),
                         message,
                         R.string.raise_fee,
                         R.string.keep_low_fee);
@@ -879,7 +898,7 @@ public class SendViewModel implements ViewModel {
         }
         details.btcAmount = getTextFromSatoshis(pendingTransaction.bigIntAmount.longValue());
         details.btcFee = getTextFromSatoshis(pendingTransaction.bigIntFee.longValue());
-        details.btcSuggestedFee = getTextFromSatoshis(sendModel.absoluteFeeSuggested.longValue());
+        details.btcSuggestedFee = getTextFromSatoshis(sendModel.absoluteSuggestedFee.longValue());
         details.btcUnit = sendModel.btcUnit;
         details.fiatUnit = sendModel.fiatUnit;
         details.btcTotal = getTextFromSatoshis(pendingTransaction.bigIntAmount.add(pendingTransaction.bigIntFee).longValue());
@@ -909,9 +928,9 @@ public class SendViewModel implements ViewModel {
     public boolean isLargeTransaction(){
 
         int txSize = FeeUtil.estimatedSize(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(), 2);//assume change
-        double relativeFee = sendModel.absoluteFeeSuggested.doubleValue()/sendModel.pendingTransaction.bigIntAmount.doubleValue()*100.0;
+        double relativeFee = sendModel.absoluteSuggestedFee.doubleValue()/sendModel.pendingTransaction.bigIntAmount.doubleValue()*100.0;
 
-        if(sendModel.absoluteFeeSuggested.longValue() > SendModel.LARGE_TX_FEE
+        if(sendModel.absoluteSuggestedFee.longValue() > SendModel.LARGE_TX_FEE
                 && txSize > SendModel.LARGE_TX_SIZE
                 && relativeFee > SendModel.LARGE_TX_PERCENTAGE){
 
