@@ -224,7 +224,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
                         .setTitle(R.string.unpair_wallet)
                         .setMessage(R.string.ask_you_sure_unpair)
                         .setPositiveButton(R.string.unpair, (dialog, which) -> mainViewModel.unpair())
-                        .setNegativeButton(android.R.string.cancel,null)
+                        .setNegativeButton(android.R.string.cancel, null)
                         .show();
                 break;
         }
