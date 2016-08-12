@@ -9,6 +9,7 @@ import android.view.View;
 import info.blockchain.api.DynamicFee;
 import info.blockchain.api.Unspent;
 import info.blockchain.util.FeeUtil;
+import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
@@ -426,20 +427,17 @@ public class SendViewModel implements ViewModel {
     }
 
     /**
-     * Get dynamic fee from Bci dynamic fee API
-     * TODO - would be nice to cache this earlier on to speed up
+     * Get cahced dynamic fee from Bci dynamic fee API
      */
     public void getSuggestedFee(){
 
-        DynamicFee dynamicFeeApi = new DynamicFee();
+        //Get cached fee
+        sendModel.suggestedFee = DynamicFeeCache.getInstance().getSuggestedFee();
 
-        //Use default fee per kb until suggestion retrieved
-        sendModel.suggestedFee = dynamicFeeApi.getDefaultFee();
-
+        //Refresh cache
         new Thread(() -> {
-            Looper.prepare();
-            sendModel.suggestedFee = dynamicFeeApi.getDynamicFee();
-            Looper.loop();
+            DynamicFeeCache.getInstance().setSuggestedFee(new DynamicFee().getDynamicFee());
+            sendModel.suggestedFee = DynamicFeeCache.getInstance().getSuggestedFee();
         }).start();
     }
 

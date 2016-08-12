@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 
+import info.blockchain.api.DynamicFee;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
+import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -23,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainViewModel implements ViewModel{
+
+    private final String TAG = getClass().getSimpleName();
 
     private Context context;
     private DataListener dataListener;
@@ -124,6 +128,8 @@ public class MainViewModel implements ViewModel{
 
                 Looper.prepare();
 
+                cacheDynamicFee();
+
                 try {
                     payloadManager.updateBalancesAndTransactions();
                 } catch (Exception e) {
@@ -147,11 +153,17 @@ public class MainViewModel implements ViewModel{
         }
     }
 
+    public void cacheDynamicFee(){
+        DynamicFeeCache.getInstance().setSuggestedFee(new DynamicFee().getDynamicFee());
+    }
+
     @Override
     public void destroy() {
         appUtil.deleteQR();
         context = null;
         dataListener = null;
+        stopWebSocketService();
+        DynamicFeeCache.getInstance().destroy();
     }
 
     private void exchangeRateThread() {
