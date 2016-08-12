@@ -86,7 +86,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mainViewModel.stopWebSocketService();
+        mainViewModel.destroy();
     }
 
     @Override

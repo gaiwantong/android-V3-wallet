@@ -4,9 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
 
+import info.blockchain.api.DynamicFee;
+import info.blockchain.api.Unspent;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
+import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
+import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -15,10 +20,14 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.WebUtil;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class MainViewModel implements ViewModel {
+
+    private final String TAG = getClass().getSimpleName();
 
     private Context context;
     private DataListener dataListener;
@@ -78,6 +87,13 @@ public class MainViewModel implements ViewModel {
             dataListener.onFetchTransactionsStart();
 
             new Thread(() -> {
+                Looper.prepare();
+                cacheDynamicFee();
+                cacheDefaultAccountUnspentData();
+                Looper.loop();
+            }).start();
+
+            new Thread(() -> {
 
                 Looper.prepare();
 
@@ -106,11 +122,37 @@ public class MainViewModel implements ViewModel {
         }
     }
 
+    private void cacheDynamicFee(){
+        DynamicFeeCache.getInstance().setSuggestedFee(new DynamicFee().getDynamicFee());
+    }
+
+    private void cacheDefaultAccountUnspentData(){
+
+        if(payloadManager.getPayload().getHdWallet() != null) {
+
+            int defaultAccountIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+
+            Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultAccountIndex);
+            String xpub = defaultAccount.getXpub();
+
+            try {
+                JSONObject unspentResponse = new Unspent().getUnspentOutputs(xpub);
+                if(unspentResponse != null) {
+                    DefaultAccountUnspentCache.getInstance().setUnspentApiResponse(xpub, unspentResponse);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void destroy() {
         appUtil.deleteQR();
         context = null;
         dataListener = null;
+        stopWebSocketService();
+        DynamicFeeCache.getInstance().destroy();
     }
 
     private void exchangeRateThread() {

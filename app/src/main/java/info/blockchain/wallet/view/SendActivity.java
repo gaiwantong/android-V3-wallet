@@ -68,6 +68,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
 
+    private MenuItem sendButton;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -137,6 +139,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.send_activity_actions, menu);
+        sendButton = menu.findItem(R.id.action_send);
+        onDisableSend(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -283,6 +287,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         binding.destination.setLines(3);
         binding.destination.setOnTouchListener((view, motionEvent) -> {
             binding.destination.setText("");
+            viewModel.setReceivingAddress(null);
             return false;
         });
         binding.destination.setOnFocusChangeListener((v, hasFocus) -> {
@@ -293,7 +298,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
     private void setupSendFromView() {
 
-        binding.accounts.spinner.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false)));
+        binding.accounts.spinner.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false), true));
 
         //Set drop down width equal to clickable view
         binding.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -332,7 +337,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     private void setupReceiveToView() {
-        binding.spDestination.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true)));
+        binding.spDestination.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true), false));
 
         //Set drop down width equal to clickable view
         binding.spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -456,6 +461,20 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                     .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                         viewModel.spendFromWatchOnlyBIP38(password.getText().toString(), scanData);
                     }).setNegativeButton(android.R.string.cancel, null).show();
+        });
+    }
+
+    @Override
+    public void onDisableSend(boolean disable) {
+        runOnUiThread(() -> {
+            if (disable) {
+                sendButton.setEnabled(false);
+                sendButton.getIcon().setAlpha(130);
+
+            } else {
+                sendButton.setEnabled(true);
+                sendButton.getIcon().setAlpha(255);
+            }
         });
     }
 

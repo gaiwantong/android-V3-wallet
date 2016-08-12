@@ -1,8 +1,6 @@
-package wallet.util;
+package info.blockchain.wallet.util;
 
 import android.content.Context;
-
-import info.blockchain.wallet.util.DateUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

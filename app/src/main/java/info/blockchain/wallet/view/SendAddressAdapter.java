@@ -20,8 +20,11 @@ import piuk.blockchain.android.databinding.SpinnerItemBinding;
  */
 public class SendAddressAdapter extends ArrayAdapter<ItemAccount> {
 
-    public SendAddressAdapter(Context context, int textViewResourceId, List<ItemAccount> accountList) {
+    boolean showText;
+
+    public SendAddressAdapter(Context context, int textViewResourceId, List<ItemAccount> accountList, boolean showText) {
         super(context, textViewResourceId, accountList);
+        this.showText = showText;
     }
 
     public void updateData(List<ItemAccount> accountList){
@@ -66,8 +69,10 @@ public class SendAddressAdapter extends ArrayAdapter<ItemAccount> {
                     parent,
                     false);
 
-            ItemAccount item = getItem(position);
-            binding.text.setText(item.label);
+            if(showText) {
+                ItemAccount item = getItem(position);
+                binding.text.setText(item.label);
+            }
             return binding.getRoot();
         }
     }
