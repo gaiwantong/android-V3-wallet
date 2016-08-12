@@ -36,7 +36,7 @@ public class NotificationsUtil {
                 .setContentTitle(title)
                 .setContentIntent(intent)
                 .setWhen(System.currentTimeMillis())
-                .setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.alert))
+                .setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.beep))
                 .setTicker(marquee)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)

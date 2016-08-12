@@ -137,11 +137,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
                 && data != null && data.getStringExtra(CaptureActivity.SCAN_RESULT) != null) {
             String strResult = data.getStringExtra(CaptureActivity.SCAN_RESULT);
 
-            if (getCurrentFragment() instanceof SendFragment) {
-                getCurrentFragment().onActivityResult(requestCode, resultCode, data);
-            } else {
-                doScanInput(strResult);
-            }
+            doScanInput(strResult);
 
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_BACKUP) {
             resetNavigationDrawer();
@@ -165,12 +161,8 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
                 && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
             ((ReceiveFragment) getCurrentFragment()).onKeypadClose();
 
-        } else if (getCurrentFragment() instanceof SendFragment
-                && ((SendFragment) getCurrentFragment()).getCustomKeypad() != null
-                && ((SendFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
-            ((SendFragment) getCurrentFragment()).onKeypadClose();
-
-        } else {
+        }
+        else {
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -188,12 +180,9 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
 
     private void doScanInput(String strResult) {
 
-        Fragment fragment = new SendFragment();
-        Bundle args = new Bundle();
-        args.putString("scan_data", strResult);
-        fragment.setArguments(args);
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        Intent intent = new Intent(this, SendActivity.class);
+        intent.putExtra("scan_data", strResult);
+        startActivity(intent);
     }
 
     @Override

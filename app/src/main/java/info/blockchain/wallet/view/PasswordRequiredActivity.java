@@ -77,12 +77,24 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     }
 
     @Override
-    public void showProgressDialog(@StringRes int message) {
+    public void updateWaitingForAuthDialog(int secondsRemaining) {
+        if (mProgressDialog != null) {
+            mProgressDialog.setMessage(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining);
+        }
+    }
+
+    @Override
+    public void showProgressDialog(@StringRes int messageId, @Nullable String suffix, boolean cancellable) {
         dismissProgressDialog();
         mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCancelable(cancellable);
         mProgressDialog.setTitle(R.string.app_name);
-        mProgressDialog.setMessage(getString(message));
+        if (suffix != null) {
+            mProgressDialog.setMessage(getString(messageId) + "\n\n" + suffix);
+        } else {
+            mProgressDialog.setMessage(getString(messageId));
+        }
+        mProgressDialog.setOnCancelListener(dialogInterface -> mViewModel.onProgressCancelled());
 
         if (!isFinishing()) mProgressDialog.show();
     }

@@ -89,17 +89,15 @@ public class PrefsUtil implements PersistentPrefs {
     }
 
     /**
-     * Clears everything but the GUID & Shared Key for logging back in
+     * Clears everything but the GUID for logging back in
      */
     @Override
     public void logOut() {
         String guid = getValue(PrefsUtil.KEY_GUID, "");
-        String sharedKey = getValue(PrefsUtil.KEY_SHARED_KEY, "");
         clear();
 
         setValue(PrefsUtil.LOGGED_OUT, true);
         setValue(PrefsUtil.KEY_GUID, guid);
-        setValue(PrefsUtil.KEY_SHARED_KEY, sharedKey);
     }
 
     /**
