@@ -43,6 +43,8 @@ public class SendModel extends BaseObservable {
     public BigInteger absoluteSuggestedFee;//Fee for 2nd block inclusion
 
     public String verifiedSecondPassword;
+    public boolean isBTC;
+    public double btcExchange;
 
     //Vars used for warning user of large tx
     public static final int LARGE_TX_SIZE = 516;//kb
