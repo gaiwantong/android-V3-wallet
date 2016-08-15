@@ -20,6 +20,8 @@ import javax.inject.Inject;
 import piuk.blockchain.android.di.Injector;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by adambennett on 12/08/2016.
@@ -31,6 +33,7 @@ public class AuthDataManager {
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected Access mAccess;
     @Inject protected AppUtil mAppUtil;
+    private int timer;
 
     public AuthDataManager() {
         Injector.getInstance().getAppComponent().inject(this);
@@ -95,6 +98,15 @@ public class AuthDataManager {
                 subscriber.onError(new Throwable("Create password failed: " + e));
             }
         }));
+    }
+
+    public Observable<Integer> createCheckEmailTimer() {
+        timer = 2 * 60;
+
+        return Observable.interval(0, 1, TimeUnit.SECONDS, Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(aLong -> timer--)
+                .takeUntil(aLong -> timer < 0);
     }
 
     public void attemptDecryptPayload(CharSequenceX password, String guid, String payload, DecryptPayloadListener listener) {

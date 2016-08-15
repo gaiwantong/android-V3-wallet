@@ -8,7 +8,6 @@ import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
-import info.blockchain.wallet.rxjava.RxUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.di.Injector;
-import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -28,8 +26,6 @@ public class PasswordRequiredViewModel implements ViewModel {
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected AuthDataManager mAuthDataManager;
     private DataListener mDataListener;
-    private int timer = 0;
-    private String payload;
     @VisibleForTesting boolean mWaitingForAuth = false;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
@@ -43,7 +39,7 @@ public class PasswordRequiredViewModel implements ViewModel {
 
         void showToast(@StringRes int message, @ToastCustom.ToastType String toastType);
 
-        void restartApp();
+        void restartPage();
 
         void updateWaitingForAuthDialog(int secondsRemaining);
 
@@ -68,7 +64,7 @@ public class PasswordRequiredViewModel implements ViewModel {
             verifyPassword(new CharSequenceX(mDataListener.getPassword()));
         } else {
             mDataListener.showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR);
-            mDataListener.restartApp();
+            mDataListener.restartPage();
         }
     }
 
@@ -86,32 +82,30 @@ public class PasswordRequiredViewModel implements ViewModel {
                 mAuthDataManager.getSessionId(guid)
                         .flatMap(sessionId -> mAuthDataManager.getEncryptedPayload(guid, sessionId))
                         .subscribe(response -> {
-                            payload = response;
                             if (response.equals(Access.KEY_AUTH_REQUIRED)) {
-                                mDataListener.showProgressDialog(R.string.validating_password, null, true);
-
+                                showCheckEmailDialog();
                                 mCompositeSubscription.add(
-                                        waitForAuth(guid).subscribe(s -> {
+                                        mAuthDataManager.startPollingAuthStatus(guid).subscribe(payloadResponse -> {
                                             mWaitingForAuth = false;
-                                            payload = s;
 
-                                            if (payload == null || payload.equals(Access.KEY_AUTH_REQUIRED)) {
-                                                showErrorToastAndRestart(R.string.auth_failed);
+                                            if (payloadResponse == null || payloadResponse.equals(Access.KEY_AUTH_REQUIRED)) {
+                                                showErrorToastAndRestartApp(R.string.auth_failed);
                                                 return;
 
                                             }
-                                            attemptDecryptPayload(password, guid, payload);
+                                            attemptDecryptPayload(password, guid, payloadResponse);
 
                                         }, throwable -> {
                                             mWaitingForAuth = false;
-                                            showErrorToastAndRestart(R.string.auth_failed);
+                                            showErrorToastAndRestartApp(R.string.auth_failed);
                                         }));
                             } else {
-                                attemptDecryptPayload(password, guid, payload);
+                                mWaitingForAuth = false;
+                                attemptDecryptPayload(password, guid, response);
                             }
                         }, throwable -> {
                             throwable.printStackTrace();
-                            showErrorToastAndRestart(R.string.auth_failed);
+                            showErrorToastAndRestartApp(R.string.auth_failed);
                         }));
     }
 
@@ -139,62 +133,40 @@ public class PasswordRequiredViewModel implements ViewModel {
 
             @Override
             public void onFatalError() {
-                showErrorToastAndRestart(R.string.auth_failed);
+                showErrorToastAndRestartApp(R.string.auth_failed);
             }
         });
     }
 
-    private Observable<String> waitForAuth(String guid) {
-        mCompositeSubscription.add(
-                showCheckEmailDialog()
-                        .compose(RxUtil.applySchedulers())
-                        .subscribe(new Subscriber<Integer>() {
-                            @Override
-                            public void onCompleted() {
-                                // Only called if timer has run out
-                                mDataListener.dismissProgressDialog();
-                            }
+    private void showCheckEmailDialog() {
+        mDataListener.showProgressDialog(R.string.check_email_to_auth_login, "120", true);
 
-                            @Override
-                            public void onError(Throwable e) {
-                                showErrorToast(R.string.auth_failed);
-                            }
+        mCompositeSubscription.add(mAuthDataManager.createCheckEmailTimer()
+                .takeUntil(integer -> !mWaitingForAuth)
+                .subscribe(new Subscriber<Integer>() {
+                    @Override
+                    public void onCompleted() {
 
-                            @Override
-                            public void onNext(Integer integer) {
-                                // Called every time the timer counts down
-                                mDataListener.updateWaitingForAuthDialog(timer);
-                            }
-                        }));
+                    }
 
-        return mAuthDataManager.startPollingAuthStatus(guid);
-    }
+                    @Override
+                    public void onError(Throwable e) {
+                        showErrorToast(R.string.auth_failed);
+                        mWaitingForAuth = false;
+                    }
 
-    private Observable<Integer> showCheckEmailDialog() {
-        // 120 seconds
-        timer = 2 * 60;
-        mDataListener.showProgressDialog(R.string.check_email_to_auth_login, String.valueOf(timer), true);
-        return Observable.defer(() -> Observable.create(subscriber -> {
-            while (mWaitingForAuth) {
-                subscriber.onNext(timer);
-                timer--;
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    subscriber.onError(e);
-                }
-
-                if (timer <= 0) {
-                    mWaitingForAuth = false;
-                    mAppUtil.clearCredentialsAndRestart();
-                    subscriber.onError(new Throwable("Time expired"));
-                }
-            }
-
-            subscriber.onCompleted();
-        }));
+                    @Override
+                    public void onNext(Integer integer) {
+                        if (integer <= 0) {
+                            // Only called if timer has run out
+                            mDataListener.dismissProgressDialog();
+                            mAppUtil.clearCredentialsAndRestart();
+                            showErrorToast(R.string.auth_failed);
+                        } else {
+                            mDataListener.updateWaitingForAuthDialog(integer);
+                        }
+                    }
+                }));
     }
 
     public void onProgressCancelled() {
@@ -210,7 +182,7 @@ public class PasswordRequiredViewModel implements ViewModel {
     }
 
     @UiThread
-    private void showErrorToastAndRestart(@StringRes int message) {
+    private void showErrorToastAndRestartApp(@StringRes int message) {
         mDataListener.resetPasswordField();
         mDataListener.dismissProgressDialog();
         mDataListener.showToast(message, ToastCustom.TYPE_ERROR);

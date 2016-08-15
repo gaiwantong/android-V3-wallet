@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
+import piuk.blockchain.android.di.DataManagerModule;
 import piuk.blockchain.android.di.Injector;
 import piuk.blockchain.android.di.InjectorTestUtils;
 
@@ -36,6 +37,8 @@ import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
  */
 public class LauncherViewModelTest {
 
+    // FIXME: 15/08/2016
+
     private LauncherViewModel mSubject;
 
     @Mock private LauncherActivity mLauncherActivity;
@@ -52,7 +55,10 @@ public class LauncherViewModelTest {
         MockitoAnnotations.initMocks(this);
 
         InjectorTestUtils.initApplicationComponent(
-                Injector.getInstance(), new MockApplicationModule(new BlockchainTestApplication()), new MockApiModule());
+                Injector.getInstance(),
+                new MockApplicationModule(new BlockchainTestApplication()),
+                new MockApiModule(),
+                new DataManagerModule());
 
         mSubject = new LauncherViewModel(mLauncherActivity);
     }

@@ -21,15 +21,17 @@ public enum Injector {
 
         ApplicationModule applicationModule = new ApplicationModule((Application) applicationContext);
         ApiModule apiModule = new ApiModule();
+        DataManagerModule managerModule = new DataManagerModule();
 
-        initAppComponent(applicationModule, apiModule);
+        initAppComponent(applicationModule, apiModule, managerModule);
     }
 
-    protected void initAppComponent(ApplicationModule applicationModule, ApiModule apiModule) {
+    protected void initAppComponent(ApplicationModule applicationModule, ApiModule apiModule, DataManagerModule managerModule) {
 
         mAppComponent = DaggerApplicationComponent.builder()
                 .applicationModule(applicationModule)
                 .apiModule(apiModule)
+                .dataManagerModule(managerModule)
                 .build();
     }
 

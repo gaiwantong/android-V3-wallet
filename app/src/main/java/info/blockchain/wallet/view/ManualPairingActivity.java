@@ -62,13 +62,6 @@ public class ManualPairingActivity extends BaseAuthActivity implements ManualPai
     }
 
     @Override
-    public void restartApp() {
-        Intent intent = new Intent(this, LauncherActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    @Override
     public void goToPinPage() {
         startActivity(new Intent(this, PinEntryActivity.class));
     }

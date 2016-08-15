@@ -55,7 +55,7 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     }
 
     @Override
-    public void restartApp() {
+    public void restartPage() {
         Intent intent = new Intent(this, LauncherActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
