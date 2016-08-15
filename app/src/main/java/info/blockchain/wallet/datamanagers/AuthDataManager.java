@@ -3,9 +3,9 @@ package info.blockchain.wallet.datamanagers;
 import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
-import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.rxjava.RxUtil;
+import info.blockchain.wallet.util.AESUtilWrapper;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -33,7 +33,8 @@ public class AuthDataManager {
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected Access mAccess;
     @Inject protected AppUtil mAppUtil;
-    private int timer;
+    @Inject protected AESUtilWrapper mAESUtil;
+    @VisibleForTesting protected int timer;
 
     public AuthDataManager() {
         Injector.getInstance().getAppComponent().inject(this);
@@ -85,13 +86,12 @@ public class AuthDataManager {
 
                             @Override
                             public void onInitPairFail() {
-                                subscriber.onError(new Throwable("onInitPairFail"));
+                                subscriber.onError(new PairFailThrowable());
                             }
 
                             @Override
                             public void onInitCreateFail(String s) {
-                                // This syntactically incorrect, but also convenient in this case
-                                subscriber.onNext(null);
+                                subscriber.onError(new CreateFailThrowable());
                             }
                         });
             } catch (Exception e) {
@@ -123,7 +123,7 @@ public class AuthDataManager {
 
                 String decrypted_payload = null;
                 try {
-                    decrypted_payload = AESUtil.decrypt(encrypted_payload, password, iterations);
+                    decrypted_payload = mAESUtil.decrypt(encrypted_payload, password, iterations);
                 } catch (Exception e) {
                     listener.onFatalError();
                 }
@@ -148,13 +148,16 @@ public class AuthDataManager {
 
                                     @Override
                                     public void onError(Throwable e) {
-                                        listener.onPairFail();
+                                        if (e instanceof CreateFailThrowable) {
+                                            listener.onCreateFail();
+                                        } else if (e instanceof PairFailThrowable) {
+                                            listener.onPairFail();
+                                        }
                                     }
 
                                     @Override
                                     public void onNext(Void aVoid) {
-                                        // onNext in this case is an error, treat as such
-                                        listener.onCreateFail();
+                                        // No-op
                                     }
                                 });
                     }
@@ -165,6 +168,18 @@ public class AuthDataManager {
             }
         } catch (JSONException e) {
             listener.onFatalError();
+        }
+    }
+
+    private class PairFailThrowable extends Throwable {
+        PairFailThrowable() {
+            super();
+        }
+    }
+
+    private class CreateFailThrowable extends Throwable {
+        CreateFailThrowable() {
+            super();
         }
     }
 

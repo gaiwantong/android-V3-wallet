@@ -27,7 +27,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
@@ -36,8 +35,6 @@ import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
  * Created by adambennett on 09/08/2016.
  */
 public class LauncherViewModelTest {
-
-    // FIXME: 15/08/2016
 
     private LauncherViewModel mSubject;
 
@@ -84,8 +81,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onStartMainActivity();
+        verify(mLauncherActivity).onStartMainActivity();
     }
 
     /**
@@ -108,8 +104,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestPin();
+        verify(mLauncherActivity).onRequestPin();
     }
 
     /**
@@ -125,8 +120,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onNoGuid();
+        verify(mLauncherActivity).onNoGuid();
     }
 
     /**
@@ -143,8 +137,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestPin();
+        verify(mLauncherActivity).onRequestPin();
     }
 
     /**
@@ -161,8 +154,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onCorruptPayload();
+        verify(mLauncherActivity).onCorruptPayload();
     }
 
     /**
@@ -185,8 +177,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestUpgrade();
+        verify(mLauncherActivity).onRequestUpgrade();
     }
 
     /**
@@ -203,8 +194,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onReEnterPassword();
+        verify(mLauncherActivity).onReEnterPassword();
     }
 
     /**

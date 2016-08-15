@@ -159,9 +159,7 @@ public class PasswordRequiredViewModel implements ViewModel {
                     public void onNext(Integer integer) {
                         if (integer <= 0) {
                             // Only called if timer has run out
-                            mDataListener.dismissProgressDialog();
-                            mAppUtil.clearCredentialsAndRestart();
-                            showErrorToast(R.string.auth_failed);
+                            showErrorToastAndRestartApp(R.string.pairing_failed);
                         } else {
                             mDataListener.updateWaitingForAuthDialog(integer);
                         }

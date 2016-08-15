@@ -6,8 +6,7 @@ import info.blockchain.api.Access;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.view.PasswordRequiredActivity;
+import info.blockchain.wallet.view.ManualPairingActivity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import piuk.blockchain.android.BlockchainTestApplication;
-import piuk.blockchain.android.RxTest;
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
 import piuk.blockchain.android.di.DataManagerModule;
@@ -34,20 +32,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by adambennett on 10/08/2016.
+ * Created by adambennett on 15/08/2016.
  */
-public class PasswordRequiredViewModelTest extends RxTest {
+public class ManualPairingViewModelTest {
 
-    private PasswordRequiredViewModel mSubject;
+    private ManualPairingViewModel mSubject;
 
-    @Mock private PasswordRequiredActivity mActivity;
+    @Mock private ManualPairingActivity mActivity;
     @Mock protected AppUtil mAppUtil;
-    @Mock protected PrefsUtil mPrefsUtil;
     @Mock protected AuthDataManager mAuthDataManager;
-
+    
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         MockitoAnnotations.initMocks(this);
 
         InjectorTestUtils.initApplicationComponent(
@@ -56,32 +52,47 @@ public class PasswordRequiredViewModelTest extends RxTest {
                 new ApiModule(),
                 new MockDataManagerModule());
 
-        mSubject = new PasswordRequiredViewModel(mActivity);
+        mSubject = new ManualPairingViewModel(mActivity);
     }
 
     /**
-     * Password is missing, should trigger {@link PasswordRequiredActivity#restartPage()}
+     * Password is missing, should trigger {@link ManualPairingActivity#showToast(int, String)}
      */
     @Test
     public void onContinueClickedNoPassword() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("");
         // Act
         mSubject.onContinueClicked();
         // Assert
         // noinspection WrongConstant
         verify(mActivity).showToast(anyInt(), anyString());
-        verify(mActivity).restartPage();
     }
 
     /**
-     * Password is correct, should trigger {@link PasswordRequiredActivity#goToPinPage()}
+     * GUID is missing, should trigger {@link ManualPairingActivity#showToast(int, String)}
+     */
+    @Test
+    public void onContinueClickedNoGuid() throws Exception {
+        // Arrange
+        when(mActivity.getGuid()).thenReturn("");
+        when(mActivity.getPassword()).thenReturn("1234567890");
+        // Act
+        mSubject.onContinueClicked();
+        // Assert
+        // noinspection WrongConstant
+        verify(mActivity).showToast(anyInt(), anyString());
+    }
+
+    /**
+     * Password is correct, should trigger {@link ManualPairingActivity#goToPinPage()}
      */
     @Test
     public void onContinueClickedCorrectPassword() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
@@ -100,13 +111,13 @@ public class PasswordRequiredViewModelTest extends RxTest {
     }
 
     /**
-     * PayloadManager returns a pairing failure, should trigger {@link PasswordRequiredActivity#showToast(int, String)} ()}
+     * PayloadManager returns a pairing failure, should trigger {@link ManualPairingActivity#showToast(int, String)} ()}
      */
     @Test
     public void onContinueClickedPairingFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
@@ -127,13 +138,13 @@ public class PasswordRequiredViewModelTest extends RxTest {
     }
 
     /**
-     * PayloadManager returns wallet creation failure, should trigger {@link PasswordRequiredActivity#showToast(int, String)} ()}
+     * PayloadManager returns wallet creation failure, should trigger {@link ManualPairingActivity#showToast(int, String)} ()}
      */
     @Test
     public void onContinueClickedCreateFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
@@ -154,13 +165,13 @@ public class PasswordRequiredViewModelTest extends RxTest {
     }
 
     /**
-     * PayloadManager returns auth failure, should trigger {@link PasswordRequiredActivity#showToast(int, String)} ()}
+     * PayloadManager returns auth failure, should trigger {@link ManualPairingActivity#showToast(int, String)} ()}
      */
     @Test
     public void onContinueClickedAuthFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
@@ -186,8 +197,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedFatalError() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
@@ -215,8 +226,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedSessionIdFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.error(new Throwable()));
 
@@ -237,8 +248,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedEncryptedPayloadFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.error(new Throwable()));
@@ -260,8 +271,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedWaitingForAuthRequired() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
@@ -283,8 +294,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedWaitingForAuthSuccess() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
@@ -303,8 +314,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedWaitingForAuthFailure() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
@@ -326,8 +337,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedWaitingForAuthCountdownComplete() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
@@ -348,8 +359,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
     @Test
     public void onContinueClickedWaitingForAuthCountdownError() throws Exception {
         // Arrange
+        when(mActivity.getGuid()).thenReturn("1234567890");
         when(mActivity.getPassword()).thenReturn("1234567890");
-        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
@@ -361,7 +372,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         // noinspection WrongConstant
         verify(mActivity).showToast(anyInt(), anyString());
     }
-
+    
     @Test
     public void onProgressCancelled() throws Exception {
         // Arrange
@@ -371,16 +382,6 @@ public class PasswordRequiredViewModelTest extends RxTest {
         // Assert
         assertFalse(mSubject.mWaitingForAuth);
         assertFalse(mSubject.mCompositeSubscription.hasSubscriptions());
-    }
-
-    @Test
-    public void onForgetWalletClicked() throws Exception {
-        // Arrange
-
-        // Act
-        mSubject.onForgetWalletClicked();
-        // Assert
-        verify(mAppUtil).clearCredentialsAndRestart();
     }
 
     @Test
@@ -420,11 +421,6 @@ public class PasswordRequiredViewModelTest extends RxTest {
         }
 
         @Override
-        protected PrefsUtil providePrefsUtil() {
-            return mPrefsUtil;
-        }
-
-        @Override
         protected AppUtil provideAppUtil() {
             return mAppUtil;
         }
@@ -437,4 +433,5 @@ public class PasswordRequiredViewModelTest extends RxTest {
             return mAuthDataManager;
         }
     }
+
 }

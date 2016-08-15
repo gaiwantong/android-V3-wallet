@@ -24,7 +24,6 @@ public class ManualPairingViewModel implements ViewModel {
     @Inject protected AppUtil mAppUtil;
     @Inject protected AuthDataManager mAuthDataManager;
     private DataListener mDataListener;
-    private String payload;
     @VisibleForTesting boolean mWaitingForAuth = false;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
@@ -64,9 +63,9 @@ public class ManualPairingViewModel implements ViewModel {
         String password = mDataListener.getPassword();
 
         if (guid == null || guid.isEmpty()) {
-            mDataListener.showToast(R.string.invalid_guid, ToastCustom.TYPE_ERROR);
+            showErrorToast(R.string.invalid_guid);
         } else if (password == null || password.isEmpty()) {
-            mDataListener.showToast(R.string.invalid_password, ToastCustom.TYPE_ERROR);
+            showErrorToast(R.string.invalid_password);
         } else {
             verifyPassword(new CharSequenceX(password), guid);
         }
@@ -81,21 +80,19 @@ public class ManualPairingViewModel implements ViewModel {
                 mAuthDataManager.getSessionId(guid)
                         .flatMap(sessionId -> mAuthDataManager.getEncryptedPayload(guid, sessionId))
                         .subscribe(response -> {
-                            payload = response;
                             if (response.equals(Access.KEY_AUTH_REQUIRED)) {
                                 showCheckEmailDialog();
 
                                 mCompositeSubscription.add(
-                                        mAuthDataManager.startPollingAuthStatus(guid).subscribe(s -> {
+                                        mAuthDataManager.startPollingAuthStatus(guid).subscribe(payloadResponse -> {
                                             mWaitingForAuth = false;
-                                            payload = s;
 
-                                            if (payload == null || payload.equals(Access.KEY_AUTH_REQUIRED)) {
+                                            if (payloadResponse == null || payloadResponse.equals(Access.KEY_AUTH_REQUIRED)) {
                                                 showErrorToastAndRestartApp(R.string.auth_failed);
                                                 return;
 
                                             }
-                                            attemptDecryptPayload(password, guid, payload);
+                                            attemptDecryptPayload(password, guid, payloadResponse);
 
                                         }, throwable -> {
                                             mWaitingForAuth = false;
@@ -103,7 +100,7 @@ public class ManualPairingViewModel implements ViewModel {
                                         }));
                             } else {
                                 mWaitingForAuth = false;
-                                attemptDecryptPayload(password, guid, payload);
+                                attemptDecryptPayload(password, guid, response);
                             }
                         }, throwable -> {
                             throwable.printStackTrace();
@@ -161,9 +158,7 @@ public class ManualPairingViewModel implements ViewModel {
                     public void onNext(Integer integer) {
                         if (integer <= 0) {
                             // Only called if timer has run out
-                            mDataListener.dismissProgressDialog();
-                            mAppUtil.clearCredentialsAndRestart();
-                            showErrorToast(R.string.auth_failed);
+                            showErrorToastAndRestartApp(R.string.pairing_failed);
                         } else {
                             mDataListener.updateWaitingForAuthDialog(integer);
                         }
