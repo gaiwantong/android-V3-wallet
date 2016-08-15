@@ -1,6 +1,7 @@
 package info.blockchain.wallet.view;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
@@ -8,67 +9,56 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import info.blockchain.wallet.view.helpers.ToastCustom;
-import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
+import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
-import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding;
+import piuk.blockchain.android.databinding.ActivityManualPairingBinding;
 
-/**
- * Created by adambennett on 09/08/2016.
- */
+public class ManualPairingActivity extends BaseAuthActivity implements ManualPairingViewModel.DataListener {
 
-public class PasswordRequiredActivity extends BaseAuthActivity implements PasswordRequiredViewModel.DataListener {
-
-    private PasswordRequiredViewModel mViewModel;
-    private ActivityPasswordRequiredBinding mBinding;
     private ProgressDialog mProgressDialog;
+    private ActivityManualPairingBinding mBinding;
+    private ManualPairingViewModel mViewModel;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_password_required);
-        mViewModel = new PasswordRequiredViewModel(this);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_manual_pairing);
+        mViewModel = new ManualPairingViewModel(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_general);
-        toolbar.setTitle(getResources().getString(R.string.confirm_password));
+        toolbar.setTitle(getResources().getString(R.string.manual_pairing));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        mBinding.buttonContinue.setOnClickListener(view -> mViewModel.onContinueClicked());
-        mBinding.buttonForget.setOnClickListener(view -> mViewModel.onForgetWalletClicked());
+        mBinding.commandNext.setOnClickListener(v -> mViewModel.onContinueClicked());
 
         mViewModel.onViewReady();
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                super.onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void showToast(@StringRes int message, @ToastCustom.ToastType String toastType) {
         ToastCustom.makeText(this, getString(message), ToastCustom.LENGTH_SHORT, toastType);
-    }
-
-    @Override
-    public void restartPage() {
-        Intent intent = new Intent(this, LauncherActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    @Override
-    public String getPassword() {
-        return mBinding.fieldPassword.getText().toString();
-    }
-
-    @Override
-    public void resetPasswordField() {
-        if (!isFinishing()) mBinding.fieldPassword.setText("");
     }
 
     @Override
@@ -108,10 +98,28 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void resetPasswordField() {
+        if (!isFinishing()) mBinding.walletPass.setText("");
+    }
+
+    @Override
+    public String getGuid() {
+        return mBinding.walletId.getText().toString();
+    }
+
+    @Override
+    public String getPassword() {
+        return mBinding.walletPass.getText().toString();
+    }
+
+    @Override
+    public void onDestroy() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
         mViewModel.destroy();
         dismissProgressDialog();
+        super.onDestroy();
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
@@ -42,14 +41,8 @@ public class PairWalletFragment extends Fragment implements FragmentCompat.OnReq
             }
         });
 
-        binding.commandManual.setOnClickListener(v -> {
-            Fragment fragment = new ManualPairingFragment();
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        });
+        binding.commandManual.setOnClickListener(
+                v -> startActivity(new Intent(getActivity(), ManualPairingActivity.class)));
 
         return binding.getRoot();
     }

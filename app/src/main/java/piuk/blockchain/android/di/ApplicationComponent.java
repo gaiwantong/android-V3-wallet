@@ -1,7 +1,9 @@
 package piuk.blockchain.android.di;
 
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 
 import javax.inject.Singleton;
@@ -15,7 +17,7 @@ import piuk.blockchain.android.exceptions.LoggingExceptionHandler;
  */
 
 @Singleton
-@Component(modules = {ApplicationModule.class, ApiModule.class} )
+@Component(modules = {ApplicationModule.class, ApiModule.class, DataManagerModule.class} )
 public interface ApplicationComponent {
 
     void inject(AccessState accessState);
@@ -27,4 +29,8 @@ public interface ApplicationComponent {
     void inject(AppUtil appUtil);
 
     void inject(LoggingExceptionHandler loggingExceptionHandler);
+
+    void inject(ManualPairingViewModel manualPairingViewModel);
+
+    void inject(AuthDataManager authDataManager);
 }

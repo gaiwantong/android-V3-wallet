@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.util.AESUtilWrapper;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 
@@ -47,5 +48,10 @@ public class ApplicationModule {
     @Singleton
     protected AccessState provideAccessState() {
         return AccessState.getInstance();
+    }
+
+    @Provides
+    protected AESUtilWrapper provideAesUtils() {
+        return new AESUtilWrapper();
     }
 }
