@@ -68,6 +68,8 @@ public class SendViewModel implements ViewModel {
     private Payment payment;
     public SendModel sendModel;
 
+    private Thread unspentApiThread;
+
     public SendViewModel(SendModel sendModel, Context context, double exchangeRate, int btcUnit, String fiatUnit, boolean isBTC, DataListener dataListener) {
         this.context = context;
         this.dataListener = dataListener;
@@ -517,48 +519,46 @@ public class SendViewModel implements ViewModel {
             address = ((LegacyAddress)sendAddressItem.accountObject).getAddress();
         }
 
-        new Thread(() -> {
+        if(unspentApiThread != null) {
+            unspentApiThread.interrupt();
+        }
+
+        unspentApiThread = new Thread(() -> {
             Looper.prepare();
 
-            try {
-                JSONObject unspentResponse = getUnspentApiResponse(address);
+            JSONObject unspentResponse = getUnspentApiResponse(address);
+            if(unspentResponse != null){
 
-                if(unspentResponse != null){
+                BigInteger amountToSend = getSatoshisFromText(amountToSendText);
+                BigInteger customFee = getSatoshisFromText(customFeeText);
 
-                    BigInteger amountToSend = getSatoshisFromText(amountToSendText);
-                    BigInteger customFee = getSatoshisFromText(customFeeText);
+                final UnspentOutputs coins = payment.getCoins(unspentResponse);
 
-                    final UnspentOutputs coins = payment.getCoins(unspentResponse);
-                    //Warn user of unconfirmed funds - but don't block payment
-                    if(coins.getNotice() != null){
-                        dataListener.onShowErrorMessage(coins.getNotice());
-                    }
-
-                    sendModel.absoluteSuggestedFee = getSuggestedAbsoluteFee(coins, amountToSend);
-
-                    if(!customFeeText.isEmpty() || customFee.compareTo(BigInteger.ZERO) == 1) {
-                        customFeePayment(coins, amountToSend, customFee, spendAll);
-                    }else{
-                        suggestedFeePayment(coins, amountToSend, spendAll);
-                    }
-
-                }else{
-                    //No unspent outputs
-                    updateMaxAvailable(0);
-                    sendModel.pendingTransaction.unspentOutputBundle = null;
+                //Future use. There might be some unconfirmed funds. Not displaying a warning currently (to line up with iOS and Web wallet)
+                if(coins.getNotice() != null){
+                    System.out.println(coins.getNotice());
                 }
 
-                if(listener != null)listener.onReady();
+                sendModel.absoluteSuggestedFee = getSuggestedAbsoluteFee(coins, amountToSend);
 
-            } catch (Exception e) {
-                //Failed to retrieve unspent data
-                e.printStackTrace();
+                if(!customFeeText.isEmpty() || customFee.compareTo(BigInteger.ZERO) == 1) {
+                    customFeePayment(coins, amountToSend, customFee, spendAll);
+                }else{
+                    suggestedFeePayment(coins, amountToSend, spendAll);
+                }
+
+            }else{
+                //No unspent outputs
                 updateMaxAvailable(0);
-                dataListener.onShowErrorMessage(context.getString(R.string.api_fail));
+                sendModel.pendingTransaction.unspentOutputBundle = null;
             }
 
+            if(listener != null)listener.onReady();
+
             Looper.loop();
-        }).start();
+        });
+
+        unspentApiThread.start();
 
     }
 
@@ -587,7 +587,7 @@ public class SendViewModel implements ViewModel {
         validateCustomFee(amount.add(customFee), sweepBundle.getSweepAmount());
 
         SpendableUnspentOutputs unspentOutputBundle = payment.getSpendableCoins(coins,
-                amount,//TODO add fee?
+                amount,
                 BigInteger.ZERO);
 
         sendModel.pendingTransaction.bigIntAmount = amount;
@@ -701,12 +701,12 @@ public class SendViewModel implements ViewModel {
      * @return
      * @throws Exception
      */
-    private JSONObject getUnspentApiResponse(String address) throws Exception {
+    private JSONObject getUnspentApiResponse(String address) {
         if(sendModel.unspentApiResponse.containsKey(address)) {
             return sendModel.unspentApiResponse.get(address);
         }else{
 
-            JSONObject unspentResponse;
+            JSONObject unspentResponse = null;
 
             //Get cache if is default account
             DefaultAccountUnspentCache cache = DefaultAccountUnspentCache.getInstance();
@@ -722,10 +722,16 @@ public class SendViewModel implements ViewModel {
                     }
                 }).start();
             }else{
-                unspentResponse = new Unspent().getUnspentOutputs(address);
+                try {
+                    unspentResponse = new Unspent().getUnspentOutputs(address);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            sendModel.unspentApiResponse.put(address, unspentResponse);
+            if(unspentResponse != null)
+                sendModel.unspentApiResponse.put(address, unspentResponse);
+
             return unspentResponse;
         }
     }
@@ -862,8 +868,10 @@ public class SendViewModel implements ViewModel {
      */
     private boolean isFeeAdequate(){
 
-        //TODO - minimum on push tx = 1000 per kb, unless it has sufficient priority
-        if(sendModel.pendingTransaction.bigIntFee.longValue() < 1000){
+        //Push tx endpoint only accepts > 10000 per kb fees
+        if(!FeeUtil.isAdequateFee(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(),
+                2,//assume change
+                sendModel.pendingTransaction.bigIntFee)){
             dataListener.onShowErrorMessage(context.getString(R.string.insufficient_fee));
             return false;
         }
@@ -1186,6 +1194,7 @@ public class SendViewModel implements ViewModel {
                 }
             }catch (Exception e){
                 e.printStackTrace();
+                dataListener.onShowErrorMessage(context.getString(R.string.transaction_failed));
             }
         }).start();
 

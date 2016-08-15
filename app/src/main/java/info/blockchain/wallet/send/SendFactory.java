@@ -5,13 +5,13 @@ import android.os.AsyncTask;
 import android.os.Looper;
 
 import info.blockchain.api.PushTx;
+import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.CharSequenceX;
-import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.Hash;
 
@@ -24,7 +24,6 @@ import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.Wallet;
 import org.bitcoinj.params.MainNetParams;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
@@ -431,32 +430,33 @@ public class SendFactory {
 
                 SuggestedFee suggestedFee = null;
 
-                try {
-                    JSONObject dynamicFeeJson = FeeUtil.getDynamicFee();
-                    if(dynamicFeeJson != null){
-
-                        suggestedFee = new SuggestedFee();
-                        JSONObject defaultJson = dynamicFeeJson.getJSONObject("default");
-                        suggestedFee.defaultFeePerKb = BigInteger.valueOf(defaultJson.getLong("fee"));
-                        suggestedFee.isSurge = defaultJson.getBoolean("surge");
-
-                        JSONArray estimateArray = dynamicFeeJson.getJSONArray("estimate");
-                        suggestedFee.estimateList = new ArrayList<>();
-                        for(int i = 0; i < estimateArray.length(); i++){
-
-                            JSONObject estimateJson = estimateArray.getJSONObject(i);
-
-                            BigInteger fee = BigInteger.valueOf(estimateJson.getLong("fee"));
-                            boolean surge = estimateJson.getBoolean("surge");
-                            boolean ok = estimateJson.getBoolean("ok");
-
-                            suggestedFee.estimateList.add(new SuggestedFee.Estimates(fee, surge, ok));
-                        }
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                //TODO fix this
+//                try {
+////                    info.blockchain.wallet.payment.data.SuggestedFee dynamicFeeJson = new DynamicFee().getDynamicFee();
+////                    if(dynamicFeeJson != null){
+////
+////                        suggestedFee = new SuggestedFee();
+////                        JSONObject defaultJson = dynamicFeeJson.getJSONObject("default");
+////                        suggestedFee.defaultFeePerKb = BigInteger.valueOf(defaultJson.getLong("fee"));
+////                        suggestedFee.isSurge = defaultJson.getBoolean("surge");
+////
+////                        JSONArray estimateArray = dynamicFeeJson.getJSONArray("estimate");
+////                        suggestedFee.estimateList = new ArrayList<>();
+////                        for(int i = 0; i < estimateArray.length(); i++){
+////
+////                            JSONObject estimateJson = estimateArray.getJSONObject(i);
+////
+////                            BigInteger fee = BigInteger.valueOf(estimateJson.getLong("fee"));
+////                            boolean surge = estimateJson.getBoolean("surge");
+////                            boolean ok = estimateJson.getBoolean("ok");
+////
+////                            suggestedFee.estimateList.add(new SuggestedFee.Estimates(fee, surge, ok));
+////                        }
+////                    }
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
                 return suggestedFee;
             }
 

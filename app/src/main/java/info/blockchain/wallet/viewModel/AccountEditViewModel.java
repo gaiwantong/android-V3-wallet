@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 
+import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.AccountEditModel;
@@ -31,7 +32,6 @@ import info.blockchain.wallet.send.SendCoins;
 import info.blockchain.wallet.send.SendFactory;
 import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -168,7 +168,7 @@ public class AccountEditViewModel implements ViewModel{
                 if(payloadManager.getPayload().isUpgraded()){
                     long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
                     //Subtract fee
-                    long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+                    long balanceAfterFee = (balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue());
 
                     if(balanceAfterFee > SendCoins.bDust.longValue() && !legacyAddress.isWatchOnly()){
                         accountModel.setTransferFundsVisibility(View.VISIBLE);
@@ -307,7 +307,7 @@ public class AccountEditViewModel implements ViewModel{
         int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
         Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
         pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);
-        pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
+        pendingSpend.bigIntFee = FeeUtil.AVERAGE_ABSOLUTE_FEE;
 
         //From
         String fromLabel = legacyAddress.getLabel();
@@ -318,7 +318,7 @@ public class AccountEditViewModel implements ViewModel{
 
         //Total
         long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
-        long balanceAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+        long balanceAfterFee = (balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue());
         pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
         double btc_balance = (((double) balanceAfterFee) / 1e8);
 
@@ -666,7 +666,7 @@ public class AccountEditViewModel implements ViewModel{
                 try {
 
                     String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                    unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                    unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_ABSOLUTE_FEE), BigInteger.ZERO, unspentApiResponse);
 
                 } catch (Exception e) {
                     e.printStackTrace();

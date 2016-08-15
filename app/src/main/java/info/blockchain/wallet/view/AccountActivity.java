@@ -39,6 +39,7 @@ import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.callbacks.OpCallback;
@@ -56,7 +57,6 @@ import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.FeeUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
@@ -1108,7 +1108,7 @@ public class AccountActivity extends BaseAuthActivity {
 
             if(!legacyAddress.isWatchOnly()){
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-                if(balance - FeeUtil.AVERAGE_FEE.longValue() > SendCoins.bDust.longValue()) {
+                if(balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() > SendCoins.bDust.longValue()) {
                     return true;
                 }
             }
@@ -1169,11 +1169,11 @@ public class AccountActivity extends BaseAuthActivity {
 
                 long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 
-                if(balance - FeeUtil.AVERAGE_FEE.longValue() > (SendCoins.bDust.longValue())) {
+                if(balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() > (SendCoins.bDust.longValue())) {
                     final PendingSpend pendingSpend = new PendingSpend();
                     pendingSpend.fromLegacyAddress = legacyAddress;
-                    pendingSpend.bigIntFee = FeeUtil.AVERAGE_FEE;
-                    Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_FEE.longValue());
+                    pendingSpend.bigIntFee = FeeUtil.AVERAGE_ABSOLUTE_FEE;
+                    Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue());
                     totalToSend += totalToSendAfterFee;
                     pendingSpend.bigIntAmount = BigInteger.valueOf(totalToSendAfterFee);
                     pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);//assign new receive address for each transfer
@@ -1206,11 +1206,11 @@ public class AccountActivity extends BaseAuthActivity {
         dialogBinding.confirmTo.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
 
         //Fee
-        dialogBinding.confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size()) + " BTC");
+        dialogBinding.confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() * pendingSpendList.size()) + " BTC");
 
         //Total
         dialogBinding.confirmTotalToSend.setText(monetaryUtil.getDisplayAmount(
-                totalBalance + (FeeUtil.AVERAGE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
+                totalBalance + (FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
 
         dialogBinding.confirmCancel.setOnClickListener(v -> alertDialog.dismiss());
 
@@ -1257,7 +1257,7 @@ public class AccountActivity extends BaseAuthActivity {
                     UnspentOutputsBundle unspents = null;
                     try {
                         String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_FEE), BigInteger.ZERO, unspentApiResponse);
+                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_ABSOLUTE_FEE), BigInteger.ZERO, unspentApiResponse);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
