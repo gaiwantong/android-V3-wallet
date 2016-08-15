@@ -68,7 +68,7 @@ public class SendViewModel implements ViewModel {
     private Payment payment;
     public SendModel sendModel;
 
-    public SendViewModel(SendModel sendModel, Context context, double exchangeRate, int btcUnit, String fiatUnit, DataListener dataListener) {
+    public SendViewModel(SendModel sendModel, Context context, double exchangeRate, int btcUnit, String fiatUnit, boolean isBTC, DataListener dataListener) {
         this.context = context;
         this.dataListener = dataListener;
         this.payloadManager = PayloadManager.getInstance();
@@ -80,9 +80,11 @@ public class SendViewModel implements ViewModel {
         this.sendModel.btcUnit = monetaryUtil.getBTCUnit(btcUnit);
         this.sendModel.fiatUnit = fiatUnit;
         this.sendModel.btcUniti = btcUnit;
+        this.sendModel.isBTC = isBTC;
         this.sendModel.defaultSeparator = getDefaultDecimalSeparator();
         this.sendModel.exchangeRate = exchangeRate;
         this.sendModel.unspentApiResponse = new HashMap<>();
+        this.sendModel.btcExchange = ExchangeRateFactory.getInstance().getLastPrice(context, sendModel.fiatUnit);
 
         dataListener.onUpdateBtcUnit(this.sendModel.btcUnit);
         dataListener.onUpdateFiatUnit(this.sendModel.fiatUnit);
@@ -157,9 +159,7 @@ public class SendViewModel implements ViewModel {
                     continue;//skip archived account
 
                 if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(account.getXpub())) {
-                    long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub());
-                    String balance = "(" + monetaryUtil.getDisplayAmount(amount) + " " + sendModel.btcUnit + ")";
-                    result.add(new ItemAccount(account.getLabel(), balance, null, account));
+                    result.add(new ItemAccount(account.getLabel(), getAccountBalance(account, sendModel.isBTC), null, account));
                 }
             }
         }
@@ -183,9 +183,7 @@ public class SendViewModel implements ViewModel {
                 tag = context.getResources().getString(R.string.watch_only);
             }
 
-            long amount = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-            String balance = "(" + monetaryUtil.getDisplayAmount(amount) + " " + sendModel.btcUnit + ")";
-            result.add(new ItemAccount(labelOrAddress, balance, tag, legacyAddress));
+            result.add(new ItemAccount(labelOrAddress, getAddressBalance(legacyAddress, sendModel.isBTC), tag, legacyAddress));
         }
 
         if(result.size() == 1){
@@ -211,6 +209,30 @@ public class SendViewModel implements ViewModel {
         }
 
         return result;
+    }
+
+    private String getAccountBalance(Account account, boolean isBTC){
+
+        long btcBalance = MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub());
+
+        if(!isBTC){
+            double fiatBalance = sendModel.btcExchange * (btcBalance / 1e8);
+            return "(" + monetaryUtil.getFiatFormat(sendModel.fiatUnit).format(fiatBalance) + " " + sendModel.fiatUnit + ")";
+        }else {
+            return "(" + monetaryUtil.getDisplayAmount(btcBalance) + " " + sendModel.btcUnit + ")";
+        }
+    }
+
+    private String getAddressBalance(LegacyAddress legacyAddress, boolean isBTC){
+
+        long btcBalance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+
+        if(!isBTC){
+            double fiatBalance = sendModel.btcExchange * (btcBalance / 1e8);
+            return  "(" + monetaryUtil.getFiatFormat(sendModel.fiatUnit).format(fiatBalance) + " " + sendModel.fiatUnit + ")";
+        }else {
+            return  "(" + monetaryUtil.getDisplayAmount(btcBalance) + " " + sendModel.btcUnit + ")";
+        }
     }
 
     /**
@@ -635,13 +657,18 @@ public class SendViewModel implements ViewModel {
         if(balanceAfterFee <= 0){
             sendModel.setMaxAvailableColor(ContextCompat.getColor(context, R.color.blockchain_send_red));
         }else{
-            sendModel.setMaxAvailableColor(ContextCompat.getColor(context, R.color.textColorPrimary));
+            sendModel.setMaxAvailableColor(ContextCompat.getColor(context, R.color.blockchain_blue));
         }
 
         //Format for display
-        final double balanceAfterFeeD = Math.max(balanceAfterFee / 1e8, 0.0);
-        String btcAmountFormatted = monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(balanceAfterFeeD));
-        sendModel.setMaxAviable(context.getString(R.string.max_available) + " " + btcAmountFormatted + " " + sendModel.btcUnit);
+        if(!sendModel.isBTC){
+            double fiatBalance = sendModel.btcExchange * (Math.max(balanceAfterFee, 0.0) / 1e8);
+            String fiatBalanceFormatted = monetaryUtil.getFiatFormat(sendModel.fiatUnit).format(fiatBalance);
+            sendModel.setMaxAviable(context.getString(R.string.max_available) + " " + fiatBalanceFormatted + " " + sendModel.fiatUnit);
+        }else {
+            String btcAmountFormatted = monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(Math.max(balanceAfterFee, 0.0) / 1e8));
+            sendModel.setMaxAviable(context.getString(R.string.max_available) + " " + btcAmountFormatted + " " + sendModel.btcUnit);
+        }
     }
 
     /**

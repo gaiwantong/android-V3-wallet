@@ -70,6 +70,9 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
     private MenuItem sendButton;
 
+    private final static int SHOW_BTC = 1;
+    private final static int SHOW_FIAT = 2;
+
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -98,6 +101,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                 ExchangeRateFactory.getInstance().getLastPrice(this, fiatUnit),
                 prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC),
                 fiatUnit,
+                getBtcDisplayState(),
                 this);
         binding.setViewModel(viewModel);
 
@@ -113,6 +117,16 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         String scanData = getIntent().getStringExtra("scan_data");
         if(scanData!=null)viewModel.handleIncomingQRScan(scanData);
+    }
+
+    private boolean getBtcDisplayState(){
+        boolean isBTC = true;
+        int BALANCE_DISPLAY_STATE = prefsUtil.getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
+        if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
+            isBTC = false;
+        }
+
+        return isBTC;
     }
 
     @Override

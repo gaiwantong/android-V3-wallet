@@ -107,6 +107,10 @@ public class CustomKeypad implements View.OnClickListener{
 
             if (view.hasFocus()) {
 
+                //Don't allow multiple decimals
+                if(pad.equals(decimalSeparator) && view.getText().toString().contains(decimalSeparator))
+                    continue;
+
                 int startSelection=view.getSelectionStart();
                 int endSelection=view.getSelectionEnd();
                 if(endSelection - startSelection > 0) {
@@ -117,12 +121,7 @@ public class CustomKeypad implements View.OnClickListener{
                 }
 
                 if (view.getText().length() > 0) {
-                    view.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            view.setSelection(view.getText().toString().length());
-                        }
-                    });
+                    view.post(() -> view.setSelection(view.getText().toString().length()));
                 }
             }
         }

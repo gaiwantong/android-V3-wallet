@@ -118,7 +118,7 @@
 
     <string name="no_funds_available">No funds available for this account</string>
     <string name="no_funds_available2">No funds available for this address</string>
-    <string name="max_available">Total available minus fee:</string>
+    <string name="max_available">Use total available minus fee:</string>
 
     <string name="invalid_bitcoin_address">Invalid Bitcoin address</string>
     <string name="invalid_amount">Invalid amount</string>
