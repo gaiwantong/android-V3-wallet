@@ -1366,7 +1366,7 @@ public class AccountActivity extends BaseAuthActivity {
                         spend.fromLegacyAddress.setTag(PayloadManager.ARCHIVED_ADDRESS);
                     }
 
-                    new ArchiveAsync(new WeakReference<>(getAccountActivity()), payloadManager).execute();
+                    new ArchiveAsync(this, payloadManager).execute();
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .show();
@@ -1375,23 +1375,26 @@ public class AccountActivity extends BaseAuthActivity {
     private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
 
         private ProgressDialog progress;
-        private AccountActivity context;
+        private final WeakReference<AccountActivity> context;
         private PayloadManager payloadManager;
 
-        ArchiveAsync(WeakReference<AccountActivity> contextWeakReference, PayloadManager manager) {
+        ArchiveAsync(AccountActivity activity, PayloadManager manager) {
             super();
-            context = contextWeakReference.get();
+            context = new WeakReference<>(activity);
             payloadManager = manager;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progress = new ProgressDialog(context);
-            progress.setTitle(R.string.app_name);
-            progress.setMessage(context.getResources().getString(R.string.please_wait));
-            progress.setCancelable(false);
-            progress.show();
+            AccountActivity accountActivity = context.get();
+            if (accountActivity != null) {
+                progress = new ProgressDialog(accountActivity);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(accountActivity.getResources().getString(R.string.please_wait));
+                progress.setCancelable(false);
+                progress.show();
+            }
         }
 
         @Override
@@ -1400,6 +1403,10 @@ public class AccountActivity extends BaseAuthActivity {
             if (progress != null && progress.isShowing()) {
                 progress.dismiss();
                 progress = null;
+            }
+            AccountActivity accountActivity = context.get();
+            if (accountActivity != null) {
+                accountActivity.updateAccountsList();
             }
         }
 
@@ -1411,20 +1418,9 @@ public class AccountActivity extends BaseAuthActivity {
                 } catch (Exception e) {
                     Log.e(ArchiveAsync.class.getSimpleName(), "doInBackground: ", e);
                 }
-
-                context.updateAccountsListFromUiThread();
-
             }
             return null;
         }
-    }
-
-    private void updateAccountsListFromUiThread() {
-        runOnUiThread(this::updateAccountsList);
-    }
-
-    private AccountActivity getAccountActivity() {
-        return this;
     }
 
     @Override

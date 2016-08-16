@@ -30,7 +30,7 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="@string/warning"
-                        android:textColor="@color/primary_text_default_material_light"
+                        android:textColor="@color/black"
                         android:textSize="24sp"/>
 
             </LinearLayout>
@@ -44,55 +44,29 @@
 
         </LinearLayout>
 
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical|right">
-
-            <TextView
-                    android:id="@+id/confirm_cancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="@string/cancel"
-                    android:textAllCaps="true"
-                    android:gravity="center"
-                    android:layout_marginRight="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:textColor="@color/primary_text_default_material_light"/>
-
-            <TextView
-                    android:id="@+id/confirm_continue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="@string/CONTINUE"
-                    android:textAllCaps="true"
-                    android:gravity="center"
-                    android:layout_marginRight="16dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:textColor="@color/blockchain_blue"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:gravity="center">
-
-            <CheckBox
+            <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/confirm_dont_ask_again"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="18dp"
+                    android:gravity="center|left"
                     android:text="@string/dont_ask_again"
-                    android:gravity="center"
-                    android:layout_marginRight="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:textColor="@color/primary_text_default_material_light"/>
+
+        <LinearLayout
+                style="@style/CustomDialogButtonContainer">
+
+            <android.support.v7.widget.AppCompatButton
+                    style="@style/CustomDialogButton"
+                    android:id="@+id/confirm_cancel"
+                    android:text="@string/cancel"
+                    android:textColor="@color/primary_text_default_material_light"/>
+
+            <android.support.v7.widget.AppCompatButton
+                    style="@style/CustomDialogButton"
+                    android:id="@+id/confirm_continue"
+                    android:text="@string/CONTINUE"
+                    android:textColor="@color/blockchain_blue"/>
 
         </LinearLayout>
     </LinearLayout>
