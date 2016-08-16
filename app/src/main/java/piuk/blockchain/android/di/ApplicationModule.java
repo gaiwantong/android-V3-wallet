@@ -7,6 +7,7 @@ import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AESUtilWrapper;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.StringUtils;
 
 import javax.inject.Singleton;
 
@@ -53,5 +54,10 @@ public class ApplicationModule {
     @Provides
     protected AESUtilWrapper provideAesUtils() {
         return new AESUtilWrapper();
+    }
+
+    @Provides
+    protected StringUtils provideStringUtils() {
+        return new StringUtils(mApplication);
     }
 }

@@ -6,6 +6,7 @@ import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 import info.blockchain.wallet.viewModel.SendViewModel;
+import info.blockchain.wallet.viewModel.PinEntryViewModel;
 
 import javax.inject.Singleton;
 
@@ -36,4 +37,6 @@ public interface ApplicationComponent {
     void inject(AuthDataManager authDataManager);
 
     void inject(SendViewModel sendViewModel);
+
+    void inject(PinEntryViewModel pinEntryViewModel);
 }

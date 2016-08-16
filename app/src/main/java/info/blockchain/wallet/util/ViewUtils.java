@@ -2,7 +2,18 @@ package info.blockchain.wallet.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.IntDef;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.DisplayMetrics;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 /**
  * Created by adambennett on 29/07/2016.
@@ -35,4 +46,32 @@ public class ViewUtils {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         return pixels / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
+
+    /**
+     * Returns a properly padded Framelayout which wraps an {@link AppCompatEditText}. Once wrapped,
+     * the view will conform to the Material Design guidelines for spacing within a Dialog.
+     *
+     * @param context       The current Activity or Fragment context
+     * @param editText      An AppCompatEditText for wrapping (Note: we're using the AppCompat version
+     *                      for design compatibility - there's no reason to be using plain EditTexts)
+     * @return              A correctly padded FrameLayout containing the AppCompatEditText
+     */
+    public static FrameLayout getAlertDialogTextViewLayout(Context context, AppCompatEditText editText) {
+        FrameLayout frameLayout = new FrameLayout(context);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int marginInPixels = (int) ViewUtils.convertDpToPixel(20, context);
+        params.setMargins(marginInPixels, 0, marginInPixels, 0);
+        frameLayout.addView(editText, params);
+
+        return frameLayout;
+    }
+
+    /**
+     * These annotations are hidden in the Android Jar for some reason. Defining them here instead
+     * for use in ViewModel callbacks etc.
+     */
+    @IntDef({VISIBLE, INVISIBLE, GONE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Visibility {}
 }

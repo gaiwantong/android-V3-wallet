@@ -161,7 +161,7 @@ public class AuthDataManagerTest extends RxTest {
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
-        mSubject.initiatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
+        mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyBoolean());
         verify(mPayloadManager).setTempPassword(any(CharSequenceX.class));
@@ -179,7 +179,7 @@ public class AuthDataManagerTest extends RxTest {
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
-        mSubject.initiatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
+        mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
         subscriber.assertError(Throwable.class);
@@ -195,7 +195,7 @@ public class AuthDataManagerTest extends RxTest {
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
-        mSubject.initiatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
+        mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
         subscriber.assertError(Throwable.class);
@@ -211,7 +211,7 @@ public class AuthDataManagerTest extends RxTest {
         doThrow(new RuntimeException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
-        mSubject.initiatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
+        mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
         subscriber.assertError(Throwable.class);
