@@ -7,20 +7,25 @@ import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 
+import info.blockchain.api.Unspent;
 import info.blockchain.util.FeeUtil;
-import info.blockchain.wallet.callbacks.OpCallback;
+import info.blockchain.wallet.cache.DynamicFeeCache;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.AccountEditModel;
+import info.blockchain.wallet.model.ItemAccount;
+import info.blockchain.wallet.model.PaymentConfirmationDetails;
+import info.blockchain.wallet.model.PendingTransaction;
+import info.blockchain.wallet.model.SendModel;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
@@ -28,15 +33,16 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.payment.Payment;
+import info.blockchain.wallet.payment.data.SweepBundle;
+import info.blockchain.wallet.payment.data.UnspentOutputs;
 import info.blockchain.wallet.send.SendCoins;
-import info.blockchain.wallet.send.SendFactory;
-import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
-import info.blockchain.wallet.util.FormatsUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
-import info.blockchain.wallet.util.WebUtil;
+import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.websocket.WebSocketService;
 
@@ -44,6 +50,7 @@ import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.crypto.BIP38PrivateKey;
 import org.bitcoinj.params.MainNetParams;
+import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -68,7 +75,6 @@ public class AccountEditViewModel implements ViewModel{
     private int accountIndex;
 
     public AccountEditModel accountModel;
-    private PendingSpend pendingSpend;
     private String secondPassword;
 
     public interface DataListener {
@@ -78,14 +84,16 @@ public class AccountEditViewModel implements ViewModel{
         void onSetResult(int resultCode);
         void onStartScanActivity();
         void onPromptPrivateKey(String message);
-        void onPromptTransferFunds(String fromLabel, String toLabel, String fee, String totalToSend);
         void onPromptArchive(String title, String message);
         void onPromptBIP38Password(String data);
         void onPrivateKeyImportMismatch();
         void onPrivateKeyImportSuccess();
-        void onPromptSecondPasswordForTransfer();
         void onShowXpubSharingWarning();
         void onShowAddressDetails(String heading, String note, String copy, Bitmap bitmap, String qrString);
+        void onShowPaymentDetails(PaymentConfirmationDetails details, PendingTransaction pendingTransaction);
+        void onShowTransactionSuccess();
+        void onShowProgressDialog(String title, String message);
+        void onDismissProgressDialog();
     }
 
     public AccountEditViewModel(AccountEditModel accountModel, Context context, DataListener dataListener) {
@@ -288,58 +296,214 @@ public class AccountEditViewModel implements ViewModel{
         return true;
     }
 
-    private class PendingSpend {
-
-        LegacyAddress fromLegacyAddress;
-        String destination;
-        BigInteger bigIntFee;
-        BigInteger bigIntAmount;
-    }
-
-    @SuppressWarnings("unused")
     public void onClickTransferFunds(View view) {
 
-        //Only funded legacy address' will see this option
-        pendingSpend = new PendingSpend();
-        pendingSpend.fromLegacyAddress = legacyAddress;
+        new SecondPasswordHandler(context).validate(new SecondPasswordHandler.ResultListener() {
+            @Override
+            public void onNoSecondPassword() {
+                buildTransaction();
+            }
 
-        //To default
-        int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
-        Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
-        pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);
-        pendingSpend.bigIntFee = FeeUtil.AVERAGE_ABSOLUTE_FEE;
-
-        //From
-        String fromLabel = legacyAddress.getLabel();
-        if(fromLabel == null || fromLabel.isEmpty())fromLabel = legacyAddress.getAddress();
-
-        //To
-        String toLabel = defaultAccount.getLabel();
-
-        //Total
-        long balance = MultiAddrFactory.getInstance().getLegacyBalance(pendingSpend.fromLegacyAddress.getAddress());
-        long balanceAfterFee = (balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue());
-        pendingSpend.bigIntAmount = BigInteger.valueOf(balanceAfterFee);
-        double btc_balance = (((double) balanceAfterFee) / 1e8);
-
-        dataListener.onPromptTransferFunds(fromLabel,
-                toLabel+" ("+context.getResources().getString(R.string.default_label)+")",
-                monetaryUtil.getDisplayAmount(pendingSpend.bigIntFee.longValue()) + " BTC",
-                monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_balance)) + " " + " BTC"
-        );
+            @Override
+            public void onSecondPasswordValidated(String validateSecondPassword) {
+                setSecondPassword(validateSecondPassword);
+                buildTransaction();
+            }
+        });
     }
 
-    public void onClickTransferFunds(){
-        if(FormatsUtil.getInstance().isValidBitcoinAddress(pendingSpend.destination)){
-            if (!payloadManager.getPayload().isDoubleEncrypted()) {
-                sendPayment();
-            } else {
-                dataListener.onPromptSecondPasswordForTransfer();
+    private void buildTransaction(){
+
+        new AsyncTask<Void, Void, PendingTransaction>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
             }
+
+            @Override
+            protected PendingTransaction doInBackground(Void... voids) {
+
+                PendingTransaction pendingTransaction = null;
+                try {
+                    pendingTransaction = getPendingTransaction();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return pendingTransaction;
+            }
+
+            @Override
+            protected void onPostExecute(PendingTransaction pendingTransaction) {
+                super.onPostExecute(pendingTransaction);
+
+                dataListener.onDismissProgressDialog();
+
+                if(pendingTransaction != null && pendingTransaction.bigIntAmount.compareTo(BigInteger.ZERO) == 1){
+                    PaymentConfirmationDetails details = getTransactionDetailsForDisplay(pendingTransaction);
+                    dataListener.onShowPaymentDetails(details, pendingTransaction);
+                }else{
+                    dataListener.onToast(context.getString(R.string.insufficient_funds),ToastCustom.TYPE_ERROR);
+                }
+            }
+
+        }.execute();
+    }
+
+    private PaymentConfirmationDetails getTransactionDetailsForDisplay(PendingTransaction pendingTransaction){
+
+        PaymentConfirmationDetails details = new PaymentConfirmationDetails();
+        details.fromLabel = pendingTransaction.sendingObject.label;
+        if(pendingTransaction.receivingObject != null
+                && pendingTransaction.receivingObject.label != null
+                && !pendingTransaction.receivingObject.label.isEmpty()) {
+            details.toLabel = pendingTransaction.receivingObject.label;
         }else{
-            //This should never happen
-            dataListener.onToast(context.getString(R.string.invalid_bitcoin_address), ToastCustom.TYPE_ERROR);
+            details.toLabel = pendingTransaction.receivingAddress;
         }
+
+        String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String btcUnit =  monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, fiatUnit);
+
+        details.btcAmount = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntAmount.longValue());
+        details.btcFee = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntFee.longValue());
+        details.btcSuggestedFee = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntFee.longValue());
+        details.btcUnit = btcUnit;
+        details.fiatUnit = fiatUnit;
+        details.btcTotal = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntAmount.add(pendingTransaction.bigIntFee).longValue());
+
+        details.fiatFee = (monetaryUtil.getFiatFormat(fiatUnit)
+                .format(exchangeRate * (pendingTransaction.bigIntFee.doubleValue() / 1e8)));
+
+        details.fiatAmount = (monetaryUtil.getFiatFormat(fiatUnit)
+                .format(exchangeRate * (pendingTransaction.bigIntAmount.doubleValue() / 1e8)));
+
+        BigInteger totalFiat = (pendingTransaction.bigIntAmount.add(pendingTransaction.bigIntFee));
+        details.fiatTotal = (monetaryUtil.getFiatFormat(fiatUnit)
+                .format(exchangeRate * (totalFiat.doubleValue() / 1e8)));
+
+        details.isSurge = false;
+        details.isLargeTransaction = isLargeTransaction(pendingTransaction);
+        details.hasConsumedAmounts = pendingTransaction.unspentOutputBundle.getConsumedAmount().compareTo(BigInteger.ZERO) == 1;
+
+        return details;
+    }
+
+    public boolean isLargeTransaction(PendingTransaction pendingTransaction){
+
+        int txSize = FeeUtil.estimatedSize(pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(), 2);//assume change
+        double relativeFee = pendingTransaction.bigIntFee.doubleValue()/pendingTransaction.bigIntAmount.doubleValue()*100.0;
+
+        if(pendingTransaction.bigIntFee.longValue() > SendModel.LARGE_TX_FEE
+                && txSize > SendModel.LARGE_TX_SIZE
+                && relativeFee > SendModel.LARGE_TX_PERCENTAGE){
+
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private PendingTransaction getPendingTransaction() throws Exception {
+
+        JSONObject unspentResponse = new Unspent().getUnspentOutputs(legacyAddress.getAddress());
+
+        BigInteger suggestedFeePerKb = DynamicFeeCache.getInstance().getSuggestedFee().defaultFeePerKb;
+
+        Payment payment = new Payment();
+        UnspentOutputs coins = payment.getCoins(unspentResponse);
+        SweepBundle sweepBundle = payment.getSweepBundle(coins, suggestedFeePerKb);
+
+        PendingTransaction pendingTransaction = new PendingTransaction();
+        pendingTransaction.sendingObject = new ItemAccount(legacyAddress.getLabel(),sweepBundle.getSweepAmount().toString(),"", legacyAddress);
+
+        //To default account
+        int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+        Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
+        pendingTransaction.receivingObject = new ItemAccount(defaultAccount.getLabel(),"","",defaultAccount);
+        pendingTransaction.receivingAddress = payloadManager.getReceiveAddress(defaultIndex);
+
+        pendingTransaction.unspentOutputBundle = payment.getSpendableCoins(coins, sweepBundle.getSweepAmount(), suggestedFeePerKb);
+        pendingTransaction.bigIntAmount = sweepBundle.getSweepAmount();
+        pendingTransaction.bigIntFee = pendingTransaction.unspentOutputBundle.getAbsoluteFee();
+
+        return pendingTransaction;
+    }
+
+    public void submitPayment(AlertDialog alertDialog, PendingTransaction pendingTransaction) {
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                dataListener.onDismissProgressDialog();
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+
+                    boolean isWatchOnly = false;
+
+                    LegacyAddress legacyAddress = ((LegacyAddress) pendingTransaction.sendingObject.accountObject);
+                    String changeAddress = legacyAddress.getAddress();
+
+                    new Payment().submitPayment(pendingTransaction.unspentOutputBundle,
+                            null,
+                            legacyAddress,
+                            pendingTransaction.receivingAddress,
+                            changeAddress,
+                            pendingTransaction.note,
+                            pendingTransaction.bigIntFee,
+                            pendingTransaction.bigIntAmount,
+                            isWatchOnly,
+                            secondPassword,
+                            new Payment.SubmitPaymentListener() {
+                                @Override
+                                public void onSuccess(String s) {
+
+                                    legacyAddress.setTag(PayloadManager.ARCHIVED_ADDRESS);
+                                    setArchive(true);
+
+                                    if(alertDialog != null && alertDialog.isShowing())alertDialog.dismiss();
+                                    dataListener.onShowTransactionSuccess();
+
+                                    //Update v2 balance immediately after spend - until refresh from server
+                                    MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingTransaction.bigIntAmount.longValue() + pendingTransaction.bigIntFee.longValue()));
+                                    PayloadBridge.getInstance().remoteSaveThread(null);
+
+                                    accountModel.setTransferFundsVisibility(View.GONE);
+                                    dataListener.onSetResult(Activity.RESULT_OK);
+
+                                }
+
+                                @Override
+                                public void onFail(String s) {
+                                    dataListener.onToast(context.getResources().getString(R.string.send_failed), ToastCustom.TYPE_ERROR);
+                                }
+                            });
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    dataListener.onToast(context.getString(R.string.transaction_failed), ToastCustom.TYPE_ERROR);
+                }
+
+                return null;
+            }
+
+        }.execute();
+
     }
 
     public void updateAccountLabel(String newLabel) {
@@ -355,23 +519,16 @@ public class AccountEditViewModel implements ViewModel{
                 final String finalNewLabel = newLabel;
                 new AsyncTask<String, Void, Void>() {
 
-                    ProgressDialog progress;
-
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        progress = new ProgressDialog(context);
-                        progress.setTitle(R.string.app_name);
-                        progress.setMessage(context.getResources().getString(R.string.please_wait));
-                        progress.show();
+                        dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
                     }
 
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                        }
+                        dataListener.onDismissProgressDialog();
                     }
 
                     @Override
@@ -418,24 +575,16 @@ public class AccountEditViewModel implements ViewModel{
     public void onClickDefault(View view) {
         new AsyncTask<String, Void, Void>() {
 
-            ProgressDialog progress;
-
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(context);
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(context.getResources().getString(R.string.please_wait));
-                progress.show();
+                dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
+                dataListener.onDismissProgressDialog();
             }
 
             @Override
@@ -508,24 +657,16 @@ public class AccountEditViewModel implements ViewModel{
 
         new AsyncTask<Void, Void, Void>(){
 
-            ProgressDialog progress;
-
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(context);
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(context.getResources().getString(R.string.please_wait));
-                progress.show();
+                dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
+                dataListener.onDismissProgressDialog();
             }
 
             @Override
@@ -654,103 +795,6 @@ public class AccountEditViewModel implements ViewModel{
         }
     }
 
-    public void sendPayment(){
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                Looper.prepare();
-
-                UnspentOutputsBundle unspents = null;
-                try {
-
-                    String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                    unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_ABSOLUTE_FEE), BigInteger.ZERO, unspentApiResponse);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (unspents != null) {
-
-                    //Warn user of unconfirmed funds - but don't block payment
-                    if(unspents.getNotice() != null){
-                        dataListener.onToast(pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.TYPE_ERROR);
-                    }
-
-                    executeSend(pendingSpend, unspents);
-
-                } else {
-
-                    dataListener.onToast(pendingSpend.fromLegacyAddress.getAddress()+" - "+context.getString(R.string.no_confirmed_funds), ToastCustom.TYPE_ERROR);
-                }
-
-                Looper.loop();
-            }
-        }).start();
-    }
-
-    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents){
-
-        final ProgressDialog progress;
-        progress = new ProgressDialog(context);
-        progress.setTitle(R.string.app_name);
-        progress.setMessage(context.getResources().getString(R.string.please_wait));
-        progress.setCancelable(false);
-        progress.show();
-
-        SendFactory.getInstance().execSend(context, false, -1, unspents.getOutputs(),
-                pendingSpend.destination, pendingSpend.bigIntAmount,
-                pendingSpend.fromLegacyAddress, pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
-
-            public void onSuccess() {
-            }
-
-            @Override
-            public void onSuccess(final String hash) {
-
-                dataListener.onToast(context.getResources().getString(R.string.transaction_submitted), ToastCustom.TYPE_OK);
-
-                //Update v2 balance immediately after spend - until refresh from server
-                MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-                PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
-                    @Override
-                    public void onSaveSuccess() {
-                    }
-
-                    @Override
-                    public void onSaveFail() {
-                        dataListener.onToast(context.getString(R.string.remote_save_ko), ToastCustom.TYPE_ERROR);
-                    }
-                });
-
-                accountModel.setTransferFundsVisibility(View.GONE);
-                dataListener.onSetResult(Activity.RESULT_OK);
-                onProgressDismiss(progress);
-            }
-
-            public void onFail(String error) {
-
-                dataListener.onToast(context.getResources().getString(R.string.send_failed), ToastCustom.TYPE_ERROR);
-                onProgressDismiss(progress);
-            }
-
-            @Override
-            public void onFailPermanently(String error) {
-
-                dataListener.onToast(error, ToastCustom.TYPE_ERROR);
-                onProgressDismiss(progress);
-            }
-
-            private void onProgressDismiss(ProgressDialog progress){
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                }
-            }
-        });
-    }
-
     public void showAddressDetails(){
 
         String heading = null;
@@ -817,25 +861,16 @@ public class AccountEditViewModel implements ViewModel{
 
             new AsyncTask<Void, Void, Void>() {
 
-                ProgressDialog progress;
-
                 @Override
                 protected void onPreExecute() {
                     super.onPreExecute();
-                    progress = new ProgressDialog(context);
-                    progress.setTitle(R.string.app_name);
-                    progress.setMessage(context.getResources().getString(R.string.please_wait));
-                    progress.setCancelable(false);
-                    progress.show();
+                    dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
                 }
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     super.onPostExecute(aVoid);
-                    if (progress != null && progress.isShowing()) {
-                        progress.dismiss();
-                        progress = null;
-                    }
+                    dataListener.onDismissProgressDialog();
                 }
 
                 @Override
@@ -863,24 +898,16 @@ public class AccountEditViewModel implements ViewModel{
     public void importBIP38Address(final String data, final String pw) {
         new AsyncTask<Void, Void, Void>(){
 
-            ProgressDialog progress;
-
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(context);
-                progress.setTitle(R.string.app_name);
-                progress.setMessage(context.getResources().getString(R.string.please_wait));
-                progress.show();
+                dataListener.onShowProgressDialog(context.getResources().getString(R.string.app_name),context.getResources().getString(R.string.please_wait));
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if (progress != null && progress.isShowing()) {
-                    progress.dismiss();
-                    progress = null;
-                }
+                dataListener.onDismissProgressDialog();
             }
 
             @Override
