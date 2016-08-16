@@ -11,10 +11,15 @@ import info.blockchain.wallet.view.PasswordRequiredActivity;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import piuk.blockchain.android.BlockchainTestApplication;
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
@@ -36,6 +41,8 @@ import static org.mockito.Mockito.when;
 /**
  * Created by adambennett on 10/08/2016.
  */
+@Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class PasswordRequiredViewModelTest extends RxTest {
 
     private PasswordRequiredViewModel mSubject;
@@ -52,7 +59,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
 
         InjectorTestUtils.initApplicationComponent(
                 Injector.getInstance(),
-                new MockApplicationModule(new BlockchainTestApplication()),
+                new MockApplicationModule(RuntimeEnvironment.application),
                 new ApiModule(),
                 new MockDataManagerModule());
 

@@ -1,25 +1,16 @@
 package info.blockchain.wallet.pairing;
 
 
-import android.content.Context;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PairingTest {
 
-    @Mock
-    Context mMockContext;
-
-    Pairing pairing = new Pairing();
+    private Pairing pairing = new Pairing();
 
     @Test
     public void decode_whenBadString_shouldFail() {
