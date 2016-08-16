@@ -12,8 +12,12 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
@@ -34,6 +38,8 @@ import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
 /**
  * Created by adambennett on 09/08/2016.
  */
+@Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class LauncherViewModelTest {
 
     private LauncherViewModel mSubject;
@@ -53,7 +59,7 @@ public class LauncherViewModelTest {
 
         InjectorTestUtils.initApplicationComponent(
                 Injector.getInstance(),
-                new MockApplicationModule(new BlockchainTestApplication()),
+                new MockApplicationModule(RuntimeEnvironment.application),
                 new MockApiModule(),
                 new DataManagerModule());
 

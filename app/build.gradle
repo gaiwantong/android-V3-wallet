@@ -9,7 +9,6 @@ android {
     // Introduced to prevent crash during DEXing step since SDK 23, but also speeds up DEXing in general
     dexOptions {
         javaMaxHeapSize "2g"
-        incremental true
     }
 
     defaultConfig {
@@ -71,9 +70,14 @@ android {
         enabled = true
     }
 
-    //TODO - the following needs to be added (SDK 23) to continue using org.apache.http.legacy as a work around.
-    //TODO - SSLVerifierUtil should use HttpURLConnection class instead (reduces network use, minimizes power consumption) http://developer.android.com/intl/ko/about/versions/marshmallow/android-6.0-changes.html
-    useLibrary 'org.apache.http.legacy'
+    // Always show the result of every unit test, even if it passes.
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        }
+        // This allows "unstable" builds on CI rather than straight failures
+        ignoreFailures true
+    }
 }
 
 ext {
@@ -112,8 +116,12 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.6'
 
     androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
-    testCompile 'org.mockito:mockito-all:2.0.2-beta'
+    testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
+    testCompile ('org.robolectric:robolectric:3.1') {
+        exclude group: 'com.google.guava'
+        exclude group: 'com.google.protobuf'
+    }
 
     //Classes from the android framework won't work in local jvm unit tests. Added below for unit test purposes only
     testCompile 'org.json:json:20140107'

@@ -10,14 +10,18 @@ import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import java.util.concurrent.TimeUnit;
 
 import piuk.blockchain.android.BlockchainTestApplication;
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
@@ -33,13 +37,14 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by adambennett on 15/08/2016.
  */
+@Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class AuthDataManagerTest extends RxTest {
 
     private static final String STRING_TO_RETURN = "string_to_return";
@@ -58,7 +63,7 @@ public class AuthDataManagerTest extends RxTest {
 
         InjectorTestUtils.initApplicationComponent(
                 Injector.getInstance(),
-                new MockApplicationModule(new BlockchainTestApplication()),
+                new MockApplicationModule(RuntimeEnvironment.application),
                 new MockApiModule(),
                 new DataManagerModule());
 
@@ -132,8 +137,6 @@ public class AuthDataManagerTest extends RxTest {
     /**
      * Getting encrypted payload returns Auth Required, should be filtered out and emit no values.
      */
-    // FIXME: 15/08/2016 This refuses to run correctly as part of a larger test for some reason
-    @Ignore
     @Test
     public void startPollingAuthStatusAccessRequired() throws Exception {
         // Arrange
@@ -187,7 +190,7 @@ public class AuthDataManagerTest extends RxTest {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitCreateFail(anyString());
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitCreateFail("1234567890");
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -236,7 +239,7 @@ public class AuthDataManagerTest extends RxTest {
                 "1234567890",
                 listener);
         // Assert
-        verify(listener, times(1)).onFatalError();
+        verify(listener).onFatalError();
     }
 
     @Test
@@ -259,7 +262,7 @@ public class AuthDataManagerTest extends RxTest {
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
-        verify(listener, times(1)).onSuccess();
+        verify(listener).onSuccess();
     }
 
     @Test
@@ -282,7 +285,7 @@ public class AuthDataManagerTest extends RxTest {
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
-        verify(listener, times(1)).onPairFail();
+        verify(listener).onPairFail();
     }
 
     @Test
@@ -305,7 +308,7 @@ public class AuthDataManagerTest extends RxTest {
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
-        verify(listener, times(1)).onCreateFail();
+        verify(listener).onCreateFail();
     }
 
     @Test
@@ -320,7 +323,7 @@ public class AuthDataManagerTest extends RxTest {
                 TEST_PAYLOAD,
                 listener);
         // Assert
-        verify(listener, times(1)).onAuthFail();
+        verify(listener).onAuthFail();
     }
 
     @Test
@@ -335,7 +338,7 @@ public class AuthDataManagerTest extends RxTest {
                 TEST_PAYLOAD,
                 listener);
         // Assert
-        verify(listener, times(1)).onFatalError();
+        verify(listener).onFatalError();
     }
 
     private class MockApplicationModule extends ApplicationModule {
