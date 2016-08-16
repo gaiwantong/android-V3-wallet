@@ -9,8 +9,9 @@ public class InjectorTestUtils {
 
     public static void initApplicationComponent(Injector injector,
                                                 ApplicationModule applicationModule,
-                                                ApiModule apiModule) {
-        injector.initAppComponent(applicationModule, apiModule);
+                                                ApiModule apiModule,
+                                                DataManagerModule managerModule) {
+        injector.initAppComponent(applicationModule, apiModule, managerModule);
     }
 
 }

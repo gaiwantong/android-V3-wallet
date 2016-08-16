@@ -50,7 +50,7 @@
 
         </LinearLayout>
 
-        <CheckBox
+        <android.support.v7.widget.AppCompatCheckBox
                 android:id="@+id/confirm_dont_ask_again"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

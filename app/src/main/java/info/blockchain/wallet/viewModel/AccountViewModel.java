@@ -194,7 +194,7 @@ public class AccountViewModel implements ViewModel{
 
                                     @Override
                                     public void onFail(String error) {
-                                        Log.e("",error);
+                                        Log.e(TAG,error);
                                     }
                                 });
 

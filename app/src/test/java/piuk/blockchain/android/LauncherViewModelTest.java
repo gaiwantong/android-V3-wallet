@@ -12,11 +12,16 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
+import piuk.blockchain.android.di.DataManagerModule;
 import piuk.blockchain.android.di.Injector;
 import piuk.blockchain.android.di.InjectorTestUtils;
 
@@ -26,7 +31,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
@@ -34,6 +38,8 @@ import static piuk.blockchain.android.LauncherViewModel.INTENT_EXTRA_VERIFIED;
 /**
  * Created by adambennett on 09/08/2016.
  */
+@Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class LauncherViewModelTest {
 
     private LauncherViewModel mSubject;
@@ -52,7 +58,10 @@ public class LauncherViewModelTest {
         MockitoAnnotations.initMocks(this);
 
         InjectorTestUtils.initApplicationComponent(
-                Injector.getInstance(), new MockApplicationModule(new BlockchainTestApplication()), new MockApiModule());
+                Injector.getInstance(),
+                new MockApplicationModule(RuntimeEnvironment.application),
+                new MockApiModule(),
+                new DataManagerModule());
 
         mSubject = new LauncherViewModel(mLauncherActivity);
     }
@@ -78,8 +87,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onStartMainActivity();
+        verify(mLauncherActivity).onStartMainActivity();
     }
 
     /**
@@ -102,8 +110,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestPin();
+        verify(mLauncherActivity).onRequestPin();
     }
 
     /**
@@ -119,8 +126,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onNoGuid();
+        verify(mLauncherActivity).onNoGuid();
     }
 
     /**
@@ -137,8 +143,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestPin();
+        verify(mLauncherActivity).onRequestPin();
     }
 
     /**
@@ -155,8 +160,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onCorruptPayload();
+        verify(mLauncherActivity).onCorruptPayload();
     }
 
     /**
@@ -179,8 +183,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onRequestUpgrade();
+        verify(mLauncherActivity).onRequestUpgrade();
     }
 
     /**
@@ -197,8 +200,7 @@ public class LauncherViewModelTest {
         // Act
         mSubject.onViewReady();
         // Assert
-        verify(mLauncherActivity, times(1)).getPageIntent();
-        verify(mLauncherActivity, times(1)).onReEnterPassword();
+        verify(mLauncherActivity).onReEnterPassword();
     }
 
     /**

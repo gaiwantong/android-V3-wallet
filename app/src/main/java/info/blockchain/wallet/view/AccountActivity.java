@@ -446,7 +446,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
                             }
                         });
-                        }catch (Exception e){
+                    }catch (Exception e){
                         e.printStackTrace();
                     }
                     return null;
@@ -683,7 +683,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
                                         FrameLayout frameLayout = new FrameLayout(AccountActivity.this);
                                         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                                                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                                         int marginInPixels = (int) ViewUtils.convertDpToPixel(20, AccountActivity.this);
                                         params.setMargins(marginInPixels, 0, marginInPixels, 0);
                                         frameLayout.addView(address_label, params);
@@ -1031,10 +1031,10 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
                                         }).setNegativeButton(R.string.polite_no, (dialog, whichButton) -> {
 
-                                            legacyAddress.setLabel(legacyAddress.getAddress());
-                                            remoteSaveNewAddress(legacyAddress);
+                                    legacyAddress.setLabel(legacyAddress.getAddress());
+                                    remoteSaveNewAddress(legacyAddress);
 
-                                        }).show();
+                                }).show();
                             });
                         } catch (Exception e) {
                             e.printStackTrace();
