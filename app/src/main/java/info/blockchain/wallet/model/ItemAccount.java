@@ -3,9 +3,6 @@ package info.blockchain.wallet.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-/**
- * Created by riaanvos on 01/08/16.
- */
 public class ItemAccount {
 
     public String label;

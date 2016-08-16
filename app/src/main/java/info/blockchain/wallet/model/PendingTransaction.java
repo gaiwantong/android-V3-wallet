@@ -5,9 +5,6 @@ import info.blockchain.wallet.payment.data.SpendableUnspentOutputs;
 
 import java.math.BigInteger;
 
-/**
- * Created by riaanvos on 04/08/16.
- */
 public class PendingTransaction {
 
     public SpendableUnspentOutputs unspentOutputBundle;

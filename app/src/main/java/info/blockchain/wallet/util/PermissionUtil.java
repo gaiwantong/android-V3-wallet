@@ -11,9 +11,6 @@ import android.view.View;
 
 import piuk.blockchain.android.R;
 
-/**
- * Created by riaanvos on 09/05/16.
- */
 public class PermissionUtil {
 
     public static final int PERMISSION_REQUEST_LOCATION = 160;

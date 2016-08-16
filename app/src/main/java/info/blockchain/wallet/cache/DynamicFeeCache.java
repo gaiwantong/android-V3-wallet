@@ -2,9 +2,6 @@ package info.blockchain.wallet.cache;
 
 import info.blockchain.wallet.payment.data.SuggestedFee;
 
-/**
- * Created by riaanvos on 12/08/16.
- */
 public class DynamicFeeCache {
 
     private static DynamicFeeCache instance;

@@ -4,6 +4,7 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -18,11 +19,14 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import info.blockchain.wallet.model.AccountEditModel;
+import info.blockchain.wallet.model.PaymentConfirmationDetails;
+import info.blockchain.wallet.model.PendingTransaction;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.ViewUtils;
@@ -33,8 +37,9 @@ import info.blockchain.wallet.viewModel.AccountEditViewModel;
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountEditBinding;
+import piuk.blockchain.android.databinding.AlertGenericWarningBinding;
 import piuk.blockchain.android.databinding.AlertShowExtendedPublicKeyBinding;
-import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
+import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
 public class AccountEditActivity extends BaseAuthActivity implements AccountEditViewModel.DataListener{
 
@@ -43,6 +48,8 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
 
     private ActivityAccountEditBinding binding;
     private AccountEditViewModel viewModel;
+
+    private ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,30 +159,104 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
     }
 
     @Override
-    public void onPromptTransferFunds(String fromLabel, String toLabel, String fee, String totalToSend) {
+    public void onShowPaymentDetails(PaymentConfirmationDetails details, PendingTransaction pendingTransaction) {
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-        AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
-                R.layout.alert_transfer_funds, null, false);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        FragmentSendConfirmBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.fragment_send_confirm, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
-        dialogBinding.confirmFrom.setText(fromLabel);
-        dialogBinding.confirmTo.setText(toLabel);
-        dialogBinding.confirmFee.setText(fee);
-        dialogBinding.confirmTotalToSend.setText(totalToSend);
+        dialogBinding.confirmFromLabel.setText(details.fromLabel);
+        dialogBinding.confirmToLabel.setText(details.toLabel);
+        dialogBinding.confirmAmountBtcUnit.setText(details.btcUnit);
+        dialogBinding.confirmAmountFiatUnit.setText(details.fiatUnit);
+        dialogBinding.confirmAmountBtc.setText(details.btcAmount);
+        dialogBinding.confirmAmountFiat.setText(details.fiatAmount);
+        dialogBinding.confirmFeeBtc.setText(details.btcFee);
+        dialogBinding.confirmFeeFiat.setText(details.fiatFee);
+        dialogBinding.confirmTotalBtc.setText(details.btcTotal);
+        dialogBinding.confirmTotalFiat.setText(details.fiatTotal);
 
-        dialogBinding.confirmCancel.setOnClickListener(v -> alertDialog.dismiss());
+        String feeMessage = "";
+        if(details.isSurge){
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+            feeMessage += getString(R.string.transaction_surge);
+
+        }
+
+        if(details.hasConsumedAmounts){
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+
+            if(details.hasConsumedAmounts){
+                if(details.isSurge) feeMessage += "\n\n";
+                feeMessage += getString(R.string.large_tx_high_fee_warning);
+            }
+
+        }
+
+        final String finalFeeMessage = feeMessage;
+        dialogBinding.ivFeeInfo.setOnClickListener(view -> new AlertDialog.Builder(this)
+                .setTitle(R.string.transaction_fee)
+                .setMessage(finalFeeMessage)
+                .setPositiveButton(android.R.string.ok, null).show());
+
+        if(details.isSurge){
+            dialogBinding.confirmFeeBtc.setTextColor(ContextCompat.getColor(this, R.color.blockchain_send_red));
+            dialogBinding.confirmFeeFiat.setTextColor(ContextCompat.getColor(this, R.color.blockchain_send_red));
+            dialogBinding.ivFeeInfo.setVisibility(View.VISIBLE);
+        }
+
+        dialogBinding.tvCustomizeFee.setVisibility(View.GONE);
+
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.cancel();
+            }
+        });
 
         dialogBinding.confirmSend.setOnClickListener(v -> {
-
-            viewModel.onClickTransferFunds();
-            alertDialog.dismiss();
+            viewModel.submitPayment(alertDialog, pendingTransaction);
         });
 
         alertDialog.show();
+
+        if(details.isLargeTransaction){
+            onShowLargeTransactionWarning(alertDialog);
+        }
+
+    }
+
+    private void onShowLargeTransactionWarning(AlertDialog alertDialog) {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertGenericWarningBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.alert_generic_warning, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
+
+        final AlertDialog alertDialogFee = dialogBuilder.create();
+        alertDialogFee.setCanceledOnTouchOutside(false);
+
+        dialogBinding.tvBody.setText(R.string.large_tx_warning);
+
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialogFee.isShowing()) alertDialogFee.cancel();
+        });
+
+        dialogBinding.confirmKeep.setText(getResources().getString(R.string.go_back));
+        dialogBinding.confirmKeep.setOnClickListener(v -> {
+            alertDialogFee.dismiss();
+            alertDialog.dismiss();
+        });
+
+        dialogBinding.confirmChange.setText(getResources().getString(R.string.accept_higher_fee));
+        dialogBinding.confirmChange.setOnClickListener(v -> {
+            alertDialogFee.dismiss();
+        });
+
+        alertDialogFee.show();
     }
 
     @Override
@@ -220,23 +301,6 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
                 .setTitle(R.string.success)
                 .setMessage(R.string.private_key_successfully_imported)
                 .setPositiveButton(android.R.string.ok, null).show();
-    }
-
-    @Override
-    public void onPromptSecondPasswordForTransfer() {
-
-        new SecondPasswordHandler(this).validate(new SecondPasswordHandler.ResultListener() {
-            @Override
-            public void onNoSecondPassword() {
-                viewModel.sendPayment();
-            }
-
-            @Override
-            public void onSecondPasswordValidated(String validateSecondPassword) {
-                viewModel.setSecondPassword(validateSecondPassword);
-                viewModel.sendPayment();
-            }
-        });
     }
 
     @Override
@@ -302,6 +366,38 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    public void onShowTransactionSuccess() {
+
+        runOnUiThread(() -> {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.modal_transaction_success, null);
+            final AlertDialog alertDialog = dialogBuilder.setView(dialogView).create();
+            alertDialog.setOnDismissListener(dialogInterface -> finish());
+            alertDialog.show();
+        });
+    }
+
+    @Override
+    public void onShowProgressDialog(String title, String message) {
+        onDismissProgressDialog();
+
+        progress = new ProgressDialog(this);
+        progress.setTitle(title);
+        progress.setMessage(message);
+        progress.show();
+    }
+
+    @Override
+    public void onDismissProgressDialog() {
+        if (progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
         }
     }
 }

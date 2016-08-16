@@ -1,8 +1,5 @@
 package info.blockchain.wallet.model;
 
-/**
- * Created by riaanvos on 05/08/16.
- */
 public class PaymentConfirmationDetails {
 
     public String fromLabel;
