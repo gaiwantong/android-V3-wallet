@@ -15,9 +15,6 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ItemAddressBinding;
 import piuk.blockchain.android.databinding.SpinnerItemBinding;
 
-/**
- * Created by riaanvos on 01/08/16.
- */
 public class SendAddressAdapter extends ArrayAdapter<ItemAccount> {
 
     boolean showText;

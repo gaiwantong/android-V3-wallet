@@ -2,9 +2,6 @@ package info.blockchain.wallet.cache;
 
 import org.json.JSONObject;
 
-/**
- * Created by riaanvos on 12/08/16.
- */
 public class DefaultAccountUnspentCache {
 
     private static DefaultAccountUnspentCache instance;

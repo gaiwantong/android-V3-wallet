@@ -5,9 +5,6 @@ import android.databinding.BaseObservable;
 
 import info.blockchain.wallet.model.ItemAccount;
 
-/**
- * Created by riaanvos on 01/08/16.
- */
 public class ItemSendAddressViewModel extends BaseObservable implements ViewModel{
 
     private ItemAccount addressItem;

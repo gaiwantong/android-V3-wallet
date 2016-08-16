@@ -697,6 +697,9 @@ public class SendViewModel implements ViewModel {
     /**
      * Retrieves unspent api data in memory. If not in memory yet, it will be retrieved and added.
      * Default account will be retrieved from cache to speed up loading
+     *
+     * TODO - can speed up by checking if multi_address balance > 0 before calling unspent_api
+     *
      * @param address
      * @return
      * @throws Exception
@@ -869,7 +872,8 @@ public class SendViewModel implements ViewModel {
     private boolean isFeeAdequate(){
 
         //Push tx endpoint only accepts > 10000 per kb fees
-        if(!FeeUtil.isAdequateFee(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(),
+        if(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs() != null
+        && !FeeUtil.isAdequateFee(sendModel.pendingTransaction.unspentOutputBundle.getSpendableOutputs().size(),
                 2,//assume change
                 sendModel.pendingTransaction.bigIntFee)){
             dataListener.onShowErrorMessage(context.getString(R.string.insufficient_fee));

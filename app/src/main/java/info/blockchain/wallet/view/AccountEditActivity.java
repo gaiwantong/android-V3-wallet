@@ -5,14 +5,11 @@ import com.google.zxing.client.android.CaptureActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +24,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.model.AccountEditModel;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
 import info.blockchain.wallet.model.PendingTransaction;
@@ -378,19 +374,12 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
 
         runOnUiThread(() -> {
 
-            playAudio();
-
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             LayoutInflater inflater = getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.modal_transaction_success, null);
             final AlertDialog alertDialog = dialogBuilder.setView(dialogView).create();
             alertDialog.setOnDismissListener(dialogInterface -> finish());
             alertDialog.show();
-
-            new AppRate(this)
-                    .setMinTransactionsUntilPrompt(3)
-                    .incrementTransactionCount()
-                    .init();
         });
     }
 
@@ -409,19 +398,6 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
         if (progress != null && progress.isShowing()) {
             progress.dismiss();
             progress = null;
-        }
-    }
-
-    private void playAudio(){
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-            MediaPlayer mp;
-            mp = MediaPlayer.create(getApplicationContext(), R.raw.beep);
-            mp.setOnCompletionListener(mp1 -> {
-                mp1.reset();
-                mp1.release();
-            });
-            mp.start();
         }
     }
 }

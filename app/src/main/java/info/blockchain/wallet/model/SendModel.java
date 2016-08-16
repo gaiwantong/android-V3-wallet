@@ -12,9 +12,6 @@ import java.util.HashMap;
 
 import piuk.blockchain.android.BR;
 
-/**
- * Created by riaanvos on 02/08/16.
- */
 public class SendModel extends BaseObservable {
 
     //Views

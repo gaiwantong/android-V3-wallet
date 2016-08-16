@@ -39,11 +39,10 @@ import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
-import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
-import info.blockchain.wallet.callbacks.OpCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
+import info.blockchain.wallet.model.PendingTransaction;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
@@ -51,22 +50,20 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.send.SendCoins;
-import info.blockchain.wallet.send.SendFactory;
-import info.blockchain.wallet.send.UnspentOutputsBundle;
 import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ViewUtils;
-import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
+import info.blockchain.wallet.viewModel.AccountViewModel;
 import info.blockchain.wallet.websocket.WebSocketService;
 
 import org.bitcoinj.core.Base58;
@@ -77,7 +74,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -89,9 +85,11 @@ import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityAccountsBinding;
 import piuk.blockchain.android.databinding.AlertPromptTransferFundsBinding;
-import piuk.blockchain.android.databinding.AlertTransferFundsBinding;
+import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
-public class AccountActivity extends BaseAuthActivity {
+public class AccountActivity extends BaseAuthActivity implements AccountViewModel.DataListener {
+
+    private final String TAG = getClass().getSimpleName();
 
     private static final int IMPORT_PRIVATE_REQUEST_CODE = 2006;
     private static final int EDIT_ACTIVITY_REQUEST_CODE = 2007;
@@ -112,7 +110,7 @@ public class AccountActivity extends BaseAuthActivity {
                 AccountActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateAccountsList();
+                        onUpdateAccountsList();
                     }
                 });
 
@@ -135,6 +133,8 @@ public class AccountActivity extends BaseAuthActivity {
     private ActivityAccountsBinding binding;
     private String secondPassword;
 
+    private AccountViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +147,8 @@ public class AccountActivity extends BaseAuthActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_accounts);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        viewModel = new AccountViewModel(this, this);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
@@ -180,7 +182,7 @@ public class AccountActivity extends BaseAuthActivity {
         binding.accountsList.setLayoutManager(layoutManager);
 
         accountsAndImportedList = new ArrayList<>();
-        updateAccountsList();
+        onUpdateAccountsList();
         accountsAdapter = new AccountAdapter(accountsAndImportedList);
         binding.accountsList.setAdapter(accountsAdapter);
 
@@ -279,19 +281,10 @@ public class AccountActivity extends BaseAuthActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.account_activity_actions, menu);
+
         transferFundsMenuItem = menu.findItem(R.id.action_transfer_funds);
 
-        if(hasTransferableFunds() && payloadManager.getPayload().isUpgraded()){
-
-            transferFundsMenuItem.setVisible(true);
-
-            if(prefsUtil.getValue("WARN_TRANSFER_ALL", true)){
-                promptToTransferFunds(true);
-            }
-
-        }else{
-            transferFundsMenuItem.setVisible(false);
-        }
+        viewModel.checkTransferableLegacyFunds(true);//Auto popup
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -303,7 +296,8 @@ public class AccountActivity extends BaseAuthActivity {
                 onBackPressed();
                 return true;
             case R.id.action_transfer_funds:
-                promptToTransferFunds(false);
+                onShowProgressDialog(getString(R.string.app),getString(R.string.please_wait));
+                viewModel.checkTransferableLegacyFunds(false);//Not auto popup
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -434,7 +428,7 @@ public class AccountActivity extends BaseAuthActivity {
                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                                 //Update adapter list
-                                updateAccountsList();
+                                onUpdateAccountsList();
                             }
 
                             @Override
@@ -483,7 +477,8 @@ public class AccountActivity extends BaseAuthActivity {
 
     }
 
-    private void updateAccountsList() {
+    @Override
+    public void onUpdateAccountsList() {
 
         headerPositions = new ArrayList<Integer>();
 
@@ -576,7 +571,7 @@ public class AccountActivity extends BaseAuthActivity {
         IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
         LocalBroadcastManager.getInstance(AccountActivity.this).registerReceiver(receiver, filter);
 
-        updateAccountsList();
+        onUpdateAccountsList();
     }
 
     @Override
@@ -611,7 +606,7 @@ public class AccountActivity extends BaseAuthActivity {
             ;
         } else if (resultCode == Activity.RESULT_OK && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
 
-            updateAccountsList();
+            onUpdateAccountsList();
 
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
 
@@ -851,7 +846,7 @@ public class AccountActivity extends BaseAuthActivity {
             @Override
             public void onSaveSuccess() {
                 ToastCustom.makeText(AccountActivity.this, AccountActivity.this.getString(R.string.private_key_successfully_imported), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                updateAccountsList();
+                onUpdateAccountsList();
             }
 
             @Override
@@ -967,7 +962,7 @@ public class AccountActivity extends BaseAuthActivity {
                 MultiAddrFactory.getInstance().setLegacyBalance(legacyAddress.getAddress(), balance);
                 MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() + balance);
 
-                updateAccountsList();
+                onUpdateAccountsList();
 
                 Looper.loop();
 
@@ -1102,22 +1097,8 @@ public class AccountActivity extends BaseAuthActivity {
         }.execute();
     }
 
-    private boolean hasTransferableFunds(){
-        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
-        for(LegacyAddress legacyAddress : legacyAddresses){
-
-            if(!legacyAddress.isWatchOnly()){
-                long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-                if(balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() > SendCoins.bDust.longValue()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private void promptToTransferFunds(boolean isPopup){
+    @Override
+    public void onShowTransferableLegacyFundsWarning(boolean isAutoPopup, ArrayList<PendingTransaction> pendingTransactionList, long totalBalance, long totalFee) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
         AlertPromptTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
@@ -1127,7 +1108,7 @@ public class AccountActivity extends BaseAuthActivity {
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
-        if(!isPopup){
+        if(!isAutoPopup){
             dialogBinding.confirmDontAskAgain.setVisibility(View.GONE);
         }
 
@@ -1138,7 +1119,7 @@ public class AccountActivity extends BaseAuthActivity {
 
         dialogBinding.confirmSend.setOnClickListener(v -> {
             if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_TRANSFER_ALL", false);
-            checkTransferFunds();
+            transferSpendableFunds(pendingTransactionList, totalBalance, totalFee);
             alertDialog.dismiss();
         });
 
@@ -1152,80 +1133,56 @@ public class AccountActivity extends BaseAuthActivity {
         alertDialog.getWindow().setAttributes(lp);
     }
 
-    /*
-    Check if user should be alerted to transfer his funds from any address to default account for safety.
-     */
-    private void checkTransferFunds(){
+    private void transferSpendableFunds(ArrayList<PendingTransaction> pendingTransactionList, long totalBalance, long totalFee) {
 
-        ArrayList<PendingSpend> pendingSpendList = new ArrayList<>();
-        long totalToSend = 0;
-
-        int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
-
-        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
-        for(LegacyAddress legacyAddress : legacyAddresses){
-
-            if(!legacyAddress.isWatchOnly() && legacyAddress.getTag() != PayloadManager.ARCHIVED_ADDRESS){
-
-                long balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-
-                if(balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() > (SendCoins.bDust.longValue())) {
-                    final PendingSpend pendingSpend = new PendingSpend();
-                    pendingSpend.fromLegacyAddress = legacyAddress;
-                    pendingSpend.bigIntFee = FeeUtil.AVERAGE_ABSOLUTE_FEE;
-                    Long totalToSendAfterFee = (balance - FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue());
-                    totalToSend += totalToSendAfterFee;
-                    pendingSpend.bigIntAmount = BigInteger.valueOf(totalToSendAfterFee);
-                    pendingSpend.destination = payloadManager.getReceiveAddress(defaultIndex);//assign new receive address for each transfer
-                    pendingSpendList.add(pendingSpend);
-                }
-            }
-        }
-
-        transferSpendableFunds(pendingSpendList, totalToSend);
-    }
-
-    private void transferSpendableFunds(final ArrayList<PendingSpend> pendingSpendList, final long totalBalance) {
-
-        //Only funded legacy address' will see this option
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-        AlertTransferFundsBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.alert_transfer_funds, null, false);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        FragmentSendConfirmBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+                R.layout.fragment_send_confirm, null, false);
         dialogBuilder.setView(dialogBinding.getRoot());
 
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
-        dialogBinding.tvTransferFunds.setVisibility(View.GONE);
+        String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+        String btcUnit =  monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, fiatUnit);
 
-        //From
-        dialogBinding.confirmFrom.setText(pendingSpendList.size()+" "+getResources().getString(R.string.spendable_addresses));
+        String fiatAmount = monetaryUtil.getFiatFormat(fiatUnit).format(exchangeRate * ((double) totalBalance / 1e8));
+        String fiatFee = monetaryUtil.getFiatFormat(fiatUnit).format(exchangeRate * ((double) totalFee / 1e8));
+        String fiatTotal = monetaryUtil.getFiatFormat(fiatUnit).format(exchangeRate * ((double) (totalBalance+totalFee) / 1e8));
 
-        //To default
+        dialogBinding.confirmFromLabel.setText(pendingTransactionList.size()+" "+getResources().getString(R.string.spendable_addresses));
         int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
         Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
-        dialogBinding.confirmTo.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
+        dialogBinding.confirmToLabel.setText(defaultAccount.getLabel()+" ("+getResources().getString(R.string.default_label)+")");
+        dialogBinding.confirmAmountBtcUnit.setText(btcUnit);
+        dialogBinding.confirmAmountFiatUnit.setText(fiatUnit);
+        dialogBinding.confirmAmountBtc.setText(monetaryUtil.getDisplayAmount(totalBalance));
+        dialogBinding.confirmAmountFiat.setText(fiatAmount);
+        dialogBinding.confirmFeeBtc.setText(monetaryUtil.getDisplayAmount(totalFee));
+        dialogBinding.confirmFeeFiat.setText(fiatFee);
+        dialogBinding.confirmTotalBtc.setText(monetaryUtil.getDisplayAmount(totalBalance + totalFee));
+        dialogBinding.confirmTotalFiat.setText(fiatTotal);
 
-        //Fee
-        dialogBinding.confirmFee.setText(monetaryUtil.getDisplayAmount(FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() * pendingSpendList.size()) + " BTC");
+        dialogBinding.tvCustomizeFee.setVisibility(View.GONE);
 
-        //Total
-        dialogBinding.confirmTotalToSend.setText(monetaryUtil.getDisplayAmount(
-                totalBalance + (FeeUtil.AVERAGE_ABSOLUTE_FEE.longValue() * pendingSpendList.size())) + " " + " BTC");
-
-        dialogBinding.confirmCancel.setOnClickListener(v -> alertDialog.dismiss());
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.cancel();
+            }
+        });
 
         dialogBinding.confirmSend.setOnClickListener(v -> {
-
             new SecondPasswordHandler(AccountActivity.this).validate(new SecondPasswordHandler.ResultListener() {
                 @Override
                 public void onNoSecondPassword() {
-                    sendPayment(pendingSpendList);
+                    viewModel.sendPayment(pendingTransactionList, null);
                 }
 
                 @Override
                 public void onSecondPasswordValidated(String validateSecondPassword) {
                     secondPassword = validateSecondPassword;
-                    sendPayment(pendingSpendList);
+                    viewModel.sendPayment(pendingTransactionList, secondPassword);
                 }
             });
 
@@ -1235,196 +1192,26 @@ public class AccountActivity extends BaseAuthActivity {
         alertDialog.show();
     }
 
-    private class PendingSpend {
-
-        LegacyAddress fromLegacyAddress;
-        String destination;
-        BigInteger bigIntFee;
-        BigInteger bigIntAmount;
+    @Override
+    public void onSetTransferLegacyFundsMenuItemVisible(boolean visible) {
+        runOnUiThread(() -> transferFundsMenuItem.setVisible(visible));
     }
 
-    private void sendPayment(final ArrayList<PendingSpend> pendingSpendList){
+    private void showProgressDialog(){
+        dismissProgressDialog();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                Looper.prepare();
-
-                int sendCount = 1;
-                for(PendingSpend pendingSpend : pendingSpendList){
-
-                    UnspentOutputsBundle unspents = null;
-                    try {
-                        String unspentApiResponse = WebUtil.getInstance().getURL(WebUtil.UNSPENT_OUTPUTS_URL + pendingSpend.fromLegacyAddress.getAddress());
-                        unspents = SendFactory.getInstance().prepareSend(pendingSpend.fromLegacyAddress.getAddress(), pendingSpend.bigIntAmount.add(FeeUtil.AVERAGE_ABSOLUTE_FEE), BigInteger.ZERO, unspentApiResponse);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    boolean isLastSpend = false;
-                    if(pendingSpendList.size() == sendCount)isLastSpend = true;
-                    if(unspents != null){
-
-                        //Warn user of unconfirmed funds - but don't block payment
-                        if(unspents.getNotice() != null){
-                            ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+unspents.getNotice(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        }
-
-                        executeSend(pendingSpend, unspents, isLastSpend, pendingSpendList);
-
-                    } else {
-                        ToastCustom.makeText(AccountActivity.this, pendingSpend.fromLegacyAddress.getAddress()+" - "+getString(R.string.no_confirmed_funds), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    }
-
-                    sendCount++;
-                }
-
-                Looper.loop();
-            }
-        }).start();
-    }
-
-    private void executeSend(final PendingSpend pendingSpend, final UnspentOutputsBundle unspents,
-                             final boolean isLastSpend, ArrayList<PendingSpend> pendingSpendList){
-
-        final ProgressDialog progress;
-        progress = new ProgressDialog(AccountActivity.this);
+        progress = new ProgressDialog(this);
         progress.setTitle(R.string.app_name);
-        progress.setMessage(AccountActivity.this.getResources().getString(R.string.please_wait));
+        progress.setMessage(context.getResources().getString(R.string.please_wait));
         progress.setCancelable(false);
         progress.show();
-
-        SendFactory.getInstance().execSend(this, false, -1, unspents.getOutputs(), pendingSpend.destination,
-                pendingSpend.bigIntAmount, pendingSpend.fromLegacyAddress,
-                pendingSpend.bigIntFee, null, false, secondPassword, new OpCallback() {
-
-                    @Override
-                    public void onSuccess() {
-                        // No-op
-                    }
-
-                    @Override
-                    public void onSuccess(final String hash) {
-
-                        MultiAddrFactory.getInstance().setLegacyBalance(MultiAddrFactory.getInstance().getLegacyBalance() - (pendingSpend.bigIntAmount.longValue() + pendingSpend.bigIntFee.longValue()));
-
-                        if (isLastSpend) {
-                            ToastCustom.makeText(context, getResources().getString(R.string.transaction_submitted), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
-                            PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
-                                @Override
-                                public void onSaveSuccess() {
-                                    Log.d("onSaveSuccess", "onSaveSuccess: ");
-                                    showArchiveDialog(pendingSpendList);
-                                }
-
-                                @Override
-                                public void onSaveFail() {
-                                    ToastCustom.makeText(context, context.getString(R.string.remote_save_ko), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                                }
-                            });
-
-                            runOnUiThread(() -> {
-                                updateAccountsList();
-                                transferFundsMenuItem.setVisible(false);
-                            });
-                        }
-
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                        }
-                    }
-
-                    @Override
-                    public void onFail(String error) {
-
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                        }
-                    }
-
-                    @Override
-                    public void onFailPermanently(String error) {
-
-                        ToastCustom.makeText(AccountActivity.this, error, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        if (progress != null && progress.isShowing()) {
-                            progress.dismiss();
-                        }
-                    }
-
-                });
     }
 
-    private void showArchiveDialog(ArrayList<PendingSpend> pendingSpendList) {
-        int numberOfAddresses = pendingSpendList.size();
-
-        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.transfer_success_archive_prompt_title)
-                .setMessage(getResources().getQuantityString(R.plurals.transfer_success_archive_prompt_plurals, numberOfAddresses, numberOfAddresses))
-                .setPositiveButton(R.string.archive, (dialogInterface, i) -> {
-                    for (PendingSpend spend : pendingSpendList) {
-                        spend.fromLegacyAddress.setTag(PayloadManager.ARCHIVED_ADDRESS);
-                    }
-
-                    new ArchiveAsync(new WeakReference<>(getAccountActivity()), payloadManager).execute();
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .show();
-    }
-
-    private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
-
-        private ProgressDialog progress;
-        private AccountActivity context;
-        private PayloadManager payloadManager;
-
-        ArchiveAsync(WeakReference<AccountActivity> contextWeakReference, PayloadManager manager) {
-            super();
-            context = contextWeakReference.get();
-            payloadManager = manager;
+    private void dismissProgressDialog(){
+        if (progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
         }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progress = new ProgressDialog(context);
-            progress.setTitle(R.string.app_name);
-            progress.setMessage(context.getResources().getString(R.string.please_wait));
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if (progress != null && progress.isShowing()) {
-                progress.dismiss();
-                progress = null;
-            }
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (payloadManager.savePayloadToServer()) {
-                try {
-                    payloadManager.updateBalancesAndTransactions();
-                } catch (Exception e) {
-                    Log.e(ArchiveAsync.class.getSimpleName(), "doInBackground: ", e);
-                }
-
-                context.updateAccountsListFromUiThread();
-
-            }
-            return null;
-        }
-    }
-
-    private void updateAccountsListFromUiThread() {
-        runOnUiThread(this::updateAccountsList);
-    }
-
-    private AccountActivity getAccountActivity() {
-        return this;
     }
 
     @Override
@@ -1437,6 +1224,109 @@ public class AccountActivity extends BaseAuthActivity {
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    public void onShowTransactionSuccess() {
+
+        runOnUiThread(() -> {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.modal_transaction_success, null);
+            final AlertDialog alertDialog = dialogBuilder.setView(dialogView).create();
+            alertDialog.setOnDismissListener(dialogInterface -> finish());
+            alertDialog.show();
+        });
+    }
+
+    @Override
+    public void onShowProgressDialog(String title, String message) {
+        onDismissProgressDialog();
+
+        progress = new ProgressDialog(this);
+        progress.setTitle(title);
+        progress.setMessage(message);
+        progress.show();
+    }
+
+    @Override
+    public void onDismissProgressDialog() {
+        if (progress != null && progress.isShowing()) {
+            progress.dismiss();
+            progress = null;
+        }
+    }
+
+    @Override
+    public void onShowArchiveDialog(ArrayList<PendingTransaction> pendingSpendList) {
+
+        runOnUiThread(() -> {
+            int numberOfAddresses = pendingSpendList.size();
+            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                    .setTitle(R.string.transfer_success_archive_prompt_title)
+                    .setMessage(getResources().getQuantityString(R.plurals.transfer_success_archive_prompt_plurals, numberOfAddresses, numberOfAddresses))
+                    .setPositiveButton(R.string.archive, (dialogInterface, i) -> {
+                        for (PendingTransaction spend : pendingSpendList) {
+                            ((LegacyAddress)spend.sendingObject.accountObject).setTag(PayloadManager.ARCHIVED_ADDRESS);
+                        }
+
+                        new ArchiveAsync(this, payloadManager).execute();
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+        });
+    }
+
+    private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
+
+        private ProgressDialog progress;
+        private final WeakReference<AccountActivity> context;
+        private PayloadManager payloadManager;
+
+        ArchiveAsync(AccountActivity activity, PayloadManager manager) {
+            super();
+            context = new WeakReference<>(activity);
+            payloadManager = manager;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            AccountActivity accountActivity = context.get();
+            if (accountActivity != null) {
+                progress = new ProgressDialog(accountActivity);
+                progress.setTitle(R.string.app_name);
+                progress.setMessage(accountActivity.getResources().getString(R.string.please_wait));
+                progress.setCancelable(false);
+                progress.show();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (progress != null && progress.isShowing()) {
+                progress.dismiss();
+                progress = null;
+            }
+            AccountActivity accountActivity = context.get();
+            if (accountActivity != null) {
+                accountActivity.onUpdateAccountsList();
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if (payloadManager.savePayloadToServer()) {
+                try {
+                    payloadManager.updateBalancesAndTransactions();
+                } catch (Exception e) {
+                    Log.e(ArchiveAsync.class.getSimpleName(), "doInBackground: ", e);
+                }
+            }
+            return null;
         }
     }
 }
