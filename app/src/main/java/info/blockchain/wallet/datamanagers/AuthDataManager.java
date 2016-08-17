@@ -196,13 +196,13 @@ public class AuthDataManager {
         }
     }
 
-    private class PairFailThrowable extends Throwable {
+    class PairFailThrowable extends Throwable {
         PairFailThrowable() {
             super();
         }
     }
 
-    private class CreateFailThrowable extends Throwable {
+    class CreateFailThrowable extends Throwable {
         CreateFailThrowable() {
             super();
         }

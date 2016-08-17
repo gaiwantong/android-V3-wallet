@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -31,10 +32,11 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
 
     private static final int COOL_DOWN_MILLIS = 2 * 1000;
     private static final int PIN_LENGTH = 4;
+    private static final Handler mDelayHandler = new Handler();
 
     private TextView[] mPinBoxArray = null;
     private ProgressDialog mProgressDialog = null;
-    private ActivityPinEntryBinding binding;
+    private ActivityPinEntryBinding mBinding;
     private PinEntryViewModel mViewModel;
 
     private long mBackPressed;
@@ -46,21 +48,21 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_pin_entry);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_pin_entry);
         mViewModel = new PinEntryViewModel(this);
 
         // Set title state
         if (mViewModel.isCreatingNewPin()) {
-            binding.titleBox.setText(R.string.create_pin);
+            mBinding.titleBox.setText(R.string.create_pin);
         } else {
-            binding.titleBox.setText(R.string.pin_entry);
+            mBinding.titleBox.setText(R.string.pin_entry);
         }
 
         mPinBoxArray = new TextView[PIN_LENGTH];
-        mPinBoxArray[0] = binding.pinBox0;
-        mPinBoxArray[1] = binding.pinBox1;
-        mPinBoxArray[2] = binding.pinBox2;
-        mPinBoxArray[3] = binding.pinBox3;
+        mPinBoxArray[0] = mBinding.pinBox0;
+        mPinBoxArray[1] = mBinding.pinBox1;
+        mPinBoxArray[2] = mBinding.pinBox2;
+        mPinBoxArray[3] = mBinding.pinBox3;
 
         showConnectionDialogIfNeeded();
 
@@ -118,6 +120,21 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     }
 
     @Override
+    public void clearPinBoxes() {
+        mDelayHandler.postDelayed(new ClearPinNumberRunnable(), 200);
+    }
+
+    private class ClearPinNumberRunnable implements Runnable {
+        @Override
+        public void run() {
+            for (TextView pinBox : getPinBoxArray()) {
+                // Reset PIN buttons to blank
+                pinBox.setBackgroundResource(R.drawable.rounded_view_blue_white_border);
+            }
+        }
+    }
+
+    @Override
     public void goToUpgradeWalletActivity() {
         Intent intent = new Intent(this, UpgradeWalletActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -130,12 +147,12 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
 
     @Override
     public void setTitleString(@StringRes int title) {
-        binding.titleBox.setText(title);
+        mDelayHandler.postDelayed(() -> mBinding.titleBox.setText(title), 200);
     }
 
     @Override
     public void setTitleVisibility(@ViewUtils.Visibility int visibility) {
-        binding.titleBox.setVisibility(visibility);
+        mBinding.titleBox.setVisibility(visibility);
     }
 
     public void deleteClicked(View view) {

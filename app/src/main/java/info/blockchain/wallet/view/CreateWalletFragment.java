@@ -34,9 +34,12 @@ import piuk.blockchain.android.databinding.FragmentCreateWalletBinding;
 
 public class CreateWalletFragment extends Fragment {
 
-    int pwStrength;
-    int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_normal, R.string.strength_strong};
-    int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_blue, R.drawable.progress_green};
+    public static final String KEY_INTENT_EMAIL = "intent_email";
+    public static final String KEY_INTENT_PASSWORD = "intent_password";
+
+    private int pwStrength;
+    private int[] strengthVerdicts = {R.string.strength_weak, R.string.strength_medium, R.string.strength_normal, R.string.strength_strong};
+    private int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_blue, R.drawable.progress_green};
 
     private FragmentCreateWalletBinding binding;
 
@@ -158,8 +161,8 @@ public class CreateWalletFragment extends Fragment {
 
                             hideKeyboard();
                             Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                            intent.putExtra("_email", em);
-                            intent.putExtra("_pw", pw1);
+                            intent.putExtra(KEY_INTENT_EMAIL, em);
+                            intent.putExtra(KEY_INTENT_PASSWORD, pw1);
                             getActivity().startActivity(intent);
                         }
                     }).show();
@@ -168,8 +171,8 @@ public class CreateWalletFragment extends Fragment {
 
                     hideKeyboard();
                     Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                    intent.putExtra("_email", em);
-                    intent.putExtra("_pw", pw1);
+                    intent.putExtra(KEY_INTENT_EMAIL, em);
+                    intent.putExtra(KEY_INTENT_PASSWORD, pw1);
                     getActivity().startActivity(intent);
                 }
             }
