@@ -507,6 +507,7 @@ public class SendViewModel implements ViewModel {
 
         sendModel.setMaxAvailableProgressVisibility(View.VISIBLE);
         sendModel.setMaxAvailableVisibility(View.GONE);
+        sendModel.setUnconfirmedFunds("");
 
         String address;
 
@@ -536,7 +537,9 @@ public class SendViewModel implements ViewModel {
 
                 //Future use. There might be some unconfirmed funds. Not displaying a warning currently (to line up with iOS and Web wallet)
                 if(coins.getNotice() != null){
-                    System.out.println(coins.getNotice());
+                    sendModel.setUnconfirmedFunds(coins.getNotice());
+                }else{
+                    sendModel.setUnconfirmedFunds("");
                 }
 
                 sendModel.absoluteSuggestedFee = getSuggestedAbsoluteFee(coins, amountToSend);

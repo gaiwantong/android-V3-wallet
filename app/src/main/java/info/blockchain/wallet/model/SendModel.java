@@ -23,6 +23,7 @@ public class SendModel extends BaseObservable {
     private String estimate;
     private int estimateColor;
     private int customFeeColor;
+    private String unconfirmedFunds;
 
     //TODO bind amountRow - 'include'
 
@@ -126,5 +127,15 @@ public class SendModel extends BaseObservable {
     public void setCustomFeeColor(int customFeeColor) {
         this.customFeeColor = customFeeColor;
         notifyPropertyChanged(BR.customFeeColor);
+    }
+
+    @Bindable
+    public String getUnconfirmedFunds() {
+        return unconfirmedFunds;
+    }
+
+    public void setUnconfirmedFunds(String unconfirmedFunds) {
+        this.unconfirmedFunds = unconfirmedFunds;
+        notifyPropertyChanged(BR.unconfirmedFunds);
     }
 }
