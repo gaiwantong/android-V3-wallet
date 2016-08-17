@@ -378,9 +378,14 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         }else{
             //V2
             LegacyAddress legacyAddress = ((LegacyAddress) object);
-            List<Tx> legacyTransactions = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());
-            if(legacyTransactions != null)unsortedTransactionList.addAll(legacyTransactions);//V2 get single address' transactionList
-            btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+            if (legacyAddress != null) {
+                // This should never be null, but seems to be on occasion right now after first pairing
+                // TODO: 17/08/2016 Investigate this further
+                List<Tx> legacyTransactions = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());
+                if (legacyTransactions != null)
+                    unsortedTransactionList.addAll(legacyTransactions);//V2 get single address' transactionList
+                btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
+            }
 
         }
 

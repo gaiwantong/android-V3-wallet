@@ -169,7 +169,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     @Override
     public void showValidationDialog() {
         final AppCompatEditText password = new AppCompatEditText(this);
-        password.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
@@ -232,7 +232,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     public boolean dispatchTouchEvent(MotionEvent event) {
         // Test for screen overlays before user enters PIN
         // consume event
-        return mViewModel.getAppUtil().detectObscuredWindow(event) || super.dispatchTouchEvent(event);
+        return mViewModel.getAppUtil().detectObscuredWindow(this, event) || super.dispatchTouchEvent(event);
     }
 
     @Override

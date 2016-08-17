@@ -102,6 +102,7 @@ public class AuthDataManager {
                             @Override
                             public void onInitSuccess() {
                                 mPayloadManager.setTempPassword(password);
+                                subscriber.onNext(null);
                                 subscriber.onCompleted();
                             }
 

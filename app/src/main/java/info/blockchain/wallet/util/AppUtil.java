@@ -143,7 +143,7 @@ public class AppUtil {
         }
     }
 
-    public boolean detectObscuredWindow(MotionEvent event){
+    public boolean detectObscuredWindow(Context context, MotionEvent event) {
         //Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
         if ((!prefs.getValue("OVERLAY_TRUSTED",false)) && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
 
