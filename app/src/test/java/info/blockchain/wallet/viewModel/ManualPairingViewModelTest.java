@@ -46,8 +46,8 @@ public class ManualPairingViewModelTest {
     private ManualPairingViewModel mSubject;
 
     @Mock private ManualPairingActivity mActivity;
-    @Mock protected AppUtil mAppUtil;
-    @Mock protected AuthDataManager mAuthDataManager;
+    @Mock private AppUtil mAppUtil;
+    @Mock private AuthDataManager mAuthDataManager;
     
     @Before
     public void setUp() throws Exception {

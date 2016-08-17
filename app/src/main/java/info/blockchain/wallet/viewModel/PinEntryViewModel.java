@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -34,25 +33,27 @@ import piuk.blockchain.android.di.Injector;
 import rx.exceptions.Exceptions;
 import rx.subscriptions.CompositeSubscription;
 
+import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_EMAIL;
+import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWORD;
+
 public class PinEntryViewModel implements ViewModel {
 
     private static final int PIN_LENGTH = 4;
     private static final int MAX_ATTEMPTS = 4;
-    private static final Handler delayHandler = new Handler();
 
+    private DataListener mDataListener;
     @Inject protected AuthDataManager mAuthDataManager;
     @Inject protected AppUtil mAppUtil;
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected PayloadManager mPayloadManager;
     @Inject protected StringUtils mStringUtils;
-    private DataListener mDataListener;
-    @VisibleForTesting protected CompositeSubscription mCompositeSubscription;
+    @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     private String email;
     private CharSequenceX password;
-    private boolean bAllowExit = true;
-    private String mUserEnteredPin = "";
-    private String mUserEnteredConfirmationPin;
+    @VisibleForTesting String mUserEnteredPin = "";
+    @VisibleForTesting String mUserEnteredConfirmationPin;
+    @VisibleForTesting boolean bAllowExit = true;
 
     public interface DataListener {
 
@@ -82,6 +83,7 @@ public class PinEntryViewModel implements ViewModel {
 
         void setTitleVisibility(@ViewUtils.Visibility int visibility);
 
+        void clearPinBoxes();
     }
 
     public PinEntryViewModel(DataListener listener) {
@@ -94,13 +96,13 @@ public class PinEntryViewModel implements ViewModel {
         if (mDataListener.getPageIntent() != null) {
             Bundle extras = mDataListener.getPageIntent().getExtras();
             if (extras != null) {
-                if (extras.containsKey("_email")) {
-                    email = extras.getString("_email");
+                if (extras.containsKey(KEY_INTENT_EMAIL)) {
+                    email = extras.getString(KEY_INTENT_EMAIL);
                 }
 
-                if (extras.containsKey("_pw")) {
+                if (extras.containsKey(KEY_INTENT_PASSWORD)) {
                     //noinspection ConstantConditions
-                    password = new CharSequenceX(extras.getString("_pw"));
+                    password = new CharSequenceX(extras.getString(KEY_INTENT_PASSWORD));
                 }
 
                 if (password != null && password.length() > 0 && email != null && !email.isEmpty()) {
@@ -173,28 +175,14 @@ public class PinEntryViewModel implements ViewModel {
             // End of Create -  Change to Confirm
             mUserEnteredConfirmationPin = mUserEnteredPin;
             mUserEnteredPin = "";
-            delayHandler.postDelayed(new PinConfirmRunnable(), 200);
+            mDataListener.setTitleString(R.string.confirm_pin);
+            clearPinBoxes();
         } else if (mUserEnteredConfirmationPin.equals(mUserEnteredPin)) {
             // End of Confirm - Pin is confirmed
             createNewPin(mUserEnteredPin);
         } else {
             // End of Confirm - Pin Mismatch
             showErrorToast(R.string.pin_mismatch_error);
-            delayHandler.postDelayed(new PinMismatchRunnable(), 200);
-        }
-    }
-
-    private class PinConfirmRunnable implements Runnable {
-        @Override
-        public void run() {
-            mDataListener.setTitleString(R.string.confirm_pin);
-            clearPinBoxes();
-        }
-    }
-
-    private class PinMismatchRunnable implements Runnable {
-        @Override
-        public void run() {
             mDataListener.setTitleString(R.string.create_pin);
             clearPinViewAndReset();
         }
@@ -202,19 +190,17 @@ public class PinEntryViewModel implements ViewModel {
 
     private void clearPinViewAndReset() {
         clearPinBoxes();
-        mUserEnteredPin = "";
         mUserEnteredConfirmationPin = null;
     }
 
     public void clearPinBoxes() {
-        for (TextView pinBox : mDataListener.getPinBoxArray()) {
-            // Reset PIN buttons to blank
-            pinBox.setBackgroundResource(R.drawable.rounded_view_blue_white_border);
-        }
         mUserEnteredPin = "";
+        mDataListener.clearPinBoxes();
     }
 
-    private void updatePayload(CharSequenceX password) {
+    @SuppressWarnings("WeakerAccess")
+    @VisibleForTesting
+    void updatePayload(CharSequenceX password) {
         mDataListener.showProgressDialog(R.string.decrypting_wallet, null);
 
         mCompositeSubscription.add(
@@ -267,12 +253,12 @@ public class PinEntryViewModel implements ViewModel {
                         mPrefsUtil.getValue(PrefsUtil.KEY_GUID, ""),
                         password)
                         .doOnSubscribe(() -> mPayloadManager.setTempPassword(new CharSequenceX("")))
-                        .doAfterTerminate(() -> mDataListener.dismissProgressDialog())
                         .subscribe(o -> {
                             mDataListener.showToast(R.string.pin_4_strikes_password_accepted, ToastCustom.TYPE_OK);
                             mPrefsUtil.removeValue(PrefsUtil.KEY_PIN_FAILS);
                             mPrefsUtil.removeValue(PrefsUtil.KEY_PIN_IDENTIFIER);
                             mDataListener.restartPage();
+                            mDataListener.dismissProgressDialog();
                         }, throwable -> {
                             showErrorToast(R.string.invalid_password);
                             mDataListener.showValidationDialog();
