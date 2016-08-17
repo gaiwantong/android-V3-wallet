@@ -31,7 +31,6 @@ import piuk.blockchain.android.di.InjectorTestUtils;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -163,7 +162,6 @@ public class AuthDataManagerTest extends RxTest {
         // Act
         mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
-        verify(mPrefsUtil).setValue(anyString(), anyBoolean());
         verify(mPayloadManager).setTempPassword(any(CharSequenceX.class));
         subscriber.assertCompleted();
         subscriber.assertNoErrors();

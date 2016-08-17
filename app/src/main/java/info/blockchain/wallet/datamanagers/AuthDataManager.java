@@ -53,6 +53,11 @@ public class AuthDataManager {
                 .compose(RxUtil.applySchedulers());
     }
 
+    public Observable<Void> updatePayload(String sharedKey, String guid, CharSequenceX password) {
+        return getUpdatePayloadObservable(sharedKey, guid, password)
+                .compose(RxUtil.applySchedulers());
+    }
+
     public Observable<CharSequenceX> validatePin(String pin) {
         return Observable.fromCallable(() -> mAccessState.validatePIN(pin))
                 .compose(RxUtil.applySchedulers());
@@ -86,7 +91,7 @@ public class AuthDataManager {
                         .first());
     }
 
-    public Observable<Void> updatePayload(String sharedKey, String guid, CharSequenceX password) {
+    private Observable<Void> getUpdatePayloadObservable(String sharedKey, String guid, CharSequenceX password) {
         return Observable.defer(() -> Observable.create(subscriber -> {
             try {
                 mPayloadManager.initiatePayload(
@@ -96,7 +101,6 @@ public class AuthDataManager {
                         new PayloadManager.InitiatePayloadListener() {
                             @Override
                             public void onInitSuccess() {
-                                mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                 mPayloadManager.setTempPassword(password);
                                 subscriber.onCompleted();
                             }
@@ -112,7 +116,7 @@ public class AuthDataManager {
                             }
                         });
             } catch (Exception e) {
-                subscriber.onError(new Throwable("Create password failed: " + e));
+                subscriber.onError(new Throwable(e));
             }
         }));
     }
@@ -160,6 +164,7 @@ public class AuthDataManager {
                                 .subscribe(new Subscriber<Void>() {
                                     @Override
                                     public void onCompleted() {
+                                        mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                         listener.onSuccess();
                                     }
 
@@ -169,6 +174,8 @@ public class AuthDataManager {
                                             listener.onCreateFail();
                                         } else if (e instanceof PairFailThrowable) {
                                             listener.onPairFail();
+                                        } else {
+                                            listener.onFatalError();
                                         }
                                     }
 
