@@ -1146,6 +1146,7 @@ public class SendViewModel implements ViewModel {
                 } else {
                     legacyAddress = ((LegacyAddress) sendModel.pendingTransaction.sendingObject.accountObject);
                     changeAddress = legacyAddress.getAddress();
+                    isWatchOnly = legacyAddress.isWatchOnly();
                 }
 
                 payment.submitPayment(sendModel.pendingTransaction.unspentOutputBundle,
@@ -1250,6 +1251,7 @@ public class SendViewModel implements ViewModel {
             tempLegacyAddress.setEncryptedKey(key.getPrivKeyBytes());
             tempLegacyAddress.setAddress(key.toAddress(MainNetParams.get()).toString());
             tempLegacyAddress.setLabel(legacyAddress.getLabel());
+            tempLegacyAddress.setWatchOnly(true);
             sendModel.pendingTransaction.sendingObject.accountObject = tempLegacyAddress;
 
             confirmPayment();
