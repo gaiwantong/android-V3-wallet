@@ -142,7 +142,6 @@
                                 android:paddingTop="16dp"
                                 android:paddingBottom="16dp"
                                 android:textColor="@{viewModel.sendModel.maxAvailableColor}"
-                                android:alpha="0.8"
                                 android:text="@{viewModel.sendModel.maxAviable}"
                                 android:visibility="@{viewModel.sendModel.maxAvailableVisibility}"
                                 android:textAlignment="gravity"
@@ -231,6 +230,16 @@
 
 
                     </LinearLayout>
+
+                    <TextView
+                            android:id="@+id/unconfirmed_funds_warning"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginRight="16dp"
+                            android:gravity="center"
+                            android:text="@{viewModel.sendModel.unconfirmedFunds}"
+                            android:textColor="@color/blockchain_send_red"/>
 
                     <View
                             android:layout_width="match_parent"
