@@ -16,6 +16,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -34,14 +35,11 @@ import android.widget.EditText;
 
 import info.blockchain.wallet.app_rate.AppRate;
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
+import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
-import info.blockchain.wallet.model.SendModel;
 import info.blockchain.wallet.util.AppUtil;
-import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PermissionUtil;
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.SendViewModel;
@@ -61,17 +59,11 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
     private ActivitySendBinding binding;
     private SendViewModel viewModel;
-    private PrefsUtil prefsUtil;
 
     private static CustomKeypad customKeypad;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
-
-    private MenuItem sendButton;
-
-    private final static int SHOW_BTC = 1;
-    private final static int SHOW_FIAT = 2;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -93,16 +85,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_send);
-        this.prefsUtil = new PrefsUtil(this);
-
-        String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        viewModel = new SendViewModel(new SendModel(),
-                this,
-                ExchangeRateFactory.getInstance().getLastPrice(this, fiatUnit),
-                prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC),
-                fiatUnit,
-                getBtcDisplayState(),
-                this);
+        viewModel = new SendViewModel(this,this);
         binding.setViewModel(viewModel);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -117,16 +100,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         String scanData = getIntent().getStringExtra("scan_data");
         if(scanData!=null)viewModel.handleIncomingQRScan(scanData);
-    }
-
-    private boolean getBtcDisplayState(){
-        boolean isBTC = true;
-        int BALANCE_DISPLAY_STATE = prefsUtil.getValue(PrefsUtil.KEY_BALANCE_DISPLAY_STATE, SHOW_BTC);
-        if (BALANCE_DISPLAY_STATE == SHOW_FIAT) {
-            isBTC = false;
-        }
-
-        return isBTC;
     }
 
     @Override
@@ -153,8 +126,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.send_activity_actions, menu);
-        sendButton = menu.findItem(R.id.action_send);
-        onDisableSend(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -176,12 +147,16 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
             case R.id.action_send:
                 customKeypad.setNumpadVisibility(View.GONE);
 
-                ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
-                viewModel.setSendingAddress(selectedItem);
-                viewModel.calculateTransactionAmounts(selectedItem,
-                        binding.amountRow.amountBtc.getText().toString(),
-                        binding.customFee.getText().toString(),
-                        () -> viewModel.sendClicked(false, binding.destination.getText().toString()));
+                if (ConnectivityStatus.hasConnectivity(this)) {
+                    ItemAccount selectedItem = (ItemAccount) binding.accounts.spinner.getSelectedItem();
+                    viewModel.setSendingAddress(selectedItem);
+                    viewModel.calculateTransactionAmounts(selectedItem,
+                            binding.amountRow.amountBtc.getText().toString(),
+                            binding.customFee.getText().toString(),
+                            () -> viewModel.sendClicked(false, binding.destination.getText().toString()));
+                } else {
+                    ToastCustom.makeText(this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -435,8 +410,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     @Override
-    public void onShowErrorMessage(String message) {
-        ToastCustom.makeText(this, message, ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+    public void onShowToast(@StringRes int message, @ToastCustom.ToastType String toastType) {
+        ToastCustom.makeText(this, getString(message), ToastCustom.LENGTH_SHORT, toastType);
     }
 
     @Override
@@ -475,20 +450,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                     .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> {
                         viewModel.spendFromWatchOnlyBIP38(password.getText().toString(), scanData);
                     }).setNegativeButton(android.R.string.cancel, null).show();
-        });
-    }
-
-    @Override
-    public void onDisableSend(boolean disable) {
-        runOnUiThread(() -> {
-            if (disable) {
-                sendButton.setEnabled(false);
-                sendButton.getIcon().setAlpha(130);
-
-            } else {
-                sendButton.setEnabled(true);
-                sendButton.getIcon().setAlpha(255);
-            }
         });
     }
 
@@ -531,11 +492,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     @Override
     public void onUpdateFiatUnit(String unit) {
         binding.amountRow.currencyFiat.setText(unit);
-    }
-
-    @Override
-    public void onSetBtcUnit(int unitBtc) {
-        prefsUtil.setValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
     }
 
     @Override
@@ -675,7 +631,12 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         });
 
         dialogBinding.confirmSend.setOnClickListener(v -> {
-            viewModel.submitPayment(alertDialog);
+            if (ConnectivityStatus.hasConnectivity(this)) {
+                viewModel.submitPayment(alertDialog);
+            } else {
+                ToastCustom.makeText(this, getString(R.string.check_connectivity_exit), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                // Queue tx here
+            }
         });
 
         alertDialog.show();
@@ -688,31 +649,28 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     @Override
     public void onShowReceiveToWatchOnlyWarning(String address) {
 
-        if(prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
+                R.layout.alert_watch_only_spend, null, false);
+        dialogBuilder.setView(dialogBinding.getRoot());
+        dialogBuilder.setCancelable(false);
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
-                    R.layout.alert_watch_only_spend, null, false);
-            dialogBuilder.setView(dialogBinding.getRoot());
-            dialogBuilder.setCancelable(false);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
 
-            final AlertDialog alertDialog = dialogBuilder.create();
-            alertDialog.setCanceledOnTouchOutside(false);
+        dialogBinding.confirmCancel.setOnClickListener(v -> {
+            binding.destination.setText("");
+            if(dialogBinding.confirmDontAskAgain.isChecked()) viewModel.setWatchOnlySpendWarning(false);
+            alertDialog.dismiss();
+        });
 
-            dialogBinding.confirmCancel.setOnClickListener(v -> {
-                binding.destination.setText("");
-                if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-                alertDialog.dismiss();
-            });
+        dialogBinding.confirmContinue.setOnClickListener(v -> {
+            binding.destination.setText(address);
+            if(dialogBinding.confirmDontAskAgain.isChecked()) viewModel.setWatchOnlySpendWarning(false);
+            alertDialog.dismiss();
+        });
 
-            dialogBinding.confirmContinue.setOnClickListener(v -> {
-                binding.destination.setText(address);
-                if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-                alertDialog.dismiss();
-            });
-
-            alertDialog.show();
-        }
+        alertDialog.show();
     }
 
     @Override
