@@ -45,7 +45,7 @@ public class BlockchainApplication extends Application {
         }
 
         RxJavaHooks.enableAssemblyTracking();
-        RxJavaHooks.setOnError(throwable -> Log.d(RX_ERROR_TAG, throwable.getMessage(), throwable));
+        RxJavaHooks.setOnError(throwable -> Log.e(RX_ERROR_TAG, throwable.getMessage(), throwable));
 
         AccessState.getInstance().initAccessState(this);
 

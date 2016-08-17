@@ -117,8 +117,7 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         // Test for screen overlays before user enters PIN
-        return mViewModel.getAppUtil().detectObscuredWindow(event)
-                || super.dispatchTouchEvent(event);
+        return mViewModel.getAppUtil().detectObscuredWindow(this, event) || super.dispatchTouchEvent(event);
     }
 
     @Override
