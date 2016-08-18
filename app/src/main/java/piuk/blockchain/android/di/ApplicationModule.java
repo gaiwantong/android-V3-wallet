@@ -46,7 +46,6 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
     protected AccessState provideAccessState() {
         return AccessState.getInstance();
     }

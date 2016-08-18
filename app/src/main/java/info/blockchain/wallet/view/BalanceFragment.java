@@ -27,7 +27,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,7 +50,6 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
@@ -75,8 +73,6 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
 public class BalanceFragment extends Fragment implements BalanceViewModel.DataListener{
-
-    public static final String TAG = "BalanceFragment";
 
     public static final String ACTION_INTENT = "info.blockchain.wallet.ui.BalanceFragment.REFRESH";
     private final static int SHOW_BTC = 1;
@@ -160,7 +156,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
         ((AppCompatActivity) context).setSupportActionBar(toolbar);
 
-        Log.d(TAG, "setAccountSpinner addressList.size() == " + viewModel.getActiveAccountAndAddressList().size());
         if(viewModel.getActiveAccountAndAddressList().size() > 1){
             ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
@@ -195,8 +190,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         viewModel.startWebSocketService();
         viewModel.updateAccountList();
-        Log.d(TAG, "onResume: update account called");
-        Log.d(TAG, "accountSpinner.getSelectedItemPosition() == " + accountSpinner.getSelectedItemPosition());
         viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
     }
 
@@ -301,7 +294,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void setupViews() {
-        Log.d(TAG, "setupViews started");
         initFab();
 
         noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
@@ -381,7 +373,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         // drawerTitle account now that wallet has been created
         if (prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadManager.getInstance().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            viewModel.getPayloadManager().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
             prefsUtil.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
             PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                 @Override
@@ -430,7 +422,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     @Override
                     protected Void doInBackground(Void... params) {
                         try {
-                            PayloadManager.getInstance().updateBalancesAndTransactions();
+                            viewModel.getPayloadManager().updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -451,8 +443,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         binding.swipeContainer.setColorSchemeResources(R.color.blockchain_receive_green,
                 R.color.blockchain_blue,
                 R.color.blockchain_send_red);
-
-        Log.d(TAG, "setupViews complete");
     }
 
     private void onRowClick(final View detailsView, final int position) {
@@ -755,7 +745,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             setAccountSpinner();
 
         context.runOnUiThread(() -> {
-            Log.d(TAG, "onRefreshAccounts called");
             if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
         });
     }
@@ -773,7 +762,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         //Notify adapters of change
-        Log.d(TAG, "onRefreshBalanceAndTransactions called");
         accountsAdapter.notifyDataSetChanged();
         transactionAdapter.notifyDataSetChanged();
 

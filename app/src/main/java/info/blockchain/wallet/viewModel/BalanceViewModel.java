@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.support.v4.util.Pair;
-import android.util.Log;
 
 import info.blockchain.wallet.model.BalanceModel;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
@@ -319,6 +318,10 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
         //If we have multiple accounts/addresses we will show dropdown in toolbar, otherwise we will only display a static text
         dataListener.onRefreshAccounts();
+    }
+
+    public PayloadManager getPayloadManager() {
+        return payloadManager;
     }
 
     public List<Tx> getTransactionList(){
