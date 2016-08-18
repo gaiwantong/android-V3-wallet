@@ -29,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -242,7 +241,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
         MenuItem backUpMenuItem = binding.nvView.getMenu().findItem(R.id.nav_backup);
         MenuItem upgradeMenuItem = binding.nvView.getMenu().findItem(R.id.nav_upgrade);
 
-        if (PayloadManager.getInstance().isNotUpgraded()) {
+        if (mainViewModel.getPayloadManager().isNotUpgraded()) {
             //Legacy
             upgradeMenuItem.setVisible(true);
             backUpMenuItem.setVisible(false);
@@ -255,9 +254,9 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
         MenuItem backUpView = binding.nvView.getMenu().findItem(R.id.nav_backup);
         Drawable drawable = backUpView.getIcon();
         drawable.mutate();
-        if (PayloadManager.getInstance().getPayload() != null &&
-                PayloadManager.getInstance().getPayload().getHdWallet() != null &&
-                !PayloadManager.getInstance().getPayload().getHdWallet().isMnemonicVerified()) {
+        if (mainViewModel.getPayloadManager().getPayload() != null &&
+                mainViewModel.getPayloadManager().getPayload().getHdWallet() != null &&
+                !mainViewModel.getPayloadManager().getPayload().getHdWallet().isMnemonicVerified()) {
             //Not backed up
             drawable.setColorFilter(getResources().getColor(R.color.blockchain_send_red), PorterDuff.Mode.SRC_ATOP);
         } else {

@@ -25,16 +25,20 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import piuk.blockchain.android.di.Injector;
+
 public class MainViewModel implements ViewModel {
 
     private final String TAG = getClass().getSimpleName();
 
     private Context context;
     private DataListener dataListener;
-    private PrefsUtil prefs;
     private OSUtil osUtil;
-    private AppUtil appUtil;
-    private PayloadManager payloadManager;
+    @Inject protected PrefsUtil prefs;
+    @Inject protected AppUtil appUtil;
+    @Inject protected PayloadManager payloadManager;
 
     private long mBackPressed;
     private static final int COOL_DOWN_MILLIS = 2 * 1000;
@@ -51,17 +55,18 @@ public class MainViewModel implements ViewModel {
     }
 
     public MainViewModel(Context context, DataListener dataListener) {
+        Injector.getInstance().getAppComponent().inject(this);
         this.context = context;
         this.dataListener = dataListener;
-        this.prefs = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
-        this.appUtil = new AppUtil(context);
-        this.payloadManager = PayloadManager.getInstance();
-
         this.appUtil.applyPRNGFixes();
 
         checkRooted();
         checkConnectivity();
+    }
+
+    public PayloadManager getPayloadManager() {
+        return payloadManager;
     }
 
     private void checkRooted(){

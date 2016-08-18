@@ -27,6 +27,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,7 +54,6 @@ import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -75,6 +75,8 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
 public class BalanceFragment extends Fragment implements BalanceViewModel.DataListener{
+
+    public static final String TAG = "BalanceFragment";
 
     public static final String ACTION_INTENT = "info.blockchain.wallet.ui.BalanceFragment.REFRESH";
     private final static int SHOW_BTC = 1;
@@ -111,7 +113,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private View prevRowClicked = null;
     private PrefsUtil prefsUtil;
     private DateUtil dateUtil;
-    private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -135,7 +136,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         context = getActivity();
         prefsUtil = new PrefsUtil(context);
         dateUtil = new DateUtil(context);
-        appUtil = new AppUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);
@@ -160,6 +160,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
         ((AppCompatActivity) context).setSupportActionBar(toolbar);
 
+        Log.d(TAG, "setAccountSpinner addressList.size() == " + viewModel.getActiveAccountAndAddressList().size());
         if(viewModel.getActiveAccountAndAddressList().size() > 1){
             ((AppCompatActivity) context).getSupportActionBar().setDisplayShowTitleEnabled(false);
             accountSpinner.setVisibility(View.VISIBLE);
@@ -193,8 +194,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
 
         viewModel.startWebSocketService();
-        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
         viewModel.updateAccountList();
+        Log.d(TAG, "onResume: update account called");
+        Log.d(TAG, "accountSpinner.getSelectedItemPosition() == " + accountSpinner.getSelectedItemPosition());
+        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
     }
 
     @Override
@@ -214,10 +217,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        comm = (Communicator) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        comm = (Communicator) context;
     }
 
     private void initFab(){
@@ -299,7 +301,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void setupViews() {
-
+        Log.d(TAG, "setupViews started");
         initFab();
 
         noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
@@ -449,6 +451,8 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         binding.swipeContainer.setColorSchemeResources(R.color.blockchain_receive_green,
                 R.color.blockchain_blue,
                 R.color.blockchain_send_red);
+
+        Log.d(TAG, "setupViews complete");
     }
 
     private void onRowClick(final View detailsView, final int position) {
@@ -751,6 +755,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
             setAccountSpinner();
 
         context.runOnUiThread(() -> {
+            Log.d(TAG, "onRefreshAccounts called");
             if (accountsAdapter != null) accountsAdapter.notifyDataSetChanged();
         });
     }
@@ -768,6 +773,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
         //Notify adapters of change
+        Log.d(TAG, "onRefreshBalanceAndTransactions called");
         accountsAdapter.notifyDataSetChanged();
         transactionAdapter.notifyDataSetChanged();
 
