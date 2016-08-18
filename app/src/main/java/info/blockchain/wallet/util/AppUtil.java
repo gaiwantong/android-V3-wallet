@@ -27,6 +27,7 @@ public class AppUtil {
     private static final String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
     @Inject protected PrefsUtil prefs;
+    @Inject protected PayloadManager payloadManager;
     private Context context;
     private AlertDialog alertDialog;
     private String receiveQRFileName;
@@ -38,7 +39,7 @@ public class AppUtil {
     }
 
     public void clearCredentials() {
-        PayloadManager.getInstance().wipe();
+        payloadManager.wipe();
         prefs.clear();
     }
 

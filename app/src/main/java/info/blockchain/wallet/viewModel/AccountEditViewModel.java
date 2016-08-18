@@ -56,8 +56,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.di.Injector;
 
 import static piuk.blockchain.android.R.string.address;
 
@@ -66,8 +69,8 @@ public class AccountEditViewModel implements ViewModel{
     private Context context;
     private DataListener dataListener;
 
-    private PayloadManager payloadManager;
-    private PrefsUtil prefsUtil;
+    @Inject protected PayloadManager payloadManager;
+    @Inject protected PrefsUtil prefsUtil;
     private MonetaryUtil monetaryUtil;
 
     private Account account = null;
@@ -97,11 +100,10 @@ public class AccountEditViewModel implements ViewModel{
     }
 
     public AccountEditViewModel(AccountEditModel accountModel, Context context, DataListener dataListener) {
+        Injector.getInstance().getAppComponent().inject(this);
         this.context = context;
         this.dataListener = dataListener;
 
-        this.payloadManager = PayloadManager.getInstance();
-        prefsUtil = new PrefsUtil(context);
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         this.accountModel = accountModel;

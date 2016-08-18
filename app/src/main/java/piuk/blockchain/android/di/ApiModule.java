@@ -22,7 +22,6 @@ public class ApiModule {
     }
 
     @Provides
-    @Singleton
     protected PayloadManager providePayloadManager() {
         return PayloadManager.getInstance();
     }
