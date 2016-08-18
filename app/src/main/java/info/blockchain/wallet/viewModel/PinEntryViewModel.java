@@ -1,15 +1,12 @@
 package info.blockchain.wallet.viewModel;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -210,7 +207,6 @@ public class PinEntryViewModel implements ViewModel {
                         password)
                         .doOnTerminate(() -> mDataListener.dismissProgressDialog())
                         .subscribe(aVoid -> {
-
                             mAppUtil.setSharedKey(mPayloadManager.getPayload().getSharedKey());
 
                             double walletVersion = mPayloadManager.getVersion();
@@ -220,21 +216,7 @@ public class PinEntryViewModel implements ViewModel {
                             } else {
                                 setAccountLabelIfNecessary();
 
-                                try {
-                                    int previousVersionCode = mPrefsUtil.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0);
-                                    PackageInfo packageInfo = mAppUtil.getPackageManager().getPackageInfo(mAppUtil.getPackageName(), 0);
-
-                                    // If upgrade detected - reset last reminder so we can warn user again + set new app version in prefs
-                                    if (previousVersionCode != packageInfo.versionCode) {
-                                        mPrefsUtil.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
-                                        mPrefsUtil.setValue(PrefsUtil.KEY_CURRENT_APP_VERSION, packageInfo.versionCode);
-                                    }
-
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    Log.e(PinEntryViewModel.class.getSimpleName(), "updatePayload: ", e);
-                                }
-
-                                if (mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L && !mPayloadManager.getPayload().isUpgraded()) {
+                                if (!mPayloadManager.getPayload().isUpgraded()) {
                                     mDataListener.goToUpgradeWalletActivity();
                                 } else {
                                     mAppUtil.restartAppWithVerifiedPin();

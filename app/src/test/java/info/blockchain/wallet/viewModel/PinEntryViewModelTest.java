@@ -2,8 +2,6 @@ package info.blockchain.wallet.viewModel;
 
 import android.app.Application;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,12 +17,10 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.StringUtils;
 import info.blockchain.wallet.view.PinEntryActivity;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
@@ -47,7 +43,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -56,9 +51,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by adambennett on 17/08/2016.
- */
 @Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
 @RunWith(RobolectricGradleTestRunner.class)
 public class PinEntryViewModelTest {
@@ -86,11 +78,6 @@ public class PinEntryViewModelTest {
         when(mActivity.getPinBoxArray()).thenReturn(new TextView[]{mockTextView, mockTextView, mockTextView, mockTextView});
 
         mSubject = new PinEntryViewModel(mActivity);
-    }
-
-    @After
-    public void tearDown() {
-        Mockito.validateMockitoUsage();
     }
 
     @Test
@@ -443,7 +430,7 @@ public class PinEntryViewModelTest {
         accountsList.add(mockAccount);
         when(mockHdWallet.getAccounts()).thenReturn(accountsList);
         when(mPayloadManager.getPayload()).thenReturn(mockPayload);
-        when(mPayloadManager.getVersion()).thenReturn(3.0d);
+        when(mockPayload.isUpgraded()).thenReturn(true);
         when(mAppUtil.isNewlyCreated()).thenReturn(true);
         // Act
         mSubject.updatePayload(new CharSequenceX(""));
@@ -451,7 +438,7 @@ public class PinEntryViewModelTest {
         verify(mActivity).showProgressDialog(anyInt(), anyString());
         verify(mAuthDataManager).updatePayload(anyString(), anyString(), any(CharSequenceX.class));
         verify(mAppUtil).setSharedKey(anyString());
-        verify(mPayloadManager, times(4)).getPayload();
+        verify(mPayloadManager, times(5)).getPayload();
         verify(mStringUtils).getString(anyInt());
     }
 
@@ -462,43 +449,8 @@ public class PinEntryViewModelTest {
         Payload mockPayload = mock(Payload.class);
         when(mockPayload.getSharedKey()).thenReturn("1234567890");
         when(mPayloadManager.getPayload()).thenReturn(mockPayload);
-        when(mPayloadManager.getVersion()).thenReturn(3.0d);
+        when(mockPayload.isUpgraded()).thenReturn(false);
         when(mAppUtil.isNewlyCreated()).thenReturn(false);
-
-        PackageManager mockPackageManager = mock(PackageManager.class);
-        when(mAppUtil.getPackageManager()).thenReturn(mockPackageManager);
-        when(mAppUtil.getPackageName()).thenReturn(RuntimeEnvironment.application.getPackageName());
-        PackageInfo mockPackageInfo = mock(PackageInfo.class);
-        when(mPrefsUtil.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0)).thenReturn(1);
-        //noinspection WrongConstant
-        when(mockPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(mockPackageInfo);
-        // Act
-        mSubject.updatePayload(new CharSequenceX(""));
-        // Assert
-        verify(mActivity).showProgressDialog(anyInt(), anyString());
-        verify(mAuthDataManager).updatePayload(anyString(), anyString(), any(CharSequenceX.class));
-        verify(mAppUtil).setSharedKey(anyString());
-        verify(mPrefsUtil).setValue(anyString(), anyInt());
-        verify(mPrefsUtil).setValue(anyString(), anyLong());
-        verify(mActivity).goToUpgradeWalletActivity();
-    }
-
-    @Test
-    public void updatePayloadSuccessfulPackageNameNotFound() throws Exception {
-        // Arrange
-        when(mAuthDataManager.updatePayload(anyString(), anyString(), any(CharSequenceX.class))).thenReturn(Observable.just(null));
-        Payload mockPayload = mock(Payload.class);
-        when(mockPayload.getSharedKey()).thenReturn("1234567890");
-        when(mPayloadManager.getPayload()).thenReturn(mockPayload);
-        when(mPayloadManager.getVersion()).thenReturn(3.0d);
-        when(mAppUtil.isNewlyCreated()).thenReturn(false);
-
-        PackageManager mockPackageManager = mock(PackageManager.class);
-        when(mAppUtil.getPackageManager()).thenReturn(mockPackageManager);
-        when(mAppUtil.getPackageName()).thenReturn(RuntimeEnvironment.application.getPackageName());
-        when(mPrefsUtil.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0)).thenReturn(1);
-        //noinspection WrongConstant
-        when(mockPackageManager.getPackageInfo(anyString(), anyInt())).thenThrow(new PackageManager.NameNotFoundException());
         // Act
         mSubject.updatePayload(new CharSequenceX(""));
         // Assert
@@ -515,17 +467,8 @@ public class PinEntryViewModelTest {
         Payload mockPayload = mock(Payload.class);
         when(mockPayload.getSharedKey()).thenReturn("1234567890");
         when(mPayloadManager.getPayload()).thenReturn(mockPayload);
-        when(mPayloadManager.getVersion()).thenReturn(3.0d);
+        when(mockPayload.isUpgraded()).thenReturn(true);
         when(mAppUtil.isNewlyCreated()).thenReturn(false);
-
-        PackageManager mockPackageManager = mock(PackageManager.class);
-        when(mAppUtil.getPackageManager()).thenReturn(mockPackageManager);
-        when(mAppUtil.getPackageName()).thenReturn(RuntimeEnvironment.application.getPackageName());
-        PackageInfo mockPackageInfo = mock(PackageInfo.class);
-        when(mPrefsUtil.getValue(PrefsUtil.KEY_CURRENT_APP_VERSION, 0)).thenReturn(0);
-        //noinspection WrongConstant
-        when(mockPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(mockPackageInfo);
-        when(mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L)).thenReturn(1L);
         // Act
         mSubject.updatePayload(new CharSequenceX(""));
         // Assert
