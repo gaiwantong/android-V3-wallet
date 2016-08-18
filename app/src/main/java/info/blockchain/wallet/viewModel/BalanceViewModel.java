@@ -30,8 +30,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import piuk.blockchain.android.BR;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.di.Injector;
 
 public class BalanceViewModel extends BaseObservable implements ViewModel {
 
@@ -44,9 +47,9 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     private final String TAG_ALL = "TAG_ALL";
     private final String TAG_IMPORTED_ADDRESSES = "TAG_IMPORTED_ADDRESSES";
     private List<Tx> transactionList;
-    private PrefsUtil prefsUtil;
     private OSUtil osUtil;
-    private PayloadManager payloadManager;
+    @Inject protected PrefsUtil prefsUtil;
+    @Inject protected PayloadManager payloadManager;
 
     @Bindable
     public String getBalance(){
@@ -65,15 +68,14 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
     }
 
     public BalanceViewModel(Context context, DataListener dataListener) {
+        Injector.getInstance().getAppComponent().inject(this);
         this.context = context;
         this.dataListener = dataListener;
         this.model = new BalanceModel();
-        this.payloadManager = PayloadManager.getInstance();
 
         this.activeAccountAndAddressList = new ArrayList<>();
         this.activeAccountAndAddressBiMap = HashBiMap.create();
         this.transactionList = new ArrayList<>();
-        this.prefsUtil = new PrefsUtil(context);
         this.osUtil = new OSUtil(context);
     }
 
@@ -318,6 +320,10 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
         dataListener.onRefreshAccounts();
     }
 
+    public PayloadManager getPayloadManager() {
+        return payloadManager;
+    }
+
     public List<Tx> getTransactionList(){
         return transactionList;
     }
@@ -379,7 +385,8 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
             //V2
             LegacyAddress legacyAddress = ((LegacyAddress) object);
             List<Tx> legacyTransactions = MultiAddrFactory.getInstance().getAddressLegacyTxs(legacyAddress.getAddress());
-            if(legacyTransactions != null)unsortedTransactionList.addAll(legacyTransactions);//V2 get single address' transactionList
+            if (legacyTransactions != null)
+                unsortedTransactionList.addAll(legacyTransactions);//V2 get single address' transactionList
             btc_balance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
 
         }

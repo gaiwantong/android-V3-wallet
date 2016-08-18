@@ -70,6 +70,6 @@ public class LandingActivity extends BaseAuthActivity {
     public boolean dispatchTouchEvent(MotionEvent event) {
         // Test for screen overlays before user creates a new wallet or enters confidential information
         // consume event
-        return new AppUtil(this).detectObscuredWindow(event) || super.dispatchTouchEvent(event);
+        return new AppUtil(this).detectObscuredWindow(this, event) || super.dispatchTouchEvent(event);
     }
 }

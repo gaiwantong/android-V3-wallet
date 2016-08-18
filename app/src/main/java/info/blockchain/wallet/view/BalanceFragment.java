@@ -50,10 +50,8 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -111,7 +109,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private View prevRowClicked = null;
     private PrefsUtil prefsUtil;
     private DateUtil dateUtil;
-    private AppUtil appUtil;
 
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -135,7 +132,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         context = getActivity();
         prefsUtil = new PrefsUtil(context);
         dateUtil = new DateUtil(context);
-        appUtil = new AppUtil(context);
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_balance, container, false);
         viewModel = new BalanceViewModel(context, this);
@@ -193,8 +189,8 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
 
         viewModel.startWebSocketService();
-        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
         viewModel.updateAccountList();
+        viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
     }
 
     @Override
@@ -214,10 +210,9 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        comm = (Communicator) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        comm = (Communicator) context;
     }
 
     private void initFab(){
@@ -299,7 +294,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void setupViews() {
-
         initFab();
 
         noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
@@ -379,7 +373,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         // drawerTitle account now that wallet has been created
         if (prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, "").length() > 0) {
-            PayloadManager.getInstance().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
+            viewModel.getPayloadManager().getPayload().getHdWallet().getAccounts().get(0).setLabel(prefsUtil.getValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME, ""));
             prefsUtil.removeValue(PrefsUtil.KEY_INITIAL_ACCOUNT_NAME);
             PayloadBridge.getInstance().remoteSaveThread(new PayloadBridge.PayloadSaveListener() {
                 @Override
@@ -428,7 +422,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     @Override
                     protected Void doInBackground(Void... params) {
                         try {
-                            PayloadManager.getInstance().updateBalancesAndTransactions();
+                            viewModel.getPayloadManager().updateBalancesAndTransactions();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

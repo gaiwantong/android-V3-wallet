@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.support.v7.app.AlertDialog;
 import android.view.MotionEvent;
@@ -26,6 +27,7 @@ public class AppUtil {
     private static final String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
     @Inject protected PrefsUtil prefs;
+    @Inject protected PayloadManager payloadManager;
     private Context context;
     private AlertDialog alertDialog;
     private String receiveQRFileName;
@@ -37,7 +39,7 @@ public class AppUtil {
     }
 
     public void clearCredentials() {
-        PayloadManager.getInstance().wipe();
+        payloadManager.wipe();
         prefs.clear();
     }
 
@@ -142,7 +144,7 @@ public class AppUtil {
         }
     }
 
-    public boolean detectObscuredWindow(MotionEvent event){
+    public boolean detectObscuredWindow(Context context, MotionEvent event) {
         //Detect if touch events are being obscured by hidden overlays - These could be used for tapjacking
         if ((!prefs.getValue("OVERLAY_TRUSTED",false)) && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
 
@@ -169,5 +171,13 @@ public class AppUtil {
         }else {
             return false;
         }
+    }
+
+    public String getPackageName() {
+        return context.getPackageName();
+    }
+
+    public PackageManager getPackageManager() {
+        return context.getPackageManager();
     }
 }

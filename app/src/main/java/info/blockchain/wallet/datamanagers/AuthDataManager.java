@@ -3,6 +3,8 @@ package info.blockchain.wallet.datamanagers;
 import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
+import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.rxjava.RxUtil;
 import info.blockchain.wallet.util.AESUtilWrapper;
@@ -23,10 +25,6 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by adambennett on 12/08/2016.
- */
-
 public class AuthDataManager {
 
     @Inject protected PayloadManager mPayloadManager;
@@ -34,6 +32,7 @@ public class AuthDataManager {
     @Inject protected Access mAccess;
     @Inject protected AppUtil mAppUtil;
     @Inject protected AESUtilWrapper mAESUtil;
+    @Inject protected AccessState mAccessState;
     @VisibleForTesting protected int timer;
 
     public AuthDataManager() {
@@ -48,6 +47,27 @@ public class AuthDataManager {
     public Observable<String> getSessionId(String guid) {
         return Observable.fromCallable(() -> mAccess.getSessionId(guid))
                 .compose(RxUtil.applySchedulers());
+    }
+
+    public Observable<Void> updatePayload(String sharedKey, String guid, CharSequenceX password) {
+        return getUpdatePayloadObservable(sharedKey, guid, password)
+                .compose(RxUtil.applySchedulers());
+    }
+
+    public Observable<CharSequenceX> validatePin(String pin) {
+        return Observable.fromCallable(() -> mAccessState.validatePIN(pin))
+                .compose(RxUtil.applySchedulers());
+    }
+
+    public Observable<Boolean> createPin(CharSequenceX password, String pin) {
+        return Observable.fromCallable(() -> mAccessState.createPIN(password, pin))
+                .compose(RxUtil.applySchedulers());
+    }
+
+    public Observable<Payload> createHdWallet(String password, String walletName) {
+        return Observable.fromCallable(() -> mPayloadManager.createHDWallet(password, walletName))
+                .compose(RxUtil.applySchedulers())
+                .doOnNext(payload -> mAppUtil.setNewlyCreated(true));
     }
 
     public Observable<String> startPollingAuthStatus(String guid) {
@@ -67,9 +87,7 @@ public class AuthDataManager {
                         .first());
     }
 
-    @SuppressWarnings("WeakerAccess")
-    @VisibleForTesting
-    protected Observable<Void> initiatePayload(String sharedKey, String guid, CharSequenceX password) {
+    private Observable<Void> getUpdatePayloadObservable(String sharedKey, String guid, CharSequenceX password) {
         return Observable.defer(() -> Observable.create(subscriber -> {
             try {
                 mPayloadManager.initiatePayload(
@@ -79,8 +97,8 @@ public class AuthDataManager {
                         new PayloadManager.InitiatePayloadListener() {
                             @Override
                             public void onInitSuccess() {
-                                mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                 mPayloadManager.setTempPassword(password);
+                                subscriber.onNext(null);
                                 subscriber.onCompleted();
                             }
 
@@ -95,7 +113,7 @@ public class AuthDataManager {
                             }
                         });
             } catch (Exception e) {
-                subscriber.onError(new Throwable("Create password failed: " + e));
+                subscriber.onError(new Throwable(e));
             }
         }));
     }
@@ -138,11 +156,12 @@ public class AuthDataManager {
                         String sharedKey = decryptedJsonObject.getString("sharedKey");
                         mAppUtil.setSharedKey(sharedKey);
 
-                        initiatePayload(sharedKey, guid, password)
+                        updatePayload(sharedKey, guid, password)
                                 .compose(RxUtil.applySchedulers())
                                 .subscribe(new Subscriber<Void>() {
                                     @Override
                                     public void onCompleted() {
+                                        mPrefsUtil.setValue(PrefsUtil.KEY_EMAIL_VERIFIED, true);
                                         listener.onSuccess();
                                     }
 
@@ -152,6 +171,8 @@ public class AuthDataManager {
                                             listener.onCreateFail();
                                         } else if (e instanceof PairFailThrowable) {
                                             listener.onPairFail();
+                                        } else {
+                                            listener.onFatalError();
                                         }
                                     }
 
@@ -171,13 +192,13 @@ public class AuthDataManager {
         }
     }
 
-    private class PairFailThrowable extends Throwable {
+    class PairFailThrowable extends Throwable {
         PairFailThrowable() {
             super();
         }
     }
 
-    private class CreateFailThrowable extends Throwable {
+    class CreateFailThrowable extends Throwable {
         CreateFailThrowable() {
             super();
         }

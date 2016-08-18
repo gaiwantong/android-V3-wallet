@@ -18,7 +18,6 @@ import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 
 import piuk.blockchain.android.BaseAuthActivity;
-import piuk.blockchain.android.LauncherActivity;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding;
 
@@ -125,8 +124,7 @@ public class ManualPairingActivity extends BaseAuthActivity implements ManualPai
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         // Test for screen overlays before user enters PIN
-        return mViewModel.getAppUtil().detectObscuredWindow(event)
-                || super.dispatchTouchEvent(event);
+        return mViewModel.getAppUtil().detectObscuredWindow(this, event) || super.dispatchTouchEvent(event);
     }
 
     @Override

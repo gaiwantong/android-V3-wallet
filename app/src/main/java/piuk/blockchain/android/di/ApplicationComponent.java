@@ -3,9 +3,14 @@ package piuk.blockchain.android.di;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.viewModel.AccountEditViewModel;
+import info.blockchain.wallet.viewModel.BalanceViewModel;
+import info.blockchain.wallet.viewModel.MainViewModel;
 import info.blockchain.wallet.viewModel.ManualPairingViewModel;
+import info.blockchain.wallet.viewModel.PairingViewModel;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 import info.blockchain.wallet.viewModel.SendViewModel;
+import info.blockchain.wallet.viewModel.PinEntryViewModel;
 
 import javax.inject.Singleton;
 
@@ -36,4 +41,14 @@ public interface ApplicationComponent {
     void inject(AuthDataManager authDataManager);
 
     void inject(SendViewModel sendViewModel);
+
+    void inject(PinEntryViewModel pinEntryViewModel);
+
+    void inject(MainViewModel mainViewModel);
+
+    void inject(BalanceViewModel balanceViewModel);
+
+    void inject(PairingViewModel pairingViewModel);
+
+    void inject(AccountEditViewModel accountEditViewModel);
 }

@@ -16,16 +16,20 @@ import info.blockchain.wallet.util.PrefsUtil;
 
 import org.spongycastle.util.encoders.Hex;
 
+import javax.inject.Inject;
+
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.di.Injector;
 
 public class PairingViewModel implements ViewModel{
 
     private Context context;
-    private AppUtil appUtil;
+    @Inject protected AppUtil appUtil;
+    @Inject protected PayloadManager payloadManager;
 
     public PairingViewModel(Context context) {
+        Injector.getInstance().getAppComponent().inject(this);
         this.context = context;
-        this.appUtil = new AppUtil(context);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class PairingViewModel implements ViewModel{
 
                 CharSequenceX password = new CharSequenceX(new String(Hex.decode(sharedKeyAndPassword[1]), "UTF-8"));
 
-                PayloadManager.getInstance().setTempPassword(password);
+                payloadManager.setTempPassword(password);
                 appUtil.setSharedKey(sharedKeyAndPassword[0]);
 
                 if (qrComponents.guid != null) {
