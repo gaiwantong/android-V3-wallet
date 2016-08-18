@@ -25,10 +25,6 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by adambennett on 12/08/2016.
- */
-
 public class AuthDataManager {
 
     @Inject protected PayloadManager mPayloadManager;
