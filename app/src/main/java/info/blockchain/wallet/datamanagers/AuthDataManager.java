@@ -81,7 +81,8 @@ public class AuthDataManager {
                 });
     }
 
-    public Observable<Payload> restoreHdWallet(String password, String passphrase) {
+    public Observable<Payload> restoreHdWallet(String email, String password, String passphrase) {
+        mPayloadManager.setEmail(email);
         return Observable.fromCallable(() -> mPayloadManager.restoreHDWallet(
                 password, passphrase, mStringUtils.getString(R.string.default_wallet_name)))
                 .doOnNext(payload -> {

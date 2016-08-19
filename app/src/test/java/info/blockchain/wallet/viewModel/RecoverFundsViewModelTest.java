@@ -27,6 +27,7 @@ import piuk.blockchain.android.di.Injector;
 import piuk.blockchain.android.di.InjectorTestUtils;
 import rx.Observable;
 
+import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_EMAIL;
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWORD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,6 +35,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -115,6 +117,28 @@ public class RecoverFundsViewModelTest {
     }
 
     /**
+     * Email is missing in intent, something has gone wrong here. Should restart the app after
+     * informing the user.
+     */
+    @Test
+    public void onContinueClickedNoEmailInIntent() throws Exception {
+        // Arrange
+        Intent intent = new Intent();
+        intent.putExtra(KEY_INTENT_PASSWORD, "password");
+        when(mActivity.getPageIntent()).thenReturn(intent);
+        when(mActivity.getRecoveryPhrase()).thenReturn("one two three four five six seven eight nine ten eleven twelve");
+        // Act
+        mSubject.onContinueClicked();
+        // Assert
+        verify(mActivity).getRecoveryPhrase();
+        verify(mActivity, times(2)).getPageIntent();
+        //noinspection WrongConstant
+        verify(mActivity).showToast(anyInt(), anyString());
+        verify(mAppUtil).clearCredentialsAndRestart();
+        verifyNoMoreInteractions(mActivity);
+    }
+
+    /**
      * Successful restore. Should take the user to the PIN entry page.
      */
     @Test
@@ -122,14 +146,15 @@ public class RecoverFundsViewModelTest {
         // Arrange
         Intent intent = new Intent();
         intent.putExtra(KEY_INTENT_PASSWORD, "password");
+        intent.putExtra(KEY_INTENT_EMAIL, "email");
         when(mActivity.getPageIntent()).thenReturn(intent);
         when(mActivity.getRecoveryPhrase()).thenReturn("one two three four five six seven eight nine ten eleven twelve");
-        when(mAuthDataManager.restoreHdWallet(anyString(), anyString())).thenReturn(Observable.just(new Payload()));
+        when(mAuthDataManager.restoreHdWallet(anyString(), anyString(), anyString())).thenReturn(Observable.just(new Payload()));
         // Act
         mSubject.onContinueClicked();
         // Assert
         verify(mActivity).getRecoveryPhrase();
-        verify(mActivity).getPageIntent();
+        verify(mActivity, times(2)).getPageIntent();
         verify(mActivity).showProgressDialog(anyInt());
         verify(mActivity).dismissProgressDialog();
         verify(mActivity).goToPinEntryPage();
@@ -144,14 +169,15 @@ public class RecoverFundsViewModelTest {
         // Arrange
         Intent intent = new Intent();
         intent.putExtra(KEY_INTENT_PASSWORD, "password");
+        intent.putExtra(KEY_INTENT_EMAIL, "email");
         when(mActivity.getPageIntent()).thenReturn(intent);
         when(mActivity.getRecoveryPhrase()).thenReturn("one two three four five six seven eight nine ten eleven twelve");
-        when(mAuthDataManager.restoreHdWallet(anyString(), anyString())).thenReturn(Observable.error(new Throwable()));
+        when(mAuthDataManager.restoreHdWallet(anyString(), anyString(), anyString())).thenReturn(Observable.error(new Throwable()));
         // Act
         mSubject.onContinueClicked();
         // Assert
         verify(mActivity).getRecoveryPhrase();
-        verify(mActivity).getPageIntent();
+        verify(mActivity, times(2)).getPageIntent();
         verify(mActivity).showProgressDialog(anyInt());
         verify(mActivity).dismissProgressDialog();
         //noinspection WrongConstant

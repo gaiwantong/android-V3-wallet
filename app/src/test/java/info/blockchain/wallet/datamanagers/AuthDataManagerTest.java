@@ -157,7 +157,7 @@ public class AuthDataManagerTest extends RxTest {
         Payload payload = new Payload();
         when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(payload);
         // Act
-        mSubject.restoreHdWallet("", "").toBlocking().subscribe(subscriber);
+        mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
@@ -176,7 +176,7 @@ public class AuthDataManagerTest extends RxTest {
         TestSubscriber<Payload> subscriber = new TestSubscriber<>();
         when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(null);
         // Act
-        mSubject.restoreHdWallet("", "").toBlocking().subscribe(subscriber);
+        mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mPayloadManager);

@@ -15,6 +15,7 @@ import piuk.blockchain.android.R;
 import piuk.blockchain.android.di.Injector;
 import rx.subscriptions.CompositeSubscription;
 
+import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_EMAIL;
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWORD;
 
 public class RecoverFundsViewModel implements ViewModel {
@@ -73,9 +74,17 @@ public class RecoverFundsViewModel implements ViewModel {
             return;
         }
 
+        String email = mDataListener.getPageIntent().getStringExtra(KEY_INTENT_EMAIL);
+
+        if (email == null || email.isEmpty()) {
+            mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR);
+            mAppUtil.clearCredentialsAndRestart();
+            return;
+        }
+
         mDataListener.showProgressDialog(R.string.creating_wallet);
 
-        mAuthDataManager.restoreHdWallet(password, recoveryPhrase)
+        mAuthDataManager.restoreHdWallet(email, password, recoveryPhrase)
                 .doOnTerminate(() -> mDataListener.dismissProgressDialog())
                 .subscribe(payload -> {
                     mDataListener.goToPinEntryPage();

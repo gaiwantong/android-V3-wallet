@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -140,7 +139,6 @@ public class CreateWalletFragment extends Fragment {
                 final String em = binding.emailAddress.getText().toString().trim();
                 final String pw1 = binding.walletPass.getText().toString();
                 final String pw2 = binding.walletPassConfrirm.getText().toString();
-                AppUtil appUtil = new AppUtil(getActivity());
 
                 if (!FormatsUtil.getInstance().isValidEmailAddress(em)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
