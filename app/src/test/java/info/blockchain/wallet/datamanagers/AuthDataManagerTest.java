@@ -136,12 +136,43 @@ public class AuthDataManagerTest extends RxTest {
         Payload payload = new Payload();
         when(mPayloadManager.createHDWallet(anyString(), anyString())).thenReturn(payload);
         // Act
-        mSubject.createHdWallet(anyString(), anyString()).toBlocking().subscribe(subscriber);
+        mSubject.createHdWallet("", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).createHDWallet(anyString(), anyString());
         subscriber.assertCompleted();
         subscriber.onNext(payload);
         subscriber.assertNoErrors();
+    }
+
+    @Test
+    public void restoreHdWallet() throws Exception {
+        // Arrange
+        TestSubscriber<Payload> subscriber = new TestSubscriber<>();
+        Payload payload = new Payload();
+        when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(payload);
+        // Act
+        mSubject.restoreHdWallet("", "").toBlocking().subscribe(subscriber);
+        // Assert
+        verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
+        subscriber.assertCompleted();
+        subscriber.onNext(payload);
+        subscriber.assertNoErrors();
+    }
+
+    /**
+     * Payload returns null, which indicates save failure. Should throw an Exception
+     */
+    @Test
+    public void restoreHdWalletNullPayload() throws Exception {
+        // Arrange
+        TestSubscriber<Payload> subscriber = new TestSubscriber<>();
+        when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(null);
+        // Act
+        mSubject.restoreHdWallet("", "").toBlocking().subscribe(subscriber);
+        // Assert
+        verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
+        subscriber.assertNotCompleted();
+        subscriber.assertError(Throwable.class);
     }
 
     /**
