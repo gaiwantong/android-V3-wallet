@@ -32,6 +32,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_EMAIL;
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWORD;
+import static info.blockchain.wallet.view.LandingActivity.KEY_INTENT_RECOVERING_FUNDS;
 
 public class PinEntryViewModel implements ViewModel {
 
@@ -48,6 +49,7 @@ public class PinEntryViewModel implements ViewModel {
 
     private String email;
     private CharSequenceX password;
+    private boolean recoveringFunds = false;
     @VisibleForTesting String mUserEnteredPin = "";
     @VisibleForTesting String mUserEnteredConfirmationPin;
     @VisibleForTesting boolean bAllowExit = true;
@@ -102,12 +104,20 @@ public class PinEntryViewModel implements ViewModel {
                     password = new CharSequenceX(extras.getString(KEY_INTENT_PASSWORD));
                 }
 
+                if (extras.containsKey(KEY_INTENT_RECOVERING_FUNDS)) {
+                    recoveringFunds = extras.getBoolean(KEY_INTENT_RECOVERING_FUNDS);
+                }
+
                 if (password != null && password.length() > 0 && email != null && !email.isEmpty()) {
                     // Previous page was CreateWalletFragment
                     bAllowExit = false;
                     saveLoginAndPassword();
-                    mDataListener.showProgressDialog(R.string.create_wallet, "...");
-                    createWallet();
+                    if (!recoveringFunds) {
+                        // If funds recovered, wallet already restored, no need to overwrite payload
+                        // with another new wallet
+                        mDataListener.showProgressDialog(R.string.create_wallet, "...");
+                        createWallet();
+                    }
                 }
             }
         }
@@ -323,11 +333,7 @@ public class PinEntryViewModel implements ViewModel {
                 mAuthDataManager.createHdWallet(password.toString(), mStringUtils.getString(R.string.default_wallet_name))
                         .doAfterTerminate(() -> mDataListener.dismissProgressDialog())
                         .subscribe(payload -> {
-                            if (payload != null) {
-                                // Successfully created and saved
-                                mPrefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
-                                mAppUtil.setSharedKey(payload.getSharedKey());
-                            } else {
+                            if (payload == null) {
                                 showErrorToast(R.string.remote_save_ko);
                             }
                         }, throwable -> showErrorToastAndRestartApp(R.string.hd_error)));

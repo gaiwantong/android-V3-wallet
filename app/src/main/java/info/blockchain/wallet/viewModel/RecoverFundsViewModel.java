@@ -2,6 +2,7 @@ package info.blockchain.wallet.viewModel;
 
 import android.content.Intent;
 import android.support.annotation.StringRes;
+import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -19,10 +20,10 @@ import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWO
 public class RecoverFundsViewModel implements ViewModel {
 
     private DataListener mDataListener;
-    private CompositeSubscription mCompositeSubscription;
     @Inject protected AuthDataManager mAuthDataManager;
     @Inject protected PayloadManager mPayloadManager;
     @Inject protected AppUtil mAppUtil;
+    @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     public interface DataListener {
 
@@ -51,13 +52,13 @@ public class RecoverFundsViewModel implements ViewModel {
     }
 
     public void onContinueClicked() {
-        String passphrase = mDataListener.getRecoveryPhrase();
-        if (passphrase == null || passphrase.isEmpty()) {
+        String recoveryPhrase = mDataListener.getRecoveryPhrase();
+        if (recoveryPhrase == null || recoveryPhrase.isEmpty()) {
             mDataListener.showToast(R.string.invalid_recovery_phrase, ToastCustom.TYPE_ERROR);
             return;
         }
 
-        String trimmed = passphrase.trim();
+        String trimmed = recoveryPhrase.trim();
         int words = trimmed.isEmpty() ? 0 : trimmed.split("\\s+").length;
         if (words != 12) {
             mDataListener.showToast(R.string.invalid_recovery_phrase, ToastCustom.TYPE_ERROR);
@@ -74,13 +75,17 @@ public class RecoverFundsViewModel implements ViewModel {
 
         mDataListener.showProgressDialog(R.string.creating_wallet);
 
-        mAuthDataManager.restoreHdWallet(password, passphrase)
+        mAuthDataManager.restoreHdWallet(password, recoveryPhrase)
                 .doOnTerminate(() -> mDataListener.dismissProgressDialog())
                 .subscribe(payload -> {
                     mDataListener.goToPinEntryPage();
                 }, throwable -> {
                     mDataListener.showToast(R.string.restore_failed, ToastCustom.TYPE_ERROR);
                 });
+    }
+
+    public AppUtil getAppUtil() {
+        return mAppUtil;
     }
 
     @Override

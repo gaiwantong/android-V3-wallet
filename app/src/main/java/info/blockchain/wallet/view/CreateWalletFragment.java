@@ -32,7 +32,7 @@ import java.util.TimerTask;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentCreateWalletBinding;
 
-import static info.blockchain.wallet.view.LandingActivity.KEY_RECOVERING_FUNDS;
+import static info.blockchain.wallet.view.LandingActivity.KEY_INTENT_RECOVERING_FUNDS;
 
 public class CreateWalletFragment extends Fragment {
 
@@ -51,7 +51,7 @@ public class CreateWalletFragment extends Fragment {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_wallet, container, false);
 
-        mRecoveringFunds = getActivity().getIntent().getBooleanExtra(KEY_RECOVERING_FUNDS, false);
+        mRecoveringFunds = getActivity().getIntent().getBooleanExtra(KEY_INTENT_RECOVERING_FUNDS, false);
 
         if (mRecoveringFunds) {
             getActivity().setTitle(getString(R.string.recover_funds));
@@ -162,23 +162,13 @@ public class CreateWalletFragment extends Fragment {
                                 }
                             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            appUtil.setUpgradeReminder(1L);
-
                             hideKeyboard();
-                            Intent intent = new Intent(getActivity(), getNextActivity());
-                            intent.putExtra(KEY_INTENT_EMAIL, em);
-                            intent.putExtra(KEY_INTENT_PASSWORD, pw1);
-                            getActivity().startActivity(intent);
+                            getActivity().startActivity(getNextActivityIntent(em, pw1));
                         }
                     }).show();
                 } else {
-                    appUtil.setUpgradeReminder(1L);
-
                     hideKeyboard();
-                    Intent intent = new Intent(getActivity(), getNextActivity());
-                    intent.putExtra(KEY_INTENT_EMAIL, em);
-                    intent.putExtra(KEY_INTENT_PASSWORD, pw1);
-                    getActivity().startActivity(intent);
+                    getActivity().startActivity(getNextActivityIntent(em, pw1));
                 }
             }
         });
@@ -194,6 +184,14 @@ public class CreateWalletFragment extends Fragment {
         binding.tos.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingsFragment.URL_TOS_POLICY))));
 
         return binding.getRoot();
+    }
+
+    private Intent getNextActivityIntent(String email, String password) {
+        Intent intent = new Intent(getActivity(), getNextActivity());
+        intent.putExtra(KEY_INTENT_EMAIL, email);
+        intent.putExtra(KEY_INTENT_PASSWORD, password);
+        intent.putExtra(KEY_INTENT_RECOVERING_FUNDS, mRecoveringFunds);
+        return intent;
     }
 
     private Class getNextActivity() {

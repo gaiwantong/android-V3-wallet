@@ -86,10 +86,7 @@ public class LauncherViewModel implements ViewModel {
             // Installed app, check sanity
             mDataListener.onCorruptPayload();
 
-        } else if (isPinValidated
-                && !mPayloadManager.getPayload().isUpgraded()
-                && !mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER, false)
-                && mPrefsUtil.getValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L) == 0L) {
+        } else if (isPinValidated && !mPayloadManager.getPayload().isUpgraded()) {
             // Legacy app has not been prompted for upgrade
 
             mAccessState.setIsLoggedIn(true);

@@ -14,8 +14,6 @@ interface PersistentPrefs {
     String KEY_INITIAL_ACCOUNT_NAME = "_1ST_ACCOUNT_NAME";
     String KEY_EMAIL           		= "email";
     String KEY_EMAIL_VERIFIED 		= "code_verified";
-    String KEY_HD_UPGRADE_LAST_REMINDER = "hd_upgraded_last_reminder";
-    String KEY_HD_UPGRADE_ASK_LATER = "ask_later";
     String KEY_EMAIL_VERIFY_ASK_LATER = "email_verify_ask_later";
     String KEY_BALANCE_DISPLAY_STATE = "balance_display_state";
     String KEY_SCHEME_URL = "scheme_url";

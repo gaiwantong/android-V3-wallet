@@ -71,14 +71,26 @@ public class AuthDataManager {
     public Observable<Payload> createHdWallet(String password, String walletName) {
         return Observable.fromCallable(() -> mPayloadManager.createHDWallet(password, walletName))
                 .compose(RxUtil.applySchedulers())
-                .doOnNext(payload -> mAppUtil.setNewlyCreated(true));
+                .doOnNext(payload -> {
+                    if (payload != null) {
+                        // Successfully created and saved
+                        mAppUtil.setNewlyCreated(true);
+                        mPrefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
+                        mAppUtil.setSharedKey(payload.getSharedKey());
+                    }
+                });
     }
 
     public Observable<Payload> restoreHdWallet(String password, String passphrase) {
         return Observable.fromCallable(() -> mPayloadManager.restoreHDWallet(
                 password, passphrase, mStringUtils.getString(R.string.default_wallet_name)))
                 .doOnNext(payload -> {
-                    if (payload == null) throw Exceptions.propagate(new Throwable("Save failed"));
+                    if (payload == null) {
+                        throw Exceptions.propagate(new Throwable("Save failed"));
+                    } else {
+                        mPrefsUtil.setValue(PrefsUtil.KEY_GUID, payload.getGuid());
+                        mAppUtil.setSharedKey(payload.getSharedKey());
+                    }
                 })
                 .compose(RxUtil.applySchedulers());
     }

@@ -21,7 +21,7 @@ import piuk.blockchain.android.databinding.ActivityLandingBinding;
 public class LandingActivity extends BaseAuthActivity {
 
     public static final String KEY_STARTING_FRAGMENT = "starting_fragment";
-    public static final String KEY_RECOVERING_FUNDS = "recovering_funds";
+    public static final String KEY_INTENT_RECOVERING_FUNDS = "recovering_funds";
 
     private ActivityLandingBinding binding;
 
@@ -69,7 +69,7 @@ public class LandingActivity extends BaseAuthActivity {
         Intent intent = new Intent(this, PairOrCreateWalletActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(KEY_STARTING_FRAGMENT, CREATE_FRAGMENT);
-        intent.putExtra(KEY_RECOVERING_FUNDS, true);
+        intent.putExtra(KEY_INTENT_RECOVERING_FUNDS, true);
         startActivity(intent);
     }
 

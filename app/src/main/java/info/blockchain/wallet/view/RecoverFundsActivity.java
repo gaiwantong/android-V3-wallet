@@ -75,6 +75,12 @@ public class RecoverFundsActivity extends BaseAuthActivity implements RecoverFun
     }
 
     @Override
+    public void onBackPressed() {
+        // Take user back to landing page
+        mViewModel.getAppUtil().restartApp();
+    }
+
+    @Override
     protected void startLogoutTimer() {
         // No-op
     }
