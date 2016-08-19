@@ -7,10 +7,12 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
+import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 
@@ -81,6 +83,17 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
         if (mProgressDialog != null) {
             mProgressDialog.setMessage(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining);
         }
+    }
+
+    @Override
+    public void showForgetWalletWarning(DialogButtonCallback callback) {
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.warning)
+                .setMessage(R.string.forget_wallet_warning)
+                .setPositiveButton(R.string.forget_wallet, (dialogInterface, i) -> callback.onPositiveClicked())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> callback.onNegativeClicked())
+                .create()
+                .show();
     }
 
     @Override

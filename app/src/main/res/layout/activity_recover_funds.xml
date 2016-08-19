@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+                name="viewModel"
+                type="info.blockchain.wallet.viewModel.RecoverFundsViewModel"/>
+    </data>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blockchain_pearl_white">
+
+        <include layout="@layout/toolbar_general"/>
+
+        <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true">
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="56dp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:layout_marginBottom="36dp"
+                        android:text="@string/recover_funds_instructions"/>
+
+                <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp">
+
+                    <android.support.v7.widget.AppCompatEditText
+                            android:id="@+id/field_passphrase"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:inputType="textShortMessage"
+                            android:imeOptions="actionGo"
+                            android:scrollHorizontally="true"
+                            android:hint="@string/recovery_passphrase"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <TextView
+                android:id="@+id/button_continue"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:background="@color/blockchain_blue"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/recover_funds"
+                android:textAlignment="gravity"
+                android:textColor="@color/white"
+                android:textSize="16sp"/>
+
+    </LinearLayout>
+</layout>

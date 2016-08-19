@@ -11,6 +11,7 @@ import info.blockchain.wallet.util.AESUtilWrapper;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.StringUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,10 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import piuk.blockchain.android.R;
 import piuk.blockchain.android.di.Injector;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.Exceptions;
 import rx.schedulers.Schedulers;
 
 public class AuthDataManager {
@@ -33,6 +36,7 @@ public class AuthDataManager {
     @Inject protected AppUtil mAppUtil;
     @Inject protected AESUtilWrapper mAESUtil;
     @Inject protected AccessState mAccessState;
+    @Inject protected StringUtils mStringUtils;
     @VisibleForTesting protected int timer;
 
     public AuthDataManager() {
@@ -68,6 +72,15 @@ public class AuthDataManager {
         return Observable.fromCallable(() -> mPayloadManager.createHDWallet(password, walletName))
                 .compose(RxUtil.applySchedulers())
                 .doOnNext(payload -> mAppUtil.setNewlyCreated(true));
+    }
+
+    public Observable<Payload> restoreHdWallet(String password, String passphrase) {
+        return Observable.fromCallable(() -> mPayloadManager.restoreHDWallet(
+                password, passphrase, mStringUtils.getString(R.string.default_wallet_name)))
+                .doOnNext(payload -> {
+                    if (payload == null) throw Exceptions.propagate(new Throwable("Save failed"));
+                })
+                .compose(RxUtil.applySchedulers());
     }
 
     public Observable<String> startPollingAuthStatus(String guid) {

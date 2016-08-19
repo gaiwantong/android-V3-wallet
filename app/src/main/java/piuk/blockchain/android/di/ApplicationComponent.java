@@ -9,6 +9,7 @@ import info.blockchain.wallet.viewModel.MainViewModel;
 import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 import info.blockchain.wallet.viewModel.PairingViewModel;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
+import info.blockchain.wallet.viewModel.RecoverFundsViewModel;
 import info.blockchain.wallet.viewModel.SendViewModel;
 import info.blockchain.wallet.viewModel.PinEntryViewModel;
 
@@ -51,4 +52,6 @@ public interface ApplicationComponent {
     void inject(PairingViewModel pairingViewModel);
 
     void inject(AccountEditViewModel accountEditViewModel);
+
+    void inject(RecoverFundsViewModel recoverFundsViewModel);
 }

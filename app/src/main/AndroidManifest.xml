@@ -112,6 +112,10 @@
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
+        <activity android:name="info.blockchain.wallet.view.RecoverFundsActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation|screenSize"/>
+
         <activity android:name="com.google.zxing.client.android.CaptureActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>

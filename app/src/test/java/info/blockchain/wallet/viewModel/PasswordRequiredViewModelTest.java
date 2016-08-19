@@ -3,6 +3,7 @@ package info.blockchain.wallet.viewModel;
 import android.app.Application;
 
 import info.blockchain.api.Access;
+import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -36,6 +37,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -381,13 +383,31 @@ public class PasswordRequiredViewModelTest extends RxTest {
     }
 
     @Test
-    public void onForgetWalletClicked() throws Exception {
+    public void onForgetWalletClickedShowWarningAndContinue() throws Exception {
         // Arrange
-
+        doAnswer(invocation -> {
+            ((DialogButtonCallback) invocation.getArguments()[0]).onPositiveClicked();
+            return null;
+        }).when(mActivity).showForgetWalletWarning(any(DialogButtonCallback.class));
         // Act
         mSubject.onForgetWalletClicked();
         // Assert
+        verify(mActivity).showForgetWalletWarning(any(DialogButtonCallback.class));
         verify(mAppUtil).clearCredentialsAndRestart();
+    }
+
+    @Test
+    public void onForgetWalletClickedShowWarningAndDismiss() throws Exception {
+        // Arrange
+        doAnswer(invocation -> {
+            ((DialogButtonCallback) invocation.getArguments()[0]).onNegativeClicked();
+            return null;
+        }).when(mActivity).showForgetWalletWarning(any(DialogButtonCallback.class));
+        // Act
+        mSubject.onForgetWalletClicked();
+        // Assert
+        verify(mActivity).showForgetWalletWarning(any(DialogButtonCallback.class));
+        verifyNoMoreInteractions(mActivity);
     }
 
     @Test
