@@ -38,6 +38,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
@@ -199,6 +200,8 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
                     }
                 })
         );
+
+        binding.balanceMainContentShadow.setOnClickListener(view -> binding.multipleActions.collapse());
     }
 
     private void setFab(){
@@ -227,9 +230,9 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
             actionA.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    createNewAddress();
                     if(binding.multipleActions.isExpanded())
                         binding.multipleActions.collapse();
+                    createNewAddress();
                 }
             });
         }
@@ -244,9 +247,21 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
         actionB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                importAddress();
                 if(binding.multipleActions.isExpanded())
                     binding.multipleActions.collapse();
+                importAddress();
+            }
+        });
+
+        binding.multipleActions.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+            @Override
+            public void onMenuExpanded() {
+                binding.balanceMainContentShadow.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                binding.balanceMainContentShadow.setVisibility(View.INVISIBLE);
             }
         });
 

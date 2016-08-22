@@ -209,10 +209,13 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         menu.findItem(R.id.action_share_receive).setVisible(false);
     }
 
+    /**
+     * Deprecated, but necessary to prevent casting issues on <API21
+     */
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        comm = (Communicator) context;
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        comm = (Communicator) activity;
     }
 
     private void initFab(){
