@@ -155,13 +155,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
             } else {
                 mainViewModel.onBackPressed();
             }
-        } else if (getCurrentFragment() instanceof ReceiveFragment
-                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad() != null
-                && ((ReceiveFragment) getCurrentFragment()).getCustomKeypad().isVisible()) {
-            ((ReceiveFragment) getCurrentFragment()).onKeypadClose();
-
-        }
-        else {
+        } else {
             Fragment fragment = new BalanceFragment();
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();

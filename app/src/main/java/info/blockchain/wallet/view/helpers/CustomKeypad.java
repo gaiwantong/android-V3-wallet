@@ -8,6 +8,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TableLayout;
 
+import info.blockchain.wallet.util.ViewUtils;
+
 import java.util.ArrayList;
 
 import piuk.blockchain.android.R;
@@ -70,7 +72,7 @@ public class CustomKeypad implements View.OnClickListener{
         });
     }
 
-    public void setNumpadVisibility(int visibility){
+    public void setNumpadVisibility(@ViewUtils.Visibility int visibility){
         numpad.setVisibility(visibility);
     }
 

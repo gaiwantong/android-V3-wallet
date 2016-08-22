@@ -3,7 +3,6 @@ package info.blockchain.wallet.view;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -206,7 +205,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         menu.findItem(R.id.action_qr).setVisible(true);
         menu.findItem(R.id.action_send).setVisible(false);
-        menu.findItem(R.id.action_share_receive).setVisible(false);
     }
 
     /**
@@ -272,23 +270,16 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         if (binding.fab != null) binding.fab.collapse();
     }
 
-    private void sendClicked(){
+    private void sendClicked() {
         new SSLVerifyUtil(context).validateSSL();
-
-//        Fragment fragment = new SendActivity();
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-//        comm.setNavigationDrawerToggleEnabled(true);
-
         startActivity(new Intent(getActivity(), SendActivity.class));
         binding.fab.collapse();
     }
 
-    private void receiveClicked(){
-        Fragment fragment = new ReceiveFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-        comm.setNavigationDrawerToggleEnabled(true);
+    private void receiveClicked() {
+        new SSLVerifyUtil(context).validateSSL();
+        startActivity(new Intent(getActivity(), ReceiveActivity.class));
+        binding.fab.collapse();
     }
 
     @Override

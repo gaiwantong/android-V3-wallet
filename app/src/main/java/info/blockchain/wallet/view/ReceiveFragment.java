@@ -37,7 +37,6 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -240,7 +239,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 binding.amountContainer.amountBtc.removeTextChangedListener(this);
 
                 int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-                int max_len = 8;
+                int max_len;
                 NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
                 switch (unit) {
                     case MonetaryUtil.MICRO_BTC:
@@ -257,7 +256,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 btcFormat.setMinimumFractionDigits(0);
 
                 try {
-                    if (input.indexOf(defaultSeperator) != -1) {
+                    if (input.contains(defaultSeperator)) {
                         String dec = input.substring(input.indexOf(defaultSeperator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
@@ -314,7 +313,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 fiatFormat.setMinimumFractionDigits(0);
 
                 try {
-                    if (input.indexOf(defaultSeperator) != -1) {
+                    if (input.contains(defaultSeperator)) {
                         String dec = input.substring(input.indexOf(defaultSeperator));
                         if (dec.length() > 0) {
                             dec = dec.substring(1);
@@ -748,23 +747,23 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
-        menu.findItem(R.id.action_qr).setVisible(false);
-        menu.findItem(R.id.action_send).setVisible(false);
-        MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);
-
-        i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                onShareClicked();
-
-                return false;
-            }
-        });
+//
+//        menu.findItem(R.id.action_qr).setVisible(false);
+//        menu.findItem(R.id.action_send).setVisible(false);
+//        MenuItem i = menu.findItem(R.id.action_share_receive).setVisible(true);
+//
+//        i.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//
+//                InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//
+//                onShareClicked();
+//
+//                return false;
+//            }
+//        });
     }
 
     private void onShareClicked() {
@@ -939,8 +938,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         public View getView(final int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            View rowView = null;
-            rowView = inflater.inflate(R.layout.fragment_receive_share_row, parent, false);
+            View rowView = inflater.inflate(R.layout.fragment_receive_share_row, parent, false);
 
             ImageView image = (ImageView) rowView.findViewById(R.id.share_app_image);
             TextView title = (TextView) rowView.findViewById(R.id.share_app_title);
