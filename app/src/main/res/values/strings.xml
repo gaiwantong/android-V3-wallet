@@ -87,7 +87,7 @@
     <string name="command2">Scan pairing code</string>
     <string name="command3">I can\'t access my camera</string>
     <string name="CREATE">CREATE NEW WALLET</string>
-    <string name="LOGIN">Log in to my wallet</string>
+    <string name="LOGIN">Log in to my Wallet</string>
     <string name="pair_your_wallet">Pair Your Wallet</string>
     <string name="scan_pairing_code">Scan pairing code</string>
     <string name="manual_pairing">Manual Pairing</string>
@@ -97,6 +97,15 @@
     <string name="disable_two_factor">You must disable two-factor authentication before attempting to manually pair your wallet</string>
     <string name="wallet_id">Wallet ID</string>
     <string name="default_wallet_name">My Bitcoin Wallet</string>
+
+    <!-- Recover Funds -->
+    <string name="recover_funds">Recover Funds</string>
+    <string name="recover_funds_warning_message">You should always pair or login if you have access to your Wallet ID and password. Recovering your funds will create a new Wallet ID. Would you like to continue?</string>
+    <string name="recover_funds_instructions">Enter your 12 recovery words with spaces to recover your funds &amp; transactions</string>
+    <string name="recovery_passphrase">Recovery passphrase</string>
+    <string name="invalid_recovery_phrase">Invalid recovery phrase. Please try again</string>
+    <string name="creating_wallet">Creating wallet</string>
+    <string name="restore_failed">Restoring wallet failed. Please try again</string>
 
     <string name="password">Password</string>
     <string name="email">Email</string>
@@ -556,6 +565,8 @@
     <!-- PASSWORD REENTRY ACTIVITY -->
     <string name="logged_out_enter_password">You have logged out or there was an error decrypting your wallet. Enter your password below to login.</string>
     <string name="logged_out_forget_wallet">If you would like to forget this wallet and start over, press \'Forget Wallet\'.</string>
+    <string name="forget_wallet">Forget wallet</string>
+    <string name="forget_wallet_warning">This will erase all wallet data on this device. Please confirm you have your wallet information saved elsewhere otherwise any bitcoin in this wallet will be inaccessible!!</string>
 
     <string name="api_fail">Unable connect to server. Please try again later.</string>
 

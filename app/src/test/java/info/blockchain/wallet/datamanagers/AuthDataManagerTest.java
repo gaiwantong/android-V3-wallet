@@ -35,10 +35,13 @@ import rx.observers.TestSubscriber;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -136,12 +139,51 @@ public class AuthDataManagerTest extends RxTest {
         Payload payload = new Payload();
         when(mPayloadManager.createHDWallet(anyString(), anyString())).thenReturn(payload);
         // Act
-        mSubject.createHdWallet(anyString(), anyString()).toBlocking().subscribe(subscriber);
+        mSubject.createHdWallet("", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).createHDWallet(anyString(), anyString());
+        verify(mAppUtil).setSharedKey(anyString());
+        verify(mAppUtil).setNewlyCreated(true);
+        verify(mPrefsUtil).setValue(eq(PrefsUtil.KEY_GUID), anyString());
         subscriber.assertCompleted();
         subscriber.onNext(payload);
         subscriber.assertNoErrors();
+    }
+
+    @Test
+    public void restoreHdWallet() throws Exception {
+        // Arrange
+        TestSubscriber<Payload> subscriber = new TestSubscriber<>();
+        Payload payload = new Payload();
+        when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(payload);
+        // Act
+        mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
+        // Assert
+        verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
+        verify(mAppUtil).setSharedKey(anyString());
+        verify(mPrefsUtil).setValue(eq(PrefsUtil.KEY_GUID), anyString());
+        subscriber.assertCompleted();
+        subscriber.onNext(payload);
+        subscriber.assertNoErrors();
+    }
+
+    /**
+     * Payload returns null, which indicates save failure. Should throw an Exception
+     */
+    @Test
+    public void restoreHdWalletNullPayload() throws Exception {
+        // Arrange
+        TestSubscriber<Payload> subscriber = new TestSubscriber<>();
+        when(mPayloadManager.restoreHDWallet(anyString(), anyString(), anyString())).thenReturn(null);
+        // Act
+        mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
+        // Assert
+        verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
+        verifyNoMoreInteractions(mPayloadManager);
+        verifyZeroInteractions(mAppUtil);
+        verifyZeroInteractions(mPrefsUtil);
+        subscriber.assertNotCompleted();
+        subscriber.assertError(Throwable.class);
     }
 
     /**

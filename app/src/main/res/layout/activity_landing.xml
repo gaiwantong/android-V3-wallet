@@ -40,22 +40,36 @@
                     android:paddingRight="32dp"
                     android:text="@string/CREATE"
                     android:textSize="20sp"
+                    android:elevation="5dp"
                     android:background="@drawable/rounded_view_white2"
                     android:textColor="@color/blockchain_blue"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="20dp"/>
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="16dp"/>
 
             <TextView
                     android:id="@+id/login"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:padding="10dp"
+                    android:layout_height="wrap_content"
                     android:text="@string/LOGIN"
                     android:textSize="20sp"
                     android:background="@color/blockchain_blue"
                     android:gravity="center"
+                    android:fontFamily="sans-serif-medium"
                     android:textColor="@color/white"
-                    android:layout_marginTop="20dp"/>
+                    android:padding="12dp"/>
+
+            <TextView
+                    android:id="@+id/recover_funds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recover_funds"
+                    android:textSize="20sp"
+                    android:background="@color/blockchain_blue"
+                    android:gravity="center"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/white"
+                    android:padding="12dp"/>
 
         </LinearLayout>
     </LinearLayout>

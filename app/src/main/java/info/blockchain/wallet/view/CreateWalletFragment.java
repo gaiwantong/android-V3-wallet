@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.FormatsUtil;
 import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -31,6 +30,8 @@ import java.util.TimerTask;
 
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentCreateWalletBinding;
+
+import static info.blockchain.wallet.view.LandingActivity.KEY_INTENT_RECOVERING_FUNDS;
 
 public class CreateWalletFragment extends Fragment {
 
@@ -42,13 +43,22 @@ public class CreateWalletFragment extends Fragment {
     private int[] strengthColors = {R.drawable.progress_red, R.drawable.progress_orange, R.drawable.progress_blue, R.drawable.progress_green};
 
     private FragmentCreateWalletBinding binding;
+    private boolean mRecoveringFunds = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_wallet, container, false);
 
-        getActivity().setTitle(getResources().getString(R.string.new_wallet));
+        mRecoveringFunds = getActivity().getIntent().getBooleanExtra(KEY_INTENT_RECOVERING_FUNDS, false);
+
+        if (mRecoveringFunds) {
+            getActivity().setTitle(getString(R.string.recover_funds));
+            binding.commandNext.setText(getString(R.string.dialog_continue));
+        } else {
+            getActivity().setTitle(getString(R.string.new_wallet));
+            binding.commandNext.setText(getString(R.string.create_wallet));
+        }
 
         binding.tos.setMovementMethod(LinkMovementMethod.getInstance());//make link clickable
         binding.commandNext.setClickable(false);
@@ -91,18 +101,12 @@ public class CreateWalletFragment extends Fragment {
 
                         final String pw = editable.toString();
 
-                        if (pw.equals(binding.emailAddress.getText().
-
-                                        toString()
-
-                        ))//Email and password can't be the same
+                        if (pw.equals(binding.emailAddress.getText().toString())) {
+                            // Email and password can't be the same
                             pwStrength = 0;
-                        else
-                            pwStrength = (int) Math.round(PasswordUtil.getInstance().
-
-                                            getStrength(pw)
-
-                            );
+                        } else {
+                            pwStrength = (int) Math.round(PasswordUtil.getInstance().getStrength(pw));
+                        }
 
                         int pwStrengthLevel = 0;//red
                         if (pwStrength >= 75) pwStrengthLevel = 3;//green
@@ -135,11 +139,10 @@ public class CreateWalletFragment extends Fragment {
                 final String em = binding.emailAddress.getText().toString().trim();
                 final String pw1 = binding.walletPass.getText().toString();
                 final String pw2 = binding.walletPassConfrirm.getText().toString();
-                AppUtil appUtil = new AppUtil(getActivity());
 
-                if (em == null || !FormatsUtil.getInstance().isValidEmailAddress(em)) {
+                if (!FormatsUtil.getInstance().isValidEmailAddress(em)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_email), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                } else if (pw1 == null || pw2 == null || pw1.length() < 9 || pw1.length() > 255) {
+                } else if (pw1.length() < 9 || pw1.length() > 255) {
                     ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                 } else if (!pw1.equals(pw2)) {
                     ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
@@ -157,23 +160,13 @@ public class CreateWalletFragment extends Fragment {
                                 }
                             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            appUtil.setUpgradeReminder(1L);
-
                             hideKeyboard();
-                            Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                            intent.putExtra(KEY_INTENT_EMAIL, em);
-                            intent.putExtra(KEY_INTENT_PASSWORD, pw1);
-                            getActivity().startActivity(intent);
+                            getActivity().startActivity(getNextActivityIntent(em, pw1));
                         }
                     }).show();
                 } else {
-                    appUtil.setUpgradeReminder(1L);
-
                     hideKeyboard();
-                    Intent intent = new Intent(getActivity(), PinEntryActivity.class);
-                    intent.putExtra(KEY_INTENT_EMAIL, em);
-                    intent.putExtra(KEY_INTENT_PASSWORD, pw1);
-                    getActivity().startActivity(intent);
+                    getActivity().startActivity(getNextActivityIntent(em, pw1));
                 }
             }
         });
@@ -189,6 +182,18 @@ public class CreateWalletFragment extends Fragment {
         binding.tos.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingsFragment.URL_TOS_POLICY))));
 
         return binding.getRoot();
+    }
+
+    private Intent getNextActivityIntent(String email, String password) {
+        Intent intent = new Intent(getActivity(), getNextActivity());
+        intent.putExtra(KEY_INTENT_EMAIL, email);
+        intent.putExtra(KEY_INTENT_PASSWORD, password);
+        intent.putExtra(KEY_INTENT_RECOVERING_FUNDS, mRecoveringFunds);
+        return intent;
+    }
+
+    private Class getNextActivity() {
+        return mRecoveringFunds ? RecoverFundsActivity.class : PinEntryActivity.class;
     }
 
     private void hideKeyboard() {

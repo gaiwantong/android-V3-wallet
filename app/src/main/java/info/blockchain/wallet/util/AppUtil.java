@@ -73,10 +73,6 @@ public class AppUtil {
         }
     }
 
-    public void setUpgradeReminder(long ts) {
-        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, ts);
-    }
-
     public boolean isNewlyCreated() {
         return prefs.getValue(PrefsUtil.KEY_NEWLY_CREATED_WALLET, false);
     }

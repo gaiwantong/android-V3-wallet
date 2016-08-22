@@ -39,6 +39,7 @@ import rx.Observable;
 
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_EMAIL;
 import static info.blockchain.wallet.view.CreateWalletFragment.KEY_INTENT_PASSWORD;
+import static info.blockchain.wallet.view.LandingActivity.KEY_INTENT_RECOVERING_FUNDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -48,6 +49,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -139,6 +141,27 @@ public class PinEntryViewModelTest {
         verify(mActivity, times(2)).dismissProgressDialog();
         //noinspection WrongConstant
         verify(mActivity).showToast(anyInt(), anyString());
+    }
+
+    @Test
+    public void onViewReadyRecoveringFunds() throws Exception {
+        // Arrange
+        String email = "example@email.com";
+        String password = "1234567890";
+        Intent intent = new Intent();
+        intent.putExtra(KEY_INTENT_EMAIL, email);
+        intent.putExtra(KEY_INTENT_PASSWORD, password);
+        intent.putExtra(KEY_INTENT_RECOVERING_FUNDS, true);
+        when(mActivity.getPageIntent()).thenReturn(intent);
+        when(mAuthDataManager.createHdWallet(anyString(), anyString())).thenReturn(Observable.just(new Payload()));
+        // Act
+        mSubject.onViewReady();
+        // Assert
+        assertEquals(false, mSubject.allowExit());
+        verify(mPrefsUtil).setValue(PrefsUtil.KEY_EMAIL, email);
+        verify(mPayloadManager).setEmail(email);
+        verify(mPayloadManager).setTempPassword(new CharSequenceX(password));
+        verifyNoMoreInteractions(mPayloadManager);
     }
 
     @Test

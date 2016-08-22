@@ -20,6 +20,9 @@ import piuk.blockchain.android.databinding.ActivityLandingBinding;
 
 public class LandingActivity extends BaseAuthActivity {
 
+    public static final String KEY_STARTING_FRAGMENT = "starting_fragment";
+    public static final String KEY_INTENT_RECOVERING_FUNDS = "recovering_funds";
+
     private ActivityLandingBinding binding;
 
     @Retention(RetentionPolicy.SOURCE)
@@ -37,8 +40,9 @@ public class LandingActivity extends BaseAuthActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.app_name);
 
-        binding.create.setOnClickListener((v) -> startLandingActivity(CREATE_FRAGMENT));
-        binding.login.setOnClickListener((v) -> startLandingActivity(LOGIN_FRAGMENT));
+        binding.create.setOnClickListener(view -> startLandingActivity(CREATE_FRAGMENT));
+        binding.login.setOnClickListener(view -> startLandingActivity(LOGIN_FRAGMENT));
+        binding.recoverFunds.setOnClickListener(view -> showFundRecoveryWarning());
 
         if (!ConnectivityStatus.hasConnectivity(this)) {
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -55,10 +59,28 @@ public class LandingActivity extends BaseAuthActivity {
     }
 
     private void startLandingActivity(@StartingFragment int createFragment) {
-        Intent intent = new Intent(LandingActivity.this, PairOrCreateWalletActivity.class);
+        Intent intent = new Intent(this, PairOrCreateWalletActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("starting_fragment", createFragment);
+        intent.putExtra(KEY_STARTING_FRAGMENT, createFragment);
         startActivity(intent);
+    }
+
+    private void startRecoveryActivityFlow() {
+        Intent intent = new Intent(this, PairOrCreateWalletActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(KEY_STARTING_FRAGMENT, CREATE_FRAGMENT);
+        intent.putExtra(KEY_INTENT_RECOVERING_FUNDS, true);
+        startActivity(intent);
+    }
+
+    private void showFundRecoveryWarning() {
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.recover_funds_warning_message)
+                .setPositiveButton(R.string.dialog_continue, (dialogInterface, i) -> startRecoveryActivityFlow())
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
     }
 
     @Override

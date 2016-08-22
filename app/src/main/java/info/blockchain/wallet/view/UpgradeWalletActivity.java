@@ -180,7 +180,6 @@ public class UpgradeWalletActivity extends BaseAuthActivity {
             protected Void doInBackground(Void[] params) {
                 try {
                     if (ConnectivityStatus.hasConnectivity(UpgradeWalletActivity.this)) {
-                        appUtil.setUpgradeReminder(System.currentTimeMillis());
                         appUtil.setNewlyCreated(true);
                         appUtil.applyPRNGFixes();
 
@@ -239,8 +238,6 @@ public class UpgradeWalletActivity extends BaseAuthActivity {
 
     private void onUpgradeCompleted() {
 
-        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -265,7 +262,6 @@ public class UpgradeWalletActivity extends BaseAuthActivity {
     private void onUpgradeFailed() {
 
         appUtil.setNewlyCreated(false);
-        prefs.setValue(PrefsUtil.KEY_HD_UPGRADE_LAST_REMINDER, 0L);
 
         runOnUiThread(new Runnable() {
             @Override

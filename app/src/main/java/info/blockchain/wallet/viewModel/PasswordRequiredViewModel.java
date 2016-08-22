@@ -7,6 +7,7 @@ import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
+import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -47,6 +48,8 @@ public class PasswordRequiredViewModel implements ViewModel {
 
         void dismissProgressDialog();
 
+        void showForgetWalletWarning(DialogButtonCallback callback);
+
     }
 
     public PasswordRequiredViewModel(DataListener listener) {
@@ -69,7 +72,17 @@ public class PasswordRequiredViewModel implements ViewModel {
     }
 
     public void onForgetWalletClicked() {
-        mAppUtil.clearCredentialsAndRestart();
+        mDataListener.showForgetWalletWarning(new DialogButtonCallback() {
+            @Override
+            public void onPositiveClicked() {
+                mAppUtil.clearCredentialsAndRestart();
+            }
+
+            @Override
+            public void onNegativeClicked() {
+                // No-op
+            }
+        });
     }
 
     private void verifyPassword(CharSequenceX password) {

@@ -28,7 +28,6 @@ import piuk.blockchain.android.di.InjectorTestUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -81,8 +80,6 @@ public class LauncherViewModelTest {
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(true);
-        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(true);
-        when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         when(mAccessState.isLoggedIn()).thenReturn(true);
         // Act
         mSubject.onViewReady();
@@ -104,8 +101,6 @@ public class LauncherViewModelTest {
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(true);
-        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(true);
-        when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         when(mAccessState.isLoggedIn()).thenReturn(false);
         // Act
         mSubject.onViewReady();
@@ -164,7 +159,7 @@ public class LauncherViewModelTest {
     }
 
     /**
-     * Everything is fine, but PIN not validated. Expected output is {@link LauncherActivity#onRequestUpgrade()}
+     * Everything is fine, but not upgraded. Expected output is {@link LauncherActivity#onRequestUpgrade()}
      */
     @Test
     public void onViewReadyNotUpgraded() throws Exception {
@@ -178,8 +173,6 @@ public class LauncherViewModelTest {
         when(mAppUtil.isSane()).thenReturn(true);
         when(mPayloadManager.getPayload()).thenReturn(mPayload);
         when(mPayload.isUpgraded()).thenReturn(false);
-        when(mPrefsUtil.getValue(eq(PrefsUtil.KEY_HD_UPGRADE_ASK_LATER), anyBoolean())).thenReturn(false);
-        when(mPrefsUtil.getValue(anyString(), anyLong())).thenReturn(0L);
         // Act
         mSubject.onViewReady();
         // Assert
