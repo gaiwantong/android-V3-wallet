@@ -148,6 +148,10 @@ public class ReceiveViewModel implements ViewModel {
                         }));
     }
 
+    public String getQrFileName() {
+        return mAppUtil.getReceiveQRFilename();
+    }
+
     public int getDefaultSpinnerPosition() {
         if (isUpgraded()) {
             return mAccountMap.inverse().get(getDefaultAccount());

@@ -126,6 +126,7 @@
 
         <activity android:name="info.blockchain.wallet.view.ReceiveActivity"
                   android:label="@string/app_name"
+                  android:windowSoftInputMode="stateAlwaysHidden"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
         <service android:name="info.blockchain.wallet.websocket.WebSocketService"/>

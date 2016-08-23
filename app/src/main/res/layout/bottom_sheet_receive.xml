@@ -6,7 +6,7 @@
             android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blockchain_blue"
+            android:background="@color/blockchain_pearl_white"
             android:orientation="vertical"
             app:behavior_hideable="true"
             app:behavior_peekHeight="0dp"
@@ -15,8 +15,17 @@
 
         <TextView
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="Oh hai."/>
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/send_payment_code"
+                android:textColor="@color/blockchain_grey"/>
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
     </LinearLayout>
 </layout>

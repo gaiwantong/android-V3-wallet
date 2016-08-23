@@ -1,20 +1,29 @@
 package info.blockchain.wallet.view;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,18 +37,30 @@ import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
+import info.blockchain.wallet.util.BitcoinLinkGenerator;
+import info.blockchain.wallet.view.adapters.ShareReceiveIntentAdapter;
 import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.ReceiveViewModel;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
+import org.bitcoinj.uri.BitcoinURIParseException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
@@ -56,13 +77,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
     private CustomKeypad mCustomKeypad;
     private BottomSheetBehavior mBottomSheetBehavior;
+    private ArrayAdapter<String> mReceiveToAdapter;
 
-    // Drop down
-    private ArrayAdapter<String> receiveToAdapter;
-
-    private boolean textChangeAllowed = true;
-    private boolean isBTC = true;
+    private boolean mTextChangeAllowed = true;
+    private boolean mIsBTC = true;
     private boolean mShowInfoButton = false;
+    private String mUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +96,6 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         Toolbar toolbar = mBinding.toolbar.toolbarGeneral;
         toolbar.setTitle(getResources().getString(R.string.receive_bitcoin));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mViewModel.onViewReady();
 
@@ -85,8 +104,9 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     }
 
     private void setupLayout() {
-        mBottomSheetBehavior = BottomSheetBehavior.from(mBinding.bottomSheet.bottomSheet);
+        setCustomKeypad();
 
+        mBottomSheetBehavior = BottomSheetBehavior.from(mBinding.bottomSheet.bottomSheet);
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -124,12 +144,14 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.amountContainer.amountFiat.setHint("0" + getDefaultDecimalSeparator() + "00");
         mBinding.content.amountContainer.amountFiat.addTextChangedListener(mFiatTextWatcher);
 
+        // Currency
         mBinding.content.amountContainer.currencyBtc.setText(mViewModel.getBtcUnit());
         mBinding.content.amountContainer.currencyFiat.setText(mViewModel.getFiatUnit());
 
-        receiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
-        receiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
-        mBinding.content.accounts.spinner.setAdapter(receiveToAdapter);
+        // Spinner
+        mReceiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
+        mReceiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
+        mBinding.content.accounts.spinner.setAdapter(mReceiveToAdapter);
         mBinding.content.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -159,6 +181,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             }
         });
 
+        // Info Button
         mBinding.content.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(getString(R.string.why_has_my_address_changed))
                 .setMessage(getString(R.string.new_address_info))
@@ -171,7 +194,13 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 .setNegativeButton(android.R.string.ok, null)
                 .show());
 
-        setCustomKeypad();
+        // QR Code
+        mBinding.content.qr.setOnClickListener(v -> showClipboardWarning());
+
+        mBinding.content.qr.setOnLongClickListener(view -> {
+            onShareClicked();
+            return true;
+        });
     }
 
     private TextWatcher mBtcTextWatcher = new TextWatcher() {
@@ -204,12 +233,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
             mBinding.content.amountContainer.amountBtc.addTextChangedListener(this);
 
-            if (textChangeAllowed) {
-                textChangeAllowed = false;
-                mViewModel.updateFiatTextField(input);
+            if (mTextChangeAllowed) {
+                mTextChangeAllowed = false;
+                mViewModel.updateFiatTextField(s.toString());
 
                 displayQRCode(mBinding.content.accounts.spinner.getSelectedItemPosition());
-                textChangeAllowed = true;
+                mTextChangeAllowed = true;
             }
 
             if (s.toString().contains(getDefaultDecimalSeparator())) {
@@ -262,12 +291,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
             mBinding.content.amountContainer.amountFiat.addTextChangedListener(this);
 
-            if (textChangeAllowed) {
-                textChangeAllowed = false;
-                mViewModel.updateBtcTextField(input);
+            if (mTextChangeAllowed) {
+                mTextChangeAllowed = false;
+                mViewModel.updateBtcTextField(s.toString());
 
                 displayQRCode(mBinding.content.accounts.spinner.getSelectedItemPosition());
-                textChangeAllowed = true;
+                mTextChangeAllowed = true;
             }
 
             if (s.toString().contains(getDefaultDecimalSeparator())) {
@@ -324,7 +353,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.receivingAddress.setText(receiveAddress);
 
         long amountLong;
-        if (isBTC) {
+        if (mIsBTC) {
             amountLong = mViewModel.getLongAmount(mBinding.content.amountContainer.amountBtc.getText().toString());
         } else {
             amountLong = mViewModel.getLongAmount(mBinding.content.amountContainer.amountFiat.getText().toString());
@@ -337,10 +366,11 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
 
         if (!amountBigInt.equals(BigInteger.ZERO)) {
-            mViewModel.generateQrCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(amountBigInt.longValue()), "", ""));
+            mUri = BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(amountBigInt.longValue()), "", "");
         } else {
-            mViewModel.generateQrCode("bitcoin:" + receiveAddress);
+            mUri = "bitcoin:" + receiveAddress;
         }
+        mViewModel.generateQrCode(mUri);
     }
 
     @Override
@@ -356,8 +386,8 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     @Override
     protected void onResume() {
         super.onResume();
-        mBinding.content.amountContainer.currencyBtc.setText(isBTC ? mViewModel.getBtcUnit() : mViewModel.getFiatUnit());
-        mBinding.content.amountContainer.currencyFiat.setText(isBTC ? mViewModel.getFiatUnit() : mViewModel.getBtcUnit());
+        mBinding.content.amountContainer.currencyBtc.setText(mIsBTC ? mViewModel.getBtcUnit() : mViewModel.getFiatUnit());
+        mBinding.content.amountContainer.currencyFiat.setText(mIsBTC ? mViewModel.getFiatUnit() : mViewModel.getBtcUnit());
 
         mViewModel.updateSpinnerList();
 
@@ -382,7 +412,123 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             mBinding.content.ivAddressInfo.setVisibility(View.VISIBLE);
         }
 
-//        setupBottomSheet(uri);
+        setupBottomSheet(mUri);
+    }
+
+    private void setupBottomSheet(String uri) {
+
+        //Re-Populate list
+        String strFileName = mViewModel.getQrFileName();
+        File file = new File(strFileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                Log.e(TAG, "setupBottomSheet: ", e);
+            }
+        }
+        file.setReadable(true, false);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            Log.e(TAG, "setupBottomSheet: ", e);
+        }
+
+        if (file != null && fos != null) {
+            Bitmap bitmap = ((BitmapDrawable) mBinding.content.qr.getDrawable()).getBitmap();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, fos);
+
+            try {
+                fos.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+            ArrayList<SendPaymentCodeData> dataList = new ArrayList<>();
+
+            PackageManager pm = getActivity().getPackageManager();
+
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+            emailIntent.setType("application/image");
+            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+
+            Intent imageIntent = new Intent();
+            imageIntent.setAction(Intent.ACTION_SEND);
+            imageIntent.setType("image/png");
+            imageIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+
+            try {
+                BitcoinURI addressUri = new BitcoinURI(uri);
+                String amount = addressUri.getAmount() != null ? " " + addressUri.getAmount().toPlainString() : "";
+                String address = addressUri.getAddress() != null ? addressUri.getAddress().toString() : getString(R.string.email_request_body_fallback);
+                String body = String.format(getString(R.string.email_request_body), amount, address);
+
+                String builder = "mailto:" +
+                        "?subject=" +
+                        getString(R.string.email_request_subject) +
+                        "&body=" +
+                        body +
+                        '\n' +
+                        '\n' +
+                        BitcoinLinkGenerator.getLink(addressUri);
+
+                emailIntent.setData(Uri.parse(builder));
+
+            } catch (BitcoinURIParseException e) {
+                Log.e(TAG, "setupBottomSheet: ", e);
+                ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            }
+
+            HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap = new HashMap<>();
+
+            List<ResolveInfo> emailInfos = pm.queryIntentActivities(emailIntent, 0);
+            addResolveInfoToMap(emailIntent, intentHashMap, emailInfos);
+
+            List<ResolveInfo> imageInfos = pm.queryIntentActivities(imageIntent, 0);
+            addResolveInfoToMap(imageIntent, intentHashMap, imageInfos);
+
+            SendPaymentCodeData d;
+
+            Iterator it = intentHashMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry mapItem = (Map.Entry)it.next();
+                Pair<ResolveInfo, Intent> pair = (Pair<ResolveInfo, Intent>) mapItem.getValue();
+                ResolveInfo resolveInfo = pair.first;
+                String context = resolveInfo.activityInfo.packageName;
+                String packageClassName = resolveInfo.activityInfo.name;
+                CharSequence label = resolveInfo.loadLabel(pm);
+                Drawable icon = resolveInfo.loadIcon(pm);
+
+                Intent intent = pair.second;
+                intent.setClassName(context, packageClassName);
+
+                d = new SendPaymentCodeData(label.toString(), icon, intent);
+                dataList.add(d);
+
+                it.remove();
+            }
+
+            ShareReceiveIntentAdapter adapter = new ShareReceiveIntentAdapter(dataList);
+            mBinding.bottomSheet.recyclerView.setAdapter(adapter);
+            mBinding.bottomSheet.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Prevents apps being added to the list twice, as it's confusing for users. Full email mIntent
+     * takes priority.
+     */
+    private void addResolveInfoToMap(Intent intent, HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap, List<ResolveInfo> resolveInfo) {
+        for (ResolveInfo info : resolveInfo) {
+            if (!intentHashMap.containsKey(info.activityInfo.name)) {
+                intentHashMap.put(info.activityInfo.name, new Pair<>(info, new Intent(intent)));
+            }
+        }
     }
 
     private void promptWatchOnlySpendWarning(Object object) {
@@ -394,7 +540,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             dialogBuilder.setView(dialogBinding.getRoot());
             dialogBuilder.setCancelable(false);
 
-            final AlertDialog alertDialog = dialogBuilder.create();
+            AlertDialog alertDialog = dialogBuilder.create();
             alertDialog.setCanceledOnTouchOutside(false);
 
             dialogBinding.confirmCancel.setOnClickListener(v -> {
@@ -423,12 +569,35 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     private void onShareClicked() {
         onKeypadClose();
 
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.receive_address_to_share)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, (dialog, whichButton) ->
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED))
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+    private void showClipboardWarning() {
+        new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.receive_address_to_clipboard)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = android.content.ClipData.newPlainText("Send address", mBinding.content.receivingAddress.getText().toString());
+                    ToastCustom.makeText(getActivity(), getString(R.string.copied_to_clipboard), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_GENERAL);
+                    clipboard.setPrimaryClip(clip);
+
+                })
+                .setNegativeButton(R.string.no, null)
+                .show();
     }
 
     @Override
     public void onSpinnerDataChanged() {
-        if (receiveToAdapter != null) receiveToAdapter.notifyDataSetChanged();
+        if (mReceiveToAdapter != null) mReceiveToAdapter.notifyDataSetChanged();
     }
 
     private String getDefaultDecimalSeparator() {
@@ -475,8 +644,36 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mViewModel.destroy();
     }
 
+    private Context getActivity() {
+        return this;
+    }
+
     @Override
     public void onKeypadClose() {
         mCustomKeypad.setNumpadVisibility(View.GONE);
+    }
+
+    public class SendPaymentCodeData {
+        private Drawable mLogo;
+        private String mTitle;
+        private Intent mIntent;
+
+        SendPaymentCodeData(String title, Drawable logo, Intent intent) {
+            mTitle = title;
+            mLogo = logo;
+            mIntent = intent;
+        }
+
+        public Intent getIntent() {
+            return mIntent;
+        }
+
+        public String getTitle() {
+            return mTitle;
+        }
+
+        public Drawable getLogo() {
+            return mLogo;
+        }
     }
 }
