@@ -28,10 +28,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
@@ -152,15 +152,6 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mReceiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
         mReceiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         mBinding.content.accounts.spinner.setAdapter(mReceiveToAdapter);
-        mBinding.content.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        mBinding.content.accounts.spinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        mBinding.content.accounts.spinner.setDropDownWidth(mBinding.content.accounts.spinner.getWidth());
-                    }
-                });
-
         mBinding.content.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -207,7 +198,6 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
         @Override
         public void afterTextChanged(Editable s) {
-
             String input = s.toString();
 
             mBinding.content.amountContainer.amountBtc.removeTextChangedListener(this);
@@ -215,21 +205,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             btcFormat.setMaximumFractionDigits(mViewModel.getMaxBtcLength() + 1);
             btcFormat.setMinimumFractionDigits(0);
 
-            try {
-                if (input.contains(getDefaultDecimalSeparator())) {
-                    String dec = input.substring(input.indexOf(getDefaultDecimalSeparator()));
-                    if (dec.length() > 0) {
-                        dec = dec.substring(1);
-                        if (dec.length() > mViewModel.getMaxBtcLength()) {
-                            mBinding.content.amountContainer.amountBtc.setText(input.substring(0, input.length() - 1));
-                            mBinding.content.amountContainer.amountBtc.setSelection(mBinding.content.amountContainer.amountBtc.getText().length());
-                            s = mBinding.content.amountContainer.amountBtc.getEditableText();
-                        }
-                    }
-                }
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "afterTextChanged: ", e);
-            }
+            s = formatEditable(s, input, mViewModel.getMaxBtcLength(), mBinding.content.amountContainer.amountBtc);
 
             mBinding.content.amountContainer.amountBtc.addTextChangedListener(this);
 
@@ -240,12 +216,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 displayQRCode(mBinding.content.accounts.spinner.getSelectedItemPosition());
                 mTextChangeAllowed = true;
             }
-
-            if (s.toString().contains(getDefaultDecimalSeparator())) {
-                mBinding.content.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-            } else {
-                mBinding.content.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
-            }
+            setKeyListener(s, mBinding.content.amountContainer.amountBtc);
         }
 
         @Override
@@ -263,31 +234,15 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
         @Override
         public void afterTextChanged(Editable s) {
-
             String input = s.toString();
 
             mBinding.content.amountContainer.amountFiat.removeTextChangedListener(this);
-
             int max_len = 2;
             NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
             fiatFormat.setMaximumFractionDigits(max_len + 1);
             fiatFormat.setMinimumFractionDigits(0);
 
-            try {
-                if (input.contains(getDefaultDecimalSeparator())) {
-                    String dec = input.substring(input.indexOf(getDefaultDecimalSeparator()));
-                    if (dec.length() > 0) {
-                        dec = dec.substring(1);
-                        if (dec.length() > max_len) {
-                            mBinding.content.amountContainer.amountFiat.setText(input.substring(0, input.length() - 1));
-                            mBinding.content.amountContainer.amountFiat.setSelection(mBinding.content.amountContainer.amountFiat.getText().length());
-                            s = mBinding.content.amountContainer.amountFiat.getEditableText();
-                        }
-                    }
-                }
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "afterTextChanged: ", e);
-            }
+            s = formatEditable(s, input, max_len, mBinding.content.amountContainer.amountFiat);
 
             mBinding.content.amountContainer.amountFiat.addTextChangedListener(this);
 
@@ -298,12 +253,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 displayQRCode(mBinding.content.accounts.spinner.getSelectedItemPosition());
                 mTextChangeAllowed = true;
             }
-
-            if (s.toString().contains(getDefaultDecimalSeparator())) {
-                mBinding.content.amountContainer.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-            } else {
-                mBinding.content.amountContainer.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
-            }
+            setKeyListener(s, mBinding.content.amountContainer.amountFiat);
         }
 
         @Override
@@ -317,8 +267,34 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
     };
 
-    private void setCustomKeypad() {
+    private void setKeyListener(Editable s, EditText editText) {
+        if (s.toString().contains(getDefaultDecimalSeparator())) {
+            editText.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+        } else {
+            editText.setKeyListener(DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
+        }
+    }
 
+    private Editable formatEditable(Editable s, String input, int max_len, EditText editText) {
+        try {
+            if (input.contains(getDefaultDecimalSeparator())) {
+                String dec = input.substring(input.indexOf(getDefaultDecimalSeparator()));
+                if (dec.length() > 0) {
+                    dec = dec.substring(1);
+                    if (dec.length() > max_len) {
+                        editText.setText(input.substring(0, input.length() - 1));
+                        editText.setSelection(editText.getText().length());
+                        s = editText.getEditableText();
+                    }
+                }
+            }
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "afterTextChanged: ", e);
+        }
+        return s;
+    }
+
+    private void setCustomKeypad() {
         mCustomKeypad = new CustomKeypad(this, (mBinding.content.keypadContainer.numericPad));
         mCustomKeypad.setDecimalSeparator(getDefaultDecimalSeparator());
 
@@ -337,13 +313,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     }
 
     private void displayQRCode(int spinnerIndex) {
-
         mBinding.content.accounts.spinner.setSelection(spinnerIndex);
-        String receiveAddress;
 
         Object object = mViewModel.getAccountItemForPosition(spinnerIndex);
         mShowInfoButton = showAddressInfoButtonIfNecessary(object);
 
+        String receiveAddress;
         if (object instanceof LegacyAddress) {
             receiveAddress = ((LegacyAddress) object).getAddress();
         } else {
@@ -360,8 +335,9 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
 
         BigInteger amountBigInt = mViewModel.getUndenominatedAmount(amountLong);
+
         if (mViewModel.getIfAmountInvalid(amountBigInt)) {
-            ToastCustom.makeText(this, this.getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(this, this.getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
 
@@ -438,7 +414,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             Log.e(TAG, "setupBottomSheet: ", e);
         }
 
-        if (file != null && fos != null) {
+        if (fos != null) {
             Bitmap bitmap = ((BitmapDrawable) mBinding.content.qr.getDrawable()).getBitmap();
             bitmap.compress(Bitmap.CompressFormat.PNG, 0, fos);
 

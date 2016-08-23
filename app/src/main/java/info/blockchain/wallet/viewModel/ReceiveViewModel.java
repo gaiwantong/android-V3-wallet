@@ -161,11 +161,8 @@ public class ReceiveViewModel implements ViewModel {
     }
 
     private Account getDefaultAccount() {
-        return mPayloadManager.getPayload().getHdWallet().getAccounts().get(getDefaultIndex());
-    }
-
-    private int getDefaultIndex() {
-        return mPayloadManager.getPayload().getHdWallet().getDefaultIndex();
+        return mPayloadManager.getPayload().getHdWallet().getAccounts().get(
+                mPayloadManager.getPayload().getHdWallet().getDefaultIndex());
     }
 
     @Nullable
@@ -214,11 +211,11 @@ public class ReceiveViewModel implements ViewModel {
         return mMonetaryUtil.getUndenominatedAmount(amount);
     }
 
-    public Double getUndenominatedAmount(double amount) {
+    private Double getUndenominatedAmount(double amount) {
         return mMonetaryUtil.getUndenominatedAmount(amount);
     }
 
-    public Double getDenominatedAmount(double amount) {
+    private Double getDenominatedAmount(double amount) {
         return mMonetaryUtil.getDenominatedAmount(amount);
     }
 
@@ -226,15 +223,15 @@ public class ReceiveViewModel implements ViewModel {
         return amount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1;
     }
 
-    public double getLastPrice() {
+    private double getLastPrice() {
         return ExchangeRateFactory.getInstance().getLastPrice(getFiatUnit());
     }
 
-    public String getFormattedFiatString(double amount) {
+    private String getFormattedFiatString(double amount) {
         return mMonetaryUtil.getFiatFormat(getFiatUnit()).format(amount);
     }
 
-    public String getFormattedBtcString(double amount) {
+    private String getFormattedBtcString(double amount) {
         return mMonetaryUtil.getBTCFormat().format(getDenominatedAmount(amount));
     }
 
@@ -246,7 +243,7 @@ public class ReceiveViewModel implements ViewModel {
         }
     }
 
-    public double getDoubleAmount(String amount) {
+    private double getDoubleAmount(String amount) {
         try {
             return NumberFormat.getInstance(mLocale).parse(amount).doubleValue();
         } catch (ParseException e) {
@@ -256,24 +253,14 @@ public class ReceiveViewModel implements ViewModel {
 
     public void updateFiatTextField(String bitcoin) {
         if (bitcoin.isEmpty()) bitcoin = "0";
-        double btcAmount;
-        try {
-            btcAmount = getUndenominatedAmount(Double.parseDouble(bitcoin));
-        } catch (NumberFormatException e) {
-            btcAmount = 0.0;
-        }
+        double btcAmount = getUndenominatedAmount(getDoubleAmount(bitcoin));
         double fiatAmount = getLastPrice() * btcAmount;
         mDataListener.updateFiatTextField(getFormattedFiatString(fiatAmount));
     }
 
     public void updateBtcTextField(String fiat) {
         if (fiat.isEmpty()) fiat = "0";
-        double fiatAmount;
-        try {
-            fiatAmount = getDoubleAmount(fiat);
-        } catch (NumberFormatException e) {
-            fiatAmount = 0.0;
-        }
+        double fiatAmount = getDoubleAmount(fiat);
         double btcAmount = fiatAmount / getLastPrice();
         mDataListener.updateBtcTextField(getFormattedBtcString(btcAmount));
     }

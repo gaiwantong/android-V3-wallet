@@ -29,8 +29,7 @@
             android:theme="@style/AppTheme">
 
         <activity android:name=".LauncherActivity"
-                  android:label="@string/blockchain"
-                  android:configChanges="keyboardHidden|orientation|screenSize">
+                  android:label="@string/blockchain">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
