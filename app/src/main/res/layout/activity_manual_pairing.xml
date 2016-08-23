@@ -4,7 +4,10 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable name="viewModel" type="info.blockchain.wallet.viewModel.ManualPairingViewModel"/>
+
+        <variable
+                name="viewModel"
+                type="info.blockchain.wallet.viewModel.ManualPairingViewModel"/>
     </data>
 
     <LinearLayout
@@ -25,50 +28,41 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                <EditText
-                        android:id="@+id/wallet_id"
+                <android.support.design.widget.TextInputLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:maxLines="1"
-                        android:gravity="center_vertical"
-                        android:hint="@string/wallet_id"
-                        android:text=""
-                        android:paddingLeft="16dp"
-                        android:textColor="@color/blockchain_grey"
-                        android:background="@color/blockchain_pearl_white"
-                        android:textCursorDrawable="@null"
-                        android:textColorHint="@color/blockchain_grey">
-                    <requestFocus/>
-                </EditText>
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp">
 
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
+                    <android.support.v7.widget.AppCompatEditText
+                            android:id="@+id/wallet_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:inputType="text"
+                            android:imeOptions="actionNext"
+                            android:hint="@string/wallet_id"/>
 
-                <EditText
-                        android:id="@+id/wallet_pass"
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:maxLines="1"
-                        android:gravity="center_vertical"
-                        android:hint="@string/password"
-                        android:text=""
-                        android:paddingLeft="16dp"
-                        android:inputType="textPassword"
-                        android:textColor="@color/blockchain_grey"
-                        android:background="@color/blockchain_pearl_white"
-                        android:textCursorDrawable="@null"
-                        android:textColorHint="@color/blockchain_grey"/>
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp">
 
-                <View
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/blockchain_light_grey"/>
+                    <android.support.v7.widget.AppCompatEditText
+                            android:id="@+id/wallet_pass"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:inputType="textPassword"
+                            android:imeOptions="actionGo"
+                            android:hint="@string/password"/>
+
+                </android.support.design.widget.TextInputLayout>
 
                 <TextView
                         android:layout_width="match_parent"
