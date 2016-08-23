@@ -1,18 +1,12 @@
 package info.blockchain.wallet.view;
 
 import com.google.common.collect.HashBiMap;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.android.Contents;
-import com.google.zxing.client.android.encode.QRCodeEncoder;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
@@ -21,14 +15,10 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
@@ -41,8 +31,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -62,7 +50,6 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
-import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
 import org.bitcoinj.uri.BitcoinURIParseException;
 
@@ -70,11 +57,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,7 +68,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import piuk.blockchain.android.R;
-import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 import piuk.blockchain.android.databinding.FragmentReceiveBinding;
 
 public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
@@ -147,30 +131,30 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private void setupToolbar(){
 
-        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View view = getActivity().getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                }
-                Fragment fragment = new BalanceFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-            }
-        });
-
-        if(((AppCompatActivity) getActivity()).getSupportActionBar() == null){
-            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        }
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
-        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
-        setHasOptionsMenu(true);
+//        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+//        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+//        toolbar.setNavigationOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                View view = getActivity().getCurrentFocus();
+//                if (view != null) {
+//                    InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//                }
+//                Fragment fragment = new BalanceFragment();
+//                FragmentManager fragmentManager = getFragmentManager();
+//                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//            }
+//        });
+//
+//        if(((AppCompatActivity) getActivity()).getSupportActionBar() == null){
+//            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+//        }
+//
+//        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+//        ((AppCompatActivity) getActivity()).findViewById(R.id.account_spinner).setVisibility(View.GONE);
+//        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.receive_bitcoin);
+//        setHasOptionsMenu(true);
     }
 
     private String getDefaultDecimalSeparator(){
@@ -180,15 +164,15 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     }
 
     private void setupViews(){
-
-        binding.receiveMainContentShadow.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (binding.slidingLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
-                    onShareClicked();
-                }
-            }
-        });
+//
+//        binding.receiveMainContentShadow.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (binding.slidingLayout.getPanelState().equals(SlidingUpPanelLayout.PanelState.COLLAPSED)) {
+//                    onShareClicked();
+//                }
+//            }
+//        });
 
         binding.qr.setOnClickListener(new OnClickListener() {
             @Override
@@ -228,73 +212,73 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
             }
         });
 
-        binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-        binding.amountContainer.amountBtc.setHint("0" + defaultSeperator + "00");
-        binding.amountContainer.amountBtc.setSelectAllOnFocus(true);
-        binding.amountContainer.amountBtc.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-
-                String input = s.toString();
-
-                binding.amountContainer.amountBtc.removeTextChangedListener(this);
-
-                int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
-                int max_len;
-                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-                switch (unit) {
-                    case MonetaryUtil.MICRO_BTC:
-                        max_len = 2;
-                        break;
-                    case MonetaryUtil.MILLI_BTC:
-                        max_len = 4;
-                        break;
-                    default:
-                        max_len = 8;
-                        break;
-                }
-                btcFormat.setMaximumFractionDigits(max_len + 1);
-                btcFormat.setMinimumFractionDigits(0);
-
-                try {
-                    if (input.contains(defaultSeperator)) {
-                        String dec = input.substring(input.indexOf(defaultSeperator));
-                        if (dec.length() > 0) {
-                            dec = dec.substring(1);
-                            if (dec.length() > max_len) {
-                                binding.amountContainer.amountBtc.setText(input.substring(0, input.length() - 1));
-                                binding.amountContainer.amountBtc.setSelection(binding.amountContainer.amountBtc.getText().length());
-                                s = binding.amountContainer.amountBtc.getEditableText();
-                            }
-                        }
-                    }
-                } catch (NumberFormatException nfe) {
-                    ;
-                }
-
-                binding.amountContainer.amountBtc.addTextChangedListener(this);
-
-                if (textChangeAllowed) {
-                    textChangeAllowed = false;
-                    updateFiatTextField(s.toString());
-
-                    displayQRCode(binding.accounts.spinner.getSelectedItemPosition());
-                    textChangeAllowed = true;
-                }
-
-                if (s.toString().contains(defaultSeperator))
-                    binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-                else
-                    binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                ;
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ;
-            }
-        });
+//        binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+//        binding.amountContainer.amountBtc.setHint("0" + defaultSeperator + "00");
+//        binding.amountContainer.amountBtc.setSelectAllOnFocus(true);
+//        binding.amountContainer.amountBtc.addTextChangedListener(new TextWatcher() {
+//            public void afterTextChanged(Editable s) {
+//
+//                String input = s.toString();
+//
+//                binding.amountContainer.amountBtc.removeTextChangedListener(this);
+//
+//                int unit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+//                int max_len;
+//                NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
+//                switch (unit) {
+//                    case MonetaryUtil.MICRO_BTC:
+//                        max_len = 2;
+//                        break;
+//                    case MonetaryUtil.MILLI_BTC:
+//                        max_len = 4;
+//                        break;
+//                    default:
+//                        max_len = 8;
+//                        break;
+//                }
+//                btcFormat.setMaximumFractionDigits(max_len + 1);
+//                btcFormat.setMinimumFractionDigits(0);
+//
+//                try {
+//                    if (input.contains(defaultSeperator)) {
+//                        String dec = input.substring(input.indexOf(defaultSeperator));
+//                        if (dec.length() > 0) {
+//                            dec = dec.substring(1);
+//                            if (dec.length() > max_len) {
+//                                binding.amountContainer.amountBtc.setText(input.substring(0, input.length() - 1));
+//                                binding.amountContainer.amountBtc.setSelection(binding.amountContainer.amountBtc.getText().length());
+//                                s = binding.amountContainer.amountBtc.getEditableText();
+//                            }
+//                        }
+//                    }
+//                } catch (NumberFormatException nfe) {
+//                    ;
+//                }
+//
+//                binding.amountContainer.amountBtc.addTextChangedListener(this);
+//
+//                if (textChangeAllowed) {
+//                    textChangeAllowed = false;
+//                    updateFiatTextField(s.toString());
+//
+//                    displayQRCode(binding.accounts.spinner.getSelectedItemPosition());
+//                    textChangeAllowed = true;
+//                }
+//
+//                if (s.toString().contains(defaultSeperator))
+//                    binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+//                else
+//                    binding.amountContainer.amountBtc.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
+//            }
+//
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                ;
+//            }
+//
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                ;
+//            }
+//        });
 
         binding.amountContainer.amountFiat.setKeyListener(DigitsKeyListener.getInstance("0123456789" + defaultSeperator));
         binding.amountContainer.amountFiat.setHint("0" + defaultSeperator + "00");
@@ -332,7 +316,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
                 if (textChangeAllowed) {
                     textChangeAllowed = false;
-                    updateBtcTextField(s.toString());
+//                    updateBtcTextField(s.toString());
 
                     displayQRCode(binding.accounts.spinner.getSelectedItemPosition());
                     textChangeAllowed = true;
@@ -379,87 +363,64 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
                 }
             }
         });
-        binding.accounts.spinner.post(new Runnable() {
-            public void run() {
-                binding.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+//        binding.accounts.spinner.post(new Runnable() {
+//            public void run() {
+//                binding.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                    @Override
+//                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+//
+//                        binding.accounts.spinner.setSelection(binding.accounts.spinner.getSelectedItemPosition());
+//                        Object object = accountBiMap.inverse().get(binding.accounts.spinner.getSelectedItemPosition());
+//
+//                        if (prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
+//                            promptWatchOnlySpendWarning(object);
+//                        }
+//
+//                        displayQRCode(binding.accounts.spinner.getSelectedItemPosition());
+//                    }
+//
+//                    @Override
+//                    public void onNothingSelected(AdapterView<?> arg0) {
+//                        ;
+//                    }
+//                });
+//            }
+//        });
 
-                        binding.accounts.spinner.setSelection(binding.accounts.spinner.getSelectedItemPosition());
-                        Object object = accountBiMap.inverse().get(binding.accounts.spinner.getSelectedItemPosition());
+//        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+//        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+//        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
 
-                        if (prefsUtil.getValue("WARN_WATCH_ONLY_SPEND", true)) {
-                            promptWatchOnlySpendWarning(object);
-                        }
+//        binding.amountContainer.currencyBtc.setText(strBTC);
+//        binding.amountContainer.currencyFiat.setText(strFiat);
 
-                        displayQRCode(binding.accounts.spinner.getSelectedItemPosition());
-                    }
+//        binding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+//        binding.slidingLayout.setTouchEnabled(false);
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        ;
-                    }
-                });
-            }
-        });
-
-        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
-
-        binding.amountContainer.currencyBtc.setText(strBTC);
-        binding.amountContainer.currencyFiat.setText(strFiat);
-
-        binding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        binding.slidingLayout.setTouchEnabled(false);
-        binding.slidingLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-            }
-
-            @Override
-            public void onPanelExpanded(View panel) {
-
-            }
-
-            @Override
-            public void onPanelCollapsed(View panel) {
-
-            }
-
-            @Override
-            public void onPanelAnchored(View panel) {
-            }
-
-            @Override
-            public void onPanelHidden(View panel) {
-            }
-        });
-
-        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
-                .setTitle(getString(R.string.why_has_my_address_changed))
-                .setMessage(getString(R.string.new_address_info))
-                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
-                    Intent intent = new Intent();
-                    intent.setData(Uri.parse(addressInfoLink));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                })
-                .setNegativeButton(android.R.string.ok, null)
-                .show());
+//        binding.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+//                .setTitle(getString(R.string.why_has_my_address_changed))
+//                .setMessage(getString(R.string.new_address_info))
+//                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
+//                    Intent intent = new Intent();
+//                    intent.setData(Uri.parse(addressInfoLink));
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                })
+//                .setNegativeButton(android.R.string.ok, null)
+//                .show());
     }
 
     private void setCustomKeypad(){
 
-        customKeypad = new CustomKeypad(getActivity(), (binding.keypadContainer.numericPad));
-        customKeypad.setDecimalSeparator(defaultSeperator);
-
-        //Enable custom keypad and disables default keyboard from popping up
-        customKeypad.enableOnView(binding.amountContainer.amountBtc);
-        customKeypad.enableOnView(binding.amountContainer.amountFiat);
-
-        binding.amountContainer.amountBtc.setText("");
-        binding.amountContainer.amountBtc.requestFocus();
+//        customKeypad = new CustomKeypad(getActivity(), (binding.keypadContainer.numericPad));
+//        customKeypad.setDecimalSeparator(defaultSeperator);
+//
+//        Enable custom keypad and disables default keyboard from popping up
+//        customKeypad.enableOnView(binding.amountContainer.amountBtc);
+//        customKeypad.enableOnView(binding.amountContainer.amountFiat);
+//
+//        binding.amountContainer.amountBtc.setText("");
+//        binding.amountContainer.amountBtc.requestFocus();
     }
 
     @Nullable
@@ -469,94 +430,94 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private void promptWatchOnlySpendWarning(Object object){
 
-        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
-
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
-            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
-                    R.layout.alert_watch_only_spend, null, false);
-            dialogBuilder.setView(dialogBinding.getRoot());
-            dialogBuilder.setCancelable(false);
-
-            final AlertDialog alertDialog = dialogBuilder.create();
-            alertDialog.setCanceledOnTouchOutside(false);
-
-            dialogBinding.confirmCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    binding.accounts.spinner.setSelection(0, true);
-                    if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-                    alertDialog.dismiss();
-                }
-            });
-
-            dialogBinding.confirmContinue.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
-                    alertDialog.dismiss();
-                }
-            });
-
-            alertDialog.show();
-        }
+//        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
+//
+//            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+//            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(getActivity()),
+//                    R.layout.alert_watch_only_spend, null, false);
+//            dialogBuilder.setView(dialogBinding.getRoot());
+//            dialogBuilder.setCancelable(false);
+//
+//            final AlertDialog alertDialog = dialogBuilder.create();
+//            alertDialog.setCanceledOnTouchOutside(false);
+//
+//            dialogBinding.confirmCancel.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    binding.accounts.spinner.setSelection(0, true);
+//                    if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
+//                    alertDialog.dismiss();
+//                }
+//            });
+//
+//            dialogBinding.confirmContinue.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if(dialogBinding.confirmDontAskAgain.isChecked()) prefsUtil.setValue("WARN_WATCH_ONLY_SPEND", false);
+//                    alertDialog.dismiss();
+//                }
+//            });
+//
+//            alertDialog.show();
+//        }
     }
 
     private void updateSpinnerList() {
         //receiveToList is linked to Adapter - do not reconstruct or loose reference otherwise notifyDataSetChanged won't work
-        receiveToList.clear();
-        accountBiMap.clear();
-        spinnerIndexAccountIndexMap.clear();
-
-        int spinnerIndex = 0;
-
-        if (payloadManager.getPayload().isUpgraded()) {
-
-            //V3
-            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
-            int accountIndex = 0;
-            for (Account item : accounts) {
-
-                spinnerIndexAccountIndexMap.put(spinnerIndex, accountIndex);
-                accountIndex++;
-
-                if (item.isArchived())
-                    continue;//skip archived account
-
-                //no xpub watch only yet
-
-                receiveToList.add(item.getLabel());
-                accountBiMap.put(item, spinnerIndex);
-                spinnerIndex++;
-            }
-        }
-
-        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
-
-        for (LegacyAddress legacyAddress : legacyAddresses) {
-
-            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
-                continue;//skip archived address
-
-            //If address has no label, we'll display address
-            String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
-
-            //Prefix "watch-only"
-            if (legacyAddress.isWatchOnly()) {
-                labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
-            }
-
-            receiveToList.add(labelOrAddress);
-            accountBiMap.put(legacyAddress, spinnerIndex);
-            spinnerIndex++;
-        }
-
-        //Notify adapter of list update
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (receiveToAdapter != null) receiveToAdapter.notifyDataSetChanged();
-            }
-        });
+//        receiveToList.clear();
+//        accountBiMap.clear();
+//        spinnerIndexAccountIndexMap.clear();
+//
+//        int spinnerIndex = 0;
+//
+//        if (payloadManager.getPayload().isUpgraded()) {
+//
+//            //V3
+//            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
+//            int accountIndex = 0;
+//            for (Account item : accounts) {
+//
+//                spinnerIndexAccountIndexMap.put(spinnerIndex, accountIndex);
+//                accountIndex++;
+//
+//                if (item.isArchived())
+//                    continue;//skip archived account
+//
+//                //no xpub watch only yet
+//
+//                receiveToList.add(item.getLabel());
+//                accountBiMap.put(item, spinnerIndex);
+//                spinnerIndex++;
+//            }
+//        }
+//
+//        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
+//
+//        for (LegacyAddress legacyAddress : legacyAddresses) {
+//
+//            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
+//                continue;//skip archived address
+//
+//            //If address has no label, we'll display address
+//            String labelOrAddress = legacyAddress.getLabel() == null || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
+//
+//            //Prefix "watch-only"
+//            if (legacyAddress.isWatchOnly()) {
+//                labelOrAddress = getActivity().getString(R.string.watch_only_label) + " " + labelOrAddress;
+//            }
+//
+//            receiveToList.add(labelOrAddress);
+//            accountBiMap.put(legacyAddress, spinnerIndex);
+//            spinnerIndex++;
+//        }
+//
+//        //Notify adapter of list update
+//        getActivity().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (receiveToAdapter != null) receiveToAdapter.notifyDataSetChanged();
+//            }
+//        });
     }
 
     @Override
@@ -566,7 +527,7 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
         if (isVisibleToUser) {
             strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
             strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
+            btc_fx = ExchangeRateFactory.getInstance().getLastPrice(strFiat);
             binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
             binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
         } else {
@@ -578,84 +539,78 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
     public void onResume() {
         super.onResume();
 
-        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
-        binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
-        binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
-
-        selectDefaultAccount();
-
-        updateSpinnerList();
-
-        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+//        strBTC = monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
+//        strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+//        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
+//        binding.amountContainer.currencyBtc.setText(isBTC ? strBTC : strFiat);
+//        binding.amountContainer.currencyFiat.setText(isBTC ? strFiat : strBTC);
+//
+//        updateSpinnerList();
+//
+//        selectDefaultAccount();
+//
+//        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
+//        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
     }
 
     private void selectDefaultAccount() {
-
-        if (binding.accounts.spinner != null) {
-
-            if (payloadManager.getPayload().isUpgraded()) {
-                int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
-                Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
-                int defaultSpinnerIndex = accountBiMap.get(defaultAccount);
-                displayQRCode(defaultSpinnerIndex);
-            } else {
-                //V2
-                displayQRCode(0);//default to 0
-            }
-        }
-    }
-
-    @Override
-    public void onPause() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
-        super.onPause();
+//
+//        if (binding.accounts.spinner != null) {
+//
+//            if (payloadManager.getPayload().isUpgraded()) {
+//                int defaultIndex = payloadManager.getPayload().getHdWallet().getDefaultIndex();
+//                Account defaultAccount = payloadManager.getPayload().getHdWallet().getAccounts().get(defaultIndex);
+//                int defaultSpinnerIndex = accountBiMap.get(defaultAccount);
+//                displayQRCode(defaultSpinnerIndex);
+//            } else {
+//                //V2
+//                displayQRCode(0);//default to 0
+//            }
+//        }
     }
 
     private void displayQRCode(int spinnerIndex) {
 
-        binding.accounts.spinner.setSelection(spinnerIndex);
-        String receiveAddress = null;
-
-        Object object = accountBiMap.inverse().get(spinnerIndex);
-        boolean shouldShowInfoButton = showAddressInfoButtonIfNecessary(object);
-
-        if (object instanceof LegacyAddress) {
-
-            //V2
-            receiveAddress = ((LegacyAddress) object).getAddress();
-
-        } else {
-            //V3
-            receiveAddress = getV3ReceiveAddress((Account) object);
-        }
-
-        binding.receivingAddress.setText(receiveAddress);
-
-        BigInteger bamount = null;
-        try {
-            long lamount = 0L;
-            if (isBTC) {
-                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(binding.amountContainer.amountBtc.getText().toString()).doubleValue() * 1e8));
-            } else {
-                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(binding.amountContainer.amountFiat.getText().toString()).doubleValue() * 1e8));
-            }
-            bamount = monetaryUtil.getUndenominatedAmount(lamount);
-            if (bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
-                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                return;
-            }
-
-            if (!bamount.equals(BigInteger.ZERO)) {
-                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""), shouldShowInfoButton);
-            } else {
-                generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
-            }
-        } catch (NumberFormatException | ParseException e) {
-            generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
-        }
+//        binding.accounts.spinner.setSelection(spinnerIndex);
+//        String receiveAddress = null;
+//
+//        Object object = accountBiMap.inverse().get(spinnerIndex);
+//        boolean shouldShowInfoButton = showAddressInfoButtonIfNecessary(object);
+//
+//        if (object instanceof LegacyAddress) {
+//
+//            //V2
+//            receiveAddress = ((LegacyAddress) object).getAddress();
+//
+//        } else {
+//            //V3
+//            receiveAddress = getV3ReceiveAddress((Account) object);
+//        }
+//
+//        binding.receivingAddress.setText(receiveAddress);
+//
+//        BigInteger bamount = null;
+//        try {
+//            long lamount = 0L;
+//            if (isBTC) {
+//                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(binding.amountContainer.amountBtc.getText().toString()).doubleValue() * 1e8));
+//            } else {
+//                lamount = (long) (Math.round(NumberFormat.getInstance(locale).parse(binding.amountContainer.amountFiat.getText().toString()).doubleValue() * 1e8));
+//            }
+//            bamount = monetaryUtil.getUndenominatedAmount(lamount);
+//            if (bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
+//                ToastCustom.makeText(getActivity(), getActivity().getString(R.string.invalid_amount), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+//                return;
+//            }
+//
+//            if (!bamount.equals(BigInteger.ZERO)) {
+//                generateQRCode(BitcoinURI.convertToBitcoinURI(receiveAddress, Coin.valueOf(bamount.longValue()), "", ""), shouldShowInfoButton);
+//            } else {
+//                generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
+//            }
+//        } catch (NumberFormatException | ParseException e) {
+//            generateQRCode("bitcoin:" + receiveAddress, shouldShowInfoButton);
+//        }
     }
 
     private boolean showAddressInfoButtonIfNecessary(Object object) {
@@ -664,85 +619,85 @@ public class ReceiveFragment extends Fragment implements CustomKeypadCallback {
 
     private void generateQRCode(final String uri, boolean displayInfoButton) {
 
-        new AsyncTask<Void, Void, Bitmap>() {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-
-                binding.ivAddressInfo.setVisibility(View.GONE);
-                binding.qr.setVisibility(View.GONE);
-                binding.receivingAddress.setVisibility(View.GONE);
-                binding.progressBar2.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Bitmap doInBackground(Void... params) {
-
-                Bitmap bitmap = null;
-                int qrCodeDimension = 260;
-
-                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
-
-                try {
-                    bitmap = qrCodeEncoder.encodeAsBitmap();
-                } catch (WriterException e) {
-                    e.printStackTrace();
-                }
-
-                return bitmap;
-            }
-
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                super.onPostExecute(bitmap);
-                binding.progressBar2.setVisibility(View.GONE);
-                binding.qr.setVisibility(View.VISIBLE);
-                binding.receivingAddress.setVisibility(View.VISIBLE);
-                binding.qr.setImageBitmap(bitmap);
-                if (displayInfoButton) binding.ivAddressInfo.setVisibility(View.VISIBLE);
-
-                setupBottomSheet(uri);
-            }
-        }.execute();
+//        new AsyncTask<Void, Void, Bitmap>() {
+//
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//
+//                binding.ivAddressInfo.setVisibility(View.GONE);
+//                binding.qr.setVisibility(View.GONE);
+//                binding.receivingAddress.setVisibility(View.GONE);
+//                binding.progressBar2.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            protected Bitmap doInBackground(Void... params) {
+//
+//                Bitmap bitmap = null;
+//                int qrCodeDimension = 260;
+//
+//                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension);
+//
+//                try {
+//                    bitmap = qrCodeEncoder.encodeAsBitmap();
+//                } catch (WriterException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                return bitmap;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Bitmap bitmap) {
+//                super.onPostExecute(bitmap);
+//                binding.progressBar2.setVisibility(View.GONE);
+//                binding.qr.setVisibility(View.VISIBLE);
+//                binding.receivingAddress.setVisibility(View.VISIBLE);
+//                binding.qr.setImageBitmap(bitmap);
+//                if (displayInfoButton) binding.ivAddressInfo.setVisibility(View.VISIBLE);
+//
+//                setupBottomSheet(uri);
+//            }
+//        }.execute();
     }
 
     private String getV3ReceiveAddress(Account account) {
 
-        try {
-            int spinnerIndex = accountBiMap.get(account);
-            int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
-            return payloadManager.getReceiveAddress(accountIndex);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+//        try {
+//            int spinnerIndex = accountBiMap.get(account);
+//            int accountIndex = spinnerIndexAccountIndexMap.get(spinnerIndex);
+//            return payloadManager.getReceiveAddress(accountIndex);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
             return null;
-        }
+//        }
     }
 
-    private void updateFiatTextField(String cBtc) {
-        if(cBtc.isEmpty())cBtc = "0";
-        double btc_amount = 0.0;
-        try {
-            btc_amount = monetaryUtil.getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
-        } catch (NumberFormatException | ParseException e) {
-            btc_amount = 0.0;
-        }
-        double fiat_amount = btc_fx * btc_amount;
-        binding.amountContainer.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
-    }
-
-    private void updateBtcTextField(String cfiat) {
-        if(cfiat.isEmpty())cfiat = "0";
-        double fiat_amount = 0.0;
-        try {
-            fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
-        } catch (NumberFormatException | ParseException e) {
-            fiat_amount = 0.0;
-        }
-        double btc_amount = fiat_amount / btc_fx;
-        binding.amountContainer.amountBtc.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
-    }
+//    private void updateFiatTextField(String cBtc) {
+//        if(cBtc.isEmpty())cBtc = "0";
+//        double btc_amount = 0.0;
+//        try {
+//            btc_amount = monetaryUtil.getUndenominatedAmount(NumberFormat.getInstance(locale).parse(cBtc).doubleValue());
+//        } catch (NumberFormatException | ParseException e) {
+//            btc_amount = 0.0;
+//        }
+//        double fiat_amount = btc_fx * btc_amount;
+//        binding.amountContainer.amountFiat.setText(monetaryUtil.getFiatFormat(strFiat).format(fiat_amount));
+//    }
+//
+//    private void updateBtcTextField(String cfiat) {
+//        if(cfiat.isEmpty())cfiat = "0";
+//        double fiat_amount = 0.0;
+//        try {
+//            fiat_amount = NumberFormat.getInstance(locale).parse(cfiat).doubleValue();
+//        } catch (NumberFormatException | ParseException e) {
+//            fiat_amount = 0.0;
+//        }
+//        double btc_amount = fiat_amount / btc_fx;
+//        binding.amountContainer.amountBtc.setText(monetaryUtil.getBTCFormat().format(monetaryUtil.getDenominatedAmount(btc_amount)));
+//    }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {

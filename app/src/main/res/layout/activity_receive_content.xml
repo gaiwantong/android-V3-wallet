@@ -24,12 +24,6 @@
                 android:background="@color/blockchain_pearl_white"
                 android:orientation="vertical">
 
-            <View
-                    android:id="@+id/shadow"
-                    android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:background="@drawable/container_dropshadow_gradient"/>
-
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -116,7 +110,7 @@
                             android:id="@+id/iv_address_info"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="8dp"
+                            android:padding="16dp"
                             android:background="@drawable/ripple_borderless"
                             android:layout_gravity="center"
                             android:tint="@color/blockchain_grey"

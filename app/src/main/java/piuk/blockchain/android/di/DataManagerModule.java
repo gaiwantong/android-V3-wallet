@@ -1,6 +1,7 @@
 package piuk.blockchain.android.di;
 
 import info.blockchain.wallet.datamanagers.AuthDataManager;
+import info.blockchain.wallet.datamanagers.ReceiveDataManager;
 
 import javax.inject.Singleton;
 
@@ -18,5 +19,11 @@ public class DataManagerModule {
     @Singleton
     protected AuthDataManager provideAuthDataManager() {
         return new AuthDataManager();
+    }
+
+    @Provides
+    @Singleton
+    protected ReceiveDataManager provideReceiveDataManager() {
+        return new ReceiveDataManager();
     }
 }

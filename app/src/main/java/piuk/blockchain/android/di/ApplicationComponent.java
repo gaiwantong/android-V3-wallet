@@ -3,6 +3,7 @@ package piuk.blockchain.android.di;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -57,4 +58,6 @@ public interface ApplicationComponent {
     void inject(RecoverFundsViewModel recoverFundsViewModel);
 
     void inject(ReceiveViewModel receiveViewModel);
+
+    void inject(ExchangeRateFactory exchangeRateFactory);
 }

@@ -753,7 +753,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     public void onRefreshBalanceAndTransactions() {
 
         String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(getActivity(), strFiat);
+        btc_fx = ExchangeRateFactory.getInstance().getLastPrice(strFiat);
 
         //Notify adapters of change
         accountsAdapter.notifyDataSetChanged();
