@@ -124,6 +124,13 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
         mDelayHandler.postDelayed(new ClearPinNumberRunnable(), 200);
     }
 
+    @Override
+    public void goToPasswordRequiredActivity() {
+        Intent intent = new Intent(this, PasswordRequiredActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     private class ClearPinNumberRunnable implements Runnable {
         @Override
         public void run() {

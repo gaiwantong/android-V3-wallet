@@ -83,6 +83,8 @@ public class PinEntryViewModel implements ViewModel {
         void setTitleVisibility(@ViewUtils.Visibility int visibility);
 
         void clearPinBoxes();
+
+        void goToPasswordRequiredActivity();
     }
 
     public PinEntryViewModel(DataListener listener) {
@@ -233,7 +235,23 @@ public class PinEntryViewModel implements ViewModel {
                                 }
                             }
 
-                        }, throwable -> mAppUtil.clearCredentialsAndRestart()));
+                        }, throwable -> {
+
+                            if (throwable instanceof AuthDataManager.FatalFailThrowable) {
+                                mAppUtil.clearCredentialsAndRestart();
+
+                            } else if (throwable instanceof AuthDataManager.ConnectionFailThrowable) {
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
+
+                            } else if (throwable instanceof AuthDataManager.CredentialFailThrowable) {
+                                mDataListener.goToPasswordRequiredActivity();
+
+                            } else if (throwable instanceof AuthDataManager.WalletVersionFailThrowable) {
+                                mAppUtil.clearCredentialsAndRestart();
+
+                            }
+
+                        }));
     }
 
     public void validatePassword(CharSequenceX password) {
@@ -252,8 +270,15 @@ public class PinEntryViewModel implements ViewModel {
                             mDataListener.restartPage();
                             mDataListener.dismissProgressDialog();
                         }, throwable -> {
-                            showErrorToast(R.string.invalid_password);
-                            mDataListener.showValidationDialog();
+
+                            if (throwable instanceof AuthDataManager.ConnectionFailThrowable) {
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
+
+                            } else {
+                                showErrorToast(R.string.invalid_password);
+                                mDataListener.showValidationDialog();
+                            }
+
                         }));
     }
 

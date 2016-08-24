@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
@@ -69,6 +70,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 
@@ -264,6 +266,64 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         });
     }
 
+    /**
+     * Only available for dev and qa builds
+     */
+    private void initDebugFab() {
+
+        if(!BuildConfig.FLAVOR.equals("prod")) {
+            binding.fabDebug.setVisibility(View.VISIBLE);
+
+            com.getbase.floatingactionbutton.FloatingActionButton actionC = new com.getbase.floatingactionbutton.FloatingActionButton(context);
+            actionC.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+            actionC.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+            Drawable debugIcon = context.getResources().getDrawable(R.drawable.icon_news);
+            debugIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            actionC.setIconDrawable(debugIcon);
+            actionC.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+            actionC.setTitle("Show Payload");
+            actionC.setOnClickListener(v -> {
+                AlertDialog dialog = null;
+                try {
+                    dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                            .setTitle("Payload")
+                            .setMessage(new JSONObject(viewModel.getPayloadManager().getBciWallet().getPayload().getDecryptedPayload()).toString(4))
+                            .show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+                textView.setTextSize(9);
+            });
+
+            com.getbase.floatingactionbutton.FloatingActionButton actionD = new com.getbase.floatingactionbutton.FloatingActionButton(context);
+            actionD.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+            actionD.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+            debugIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            actionD.setIconDrawable(debugIcon);
+            actionD.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+            actionD.setTitle("Show Wallet Data");
+            actionD.setOnClickListener(v -> {
+                AlertDialog dialog = null;
+                try {
+                    dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                            .setTitle("Wallet Data")
+                            .setMessage(new JSONObject(viewModel.getPayloadManager().getBciWallet().getWalletData()).toString(4))
+                            .show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+                textView.setTextSize(9);
+            });
+
+            binding.fabDebug.addButton(actionC);
+            binding.fabDebug.addButton(actionD);
+        }else{
+            binding.fabDebug.setVisibility(View.GONE);
+        }
+    }
+
     public boolean isFabExpanded() {
         return isAdded() && binding.fab != null && binding.fab.isExpanded();
     }
@@ -274,11 +334,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     private void sendClicked(){
         new SSLVerifyUtil(context).validateSSL();
-
-//        Fragment fragment = new SendActivity();
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-//        comm.setNavigationDrawerToggleEnabled(true);
 
         startActivity(new Intent(getActivity(), SendActivity.class));
         binding.fab.collapse();
@@ -298,6 +353,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     private void setupViews() {
         initFab();
+        initDebugFab();
 
         noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
         noTxMessage.setVisibility(View.GONE);

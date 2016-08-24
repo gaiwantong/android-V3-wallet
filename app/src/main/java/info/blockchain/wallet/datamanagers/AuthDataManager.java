@@ -4,6 +4,7 @@ import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.payload.BlockchainWallet;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.rxjava.RxUtil;
@@ -122,20 +123,42 @@ public class AuthDataManager {
                         password,
                         new PayloadManager.InitiatePayloadListener() {
                             @Override
-                            public void onInitSuccess() {
+                            public void onSuccess() {
                                 mPayloadManager.setTempPassword(password);
                                 subscriber.onNext(null);
                                 subscriber.onCompleted();
                             }
 
                             @Override
-                            public void onInitPairFail() {
-                                subscriber.onError(new PairFailThrowable());
+                            public void onServerError(String s) {
+                                //Server couldn't be reached
+                                subscriber.onError(new ConnectionFailThrowable());
                             }
 
                             @Override
-                            public void onInitCreateFail(String s) {
-                                subscriber.onError(new CreateFailThrowable());
+                            public void onInvalidGuidOrSharedKey() {
+                                subscriber.onError(new CredentialFailThrowable());
+                            }
+
+                            @Override
+                            public void onEmptyPayloadReturned() {
+                                subscriber.onError(new CredentialFailThrowable());
+                            }
+
+                            @Override
+                            public void onDecryptionFail() {
+                                subscriber.onError(new CredentialFailThrowable());
+                            }
+
+                            @Override
+                            public void onWalletSyncFail() {
+                                //bip44 error - not safe to continue
+                                subscriber.onError(new FatalFailThrowable());
+                            }
+
+                            @Override
+                            public void onWalletVersionNotSupported() {
+                                subscriber.onError(new WalletVersionFailThrowable());
                             }
                         });
             } catch (Exception e) {
@@ -153,14 +176,18 @@ public class AuthDataManager {
                 .takeUntil(aLong -> timer < 0);
     }
 
+    /*
+    TODO - move to jar
+     */
     public void attemptDecryptPayload(CharSequenceX password, String guid, String payload, DecryptPayloadListener listener) {
         try {
             JSONObject jsonObject = new JSONObject(payload);
 
+            //TODO - Payload v1, 2 or 3?
             if (jsonObject.has("payload")) {
                 String encrypted_payload = jsonObject.getString("payload");
 
-                int iterations = PayloadManager.WalletPbkdf2Iterations;
+                int iterations = BlockchainWallet.DEFAULT_PBKDF2_ITERATIONS;
                 if (jsonObject.has("pbkdf2_iterations")) {
                     iterations = jsonObject.getInt("pbkdf2_iterations");
                 }
@@ -193,12 +220,12 @@ public class AuthDataManager {
 
                                     @Override
                                     public void onError(Throwable e) {
-                                        if (e instanceof CreateFailThrowable) {
-                                            listener.onCreateFail();
-                                        } else if (e instanceof PairFailThrowable) {
-                                            listener.onPairFail();
-                                        } else {
+                                        if (e instanceof CredentialFailThrowable) {
+                                            listener.onAuthFail();
+                                        } else if (e instanceof FatalFailThrowable) {
                                             listener.onFatalError();
+                                        } else {
+                                            listener.onPairFail();
                                         }
                                     }
 
@@ -218,8 +245,8 @@ public class AuthDataManager {
         }
     }
 
-    class PairFailThrowable extends Throwable {
-        PairFailThrowable() {
+    public class FatalFailThrowable extends Throwable {
+        FatalFailThrowable() {
             super();
         }
     }
@@ -230,13 +257,29 @@ public class AuthDataManager {
         }
     }
 
+    public class ConnectionFailThrowable extends Throwable{
+        ConnectionFailThrowable(){
+            super();
+        }
+    }
+
+    public class CredentialFailThrowable extends Throwable{
+        CredentialFailThrowable(){
+            super();
+        }
+    }
+
+    public class WalletVersionFailThrowable extends Throwable{
+        WalletVersionFailThrowable(){
+            super();
+        }
+    }
+
     public interface DecryptPayloadListener {
 
         void onSuccess();
 
         void onPairFail();
-
-        void onCreateFail();
 
         void onAuthFail();
 

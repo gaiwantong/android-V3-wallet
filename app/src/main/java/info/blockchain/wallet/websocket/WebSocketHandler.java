@@ -13,11 +13,13 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
 import info.blockchain.wallet.payload.PayloadManager;
+import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.BalanceFragment;
 import info.blockchain.wallet.view.MainActivity;
+import info.blockchain.wallet.view.PasswordRequiredActivity;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONArray;
@@ -320,6 +322,7 @@ public class WebSocketHandler {
 
                                         if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
+                                            //Remote update to wallet data detected
                                             if (payloadManager.getTempPassword() != null) {
                                                 //Download changed payload
                                                 payloadManager.initiatePayload(payloadManager.getPayload().getSharedKey(),
@@ -327,18 +330,42 @@ public class WebSocketHandler {
                                                         payloadManager.getTempPassword(),
                                                         new PayloadManager.InitiatePayloadListener() {
                                                             @Override
-                                                            public void onInitSuccess() {
-
+                                                            public void onSuccess() {
+                                                                //No-op
                                                             }
 
                                                             @Override
-                                                            public void onInitPairFail() {
-
+                                                            public void onServerError(String s) {
+                                                                //We know there was an update to the wallet, but couldn't retrieve new changes. Safer to log out
+                                                                new AppUtil(context).restartApp();
                                                             }
 
                                                             @Override
-                                                            public void onInitCreateFail(String s) {
+                                                            public void onInvalidGuidOrSharedKey() {
+                                                                context.startActivity(new Intent(context, PasswordRequiredActivity.class));
+                                                            }
 
+                                                            @Override
+                                                            public void onEmptyPayloadReturned() {
+                                                                //We know there was an update to the wallet, but couldn't retrieve new changes. Safer to log out
+                                                                new AppUtil(context).restartApp();
+                                                            }
+
+                                                            @Override
+                                                            public void onDecryptionFail() {
+                                                                context.startActivity(new Intent(context, PasswordRequiredActivity.class));
+                                                            }
+
+                                                            @Override
+                                                            public void onWalletSyncFail() {
+                                                                //bip44 sync failure. Not safe to continue. Safer to log out
+                                                                new AppUtil(context).restartApp();
+                                                            }
+
+                                                            @Override
+                                                            public void onWalletVersionNotSupported() {
+                                                                //Wallet upgraded remotely to unsupported version. Should log user out
+                                                                new AppUtil(context).restartApp();
                                                             }
                                                         });
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);

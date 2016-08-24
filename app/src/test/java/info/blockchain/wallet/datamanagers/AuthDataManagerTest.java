@@ -40,7 +40,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -179,7 +178,6 @@ public class AuthDataManagerTest extends RxTest {
         mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
-        verifyNoMoreInteractions(mPayloadManager);
         verifyZeroInteractions(mAppUtil);
         verifyZeroInteractions(mPrefsUtil);
         subscriber.assertNotCompleted();
@@ -250,7 +248,7 @@ public class AuthDataManagerTest extends RxTest {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitSuccess();
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onSuccess();
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -263,14 +261,14 @@ public class AuthDataManagerTest extends RxTest {
     }
 
     /**
-     * Update payload returns a pairing failure, Observable should throw {@link AuthDataManager.PairFailThrowable}
+     * Update payload returns a credential failure, Observable should throw {@link AuthDataManager.CredentialFailThrowable}
      */
     @Test
-    public void initiatePayloadPairFail() throws Exception {
+    public void initiateCredentialFail() throws Exception {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitPairFail();
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInvalidGuidOrSharedKey();
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -278,18 +276,18 @@ public class AuthDataManagerTest extends RxTest {
         mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
-        subscriber.assertError(AuthDataManager.PairFailThrowable.class);
+        subscriber.assertError(AuthDataManager.CredentialFailThrowable.class);
     }
 
     /**
-     * Update payload returns a create failure, Observable should throw {@link AuthDataManager.CreateFailThrowable}
+     * Update payload returns a connection failure, Observable should throw {@link AuthDataManager.ConnectionFailThrowable}
      */
     @Test
-    public void initiatePayloadCreateFail() throws Exception {
+    public void initiatePayloadConnectionFail() throws Exception {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitCreateFail("1234567890");
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onServerError("1234567890");
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -297,7 +295,7 @@ public class AuthDataManagerTest extends RxTest {
         mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
-        subscriber.assertError(AuthDataManager.CreateFailThrowable.class);
+        subscriber.assertError(AuthDataManager.ConnectionFailThrowable.class);
     }
 
     /**
@@ -346,7 +344,7 @@ public class AuthDataManagerTest extends RxTest {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitSuccess();
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onSuccess();
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -365,11 +363,11 @@ public class AuthDataManagerTest extends RxTest {
     }
 
     @Test
-    public void attemptDecryptPayloadInitPairFail() throws Exception {
+    public void attemptDecryptPayloadInitAuthFail() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitPairFail();
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onDecryptionFail();
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -384,14 +382,17 @@ public class AuthDataManagerTest extends RxTest {
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
-        verify(listener).onPairFail();
+        verify(listener).onAuthFail();
     }
 
     @Test
     public void attemptDecryptPayloadFatalError() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
-        doThrow(new Exception()).when(mPayloadManager).initiatePayload(
+        doAnswer(invocation -> {
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onWalletSyncFail();
+            return null;
+        }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
 
         when(mAesUtils.decrypt(anyString(), any(CharSequenceX.class), anyInt())).thenReturn(DECRYPTED_PAYLOAD);
@@ -408,11 +409,11 @@ public class AuthDataManagerTest extends RxTest {
     }
 
     @Test
-    public void attemptDecryptPayloadCreateFail() throws Exception {
+    public void attemptDecryptPayloadPairFail() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
         doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInitCreateFail("1234567890");
+            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onServerError("1234567890");
             return null;
         }).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
@@ -427,7 +428,7 @@ public class AuthDataManagerTest extends RxTest {
         // Assert
         verify(mPrefsUtil).setValue(anyString(), anyString());
         verify(mAppUtil).setSharedKey(anyString());
-        verify(listener).onCreateFail();
+        verify(listener).onPairFail();
     }
 
     @Test

@@ -121,11 +121,6 @@ public class ManualPairingViewModel implements ViewModel {
             }
 
             @Override
-            public void onCreateFail() {
-                showErrorToast(R.string.double_encryption_password_error);
-            }
-
-            @Override
             public void onAuthFail() {
                 showErrorToast(R.string.auth_failed);
             }

@@ -28,6 +28,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
             multiDexEnabled false
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    project.ext { appName = 'blockchain' }
+                    def newName = output.outputFile.name
+                    newName = newName.replace("app-", "$project.ext.appName-${variant.versionName}-")
+                    output.outputFile = new File(output.outputFile.parent, newName)
+                }
+            }
         }
         debug {
             resValue "string", "google_maps_key", "AIzaSyASTnx7wjsCTkMr_RtLQYTzMAf7A9SWIMw"
@@ -44,6 +52,10 @@ android {
             // For everyday work, setting minSdkVersion to 21 bypasses MultiDex, resulting in
             // much faster builds
             minSdkVersion 21
+        }
+        qa {
+            // For testing on <API21 devices
+            minSdkVersion 14
         }
     }
 
