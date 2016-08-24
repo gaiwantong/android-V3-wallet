@@ -363,8 +363,9 @@ public class WebSocketHandler {
                                                             }
 
                                                             @Override
-                                                            public void onWalletVersionNotSupported() {
+                                                            public void onWalletVersionNotSupported(double version) {
                                                                 //Wallet upgraded remotely to unsupported version. Should log user out
+                                                                ToastCustom.makeText(context, String.format(context.getString(R.string.unsupported_encryption_version), version), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                                 new AppUtil(context).restartApp();
                                                             }
                                                         });

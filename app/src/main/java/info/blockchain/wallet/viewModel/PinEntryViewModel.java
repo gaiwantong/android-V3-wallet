@@ -72,7 +72,7 @@ public class PinEntryViewModel implements ViewModel {
 
         void showCommonPinWarning(DialogButtonCallback callback);
 
-        void showWalletVersionNotSupportedDialog(int walletVersion);
+        void showWalletVersionNotSupportedDialog(String walletVersion);
 
         void goToUpgradeWalletActivity();
 
@@ -221,24 +221,20 @@ public class PinEntryViewModel implements ViewModel {
                         .subscribe(aVoid -> {
                             mAppUtil.setSharedKey(mPayloadManager.getPayload().getSharedKey());
 
-                            double walletVersion = mPayloadManager.getVersion();
+                            setAccountLabelIfNecessary();
 
-                            if (walletVersion > PayloadManager.SUPPORTED_ENCRYPTION_VERSION) {
-                                mDataListener.showWalletVersionNotSupportedDialog((int) walletVersion);
+                            if (!mPayloadManager.getPayload().isUpgraded()) {
+                                mDataListener.goToUpgradeWalletActivity();
                             } else {
-                                setAccountLabelIfNecessary();
-
-                                if (!mPayloadManager.getPayload().isUpgraded()) {
-                                    mDataListener.goToUpgradeWalletActivity();
-                                } else {
-                                    mAppUtil.restartAppWithVerifiedPin();
-                                }
+                                mAppUtil.restartAppWithVerifiedPin();
                             }
 
                         }, throwable -> {
 
                             if (throwable instanceof AuthDataManager.FatalFailThrowable) {
-                                mAppUtil.clearCredentialsAndRestart();
+                                //HD fatal error - not safe to continue - don't clear credentials
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_OK);
+                                mAppUtil.restartApp();
 
                             } else if (throwable instanceof AuthDataManager.ConnectionFailThrowable) {
                                 mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
@@ -247,7 +243,7 @@ public class PinEntryViewModel implements ViewModel {
                                 mDataListener.goToPasswordRequiredActivity();
 
                             } else if (throwable instanceof AuthDataManager.WalletVersionFailThrowable) {
-                                mAppUtil.clearCredentialsAndRestart();
+                                mDataListener.showWalletVersionNotSupportedDialog(throwable.getMessage());
 
                             }
 

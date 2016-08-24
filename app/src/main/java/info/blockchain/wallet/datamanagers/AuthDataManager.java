@@ -124,6 +124,7 @@ public class AuthDataManager {
                         new PayloadManager.InitiatePayloadListener() {
                             @Override
                             public void onSuccess() {
+
                                 mPayloadManager.setTempPassword(password);
                                 subscriber.onNext(null);
                                 subscriber.onCompleted();
@@ -157,8 +158,8 @@ public class AuthDataManager {
                             }
 
                             @Override
-                            public void onWalletVersionNotSupported() {
-                                subscriber.onError(new WalletVersionFailThrowable());
+                            public void onWalletVersionNotSupported(double version) {
+                                subscriber.onError(new WalletVersionFailThrowable(version+""));
                             }
                         });
             } catch (Exception e) {
@@ -270,8 +271,8 @@ public class AuthDataManager {
     }
 
     public class WalletVersionFailThrowable extends Throwable{
-        WalletVersionFailThrowable(){
-            super();
+        WalletVersionFailThrowable(String message){
+            super(message);
         }
     }
 

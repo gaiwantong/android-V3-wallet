@@ -106,7 +106,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     }
 
     @Override
-    public void showWalletVersionNotSupportedDialog(int walletVersion) {
+    public void showWalletVersionNotSupportedDialog(String walletVersion) {
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))

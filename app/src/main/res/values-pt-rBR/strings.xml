@@ -456,7 +456,7 @@
     <string name="estimate_confirm_block_count">Confirmação de tempo estimado: ~%1$d minutos (%2$d blocos)</string>
     <string name="fee_too_low_no_confirm">Sua taxa é tão pequena que sua transação não pode ser confirmada.</string>
     <string name="transaction_surge">A rede de extração de Bitcoin está experimentando atualmente um alto volume de atividade, resultando em taxas recomendadas que são maiores do que o habitual.</string>
-    <string name="unsupported_encryption_version">Versão de carteira %1$d não é suportada.</string>
+    <string name="unsupported_encryption_version">Versão de carteira %1$s não é suportada.</string>
     <string name="logout">Sair</string>
     <string name="to_field_helper">Digite o endereço Bitcoin ou selecione</string>
 
