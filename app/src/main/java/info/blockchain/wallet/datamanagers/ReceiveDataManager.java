@@ -14,8 +14,8 @@ import rx.Observable;
 public class ReceiveDataManager {
 
     /**
-     * Generates a QR code in Bitmap format from a given URI to specified dimensions, wrapped in
-     * an Observable. Will throw an error if the Bitmap is null.
+     * Generates a QR code in Bitmap format from a given URI to specified dimensions, wrapped in an
+     * Observable. Will throw an error if the Bitmap is null.
      *
      * @param uri           A string to be encoded
      * @param dimensions    The dimensions of the QR code to be returned
@@ -27,22 +27,21 @@ public class ReceiveDataManager {
     }
 
     private Observable<Bitmap> generateQrCodeObservable(String uri, int dimensions) {
-        return Observable.defer(() -> Observable.create(subscriber -> {
+        return Observable.defer(() -> {
             Bitmap bitmap = null;
             QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(uri, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), dimensions);
             try {
                 bitmap = qrCodeEncoder.encodeAsBitmap();
             } catch (WriterException e) {
-                subscriber.onError(e);
+                return Observable.error(e);
             }
 
             if (bitmap == null) {
-                subscriber.onError(new Throwable("Bitmap was null"));
+                return Observable.error(new Throwable("Bitmap was null"));
             } else {
-                subscriber.onNext(bitmap);
-                subscriber.onCompleted();
+                return Observable.just(bitmap);
             }
-        }));
+        });
     }
 
 }

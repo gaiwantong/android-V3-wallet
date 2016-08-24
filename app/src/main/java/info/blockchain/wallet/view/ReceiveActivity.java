@@ -5,12 +5,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +20,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +33,6 @@ import info.blockchain.wallet.callbacks.CustomKeypadCallback;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.ImportedAccount;
 import info.blockchain.wallet.payload.LegacyAddress;
-import info.blockchain.wallet.util.BitcoinLinkGenerator;
 import info.blockchain.wallet.view.adapters.ShareReceiveIntentAdapter;
 import info.blockchain.wallet.view.helpers.CustomKeypad;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -45,22 +40,13 @@ import info.blockchain.wallet.viewModel.ReceiveViewModel;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
-import org.bitcoinj.uri.BitcoinURIParseException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
@@ -106,6 +92,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     private void setupLayout() {
         setCustomKeypad();
 
+        // Bottom Sheet
         mBottomSheetBehavior = BottomSheetBehavior.from(mBinding.bottomSheet.bottomSheet);
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -142,11 +129,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.amountContainer.amountFiat.setKeyListener(
                 DigitsKeyListener.getInstance("0123456789" + getDefaultDecimalSeparator()));
         mBinding.content.amountContainer.amountFiat.setHint("0" + getDefaultDecimalSeparator() + "00");
+        mBinding.content.amountContainer.amountFiat.setText("0" + getDefaultDecimalSeparator() + "00");
         mBinding.content.amountContainer.amountFiat.addTextChangedListener(mFiatTextWatcher);
 
-        // Currency
-        mBinding.content.amountContainer.currencyBtc.setText(mViewModel.getBtcUnit());
-        mBinding.content.amountContainer.currencyFiat.setText(mViewModel.getFiatUnit());
+        // Units
+        mBinding.content.amountContainer.currencyBtc.setText(mViewModel.getCurrencyHelper().getBtcUnit());
+        mBinding.content.amountContainer.currencyFiat.setText(mViewModel.getCurrencyHelper().getFiatUnit());
 
         // Spinner
         mReceiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
@@ -173,21 +161,10 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         });
 
         // Info Button
-        mBinding.content.ivAddressInfo.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(getString(R.string.why_has_my_address_changed))
-                .setMessage(getString(R.string.new_address_info))
-                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
-                    Intent intent = new Intent();
-                    intent.setData(Uri.parse(LINK_ADDRESS_INFO));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                })
-                .setNegativeButton(android.R.string.ok, null)
-                .show());
+        mBinding.content.ivAddressInfo.setOnClickListener(v -> showAddressChangedInfo());
 
         // QR Code
         mBinding.content.qr.setOnClickListener(v -> showClipboardWarning());
-
         mBinding.content.qr.setOnLongClickListener(view -> {
             onShareClicked();
             return true;
@@ -202,10 +179,10 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
             mBinding.content.amountContainer.amountBtc.removeTextChangedListener(this);
             NumberFormat btcFormat = NumberFormat.getInstance(Locale.getDefault());
-            btcFormat.setMaximumFractionDigits(mViewModel.getMaxBtcLength() + 1);
+            btcFormat.setMaximumFractionDigits(mViewModel.getCurrencyHelper().getMaxBtcDecimalLength() + 1);
             btcFormat.setMinimumFractionDigits(0);
 
-            s = formatEditable(s, input, mViewModel.getMaxBtcLength(), mBinding.content.amountContainer.amountBtc);
+            s = formatEditable(s, input, mViewModel.getCurrencyHelper().getMaxBtcDecimalLength(), mBinding.content.amountContainer.amountBtc);
 
             mBinding.content.amountContainer.amountBtc.addTextChangedListener(this);
 
@@ -237,12 +214,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             String input = s.toString();
 
             mBinding.content.amountContainer.amountFiat.removeTextChangedListener(this);
-            int max_len = 2;
+            int maxLength = 2;
             NumberFormat fiatFormat = NumberFormat.getInstance(Locale.getDefault());
-            fiatFormat.setMaximumFractionDigits(max_len + 1);
+            fiatFormat.setMaximumFractionDigits(maxLength + 1);
             fiatFormat.setMinimumFractionDigits(0);
 
-            s = formatEditable(s, input, max_len, mBinding.content.amountContainer.amountFiat);
+            s = formatEditable(s, input, maxLength, mBinding.content.amountContainer.amountFiat);
 
             mBinding.content.amountContainer.amountFiat.addTextChangedListener(this);
 
@@ -275,13 +252,13 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
     }
 
-    private Editable formatEditable(Editable s, String input, int max_len, EditText editText) {
+    private Editable formatEditable(Editable s, String input, int maxLength, EditText editText) {
         try {
             if (input.contains(getDefaultDecimalSeparator())) {
                 String dec = input.substring(input.indexOf(getDefaultDecimalSeparator()));
                 if (dec.length() > 0) {
                     dec = dec.substring(1);
-                    if (dec.length() > max_len) {
+                    if (dec.length() > maxLength) {
                         editText.setText(input.substring(0, input.length() - 1));
                         editText.setSelection(editText.getText().length());
                         s = editText.getEditableText();
@@ -329,14 +306,16 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
 
         long amountLong;
         if (mIsBTC) {
-            amountLong = mViewModel.getLongAmount(mBinding.content.amountContainer.amountBtc.getText().toString());
+            amountLong = mViewModel.getCurrencyHelper().getLongAmount(
+                    mBinding.content.amountContainer.amountBtc.getText().toString());
         } else {
-            amountLong = mViewModel.getLongAmount(mBinding.content.amountContainer.amountFiat.getText().toString());
+            amountLong = mViewModel.getCurrencyHelper().getLongAmount(
+                    mBinding.content.amountContainer.amountFiat.getText().toString());
         }
 
-        BigInteger amountBigInt = mViewModel.getUndenominatedAmount(amountLong);
+        BigInteger amountBigInt = mViewModel.getCurrencyHelper().getUndenominatedAmount(amountLong);
 
-        if (mViewModel.getIfAmountInvalid(amountBigInt)) {
+        if (mViewModel.getCurrencyHelper().getIfAmountInvalid(amountBigInt)) {
             ToastCustom.makeText(this, this.getString(R.string.invalid_amount), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
             return;
         }
@@ -346,6 +325,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         } else {
             mUri = "bitcoin:" + receiveAddress;
         }
+
         mViewModel.generateQrCode(mUri);
     }
 
@@ -362,12 +342,11 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     @Override
     protected void onResume() {
         super.onResume();
-        mBinding.content.amountContainer.currencyBtc.setText(mIsBTC ? mViewModel.getBtcUnit() : mViewModel.getFiatUnit());
-        mBinding.content.amountContainer.currencyFiat.setText(mIsBTC ? mViewModel.getFiatUnit() : mViewModel.getBtcUnit());
-
+        mBinding.content.amountContainer.currencyBtc.setText(
+                mIsBTC ? mViewModel.getCurrencyHelper().getBtcUnit() : mViewModel.getCurrencyHelper().getFiatUnit());
+        mBinding.content.amountContainer.currencyFiat.setText(
+                mIsBTC ? mViewModel.getCurrencyHelper().getFiatUnit() : mViewModel.getCurrencyHelper().getBtcUnit());
         mViewModel.updateSpinnerList();
-
-        selectDefaultAccount();
     }
 
     @Override
@@ -387,154 +366,15 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         if (mShowInfoButton) {
             mBinding.content.ivAddressInfo.setVisibility(View.VISIBLE);
         }
-
-        setupBottomSheet(mUri);
     }
 
     private void setupBottomSheet(String uri) {
-
-        //Re-Populate list
-        String strFileName = mViewModel.getQrFileName();
-        File file = new File(strFileName);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (Exception e) {
-                ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                Log.e(TAG, "setupBottomSheet: ", e);
-            }
-        }
-        file.setReadable(true, false);
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-            Log.e(TAG, "setupBottomSheet: ", e);
-        }
-
-        if (fos != null) {
-            Bitmap bitmap = ((BitmapDrawable) mBinding.content.qr.getDrawable()).getBitmap();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, fos);
-
-            try {
-                fos.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-
-            ArrayList<SendPaymentCodeData> dataList = new ArrayList<>();
-
-            PackageManager pm = getActivity().getPackageManager();
-
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setType("application/image");
-            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-
-            Intent imageIntent = new Intent();
-            imageIntent.setAction(Intent.ACTION_SEND);
-            imageIntent.setType("image/png");
-            imageIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-
-            try {
-                BitcoinURI addressUri = new BitcoinURI(uri);
-                String amount = addressUri.getAmount() != null ? " " + addressUri.getAmount().toPlainString() : "";
-                String address = addressUri.getAddress() != null ? addressUri.getAddress().toString() : getString(R.string.email_request_body_fallback);
-                String body = String.format(getString(R.string.email_request_body), amount, address);
-
-                String builder = "mailto:" +
-                        "?subject=" +
-                        getString(R.string.email_request_subject) +
-                        "&body=" +
-                        body +
-                        '\n' +
-                        '\n' +
-                        BitcoinLinkGenerator.getLink(addressUri);
-
-                emailIntent.setData(Uri.parse(builder));
-
-            } catch (BitcoinURIParseException e) {
-                Log.e(TAG, "setupBottomSheet: ", e);
-                ToastCustom.makeText(getActivity(), e.getMessage(), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-            }
-
-            HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap = new HashMap<>();
-
-            List<ResolveInfo> emailInfos = pm.queryIntentActivities(emailIntent, 0);
-            addResolveInfoToMap(emailIntent, intentHashMap, emailInfos);
-
-            List<ResolveInfo> imageInfos = pm.queryIntentActivities(imageIntent, 0);
-            addResolveInfoToMap(imageIntent, intentHashMap, imageInfos);
-
-            SendPaymentCodeData d;
-
-            Iterator it = intentHashMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry mapItem = (Map.Entry)it.next();
-                Pair<ResolveInfo, Intent> pair = (Pair<ResolveInfo, Intent>) mapItem.getValue();
-                ResolveInfo resolveInfo = pair.first;
-                String context = resolveInfo.activityInfo.packageName;
-                String packageClassName = resolveInfo.activityInfo.name;
-                CharSequence label = resolveInfo.loadLabel(pm);
-                Drawable icon = resolveInfo.loadIcon(pm);
-
-                Intent intent = pair.second;
-                intent.setClassName(context, packageClassName);
-
-                d = new SendPaymentCodeData(label.toString(), icon, intent);
-                dataList.add(d);
-
-                it.remove();
-            }
-
-            ShareReceiveIntentAdapter adapter = new ShareReceiveIntentAdapter(dataList);
+        List<ReceiveViewModel.SendPaymentCodeData> list = mViewModel.getIntentDataList(uri);
+        if (list != null) {
+            ShareReceiveIntentAdapter adapter = new ShareReceiveIntentAdapter(list);
             mBinding.bottomSheet.recyclerView.setAdapter(adapter);
             mBinding.bottomSheet.recyclerView.setLayoutManager(new LinearLayoutManager(this));
             adapter.notifyDataSetChanged();
-        }
-    }
-
-    /**
-     * Prevents apps being added to the list twice, as it's confusing for users. Full email mIntent
-     * takes priority.
-     */
-    private void addResolveInfoToMap(Intent intent, HashMap<String, Pair<ResolveInfo, Intent>> intentHashMap, List<ResolveInfo> resolveInfo) {
-        for (ResolveInfo info : resolveInfo) {
-            if (!intentHashMap.containsKey(info.activityInfo.name)) {
-                intentHashMap.put(info.activityInfo.name, new Pair<>(info, new Intent(intent)));
-            }
-        }
-    }
-
-    private void promptWatchOnlySpendWarning(Object object) {
-        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
-
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
-            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
-                    R.layout.alert_watch_only_spend, null, false);
-            dialogBuilder.setView(dialogBinding.getRoot());
-            dialogBuilder.setCancelable(false);
-
-            AlertDialog alertDialog = dialogBuilder.create();
-            alertDialog.setCanceledOnTouchOutside(false);
-
-            dialogBinding.confirmCancel.setOnClickListener(v -> {
-                mBinding.content.accounts.spinner.setSelection(0, true);
-                if (dialogBinding.confirmDontAskAgain.isChecked()) {
-                    mViewModel.setWarnWatchOnlySpend(false);
-                }
-                alertDialog.dismiss();
-            });
-
-            dialogBinding.confirmContinue.setOnClickListener(v -> {
-                if (dialogBinding.confirmDontAskAgain.isChecked()) {
-                    mViewModel.setWarnWatchOnlySpend(false);
-                }
-                alertDialog.dismiss();
-            });
-
-            alertDialog.show();
         }
     }
 
@@ -549,8 +389,10 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 .setTitle(R.string.app_name)
                 .setMessage(R.string.receive_address_to_share)
                 .setCancelable(false)
-                .setPositiveButton(R.string.yes, (dialog, whichButton) ->
-                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED))
+                .setPositiveButton(R.string.yes, (dialog, whichButton) -> {
+                    setupBottomSheet(mUri);
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                })
                 .setNegativeButton(R.string.no, null)
                 .show();
     }
@@ -571,15 +413,69 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 .show();
     }
 
-    @Override
-    public void onSpinnerDataChanged() {
-        if (mReceiveToAdapter != null) mReceiveToAdapter.notifyDataSetChanged();
+    private AlertDialog showAddressChangedInfo() {
+        return new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                .setTitle(getString(R.string.why_has_my_address_changed))
+                .setMessage(getString(R.string.new_address_info))
+                .setPositiveButton(R.string.learn_more, (dialog, which) -> {
+                    Intent intent = new Intent();
+                    intent.setData(Uri.parse(LINK_ADDRESS_INFO));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void promptWatchOnlySpendWarning(Object object) {
+        if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
+
+            AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(
+                    LayoutInflater.from(this), R.layout.alert_watch_only_spend, null, false);
+
+            AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                    .setView(dialogBinding.getRoot())
+                    .setCancelable(false)
+                    .create();
+
+            dialogBinding.confirmCancel.setOnClickListener(v -> {
+                mBinding.content.accounts.spinner.setSelection(0, true);
+                if (dialogBinding.confirmDontAskAgain.isChecked()) {
+                    mViewModel.setWarnWatchOnlySpend(false);
+                }
+                alertDialog.dismiss();
+            });
+
+            dialogBinding.confirmContinue.setOnClickListener(v -> {
+                if (dialogBinding.confirmDontAskAgain.isChecked()) {
+                    mViewModel.setWarnWatchOnlySpend(false);
+                }
+                alertDialog.dismiss();
+            });
+
+            alertDialog.show();
+        }
     }
 
     private String getDefaultDecimalSeparator() {
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.getDefault());
         DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
         return Character.toString(symbols.getDecimalSeparator());
+    }
+
+    @Override
+    public Bitmap getQrBitmap() {
+        return ((BitmapDrawable) mBinding.content.qr.getDrawable()).getBitmap();
+    }
+
+    @Override
+    public void showToast(String message, @ToastCustom.ToastType String toastType) {
+        ToastCustom.makeText(this, message, ToastCustom.LENGTH_SHORT, toastType);
+    }
+
+    @Override
+    public void onSpinnerDataChanged() {
+        if (mReceiveToAdapter != null) mReceiveToAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -603,6 +499,8 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     public void onBackPressed() {
         if (mCustomKeypad.isVisible()) {
             onKeypadClose();
+        } else if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else {
             super.onBackPressed();
         }
@@ -627,29 +525,5 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     @Override
     public void onKeypadClose() {
         mCustomKeypad.setNumpadVisibility(View.GONE);
-    }
-
-    public class SendPaymentCodeData {
-        private Drawable mLogo;
-        private String mTitle;
-        private Intent mIntent;
-
-        SendPaymentCodeData(String title, Drawable logo, Intent intent) {
-            mTitle = title;
-            mLogo = logo;
-            mIntent = intent;
-        }
-
-        public Intent getIntent() {
-            return mIntent;
-        }
-
-        public String getTitle() {
-            return mTitle;
-        }
-
-        public Drawable getLogo() {
-            return mLogo;
-        }
     }
 }

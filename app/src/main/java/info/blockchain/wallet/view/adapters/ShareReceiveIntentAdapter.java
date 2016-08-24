@@ -8,18 +8,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import info.blockchain.wallet.view.ReceiveActivity;
+import info.blockchain.wallet.viewModel.ReceiveViewModel;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import piuk.blockchain.android.R;
 
 public class ShareReceiveIntentAdapter extends RecyclerView.Adapter<ShareReceiveIntentAdapter.ViewHolder> {
 
-    private final ArrayList<ReceiveActivity.SendPaymentCodeData> mData;
+    private final List<ReceiveViewModel.SendPaymentCodeData> mData;
     private Context mContext;
 
-    public ShareReceiveIntentAdapter(ArrayList<ReceiveActivity.SendPaymentCodeData> repoDataArrayList) {
+    public ShareReceiveIntentAdapter(List<ReceiveViewModel.SendPaymentCodeData> repoDataArrayList) {
         mData = repoDataArrayList;
     }
 
@@ -34,7 +34,7 @@ public class ShareReceiveIntentAdapter extends RecyclerView.Adapter<ShareReceive
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ReceiveActivity.SendPaymentCodeData data = mData.get(position);
+        ReceiveViewModel.SendPaymentCodeData data = mData.get(position);
 
         holder.mTitleTextView.setText(data.getTitle());
         holder.mImageView.setImageDrawable(data.getLogo());
