@@ -4,6 +4,9 @@ import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.exceptions.HDWalletException;
+import info.blockchain.wallet.exceptions.InvalidCredentialsException;
+import info.blockchain.wallet.exceptions.PayloadException;
 import info.blockchain.wallet.payload.BlockchainWallet;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -121,49 +124,14 @@ public class AuthDataManager {
                         sharedKey,
                         guid,
                         password,
-                        new PayloadManager.InitiatePayloadListener() {
-                            @Override
-                            public void onSuccess() {
+                        () -> {
 
-                                mPayloadManager.setTempPassword(password);
-                                subscriber.onNext(null);
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onServerError(String s) {
-                                //Server couldn't be reached
-                                subscriber.onError(new ConnectionFailThrowable());
-                            }
-
-                            @Override
-                            public void onInvalidGuidOrSharedKey() {
-                                subscriber.onError(new CredentialFailThrowable());
-                            }
-
-                            @Override
-                            public void onEmptyPayloadReturned() {
-                                subscriber.onError(new CredentialFailThrowable());
-                            }
-
-                            @Override
-                            public void onDecryptionFail() {
-                                subscriber.onError(new CredentialFailThrowable());
-                            }
-
-                            @Override
-                            public void onWalletSyncFail() {
-                                //bip44 error - not safe to continue
-                                subscriber.onError(new FatalFailThrowable());
-                            }
-
-                            @Override
-                            public void onWalletVersionNotSupported(double version) {
-                                subscriber.onError(new WalletVersionFailThrowable(version+""));
-                            }
+                            mPayloadManager.setTempPassword(password);
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
                         });
             } catch (Exception e) {
-                subscriber.onError(new Throwable(e));
+                subscriber.onError(e);
             }
         }));
     }
@@ -220,12 +188,20 @@ public class AuthDataManager {
                                     }
 
                                     @Override
-                                    public void onError(Throwable e) {
-                                        if (e instanceof CredentialFailThrowable) {
+                                    public void onError(Throwable throwable) {
+
+                                        if (throwable instanceof InvalidCredentialsException) {
                                             listener.onAuthFail();
-                                        } else if (e instanceof FatalFailThrowable) {
+
+                                        } else if (throwable instanceof PayloadException) {
+                                            //This shouldn't happen - Payload retrieved from server couldn't be parsed
                                             listener.onFatalError();
-                                        } else {
+
+                                        } else if (throwable instanceof HDWalletException) {
+                                            //This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
+                                            listener.onFatalError();
+
+                                        }else{
                                             listener.onPairFail();
                                         }
                                     }
@@ -243,36 +219,6 @@ public class AuthDataManager {
             }
         } catch (JSONException e) {
             listener.onFatalError();
-        }
-    }
-
-    public class FatalFailThrowable extends Throwable {
-        FatalFailThrowable() {
-            super();
-        }
-    }
-
-    class CreateFailThrowable extends Throwable {
-        CreateFailThrowable() {
-            super();
-        }
-    }
-
-    public class ConnectionFailThrowable extends Throwable{
-        ConnectionFailThrowable(){
-            super();
-        }
-    }
-
-    public class CredentialFailThrowable extends Throwable{
-        CredentialFailThrowable(){
-            super();
-        }
-    }
-
-    public class WalletVersionFailThrowable extends Throwable{
-        WalletVersionFailThrowable(String message){
-            super(message);
         }
     }
 

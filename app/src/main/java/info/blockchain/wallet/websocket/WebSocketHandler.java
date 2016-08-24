@@ -13,13 +13,11 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.NotificationsUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.BalanceFragment;
 import info.blockchain.wallet.view.MainActivity;
-import info.blockchain.wallet.view.PasswordRequiredActivity;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
 import org.json.JSONArray;
@@ -327,47 +325,7 @@ public class WebSocketHandler {
                                                 //Download changed payload
                                                 payloadManager.initiatePayload(payloadManager.getPayload().getSharedKey(),
                                                         payloadManager.getPayload().getGuid(),
-                                                        payloadManager.getTempPassword(),
-                                                        new PayloadManager.InitiatePayloadListener() {
-                                                            @Override
-                                                            public void onSuccess() {
-                                                                //No-op
-                                                            }
-
-                                                            @Override
-                                                            public void onServerError(String s) {
-                                                                //We know there was an update to the wallet, but couldn't retrieve new changes. Safer to log out
-                                                                new AppUtil(context).restartApp();
-                                                            }
-
-                                                            @Override
-                                                            public void onInvalidGuidOrSharedKey() {
-                                                                context.startActivity(new Intent(context, PasswordRequiredActivity.class));
-                                                            }
-
-                                                            @Override
-                                                            public void onEmptyPayloadReturned() {
-                                                                //We know there was an update to the wallet, but couldn't retrieve new changes. Safer to log out
-                                                                new AppUtil(context).restartApp();
-                                                            }
-
-                                                            @Override
-                                                            public void onDecryptionFail() {
-                                                                context.startActivity(new Intent(context, PasswordRequiredActivity.class));
-                                                            }
-
-                                                            @Override
-                                                            public void onWalletSyncFail() {
-                                                                //bip44 sync failure. Not safe to continue. Safer to log out
-                                                                new AppUtil(context).restartApp();
-                                                            }
-
-                                                            @Override
-                                                            public void onWalletVersionNotSupported(double version) {
-                                                                //Wallet upgraded remotely to unsupported version. Should log user out
-                                                                ToastCustom.makeText(context, String.format(context.getString(R.string.unsupported_encryption_version), version), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-                                                                new AppUtil(context).restartApp();
-                                                            }
+                                                        payloadManager.getTempPassword(), () -> {
                                                         });
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 updateBalancesAndTransactions();

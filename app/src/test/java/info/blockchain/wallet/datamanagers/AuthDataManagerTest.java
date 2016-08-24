@@ -4,6 +4,10 @@ import android.app.Application;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.exceptions.DecryptionException;
+import info.blockchain.wallet.exceptions.HDWalletException;
+import info.blockchain.wallet.exceptions.InvalidCredentialsException;
+import info.blockchain.wallet.exceptions.ServerConnectionException;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AESUtilWrapper;
@@ -261,41 +265,36 @@ public class AuthDataManagerTest extends RxTest {
     }
 
     /**
-     * Update payload returns a credential failure, Observable should throw {@link AuthDataManager.CredentialFailThrowable}
+     * Update payload returns a credential failure, Observable should throw {@link InvalidCredentialsException}
      */
     @Test
     public void initiateCredentialFail() throws Exception {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
-        doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onInvalidGuidOrSharedKey();
-            return null;
-        }).when(mPayloadManager).initiatePayload(
+
+        doThrow(new InvalidCredentialsException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
         mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
-        subscriber.assertError(AuthDataManager.CredentialFailThrowable.class);
+        subscriber.assertError(Throwable.class);
     }
 
     /**
-     * Update payload returns a connection failure, Observable should throw {@link AuthDataManager.ConnectionFailThrowable}
+     * Update payload returns a connection failure, Observable should throw {@link ServerConnectionException}
      */
     @Test
     public void initiatePayloadConnectionFail() throws Exception {
         // Arrange
         TestSubscriber<Void> subscriber = new TestSubscriber<>();
-        doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onServerError("1234567890");
-            return null;
-        }).when(mPayloadManager).initiatePayload(
+        doThrow(new ServerConnectionException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
         // Act
         mSubject.updatePayload("1234567890", "1234567890", new CharSequenceX("1234567890")).toBlocking().subscribe(subscriber);
         // Assert
         subscriber.assertNotCompleted();
-        subscriber.assertError(AuthDataManager.ConnectionFailThrowable.class);
+        subscriber.assertError(Throwable.class);
     }
 
     /**
@@ -366,10 +365,7 @@ public class AuthDataManagerTest extends RxTest {
     public void attemptDecryptPayloadInitAuthFail() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
-        doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onDecryptionFail();
-            return null;
-        }).when(mPayloadManager).initiatePayload(
+        doThrow(new InvalidCredentialsException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
 
         when(mAesUtils.decrypt(anyString(), any(CharSequenceX.class), anyInt())).thenReturn(DECRYPTED_PAYLOAD);
@@ -389,10 +385,7 @@ public class AuthDataManagerTest extends RxTest {
     public void attemptDecryptPayloadFatalError() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
-        doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onWalletSyncFail();
-            return null;
-        }).when(mPayloadManager).initiatePayload(
+        doThrow(new HDWalletException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
 
         when(mAesUtils.decrypt(anyString(), any(CharSequenceX.class), anyInt())).thenReturn(DECRYPTED_PAYLOAD);
@@ -412,10 +405,7 @@ public class AuthDataManagerTest extends RxTest {
     public void attemptDecryptPayloadPairFail() throws Exception {
         AuthDataManager.DecryptPayloadListener listener = mock(AuthDataManager.DecryptPayloadListener.class);
 
-        doAnswer(invocation -> {
-            ((PayloadManager.InitiatePayloadListener) invocation.getArguments()[3]).onServerError("1234567890");
-            return null;
-        }).when(mPayloadManager).initiatePayload(
+        doThrow(new DecryptionException()).when(mPayloadManager).initiatePayload(
                 anyString(), anyString(), any(CharSequenceX.class), any(PayloadManager.InitiatePayloadListener.class));
 
         when(mAesUtils.decrypt(anyString(), any(CharSequenceX.class), anyInt())).thenReturn(DECRYPTED_PAYLOAD);

@@ -12,6 +12,12 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
+import info.blockchain.wallet.exceptions.DecryptionException;
+import info.blockchain.wallet.exceptions.HDWalletException;
+import info.blockchain.wallet.exceptions.InvalidCredentialsException;
+import info.blockchain.wallet.exceptions.PayloadException;
+import info.blockchain.wallet.exceptions.ServerConnectionException;
+import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -231,20 +237,27 @@ public class PinEntryViewModel implements ViewModel {
 
                         }, throwable -> {
 
-                            if (throwable instanceof AuthDataManager.FatalFailThrowable) {
-                                //HD fatal error - not safe to continue - don't clear credentials
+                            if (throwable instanceof InvalidCredentialsException) {
+                                mDataListener.goToPasswordRequiredActivity();
+
+                            } else if (throwable instanceof ServerConnectionException) {
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
+
+                            } else if (throwable instanceof UnsupportedVersionException) {
+                                mDataListener.showWalletVersionNotSupportedDialog(throwable.getMessage());
+
+                            } else if (throwable instanceof DecryptionException) {
+                                mDataListener.goToPasswordRequiredActivity();
+
+                            } else if (throwable instanceof PayloadException) {
+                                //This shouldn't happen - Payload retrieved from server couldn't be parsed
                                 mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_OK);
                                 mAppUtil.restartApp();
 
-                            } else if (throwable instanceof AuthDataManager.ConnectionFailThrowable) {
-                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
-
-                            } else if (throwable instanceof AuthDataManager.CredentialFailThrowable) {
-                                mDataListener.goToPasswordRequiredActivity();
-
-                            } else if (throwable instanceof AuthDataManager.WalletVersionFailThrowable) {
-                                mDataListener.showWalletVersionNotSupportedDialog(throwable.getMessage());
-
+                            } else if (throwable instanceof HDWalletException) {
+                                //This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_OK);
+                                mAppUtil.restartApp();
                             }
 
                         }));
@@ -267,7 +280,7 @@ public class PinEntryViewModel implements ViewModel {
                             mDataListener.dismissProgressDialog();
                         }, throwable -> {
 
-                            if (throwable instanceof AuthDataManager.ConnectionFailThrowable) {
+                            if (throwable instanceof ServerConnectionException) {
                                 mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
 
                             } else {
