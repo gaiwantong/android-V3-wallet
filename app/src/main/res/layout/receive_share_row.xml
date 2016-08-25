@@ -17,7 +17,6 @@
                 android:layout_height="24dp"
                 android:id="@+id/share_app_image"/>
 
-
         <TextView
                 android:id="@+id/share_app_title"
                 android:layout_width="0dp"

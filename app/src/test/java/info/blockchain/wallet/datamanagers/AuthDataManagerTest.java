@@ -40,7 +40,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -179,7 +178,6 @@ public class AuthDataManagerTest extends RxTest {
         mSubject.restoreHdWallet("", "", "").toBlocking().subscribe(subscriber);
         // Assert
         verify(mPayloadManager).restoreHDWallet(anyString(), anyString(), anyString());
-        verifyNoMoreInteractions(mPayloadManager);
         verifyZeroInteractions(mAppUtil);
         verifyZeroInteractions(mPrefsUtil);
         subscriber.assertNotCompleted();

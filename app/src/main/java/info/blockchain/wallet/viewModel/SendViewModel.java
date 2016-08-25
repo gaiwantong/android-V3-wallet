@@ -88,7 +88,7 @@ public class SendViewModel implements ViewModel {
 
         int btcUnit = prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
         String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, fiatUnit);
+        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(fiatUnit);
 
         this.context = context;
         this.dataListener = dataListener;
@@ -105,7 +105,7 @@ public class SendViewModel implements ViewModel {
         this.sendModel.defaultSeparator = getDefaultDecimalSeparator();
         this.sendModel.exchangeRate = exchangeRate;
         this.sendModel.unspentApiResponse = new HashMap<>();
-        this.sendModel.btcExchange = ExchangeRateFactory.getInstance().getLastPrice(context, sendModel.fiatUnit);
+        this.sendModel.btcExchange = ExchangeRateFactory.getInstance().getLastPrice(sendModel.fiatUnit);
 
         dataListener.onUpdateBtcUnit(this.sendModel.btcUnit);
         dataListener.onUpdateFiatUnit(this.sendModel.fiatUnit);
@@ -461,7 +461,7 @@ public class SendViewModel implements ViewModel {
                 btc_amount = 0.0;
             }
 
-            sendModel.exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, sendModel.fiatUnit);
+            sendModel.exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(sendModel.fiatUnit);
 
             double fiat_amount = sendModel.exchangeRate * btc_amount;
 

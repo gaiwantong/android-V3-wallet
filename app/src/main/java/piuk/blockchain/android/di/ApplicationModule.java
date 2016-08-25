@@ -6,6 +6,7 @@ import android.content.Context;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.util.AESUtilWrapper;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.StringUtils;
 
@@ -59,4 +60,10 @@ public class ApplicationModule {
     protected StringUtils provideStringUtils() {
         return new StringUtils(mApplication);
     }
+
+    @Provides
+    protected ExchangeRateFactory provideExchangeRateFactory() {
+        return ExchangeRateFactory.getInstance();
+    }
+
 }

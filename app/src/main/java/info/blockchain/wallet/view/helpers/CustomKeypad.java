@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TableLayout;
+import android.widget.TextView;
+
+import info.blockchain.wallet.util.ViewUtils;
 
 import java.util.ArrayList;
 
@@ -65,12 +68,13 @@ public class CustomKeypad implements View.OnClickListener{
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((TextView) numpad.findViewById(R.id.decimal_point)).setText(decimalSeparator);
                 numpad.setVisibility(View.VISIBLE);
             }
         });
     }
 
-    public void setNumpadVisibility(int visibility){
+    public void setNumpadVisibility(@ViewUtils.Visibility int visibility) {
         numpad.setVisibility(visibility);
     }
 

@@ -1,12 +1,14 @@
 package info.blockchain.wallet.util;
 
 
-import android.content.Context;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+
+import javax.inject.Inject;
+
+import piuk.blockchain.android.di.Injector;
 
 /**
  * This class obtains info on the currencies communicated via https://blockchain.info/ticker
@@ -14,6 +16,7 @@ import java.util.HashMap;
 public class ExchangeRateFactory {
 
     private static String strData = null;
+    @Inject protected PrefsUtil mPrefsUtil;
 
     private static HashMap<String, Double> fxRates = null;
     private static HashMap<String, String> fxSymbols = null;
@@ -54,7 +57,7 @@ public class ExchangeRateFactory {
 
 
     private ExchangeRateFactory() {
-        // No-op
+        Injector.getInstance().getAppComponent().inject(this);
     }
 
     public static ExchangeRateFactory getInstance() {
@@ -68,15 +71,12 @@ public class ExchangeRateFactory {
         return instance;
     }
 
-    public double getLastPrice(Context context, String currency) {
-
-        PrefsUtil prefs = new PrefsUtil(context);
-
+    public double getLastPrice(String currency) {
         if (fxRates.get(currency) != null && fxRates.get(currency) > 0.0) {
-            prefs.setValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, Double.toString(fxRates.get(currency)));
+            mPrefsUtil.setValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, Double.toString(fxRates.get(currency)));
             return fxRates.get(currency);
         } else {
-            return Double.parseDouble(prefs.getValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, "0.0"));
+            return Double.parseDouble(mPrefsUtil.getValue("LAST_KNOWN_VALUE_FOR_CURRENCY_" + currency, "0.0"));
         }
     }
 
@@ -104,25 +104,23 @@ public class ExchangeRateFactory {
      * Parse the data supplied to this instance.
      */
     public void updateFxPricesForEnabledCurrencies() {
-        for (int i = 0; i < currencies.length; i++) {
-            setFxPriceForCurrency(currencies[i]);
+        for (String currency : currencies) {
+            setFxPriceForCurrency(currency);
         }
     }
 
     private void setFxPriceForCurrency(String currency) {
         try {
             JSONObject jsonObject = new JSONObject(strData);
-            if (jsonObject != null) {
-                JSONObject jsonCurr = jsonObject.getJSONObject(currency);
-                if (jsonCurr != null) {
-                    double last_price = jsonCurr.getDouble("last");
-                    fxRates.put(currency, Double.valueOf(last_price));
-                    String symbol = jsonCurr.getString("symbol");
-                    fxSymbols.put(currency, symbol);
-                }
+            JSONObject jsonCurr = jsonObject.getJSONObject(currency);
+            if (jsonCurr != null) {
+                double last_price = jsonCurr.getDouble("last");
+                fxRates.put(currency, last_price);
+                String symbol = jsonCurr.getString("symbol");
+                fxSymbols.put(currency, symbol);
             }
         } catch (JSONException je) {
-            fxRates.put(currency, Double.valueOf(-1.0));
+            fxRates.put(currency, -1.0);
             fxSymbols.put(currency, null);
         }
     }
