@@ -241,7 +241,7 @@ public class PinEntryViewModel implements ViewModel {
                                 mDataListener.goToPasswordRequiredActivity();
 
                             } else if (throwable instanceof ServerConnectionException) {
-                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_ERROR);
 
                             } else if (throwable instanceof UnsupportedVersionException) {
                                 mDataListener.showWalletVersionNotSupportedDialog(throwable.getMessage());
@@ -251,12 +251,12 @@ public class PinEntryViewModel implements ViewModel {
 
                             } else if (throwable instanceof PayloadException) {
                                 //This shouldn't happen - Payload retrieved from server couldn't be parsed
-                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_OK);
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR);
                                 mAppUtil.restartApp();
 
                             } else if (throwable instanceof HDWalletException) {
                                 //This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
-                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_OK);
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR);
                                 mAppUtil.restartApp();
                             }
 
@@ -281,7 +281,7 @@ public class PinEntryViewModel implements ViewModel {
                         }, throwable -> {
 
                             if (throwable instanceof ServerConnectionException) {
-                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_OK);
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_ERROR);
 
                             } else {
                                 showErrorToast(R.string.invalid_password);
