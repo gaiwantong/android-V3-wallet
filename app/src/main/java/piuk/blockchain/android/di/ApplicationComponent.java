@@ -4,7 +4,6 @@ import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
-import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.ReceiveCurrencyHelper;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
@@ -30,8 +29,6 @@ import piuk.blockchain.android.exceptions.LoggingExceptionHandler;
 @Singleton
 @Component(modules = {ApplicationModule.class, ApiModule.class, DataManagerModule.class} )
 public interface ApplicationComponent {
-
-    PrefsUtil prefsUtil();
 
     void inject(AccessState accessState);
 

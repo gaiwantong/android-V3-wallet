@@ -58,7 +58,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     private static final String TAG = ReceiveActivity.class.getSimpleName();
     private static final String LINK_ADDRESS_INFO = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
 
-    // Package local to prevent creation of many synthetic accessor methods
+    // Package local to prevent creation of synthetic accessor methods when compiled
     ReceiveViewModel mViewModel;
     ActivityReceiveBinding mBinding;
 
