@@ -21,7 +21,6 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.BitcoinLinkGenerator;
-import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.StringUtils;
@@ -60,10 +59,9 @@ public class ReceiveViewModel implements ViewModel {
     @Inject protected StringUtils mStringUtils;
     @Inject protected ReceiveDataManager mDataManager;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
-
-    private List<String> mReceiveToList;
-    private HashBiMap<Integer, Object> mAccountMap;
-    private SparseIntArray mSpinnerIndexMap;
+    @VisibleForTesting List<String> mReceiveToList;
+    @VisibleForTesting HashBiMap<Integer, Object> mAccountMap;
+    @VisibleForTesting SparseIntArray mSpinnerIndexMap;
     private ReceiveCurrencyHelper mCurrencyHelper;
 
     public interface DataListener {
@@ -90,9 +88,7 @@ public class ReceiveViewModel implements ViewModel {
         mCompositeSubscription = new CompositeSubscription();
         mCurrencyHelper = new ReceiveCurrencyHelper(
                 new MonetaryUtil(mPrefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)),
-                mPrefsUtil,
-                locale,
-                ExchangeRateFactory.getInstance());
+                locale);
 
         mReceiveToList = new ArrayList<>();
         mAccountMap = HashBiMap.create();

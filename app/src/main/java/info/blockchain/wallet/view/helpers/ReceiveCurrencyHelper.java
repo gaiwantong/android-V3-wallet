@@ -9,18 +9,21 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import piuk.blockchain.android.di.Injector;
+
 public class ReceiveCurrencyHelper {
 
     private MonetaryUtil mMonetaryUtil;
-    private PrefsUtil mPrefsUtil;
     private Locale mLocale;
-    private ExchangeRateFactory mExchangeRateFactory;
+    @Inject PrefsUtil mPrefsUtil;
+    @Inject ExchangeRateFactory mExchangeRateFactory;
 
-    public ReceiveCurrencyHelper(MonetaryUtil monetaryUtil, PrefsUtil prefsUtil, Locale locale, ExchangeRateFactory exchangeRateFactory) {
+    public ReceiveCurrencyHelper(MonetaryUtil monetaryUtil, Locale locale) {
+        Injector.getInstance().getAppComponent().inject(this);
         mMonetaryUtil = monetaryUtil;
-        mPrefsUtil = prefsUtil;
         mLocale = locale;
-        mExchangeRateFactory = exchangeRateFactory;
     }
 
     /**

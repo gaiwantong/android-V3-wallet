@@ -13,8 +13,8 @@ import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
 import rx.observers.TestSubscriber;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Matchers.any;
 
 @Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
 @RunWith(RobolectricGradleTestRunner.class)
@@ -36,10 +36,11 @@ public class ReceiveDataManagerTest extends RxTest {
         // Act
         mSubject.generateQrCode(TEST_URI, 100).toBlocking().subscribe(subscriber);
         // Assert
-        subscriber.onNext(any(Bitmap.class));
-        assertEquals(100, subscriber.getOnNextEvents().get(0).getWidth());
-        assertEquals(100, subscriber.getOnNextEvents().get(0).getHeight());
-        subscriber.onCompleted();
+        Bitmap bitmap = subscriber.getOnNextEvents().get(0);
+        assertNotNull(bitmap);
+        assertEquals(100, bitmap.getWidth());
+        assertEquals(100, bitmap.getHeight());
+        subscriber.assertCompleted();
         subscriber.assertNoErrors();
     }
 

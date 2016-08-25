@@ -1,5 +1,7 @@
 package info.blockchain.wallet.view.helpers;
 
+import android.app.Application;
+
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
@@ -8,11 +10,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RuntimeEnvironment;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import piuk.blockchain.android.di.ApiModule;
+import piuk.blockchain.android.di.ApplicationModule;
+import piuk.blockchain.android.di.DataManagerModule;
+import piuk.blockchain.android.di.Injector;
+import piuk.blockchain.android.di.InjectorTestUtils;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
@@ -33,7 +42,14 @@ public class ReceiveCurrencyHelperTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        mSubject = new ReceiveCurrencyHelper(mMonetaryUtil, mPrefsUtil, Locale.UK, mExchangeRateFactory);
+        InjectorTestUtils.initApplicationComponent(
+                Injector.getInstance(),
+                new MockApplicationModule(RuntimeEnvironment.application),
+                new ApiModule(),
+                new DataManagerModule()
+        );
+
+        mSubject = new ReceiveCurrencyHelper(mMonetaryUtil, Locale.UK);
     }
 
     @Test
@@ -203,4 +219,19 @@ public class ReceiveCurrencyHelperTest {
         assertTrue(value);
     }
 
+    private class MockApplicationModule extends ApplicationModule {
+        MockApplicationModule(Application application) {
+            super(application);
+        }
+
+        @Override
+        protected ExchangeRateFactory provideExchangeRateFactory() {
+            return mExchangeRateFactory;
+        }
+
+        @Override
+        protected PrefsUtil providePrefsUtil() {
+            return mPrefsUtil;
+        }
+    }
 }

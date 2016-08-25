@@ -58,14 +58,15 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     private static final String TAG = ReceiveActivity.class.getSimpleName();
     private static final String LINK_ADDRESS_INFO = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
 
-    private ReceiveViewModel mViewModel;
-    private ActivityReceiveBinding mBinding;
+    // Package local to prevent creation of many synthetic accessor methods
+    ReceiveViewModel mViewModel;
+    ActivityReceiveBinding mBinding;
 
     private CustomKeypad mCustomKeypad;
     private BottomSheetBehavior mBottomSheetBehavior;
     private ArrayAdapter<String> mReceiveToAdapter;
 
-    private boolean mTextChangeAllowed = true;
+    boolean mTextChangeAllowed = true;
     private boolean mIsBTC = true;
     private boolean mShowInfoButton = false;
     private String mUri;
@@ -244,7 +245,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
     };
 
-    private void setKeyListener(Editable s, EditText editText) {
+    void setKeyListener(Editable s, EditText editText) {
         if (s.toString().contains(getDefaultDecimalSeparator())) {
             editText.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
         } else {
@@ -252,7 +253,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
     }
 
-    private Editable formatEditable(Editable s, String input, int maxLength, EditText editText) {
+    Editable formatEditable(Editable s, String input, int maxLength, EditText editText) {
         try {
             if (input.contains(getDefaultDecimalSeparator())) {
                 String dec = input.substring(input.indexOf(getDefaultDecimalSeparator()));
@@ -289,7 +290,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         }
     }
 
-    private void displayQRCode(int spinnerIndex) {
+    void displayQRCode(int spinnerIndex) {
         mBinding.content.accounts.spinner.setSelection(spinnerIndex);
 
         Object object = mViewModel.getAccountItemForPosition(spinnerIndex);
