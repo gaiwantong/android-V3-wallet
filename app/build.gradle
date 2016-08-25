@@ -4,7 +4,7 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.1'
+    buildToolsVersion '24.0.2'
 
     // Introduced to prevent crash during DEXing step since SDK 23, but also speeds up DEXing in general
     dexOptions {
@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "piuk.blockchain.android"
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode 222
         versionName "6.1.31"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,10 +28,25 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
             multiDexEnabled false
+            buildConfigField "boolean", "DOGFOOD", "false"
         }
         debug {
             resValue "string", "google_maps_key", "AIzaSyASTnx7wjsCTkMr_RtLQYTzMAf7A9SWIMw"
             multiDexEnabled true
+            buildConfigField "boolean", "DOGFOOD", "false"
+        }
+        dogfood {
+            signingConfig signingConfigs.debug
+            versionNameSuffix '-DOGFOOD'
+            applicationIdSuffix ".dogfood"
+            debuggable true
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
+            multiDexEnabled false
+            buildConfigField "boolean", "DOGFOOD", "true"
         }
     }
 

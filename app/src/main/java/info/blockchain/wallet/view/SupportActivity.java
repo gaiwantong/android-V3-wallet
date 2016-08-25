@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -8,8 +7,8 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.WindowManager;
 
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -29,8 +28,6 @@ public class SupportActivity extends BaseAuthActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_support);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         //TODO - don't use NoActionBar in styles.xml (affects BalanceFragment, so don't just edit styles.xml)
         binding.toolbarContainer.toolbarGeneral.setTitle(getResources().getString(R.string.contact_support));

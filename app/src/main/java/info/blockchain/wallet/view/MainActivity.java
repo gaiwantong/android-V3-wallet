@@ -27,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
@@ -61,8 +60,6 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         appUtil = new AppUtil(this);
 

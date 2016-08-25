@@ -3,7 +3,6 @@ package info.blockchain.wallet.view;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.WindowManager;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
@@ -13,8 +12,6 @@ public class SettingsActivity extends BaseAuthActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         setContentView(R.layout.activity_settings);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

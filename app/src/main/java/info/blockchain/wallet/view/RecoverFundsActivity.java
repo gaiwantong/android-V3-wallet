@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -28,7 +27,6 @@ public class RecoverFundsActivity extends BaseAuthActivity implements RecoverFun
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_recover_funds);
         mViewModel = new RecoverFundsViewModel(this);
