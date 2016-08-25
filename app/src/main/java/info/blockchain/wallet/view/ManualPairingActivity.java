@@ -11,7 +11,6 @@ import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -31,7 +30,6 @@ public class ManualPairingActivity extends BaseAuthActivity implements ManualPai
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_manual_pairing);
         mViewModel = new ManualPairingViewModel(this);

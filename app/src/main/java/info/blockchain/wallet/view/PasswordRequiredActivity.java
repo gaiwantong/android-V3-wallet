@@ -10,7 +10,6 @@ import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
-import android.view.WindowManager;
 
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -35,7 +34,6 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_password_required);
         mViewModel = new PasswordRequiredViewModel(this);

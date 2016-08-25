@@ -4,7 +4,6 @@ import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.WindowManager;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
@@ -22,8 +21,6 @@ public class BackupWalletActivity extends BaseAuthActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_backup_wallet);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar_general);
         toolbar.setTitle(getResources().getString(R.string.backup_wallet));
