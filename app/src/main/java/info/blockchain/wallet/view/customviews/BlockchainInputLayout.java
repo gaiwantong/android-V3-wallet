@@ -1,7 +1,11 @@
 package info.blockchain.wallet.view.customviews;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -36,7 +40,16 @@ public class BlockchainInputLayout extends TextInputLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        setVectorDrawableIfRequired();
         initListener();
+    }
+
+    private void setVectorDrawableIfRequired() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.asl_password_visibility);
+            drawable.setTint(ResourcesCompat.getColor(getResources(), R.color.blockchain_light_grey, getContext().getTheme()));
+            setPasswordVisibilityToggleDrawable(drawable);
+        }
     }
 
     private void initListener() {
@@ -65,7 +78,7 @@ public class BlockchainInputLayout extends TextInputLayout {
         new AlertDialog.Builder(getContext(), R.style.AlertDialogStyle)
                 .setTitle(R.string.app_name)
                 .setCancelable(false)
-                .setMessage("DANGER WILL ROBINSON")
+                .setMessage(R.string.password_reveal_warning)
                 .setNegativeButton(android.R.string.cancel, (dialog, which) -> mPasswordWarningSeen = false)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> toggle.performClick())
                 .create()
