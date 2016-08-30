@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -19,21 +18,21 @@ import piuk.blockchain.android.R;
  * It warns users once that revealing their password allows clipboard access, and passes a touch
  * event if a user allows it.
  */
-public class BlockchainInputLayout extends TextInputLayout {
+public class AnimatedPasswordInputLayout extends TextInputLayout {
 
     private ImageButton mToggle;
     // Shared across all instances
     private static boolean mPasswordWarningSeen = false;
 
-    public BlockchainInputLayout(Context context) {
+    public AnimatedPasswordInputLayout(Context context) {
         this(context, null);
     }
 
-    public BlockchainInputLayout(Context context, AttributeSet attrs) {
+    public AnimatedPasswordInputLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BlockchainInputLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AnimatedPasswordInputLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -47,7 +46,7 @@ public class BlockchainInputLayout extends TextInputLayout {
     private void setVectorDrawableIfRequired() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.asl_password_visibility);
-            drawable.setTint(ResourcesCompat.getColor(getResources(), R.color.blockchain_light_grey, getContext().getTheme()));
+            drawable.setTint(ContextCompat.getColor(getContext(), R.color.blockchain_grey));
             setPasswordVisibilityToggleDrawable(drawable);
         }
     }

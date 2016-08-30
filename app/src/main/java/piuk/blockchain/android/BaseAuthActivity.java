@@ -2,6 +2,7 @@ package piuk.blockchain.android;
 
 import android.support.annotation.CallSuper;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 
 import info.blockchain.wallet.access.AccessState;
 
