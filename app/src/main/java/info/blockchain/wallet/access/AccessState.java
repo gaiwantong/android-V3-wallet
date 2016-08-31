@@ -71,7 +71,7 @@ public class AccessState {
 
             JSONObject json = accessApi.setAccess(key, value, mPin);
             if (json.get("success") != null) {
-                String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(value), AESUtil.PinPbkdf2Iterations);
+                String encrypted_password = AESUtil.encrypt(password.toString(), new CharSequenceX(value), AESUtil.PIN_PBKDF2_ITERATIONS);
                 prefs.setValue(PrefsUtil.KEY_ENCRYPTED_PASSWORD, encrypted_password);
                 prefs.setValue(PrefsUtil.KEY_PIN_IDENTIFIER, key);
                 return true;
@@ -98,7 +98,7 @@ public class AccessState {
         try {
             final JSONObject json = accessApi.validateAccess(key, mPin);
             String decryptionKey = (String) json.get("success");
-            return new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PinPbkdf2Iterations));
+            return new CharSequenceX(AESUtil.decrypt(encrypted_password, new CharSequenceX(decryptionKey), AESUtil.PIN_PBKDF2_ITERATIONS));
         } catch (UnsupportedEncodingException uee) {
             throw uee;
         } catch (Exception e) {
