@@ -46,6 +46,7 @@ import info.blockchain.wallet.viewModel.SendViewModel;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.annotations.Thunk;
 import piuk.blockchain.android.databinding.ActivitySendBinding;
 import piuk.blockchain.android.databinding.AlertGenericWarningBinding;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
@@ -53,14 +54,13 @@ import piuk.blockchain.android.databinding.FragmentSendConfirmBinding;
 
 public class SendActivity extends BaseAuthActivity implements SendViewModel.DataListener, CustomKeypadCallback {
 
-    private final String TAG = getClass().getSimpleName();
     private final int SCAN_URI = 2007;
     private final int SCAN_PRIVX = 2008;
 
-    private ActivitySendBinding binding;
-    private SendViewModel viewModel;
+    @Thunk ActivitySendBinding binding;
+    @Thunk SendViewModel viewModel;
 
-    private static CustomKeypad customKeypad;
+    private CustomKeypad customKeypad;
 
     private TextWatcher btcTextWatcher = null;
     private TextWatcher fiatTextWatcher = null;
@@ -89,7 +89,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         binding.setViewModel(viewModel);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         setupToolbar();
@@ -289,7 +288,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
         binding.accounts.spinner.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false), true));
 
-        //Set drop down width equal to clickable view
+        // Set drop down width equal to clickable view
         binding.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
@@ -305,7 +304,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                 }
             }
         });
-
         binding.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -328,7 +326,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     private void setupReceiveToView() {
         binding.spDestination.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true), false));
 
-        //Set drop down width equal to clickable view
+        // Set drop down width equal to clickable view
         binding.spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
@@ -339,7 +337,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                     binding.spDestination.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                if(binding.accounts.spinner.getWidth() > 0)
+                if (binding.accounts.spinner.getWidth() > 0)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         binding.spDestination.setDropDownWidth(binding.accounts.spinner.getWidth());
                     }
@@ -640,6 +638,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         });
 
         alertDialog.show();
+        // To prevent the dialog from appearing too large on Android N
+        alertDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
 
         if(viewModel.isLargeTransaction()){
             onShowLargeTransactionWarning(alertDialog);

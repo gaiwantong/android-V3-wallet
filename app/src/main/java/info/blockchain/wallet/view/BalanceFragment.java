@@ -265,11 +265,11 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     /**
-     * Only available for dev and qa builds
+     * Only available for Dogfood build
      */
     private void initDebugFab() {
 
-        if(!BuildConfig.FLAVOR.equals("prod")) {
+        if(BuildConfig.DOGFOOD) {
             binding.fabDebug.setVisibility(View.VISIBLE);
 
             com.getbase.floatingactionbutton.FloatingActionButton actionC = new com.getbase.floatingactionbutton.FloatingActionButton(context);
