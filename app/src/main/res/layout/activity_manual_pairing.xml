@@ -46,7 +46,7 @@
 
                 </android.support.design.widget.TextInputLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <info.blockchain.wallet.view.customviews.AnimatedPasswordInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -62,7 +62,7 @@
                             android:imeOptions="actionGo"
                             android:hint="@string/password"/>
 
-                </android.support.design.widget.TextInputLayout>
+                </info.blockchain.wallet.view.customviews.AnimatedPasswordInputLayout>
 
                 <TextView
                         android:layout_width="match_parent"
