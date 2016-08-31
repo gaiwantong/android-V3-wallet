@@ -17,6 +17,7 @@ android {
         versionCode 222
         versionName "6.1.31"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -111,7 +112,6 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'commons-codec:commons-codec:1.10'
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
     compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'

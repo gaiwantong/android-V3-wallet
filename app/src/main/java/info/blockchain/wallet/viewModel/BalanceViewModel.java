@@ -412,7 +412,7 @@ public class BalanceViewModel extends BaseObservable implements ViewModel {
 
         //Update Balance
         String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        double btc_fx = ExchangeRateFactory.getInstance().getLastPrice(context, strFiat);
+        double btc_fx = ExchangeRateFactory.getInstance().getLastPrice(strFiat);
         fiat_balance = btc_fx * (btc_balance / 1e8);
 
         String balanceTotal = "";

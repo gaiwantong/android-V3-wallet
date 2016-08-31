@@ -203,7 +203,7 @@ public class PasswordRequiredViewModel implements ViewModel {
     @Override
     public void destroy() {
         // Clear all subscriptions so that:
-        // 1) all processes stop and no memory is leaked
+        // 1) all processes are cancelled
         // 2) processes don't try to update a null View
         // 3) background processes don't leak memory
         mCompositeSubscription.clear();

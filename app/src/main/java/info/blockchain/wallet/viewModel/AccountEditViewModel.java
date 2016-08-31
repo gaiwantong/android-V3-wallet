@@ -368,7 +368,7 @@ public class AccountEditViewModel implements ViewModel{
 
         String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         String btcUnit =  monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, fiatUnit);
+        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(fiatUnit);
 
         details.btcAmount = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntAmount.longValue());
         details.btcFee = monetaryUtil.getDisplayAmount(pendingTransaction.bigIntFee.longValue());

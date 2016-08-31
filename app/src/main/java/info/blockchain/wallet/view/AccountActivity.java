@@ -1160,7 +1160,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         String fiatUnit = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
         String btcUnit =  monetaryUtil.getBTCUnit(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
-        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(context, fiatUnit);
+        double exchangeRate = ExchangeRateFactory.getInstance().getLastPrice(fiatUnit);
 
         String fiatAmount = monetaryUtil.getFiatFormat(fiatUnit).format(exchangeRate * ((double) totalBalance / 1e8));
         String fiatFee = monetaryUtil.getFiatFormat(fiatUnit).format(exchangeRate * ((double) totalFee / 1e8));
