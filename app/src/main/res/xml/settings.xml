@@ -33,6 +33,10 @@
                 android:title="@string/email_notifications"
                 android:key="email_notifications"
         />
+        <SwitchPreferenceCompat
+                android:title="@string/sms_notifications"
+                android:key="sms_notifications"
+        />
     </PreferenceCategory>
 
     <PreferenceCategory
