@@ -287,6 +287,23 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     private void setupSendFromView() {
 
         binding.accounts.spinner.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false), true));
+
+        // Set drop down width equal to clickable view
+        binding.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    binding.accounts.spinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    binding.accounts.spinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    binding.accounts.spinner.setDropDownWidth(binding.accounts.spinner.getWidth());
+                }
+            }
+        });
         binding.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -309,7 +326,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     private void setupReceiveToView() {
         binding.spDestination.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true), false));
 
-        //Set drop down width equal to clickable view
+        // Set drop down width equal to clickable view
         binding.spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
             @Override
@@ -320,7 +337,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
                     binding.spDestination.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
 
-                if(binding.accounts.spinner.getWidth() > 0)
+                if (binding.accounts.spinner.getWidth() > 0)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         binding.spDestination.setDropDownWidth(binding.accounts.spinner.getWidth());
                     }
