@@ -18,7 +18,8 @@
             android:allowBackup="false"
             android:theme="@style/AppTheme">
 
-        <activity android:name=".LauncherActivity"
+        <activity
+                android:name=".LauncherActivity"
                 android:configChanges="keyboardHidden|orientation|screenSize">
 
             <intent-filter>
