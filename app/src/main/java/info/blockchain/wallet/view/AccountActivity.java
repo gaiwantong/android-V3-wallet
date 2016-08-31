@@ -151,8 +151,6 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         viewModel = new AccountViewModel(this, this);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-
         initToolbar();
 
         setupViews();

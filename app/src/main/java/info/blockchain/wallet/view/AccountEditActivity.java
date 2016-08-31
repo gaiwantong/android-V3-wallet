@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import info.blockchain.wallet.model.AccountEditModel;
@@ -59,8 +58,6 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
         viewModel = new AccountEditViewModel(new AccountEditModel(), this, this);
         binding.setViewModel(viewModel);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         setupToolbar();
         viewModel.setDataFromIntent(getIntent());
