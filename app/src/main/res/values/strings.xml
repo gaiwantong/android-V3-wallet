@@ -58,6 +58,7 @@
     <string name="invalid_password">Invalid password</string>
     <string name="invalid_guid">Invalid Wallet ID</string>
     <string name="password_mismatch_error">Passwords do not match</string>
+    <string name="change_password_new_matches_current">You can\'t use your current password as your new password</string>
 
     <string name="no_private_key">Cannot produce private key.</string>
     <string name="pin_4_strikes">4 failed PIN attempts. Please provide password.</string>
