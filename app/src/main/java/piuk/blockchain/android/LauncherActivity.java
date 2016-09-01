@@ -13,6 +13,8 @@ import info.blockchain.wallet.view.PasswordRequiredActivity;
 import info.blockchain.wallet.view.PinEntryActivity;
 import info.blockchain.wallet.view.UpgradeWalletActivity;
 
+import piuk.blockchain.android.annotations.Thunk;
+
 /**
  * Created by adambennett on 09/08/2016.
  */
@@ -32,7 +34,7 @@ public class LauncherActivity extends AppCompatActivity implements LauncherViewM
         handler.postDelayed(new DelayStartRunnable(this), 500);
     }
 
-    private void onViewReady() {
+    @Thunk void onViewReady() {
         mViewModel.onViewReady();
     }
 
