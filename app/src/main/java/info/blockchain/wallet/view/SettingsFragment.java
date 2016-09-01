@@ -1,9 +1,11 @@
 package info.blockchain.wallet.view;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,6 +15,7 @@ import android.os.Looper;
 import android.support.annotation.UiThread;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
@@ -25,6 +28,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +75,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private Preference unitsPref;
     private Preference fiatPref;
     private SwitchPreferenceCompat emailNotificationPref;
+    private SwitchPreferenceCompat smsNotificationPref;
 
     //Security
     private Preference pinPref;
@@ -93,6 +98,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     // Flag for setting 2FA after phone confirmation
     private boolean show2FaAfterPhoneVerified = false;
 
+    protected BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+
+            if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
+                fetchUpdatedSettings();
+            }
+        }
+    };
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +116,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
         prefsUtil = new PrefsUtil(getActivity());
         monetaryUtil = new MonetaryUtil(prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
+        fetchUpdatedSettings();
+    }
+
+    private void fetchUpdatedSettings(){
         new AsyncTask<Void, Void, Void>() {
 
             ProgressDialog progress;
@@ -135,6 +154,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
             }
 
         }.execute();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(BalanceFragment.ACTION_INTENT);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
+        super.onPause();
     }
 
     @Override
@@ -191,10 +223,34 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
             emailNotificationPref = (SwitchPreferenceCompat) findPreference("email_notifications");
             if (settingsApi.isEmailVerified()) {
-                emailNotificationPref.setChecked(settingsApi.isNotificationsOn());
                 emailNotificationPref.setOnPreferenceClickListener(this);
             } else {
                 preferencesCategory.removePreference(emailNotificationPref);
+            }
+
+            smsNotificationPref = (SwitchPreferenceCompat) findPreference("sms_notifications");
+            if (settingsApi.isSmsVerified()) {
+                smsNotificationPref.setOnPreferenceClickListener(this);
+            } else {
+                preferencesCategory.removePreference(smsNotificationPref);
+            }
+
+            emailNotificationPref.setChecked(false);
+            smsNotificationPref.setChecked(false);
+
+            if (settingsApi.isNotificationsOn() && settingsApi.getNotificationTypes().size() > 0) {
+                for (int type : settingsApi.getNotificationTypes()) {
+                    if (type == Settings.NOTIFICATION_TYPE_EMAIL) {
+                        emailNotificationPref.setChecked(true);
+                    }
+
+                    if (type == Settings.NOTIFICATION_TYPE_SMS) {
+                        smsNotificationPref.setChecked(true);
+                    }
+                }
+            } else {
+                emailNotificationPref.setChecked(false);
+                smsNotificationPref.setChecked(false);
             }
 
             //Security
@@ -263,7 +319,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                         public void onSuccess() {
                             handler.post(() -> {
                                 listener.onSuccess();
-                                updateEmailNotification(false);
+                                updateNotification(false, Settings.NOTIFICATION_TYPE_EMAIL);
                                 refreshList();
                             });
                         }
@@ -294,6 +350,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                         @Override
                         public void onSuccess() {
                             handler.post(() -> {
+                                updateNotification(false, Settings.NOTIFICATION_TYPE_SMS);
                                 refreshList();
                                 showDialogVerifySms();
                             });
@@ -438,39 +495,55 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     @UiThread
-    private void updateEmailNotification(final boolean enabled){
-        Handler handler = new Handler(Looper.getMainLooper());
-        new BackgroundExecutor(getActivity(),
-                () -> settingsApi.enableNotifications(enabled, new Settings.ResultListener() {
-                    @Override
-                    public void onSuccess() {
-                        handler.post(() -> emailNotificationPref.setChecked(enabled));
-                    }
+    private void updateNotification(final boolean enabled, int notificationType){
 
-                    @Override
-                    public void onFail() {
-                        ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                    }
+        if(enabled){
 
-                    @Override
-                    public void onBadRequest() {
-
-                    }
-                })).execute();
-
-        if (enabled) {
+            Handler handler = new Handler(Looper.getMainLooper());
             new BackgroundExecutor(getActivity(),
-                    () -> settingsApi.setNotificationType(Settings.NOTIFICATION_TYPE_EMAIL, new Settings.ResultListener() {
+                    () -> settingsApi.enableNotification(notificationType, new Settings.ResultListener() {
                         @Override
                         public void onSuccess() {
+                            if(notificationType == Settings.NOTIFICATION_TYPE_EMAIL) {
+                                handler.post(() -> emailNotificationPref.setChecked(enabled));
+                            }else if(notificationType == Settings.NOTIFICATION_TYPE_SMS){
+                                handler.post(() -> smsNotificationPref.setChecked(enabled));
+                            }
                         }
 
                         @Override
                         public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                         }
 
                         @Override
                         public void onBadRequest() {
+
+                        }
+                    })).execute();
+
+        }else{
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            new BackgroundExecutor(getActivity(),
+                    () -> settingsApi.disableNotification(notificationType, new Settings.ResultListener() {
+                        @Override
+                        public void onSuccess() {
+                            if(notificationType == Settings.NOTIFICATION_TYPE_EMAIL) {
+                                handler.post(() -> emailNotificationPref.setChecked(enabled));
+                            }else if(notificationType == Settings.NOTIFICATION_TYPE_SMS){
+                                handler.post(() -> smsNotificationPref.setChecked(enabled));
+                            }
+                        }
+
+                        @Override
+                        public void onFail() {
+                            ToastCustom.makeText(getActivity(), getString(R.string.update_failed), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                        }
+
+                        @Override
+                        public void onBadRequest() {
+
                         }
                     })).execute();
         }
@@ -510,6 +583,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
             case "email_notifications":
                 showDialogEmailNotifications();
+                break;
+
+            case "sms_notifications":
+                showDialogSmsNotifications();
                 break;
 
             case "mobile":
@@ -846,8 +923,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 .setTitle(R.string.email_notifications)
                 .setMessage(R.string.email_notifications_summary)
                 .setCancelable(false)
-                .setPositiveButton(R.string.enable, (dialogInterface, i) -> updateEmailNotification(true))
-                .setNegativeButton(R.string.disable, (dialogInterface, i) -> updateEmailNotification(false))
+                .setPositiveButton(R.string.enable, (dialogInterface, i) -> updateNotification(true, Settings.NOTIFICATION_TYPE_EMAIL))
+                .setNegativeButton(R.string.disable, (dialogInterface, i) -> updateNotification(false, Settings.NOTIFICATION_TYPE_EMAIL))
+                .create()
+                .show();
+    }
+
+    private void showDialogSmsNotifications() {
+        new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                .setTitle(R.string.sms_notifications)
+                .setMessage(R.string.sms_notifications_summary)
+                .setCancelable(false)
+                .setPositiveButton(R.string.enable, (dialogInterface, i) -> updateNotification(true, Settings.NOTIFICATION_TYPE_SMS))
+                .setNegativeButton(R.string.disable, (dialogInterface, i) -> updateNotification(false, Settings.NOTIFICATION_TYPE_SMS))
                 .create()
                 .show();
     }
