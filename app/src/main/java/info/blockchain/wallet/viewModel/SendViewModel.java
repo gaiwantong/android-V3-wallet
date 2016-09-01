@@ -14,6 +14,7 @@ import info.blockchain.api.Unspent;
 import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
 import info.blockchain.wallet.cache.DynamicFeeCache;
+import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
 import info.blockchain.wallet.model.PendingTransaction;
@@ -70,7 +71,6 @@ public class SendViewModel implements ViewModel {
 
     private PayloadManager payloadManager;
     private MonetaryUtil monetaryUtil;
-
     private Payment payment;
     public SendModel sendModel;
 
@@ -79,8 +79,8 @@ public class SendViewModel implements ViewModel {
     private final static int SHOW_BTC = 1;
     private final static int SHOW_FIAT = 2;
 
-    @Inject
-    protected PrefsUtil prefsUtil;
+    @Inject PrefsUtil prefsUtil;
+    @Inject WalletAccountHelper walletAccountHelper;
 
     public SendViewModel(Context context, DataListener dataListener) {
 
@@ -170,65 +170,23 @@ public class SendViewModel implements ViewModel {
 
     /**
      * Returns a list of accounts, legacy addresses and optionally Address Book entries
-     * @param includeAddressBookEntries
+     * @param includeAddressBookEntries Whether or not to include a user's Address book
      * @return List of account details (balance, label, tag, account/address/address_book object)
      */
     public List<ItemAccount> getAddressList(boolean includeAddressBookEntries) {
 
-        ArrayList<ItemAccount> result = new ArrayList<>();
+        ArrayList<ItemAccount> result = new ArrayList<ItemAccount>() {{
+            addAll(walletAccountHelper.getAccountItems(sendModel.isBTC));
+        }};
 
-        //V3
-        if (payloadManager.getPayload().isUpgraded()) {
-
-            List<Account> accounts = payloadManager.getPayload().getHdWallet().getAccounts();
-            for (Account account : accounts) {
-
-                if (account.isArchived())
-                    continue;//skip archived account
-
-                if (MultiAddrFactory.getInstance().getXpubAmounts().containsKey(account.getXpub())) {
-                    result.add(new ItemAccount(account.getLabel(), getAccountBalance(account, sendModel.isBTC), null, account));
-                }
-            }
-        }
-
-        //V2
-        List<LegacyAddress> legacyAddresses = payloadManager.getPayload().getLegacyAddresses();
-        for (LegacyAddress legacyAddress : legacyAddresses) {
-
-            if (legacyAddress.getTag() == PayloadManager.ARCHIVED_ADDRESS)
-                continue;//skip archived
-
-            //If address has no label, we'll display address
-            String labelOrAddress = legacyAddress.getLabel();
-            if(labelOrAddress == null || labelOrAddress.trim().isEmpty()){
-                labelOrAddress = legacyAddress.getAddress();
-            }
-
-            //Watch-only tag - we'll ask for xpriv scan when spending from
-            String tag = null;
-            if(legacyAddress.isWatchOnly()){
-                tag = context.getResources().getString(R.string.watch_only);
-            }
-
-            result.add(new ItemAccount(labelOrAddress, getAddressBalance(legacyAddress, sendModel.isBTC), tag, legacyAddress));
-        }
-
-        if(result.size() == 1){
+        if (result.size() == 1) {
             //Only a single account/address available in wallet
             dataListener.onHideSendingAddressField();
         }
 
         //Address Book (only included in receiving)
-        if(includeAddressBookEntries) {
-            List<AddressBookEntry> addressBookEntries = payloadManager.getPayload().getAddressBookEntries();
-            for (AddressBookEntry addressBookEntry : addressBookEntries) {
-
-                //If address has no label, we'll display address
-                String labelOrAddress = addressBookEntry.getLabel() == null || addressBookEntry.getLabel().length() == 0 ? addressBookEntry.getAddress() : addressBookEntry.getLabel();
-
-                result.add(new ItemAccount(labelOrAddress, "", context.getResources().getString(R.string.address_book_label), addressBookEntry));
-            }
+        if (includeAddressBookEntries) {
+            result.addAll(walletAccountHelper.getAddressBookEntries());
         }
 
         if (result.size() == 1) {
@@ -237,30 +195,6 @@ public class SendViewModel implements ViewModel {
         }
 
         return result;
-    }
-
-    private String getAccountBalance(Account account, boolean isBTC){
-
-        long btcBalance = MultiAddrFactory.getInstance().getXpubAmounts().get(account.getXpub());
-
-        if(!isBTC){
-            double fiatBalance = sendModel.btcExchange * (btcBalance / 1e8);
-            return "(" + monetaryUtil.getFiatFormat(sendModel.fiatUnit).format(fiatBalance) + " " + sendModel.fiatUnit + ")";
-        }else {
-            return "(" + monetaryUtil.getDisplayAmount(btcBalance) + " " + sendModel.btcUnit + ")";
-        }
-    }
-
-    private String getAddressBalance(LegacyAddress legacyAddress, boolean isBTC){
-
-        long btcBalance = MultiAddrFactory.getInstance().getLegacyBalance(legacyAddress.getAddress());
-
-        if(!isBTC){
-            double fiatBalance = sendModel.btcExchange * (btcBalance / 1e8);
-            return  "(" + monetaryUtil.getFiatFormat(sendModel.fiatUnit).format(fiatBalance) + " " + sendModel.fiatUnit + ")";
-        }else {
-            return  "(" + monetaryUtil.getDisplayAmount(btcBalance) + " " + sendModel.btcUnit + ")";
-        }
     }
 
     /**

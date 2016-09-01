@@ -70,8 +70,8 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
         public void onReceive(final Context context, final Intent intent) {
 
             if (BalanceFragment.ACTION_INTENT.equals(intent.getAction())) {
-                ((SendAddressAdapter) binding.accounts.spinner.getAdapter()).updateData(viewModel.getAddressList(false));
-                ((SendAddressAdapter) binding.spDestination.getAdapter()).updateData(viewModel.getAddressList(true));
+                ((AddressAdapter) binding.accounts.spinner.getAdapter()).updateData(viewModel.getAddressList(false));
+                ((AddressAdapter) binding.spDestination.getAdapter()).updateData(viewModel.getAddressList(true));
             }
         }
     };
@@ -286,7 +286,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
 
     private void setupSendFromView() {
 
-        binding.accounts.spinner.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false), true));
+        binding.accounts.spinner.setAdapter(new AddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(false), true));
 
         // Set drop down width equal to clickable view
         binding.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -324,7 +324,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     }
 
     private void setupReceiveToView() {
-        binding.spDestination.setAdapter(new SendAddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true), false));
+        binding.spDestination.setAdapter(new AddressAdapter(this, R.layout.spinner_item, viewModel.getAddressList(true), false));
 
         // Set drop down width equal to clickable view
         binding.spDestination.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

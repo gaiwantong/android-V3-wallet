@@ -5,6 +5,7 @@ import android.app.Application;
 import android.graphics.Bitmap;
 
 import info.blockchain.wallet.datamanagers.ReceiveDataManager;
+import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.HDWallet;
 import info.blockchain.wallet.payload.LegacyAddress;
@@ -16,6 +17,7 @@ import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.StringUtils;
 import info.blockchain.wallet.view.ReceiveActivity;
 import info.blockchain.wallet.view.helpers.ReceiveCurrencyHelper;
+import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +31,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +68,7 @@ public class ReceiveViewModelTest {
     @Mock StringUtils mStringUtils;
     @Mock ReceiveDataManager mDataManager;
     @Mock ExchangeRateFactory mExchangeRateFactory;
+    @Mock WalletAccountHelper mWalletAccountHelper;
     @Mock private ReceiveActivity mActivity;
 
     @Before
@@ -114,7 +118,6 @@ public class ReceiveViewModelTest {
         mSubject.onViewReady();
         // Assert
         verify(mActivity).onSpinnerDataChanged();
-        assertEquals(5, mSubject.getReceiveToList().size());
         assertEquals(5, mSubject.mAccountMap.size());
         assertEquals(2, mSubject.mSpinnerIndexMap.size());
     }
@@ -122,13 +125,15 @@ public class ReceiveViewModelTest {
     @Test
     public void getReceiveToList() throws Exception {
         // Arrange
-
+        when(mWalletAccountHelper.getAccountItems(anyBoolean())).thenReturn(Collections.emptyList());
+        when(mWalletAccountHelper.getAddressBookEntries()).thenReturn(Collections.emptyList());
         // Act
-        List<String> values = mSubject.getReceiveToList();
+        List<ItemAccount> values = mSubject.getReceiveToList();
         // Assert
         assertNotNull(values);
-        assertEquals(values, mSubject.mReceiveToList);
         assertTrue(values.isEmpty());
+        verify(mWalletAccountHelper).getAccountItems(true);
+        verify(mWalletAccountHelper).getAddressBookEntries();
     }
 
     @Test
@@ -411,6 +416,11 @@ public class ReceiveViewModelTest {
         @Override
         protected ReceiveDataManager provideReceiveDataManager() {
             return mDataManager;
+        }
+
+        @Override
+        protected WalletAccountHelper provideWalletAccountHelper() {
+            return mWalletAccountHelper;
         }
     }
 }
