@@ -16,6 +16,8 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 
 import info.blockchain.wallet.datamanagers.ReceiveDataManager;
+import info.blockchain.wallet.view.helpers.WalletAccountHelper;
+import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.payload.Account;
 import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -53,13 +55,13 @@ public class ReceiveViewModel implements ViewModel {
     private static final int DIMENSION_QR_CODE = 260;
 
     private DataListener mDataListener;
-    @Inject protected PayloadManager mPayloadManager;
-    @Inject protected AppUtil mAppUtil;
-    @Inject protected PrefsUtil mPrefsUtil;
-    @Inject protected StringUtils mStringUtils;
-    @Inject protected ReceiveDataManager mDataManager;
+    @Inject PayloadManager mPayloadManager;
+    @Inject AppUtil mAppUtil;
+    @Inject PrefsUtil mPrefsUtil;
+    @Inject StringUtils mStringUtils;
+    @Inject ReceiveDataManager mDataManager;
+    @Inject WalletAccountHelper mWalletAccountHelper;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
-    @VisibleForTesting List<String> mReceiveToList;
     @VisibleForTesting HashBiMap<Integer, Object> mAccountMap;
     @VisibleForTesting SparseIntArray mSpinnerIndexMap;
     private ReceiveCurrencyHelper mCurrencyHelper;
@@ -86,11 +88,11 @@ public class ReceiveViewModel implements ViewModel {
         Injector.getInstance().getAppComponent().inject(this);
         mDataListener = listener;
         mCompositeSubscription = new CompositeSubscription();
-        mCurrencyHelper = new ReceiveCurrencyHelper(
-                new MonetaryUtil(mPrefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)),
-                locale);
 
-        mReceiveToList = new ArrayList<>();
+        int btcUnitType = mPrefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC);
+        MonetaryUtil monetaryUtil = new MonetaryUtil(btcUnitType);
+        mCurrencyHelper = new ReceiveCurrencyHelper(monetaryUtil, locale);
+
         mAccountMap = HashBiMap.create();
         mSpinnerIndexMap = new SparseIntArray();
     }
@@ -100,8 +102,11 @@ public class ReceiveViewModel implements ViewModel {
     }
 
     @NonNull
-    public List<String> getReceiveToList() {
-        return mReceiveToList;
+    public List<ItemAccount> getReceiveToList() {
+        return new ArrayList<ItemAccount>() {{
+            addAll(mWalletAccountHelper.getAccountItems(true));
+            addAll(mWalletAccountHelper.getAddressBookEntries());
+        }};
     }
 
     @NonNull
@@ -110,7 +115,6 @@ public class ReceiveViewModel implements ViewModel {
     }
 
     public void updateSpinnerList() {
-        mReceiveToList.clear();
         mAccountMap.clear();
         mSpinnerIndexMap.clear();
 
@@ -129,7 +133,6 @@ public class ReceiveViewModel implements ViewModel {
                     // Skip archived account
                     continue;
 
-                mReceiveToList.add(item.getLabel());
                 mAccountMap.put(spinnerIndex, item);
                 spinnerIndex++;
             }
@@ -143,16 +146,6 @@ public class ReceiveViewModel implements ViewModel {
                 // Skip archived address
                 continue;
 
-            // If address has no label, display address instead
-            String labelOrAddress = legacyAddress.getLabel() == null
-                    || legacyAddress.getLabel().length() == 0 ? legacyAddress.getAddress() : legacyAddress.getLabel();
-
-            // Prefix "watch-only"
-            if (legacyAddress.isWatchOnly()) {
-                labelOrAddress = mStringUtils.getString(R.string.watch_only_label) + " " + labelOrAddress;
-            }
-
-            mReceiveToList.add(labelOrAddress);
             mAccountMap.put(spinnerIndex, legacyAddress);
             spinnerIndex++;
         }

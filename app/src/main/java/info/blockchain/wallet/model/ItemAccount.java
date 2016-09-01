@@ -11,7 +11,7 @@ public class ItemAccount {
 
     public Object accountObject;
 
-    public ItemAccount(@NonNull String label, @NonNull String balance, @NonNull String tag, @Nullable Object accountObject) {
+    public ItemAccount(@NonNull String label, @NonNull String balance, @Nullable String tag, @Nullable Object accountObject) {
         this.label = label;
         this.balance = balance;
         this.tag = tag;

@@ -5,6 +5,7 @@ import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.view.helpers.ReceiveCurrencyHelper;
+import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -63,4 +64,6 @@ public interface ApplicationComponent {
     void inject(ExchangeRateFactory exchangeRateFactory);
 
     void inject(ReceiveCurrencyHelper receiveCurrencyHelper);
+
+    void inject(WalletAccountHelper walletAccountHelper);
 }
