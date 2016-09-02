@@ -31,7 +31,7 @@ public class SSLVerifierTest extends BlockchainTest {
     /**
      * Test something
      */
-    public void test() {
+    public void _test() {
 
         checkCertificatePinning();
     }
