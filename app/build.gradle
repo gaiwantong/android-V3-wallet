@@ -18,6 +18,7 @@ android {
         versionName "6.1.31"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        archivesBaseName = "blockchain-$versionName"
     }
 
     buildTypes {
@@ -30,14 +31,6 @@ android {
             resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
             multiDexEnabled false
             buildConfigField "boolean", "DOGFOOD", "false"
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    project.ext { appName = 'blockchain' }
-                    def newName = output.outputFile.name
-                    newName = newName.replace("app-", "$project.ext.appName-${variant.versionName}-")
-                    output.outputFile = new File(output.outputFile.parent, newName)
-                }
-            }
         }
         debug {
             resValue "string", "google_maps_key", "AIzaSyASTnx7wjsCTkMr_RtLQYTzMAf7A9SWIMw"
@@ -47,6 +40,7 @@ android {
         dogfood {
             signingConfig signingConfigs.debug
             applicationIdSuffix ".dogfood"
+            versionNameSuffix '-DOGFOOD'
             debuggable true
             minifyEnabled true
             zipAlignEnabled true
@@ -55,14 +49,6 @@ android {
             resValue "string", "google_maps_key", "AIzaSyB_5WN2exwvF4pqQ6rW6JdkHcYWjZOim4w"
             multiDexEnabled false
             buildConfigField "boolean", "DOGFOOD", "true"
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    project.ext { appName = 'blockchain' }
-                    def newName = output.outputFile.name
-                    newName = newName.replace("app-", "$project.ext.appName-DOGFOOD-${variant.versionName}-")
-                    output.outputFile = new File(output.outputFile.parent, newName)
-                }
-            }
         }
     }
 
