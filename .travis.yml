@@ -3,6 +3,8 @@ language: android
 jdk:
   - oraclejdk8
 
+sudo: required
+
 android:
   components:
     # Use the latest revision of Android SDK Tools
@@ -21,10 +23,11 @@ android:
     - extra-android-m2repository
 
     # System images for UI tests
-    - sys-img-armeabi-v7a-android-19
+    - sys-img-armeabi-v7a-android-21
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
     - $HOME/.gradle/caches/
@@ -33,13 +36,13 @@ cache:
 # Emulator Management: Create, Start and Wait
 env:
   matrix:
-    - ANDROID_SDKS=android-19,sysimg-19  ANDROID_TARGET=android-19  ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=android-21,sysimg-21  ANDROID_TARGET=android-21  ANDROID_ABI=armeabi-v7a
 before_install:
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
 before_script:
-  - ./ci/wait_for_emulator
+  - android-wait-for-emulator
   - adb shell input keyevent 82 &
 
 script:
-  - ./gradlew assembleProdRelease testProdReleaseUnitTest connectedCheck
+  - ./gradlew assembleProdRelease connectedCheck --no-daemon -Dpre-dex=false --stacktrace

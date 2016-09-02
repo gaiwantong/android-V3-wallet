@@ -78,10 +78,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     dataBinding {
         enabled = true
     }
@@ -91,6 +87,7 @@ android {
         testLogging {
             events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
         }
+        reports.junitXml.destination = file('../build/test-results/')
         // This allows "unstable" builds on CI rather than straight failures
         ignoreFailures true
     }
@@ -148,7 +145,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple:1.7.13'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile ('org.robolectric:robolectric:3.1') {
+    testCompile ('org.robolectric:robolectric:3.1.2') {
         exclude group: 'com.google.guava'
         exclude group: 'com.google.protobuf'
     }
