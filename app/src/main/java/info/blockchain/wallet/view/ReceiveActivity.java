@@ -1,18 +1,22 @@
 package info.blockchain.wallet.view;
 
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -24,9 +28,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
@@ -50,6 +54,7 @@ import java.util.Locale;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.annotations.Thunk;
 import piuk.blockchain.android.databinding.ActivityReceiveBinding;
 import piuk.blockchain.android.databinding.AlertWatchOnlySpendBinding;
 
@@ -58,18 +63,30 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     private static final String TAG = ReceiveActivity.class.getSimpleName();
     private static final String LINK_ADDRESS_INFO = "https://support.blockchain.com/hc/en-us/articles/210353663-Why-is-my-bitcoin-address-changing-";
 
-    // Package local to prevent creation of synthetic accessor methods when compiled
-    ReceiveViewModel mViewModel;
-    ActivityReceiveBinding mBinding;
-
+    @Thunk ReceiveViewModel mViewModel;
+    @Thunk ActivityReceiveBinding mBinding;
     private CustomKeypad mCustomKeypad;
     private BottomSheetBehavior mBottomSheetBehavior;
-    private ArrayAdapter<String> mReceiveToAdapter;
+    private AddressAdapter mReceiveToAdapter;
 
-    boolean mTextChangeAllowed = true;
+    @Thunk boolean mTextChangeAllowed = true;
     private boolean mIsBTC = true;
     private boolean mShowInfoButton = false;
     private String mUri;
+
+    private IntentFilter mFilter = new IntentFilter(BalanceFragment.ACTION_INTENT);
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            if (intent.getAction().equals(BalanceFragment.ACTION_INTENT)) {
+                if (mViewModel != null) {
+                    // Update UI with new Address + QR
+                    mViewModel.updateSpinnerList();
+                    displayQRCode(mBinding.content.accounts.spinner.getSelectedItemPosition());
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -138,13 +155,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.amountContainer.currencyFiat.setText(mViewModel.getCurrencyHelper().getFiatUnit());
 
         // Spinner
-        mReceiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
+        mReceiveToAdapter = new AddressAdapter(this, R.layout.spinner_item, mViewModel.getReceiveToList(), true);
         mReceiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         mBinding.content.accounts.spinner.setAdapter(mReceiveToAdapter);
         mBinding.content.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
                 mBinding.content.accounts.spinner.setSelection(mBinding.content.accounts.spinner.getSelectedItemPosition());
                 Object object = mViewModel.getAccountItemForPosition(mBinding.content.accounts.spinner.getSelectedItemPosition());
 
@@ -158,6 +174,21 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
                 // No-op
+            }
+        });
+
+        mBinding.content.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mBinding.content.accounts.spinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    mBinding.content.accounts.spinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mBinding.content.accounts.spinner.setDropDownWidth(mBinding.content.accounts.spinner.getWidth());
+                }
             }
         });
 
@@ -348,6 +379,8 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.amountContainer.currencyFiat.setText(
                 mIsBTC ? mViewModel.getCurrencyHelper().getFiatUnit() : mViewModel.getCurrencyHelper().getBtcUnit());
         mViewModel.updateSpinnerList();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mFilter);
     }
 
     @Override
@@ -428,7 +461,8 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
                 .show();
     }
 
-    private void promptWatchOnlySpendWarning(Object object) {
+    @Thunk
+    void promptWatchOnlySpendWarning(Object object) {
         if (object instanceof LegacyAddress && ((LegacyAddress) object).isWatchOnly()) {
 
             AlertWatchOnlySpendBinding dialogBinding = DataBindingUtil.inflate(
@@ -505,6 +539,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        super.onPause();
     }
 
     @Override

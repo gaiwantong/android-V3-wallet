@@ -20,6 +20,7 @@
 
         <activity
                 android:name=".LauncherActivity"
+                android:launchMode="singleTask"
                 android:configChanges="keyboardHidden|orientation|screenSize">
 
             <intent-filter>
