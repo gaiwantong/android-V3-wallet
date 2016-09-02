@@ -457,7 +457,7 @@
     <string name="estimate_confirm_block_count">Perkiraan waktu konfirmasi: ~ %1$ d menit (%2$ d blok)</string>
     <string name="fee_too_low_no_confirm">Biaya Anda begitu kecil sehingga transaksi Anda mungkin tidak akan pernah dikonfirmasi.</string>
     <string name="transaction_surge">Jaringan penggalian Bitcoin saat ini mengalami volume aktivitas yang tinggi, mengakibatkan biaya yang direkomendasikan yang lebih tinggi daripada biasanya.</string>
-    <string name="unsupported_encryption_version">Versi dompet %1$d tidak didukung.</string>
+    <string name="unsupported_encryption_version">Versi dompet %1$s tidak didukung.</string>
     <string name="logout">Keluar</string>
     <string name="to_field_helper">Masukkan alamat Bitcoin atau pilih</string>
 

@@ -80,5 +80,21 @@
                 android:layout_marginRight="16dp">
         </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
+        <com.getbase.floatingactionbutton.FloatingActionsMenu
+                android:id="@+id/fab_debug"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                fab:fab_addButtonColorNormal="@color/blockchain_send_red"
+                fab:fab_addButtonColorPressed="@color/blockchain_red_50"
+                fab:fab_addButtonPlusIconColor="@color/white"
+                fab:fab_labelStyle="@style/menu_labels_style"
+                fab:fab_labelsPosition="right"
+                android:elevation="5dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp">
+        </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
     </RelativeLayout>
 </layout>

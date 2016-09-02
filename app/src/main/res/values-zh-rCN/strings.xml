@@ -456,7 +456,7 @@
     <string name="estimate_confirm_block_count">预计确认时间：~ %1$d分钟 (%2$d 区块)</string>
     <string name="fee_too_low_no_confirm">您的收费如此之低，您的交易可能永远不会被确认。</string>
     <string name="transaction_surge">比特币挖矿网络目前交易量较大，导致推荐的收费也比平常高。</string>
-    <string name="unsupported_encryption_version">不支持钱包版本 %1$d。</string>
+    <string name="unsupported_encryption_version">不支持钱包版本 %1$s。</string>
     <string name="logout">注销</string>
     <string name="to_field_helper">输入比特币地址或选择</string>
 

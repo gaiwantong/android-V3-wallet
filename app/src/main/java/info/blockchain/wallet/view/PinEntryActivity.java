@@ -106,7 +106,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     }
 
     @Override
-    public void showWalletVersionNotSupportedDialog(int walletVersion) {
+    public void showWalletVersionNotSupportedDialog(String walletVersion) {
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
@@ -122,6 +122,13 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     @Override
     public void clearPinBoxes() {
         mDelayHandler.postDelayed(new ClearPinNumberRunnable(), 200);
+    }
+
+    @Override
+    public void goToPasswordRequiredActivity() {
+        Intent intent = new Intent(this, PasswordRequiredActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private class ClearPinNumberRunnable implements Runnable {

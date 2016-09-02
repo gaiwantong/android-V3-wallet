@@ -148,7 +148,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just("1234567890"));
         doAnswer(invocation -> {
-            ((AuthDataManager.DecryptPayloadListener) invocation.getArguments()[3]).onCreateFail();
+            ((AuthDataManager.DecryptPayloadListener) invocation.getArguments()[3]).onPairFail();
             return null;
         }).when(mAuthDataManager).attemptDecryptPayload(
                 any(CharSequenceX.class), anyString(), anyString(), any(AuthDataManager.DecryptPayloadListener.class));

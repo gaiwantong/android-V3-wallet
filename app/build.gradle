@@ -18,6 +18,7 @@ android {
         versionName "6.1.31"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        archivesBaseName = "blockchain-$versionName"
     }
 
     buildTypes {
@@ -38,8 +39,8 @@ android {
         }
         dogfood {
             signingConfig signingConfigs.debug
-            versionNameSuffix '-DOGFOOD'
             applicationIdSuffix ".dogfood"
+            versionNameSuffix '-DOGFOOD'
             debuggable true
             minifyEnabled true
             zipAlignEnabled true
