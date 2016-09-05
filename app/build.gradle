@@ -168,3 +168,17 @@ buildscript {
 repositories {
     jcenter()
 }
+
+// Required for builds on Travis as it tends to kill processes using too much memory
+if (System.env.TRAVIS == 'true') {
+    allprojects {
+        tasks.withType(GroovyCompile) {
+            groovyOptions.fork = false
+        }
+        tasks.withType(Test) {
+            // containers (currently) have 2 dedicated cores and 4GB of memory
+            maxParallelForks = 2
+            minHeapSize = '128m'
+        }
+    }
+}
