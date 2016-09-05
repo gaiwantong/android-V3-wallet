@@ -1,0 +1,21 @@
+machine:
+  environment:
+    ANDROID_HOME: /home/ubuntu/android
+  java:
+    version: oraclejdk8
+
+general:
+  artifacts:
+    -/home/ubuntu/My-Wallet-V3-Android/app/build/reports/tests/testProdReleaseUnitTest/prodRelease
+
+dependencies:
+  cache_directories:
+    - ~/.android
+    - ~/android
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,build-tools-24.0.2,android-24,extra-google-m2repository,extra-google-google_play_services,extra-android-support"
+    - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+
+test:
+  override:
+    - ./gradlew assembleProdRelease testProdReleaseUnitTest -Dpre-dex=false --stacktrace
