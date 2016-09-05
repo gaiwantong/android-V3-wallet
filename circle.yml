@@ -4,10 +4,6 @@ machine:
   java:
     version: oraclejdk8
 
-general:
-  artifacts:
-    -/home/ubuntu/My-Wallet-V3-Android/app/build/reports/tests/testProdReleaseUnitTest/prodRelease
-
 dependencies:
   cache_directories:
     - ~/.android
@@ -19,3 +15,6 @@ dependencies:
 test:
   override:
     - ./gradlew assembleProdRelease testProdReleaseUnitTest -Dpre-dex=false --stacktrace
+  post:
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
