@@ -1,4 +1,6 @@
 machine:
+  environment:
+    ANDROID_HOME: /usr/local/android-sdk-linux
   java:
     version: oraclejdk8
 
@@ -23,5 +25,4 @@ test:
   override:
     - ./gradlew assembleProdRelease testProdReleaseUnitTest --no-daemon -Dpre-dex=false --stacktrace
   post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - find . -type f -regex ".*/app/build/test-results/testProdReleaseUnitTest/prodRelease/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    - cp -r app/build/outputs/reports/tests/testProdReleaseUnitTest/prodRelease/* $CIRCLE_TEST_REPORTS
