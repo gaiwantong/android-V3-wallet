@@ -1,6 +1,4 @@
 machine:
-  environment:
-    ANDROID_HOME: /home/ubuntu/android
   java:
     version: oraclejdk8
 
