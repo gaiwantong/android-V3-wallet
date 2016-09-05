@@ -21,7 +21,7 @@ android:
     - extra-android-m2repository
 
     # System images for UI tests
-    - sys-img-x86-google_apis-21
+    - sys-img-armeabi-v7a-android-21
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -34,7 +34,7 @@ cache:
 # Emulator Management: Create, Start and Wait
 env:
   matrix:
-    - ANDROID_SDKS=android-21,sysimg-21  ANDROID_TARGET=android-21  ANDROID_ABI=x86
+    - ANDROID_SDKS=android-21,sysimg-21  ANDROID_TARGET=android-21  ANDROID_ABI=armeabi-v7a
 before_install:
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
