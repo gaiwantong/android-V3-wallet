@@ -5,6 +5,10 @@ machine:
   java:
     version: oraclejdk8
 
+general:
+   artifacts:
+     - $CIRCLE_TEST_REPORTS
+
 dependencies:
   pre:
     # Android SDK Platform 24
@@ -16,14 +20,14 @@ dependencies:
     - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
 
   cache_directories:
-    - ~/.android
-    - ~/android
-    - /usr/local/android-sdk-linux/platforms/android-24
-    - /usr/local/android-sdk-linux/build-tools/24.0.2
-    - /usr/local/android-sdk-linux/extras/android/m2repository
+    - '~/.android'
+    - '~/android'
+    - '/usr/local/android-sdk-linux/platforms/android-24'
+    - '/usr/local/android-sdk-linux/build-tools/24.0.2'
+    - '/usr/local/android-sdk-linux/extras/android/m2repository'
 
 test:
   override:
     - ./gradlew assembleProdRelease testProdReleaseUnitTest --no-daemon -Dpre-dex=false --stacktrace
   post:
-    - cp -r My-Wallet-V3-Android/app/build/reports/tests/testProdReleaseUnitTest/prodRelease/* $CIRCLE_TEST_REPORTS
+    - cp -r app/build/reports/tests/testProdReleaseUnitTest/prodRelease/* $CIRCLE_TEST_REPORTS
