@@ -78,10 +78,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     dataBinding {
         enabled = true
     }

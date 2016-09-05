@@ -7,6 +7,8 @@ env:
 jdk:
   - oraclejdk8
 
+sudo: required
+
 android:
   components:
     # Use the latest revision of Android SDK Tools
