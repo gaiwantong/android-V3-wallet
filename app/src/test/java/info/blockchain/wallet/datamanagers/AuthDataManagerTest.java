@@ -1,7 +1,5 @@
 package info.blockchain.wallet.datamanagers;
 
-import android.app.Application;
-
 import info.blockchain.api.Access;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.payload.Payload;
@@ -14,10 +12,10 @@ import info.blockchain.wallet.util.PrefsUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.concurrent.TimeUnit;
@@ -25,11 +23,6 @@ import java.util.concurrent.TimeUnit;
 import piuk.blockchain.android.BlockchainTestApplication;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
-import piuk.blockchain.android.di.ApiModule;
-import piuk.blockchain.android.di.ApplicationModule;
-import piuk.blockchain.android.di.DataManagerModule;
-import piuk.blockchain.android.di.Injector;
-import piuk.blockchain.android.di.InjectorTestUtils;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
@@ -52,26 +45,18 @@ public class AuthDataManagerTest extends RxTest {
 
     private static final String STRING_TO_RETURN = "string_to_return";
 
-    private AuthDataManager mSubject;
     @Mock private PayloadManager mPayloadManager;
     @Mock private PrefsUtil mPrefsUtil;
     @Mock private Access mAccess;
     @Mock private AppUtil mAppUtil;
     @Mock private AESUtilWrapper mAesUtils;
     @Mock private AccessState mAccessState;
+    @InjectMocks AuthDataManager mSubject;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
-        InjectorTestUtils.initApplicationComponent(
-                Injector.getInstance(),
-                new MockApplicationModule(RuntimeEnvironment.application),
-                new MockApiModule(),
-                new DataManagerModule());
-
-        mSubject = new AuthDataManager();
     }
 
     @Test
@@ -456,46 +441,6 @@ public class AuthDataManagerTest extends RxTest {
                 listener);
         // Assert
         verify(listener).onFatalError();
-    }
-
-    private class MockApplicationModule extends ApplicationModule {
-
-        MockApplicationModule(Application application) {
-            super(application);
-        }
-
-        @Override
-        protected AppUtil provideAppUtil() {
-            return mAppUtil;
-        }
-
-        @Override
-        protected PrefsUtil providePrefsUtil() {
-            return mPrefsUtil;
-        }
-
-        @Override
-        protected AESUtilWrapper provideAesUtils() {
-            return mAesUtils;
-        }
-
-        @Override
-        protected AccessState provideAccessState() {
-            return mAccessState;
-        }
-    }
-
-    private class MockApiModule extends ApiModule {
-
-        @Override
-        protected Access provideAccess() {
-            return mAccess;
-        }
-
-        @Override
-        protected PayloadManager providePayloadManager() {
-            return mPayloadManager;
-        }
     }
 
     private static final String TEST_PAYLOAD = "{\n" +
