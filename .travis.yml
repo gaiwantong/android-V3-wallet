@@ -1,9 +1,5 @@
 language: android
 
-env:
-  global:
-    - GRADLE_OPTS="-Xms128m"
-
 jdk:
   - oraclejdk8
 
@@ -49,4 +45,4 @@ before_script:
   - adb shell input keyevent 82 &
 
 script:
-  - ./gradlew assembleProdRelease connectedCheck --no-daemon -Dpre-dex=false --stacktrace --info
+  - ./gradlew assembleProdRelease connectedAndroidTest --no-daemon -Dpre-dex=false --stacktrace
