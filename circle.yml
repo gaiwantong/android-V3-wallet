@@ -25,4 +25,4 @@ test:
   override:
     - ./gradlew assembleProdRelease testProdReleaseUnitTest --no-daemon -Dpre-dex=false --stacktrace
   post:
-    - cp -r app/build/outputs/reports/tests/testProdReleaseUnitTest/prodRelease/* $CIRCLE_TEST_REPORTS
+    - cp -r My-Wallet-V3-Android/app/build/reports/tests/testProdReleaseUnitTest/prodRelease/* $CIRCLE_TEST_REPORTS
