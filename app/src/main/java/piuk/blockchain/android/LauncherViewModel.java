@@ -53,7 +53,6 @@ public class LauncherViewModel implements ViewModel {
     }
 
     public void onViewReady() {
-
         // Store incoming URI if needed
         String action = mDataListener.getPageIntent().getAction();
         String scheme = mDataListener.getPageIntent().getScheme();
