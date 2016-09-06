@@ -5,7 +5,6 @@ import com.google.zxing.client.android.CaptureActivity;
 import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -31,6 +30,7 @@ import android.view.View;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.EnableGeo;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.MainViewModel;
@@ -52,7 +52,7 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     private Toolbar toolbar = null;
     private MainViewModel mainViewModel;//MainActivity logic
     private ActivityMainBinding binding;
-    private ProgressDialog fetchTransactionsProgress;
+    private MaterialProgressDialog fetchTransactionsProgress;
     private AlertDialog mRootedDialog;
 
     private AppUtil appUtil;
@@ -363,9 +363,8 @@ public class MainActivity extends BaseAuthActivity implements BalanceFragment.Co
     @Override
     public void onFetchTransactionsStart() {
 
-        fetchTransactionsProgress = new ProgressDialog(this);
+        fetchTransactionsProgress = new MaterialProgressDialog(this);
         fetchTransactionsProgress.setCancelable(false);
-        fetchTransactionsProgress.setTitle(R.string.app_name);
         fetchTransactionsProgress.setMessage(getString(R.string.please_wait));
         fetchTransactionsProgress.show();
     }

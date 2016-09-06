@@ -4,7 +4,6 @@ import com.google.zxing.client.android.CaptureActivity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -29,6 +28,7 @@ import info.blockchain.wallet.model.PendingTransaction;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.ViewUtils;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.AccountEditViewModel;
@@ -47,8 +47,7 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
 
     private ActivityAccountEditBinding binding;
     private AccountEditViewModel viewModel;
-
-    private ProgressDialog progress;
+    private MaterialProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -384,8 +383,7 @@ public class AccountEditActivity extends BaseAuthActivity implements AccountEdit
     public void onShowProgressDialog(String title, String message) {
         onDismissProgressDialog();
 
-        progress = new ProgressDialog(this);
-        progress.setTitle(title);
+        progress = new MaterialProgressDialog(this);
         progress.setMessage(message);
         progress.show();
     }
