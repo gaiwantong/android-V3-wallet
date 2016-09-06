@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.PinStore;
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -29,7 +29,7 @@ public class AccessState {
     public static final String LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT";
 
     @Inject protected PrefsUtil prefs;
-    @Inject protected Access accessApi;
+    @Inject protected PinStore accessApi;
     @Inject protected AppUtil mAppUtil;
     private String mPin;
     private boolean isLoggedIn = false;

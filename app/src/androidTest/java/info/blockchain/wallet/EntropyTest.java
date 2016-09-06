@@ -111,7 +111,7 @@ public class EntropyTest extends BlockchainTest {
         String result = null;
         byte[] data = null;
         try {
-            result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
+            result = WebUtil.getInstance().getURL(WebUtil.PROD_EXTERNAL_ENTROPY_URL);
 
             //TestCase insert start
             if (testCase == 0) result = "abc123";//emulate server returns incomplete result

@@ -437,7 +437,7 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
                         String strLat = format.format(lat == null ? currLocation.getLatitude() : lat);
                         String strLon = format.format(lng == null ? currLocation.getLongitude() : lng);
 
-                        final String url = WebUtil.MERCHANT_DIRECTORY_URL + "ULAT=" + strLat + "&ULON=" + strLon + "&D=40000&K=1";
+                        final String url = WebUtil.PROD_MERCHANT_DIRECTORY_URL + "ULAT=" + strLat + "&ULON=" + strLon + "&D=40000&K=1";
                         strJSONData = WebUtil.getInstance().getURL(url);
                     }
 

@@ -2,7 +2,7 @@ package info.blockchain.wallet.viewModel;
 
 import android.app.Application;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
@@ -273,8 +273,8 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
-        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
-        when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
         when(mAuthDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1));
         // Act
         mSubject.onContinueClicked();
@@ -296,7 +296,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
-        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1));
         // Act
@@ -316,7 +316,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
-        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
         when(mAuthDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.error(new Throwable()));
         // Act
@@ -339,7 +339,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
-        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
         when(mAuthDataManager.createCheckEmailTimer()).thenReturn(Observable.just(0));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just("1234567890"));
         // Act
@@ -361,7 +361,7 @@ public class PasswordRequiredViewModelTest extends RxTest {
         when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
 
         when(mAuthDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"));
-        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(Access.KEY_AUTH_REQUIRED));
+        when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just(WalletPayload.KEY_AUTH_REQUIRED));
         when(mAuthDataManager.createCheckEmailTimer()).thenReturn(Observable.error(new Throwable()));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just("1234567890"));
         // Act

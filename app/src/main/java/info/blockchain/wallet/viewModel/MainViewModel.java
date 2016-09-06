@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Looper;
 
 import info.blockchain.api.DynamicFee;
+import info.blockchain.api.PersistentUrls;
 import info.blockchain.api.Unspent;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
@@ -27,6 +28,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.di.Injector;
 
 public class MainViewModel implements ViewModel {
@@ -61,6 +63,7 @@ public class MainViewModel implements ViewModel {
         this.osUtil = new OSUtil(context);
         this.appUtil.applyPRNGFixes();
 
+        checkBackendEnvironment();
         checkRooted();
         checkConnectivity();
     }
@@ -173,7 +176,7 @@ public class MainViewModel implements ViewModel {
 
             String response = null;
             try {
-                response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
+                response = WebUtil.getInstance().getURL(WebUtil.PROD_EXCHANGE_URL);
 
                 ExchangeRateFactory.getInstance().setData(response);
                 ExchangeRateFactory.getInstance().updateFxPricesForEnabledCurrencies();
@@ -213,6 +216,30 @@ public class MainViewModel implements ViewModel {
     public void stopWebSocketService(){
         if (!osUtil.isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
             context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        }
+    }
+
+    private void checkBackendEnvironment() {
+
+        PersistentUrls urls = PersistentUrls.getInstance();
+
+        if (BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
+            PrefsUtil prefsUtil = new PrefsUtil(context);
+            int currentEnvironment = prefsUtil.getValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
+
+            switch (currentEnvironment) {
+                case 0:
+                    urls.setProductionEnvironment();
+                    break;
+                case 1:
+                    urls.setDevelopmentEnvironment();
+                    break;
+                case 2:
+                    urls.setStagingEnvironment();
+                    break;
+            }
+        }else{
+            urls.setProductionEnvironment();
         }
     }
 }

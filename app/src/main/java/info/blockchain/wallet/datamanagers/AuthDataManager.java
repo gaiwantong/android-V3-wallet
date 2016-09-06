@@ -2,7 +2,7 @@ package info.blockchain.wallet.datamanagers;
 
 import android.support.annotation.VisibleForTesting;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.InvalidCredentialsException;
@@ -36,7 +36,7 @@ public class AuthDataManager {
 
     @Inject protected PayloadManager mPayloadManager;
     @Inject protected PrefsUtil mPrefsUtil;
-    @Inject protected Access mAccess;
+    @Inject protected WalletPayload mAccess;
     @Inject protected AppUtil mAppUtil;
     @Inject protected AESUtilWrapper mAESUtil;
     @Inject protected AccessState mAccessState;
@@ -108,9 +108,9 @@ public class AuthDataManager {
                         // For each emission from the timer, try to get the payload
                         .map(tick -> getEncryptedPayload(guid, sessionId).toBlocking().first())
                         // If auth not required, emit payload
-                        .filter(s -> !s.equals(Access.KEY_AUTH_REQUIRED))
+                        .filter(s -> !s.equals(WalletPayload.KEY_AUTH_REQUIRED))
                         // If error called, emit Auth Required
-                        .onErrorReturn(throwable -> Observable.just(Access.KEY_AUTH_REQUIRED).toBlocking().first())
+                        .onErrorReturn(throwable -> Observable.just(WalletPayload.KEY_AUTH_REQUIRED).toBlocking().first())
                         // Make sure threading is correct
                         .compose(RxUtil.applySchedulers())
                         // Only emit the first object
@@ -156,7 +156,7 @@ public class AuthDataManager {
             if (jsonObject.has("payload")) {
                 String encrypted_payload = jsonObject.getString("payload");
 
-                int iterations = BlockchainWallet.DEFAULT_PBKDF2_ITERATIONS;
+                int iterations = BlockchainWallet.DEFAULT_PBKDF2_ITERATIONS_V2;
                 if (jsonObject.has("pbkdf2_iterations")) {
                     iterations = jsonObject.getInt("pbkdf2_iterations");
                 }

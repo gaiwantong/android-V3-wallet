@@ -1,6 +1,7 @@
 package piuk.blockchain.android.di;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.PinStore;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.payload.PayloadManager;
 
 import javax.inject.Singleton;
@@ -17,8 +18,14 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    protected Access provideAccess() {
-        return new Access();
+    protected WalletPayload provideAccess() {
+        return new WalletPayload();
+    }
+
+    @Provides
+    @Singleton
+    protected PinStore providePinStore() {
+        return new PinStore();
     }
 
     @Provides

@@ -107,7 +107,7 @@ public class SSLVerifyUtil {
 
             URL url = null;
             try {
-                url = new URL(WebUtil.VALIDATE_SSL_URL);
+                url = new URL(WebUtil.PROD_VALIDATE_SSL_URL);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

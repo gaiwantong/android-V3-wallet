@@ -2,7 +2,8 @@ package info.blockchain.wallet.datamanagers;
 
 import android.app.Application;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.PinStore;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
@@ -59,7 +60,7 @@ public class AuthDataManagerTest extends RxTest {
     private AuthDataManager mSubject;
     @Mock private PayloadManager mPayloadManager;
     @Mock private PrefsUtil mPrefsUtil;
-    @Mock private Access mAccess;
+    @Mock private WalletPayload mAccess;
     @Mock private AppUtil mAppUtil;
     @Mock private AESUtilWrapper mAesUtils;
     @Mock private AccessState mAccessState;
@@ -209,7 +210,7 @@ public class AuthDataManagerTest extends RxTest {
 
     /**
      * Getting encrypted payload returns error, should be caught by Observable and transformed into
-     * {@link Access#KEY_AUTH_REQUIRED}
+     * {@link PinStore#KEY_AUTH_REQUIRED}
      */
     @Test
     public void startPollingAuthStatusError() throws Exception {
@@ -223,7 +224,7 @@ public class AuthDataManagerTest extends RxTest {
         verify(mAccess).getSessionId(anyString());
         verify(mAccess).getEncryptedPayload(anyString(), anyString());
         subscriber.assertCompleted();
-        subscriber.onNext(Access.KEY_AUTH_REQUIRED);
+        subscriber.onNext(WalletPayload.KEY_AUTH_REQUIRED);
         subscriber.assertNoErrors();
     }
 
@@ -235,7 +236,7 @@ public class AuthDataManagerTest extends RxTest {
         // Arrange
         TestSubscriber<String> subscriber = new TestSubscriber<>();
         when(mAccess.getSessionId(anyString())).thenReturn(STRING_TO_RETURN);
-        when(mAccess.getEncryptedPayload(anyString(), anyString())).thenReturn(Access.KEY_AUTH_REQUIRED);
+        when(mAccess.getEncryptedPayload(anyString(), anyString())).thenReturn(WalletPayload.KEY_AUTH_REQUIRED);
         // Act
         mSubject.startPollingAuthStatus("1234567890").take(1, TimeUnit.SECONDS).toBlocking().subscribe(subscriber);
         // Assert
@@ -481,7 +482,7 @@ public class AuthDataManagerTest extends RxTest {
     private class MockApiModule extends ApiModule {
 
         @Override
-        protected Access provideAccess() {
+        protected WalletPayload provideAccess() {
             return mAccess;
         }
 

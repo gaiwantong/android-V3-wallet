@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.pairing.Pairing;
 import info.blockchain.wallet.pairing.PairingQRComponents;
 import info.blockchain.wallet.payload.PayloadManager;
@@ -45,7 +45,7 @@ public class PairingViewModel implements ViewModel{
             Looper.prepare();
 
             Pairing pairing = new Pairing();
-            Access access = new Access();
+            WalletPayload access = new WalletPayload();
 
             try {
 

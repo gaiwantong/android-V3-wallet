@@ -3,74 +3,89 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/blockchain_blue"
-            android:orientation="vertical">
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="50"
-                android:gravity="center"
+                android:layout_height="match_parent"
+                android:background="@color/blockchain_blue"
                 android:orientation="vertical">
 
-            <ImageView
-                    android:layout_width="165dp"
-                    android:layout_height="151dp"
-                    android:src="@drawable/logo3x"
-                    android:gravity="center_horizontal"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="50"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal"
-                android:background="@color/blockchain_blue">
-
-            <Button
-                    android:id="@+id/create"
+            <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:paddingLeft="32dp"
-                    android:paddingRight="32dp"
-                    android:text="@string/CREATE"
-                    android:textSize="20sp"
-                    android:elevation="5dp"
-                    android:background="@drawable/rounded_view_white2"
-                    android:textColor="@color/blockchain_blue"
+                    android:layout_height="0dp"
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                <ImageView
+                        android:layout_width="165dp"
+                        android:layout_height="151dp"
+                        android:src="@drawable/logo3x"
+                        android:gravity="center_horizontal"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="50"
+                    android:orientation="vertical"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="16dp"/>
+                    android:background="@color/blockchain_blue">
 
-            <TextView
-                    android:id="@+id/login"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/LOGIN"
-                    android:textSize="20sp"
-                    android:background="@color/blockchain_blue"
-                    android:gravity="center"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/white"
-                    android:padding="12dp"/>
+                <Button
+                        android:id="@+id/create"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:paddingLeft="32dp"
+                        android:paddingRight="32dp"
+                        android:text="@string/CREATE"
+                        android:textSize="20sp"
+                        android:elevation="5dp"
+                        android:background="@drawable/rounded_view_white2"
+                        android:textColor="@color/blockchain_blue"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="16dp"/>
 
-            <TextView
-                    android:id="@+id/recover_funds"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recover_funds"
-                    android:textSize="20sp"
-                    android:background="@color/blockchain_blue"
-                    android:gravity="center"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/white"
-                    android:padding="12dp"/>
+                <TextView
+                        android:id="@+id/login"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/LOGIN"
+                        android:textSize="20sp"
+                        android:background="@color/blockchain_blue"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white"
+                        android:padding="12dp"/>
 
+                <TextView
+                        android:id="@+id/recover_funds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recover_funds"
+                        android:textSize="20sp"
+                        android:background="@color/blockchain_blue"
+                        android:gravity="center"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white"
+                        android:padding="12dp"/>
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+
+        <ImageView
+                android:id="@+id/settings_btn"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:padding="16dp"
+                android:onClick="onSettingsClicked"
+                android:src="@drawable/ic_settings_white_24dp"/>
+
+    </RelativeLayout>
 </layout>
