@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
 @Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class PinEntryViewModelTest {
 
     private PinEntryViewModel mSubject;

@@ -41,7 +41,7 @@ public class EntropyTest extends BlockchainTest {
     /**
      * Test something
      */
-    public void test() {
+    public void _test() {
 
         AssertUtil.getInstance().exitOnFail(true);
 
