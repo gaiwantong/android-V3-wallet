@@ -10,9 +10,9 @@
               android:paddingRight="24dp">
 
     <ProgressBar
+            android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:progressDrawable="@drawable/progress_blue"/>
+            android:layout_height="wrap_content"/>
 
     <android.support.v7.widget.AppCompatTextView
             android:id="@+id/message"

@@ -1,14 +1,15 @@
 package info.blockchain.wallet.view.helpers;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 
 import piuk.blockchain.android.R;
 
 public class BackgroundExecutor extends AsyncTask<Void, Void, Void>{
 
-    private ProgressDialog progress;
+    private MaterialProgressDialog progress;
     private Context context;
     private Command command;
     private String title;
@@ -35,7 +36,7 @@ public class BackgroundExecutor extends AsyncTask<Void, Void, Void>{
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        progress = new ProgressDialog(context);
+        progress = new MaterialProgressDialog(context);
         progress.setTitle(this.title);
         progress.setMessage(this.message);
         progress.show();
