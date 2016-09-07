@@ -5,6 +5,11 @@ jdk:
 
 sudo: required
 
+# Build all pushes to master & pull requests
+branches:
+  only:
+    - master
+
 android:
   components:
     # Use the latest revision of Android SDK Tools
