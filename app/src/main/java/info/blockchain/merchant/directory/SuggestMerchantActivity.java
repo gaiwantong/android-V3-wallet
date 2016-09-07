@@ -17,7 +17,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +28,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.util.WebUtil;
 
@@ -43,7 +41,7 @@ import java.util.Locale;
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
 
-public class SuggestMerchant extends BaseAuthActivity {
+public class SuggestMerchantActivity extends BaseAuthActivity {
 
     private static final String SUGGEST_MERCHANT_URL = "https://merchant-directory.blockchain.info/api/suggest_merchant.php";
     TextView commandSave;
@@ -178,15 +176,15 @@ public class SuggestMerchant extends BaseAuthActivity {
                             try {
                                 res = WebUtil.getInstance().postURLJson(SUGGEST_MERCHANT_URL, args.toString());
                             } catch (Exception e) {
-                                ToastCustom.makeText(SuggestMerchant.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(SuggestMerchantActivity.this, e.getMessage(), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
 
                             if (res != null && res.contains("\"result\":1")) {
-                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.ok_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
+                                ToastCustom.makeText(SuggestMerchantActivity.this, getString(R.string.ok_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_OK);
                                 setResult(RESULT_OK);
                                 finish();
                             } else {
-                                ToastCustom.makeText(SuggestMerchant.this, getString(R.string.error_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                                ToastCustom.makeText(SuggestMerchantActivity.this, getString(R.string.error_writing_merchant), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             }
 
                             Looper.loop();
@@ -314,12 +312,12 @@ public class SuggestMerchant extends BaseAuthActivity {
         selectedX = latLng.longitude;
 
         try {
-            reverseGeocodingTask = new ReverseGeocodingTask(SuggestMerchant.this);
+            reverseGeocodingTask = new ReverseGeocodingTask(SuggestMerchantActivity.this);
             reverseGeocodingTask.execute(latLng);
 
         } catch (Exception e) {
             Log.e("", "", e);
-            ToastCustom.makeText(SuggestMerchant.this, getString(R.string.address_lookup_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+            ToastCustom.makeText(SuggestMerchantActivity.this, getString(R.string.address_lookup_fail), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
         }
     }
 
@@ -371,7 +369,7 @@ public class SuggestMerchant extends BaseAuthActivity {
 
             if (currLocation != null) {
 
-                SuggestMerchant.this.runOnUiThread(new Runnable() {
+                SuggestMerchantActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         zoomToLocation(currLocation.getLongitude(), currLocation.getLatitude());
@@ -397,7 +395,7 @@ public class SuggestMerchant extends BaseAuthActivity {
         @Override
         protected Void doInBackground(LatLng... params) {
 
-            SuggestMerchant.this.runOnUiThread(new Runnable() {
+            SuggestMerchantActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     progress.setVisibility(View.VISIBLE);
@@ -412,12 +410,12 @@ public class SuggestMerchant extends BaseAuthActivity {
                 if (addrList.size() > 0) {
                     final Address address = addrList.get(0);
 
-                    SuggestMerchant.this.runOnUiThread(new Runnable() {
+                    SuggestMerchantActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (address.getMaxAddressLineIndex() > 0 && address.getAddressLine(0) != null) {
                                 edStreetAddress.setText(address.getAddressLine(0));
-                                ToastCustom.makeText(SuggestMerchant.this, address.getAddressLine(0), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
+                                ToastCustom.makeText(SuggestMerchantActivity.this, address.getAddressLine(0), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                             }
                             if (address.getPostalCode() != null) edPostal.setText(address.getPostalCode());
                             if (address.getLocality() != null) edCity.setText(address.getLocality());

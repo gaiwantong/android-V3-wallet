@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import info.blockchain.api.BaseApi;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 
 import org.thoughtcrime.ssl.pinning.util.PinningHelper;
@@ -107,7 +108,7 @@ public class SSLVerifyUtil {
 
             URL url = null;
             try {
-                url = new URL(WebUtil.PROD_VALIDATE_SSL_URL);
+                url = new URL(BaseApi.PROTOCOL + BaseApi.SERVER_ADDRESS);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Looper;
 
 import info.blockchain.api.DynamicFee;
+import info.blockchain.api.ExchangeTicker;
 import info.blockchain.api.PersistentUrls;
 import info.blockchain.api.Unspent;
 import info.blockchain.wallet.access.AccessState;
@@ -19,7 +20,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
-import info.blockchain.wallet.util.WebUtil;
 
 import org.json.JSONObject;
 
@@ -176,7 +176,8 @@ public class MainViewModel implements ViewModel {
 
             String response = null;
             try {
-                response = WebUtil.getInstance().getURL(WebUtil.PROD_EXCHANGE_URL);
+                // TODO: 07/09/2016 Exchange rate only fetched once per session? Should try to update more often
+                response = new ExchangeTicker().getExchangeRate();
 
                 ExchangeRateFactory.getInstance().setData(response);
                 ExchangeRateFactory.getInstance().updateFxPricesForEnabledCurrencies();
