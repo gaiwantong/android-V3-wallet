@@ -5,6 +5,10 @@ machine:
   java:
     version: oraclejdk8
 
+notify:
+  webhooks:
+    - url: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
+
 general:
    artifacts:
      - $CIRCLE_TEST_REPORTS
