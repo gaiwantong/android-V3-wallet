@@ -1,5 +1,8 @@
 # My-Wallet-V3-Android
 
+[![Build Status](https://travis-ci.org/blockchain/My-Wallet-V3-Android.svg?branch=master)](https://travis-ci.org/blockchain/My-Wallet-V3-Android)
+[![CircleCI](https://circleci.com/gh/blockchain/My-Wallet-V3-Android/tree/master.svg?style=svg)](https://circleci.com/gh/blockchain/My-Wallet-V3-Android/tree/master)
+
 Next-generation HD (BIP32, BIP39, BIP44) bitcoin wallet. 
 
 ## Build Process

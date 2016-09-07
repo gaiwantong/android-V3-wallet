@@ -28,7 +28,10 @@ dependencies:
 
 test:
   override:
-    - ./gradlew assembleProdRelease testProdReleaseUnitTest --no-daemon -Dpre-dex=false --stacktrace
+    - ./gradlew assembleDevDebug testDevDebugUnitTest testDevDebugUnitTestCoverage --no-daemon -Dpre-dex=false --stacktrace
   post:
+    # Move unit test XML to correct directory
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    # Code coverage tool
+    - bash <(curl -s https://codecov.io/bash)
