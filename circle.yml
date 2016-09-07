@@ -37,5 +37,3 @@ test:
     # Move unit test XML to correct directory
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-    # Code coverage tool
-    - bash <(curl -s https://codecov.io/bash) -f "app/build/reports/jacoco/testDevDebugUnitTestCoverage/testDevDebugUnitTestCoverage.xml"
