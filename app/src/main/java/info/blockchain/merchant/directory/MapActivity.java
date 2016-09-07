@@ -427,9 +427,7 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
                 try {
                     if (fetch) {
 
-                        Log.d(TAG, "------getAllMerchants------");
                         merchantList = new MerchantDirectory().getAllMerchants();
-                        Log.d(TAG, "merchantList: "+merchantList.size());
                     }
 
                     handler.post(new Runnable() {
