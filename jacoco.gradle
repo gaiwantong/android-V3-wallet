@@ -1,4 +1,5 @@
 apply plugin: 'jacoco-android'
+apply plugin: 'com.github.kt3k.coveralls'
 
 task testDevDebugUnitTestCoverage(type: JacocoReport, dependsOn: "testDevDebugUnitTest") {
     group = "Reporting"
@@ -33,4 +34,12 @@ task testDevDebugUnitTestCoverage(type: JacocoReport, dependsOn: "testDevDebugUn
         xml.enabled = true
         html.enabled = true
     }
+}
+
+coveralls {
+    jacocoReportPath = "${buildDir}/reports/jacoco/testDevDebugUnitTestCoverage/testDevDebugUnitTestCoverage.xml"
+}
+
+tasks.coveralls {
+    dependsOn 'testDevDebugUnitTestCoverage'
 }
