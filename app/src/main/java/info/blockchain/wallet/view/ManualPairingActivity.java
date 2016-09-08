@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,6 +12,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.ManualPairingViewModel;
 
@@ -22,7 +22,7 @@ import piuk.blockchain.android.databinding.ActivityManualPairingBinding;
 
 public class ManualPairingActivity extends BaseAuthActivity implements ManualPairingViewModel.DataListener {
 
-    private ProgressDialog mProgressDialog;
+    private MaterialProgressDialog mProgressDialog;
     private ActivityManualPairingBinding mBinding;
     private ManualPairingViewModel mViewModel;
 
@@ -73,9 +73,8 @@ public class ManualPairingActivity extends BaseAuthActivity implements ManualPai
     @Override
     public void showProgressDialog(@StringRes int messageId, @Nullable String suffix, boolean cancellable) {
         dismissProgressDialog();
-        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog = new MaterialProgressDialog(this);
         mProgressDialog.setCancelable(cancellable);
-        mProgressDialog.setTitle(R.string.app_name);
         if (suffix != null) {
             mProgressDialog.setMessage(getString(messageId) + "\n\n" + suffix);
         } else {

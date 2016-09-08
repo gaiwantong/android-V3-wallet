@@ -4,6 +4,10 @@ import android.support.annotation.VisibleForTesting;
 
 import info.blockchain.api.Access;
 import info.blockchain.wallet.access.AccessState;
+import info.blockchain.wallet.exceptions.HDWalletException;
+import info.blockchain.wallet.exceptions.InvalidCredentialsException;
+import info.blockchain.wallet.exceptions.PayloadException;
+import info.blockchain.wallet.payload.BlockchainWallet;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.rxjava.RxUtil;
@@ -120,26 +124,14 @@ public class AuthDataManager {
                         sharedKey,
                         guid,
                         password,
-                        new PayloadManager.InitiatePayloadListener() {
-                            @Override
-                            public void onInitSuccess() {
-                                mPayloadManager.setTempPassword(password);
-                                subscriber.onNext(null);
-                                subscriber.onCompleted();
-                            }
+                        () -> {
 
-                            @Override
-                            public void onInitPairFail() {
-                                subscriber.onError(new PairFailThrowable());
-                            }
-
-                            @Override
-                            public void onInitCreateFail(String s) {
-                                subscriber.onError(new CreateFailThrowable());
-                            }
+                            mPayloadManager.setTempPassword(password);
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
                         });
             } catch (Exception e) {
-                subscriber.onError(new Throwable(e));
+                subscriber.onError(e);
             }
         }));
     }
@@ -153,14 +145,18 @@ public class AuthDataManager {
                 .takeUntil(aLong -> timer < 0);
     }
 
+    /*
+    TODO - move to jar
+     */
     public void attemptDecryptPayload(CharSequenceX password, String guid, String payload, DecryptPayloadListener listener) {
         try {
             JSONObject jsonObject = new JSONObject(payload);
 
+            //TODO - Payload v1, 2 or 3?
             if (jsonObject.has("payload")) {
                 String encrypted_payload = jsonObject.getString("payload");
 
-                int iterations = PayloadManager.WalletPbkdf2Iterations;
+                int iterations = BlockchainWallet.DEFAULT_PBKDF2_ITERATIONS;
                 if (jsonObject.has("pbkdf2_iterations")) {
                     iterations = jsonObject.getInt("pbkdf2_iterations");
                 }
@@ -192,13 +188,21 @@ public class AuthDataManager {
                                     }
 
                                     @Override
-                                    public void onError(Throwable e) {
-                                        if (e instanceof CreateFailThrowable) {
-                                            listener.onCreateFail();
-                                        } else if (e instanceof PairFailThrowable) {
-                                            listener.onPairFail();
-                                        } else {
+                                    public void onError(Throwable throwable) {
+
+                                        if (throwable instanceof InvalidCredentialsException) {
+                                            listener.onAuthFail();
+
+                                        } else if (throwable instanceof PayloadException) {
+                                            //This shouldn't happen - Payload retrieved from server couldn't be parsed
                                             listener.onFatalError();
+
+                                        } else if (throwable instanceof HDWalletException) {
+                                            //This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
+                                            listener.onFatalError();
+
+                                        }else{
+                                            listener.onPairFail();
                                         }
                                     }
 
@@ -218,25 +222,11 @@ public class AuthDataManager {
         }
     }
 
-    class PairFailThrowable extends Throwable {
-        PairFailThrowable() {
-            super();
-        }
-    }
-
-    class CreateFailThrowable extends Throwable {
-        CreateFailThrowable() {
-            super();
-        }
-    }
-
     public interface DecryptPayloadListener {
 
         void onSuccess();
 
         void onPairFail();
-
-        void onCreateFail();
 
         void onAuthFail();
 

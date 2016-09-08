@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
@@ -21,6 +20,7 @@ import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.ViewUtils;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.PinEntryViewModel;
 
@@ -35,7 +35,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     private static final Handler mDelayHandler = new Handler();
 
     private TextView[] mPinBoxArray = null;
-    private ProgressDialog mProgressDialog = null;
+    private MaterialProgressDialog mProgressDialog = null;
     private ActivityPinEntryBinding mBinding;
     private PinEntryViewModel mViewModel;
 
@@ -106,7 +106,7 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     }
 
     @Override
-    public void showWalletVersionNotSupportedDialog(int walletVersion) {
+    public void showWalletVersionNotSupportedDialog(String walletVersion) {
         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                 .setTitle(R.string.warning)
                 .setMessage(String.format(getString(R.string.unsupported_encryption_version), walletVersion))
@@ -122,6 +122,13 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     @Override
     public void clearPinBoxes() {
         mDelayHandler.postDelayed(new ClearPinNumberRunnable(), 200);
+    }
+
+    @Override
+    public void goToPasswordRequiredActivity() {
+        Intent intent = new Intent(this, PasswordRequiredActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private class ClearPinNumberRunnable implements Runnable {
@@ -214,9 +221,8 @@ public class PinEntryActivity extends BaseAuthActivity implements PinEntryViewMo
     @Override
     public void showProgressDialog(@StringRes int messageId, @Nullable String suffix) {
         dismissProgressDialog();
-        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog = new MaterialProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.app_name);
         if (suffix != null) {
             mProgressDialog.setMessage(getString(messageId) + suffix);
         } else {

@@ -404,7 +404,7 @@
     <string name="not_archived_description">Cet élément n\'est pas archivé. Archivez cet élément si vous NE souhaitez PLUS l\'utiliser. Vos fonds resteront en sécurité et vous pouvez les désarchiver à tout moment.</string>
     <string name="transfer_success_archive_prompt_title">Archiver les adresses balayées ?</string>
     <plurals name="transfer_success_archive_prompt_plurals">
-        <item quantity="one">1 adresse a été transférée à « Mon portefeuille Bitcoin » avec succès. Souhaitez-vous archiver cette adresse maintenant ?</item>
+        <item quantity="one">1 adresse a été transférée à « Mon portefeuille Bitcoin » avec succès. Souhaitez-vous archiver cette adresse maintenant ?</item>
         <item quantity="other">%d adresses ont été transférées à « Mon portefeuille Bitcoin » avec succès. Souhaitez-vous archiver ces adresses maintenant ?</item>
     </plurals>
     <string name="default_account_description">Cet élément est défini comme votre valeur par défaut et ne peut pas être archivé.</string>
@@ -429,7 +429,7 @@
     <string name="private_key_successfully_imported">Clé privée importée avec succès.</string>
     <string name="private_key_not_matching_address">REMARQUE : la clé privée qui a été scannée ne correspond pas à l\'adresse en lecture seule. Pour dépenser vos fonds depuis cette adresse, veuillez scanner la clé privée correcte.</string>
     <string name="watch_only">Lecture seule</string>
-    <string name="extended_public_key_description">Si vous êtes un marchand, montrez votre xPub et utilisez l\'application « Blockchain Marchand » pour recevoir des fonds de manière sécurisée et en privé.\n\n Ne rendez pas votre xPub publique.         Une personne ayant accès à votre xPub sera en mesure de voir tous vos fonds et transactions. </string>
+    <string name="extended_public_key_description">Si vous êtes un marchand, montrez votre xPub et utilisez l\'application « Blockchain Marchand » pour recevoir des fonds de manière sécurisée et en privé.\n\n Ne rendez pas votre xPub publique.         Une personne ayant accès à votre xPub sera en mesure de voir tous vos fonds et transactions. </string>
     <string name="watch_only_description">Cette adresse est en mode lecture seule. Pour dépenser les fonds de ce portefeuille, veuillez scanner votre clé privée. </string>
     <string name="success">Succès</string>
     <string name="default_label">Par défaut</string>
@@ -522,7 +522,7 @@
     <string name="rate_no">Non merci</string>
     <string name="rate_later">Rappelez-le moi plus tard</string>
     <string name="hint_reveals_password_error">Vous ne pouvez pas choisir le mot de passe de votre portefeuille principal comme indice de mot de passe.</string>
-    <string name="why_has_my_address_changed">Pourquoi mon adresse a-t-elle changé ?</string>
+    <string name="why_has_my_address_changed">Pourquoi mon adresse a-t-elle changé ?</string>
     <string name="learn_more">En savoir plus</string>
     <string name="new_address_info">Pour une meilleure confidentialité, nous générons une adresse unique pour chaque paiement. Toutes les adresses générées dans votre portefeuille peuvent toujours recevoir des fonds, même si elles n\'apparaissent plus dans la section « Recevoir ».</string>
 
@@ -540,8 +540,8 @@
 
     <string name="api_fail">Impossible de se connecter au serveur. Veuillez réessayer plus tard.</string>
 
-    <!-- FEE WARNING --><string name="large_tx_warning">Cette transaction de bitcoin est trop grande. Votre portefeuille doit consolider tous les petits paiements que vous avez reçus dans le passé. Pour pouvoir être confirmés rapidement, ils nécessitent des frais de transaction relativement élevés. Si cette transaction n\'a plus besoin d\'être confirmée, vous devriez réduire les frais manuellement en cliquant sur « personnaliser ».   </string>
+    <!-- FEE WARNING --><string name="large_tx_warning">Cette transaction de bitcoin est trop grande. Votre portefeuille doit consolider tous les petits paiements que vous avez reçus dans le passé. Pour pouvoir être confirmés rapidement, ils nécessitent des frais de transaction relativement élevés. Si cette transaction n\'a plus besoin d\'être confirmée, vous devriez réduire les frais manuellement en cliquant sur « personnaliser ».   </string>
     <string name="go_back">Retour</string>
     <string name="accept_higher_fee">Accepter des frais plus élevés</string>
-    <string name="large_tx_high_fee_warning">« Le montant des modifications à rembourser étant faible, cette transaction requière des frais plus élevés pour la consommation de montants inférieurs au montant minimal accepté par le réseau bitcoin. »</string>
+    <string name="large_tx_high_fee_warning">« Le montant des modifications à rembourser étant faible, cette transaction requière des frais plus élevés pour la consommation de montants inférieurs au montant minimal accepté par le réseau bitcoin. »</string>
 </resources>

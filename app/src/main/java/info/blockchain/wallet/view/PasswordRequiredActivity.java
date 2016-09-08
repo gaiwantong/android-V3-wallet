@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
@@ -12,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.PasswordRequiredViewModel;
 
@@ -28,7 +28,7 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
 
     private PasswordRequiredViewModel mViewModel;
     private ActivityPasswordRequiredBinding mBinding;
-    private ProgressDialog mProgressDialog;
+    private MaterialProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,9 +97,8 @@ public class PasswordRequiredActivity extends BaseAuthActivity implements Passwo
     @Override
     public void showProgressDialog(@StringRes int messageId, @Nullable String suffix, boolean cancellable) {
         dismissProgressDialog();
-        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog = new MaterialProgressDialog(this);
         mProgressDialog.setCancelable(cancellable);
-        mProgressDialog.setTitle(R.string.app_name);
         if (suffix != null) {
             mProgressDialog.setMessage(getString(messageId) + "\n\n" + suffix);
         } else {

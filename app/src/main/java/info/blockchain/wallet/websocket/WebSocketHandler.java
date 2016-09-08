@@ -320,26 +320,12 @@ public class WebSocketHandler {
 
                                         if (!onChangeHashSet.contains(message) && !isSameChecksum) {
 
+                                            //Remote update to wallet data detected
                                             if (payloadManager.getTempPassword() != null) {
                                                 //Download changed payload
                                                 payloadManager.initiatePayload(payloadManager.getPayload().getSharedKey(),
                                                         payloadManager.getPayload().getGuid(),
-                                                        payloadManager.getTempPassword(),
-                                                        new PayloadManager.InitiatePayloadListener() {
-                                                            @Override
-                                                            public void onInitSuccess() {
-
-                                                            }
-
-                                                            @Override
-                                                            public void onInitPairFail() {
-
-                                                            }
-
-                                                            @Override
-                                                            public void onInitCreateFail(String s) {
-
-                                                            }
+                                                        payloadManager.getTempPassword(), () -> {
                                                         });
                                                 ToastCustom.makeText(context, context.getString(R.string.wallet_updated), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
                                                 updateBalancesAndTransactions();

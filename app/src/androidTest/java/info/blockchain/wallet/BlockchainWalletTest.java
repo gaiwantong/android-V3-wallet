@@ -30,7 +30,7 @@ public class BlockchainWalletTest extends BlockchainTest {
     /**
      * Test something
      */
-    public void test() {
+    public void _test() {
 
         /*
          * In order to run these tests legit guid, shared key, pin identifiers, and encrypted passwords are needed.

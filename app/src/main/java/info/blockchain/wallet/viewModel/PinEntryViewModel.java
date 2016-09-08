@@ -12,6 +12,12 @@ import android.widget.TextView;
 
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
+import info.blockchain.wallet.exceptions.DecryptionException;
+import info.blockchain.wallet.exceptions.HDWalletException;
+import info.blockchain.wallet.exceptions.InvalidCredentialsException;
+import info.blockchain.wallet.exceptions.PayloadException;
+import info.blockchain.wallet.exceptions.ServerConnectionException;
+import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
@@ -72,7 +78,7 @@ public class PinEntryViewModel implements ViewModel {
 
         void showCommonPinWarning(DialogButtonCallback callback);
 
-        void showWalletVersionNotSupportedDialog(int walletVersion);
+        void showWalletVersionNotSupportedDialog(String walletVersion);
 
         void goToUpgradeWalletActivity();
 
@@ -83,6 +89,8 @@ public class PinEntryViewModel implements ViewModel {
         void setTitleVisibility(@ViewUtils.Visibility int visibility);
 
         void clearPinBoxes();
+
+        void goToPasswordRequiredActivity();
     }
 
     public PinEntryViewModel(DataListener listener) {
@@ -219,21 +227,40 @@ public class PinEntryViewModel implements ViewModel {
                         .subscribe(aVoid -> {
                             mAppUtil.setSharedKey(mPayloadManager.getPayload().getSharedKey());
 
-                            double walletVersion = mPayloadManager.getVersion();
+                            setAccountLabelIfNecessary();
 
-                            if (walletVersion > PayloadManager.SUPPORTED_ENCRYPTION_VERSION) {
-                                mDataListener.showWalletVersionNotSupportedDialog((int) walletVersion);
+                            if (!mPayloadManager.getPayload().isUpgraded()) {
+                                mDataListener.goToUpgradeWalletActivity();
                             } else {
-                                setAccountLabelIfNecessary();
-
-                                if (!mPayloadManager.getPayload().isUpgraded()) {
-                                    mDataListener.goToUpgradeWalletActivity();
-                                } else {
-                                    mAppUtil.restartAppWithVerifiedPin();
-                                }
+                                mAppUtil.restartAppWithVerifiedPin();
                             }
 
-                        }, throwable -> mAppUtil.clearCredentialsAndRestart()));
+                        }, throwable -> {
+
+                            if (throwable instanceof InvalidCredentialsException) {
+                                mDataListener.goToPasswordRequiredActivity();
+
+                            } else if (throwable instanceof ServerConnectionException) {
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_ERROR);
+
+                            } else if (throwable instanceof UnsupportedVersionException) {
+                                mDataListener.showWalletVersionNotSupportedDialog(throwable.getMessage());
+
+                            } else if (throwable instanceof DecryptionException) {
+                                mDataListener.goToPasswordRequiredActivity();
+
+                            } else if (throwable instanceof PayloadException) {
+                                //This shouldn't happen - Payload retrieved from server couldn't be parsed
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR);
+                                mAppUtil.restartApp();
+
+                            } else if (throwable instanceof HDWalletException) {
+                                //This shouldn't happen. HD fatal error - not safe to continue - don't clear credentials
+                                mDataListener.showToast(R.string.unexpected_error, ToastCustom.TYPE_ERROR);
+                                mAppUtil.restartApp();
+                            }
+
+                        }));
     }
 
     public void validatePassword(CharSequenceX password) {
@@ -252,8 +279,15 @@ public class PinEntryViewModel implements ViewModel {
                             mDataListener.restartPage();
                             mDataListener.dismissProgressDialog();
                         }, throwable -> {
-                            showErrorToast(R.string.invalid_password);
-                            mDataListener.showValidationDialog();
+
+                            if (throwable instanceof ServerConnectionException) {
+                                mDataListener.showToast(R.string.check_connectivity_exit, ToastCustom.TYPE_ERROR);
+
+                            } else {
+                                showErrorToast(R.string.invalid_password);
+                                mDataListener.showValidationDialog();
+                            }
+
                         }));
     }
 

@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
@@ -10,6 +9,7 @@ import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
 import android.view.inputmethod.EditorInfo;
 
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.RecoverFundsViewModel;
 
@@ -21,7 +21,7 @@ public class RecoverFundsActivity extends BaseAuthActivity implements RecoverFun
 
     private RecoverFundsViewModel mViewModel;
     private ActivityRecoverFundsBinding mBinding;
-    private ProgressDialog mProgressDialog;
+    private MaterialProgressDialog mProgressDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,9 +91,8 @@ public class RecoverFundsActivity extends BaseAuthActivity implements RecoverFun
     @Override
     public void showProgressDialog(@StringRes int messageId) {
         dismissProgressDialog();
-        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog = new MaterialProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.app_name);
         mProgressDialog.setMessage(getString(messageId));
 
         if (!isFinishing()) mProgressDialog.show();

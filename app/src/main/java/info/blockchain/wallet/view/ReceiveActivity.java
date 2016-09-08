@@ -11,6 +11,7 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,9 +28,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 import info.blockchain.wallet.callbacks.CustomKeypadCallback;
@@ -66,7 +67,7 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
     @Thunk ActivityReceiveBinding mBinding;
     private CustomKeypad mCustomKeypad;
     private BottomSheetBehavior mBottomSheetBehavior;
-    private ArrayAdapter<String> mReceiveToAdapter;
+    private AddressAdapter mReceiveToAdapter;
 
     @Thunk boolean mTextChangeAllowed = true;
     private boolean mIsBTC = true;
@@ -154,13 +155,12 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
         mBinding.content.amountContainer.currencyFiat.setText(mViewModel.getCurrencyHelper().getFiatUnit());
 
         // Spinner
-        mReceiveToAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, mViewModel.getReceiveToList());
+        mReceiveToAdapter = new AddressAdapter(this, R.layout.spinner_item, mViewModel.getReceiveToList(), true);
         mReceiveToAdapter.setDropDownViewResource(R.layout.spinner_dropdown);
         mBinding.content.accounts.spinner.setAdapter(mReceiveToAdapter);
         mBinding.content.accounts.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
                 mBinding.content.accounts.spinner.setSelection(mBinding.content.accounts.spinner.getSelectedItemPosition());
                 Object object = mViewModel.getAccountItemForPosition(mBinding.content.accounts.spinner.getSelectedItemPosition());
 
@@ -174,6 +174,21 @@ public class ReceiveActivity extends BaseAuthActivity implements ReceiveViewMode
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
                 // No-op
+            }
+        });
+
+        mBinding.content.accounts.spinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mBinding.content.accounts.spinner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    mBinding.content.accounts.spinner.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mBinding.content.accounts.spinner.setDropDownWidth(mBinding.content.accounts.spinner.getWidth());
+                }
             }
         });
 

@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
  * Created by adambennett on 15/08/2016.
  */
 @Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class ManualPairingViewModelTest {
 
     private ManualPairingViewModel mSubject;
@@ -157,7 +157,7 @@ public class ManualPairingViewModelTest {
         when(mAuthDataManager.getEncryptedPayload(anyString(), anyString())).thenReturn(Observable.just("1234567890"));
         when(mAuthDataManager.startPollingAuthStatus(anyString())).thenReturn(Observable.just("1234567890"));
         doAnswer(invocation -> {
-            ((AuthDataManager.DecryptPayloadListener) invocation.getArguments()[3]).onCreateFail();
+            ((AuthDataManager.DecryptPayloadListener) invocation.getArguments()[3]).onPairFail();
             return null;
         }).when(mAuthDataManager).attemptDecryptPayload(
                 any(CharSequenceX.class), anyString(), anyString(), any(AuthDataManager.DecryptPayloadListener.class));

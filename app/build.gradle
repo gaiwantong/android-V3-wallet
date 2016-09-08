@@ -18,6 +18,7 @@ android {
         versionName "6.1.31"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        archivesBaseName = "blockchain-$versionName"
     }
 
     buildTypes {
@@ -38,8 +39,8 @@ android {
         }
         dogfood {
             signingConfig signingConfigs.debug
-            versionNameSuffix '-DOGFOOD'
             applicationIdSuffix ".dogfood"
+            versionNameSuffix '-DOGFOOD'
             debuggable true
             minifyEnabled true
             zipAlignEnabled true
@@ -78,10 +79,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
     dataBinding {
         enabled = true
     }
@@ -91,6 +88,7 @@ android {
         testLogging {
             events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
         }
+        reports.junitXml.destination = file('../build/test-results/')
         // This allows "unstable" builds on CI rather than straight failures
         ignoreFailures true
     }
@@ -130,17 +128,28 @@ dependencies {
     apt 'com.google.guava:guava:19.0'
     apt 'com.google.dagger:dagger-compiler:2.6'
 
-    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
+    // UI/Instrumentation Tests
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.1'
+    androidTestCompile "com.android.support:support-annotations:$supportVersion"
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile ('com.android.support.test:runner:0.5') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.2') {
+        exclude group: 'javax.inject', module: 'support-annotations'
+    }
+
+    // Unit Tests
+    testCompile 'org.json:json:20140107'
+    testCompile 'org.slf4j:slf4j-simple:1.7.13'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile ('org.robolectric:robolectric:3.1') {
+    testCompile ('org.robolectric:robolectric:3.1.2') {
         exclude group: 'com.google.guava'
         exclude group: 'com.google.protobuf'
     }
-
-    //Classes from the android framework won't work in local jvm unit tests. Added below for unit test purposes only
-    testCompile 'org.json:json:20140107'
-    testCompile 'org.slf4j:slf4j-simple:1.7.13'
 }
 
 buildscript {

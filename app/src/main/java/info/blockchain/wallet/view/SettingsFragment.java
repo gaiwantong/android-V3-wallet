@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,7 +27,6 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +51,7 @@ import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.ViewUtils;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.BackgroundExecutor;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
@@ -122,13 +121,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void fetchUpdatedSettings(){
         new AsyncTask<Void, Void, Void>() {
 
-            ProgressDialog progress;
+            MaterialProgressDialog progress;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
+                progress = new MaterialProgressDialog(getActivity());
                 progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
                 progress.show();
             }
@@ -451,13 +449,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void updatePin(final String pin){
         new AsyncTask<Void, Void, CharSequenceX>() {
 
-            ProgressDialog progress;
+            MaterialProgressDialog progress;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
+                progress = new MaterialProgressDialog(getActivity());
                 progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
                 progress.show();
             }
@@ -1006,38 +1003,45 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 String newConfirmedPw = etNewConfirmedPw.getText().toString();
                 final CharSequenceX walletPassword = payloadManager.getTempPassword();
 
-                if (currentPw.equals(walletPassword.toString())) {
-                    if (newPw.equals(newConfirmedPw)) {
-                        if (newConfirmedPw == null || newConfirmedPw.length() < 9 || newConfirmedPw.length() > 255) {
-                            ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-                        } else if (newConfirmedPw.equals(settingsApi.getPasswordHint1())) {
-                            ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
-                        } else if (pwStrength < 50) {
-                            new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
-                                    .setTitle(R.string.app_name)
-                                    .setMessage(R.string.weak_password)
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.yes, (dialog1, which) -> {
-                                        etNewConfirmedPw.setText("");
-                                        etNewConfirmedPw.requestFocus();
-                                        etNewPw.setText("");
-                                        etNewPw.requestFocus();
-                                    })
-                                    .setNegativeButton(R.string.polite_no, (dialog1, which) ->
-                                            updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword))
-                                    .show();
+                if(!currentPw.equals(newPw)) {
+                    if (currentPw.equals(walletPassword.toString())) {
+                        if (newPw.equals(newConfirmedPw)) {
+                            if (newConfirmedPw == null || newConfirmedPw.length() < 9 || newConfirmedPw.length() > 255) {
+                                ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                            } else if (newConfirmedPw.equals(settingsApi.getPasswordHint1())) {
+                                ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
+                            } else if (pwStrength < 50) {
+                                new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                                        .setTitle(R.string.app_name)
+                                        .setMessage(R.string.weak_password)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.yes, (dialog1, which) -> {
+                                            etNewConfirmedPw.setText("");
+                                            etNewConfirmedPw.requestFocus();
+                                            etNewPw.setText("");
+                                            etNewPw.requestFocus();
+                                        })
+                                        .setNegativeButton(R.string.polite_no, (dialog1, which) ->
+                                                updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword))
+                                        .show();
+                            } else {
+                                updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
+                            }
                         } else {
-                            updatePassword(alertDialog, new CharSequenceX(newConfirmedPw), walletPassword);
+                            etNewConfirmedPw.setText("");
+                            etNewConfirmedPw.requestFocus();
+                            ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                         }
                     } else {
-                        etNewConfirmedPw.setText("");
-                        etNewConfirmedPw.requestFocus();
-                        ToastCustom.makeText(getActivity(), getString(R.string.password_mismatch_error), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                        etCurrentPw.setText("");
+                        etCurrentPw.requestFocus();
+                        ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                     }
-                } else {
-                    etCurrentPw.setText("");
-                    etCurrentPw.requestFocus();
-                    ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
+                }else{
+                    etNewPw.setText("");
+                    etNewConfirmedPw.setText("");
+                    etNewPw.requestFocus();
+                    ToastCustom.makeText(getActivity(), getString(R.string.change_password_new_matches_current), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
                 }
             });
         });
@@ -1073,8 +1077,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void updatePassword(AlertDialog alertDialog, final CharSequenceX updatedPassword, final CharSequenceX fallbackPassword){
-        ProgressDialog progress = new ProgressDialog(getActivity());
-        progress.setTitle(R.string.app_name);
+        MaterialProgressDialog progress = new MaterialProgressDialog(getActivity());
         progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
         progress.setCancelable(false);
         progress.show();
