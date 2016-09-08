@@ -19,10 +19,10 @@ import info.blockchain.wallet.util.PrefsUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.concurrent.TimeUnit;
@@ -32,9 +32,6 @@ import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
 import piuk.blockchain.android.di.ApiModule;
 import piuk.blockchain.android.di.ApplicationModule;
-import piuk.blockchain.android.di.DataManagerModule;
-import piuk.blockchain.android.di.Injector;
-import piuk.blockchain.android.di.InjectorTestUtils;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
@@ -52,31 +49,23 @@ import static org.mockito.Mockito.when;
  * Created by adambennett on 15/08/2016.
  */
 @Config(sdk = 23, constants = BuildConfig.class, application = BlockchainTestApplication.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class AuthDataManagerTest extends RxTest {
 
     private static final String STRING_TO_RETURN = "string_to_return";
 
-    private AuthDataManager mSubject;
     @Mock private PayloadManager mPayloadManager;
     @Mock private PrefsUtil mPrefsUtil;
     @Mock private WalletPayload mAccess;
     @Mock private AppUtil mAppUtil;
     @Mock private AESUtilWrapper mAesUtils;
     @Mock private AccessState mAccessState;
+    @InjectMocks AuthDataManager mSubject;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-
-        InjectorTestUtils.initApplicationComponent(
-                Injector.getInstance(),
-                new MockApplicationModule(RuntimeEnvironment.application),
-                new MockApiModule(),
-                new DataManagerModule());
-
-        mSubject = new AuthDataManager();
     }
 
     @Test
@@ -210,7 +199,7 @@ public class AuthDataManagerTest extends RxTest {
 
     /**
      * Getting encrypted payload returns error, should be caught by Observable and transformed into
-     * {@link PinStore#KEY_AUTH_REQUIRED}
+     * {@link WalletPayload#KEY_AUTH_REQUIRED}
      */
     @Test
     public void startPollingAuthStatusError() throws Exception {

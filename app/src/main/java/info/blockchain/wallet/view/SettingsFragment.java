@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,6 +51,7 @@ import info.blockchain.wallet.util.PasswordUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
 import info.blockchain.wallet.util.ViewUtils;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.BackgroundExecutor;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 
@@ -121,13 +121,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void fetchUpdatedSettings(){
         new AsyncTask<Void, Void, Void>() {
 
-            ProgressDialog progress;
+            MaterialProgressDialog progress;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
+                progress = new MaterialProgressDialog(getActivity());
                 progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
                 progress.show();
             }
@@ -450,13 +449,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     private void updatePin(final String pin){
         new AsyncTask<Void, Void, CharSequenceX>() {
 
-            ProgressDialog progress;
+            MaterialProgressDialog progress;
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(R.string.app_name);
+                progress = new MaterialProgressDialog(getActivity());
                 progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
                 progress.show();
             }
@@ -1079,8 +1077,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
     }
 
     private void updatePassword(AlertDialog alertDialog, final CharSequenceX updatedPassword, final CharSequenceX fallbackPassword){
-        ProgressDialog progress = new ProgressDialog(getActivity());
-        progress.setTitle(R.string.app_name);
+        MaterialProgressDialog progress = new MaterialProgressDialog(getActivity());
         progress.setMessage(getActivity().getResources().getString(R.string.please_wait));
         progress.setCancelable(false);
         progress.show();

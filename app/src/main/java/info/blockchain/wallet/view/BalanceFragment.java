@@ -57,6 +57,7 @@ import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.SSLVerifyUtil;
+import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 
@@ -349,13 +350,11 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     private void sendClicked() {
-        new SSLVerifyUtil(context).validateSSL();
         startActivity(new Intent(getActivity(), SendActivity.class));
         binding.fab.collapse();
     }
 
     private void receiveClicked() {
-        new SSLVerifyUtil(context).validateSSL();
         startActivity(new Intent(getActivity(), ReceiveActivity.class));
         binding.fab.collapse();
     }

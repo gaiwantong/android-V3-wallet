@@ -127,8 +127,10 @@ public class AuthDataManager {
                         () -> {
 
                             mPayloadManager.setTempPassword(password);
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
+                            if (!subscriber.isUnsubscribed()) {
+                                subscriber.onNext(null);
+                                subscriber.onCompleted();
+                            }
                         });
             } catch (Exception e) {
                 subscriber.onError(e);

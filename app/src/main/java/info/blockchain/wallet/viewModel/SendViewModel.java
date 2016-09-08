@@ -14,6 +14,7 @@ import info.blockchain.api.Unspent;
 import info.blockchain.util.FeeUtil;
 import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
 import info.blockchain.wallet.cache.DynamicFeeCache;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.model.PaymentConfirmationDetails;
@@ -81,6 +82,7 @@ public class SendViewModel implements ViewModel {
 
     @Inject PrefsUtil prefsUtil;
     @Inject WalletAccountHelper walletAccountHelper;
+    @Inject SSLVerifyUtil sslVerifyUtil;
 
     public SendViewModel(Context context, DataListener dataListener) {
 
@@ -110,6 +112,8 @@ public class SendViewModel implements ViewModel {
         dataListener.onUpdateBtcUnit(this.sendModel.btcUnit);
         dataListener.onUpdateFiatUnit(this.sendModel.fiatUnit);
         getSuggestedFee();
+
+        sslVerifyUtil.validateSSL();
     }
 
     private boolean getBtcDisplayState(){

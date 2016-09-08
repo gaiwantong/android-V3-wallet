@@ -11,8 +11,8 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
-import info.blockchain.wallet.util.SSLVerifyUtil;
 
+import piuk.blockchain.android.annotations.Thunk;
 import piuk.blockchain.android.di.Injector;
 import piuk.blockchain.android.exceptions.LoggingExceptionHandler;
 import rx.plugins.RxJavaHooks;
@@ -23,7 +23,7 @@ import rx.plugins.RxJavaHooks;
 
 public class BlockchainApplication extends Application {
 
-    private static final String TAG = BlockchainApplication.class.getSimpleName();
+    @Thunk static final String TAG = BlockchainApplication.class.getSimpleName();
     private static final String RX_ERROR_TAG = "RxJava Error";
 
     @Override
@@ -50,7 +50,6 @@ public class BlockchainApplication extends Application {
         AccessState.getInstance().initAccessState(this);
 
         checkSecurityProviderAndPatchIfNeeded();
-        verifySslPinning();
     }
 
     /**
@@ -88,7 +87,7 @@ public class BlockchainApplication extends Application {
      *
      * @param errorCode Recoverable error code
      */
-    private void showError(int errorCode) {
+    @Thunk void showError(int errorCode) {
         // TODO: 05/08/2016 Decide if we should alert users here or not
         Log.e(TAG, "Security Provider install failed with recoverable error: " +
                 GoogleApiAvailability.getInstance().getErrorString(errorCode));
@@ -99,12 +98,8 @@ public class BlockchainApplication extends Application {
      * App should consider all HTTP communication to be vulnerable, and take
      * appropriate action.
      */
-    private void onProviderInstallerNotAvailable() {
+    @Thunk void onProviderInstallerNotAvailable() {
         // TODO: 05/08/2016 Decide if we should take action here or not
         Log.wtf(TAG, "Security Provider Installer not available");
-    }
-
-    private void verifySslPinning() {
-        new SSLVerifyUtil(this).validateSSL();
     }
 }

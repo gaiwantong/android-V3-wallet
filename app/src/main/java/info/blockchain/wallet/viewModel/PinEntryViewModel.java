@@ -22,6 +22,7 @@ import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.CharSequenceX;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.StringUtils;
 import info.blockchain.wallet.util.ViewUtils;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -51,6 +52,7 @@ public class PinEntryViewModel implements ViewModel {
     @Inject protected PrefsUtil mPrefsUtil;
     @Inject protected PayloadManager mPayloadManager;
     @Inject protected StringUtils mStringUtils;
+    @Inject protected SSLVerifyUtil mSSLVerifyUtil;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     private String email;
@@ -100,6 +102,8 @@ public class PinEntryViewModel implements ViewModel {
     }
 
     public void onViewReady() {
+        mSSLVerifyUtil.validateSSL();
+
         if (mDataListener.getPageIntent() != null) {
             Bundle extras = mDataListener.getPageIntent().getExtras();
             if (extras != null) {

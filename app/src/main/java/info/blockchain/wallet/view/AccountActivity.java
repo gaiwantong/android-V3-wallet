@@ -6,7 +6,6 @@ import com.google.zxing.client.android.Intents;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -61,6 +60,7 @@ import info.blockchain.wallet.util.PermissionUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.PrivateKeyFactory;
 import info.blockchain.wallet.util.ViewUtils;
+import info.blockchain.wallet.view.customviews.MaterialProgressDialog;
 import info.blockchain.wallet.view.helpers.RecyclerItemClickListener;
 import info.blockchain.wallet.view.helpers.SecondPasswordHandler;
 import info.blockchain.wallet.view.helpers.ToastCustom;
@@ -124,7 +124,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
     private ArrayList<Integer> headerPositions;
     private int hdAccountsIdx;
     private List<LegacyAddress> legacy = null;
-    private ProgressDialog progress = null;
+    private MaterialProgressDialog progress = null;
     private Context context = null;
     private MenuItem transferFundsMenuItem = null;
     private PrefsUtil prefsUtil;
@@ -399,7 +399,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
             new AsyncTask<Void, Void, Void>() {
 
-                ProgressDialog progress;
+                MaterialProgressDialog progress;
 
                 @Override
                 protected void onPreExecute() {
@@ -409,9 +409,8 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
                         progress.dismiss();
                         progress = null;
                     }
-                    progress = new ProgressDialog(AccountActivity.this);
-                    progress.setTitle(R.string.app_name);
-                    progress.setMessage(AccountActivity.this.getResources().getString(R.string.please_wait));
+                    progress = new MaterialProgressDialog(AccountActivity.this);
+                    progress.setMessage(getString(R.string.please_wait));
                     progress.show();
                 }
 
@@ -560,7 +559,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         String address = payloadManager.getXpubFromAccountIndex(index);
         Long amount = MultiAddrFactory.getInstance().getXpubAmounts().get(address);
-        if (amount == null) amount = 0l;
+        if (amount == null) amount = 0L;
 
         String unit = (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
@@ -571,7 +570,6 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         String address = legacy.get(index).getAddress();
         Long amount = MultiAddrFactory.getInstance().getLegacyBalance(address);
-        if (amount == null) amount = 0l;
         String unit = (String) monetaryUtil.getBTCUnits()[prefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC)];
 
         return monetaryUtil.getDisplayAmount(amount) + " " + unit;
@@ -654,8 +652,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
                             progress.dismiss();
                             progress = null;
                         }
-                        progress = new ProgressDialog(AccountActivity.this);
-                        progress.setTitle(R.string.app_name);
+                        progress = new MaterialProgressDialog(AccountActivity.this);
                         progress.setMessage(AccountActivity.this.getResources().getString(R.string.please_wait));
                         progress.show();
 
@@ -987,8 +984,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         final Handler mHandler = new Handler();
 
-        final ProgressDialog progress = new ProgressDialog(AccountActivity.this);
-        progress.setTitle(R.string.app_name);
+        final MaterialProgressDialog progress = new MaterialProgressDialog(this);
         progress.setMessage(getString(R.string.please_wait));
         progress.setCancelable(false);
 
@@ -1069,8 +1065,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
             return;
         }
 
-        final ProgressDialog progress = new ProgressDialog(AccountActivity.this);
-        progress.setTitle(R.string.app_name);
+        final MaterialProgressDialog progress = new MaterialProgressDialog(this);
         progress.setMessage(getString(R.string.saving_address));
         progress.setCancelable(false);
         progress.show();
@@ -1213,8 +1208,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
     private void showProgressDialog(){
         dismissProgressDialog();
 
-        progress = new ProgressDialog(this);
-        progress.setTitle(R.string.app_name);
+        progress = new MaterialProgressDialog(this);
         progress.setMessage(context.getResources().getString(R.string.please_wait));
         progress.setCancelable(false);
         progress.show();
@@ -1258,8 +1252,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
     public void onShowProgressDialog(String title, String message) {
         onDismissProgressDialog();
 
-        progress = new ProgressDialog(this);
-        progress.setTitle(title);
+        progress = new MaterialProgressDialog(this);
         progress.setMessage(message);
         progress.show();
     }
@@ -1294,7 +1287,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
     private static class ArchiveAsync extends AsyncTask<Void, Void, Void> {
 
-        private ProgressDialog progress;
+        private MaterialProgressDialog progress;
         private final WeakReference<AccountActivity> context;
         private PayloadManager payloadManager;
 
@@ -1309,8 +1302,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
             super.onPreExecute();
             AccountActivity accountActivity = context.get();
             if (accountActivity != null) {
-                progress = new ProgressDialog(accountActivity);
-                progress.setTitle(R.string.app_name);
+                progress = new MaterialProgressDialog(accountActivity);
                 progress.setMessage(accountActivity.getResources().getString(R.string.please_wait));
                 progress.setCancelable(false);
                 progress.show();
