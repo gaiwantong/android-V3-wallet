@@ -1,6 +1,5 @@
 package info.blockchain.wallet.view;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -12,12 +11,10 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -34,39 +31,29 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
-import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
-import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
@@ -75,6 +62,8 @@ import piuk.blockchain.android.databinding.FragmentBalanceBinding;
 public class BalanceFragment extends Fragment implements BalanceViewModel.DataListener{
 
     public static final String ACTION_INTENT = "info.blockchain.wallet.ui.BalanceFragment.REFRESH";
+    public static final String KEY_TRANSACTION_LIST_POSITION = "key_transaction_list_position";
+    public static final String KEY_IS_BTC = "key_is_btc";
     private final static int SHOW_BTC = 1;
     private final static int SHOW_FIAT = 2;
     private final static int SHOW_HIDE = 3;
@@ -497,297 +486,11 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 R.color.blockchain_send_red);
     }
 
-    private void onRowClick(final View detailsView, final int position) {
-
-        if (viewModel.getTransactionList() != null) {
-            final Tx transactionSummary = viewModel.getTransactionList().get(position);
-            final String strTx = transactionSummary.getHash();
-            final String strConfirmations = Long.toString(transactionSummary.getConfirmations());
-
-            try {
-                mIsViewExpanded = rowViewState.get(detailsView);
-            } catch (Exception e) {
-                mIsViewExpanded = false;
-            }
-
-            final ScrollView txsDetails = (ScrollView) detailsView.findViewById(R.id.txs_details);
-            final TextView tvOutAddr = (TextView) detailsView.findViewById(R.id.tx_from_addr);
-
-            final TextView tvFee = (TextView) detailsView.findViewById(R.id.tx_fee_value);
-            final TextView tvTxHash = (TextView) detailsView.findViewById(R.id.tx_hash);
-            final ProgressBar progressView = (ProgressBar) detailsView.findViewById(R.id.progress_view);
-            final TextView tvStatus = (TextView) detailsView.findViewById(R.id.transaction_status);
-            final ImageView ivStatus = (ImageView) detailsView.findViewById(R.id.transaction_status_icon);
-            final LinearLayout toAddressContainer = (LinearLayout) detailsView.findViewById(R.id.tx_details_to_include_container);
-
-            final LinearLayout feeContainer = (LinearLayout) detailsView.findViewById(R.id.tx_fee_container);
-            final View feeSeparator = detailsView.findViewById(R.id.tx_fee_separator);
-
-            if (!mIsViewExpanded) {
-                if (prevRowClicked != null && prevRowClicked == binding.rvTransactions.getLayoutManager().getChildAt(position)) {
-                    txsDetails.setVisibility(View.INVISIBLE);
-                    prevRowClicked.findViewById(R.id.tx_row).setBackgroundResource(R.drawable.selector_pearl_white_tx);
-                    prevRowClicked = null;
-                    return;
-                }
-
-                txsDetails.setVisibility(View.VISIBLE);
-                progressView.setVisibility(View.VISIBLE);
-                tvOutAddr.setVisibility(View.INVISIBLE);
-                toAddressContainer.setVisibility(View.INVISIBLE);
-                tvStatus.setVisibility(View.INVISIBLE);
-                ivStatus.setVisibility(View.INVISIBLE);
-
-                if (transactionSummary.getDirection().equals(MultiAddrFactory.RECEIVED)) {
-                    feeContainer.setVisibility(View.GONE);
-                    feeSeparator.setVisibility(View.GONE);
-                }
-
-                tvTxHash.setText(strTx);
-                tvTxHash.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        if (event.getAction() == MotionEvent.ACTION_UP && !strTx.isEmpty()) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://blockchain.info/tx/" + strTx));
-                            startActivity(browserIntent);
-                        }
-                        return true;
-                    }
-                });
-                tvStatus.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            if (tvStatus.getTag() != null) {
-                                String tag = tvStatus.getTag().toString();
-                                String text = tvStatus.getText().toString();
-                                tvStatus.setText(tag);
-                                tvStatus.setTag(text);
-                            }
-                        }
-                        return true;
-                    }
-                });
-
-                TextView tvResult = (TextView) detailsView.findViewById(R.id.result);
-                tvResult.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        if (event.getAction() == MotionEvent.ACTION_UP) {
-                            isBTC = !isBTC;
-                            viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
-                        }
-                        return true;
-                    }
-                });
-
-                txsDetails.setOnTouchListener((v, event) -> {
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                        case MotionEvent.ACTION_UP:
-                            v.getParent().requestDisallowInterceptTouchEvent(false);
-                            break;
-                    }
-                    return false;
-                });
-
-                //Get Details
-                if (transactionSummary.getHash().isEmpty()) {
-                    context.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tvStatus.setText(context.getString(R.string.WAITING));
-
-                            tvOutAddr.setText("");
-                            tvTxHash.setText("");
-
-                            tvOutAddr.setVisibility(View.VISIBLE);
-                            tvStatus.setVisibility(View.VISIBLE);
-                        }
-                    });
-                } else {
-                    new AsyncTask<Void, Void, String>() {
-
-                        @Override
-                        protected String doInBackground(Void... params) {
-
-                            String stringResult = null;
-                            try {
-                                stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            return stringResult;
-                        }
-
-                        @Override
-                        protected void onPostExecute(String stringResult) {
-                            super.onPostExecute(stringResult);
-
-                            if (stringResult != null) {
-
-                                //Get transaction details
-                                Transaction transactionDetails = null;
-                                try {
-//                                    Log.v("", "stringResult: " + stringResult);
-                                    transactionDetails = new Transaction(new JSONObject(stringResult));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                progressView.setVisibility(View.GONE);
-
-                                //Fee
-                                String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-                                String fee = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
-                                if (isBTC)
-                                    fee = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
-                                tvFee.setText(fee);
-
-                                //Filter non-change addresses
-                                Pair<HashMap<String, Long>, HashMap<String, Long>> pair = viewModel.filterNonChangeAddresses(transactionDetails, transactionSummary);
-
-                                //From
-                                HashMap<String,Long> inputMap = pair.first;
-
-                                //TODO start- Product team considering separate fields
-                                ArrayList<String> labelList = new ArrayList<String>();
-                                Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
-                                for(Map.Entry<String, Long> set : entrySet){
-                                    String label = viewModel.addressToLabel(set.getKey());
-                                    if(!labelList.contains(label))
-                                        labelList.add(label);
-                                }
-
-                                String inputMapString = StringUtils.join(labelList.toArray(), "\n");
-                                tvOutAddr.setText(viewModel.addressToLabel(inputMapString));
-                                //todo end
-
-                                //To Address
-                                HashMap<String,Long> outputMap = pair.second;
-                                toAddressContainer.removeAllViews();
-
-                                for (Map.Entry<String, Long> item : outputMap.entrySet()) {
-
-                                    View v = LayoutInflater.from(context).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
-                                    TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
-
-                                    TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
-                                    toAddressContainer.addView(v);
-
-                                    tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
-                                    long amount = item.getValue();
-                                    String amountS = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
-                                    if (isBTC)
-                                        amountS = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
-
-                                    tvFee.setText(fee);
-                                    tvToAddrTotal.setText(amountS);
-                                }
-
-                                tvStatus.setTag(strConfirmations);
-
-                                if (transactionSummary.getConfirmations() >= nbConfirmations) {
-                                    ivStatus.setImageResource(R.drawable.ic_done_grey600_24dp);
-                                    tvStatus.setText(getString(R.string.COMPLETE));
-                                } else {
-                                    ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
-                                    tvStatus.setText(getString(R.string.PENDING));
-                                }
-                                tvOutAddr.setVisibility(View.VISIBLE);
-                                toAddressContainer.setVisibility(View.VISIBLE);
-                                tvStatus.setVisibility(View.VISIBLE);
-                                ivStatus.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }.execute();
-                }
-            }
-
-            if (originalHeight == 0) {
-                originalHeight = detailsView.getHeight();
-            }
-
-            newHeight = originalHeight + txsDetails.getHeight();
-
-            if (!mIsViewExpanded) {
-                expandView(detailsView, txsDetails);
-            } else {
-                collapseView(detailsView, txsDetails);
-            }
-
-            rowViewState.put(detailsView, mIsViewExpanded);
-        }
-    }
-
-    private void expandView(View view, ScrollView txsDetails) {
-
-        view.setBackgroundColor(getResources().getColor(R.color.white));
-
-        //Fade Details in - expansion of row will create slide down effect
-        txsDetails.setVisibility(View.VISIBLE);
-        txsDetails.setAnimation(AnimationUtils.loadAnimation(context, R.anim.abc_fade_in));
-
-        mIsViewExpanded = !mIsViewExpanded;
-        ValueAnimator resizeAnimator = ValueAnimator.ofInt(originalHeight, newHeight);
-        startAnim(view, resizeAnimator);
-    }
-
-    private void collapseView(View view, final ScrollView txsDetails) {
-
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-        view.setBackgroundResource(outValue.resourceId);
-
-        mIsViewExpanded = !mIsViewExpanded;
-        ValueAnimator resizeAnimator = ValueAnimator.ofInt(newHeight, originalHeight);
-
-        txsDetails.setAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down));
-
-        Animation anim = new AlphaAnimation(1.00f, 0.00f);
-        anim.setDuration(expandDuration / 2);
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                txsDetails.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        txsDetails.startAnimation(anim);
-
-        startAnim(view, resizeAnimator);
-    }
-
-    private void startAnim(final View view, ValueAnimator resizeAnimator) {
-
-        //Set and start row collapse/expand
-        resizeAnimator.setDuration(expandDuration);
-        resizeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        resizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            public void onAnimationUpdate(ValueAnimator animation) {
-                Integer value = (Integer) animation.getAnimatedValue();
-                view.getLayoutParams().height = value.intValue();
-                view.requestLayout();
-            }
-        });
-
-        resizeAnimator.start();
+    private void onRowClick(int position) {
+        Intent intent = new Intent(getActivity(), TransactionDetailActivity.class);
+        intent.putExtra(KEY_IS_BTC, isBTC);
+        intent.putExtra(KEY_TRANSACTION_LIST_POSITION, position);
+        startActivity(intent);
     }
 
     @Override
@@ -923,7 +626,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                     parent.onTouchEvent(event);
 
                     if (event.getAction() == MotionEvent.ACTION_UP) {
-                        onRowClick(holder.itemView, position);
+                        onRowClick(position);
                     }
                     return true;
                 });

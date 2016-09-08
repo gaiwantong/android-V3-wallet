@@ -362,12 +362,12 @@
     <string name="transaction_failed_will_retry">Transaction failed, will try again in a few seconds.</string>
 
     <string name="limit_21m_exceeded">This amount cannot be transmitted on the Bitcoin network.</string>
-    <string name="validating_password">Validating Password...</string>
-    <string name="validating_pin">Validating PIN...</string>
-    <string name="creating_pin">Creating PIN...</string>
-    <string name="decrypting_wallet">Decrypting Wallet...</string>
-    <string name="verifying_email">Verifying Email...</string>
-    <string name="pairing_wallet">Pairing Wallet...</string>
+    <string name="validating_password">Validating Password…</string>
+    <string name="validating_pin">Validating PIN…</string>
+    <string name="creating_pin">Creating PIN…</string>
+    <string name="decrypting_wallet">Decrypting Wallet…</string>
+    <string name="verifying_email">Verifying Email…</string>
+    <string name="pairing_wallet">Pairing Wallet…</string>
     <string name="transaction_queued">Transaction queued</string>
     <string name="WAITING">QUEUED</string>
     <string name="password_unchanged">Password unchanged</string>
@@ -394,7 +394,7 @@
     <string name="device_rooted">Your device appears to be rooted. Be advised that storing funds on a rooted device is unsafe and, in addition, can cause stability issues. If you continue to use our Bitcoin wallet on this device we recommend that you use double encryption on your Blockchain account.</string>
     <string name="address_already_in_wallet">Your wallet already contains this address.</string>
     <string name="cannot_create_address">A new address cannot be created at this time. Please try again.</string>
-    <string name="saving_address">Saving address...</string>
+    <string name="saving_address">Saving address…</string>
     <string name="cannot_create_wallet">Wallet cannot be created/restored at this time. Please try again.</string>
 
     <string name="cannot_launch_app">Blockchain Wallet cannot be run on this device.</string>
@@ -403,7 +403,7 @@
     <string name="rename_address">Rename Address</string>
     <string name="edit">Edit</string>
     <string name="label_cant_be_empty">Label can\'t be blank.</string>
-    <string name="saving_changes">Saving changes...</string>
+    <string name="saving_changes">Saving changes…</string>
     <string name="warning">Warning</string>
 
     <string name="ssl_no_connection">We are unable to connect to the host to verify the SSL certificate. Please verify your network connection and device before continuing.</string>
@@ -585,4 +585,12 @@
     <string name="sms_notifications">SMS Notifications</string>
     <string name="sms_notifications_summary">Enable notifications to receive an SMS whenever you receive bitcoins. Only labeled addresses and imported addresses are eligible to trigger notifications.</string>
 
+    <!-- TRANSACTION DETAILS -->
+    <string name="transaction_detail_title">Transaction</string>
+    <string name="transaction_detail_description_hint">What\'s this for?</string>
+    <string name="transaction_detail_date">Date</string>
+    <string name="transaction_detail_status">Status</string>
+    <string name="transaction_detail_confirmed">Confirmed</string>
+    <string name="transaction_detail_pending">Pending (%1$s/%2$s Confirmations)</string>
+    <string name="transaction_detail_fee">"Transaction fee: %1$s"</string>
 </resources>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="info.blockchain.wallet.viewModel.TransactionDetailViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar_general" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- MAIN DETAILS -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/transaction_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="20sp"
+                        tools:text="Received"
+                        tools:textColor="@color/blockchain_receive_green" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/transaction_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:textSize="20sp"
+                        tools:text="1.234567 BTC"
+                        tools:textColor="@color/blockchain_receive_green" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/transaction_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/transaction_amount"
+                        android:textColor="@color/light_grey_text"
+                        android:textSize="14sp"
+                        tools:text="Value when recieved: $200" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/transaction_fee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/transaction_value"
+                        android:textColor="@color/light_grey_text"
+                        android:textSize="14sp"
+                        tools:text="Transaction fee: 0.00000124 BTC" />
+
+                </RelativeLayout>
+
+                <include layout="@layout/divider_grey" />
+
+                <!-- DESCRIPTION -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/title_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/description"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/description_field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/title_description"
+                        android:background="@android:color/transparent"
+                        android:ellipsize="end"
+                        android:hint="@string/transaction_detail_description_hint"
+                        android:maxLines="1"
+                        android:textColorHint="@color/light_grey_text"
+                        android:textSize="16sp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/edit_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/selector_borderless"
+                        app:srcCompat="@drawable/ic_mode_edit" />
+
+                </RelativeLayout>
+
+                <include layout="@layout/divider_grey" />
+
+                <!-- TO/FROM LAYOUT -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/to"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/to_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left"
+                            android:layout_marginBottom="24dp"
+                            android:layout_weight="0.8"
+                            android:textColor="@color/black"
+                            android:textSize="16sp"
+                            tools:text="My Bitcoin Wallet" />
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/to_dropdown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right"
+                            android:layout_weight="0.2"
+                            android:background="@drawable/selector_borderless"
+                            android:visibility="gone"
+                            android:src="@drawable/ic_arrow_drop_down_grey600_24dp" />
+
+                    </LinearLayout>
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/from"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/from_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        tools:text="1XUzFYTvEjWxLkqtL4100MQ7zyzRvq9xXX" />
+                </LinearLayout>
+
+                <include layout="@layout/divider_grey" />
+
+
+                <!-- DATE LAYOUT -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/transaction_detail_date"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        tools:text="August 18, 2016 @ 12:15pm" />
+
+                </LinearLayout>
+
+                <include layout="@layout/divider_grey" />
+
+                <!-- DATE LAYOUT -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/transaction_detail_status"
+                        android:textColor="@color/blockchain_grey"
+                        android:textSize="14sp" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/blockchain_blue"
+                        android:textSize="16sp"
+                        tools:text="Confirmed" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>
