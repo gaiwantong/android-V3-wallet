@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 
 import info.blockchain.wallet.datamanagers.ReceiveDataManager;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 import info.blockchain.wallet.model.ItemAccount;
 import info.blockchain.wallet.payload.Account;
@@ -61,6 +62,7 @@ public class ReceiveViewModel implements ViewModel {
     @Inject StringUtils mStringUtils;
     @Inject ReceiveDataManager mDataManager;
     @Inject WalletAccountHelper mWalletAccountHelper;
+    @Inject SSLVerifyUtil mSSLVerifyUtil;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
     @VisibleForTesting HashBiMap<Integer, Object> mAccountMap;
     @VisibleForTesting SparseIntArray mSpinnerIndexMap;
@@ -98,6 +100,7 @@ public class ReceiveViewModel implements ViewModel {
     }
 
     public void onViewReady() {
+        mSSLVerifyUtil.validateSSL();
         updateSpinnerList();
     }
 
