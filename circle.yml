@@ -5,6 +5,10 @@ machine:
   java:
     version: oraclejdk8
 
+notify:
+  webhooks:
+    - url: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
+
 general:
    artifacts:
      - $CIRCLE_TEST_REPORTS
@@ -28,7 +32,8 @@ dependencies:
 
 test:
   override:
-    - ./gradlew assembleProdRelease testProdReleaseUnitTest --no-daemon -Dpre-dex=false --stacktrace
+    - ./gradlew assembleDevDebug testDevDebugUnitTest testDevDebugUnitTestCoverage coveralls --no-daemon -Dpre-dex=false --stacktrace
   post:
+    # Move unit test XML to correct directory
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;

@@ -2,6 +2,7 @@ package piuk.blockchain.android;
 
 import android.app.Application;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import info.blockchain.wallet.access.AccessState;
@@ -88,7 +89,35 @@ public class LauncherViewModelTest {
     }
 
     /**
-     * Everything is fine, but PIN not validated. Expected output is {@link LauncherActivity#onRequestPin()}
+     * Bitcoin URI is found, expected to step into Bitcoin branch and call {@link
+     * LauncherActivity#onStartMainActivity()}
+     */
+    @Test
+    public void onViewReadyBitcoinUri() throws Exception {
+        // Arrange
+        when(mLauncherActivity.getPageIntent()).thenReturn(mIntent);
+        when(mIntent.getAction()).thenReturn(Intent.ACTION_VIEW);
+        when(mIntent.getScheme()).thenReturn("bitcoin");
+        when(mIntent.getData()).thenReturn(Uri.parse("bitcoin uri"));
+        when(mIntent.getExtras()).thenReturn(mExtras);
+        when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(true);
+        when(mExtras.getBoolean(INTENT_EXTRA_VERIFIED)).thenReturn(true);
+        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(false);
+        when(mAppUtil.isSane()).thenReturn(true);
+        when(mPayloadManager.getPayload()).thenReturn(mPayload);
+        when(mPayload.isUpgraded()).thenReturn(true);
+        when(mAccessState.isLoggedIn()).thenReturn(true);
+        // Act
+        mSubject.onViewReady();
+        // Assert
+        verify(mPrefsUtil).setValue(PrefsUtil.KEY_SCHEME_URL, "bitcoin uri");
+        verify(mLauncherActivity).onStartMainActivity();
+    }
+
+    /**
+     * Everything is fine, but PIN not validated. Expected output is {@link
+     * LauncherActivity#onRequestPin()}
      */
     @Test
     public void onViewReadyNotVerified() throws Exception {
@@ -106,6 +135,29 @@ public class LauncherViewModelTest {
         mSubject.onViewReady();
         // Assert
         verify(mLauncherActivity).onRequestPin();
+    }
+
+    /**
+     * Everything is fine, but PIN not validated. However, {@link AccessState} returns logged in.
+     * Expected output is {@link LauncherActivity#onStartMainActivity()}
+     */
+    @Test
+    public void onViewReadyPinNotValidatedButLoggedInt() throws Exception {
+        // Arrange
+        when(mLauncherActivity.getPageIntent()).thenReturn(mIntent);
+        when(mIntent.getExtras()).thenReturn(mExtras);
+        when(mExtras.containsKey(INTENT_EXTRA_VERIFIED)).thenReturn(false);
+        when(mPrefsUtil.getValue(anyString(), anyString())).thenReturn("1234567890");
+        when(mPrefsUtil.getValue(eq(PrefsUtil.LOGGED_OUT), anyBoolean())).thenReturn(false);
+        when(mAppUtil.isSane()).thenReturn(true);
+        when(mPayloadManager.getPayload()).thenReturn(mPayload);
+        when(mPayload.isUpgraded()).thenReturn(true);
+        when(mAccessState.isLoggedIn()).thenReturn(true);
+        // Act
+        mSubject.onViewReady();
+        // Assert
+        verify(mAccessState).setIsLoggedIn(true);
+        verify(mLauncherActivity).onStartMainActivity();
     }
 
     /**
@@ -159,7 +211,8 @@ public class LauncherViewModelTest {
     }
 
     /**
-     * Everything is fine, but not upgraded. Expected output is {@link LauncherActivity#onRequestUpgrade()}
+     * Everything is fine, but not upgraded. Expected output is {@link
+     * LauncherActivity#onRequestUpgrade()}
      */
     @Test
     public void onViewReadyNotUpgraded() throws Exception {
@@ -180,7 +233,8 @@ public class LauncherViewModelTest {
     }
 
     /**
-     * GUID exists, Shared Key exists but user logged out. Expected output is {@link LauncherActivity#onReEnterPassword()}
+     * GUID exists, Shared Key exists but user logged out. Expected output is {@link
+     * LauncherActivity#onReEnterPassword()}
      */
     @Test
     public void onViewReadyUserLoggedOut() throws Exception {
