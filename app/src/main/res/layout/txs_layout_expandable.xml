@@ -108,23 +108,6 @@
                     tools:text="0.123456"/>
 
             </RelativeLayout>
-
-            <include
-                layout="@layout/include_txs_details"
-                android:layout_width="match_parent"
-                android:layout_height="187dp"
-                android:layout_gravity="top"
-                android:layout_marginTop="72dp"
-                android:visibility="invisible"/>
-
-            <View
-                android:id="@+id/bottom_seperator"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_gravity="bottom"
-                android:background="@color/blockchain_light_grey"
-                android:visibility="invisible"/>
-
         </FrameLayout>
     </RelativeLayout>
 </layout>

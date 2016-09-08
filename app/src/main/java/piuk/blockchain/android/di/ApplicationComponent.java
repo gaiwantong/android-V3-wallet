@@ -2,6 +2,7 @@ package piuk.blockchain.android.di;
 
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
+import info.blockchain.wallet.datamanagers.TransactionListDataManager;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.view.helpers.ReceiveCurrencyHelper;
@@ -16,6 +17,7 @@ import info.blockchain.wallet.viewModel.PinEntryViewModel;
 import info.blockchain.wallet.viewModel.ReceiveViewModel;
 import info.blockchain.wallet.viewModel.RecoverFundsViewModel;
 import info.blockchain.wallet.viewModel.SendViewModel;
+import info.blockchain.wallet.viewModel.TransactionDetailViewModel;
 
 import javax.inject.Singleton;
 
@@ -66,4 +68,8 @@ public interface ApplicationComponent {
     void inject(ReceiveCurrencyHelper receiveCurrencyHelper);
 
     void inject(WalletAccountHelper walletAccountHelper);
+
+    void inject(TransactionListDataManager transactionDataManager);
+
+    void inject(TransactionDetailViewModel transactionDetailViewModel);
 }

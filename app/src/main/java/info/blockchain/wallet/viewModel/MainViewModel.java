@@ -32,8 +32,6 @@ import piuk.blockchain.android.di.Injector;
 
 public class MainViewModel implements ViewModel {
 
-    private final String TAG = getClass().getSimpleName();
-
     private Context context;
     private DataListener dataListener;
     private OSUtil osUtil;

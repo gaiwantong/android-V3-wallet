@@ -24,6 +24,7 @@
 	<color name="backup_card_blue">#07537d</color>
 	<color name="backup_card_text">#676767</color>
 	<color name="dropshadow_grey">#CCCCCC</color>
+	<color name="light_grey_text">#b1b1b1</color>
 
 	<color name="toast_error_background">#EFD5D6</color>
 	<color name="toast_error_text">#963033</color>

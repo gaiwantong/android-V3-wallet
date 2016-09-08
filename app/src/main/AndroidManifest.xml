@@ -117,6 +117,11 @@
                   android:windowSoftInputMode="stateAlwaysHidden"
                   android:configChanges="keyboardHidden|orientation|screenSize"/>
 
+        <activity
+            android:name="info.blockchain.wallet.view.TransactionDetailActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateHidden" />
+
         <service android:name="info.blockchain.wallet.websocket.WebSocketService"/>
 
         <meta-data

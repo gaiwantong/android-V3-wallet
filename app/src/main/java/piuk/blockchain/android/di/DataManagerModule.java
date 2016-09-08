@@ -2,6 +2,7 @@ package piuk.blockchain.android.di;
 
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.datamanagers.ReceiveDataManager;
+import info.blockchain.wallet.datamanagers.TransactionListDataManager;
 import info.blockchain.wallet.view.helpers.WalletAccountHelper;
 
 import javax.inject.Singleton;
@@ -32,5 +33,11 @@ public class DataManagerModule {
     @Provides
     protected WalletAccountHelper provideWalletAccountHelper() {
         return new WalletAccountHelper();
+    }
+
+    @Provides
+    @Singleton
+    protected TransactionListDataManager provideTransactionListDataManager() {
+        return new TransactionListDataManager();
     }
 }
