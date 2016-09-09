@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.multidex.MultiDex;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 
 import info.blockchain.wallet.access.AccessState;
@@ -50,6 +51,8 @@ public class BlockchainApplication extends Application {
         AccessState.getInstance().initAccessState(this);
 
         checkSecurityProviderAndPatchIfNeeded();
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     /**

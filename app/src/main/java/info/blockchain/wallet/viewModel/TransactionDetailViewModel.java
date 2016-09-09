@@ -69,7 +69,7 @@ public class TransactionDetailViewModel implements ViewModel {
 
         void setTransactionValueFiat(String fiat);
 
-        void setToAddress(List<RecipientModel> addresses);
+        void setToAddresses(List<RecipientModel> addresses);
 
         void setFromAddress(String address);
 
@@ -84,6 +84,8 @@ public class TransactionDetailViewModel implements ViewModel {
         void setTransactionColour(@ColorRes int colour);
 
         void showToast(@StringRes int message, @ToastCustom.ToastType String toastType);
+
+        void onLoaded();
 
     }
 
@@ -161,15 +163,15 @@ public class TransactionDetailViewModel implements ViewModel {
 
                             for (Map.Entry<String, Long> item : outputMap.entrySet()) {
                                 RecipientModel recipientModel = new RecipientModel(
-                                        item.getKey(),
+                                        addressToLabel(item.getKey()),
                                         mMonetaryUtil.getDisplayAmountWithFormatting(item.getValue()),
                                         getDisplayUnits());
                                 recipients.add(recipientModel);
                             }
 
-                            mDataListener.setToAddress(recipients);
-
+                            mDataListener.setToAddresses(recipients);
                             setFee(result);
+                            mDataListener.onLoaded();
 
                         }, throwable -> {
                             mDataListener.pageFinish();
@@ -263,8 +265,9 @@ public class TransactionDetailViewModel implements ViewModel {
 
         ArrayList<String> inputXpubList = new ArrayList<>();
 
-        //Inputs / From field
-        if (transaction.getDirection().equals(MultiAddrFactory.RECEIVED) && transactionDetails.getInputs().size() > 0) {//only 1 addr for receive
+        // Inputs / From field
+        if (transaction.getDirection().equals(MultiAddrFactory.RECEIVED) && transactionDetails.getInputs().size() > 0) {
+            // Only 1 addr for receive
             inputMap.put(transactionDetails.getInputs().get(0).addr, transactionDetails.getInputs().get(0).value);
         } else {
             for (Transaction.xPut input : transactionDetails.getInputs()) {
@@ -275,7 +278,7 @@ public class TransactionDetailViewModel implements ViewModel {
 
                     // Address belongs to xpub we own
                     if (xpub != null) {
-                        //Only add xpub once
+                        // Only add xpub once
                         if (!inputXpubList.contains(xpub)) {
                             inputMap.put(input.addr, input.value);
                             inputXpubList.add(xpub);
@@ -284,7 +287,6 @@ public class TransactionDetailViewModel implements ViewModel {
                         // Legacy Address we own
                         inputMap.put(input.addr, input.value);
                     }
-
                 } else {
                     // Receive
                     inputMap.put(input.addr, input.value);
@@ -336,11 +338,11 @@ public class TransactionDetailViewModel implements ViewModel {
     }
 
     private String addressToLabel(String address) {
-
         HDWallet hdWallet = mPayloadManager.getPayload().getHdWallet();
         List<Account> accountList = new ArrayList<>();
-        if (hdWallet != null && hdWallet.getAccounts() != null)
+        if (hdWallet != null && hdWallet.getAccounts() != null) {
             accountList = hdWallet.getAccounts();
+        }
 
         HashMap<String, String> addressToXpubMap = MultiAddrFactory.getInstance().getAddress2Xpub();
 
@@ -349,14 +351,14 @@ public class TransactionDetailViewModel implements ViewModel {
             String xpub = addressToXpubMap.get(address);
             if (xpub != null) {
                 // Even though it looks like this shouldn't happen, it sometimes happens with
-                // // transfers if user clicks to view details immediately.
+                // transfers if user clicks to view details immediately.
                 // TODO - see if isOwnHDAddress could be updated to solve this
                 int accIndex = mPayloadManager.getPayload().getXpub2Account().get(xpub);
                 String label = accountList.get(accIndex).getLabel();
                 if (label != null && !label.isEmpty())
                     return label;
             }
-            //I f address one of owned legacy addresses
+            // If address one of owned legacy addresses
         } else if (mPayloadManager.getPayload().getLegacyAddressStrings().contains(address)
                 || mPayloadManager.getPayload().getWatchOnlyAddressStrings().contains(address)) {
 

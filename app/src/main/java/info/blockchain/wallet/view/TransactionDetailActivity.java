@@ -76,6 +76,12 @@ public class TransactionDetailActivity extends BaseAuthActivity implements Trans
     }
 
     @Override
+    public void onLoaded() {
+        mBinding.mainLayout.setVisibility(View.VISIBLE);
+        mBinding.loadingLayout.setVisibility(View.GONE);
+    }
+
+    @Override
     public void setTransactionColour(@ColorRes int colour) {
         mBinding.transactionAmount.setTextColor(ResourcesCompat.getColor(getResources(), colour, getTheme()));
         mBinding.transactionType.setTextColor(ResourcesCompat.getColor(getResources(), colour, getTheme()));
@@ -92,7 +98,7 @@ public class TransactionDetailActivity extends BaseAuthActivity implements Trans
     }
 
     @Override
-    public void setToAddress(List<RecipientModel> addresses) {
+    public void setToAddresses(List<RecipientModel> addresses) {
         if (addresses.size() == 1) {
             mBinding.toAddress.setText(addresses.get(0).getAddress());
         } else {
@@ -123,7 +129,7 @@ public class TransactionDetailActivity extends BaseAuthActivity implements Trans
     @Override
     public void setStatus(String status, String hash) {
         mBinding.status.setText(status);
-        mBinding.status.setOnClickListener(v -> {
+        mBinding.statusLayout.setOnClickListener(v -> {
             Intent intent = new Intent(this, TransactionDetailWebViewActivity.class);
             intent.putExtra(KEY_TRANSACTION_URL, "https://blockchain.info/tx/" + hash);
             startActivity(intent);

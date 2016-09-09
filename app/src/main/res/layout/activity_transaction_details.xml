@@ -17,9 +17,28 @@
 
         <include layout="@layout/toolbar_general" />
 
-        <ScrollView
+        <!-- LOADING LAYOUT -->
+
+        <RelativeLayout
+            android:id="@+id/loading_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            tools:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+        </RelativeLayout>
+
+        <!-- MAIN LAYOUT -->
+        <ScrollView
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -211,8 +230,9 @@
 
                 <include layout="@layout/divider_grey" />
 
-                <!-- DATE LAYOUT -->
+                <!-- STATUS LAYOUT -->
                 <LinearLayout
+                    android:id="@+id/status_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
