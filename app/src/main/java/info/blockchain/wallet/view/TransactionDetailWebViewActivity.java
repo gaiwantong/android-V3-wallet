@@ -1,23 +1,24 @@
 package info.blockchain.wallet.view;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
-import android.webkit.WebResourceRequest;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
+import piuk.blockchain.android.annotations.Thunk;
 
 import static info.blockchain.wallet.view.TransactionDetailActivity.KEY_TRANSACTION_URL;
 
 public class TransactionDetailWebViewActivity extends BaseAuthActivity {
 
     private WebView mWebView;
+    @Thunk ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,7 +31,8 @@ public class TransactionDetailWebViewActivity extends BaseAuthActivity {
         setSupportActionBar(toolbar);
 
         mWebView = (WebView) findViewById(R.id.webView);
-        mWebView.setWebViewClient(new DetailsWebViewClient());
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mWebView.setWebChromeClient(new DetailsWebViewClient());
 
         if (getIntent().hasExtra(KEY_TRANSACTION_URL)) {
             mWebView.loadUrl(getIntent().getStringExtra(KEY_TRANSACTION_URL));
@@ -56,22 +58,22 @@ public class TransactionDetailWebViewActivity extends BaseAuthActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private class DetailsWebViewClient extends WebViewClient {
+    private class DetailsWebViewClient extends WebChromeClient {
 
         DetailsWebViewClient() {
             super();
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            if (request.getUrl().getHost().equals("www.blockchain.info")) {
-                // Let WebView load the page
-                return false;
+        public void onProgressChanged(WebView view, int progress) {
+            if (progress < 100 && mProgressBar.getVisibility() == ProgressBar.GONE) {
+                mProgressBar.setVisibility(ProgressBar.VISIBLE);
             }
-            // Otherwise, launch another Activity that handles URLs
-            Intent intent = new Intent(Intent.ACTION_VIEW, request.getUrl());
-            startActivity(intent);
-            return true;
+
+            mProgressBar.setProgress(progress);
+            if (progress == 100) {
+                mProgressBar.setVisibility(ProgressBar.GONE);
+            }
         }
     }
 }
