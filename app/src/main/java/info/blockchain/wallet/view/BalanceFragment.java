@@ -36,7 +36,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -68,7 +67,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     private final static int SHOW_FIAT = 2;
     private final static int SHOW_HIDE = 3;
     private static int BALANCE_DISPLAY_STATE = SHOW_BTC;
-    private static boolean isBottomSheetOpen = false;
     public int balanceBarHeight;
     ArrayAdapter<String> accountsAdapter = null;
     LinearLayoutManager layoutManager;
@@ -87,7 +85,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     // tx list
     //
     private TxAdapter transactionAdapter = null;
-    private LinearLayout noTxMessage = null;
     private Activity context = null;
     private PrefsUtil prefsUtil;
     private DateUtil dateUtil;
@@ -154,7 +151,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            isBottomSheetOpen = false;
             viewModel.updateBalanceAndTransactionList(null, accountSpinner.getSelectedItemPosition(), isBTC);
         }
     }
@@ -164,8 +160,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         super.onResume();
 
         comm.resetNavigationDrawer();
-
-        isBottomSheetOpen = false;
 
         IntentFilter filter = new IntentFilter(ACTION_INTENT);
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter);
@@ -230,16 +224,12 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         binding.fab.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
             @Override
             public void onMenuExpanded() {
-                binding.balanceMainContentShadow.setVisibility(View.VISIBLE);
-                isBottomSheetOpen = true;
                 comm.setNavigationDrawerToggleEnabled(false);
             }
 
             @Override
             public void onMenuCollapsed() {
                 binding.fab.collapse();
-                binding.balanceMainContentShadow.setVisibility(View.GONE);
-                isBottomSheetOpen = false;
                 comm.setNavigationDrawerToggleEnabled(true);
             }
         });
@@ -348,8 +338,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         initFab();
         initDebugFab();
 
-        noTxMessage = (LinearLayout) binding.getRoot().findViewById(R.id.no_tx_message);//TODO databinding not supporting include tag yet
-        noTxMessage.setVisibility(View.GONE);
+        binding.noTransactionMessage.noTxMessage.setVisibility(View.GONE);
 
         //Elevation compat
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -390,7 +379,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         accountSpinner.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                return event.getAction() == MotionEvent.ACTION_UP && ((MainActivity) getActivity()).getDrawerOpen() || isBottomSheetOpen;
+                return event.getAction() == MotionEvent.ACTION_UP && ((MainActivity) getActivity()).getDrawerOpen();
             }
         });
         accountSpinner.post(new Runnable() {
@@ -450,7 +439,7 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
         rowViewState = new HashMap<View, Boolean>();
 
-        noTxMessage.setOnClickListener(new View.OnClickListener() {
+        binding.noTransactionMessage.noTxMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Animation bounce = AnimationUtils.loadAnimation(context, R.anim.jump);
@@ -533,10 +522,10 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         //Display help text to user if no transactionList on selected account/address
         if (viewModel.getTransactionList().size() > 0) {
             binding.rvTransactions.setVisibility(View.VISIBLE);
-            noTxMessage.setVisibility(View.GONE);
+            binding.noTransactionMessage.noTxMessage.setVisibility(View.GONE);
         } else {
             binding.rvTransactions.setVisibility(View.GONE);
-            noTxMessage.setVisibility(View.VISIBLE);
+            binding.noTransactionMessage.noTxMessage.setVisibility(View.VISIBLE);
         }
 
         if (isAdded() && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

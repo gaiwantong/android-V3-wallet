@@ -23,7 +23,9 @@
                         android:layout_height="match_parent"
                         android:background="@color/blockchain_pearl_white">
 
-                    <include layout="@layout/include_no_transaction_message"/>
+                    <include
+                        android:id="@+id/no_transaction_message"
+                        layout="@layout/include_no_transaction_message"/>
 
                     <android.support.v7.widget.RecyclerView
                             android:id="@+id/rvTransactions"
@@ -51,7 +53,7 @@
                             tools:text="10.0000002 BTC"
                     />
 
-                    <!--Shadow for bottom sheet-->
+                    <!--Shadow for FAB-->
                     <LinearLayout
                             android:id="@+id/balance_main_content_shadow"
                             android:layout_width="match_parent"
@@ -60,7 +62,6 @@
                             android:background="@color/black"
                             android:orientation="horizontal"
                             android:visibility="invisible"/>
-
 
                 </FrameLayout>
             </android.support.v4.widget.SwipeRefreshLayout>

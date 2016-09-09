@@ -24,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
+            android:minWidth="250dp"
             android:textColor="@color/blockchain_grey"
             tools:text="1XUzFYTvEjWxLkqtL4100MQ7zyzRvq9xXX" />
 
@@ -34,7 +35,6 @@
             android:layout_marginTop="2dp"
             android:textColor="@color/black"
             tools:text="0.0051113 BTC" />
-
 
     </LinearLayout>
 
