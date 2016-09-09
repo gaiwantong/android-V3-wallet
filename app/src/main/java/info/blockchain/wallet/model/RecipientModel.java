@@ -4,10 +4,12 @@ public class RecipientModel {
 
     private String mAddress;
     private String mValue;
+    private String mDisplayUnits;
 
-    public RecipientModel(String address, String value) {
+    public RecipientModel(String address, String value, String displayUnits) {
         mAddress = address;
         mValue = value;
+        mDisplayUnits = displayUnits;
     }
 
     public String getAddress() {
@@ -16,5 +18,9 @@ public class RecipientModel {
 
     public String getValue() {
         return mValue;
+    }
+
+    public String getDisplayUnits() {
+        return mDisplayUnits;
     }
 }

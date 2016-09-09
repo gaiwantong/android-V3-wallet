@@ -32,7 +32,8 @@ public class TransactionListDataManager {
     private List<Tx> mTransactionList = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess")
-    @Inject PayloadManager mPayloadManager;
+    @Inject
+    PayloadManager mPayloadManager;
 
     public TransactionListDataManager() {
         Injector.getInstance().getAppComponent().inject(this);
@@ -164,6 +165,18 @@ public class TransactionListDataManager {
         return Observable.fromCallable(() -> WebUtil.getInstance().getURL(
                 WebUtil.TRANSACTION + transactionHash + "?format=json"))
                 .observeOn(Schedulers.io());
+    }
+
+    /**
+     * Update notes for a specific transaction hash and then sync the payload to the server
+     * @param transactionHash   The hash of the transaction to be updated
+     * @param notes             Transaction notes
+     * @return                  Successful or not
+     */
+    public Observable<Boolean> updateTransactionNotes(String transactionHash, String notes) {
+        mPayloadManager.getPayload().getNotes().put(transactionHash, notes);
+        return Observable.fromCallable(() -> mPayloadManager.savePayloadToServer())
+                .compose(RxUtil.applySchedulers());
     }
 
     private class TxDateComparator implements Comparator<Tx> {

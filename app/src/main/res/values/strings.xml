@@ -593,4 +593,6 @@
     <string name="transaction_detail_confirmed">Confirmed</string>
     <string name="transaction_detail_pending">Pending (%1$s/%2$s Confirmations)</string>
     <string name="transaction_detail_fee">"Transaction fee: %1$s"</string>
+    <string name="transaction_detail_tab_title">Details</string>
+    <string name="transaction_detail_value">Value:\u0020</string>
 </resources>
