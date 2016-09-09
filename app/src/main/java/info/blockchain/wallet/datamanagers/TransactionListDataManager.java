@@ -9,11 +9,11 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.rxjava.RxUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,7 +39,6 @@ public class TransactionListDataManager {
         mTransactionList.clear();
     }
 
-    @NonNull
     public void generateTransactionList(Object object) {
         if (object instanceof Account) {
             // V3
@@ -51,7 +50,7 @@ public class TransactionListDataManager {
             throw new IllegalArgumentException("Object must be instance of Account.class or LegacyAddress.class");
         }
 
-        Collections.sort(mTransactionList, new TxDateComparator());
+        Collections.sort(mTransactionList, new TxMostRecentDateComparator());
     }
 
     @NonNull
@@ -62,7 +61,7 @@ public class TransactionListDataManager {
     @NonNull
     public List<Tx> insertTransactionIntoListAndReturnSorted(Tx transaction) {
         mTransactionList.add(transaction);
-        Collections.sort(mTransactionList, new TxDateComparator());
+        Collections.sort(mTransactionList, new TxMostRecentDateComparator());
         return mTransactionList;
     }
 
@@ -94,7 +93,7 @@ public class TransactionListDataManager {
         // Update Balance
         double balance = 0D;
         if (object instanceof Account) {
-            //V3
+            // V3
             Account account = ((Account) object);
             // V3 - All
             if (account.getTags().contains(TAG_ALL)) {
@@ -152,24 +151,16 @@ public class TransactionListDataManager {
                 .compose(RxUtil.applySchedulers());
     }
 
-    private class TxDateComparator implements Comparator<Tx> {
-
-        TxDateComparator() {
-        }
-
-        public int compare(Tx t1, Tx t2) {
-
-            final int BEFORE = -1;
-            final int EQUAL = 0;
-            final int AFTER = 1;
-
-            if (t2.getTS() < t1.getTS()) {
-                return BEFORE;
-            } else if (t2.getTS() > t1.getTS()) {
-                return AFTER;
-            } else {
-                return EQUAL;
-            }
-        }
+    /**
+     * Update notes for a specific transaction hash and then sync the payload to the server
+     *
+     * @param transactionHash   The hash of the transaction to be updated
+     * @param notes             Transaction notes
+     * @return                  Successful save or not
+     */
+    public Observable<Boolean> updateTransactionNotes(String transactionHash, String notes) {
+        mPayloadManager.getPayload().getNotes().put(transactionHash, notes);
+        return Observable.fromCallable(() -> mPayloadManager.savePayloadToServer())
+                .compose(RxUtil.applySchedulers());
     }
 }

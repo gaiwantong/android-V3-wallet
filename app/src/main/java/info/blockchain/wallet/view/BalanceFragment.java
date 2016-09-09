@@ -64,7 +64,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     public static final String ACTION_INTENT = "info.blockchain.wallet.ui.BalanceFragment.REFRESH";
     public static final String KEY_TRANSACTION_LIST_POSITION = "key_transaction_list_position";
-    public static final String KEY_IS_BTC = "key_is_btc";
     private final static int SHOW_BTC = 1;
     private final static int SHOW_FIAT = 2;
     private final static int SHOW_HIDE = 3;
@@ -500,7 +499,6 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
 
     private void onRowClick(int position) {
         Intent intent = new Intent(getActivity(), TransactionDetailActivity.class);
-        intent.putExtra(KEY_IS_BTC, isBTC);
         intent.putExtra(KEY_TRANSACTION_LIST_POSITION, position);
         startActivity(intent);
     }
