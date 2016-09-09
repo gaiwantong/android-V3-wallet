@@ -316,12 +316,12 @@ public class TransactionDetailViewModel implements ViewModel {
                     || mPayloadManager.getPayload().getWatchOnlyAddressStrings().contains(output.addr)) {
                 // If output address belongs to a legacy address we own - we have to check if it's change
                 // If it goes back to same address AND if it's not the total amount sent (inputs x and y could send to output y in which case y is not receiving change, but rather the total amount)
-                if (inputMap.containsKey(output.addr) && output.value != transaction.getAmount()) {
+                if (inputMap.containsKey(output.addr) && output.value != Math.abs(transaction.getAmount())) {
                     continue;// change back to same input address
                 }
 
                 // Output more than tx amount - change
-                if (output.value > transaction.getAmount()) {
+                if (output.value > Math.abs(transaction.getAmount())) {
                     continue;
                 }
 
