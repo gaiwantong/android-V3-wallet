@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Looper;
 
 import info.blockchain.api.DynamicFee;
+import info.blockchain.api.ExchangeTicker;
+import info.blockchain.api.PersistentUrls;
 import info.blockchain.api.Unspent;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.cache.DefaultAccountUnspentCache;
@@ -18,7 +20,6 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.OSUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.util.RootUtil;
-import info.blockchain.wallet.util.WebUtil;
 
 import org.json.JSONObject;
 
@@ -27,6 +28,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.di.Injector;
 
 public class MainViewModel implements ViewModel {
@@ -61,6 +63,7 @@ public class MainViewModel implements ViewModel {
         this.osUtil = new OSUtil(context);
         this.appUtil.applyPRNGFixes();
 
+        checkBackendEnvironment();
         checkRooted();
         checkConnectivity();
     }
@@ -173,7 +176,8 @@ public class MainViewModel implements ViewModel {
 
             String response = null;
             try {
-                response = WebUtil.getInstance().getURL(WebUtil.EXCHANGE_URL);
+                // TODO: 07/09/2016 Exchange rate only fetched once per session? Should try to update more often
+                response = new ExchangeTicker().getExchangeRate();
 
                 ExchangeRateFactory.getInstance().setData(response);
                 ExchangeRateFactory.getInstance().updateFxPricesForEnabledCurrencies();
@@ -213,6 +217,30 @@ public class MainViewModel implements ViewModel {
     public void stopWebSocketService(){
         if (!osUtil.isServiceRunning(info.blockchain.wallet.websocket.WebSocketService.class)) {
             context.stopService(new Intent(context, info.blockchain.wallet.websocket.WebSocketService.class));
+        }
+    }
+
+    private void checkBackendEnvironment() {
+
+        PersistentUrls urls = PersistentUrls.getInstance();
+
+        if (BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
+            PrefsUtil prefsUtil = new PrefsUtil(context);
+            int currentEnvironment = prefsUtil.getValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
+
+            switch (currentEnvironment) {
+                case 0:
+                    urls.setProductionEnvironment();
+                    break;
+                case 1:
+                    urls.setDevelopmentEnvironment();
+                    break;
+                case 2:
+                    urls.setStagingEnvironment();
+                    break;
+            }
+        }else{
+            urls.setProductionEnvironment();
         }
     }
 }

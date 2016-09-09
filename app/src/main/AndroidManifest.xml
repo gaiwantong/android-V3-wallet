@@ -65,10 +65,7 @@
                 android:name="info.blockchain.merchant.directory.MapActivity"/>
 
         <activity
-                android:name="info.blockchain.merchant.directory.ListActivity"/>
-
-        <activity
-                android:name="info.blockchain.merchant.directory.SuggestMerchant"/>
+                android:name="info.blockchain.merchant.directory.SuggestMerchantActivity"/>
 
         <activity
                 android:name="info.blockchain.wallet.view.AccountActivity"

@@ -1,6 +1,9 @@
 package info.blockchain.wallet.datamanagers;
 
-import info.blockchain.api.Access;
+import android.app.Application;
+
+import info.blockchain.api.PinStore;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.access.AccessState;
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
@@ -27,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 import piuk.blockchain.android.BlockchainTestApplication;
 import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.RxTest;
+import piuk.blockchain.android.di.ApiModule;
+import piuk.blockchain.android.di.ApplicationModule;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
@@ -51,7 +56,7 @@ public class AuthDataManagerTest extends RxTest {
 
     @Mock private PayloadManager mPayloadManager;
     @Mock private PrefsUtil mPrefsUtil;
-    @Mock private Access mAccess;
+    @Mock private WalletPayload mAccess;
     @Mock private AppUtil mAppUtil;
     @Mock private AESUtilWrapper mAesUtils;
     @Mock private AccessState mAccessState;
@@ -194,7 +199,7 @@ public class AuthDataManagerTest extends RxTest {
 
     /**
      * Getting encrypted payload returns error, should be caught by Observable and transformed into
-     * {@link Access#KEY_AUTH_REQUIRED}
+     * {@link WalletPayload#KEY_AUTH_REQUIRED}
      */
     @Test
     public void startPollingAuthStatusError() throws Exception {
@@ -208,7 +213,7 @@ public class AuthDataManagerTest extends RxTest {
         verify(mAccess).getSessionId(anyString());
         verify(mAccess).getEncryptedPayload(anyString(), anyString());
         subscriber.assertCompleted();
-        subscriber.onNext(Access.KEY_AUTH_REQUIRED);
+        subscriber.onNext(WalletPayload.KEY_AUTH_REQUIRED);
         subscriber.assertNoErrors();
     }
 
@@ -220,7 +225,7 @@ public class AuthDataManagerTest extends RxTest {
         // Arrange
         TestSubscriber<String> subscriber = new TestSubscriber<>();
         when(mAccess.getSessionId(anyString())).thenReturn(STRING_TO_RETURN);
-        when(mAccess.getEncryptedPayload(anyString(), anyString())).thenReturn(Access.KEY_AUTH_REQUIRED);
+        when(mAccess.getEncryptedPayload(anyString(), anyString())).thenReturn(WalletPayload.KEY_AUTH_REQUIRED);
         // Act
         mSubject.startPollingAuthStatus("1234567890").take(1, TimeUnit.SECONDS).toBlocking().subscribe(subscriber);
         // Assert
@@ -434,6 +439,46 @@ public class AuthDataManagerTest extends RxTest {
                 listener);
         // Assert
         verify(listener).onFatalError();
+    }
+
+    private class MockApplicationModule extends ApplicationModule {
+
+        MockApplicationModule(Application application) {
+            super(application);
+        }
+
+        @Override
+        protected AppUtil provideAppUtil() {
+            return mAppUtil;
+        }
+
+        @Override
+        protected PrefsUtil providePrefsUtil() {
+            return mPrefsUtil;
+        }
+
+        @Override
+        protected AESUtilWrapper provideAesUtils() {
+            return mAesUtils;
+        }
+
+        @Override
+        protected AccessState provideAccessState() {
+            return mAccessState;
+        }
+    }
+
+    private class MockApiModule extends ApiModule {
+
+        @Override
+        protected WalletPayload provideAccess() {
+            return mAccess;
+        }
+
+        @Override
+        protected PayloadManager providePayloadManager() {
+            return mPayloadManager;
+        }
     }
 
     private static final String TEST_PAYLOAD = "{\n" +

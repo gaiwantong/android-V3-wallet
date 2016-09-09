@@ -7,14 +7,18 @@ import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.v7.app.AlertDialog;
 import android.view.MotionEvent;
+import android.view.View;
 
+import info.blockchain.api.PersistentUrls;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
 import info.blockchain.wallet.util.AppUtil;
+import info.blockchain.wallet.util.PrefsUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import piuk.blockchain.android.BaseAuthActivity;
+import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityLandingBinding;
 
@@ -39,6 +43,10 @@ public class LandingActivity extends BaseAuthActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_landing);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.app_name);
+
+        if(BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
+            binding.settingsBtn.setVisibility(View.VISIBLE);
+        }
 
         binding.create.setOnClickListener(view -> startLandingActivity(CREATE_FRAGMENT));
         binding.login.setOnClickListener(view -> startLandingActivity(LOGIN_FRAGMENT));
@@ -93,5 +101,37 @@ public class LandingActivity extends BaseAuthActivity {
         // Test for screen overlays before user creates a new wallet or enters confidential information
         // consume event
         return new AppUtil(this).detectObscuredWindow(this, event) || super.dispatchTouchEvent(event);
+    }
+
+    public void onSettingsClicked(View view) {
+
+        PrefsUtil prefsUtil = new PrefsUtil(this);
+        int currentEnvironment = prefsUtil.getValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT,0);
+
+        PersistentUrls urls = PersistentUrls.getInstance();
+
+        String[] backends = {"Production", "Dev", "Staging"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select backend")
+                .setSingleChoiceItems(backends, currentEnvironment,
+                        (dialogInterface, i) -> {
+                            switch (i) {
+                                case 0:
+                                    urls.setProductionEnvironment();
+                                    prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
+                                    break;
+                                case 1:
+                                    urls.setDevelopmentEnvironment();
+                                    prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 1);
+                                    break;
+                                case 2:
+                                    urls.setStagingEnvironment();
+                                    prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 2);
+                                    break;
+                            }
+                        });
+
+        builder.create().show();
     }
 }

@@ -2,6 +2,7 @@ package info.blockchain.wallet;
 
 import android.content.Context;
 
+import info.blockchain.api.ExternalEntropy;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.Util;
 import info.blockchain.wallet.util.WebUtil;
@@ -10,6 +11,8 @@ import org.bitcoinj.core.ECKey;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SecureRandom;
+
+import static piuk.blockchain.android.R.id.result;
 
 public class EntropyTest extends BlockchainTest {
 
@@ -108,20 +111,9 @@ public class EntropyTest extends BlockchainTest {
 
         new AppUtil(context).applyPRNGFixes();
 
-        String result = null;
         byte[] data = null;
         try {
-            result = WebUtil.getInstance().getURL(WebUtil.EXTERNAL_ENTROPY_URL);
-
-            //TestCase insert start
-            if (testCase == 0) result = "abc123";//emulate server returns incomplete result
-            if (testCase == 1) result = null;//emulate connection error
-            //TestCase insert end
-
-            if (!result.matches("^[A-Fa-f0-9]{64}$")) {
-                return null;//testCase 0 and 1 will trigger this
-            }
-            data = Hex.decode(result);
+            data = new ExternalEntropy().getRandomBytes();
 
             //TestCase insert start
             if (testCase == 2) data = null;//emulate Hex decode error

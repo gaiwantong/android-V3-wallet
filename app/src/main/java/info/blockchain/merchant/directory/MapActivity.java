@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -21,11 +22,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,16 +37,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import info.blockchain.wallet.access.AccessState;
+import info.blockchain.api.MerchantDirectory;
 import info.blockchain.wallet.view.helpers.OnSwipeTouchListener;
 import info.blockchain.wallet.view.helpers.ToastCustom;
-import info.blockchain.wallet.util.WebUtil;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import piuk.blockchain.android.BaseAuthActivity;
 import piuk.blockchain.android.R;
@@ -54,10 +52,12 @@ import piuk.blockchain.android.R;
 
 public class MapActivity extends BaseAuthActivity implements LocationListener {
 
+    private final String TAG = getClass().getSimpleName();
+
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
     private static final int radius = 40000;
-    public static ArrayList<BTCBusiness> btcb = null;
+    public static ArrayList<MerchantDirectory.Merchant> merchantList = null;
     private static float Z00M_LEVEL_DEFAULT = 13.0f;
     private static float Z00M_LEVEL_CLOSE = 18.0f;
     private static boolean launchedList = false;
@@ -98,9 +98,8 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
     private boolean eatSelected = true;
     private boolean spendSelected = true;
     private boolean atmSelected = true;
-    private HashMap<String, BTCBusiness> markerValues = null;
+    private HashMap<String, MerchantDirectory.Merchant> markerValues = null;
     private LatLngBounds bounds = null;
-    private String strJSONData = null;
     private LinearLayout infoLayout = null;
 
     @Override
@@ -120,8 +119,8 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
         toolbar.setTitle(R.string.merchant_map);
         setSupportActionBar(toolbar);
 
-        markerValues = new HashMap<String, BTCBusiness>();
-        btcb = new ArrayList<BTCBusiness>();
+        markerValues = new HashMap<>();
+        merchantList = new ArrayList<>();
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
@@ -162,51 +161,51 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
 
                 LatLng latLng = marker.getPosition();
 
-                BTCBusiness b = markerValues.get(marker.getId());
+                MerchantDirectory.Merchant b = markerValues.get(marker.getId());
 
                 String url = "http://maps.google.com/?saddr=" +
                         currLocation.getLatitude() + "," + currLocation.getLongitude() +
-                        "&daddr=" + markerValues.get(marker.getId()).lat + "," + markerValues.get(marker.getId()).lon;
-                tvAddress.setText(Html.fromHtml("<a href=\"" + url + "\">" + b.address + ", " + b.city + " " + b.pcode + "</a>"));
+                        "&daddr=" + markerValues.get(marker.getId()).latitude + "," + markerValues.get(marker.getId()).longitude;
+                tvAddress.setText(Html.fromHtml("<a href=\"" + url + "\">" + b.address + ", " + b.city + " " + b.postal_code + "</a>"));
                 tvAddress.setMovementMethod(LinkMovementMethod.getInstance());
 
-                if (b.tel != null && b.tel.trim().length() > 0) {
-                    tvTel.setText(b.tel);
+                if (b.phone != null && b.phone.trim().length() > 0) {
+                    tvTel.setText(b.phone);
                     Linkify.addLinks(tvTel, Linkify.PHONE_NUMBERS);
                 } else {
                     ((LinearLayout) findViewById(R.id.row_call)).setVisibility(View.GONE);
                 }
 
-                if (b.web != null && b.web.trim().length() > 0) {
-                    tvWeb.setText(b.web);
+                if (b.website != null && b.website.trim().length() > 0) {
+                    tvWeb.setText(b.website);
                     Linkify.addLinks(tvWeb, Linkify.WEB_URLS);
                 } else {
                     ((LinearLayout) findViewById(R.id.row_web)).setVisibility(View.GONE);
                 }
 
-                tvDesc.setText(b.desc);
+                tvDesc.setText(b.description);
 
                 tvName.setText(b.name);
                 int category;
                 try {
-                    category = Integer.parseInt(b.hc);
+                    category = b.category_id;
                 } catch (Exception e) {
                     category = 0;
                 }
                 switch (category) {
-                    case BTCBusiness.HEADING_CAFE:
+                    case MerchantDirectory.Merchant.HEADING_CAFE:
                         tvName.setTextColor(color_cafe_selected);
                         break;
-                    case BTCBusiness.HEADING_BAR:
+                    case MerchantDirectory.Merchant.HEADING_BAR:
                         tvName.setTextColor(color_drink_selected);
                         break;
-                    case BTCBusiness.HEADING_RESTAURANT:
+                    case MerchantDirectory.Merchant.HEADING_RESTAURANT:
                         tvName.setTextColor(color_eat_selected);
                         break;
-                    case BTCBusiness.HEADING_SPEND:
+                    case MerchantDirectory.Merchant.HEADING_SPEND:
                         tvName.setTextColor(color_spend_selected);
                         break;
-                    case BTCBusiness.HEADING_ATM:
+                    case MerchantDirectory.Merchant.HEADING_ATM:
                         tvName.setTextColor(color_atm_selected);
                         break;
                     default:
@@ -380,7 +379,6 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.merchant_activity_actions, menu);
-        menu.findItem(R.id.action_merchant_map).setVisible(false);
         return true;
     }
 
@@ -388,9 +386,6 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.action_merchant_list:
-                doListView();
-                return true;
             case R.id.action_merchant_suggest:
                 doSuggest();
                 return true;
@@ -432,13 +427,7 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
                 try {
                     if (fetch) {
 
-                        NumberFormat format = NumberFormat.getInstance(Locale.US);
-                        format.setMaximumFractionDigits(2);
-                        String strLat = format.format(lat == null ? currLocation.getLatitude() : lat);
-                        String strLon = format.format(lng == null ? currLocation.getLongitude() : lng);
-
-                        final String url = WebUtil.MERCHANT_DIRECTORY_URL + "ULAT=" + strLat + "&ULON=" + strLon + "&D=40000&K=1";
-                        strJSONData = WebUtil.getInstance().getURL(url);
+                        merchantList = new MerchantDirectory().getAllMerchants();
                     }
 
                     handler.post(new Runnable() {
@@ -446,70 +435,58 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
                         public void run() {
 
                             try {
-                                ArrayList<BTCBusiness> tmp = null;
-                                tmp = ParseData.parse(strJSONData);
-                                if (tmp != null && tmp.size() > 0) {
-                                    btcb = tmp;
-                                } else {
-                                    btcb = null;
-                                }
 
-                                if (btcb != null && btcb.size() > 0) {
+                                if (merchantList != null && merchantList.size() > 0) {
 
-                                    BTCBusiness b = null;
+                                    MerchantDirectory.Merchant merchant = null;
 
-                                    for (int i = 0; i < btcb.size(); i++) {
+                                    for (int i = 0; i < merchantList.size(); i++) {
 
-                                        b = btcb.get(i);
+                                        merchant = merchantList.get(i);
 
                                         BitmapDescriptor bmd = null;
 
-                                        int hc = BTCBusiness.HEADING_CAFE;
-                                        try {
-                                            hc = Integer.parseInt(b.hc);
-                                        } catch (Exception e) {
-                                            ;
-                                        }
+                                        int category = merchant.category_id;
 
-                                        switch (hc) {
-                                            case BTCBusiness.HEADING_CAFE:
+                                        switch (category) {
+                                            case MerchantDirectory.Merchant.HEADING_CAFE:
                                                 if (cafeSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe);
                                                 } else {
                                                     bmd = null;
                                                 }
                                                 break;
-                                            case BTCBusiness.HEADING_BAR:
+                                            case MerchantDirectory.Merchant.HEADING_BAR:
                                                 if (drinkSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_drink_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_drink);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_drink_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_drink);
                                                 } else {
                                                     bmd = null;
                                                 }
                                                 break;
-                                            case BTCBusiness.HEADING_RESTAURANT:
+                                            case MerchantDirectory.Merchant.HEADING_RESTAURANT:
                                                 if (eatSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_eat_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_eat);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_eat_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_eat);
                                                 } else {
                                                     bmd = null;
                                                 }
                                                 break;
-                                            case BTCBusiness.HEADING_SPEND:
+                                            case MerchantDirectory.Merchant.HEADING_SPEND:
                                                 if (spendSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_spend_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_spend);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_spend_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_spend);
                                                 } else {
                                                     bmd = null;
                                                 }
                                                 break;
-                                            case BTCBusiness.HEADING_ATM:
+                                            case MerchantDirectory.Merchant.HEADING_ATM:
                                                 if (atmSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_atm_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_atm);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_atm_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_atm);
                                                 } else {
                                                     bmd = null;
                                                 }
                                                 break;
                                             default:
                                                 if (cafeSelected) {
-                                                    bmd = b.flag.equals("1") ? BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe);
+                                                    bmd = merchant.featured_merchant ? BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe_featured) : BitmapDescriptorFactory.fromResource(R.drawable.marker_cafe);
                                                 } else {
                                                     bmd = null;
                                                 }
@@ -518,10 +495,10 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
 
                                         if (bmd != null) {
                                             Marker marker = map.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(Double.parseDouble(b.lat), Double.parseDouble(b.lon)))
+                                                    .position(new LatLng(merchant.latitude, merchant.longitude))
                                                     .icon(bmd));
 
-                                            markerValues.put(marker.getId(), b);
+                                            markerValues.put(marker.getId(), merchant);
                                         }
 
                                     }
@@ -560,14 +537,14 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
 
     void setProperZoomLevel(LatLng loc, int radius, int nbPoi) {
 
-        if (btcb == null || btcb.size() < 1) {
+        if (merchantList == null || merchantList.size() < 1) {
             return;
         }
 
         float currentZoomLevel = 21;
         int currentFoundPoi = 0;
         LatLngBounds bounds = null;
-        List<LatLng> found = new ArrayList<LatLng>();
+        List<LatLng> found = new ArrayList<>();
         Location location = new Location("");
         location.setLatitude(loc.latitude);
         location.setLongitude(loc.longitude);
@@ -583,9 +560,9 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
             swLoc.setLongitude(bounds.southwest.longitude);
             continueSearchingInsideRadius = (Math.round(location.distanceTo(swLoc) / 100) > radius) ? false : true;
 
-            for (BTCBusiness b : btcb) {
+            for (MerchantDirectory.Merchant merchant : merchantList) {
 
-                LatLng pos = new LatLng(Double.parseDouble(b.lat), Double.parseDouble(b.lon));
+                LatLng pos = new LatLng(merchant.latitude, merchant.longitude);
 
                 if (bounds.contains(pos)) {
                     if (!found.contains(pos)) {
@@ -614,32 +591,8 @@ public class MapActivity extends BaseAuthActivity implements LocationListener {
         }
     }
 
-    private void doListView() {
-
-        boolean doList = false;
-
-        if (btcb != null && btcb.size() > 0) {
-            for (int i = 0; i < btcb.size(); i++) {
-                if (Double.parseDouble(btcb.get(i).distance) < 15.0) {
-                    doList = true;
-                    break;
-                }
-            }
-        }
-
-        if (doList && !launchedList) {
-            launchedList = true;
-            LatLng cameraPos = map.getCameraPosition().target;
-            drawData(true, cameraPos.latitude, cameraPos.longitude, true);
-        } else if (!doList) {
-            ToastCustom.makeText(MapActivity.this, getString(R.string.no_merchants_in_range), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_GENERAL);
-        } else {
-            ;
-        }
-    }
-
     private void doSuggest() {
-        Intent intent = new Intent(MapActivity.this, SuggestMerchant.class);
+        Intent intent = new Intent(MapActivity.this, SuggestMerchantActivity.class);
         intent.putExtra("ULAT", currLocation.getLatitude());
         intent.putExtra("ULON", currLocation.getLongitude());
         startActivity(intent);

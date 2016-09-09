@@ -2,16 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	  xmlns:auto="http://schemas.android.com/apk/res-auto">
 	<item
-		android:id="@+id/action_merchant_map"
-		android:icon="@drawable/icon_merchantdirectory"
-		android:title="@string/merchant_map"
-		auto:showAsAction="always"/>
-	<item
-		android:id="@+id/action_merchant_list"
-		android:icon="@drawable/ic_list_white_24dp"
-		android:title="@string/merchant_list"
-		auto:showAsAction="always"/>
-	<item
 		android:id="@+id/action_merchant_suggest"
 		android:icon="@drawable/ic_add_white_24dp"
 		android:title="@string/merchant_suggest"

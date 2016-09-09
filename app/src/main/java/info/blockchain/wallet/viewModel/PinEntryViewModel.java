@@ -345,7 +345,6 @@ public class PinEntryViewModel implements ViewModel {
         int fails = mPrefsUtil.getValue(PrefsUtil.KEY_PIN_FAILS, 0);
         if (fails >= MAX_ATTEMPTS) {
             showErrorToast(R.string.pin_4_strikes);
-            mPayloadManager.getPayload().stepNumber = 0;
             mDataListener.showMaxAttemptsDialog();
         }
     }

@@ -6,7 +6,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.annotation.VisibleForTesting;
 
-import info.blockchain.api.Access;
+import info.blockchain.api.WalletPayload;
 import info.blockchain.wallet.callbacks.DialogButtonCallback;
 import info.blockchain.wallet.datamanagers.AuthDataManager;
 import info.blockchain.wallet.util.AppUtil;
@@ -95,13 +95,13 @@ public class PasswordRequiredViewModel implements ViewModel {
                 mAuthDataManager.getSessionId(guid)
                         .flatMap(sessionId -> mAuthDataManager.getEncryptedPayload(guid, sessionId))
                         .subscribe(response -> {
-                            if (response.equals(Access.KEY_AUTH_REQUIRED)) {
+                            if (response.equals(WalletPayload.KEY_AUTH_REQUIRED)) {
                                 showCheckEmailDialog();
                                 mCompositeSubscription.add(
                                         mAuthDataManager.startPollingAuthStatus(guid).subscribe(payloadResponse -> {
                                             mWaitingForAuth = false;
 
-                                            if (payloadResponse == null || payloadResponse.equals(Access.KEY_AUTH_REQUIRED)) {
+                                            if (payloadResponse == null || payloadResponse.equals(WalletPayload.KEY_AUTH_REQUIRED)) {
                                                 showErrorToastAndRestartApp(R.string.auth_failed);
                                                 return;
 

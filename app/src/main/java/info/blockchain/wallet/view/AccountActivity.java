@@ -39,6 +39,7 @@ import android.widget.FrameLayout;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.api.AddressInfo;
 import info.blockchain.wallet.account_manager.AccountAdapter;
 import info.blockchain.wallet.account_manager.AccountItem;
 import info.blockchain.wallet.connectivity.ConnectivityStatus;
@@ -50,7 +51,6 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.PayloadManager;
-import info.blockchain.wallet.util.AddressInfo;
 import info.blockchain.wallet.util.AppUtil;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.ExchangeRateFactory;
@@ -959,7 +959,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
             @Override
             public void run() {
                 Looper.prepare();
-                JSONObject info = AddressInfo.getInstance().getAddressInfo(legacyAddress.getAddress(), "&limit=0");//limit 0 tx, since we only want final balance
+                JSONObject info = new AddressInfo().getAddressInfo(legacyAddress.getAddress(), "&limit=0");//limit 0 tx, since we only want final balance
 
                 long balance = 0l;
                 if (info != null)

@@ -48,6 +48,7 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import info.blockchain.api.TransactionDetails;
 import info.blockchain.wallet.multiaddr.MultiAddrFactory;
 import info.blockchain.wallet.payload.PayloadBridge;
 import info.blockchain.wallet.payload.Transaction;
@@ -55,6 +56,7 @@ import info.blockchain.wallet.payload.Tx;
 import info.blockchain.wallet.util.DateUtil;
 import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.PrefsUtil;
+import info.blockchain.wallet.util.SSLVerifyUtil;
 import info.blockchain.wallet.util.WebUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
 import info.blockchain.wallet.viewModel.BalanceViewModel;
@@ -264,22 +266,22 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
     }
 
     /**
-     * Only available for Dogfood build
+     * Only available for Dogfood/Debug build
      */
     private void initDebugFab() {
 
-        if(BuildConfig.DOGFOOD) {
+        if(BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
             binding.fabDebug.setVisibility(View.VISIBLE);
 
-            com.getbase.floatingactionbutton.FloatingActionButton actionC = new com.getbase.floatingactionbutton.FloatingActionButton(context);
-            actionC.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
-            actionC.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+            com.getbase.floatingactionbutton.FloatingActionButton actionA = new com.getbase.floatingactionbutton.FloatingActionButton(context);
+            actionA.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+            actionA.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
             Drawable debugIcon = context.getResources().getDrawable(R.drawable.icon_news);
             debugIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-            actionC.setIconDrawable(debugIcon);
-            actionC.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
-            actionC.setTitle("Show Payload");
-            actionC.setOnClickListener(v -> {
+            actionA.setIconDrawable(debugIcon);
+            actionA.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+            actionA.setTitle("Show Payload");
+            actionA.setOnClickListener(v -> {
                 AlertDialog dialog = null;
                 try {
                     dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
@@ -293,19 +295,19 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 textView.setTextSize(9);
             });
 
-            com.getbase.floatingactionbutton.FloatingActionButton actionD = new com.getbase.floatingactionbutton.FloatingActionButton(context);
-            actionD.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
-            actionD.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+            com.getbase.floatingactionbutton.FloatingActionButton actionB = new com.getbase.floatingactionbutton.FloatingActionButton(context);
+            actionB.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+            actionB.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
             debugIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-            actionD.setIconDrawable(debugIcon);
-            actionD.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
-            actionD.setTitle("Show Wallet Data");
-            actionD.setOnClickListener(v -> {
+            actionB.setIconDrawable(debugIcon);
+            actionB.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+            actionB.setTitle("Show unparsed wallet data");
+            actionB.setOnClickListener(v -> {
                 AlertDialog dialog = null;
                 try {
                     dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
-                            .setTitle("Wallet Data")
-                            .setMessage(new JSONObject(viewModel.getPayloadManager().getBciWallet().getWalletData()).toString(4))
+                            .setTitle("Unparsed wallet data")
+                            .setMessage(new JSONObject(viewModel.getPayloadManager().getBciWallet().getUnparsedWalletData()).toString(4))
                             .show();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -314,8 +316,26 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                 textView.setTextSize(9);
             });
 
+            com.getbase.floatingactionbutton.FloatingActionButton actionC = new com.getbase.floatingactionbutton.FloatingActionButton(context);
+            actionC.setColorNormal(getResources().getColor(R.color.blockchain_receive_green));
+            actionC.setSize(com.getbase.floatingactionbutton.FloatingActionButton.SIZE_MINI);
+            debugIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            actionC.setIconDrawable(debugIcon);
+            actionC.setColorPressed(getResources().getColor(R.color.blockchain_green_50));
+            actionC.setTitle("Show parsed wallet data");
+            actionC.setOnClickListener(v -> {
+                AlertDialog dialog = null;
+                dialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                        .setTitle("Parsed wallet data")
+                        .setMessage(viewModel.getPayloadManager().getBciWallet().toString())
+                        .show();
+                TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+                textView.setTextSize(9);
+            });
+
+            binding.fabDebug.addButton(actionA);
+            binding.fabDebug.addButton(actionB);
             binding.fabDebug.addButton(actionC);
-            binding.fabDebug.addButton(actionD);
         }else{
             binding.fabDebug.setVisibility(View.GONE);
         }
@@ -609,102 +629,88 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
                         }
                     });
                 } else {
-                    new AsyncTask<Void, Void, String>() {
+                    new AsyncTask<Void, Void, Transaction>() {
 
                         @Override
-                        protected String doInBackground(Void... params) {
+                        protected Transaction doInBackground(Void... params) {
 
-                            String stringResult = null;
                             try {
-                                stringResult = WebUtil.getInstance().getURL(WebUtil.TRANSACTION + strTx + "?format=json");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                return new TransactionDetails().getTransactionDetails(strTx);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                return null;
                             }
-
-                            return stringResult;
                         }
 
                         @Override
-                        protected void onPostExecute(String stringResult) {
-                            super.onPostExecute(stringResult);
+                        protected void onPostExecute(Transaction transactionDetails) {
+                            super.onPostExecute(transactionDetails);
 
-                            if (stringResult != null) {
+                            if(transactionDetails == null)return;
 
-                                //Get transaction details
-                                Transaction transactionDetails = null;
-                                try {
-//                                    Log.v("", "stringResult: " + stringResult);
-                                    transactionDetails = new Transaction(new JSONObject(stringResult));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                progressView.setVisibility(View.GONE);
+                            progressView.setVisibility(View.GONE);
 
-                                //Fee
-                                String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-                                String fee = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
-                                if (isBTC)
-                                    fee = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
-                                tvFee.setText(fee);
+                            //Fee
+                            String strFiat = prefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
+                            String fee = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (transactionDetails.getFee() / 1e8)) + " " + strFiat);
+                            if (isBTC)
+                                fee = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(transactionDetails.getFee()) + " " + viewModel.getDisplayUnits());
+                            tvFee.setText(fee);
 
-                                //Filter non-change addresses
-                                Pair<HashMap<String, Long>, HashMap<String, Long>> pair = viewModel.filterNonChangeAddresses(transactionDetails, transactionSummary);
+                            //Filter non-change addresses
+                            Pair<HashMap<String, Long>, HashMap<String, Long>> pair = viewModel.filterNonChangeAddresses(transactionDetails, transactionSummary);
 
-                                //From
-                                HashMap<String,Long> inputMap = pair.first;
+                            //From
+                            HashMap<String,Long> inputMap = pair.first;
 
-                                //TODO start- Product team considering separate fields
-                                ArrayList<String> labelList = new ArrayList<String>();
-                                Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
-                                for(Map.Entry<String, Long> set : entrySet){
-                                    String label = viewModel.addressToLabel(set.getKey());
-                                    if(!labelList.contains(label))
-                                        labelList.add(label);
-                                }
-
-                                String inputMapString = StringUtils.join(labelList.toArray(), "\n");
-                                tvOutAddr.setText(viewModel.addressToLabel(inputMapString));
-                                //todo end
-
-                                //To Address
-                                HashMap<String,Long> outputMap = pair.second;
-                                toAddressContainer.removeAllViews();
-
-                                for (Map.Entry<String, Long> item : outputMap.entrySet()) {
-
-                                    View v = LayoutInflater.from(context).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
-                                    TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
-
-                                    TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
-                                    toAddressContainer.addView(v);
-
-                                    tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
-                                    long amount = item.getValue();
-                                    String amountS = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
-                                    if (isBTC)
-                                        amountS = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
-
-                                    tvFee.setText(fee);
-                                    tvToAddrTotal.setText(amountS);
-                                }
-
-                                tvStatus.setTag(strConfirmations);
-
-                                if (transactionSummary.getConfirmations() >= nbConfirmations) {
-                                    ivStatus.setImageResource(R.drawable.ic_done_grey600_24dp);
-                                    tvStatus.setText(getString(R.string.COMPLETE));
-                                } else {
-                                    ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
-                                    tvStatus.setText(getString(R.string.PENDING));
-                                }
-                                tvOutAddr.setVisibility(View.VISIBLE);
-                                toAddressContainer.setVisibility(View.VISIBLE);
-                                tvStatus.setVisibility(View.VISIBLE);
-                                ivStatus.setVisibility(View.VISIBLE);
+                            //TODO start- Product team considering separate fields
+                            ArrayList<String> labelList = new ArrayList<String>();
+                            Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
+                            for(Map.Entry<String, Long> set : entrySet){
+                                String label = viewModel.addressToLabel(set.getKey());
+                                if(!labelList.contains(label))
+                                    labelList.add(label);
                             }
+
+                            String inputMapString = StringUtils.join(labelList.toArray(), "\n");
+                            tvOutAddr.setText(viewModel.addressToLabel(inputMapString));
+                            //todo end
+
+                            //To Address
+                            HashMap<String,Long> outputMap = pair.second;
+                            toAddressContainer.removeAllViews();
+
+                            for (Map.Entry<String, Long> item : outputMap.entrySet()) {
+
+                                View v = LayoutInflater.from(context).inflate(R.layout.include_tx_details_to, toAddressContainer, false);
+                                TextView tvToAddr = (TextView) v.findViewById(R.id.tx_to_addr);
+
+                                TextView tvToAddrTotal = (TextView) v.findViewById(R.id.tx_to_addr_total);
+                                toAddressContainer.addView(v);
+
+                                tvToAddr.setText(viewModel.addressToLabel(item.getKey()));
+                                long amount = item.getValue();
+                                String amountS = (viewModel.getMonetaryUtil().getFiatFormat(strFiat).format(btc_fx * (amount / 1e8)) + " " + strFiat);
+                                if (isBTC)
+                                    amountS = (viewModel.getMonetaryUtil().getDisplayAmountWithFormatting(amount) + " " + viewModel.getDisplayUnits());
+
+                                tvFee.setText(fee);
+                                tvToAddrTotal.setText(amountS);
+                            }
+
+                            tvStatus.setTag(strConfirmations);
+
+                            if (transactionSummary.getConfirmations() >= nbConfirmations) {
+                                ivStatus.setImageResource(R.drawable.ic_done_grey600_24dp);
+                                tvStatus.setText(getString(R.string.COMPLETE));
+                            } else {
+                                ivStatus.setImageResource(R.drawable.ic_schedule_grey600_24dp);
+                                tvStatus.setText(getString(R.string.PENDING));
+                            }
+                            tvOutAddr.setVisibility(View.VISIBLE);
+                            toAddressContainer.setVisibility(View.VISIBLE);
+                            tvStatus.setVisibility(View.VISIBLE);
+                            ivStatus.setVisibility(View.VISIBLE);
                         }
                     }.execute();
                 }
