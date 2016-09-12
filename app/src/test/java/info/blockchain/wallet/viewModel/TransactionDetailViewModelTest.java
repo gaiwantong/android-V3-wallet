@@ -1,5 +1,6 @@
 package info.blockchain.wallet.viewModel;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Intent;
 import android.support.v4.util.Pair;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@SuppressLint("UseSparseArrays")
 @SuppressWarnings("PrivateMemberAccessBetweenOuterAndInnerClass")
 public class TransactionDetailViewModelTest {
 
@@ -148,7 +150,7 @@ public class TransactionDetailViewModelTest {
         verify(mActivity).setTransactionType("MOVED");
         verify(mActivity).setTransactionColour(R.color.blockchain_transfer_blue_50);
         verify(mActivity).setDescription(null);
-        verify(mActivity).setDate("January 1, 1970 @ 01:00 AM");
+        verify(mActivity).setDate(anyString());
         verify(mActivity).pageFinish();
     }
 
@@ -183,7 +185,7 @@ public class TransactionDetailViewModelTest {
         verify(mActivity).setTransactionType("MOVED");
         verify(mActivity).setTransactionColour(R.color.blockchain_transfer_blue_50);
         verify(mActivity).setDescription(null);
-        verify(mActivity).setDate("January 1, 1970 @ 01:00 AM");
+        verify(mActivity).setDate(anyString());
         verify(mActivity).setToAddresses(any());
         verify(mActivity).setFromAddress(any());
         verify(mActivity).setFee(anyString());
