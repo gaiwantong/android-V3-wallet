@@ -18,7 +18,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import piuk.blockchain.android.BaseAuthActivity;
-import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.R;
 import piuk.blockchain.android.databinding.ActivityLandingBinding;
 
@@ -44,9 +43,11 @@ public class LandingActivity extends BaseAuthActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.app_name);
 
-        if(BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
-            binding.settingsBtn.setVisibility(View.VISIBLE);
-        }
+        //TODO - Temporarily hide this option - WIP
+//        if(BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
+//            binding.settingsBtn.setVisibility(View.VISIBLE);
+//        }
+        binding.settingsBtn.setVisibility(View.GONE);
 
         binding.create.setOnClickListener(view -> startLandingActivity(CREATE_FRAGMENT));
         binding.login.setOnClickListener(view -> startLandingActivity(LOGIN_FRAGMENT));
@@ -122,11 +123,11 @@ public class LandingActivity extends BaseAuthActivity {
                                     prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
                                     break;
                                 case 1:
-                                    urls.setDevelopmentEnvironment();
+//                                    urls.setDevelopmentEnvironment();
                                     prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 1);
                                     break;
                                 case 2:
-                                    urls.setStagingEnvironment();
+//                                    urls.setStagingEnvironment();
                                     prefsUtil.setValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 2);
                                     break;
                             }
