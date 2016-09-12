@@ -368,6 +368,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     @Override
     public void onHideReceivingAddressField() {
         binding.spDestination.setVisibility(View.GONE);
+        binding.destination.setHint(R.string.to_field_helper_no_dropdown);
     }
 
     @Override

@@ -492,6 +492,7 @@
     <string name="unsupported_encryption_version">Wallet version %1$s not supported.</string>
     <string name="logout">Logout</string>
     <string name="to_field_helper">Enter Bitcoin address or select</string>
+    <string name="to_field_helper_no_dropdown">Enter Bitcoin address</string>
 
     <string name="update">Update</string>
     <string name="mobile">Mobile</string>
