@@ -30,6 +30,7 @@ import piuk.blockchain.android.databinding.ActivityTransactionDetailsBinding;
 
 public class TransactionDetailActivity extends BaseAuthActivity implements TransactionDetailViewModel.DataListener {
 
+    // TODO: 12/09/2016 Use new API for getting Fiat value at time of transaction
     public static final String KEY_TRANSACTION_URL = "key_transaction_url";
     @Thunk ActivityTransactionDetailsBinding mBinding;
     private TransactionDetailViewModel mViewModel;
@@ -76,7 +77,7 @@ public class TransactionDetailActivity extends BaseAuthActivity implements Trans
     }
 
     @Override
-    public void onLoaded() {
+    public void onDataLoaded() {
         mBinding.mainLayout.setVisibility(View.VISIBLE);
         mBinding.loadingLayout.setVisibility(View.GONE);
     }

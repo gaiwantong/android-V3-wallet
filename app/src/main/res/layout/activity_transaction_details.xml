@@ -181,7 +181,6 @@
                             android:layout_height="match_parent"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="0.1"
-                            android:divider="@null"
                             android:spinnerMode="dropdown"
                             android:visibility="gone"
                             tools:visibility="visible" />
