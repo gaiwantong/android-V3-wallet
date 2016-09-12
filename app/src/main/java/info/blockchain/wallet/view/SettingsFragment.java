@@ -1006,7 +1006,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
                 if(!currentPw.equals(newPw)) {
                     if (currentPw.equals(walletPassword.toString())) {
                         if (newPw.equals(newConfirmedPw)) {
-                            if (newConfirmedPw == null || newConfirmedPw.length() < 9 || newConfirmedPw.length() > 255) {
+                            if (newConfirmedPw == null || newConfirmedPw.length() < 4 || newConfirmedPw.length() > 255) {
                                 ToastCustom.makeText(getActivity(), getString(R.string.invalid_password), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
                             } else if (newConfirmedPw.equals(settingsApi.getPasswordHint1())) {
                                 ToastCustom.makeText(getActivity(), getString(R.string.hint_reveals_password_error), ToastCustom.LENGTH_LONG, ToastCustom.TYPE_ERROR);
