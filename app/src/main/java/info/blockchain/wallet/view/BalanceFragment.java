@@ -225,12 +225,14 @@ public class BalanceFragment extends Fragment implements BalanceViewModel.DataLi
         binding.fab.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
             @Override
             public void onMenuExpanded() {
+                binding.balanceMainContentShadow.setVisibility(View.VISIBLE);
                 comm.setNavigationDrawerToggleEnabled(false);
             }
 
             @Override
             public void onMenuCollapsed() {
                 binding.fab.collapse();
+                binding.balanceMainContentShadow.setVisibility(View.GONE);
                 comm.setNavigationDrawerToggleEnabled(true);
             }
         });

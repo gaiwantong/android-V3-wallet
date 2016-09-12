@@ -8,10 +8,6 @@ import android.support.v4.util.Pair;
 
 import info.blockchain.wallet.datamanagers.TransactionListDataManager;
 import info.blockchain.wallet.model.RecipientModel;
-import info.blockchain.wallet.multiaddr.MultiAddrFactory;
-import info.blockchain.wallet.payload.Account;
-import info.blockchain.wallet.payload.HDWallet;
-import info.blockchain.wallet.payload.Payload;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
@@ -19,6 +15,7 @@ import info.blockchain.wallet.util.ExchangeRateFactory;
 import info.blockchain.wallet.util.MonetaryUtil;
 import info.blockchain.wallet.util.PrefsUtil;
 import info.blockchain.wallet.view.helpers.ToastCustom;
+import info.blockchain.wallet.view.helpers.TransactionHelper;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,15 +43,17 @@ public class TransactionDetailViewModel implements ViewModel {
 
     private DataListener mDataListener;
     private MonetaryUtil mMonetaryUtil;
+    @Inject TransactionHelper mTransactionHelper;
     @Inject PrefsUtil mPrefsUtil;
     @Inject PayloadManager mPayloadManager;
     @Inject info.blockchain.wallet.util.StringUtils mStringUtils;
     @Inject TransactionListDataManager mTransactionListDataManager;
+    @Inject ExchangeRateFactory mExchangeRateFactory;
 
-    private Tx mTransaction;
     private double mBtcExchangeRate;
     private String mFiatType;
 
+    @VisibleForTesting Tx mTransaction;
     @VisibleForTesting CompositeSubscription mCompositeSubscription;
 
     public interface DataListener {
@@ -85,7 +84,7 @@ public class TransactionDetailViewModel implements ViewModel {
 
         void showToast(@StringRes int message, @ToastCustom.ToastType String toastType);
 
-        void onLoaded();
+        void onDataLoaded();
 
     }
 
@@ -96,7 +95,7 @@ public class TransactionDetailViewModel implements ViewModel {
         mMonetaryUtil = new MonetaryUtil(mPrefsUtil.getValue(PrefsUtil.KEY_BTC_UNITS, MonetaryUtil.UNIT_BTC));
 
         mFiatType = mPrefsUtil.getValue(PrefsUtil.KEY_SELECTED_FIAT, PrefsUtil.DEFAULT_CURRENCY);
-        mBtcExchangeRate = ExchangeRateFactory.getInstance().getLastPrice(mFiatType);
+        mBtcExchangeRate = mExchangeRateFactory.getLastPrice(mFiatType);
     }
 
     public void onViewReady() {
@@ -142,20 +141,21 @@ public class TransactionDetailViewModel implements ViewModel {
                 mTransactionListDataManager.getTransactionFromHash(transaction.getHash())
                         .subscribe(result -> {
                             // Filter non-change addresses
-                            Pair<HashMap<String, Long>, HashMap<String, Long>> pair = filterNonChangeAddresses(result, transaction);
+                            Pair<HashMap<String, Long>, HashMap<String, Long>> pair =
+                                    mTransactionHelper.filterNonChangeAddresses(result, transaction);
 
                             // From address
                             HashMap<String, Long> inputMap = pair.first;
                             ArrayList<String> labelList = new ArrayList<>();
                             Set<Map.Entry<String, Long>> entrySet = inputMap.entrySet();
                             for (Map.Entry<String, Long> set : entrySet) {
-                                String label = addressToLabel(set.getKey());
+                                String label = mTransactionHelper.addressToLabel(set.getKey());
                                 if (!labelList.contains(label))
                                     labelList.add(label);
                             }
 
                             String inputMapString = StringUtils.join(labelList.toArray(), "\n");
-                            mDataListener.setFromAddress(addressToLabel(inputMapString));
+                            mDataListener.setFromAddress(mTransactionHelper.addressToLabel(inputMapString));
 
                             // To Address
                             HashMap<String, Long> outputMap = pair.second;
@@ -163,7 +163,7 @@ public class TransactionDetailViewModel implements ViewModel {
 
                             for (Map.Entry<String, Long> item : outputMap.entrySet()) {
                                 RecipientModel recipientModel = new RecipientModel(
-                                        addressToLabel(item.getKey()),
+                                        mTransactionHelper.addressToLabel(item.getKey()),
                                         mMonetaryUtil.getDisplayAmountWithFormatting(item.getValue()),
                                         getDisplayUnits());
                                 recipients.add(recipientModel);
@@ -171,7 +171,7 @@ public class TransactionDetailViewModel implements ViewModel {
 
                             mDataListener.setToAddresses(recipients);
                             setFee(result);
-                            mDataListener.onLoaded();
+                            mDataListener.onDataLoaded();
 
                         }, throwable -> {
                             mDataListener.pageFinish();
@@ -205,7 +205,8 @@ public class TransactionDetailViewModel implements ViewModel {
         mDataListener.setDescription(notes);
     }
 
-    private void setConfirmationStatus(Tx transaction) {
+    @VisibleForTesting
+    void setConfirmationStatus(Tx transaction) {
         long confirmations = transaction.getConfirmations();
 
         if (confirmations >= REQUIRED_CONFIRMATIONS) {
@@ -229,7 +230,8 @@ public class TransactionDetailViewModel implements ViewModel {
         mDataListener.setDate(dateText + " @ " + timeText);
     }
 
-    private void setTransactionColor(Tx transaction) {
+    @VisibleForTesting
+    void setTransactionColor(Tx transaction) {
         double btcBalance = transaction.getAmount() / 1e8;
         if (transaction.isMove()) {
             mDataListener.setTransactionColour(transaction.getConfirmations() < REQUIRED_CONFIRMATIONS
@@ -254,121 +256,5 @@ public class TransactionDetailViewModel implements ViewModel {
         // 2) processes don't try to update a null View
         // 3) background processes don't leak memory
         mCompositeSubscription.clear();
-    }
-
-    private Pair<HashMap<String, Long>, HashMap<String, Long>> filterNonChangeAddresses(Transaction transactionDetails, Tx transaction) {
-
-        HashMap<String, String> addressToXpubMap = MultiAddrFactory.getInstance().getAddress2Xpub();
-
-        HashMap<String, Long> inputMap = new HashMap<>();
-        HashMap<String, Long> outputMap = new HashMap<>();
-
-        ArrayList<String> inputXpubList = new ArrayList<>();
-
-        // Inputs / From field
-        if (transaction.getDirection().equals(MultiAddrFactory.RECEIVED) && transactionDetails.getInputs().size() > 0) {
-            // Only 1 addr for receive
-            inputMap.put(transactionDetails.getInputs().get(0).addr, transactionDetails.getInputs().get(0).value);
-        } else {
-            for (Transaction.xPut input : transactionDetails.getInputs()) {
-                if (!transaction.getDirection().equals(MultiAddrFactory.RECEIVED)) {
-                    // Move or Send
-                    // The address belongs to us
-                    String xpub = addressToXpubMap.get(input.addr);
-
-                    // Address belongs to xpub we own
-                    if (xpub != null) {
-                        // Only add xpub once
-                        if (!inputXpubList.contains(xpub)) {
-                            inputMap.put(input.addr, input.value);
-                            inputXpubList.add(xpub);
-                        }
-                    } else {
-                        // Legacy Address we own
-                        inputMap.put(input.addr, input.value);
-                    }
-                } else {
-                    // Receive
-                    inputMap.put(input.addr, input.value);
-                }
-            }
-        }
-
-        // Outputs / To field
-        for (Transaction.xPut output : transactionDetails.getOutputs()) {
-
-            if (MultiAddrFactory.getInstance().isOwnHDAddress(output.addr)) {
-                // If output address belongs to an xpub we own - we have to check if it's change
-                String xpub = addressToXpubMap.get(output.addr);
-                if (inputXpubList.contains(xpub)) {
-                    continue;// change back to same xpub
-                }
-
-                // Receiving to same address multiple times?
-                if (outputMap.containsKey(output.addr)) {
-                    long prevAmount = outputMap.get(output.addr) + output.value;
-                    outputMap.put(output.addr, prevAmount);
-                } else {
-                    outputMap.put(output.addr, output.value);
-                }
-
-            } else if (mPayloadManager.getPayload().getLegacyAddressStrings().contains(output.addr)
-                    || mPayloadManager.getPayload().getWatchOnlyAddressStrings().contains(output.addr)) {
-                // If output address belongs to a legacy address we own - we have to check if it's change
-                // If it goes back to same address AND if it's not the total amount sent (inputs x and y could send to output y in which case y is not receiving change, but rather the total amount)
-                if (inputMap.containsKey(output.addr) && output.value != Math.abs(transaction.getAmount())) {
-                    continue;// change back to same input address
-                }
-
-                // Output more than tx amount - change
-                if (output.value > Math.abs(transaction.getAmount())) {
-                    continue;
-                }
-
-                outputMap.put(output.addr, output.value);
-            } else {
-                // Address does not belong to us
-                if (!transaction.getDirection().equals(MultiAddrFactory.RECEIVED)) {
-                    outputMap.put(output.addr, output.value);
-                }
-            }
-        }
-
-        return new Pair<>(inputMap, outputMap);
-    }
-
-    private String addressToLabel(String address) {
-        HDWallet hdWallet = mPayloadManager.getPayload().getHdWallet();
-        List<Account> accountList = new ArrayList<>();
-        if (hdWallet != null && hdWallet.getAccounts() != null) {
-            accountList = hdWallet.getAccounts();
-        }
-
-        HashMap<String, String> addressToXpubMap = MultiAddrFactory.getInstance().getAddress2Xpub();
-
-        // If address belongs to owned xpub
-        if (MultiAddrFactory.getInstance().isOwnHDAddress(address)) {
-            String xpub = addressToXpubMap.get(address);
-            if (xpub != null) {
-                // Even though it looks like this shouldn't happen, it sometimes happens with
-                // transfers if user clicks to view details immediately.
-                // TODO - see if isOwnHDAddress could be updated to solve this
-                int accIndex = mPayloadManager.getPayload().getXpub2Account().get(xpub);
-                String label = accountList.get(accIndex).getLabel();
-                if (label != null && !label.isEmpty())
-                    return label;
-            }
-            // If address one of owned legacy addresses
-        } else if (mPayloadManager.getPayload().getLegacyAddressStrings().contains(address)
-                || mPayloadManager.getPayload().getWatchOnlyAddressStrings().contains(address)) {
-
-            Payload payload = mPayloadManager.getPayload();
-
-            String label = payload.getLegacyAddresses().get(payload.getLegacyAddressStrings().indexOf(address)).getLabel();
-            if (label != null && !label.isEmpty())
-                return label;
-        }
-
-        return address;
     }
 }
