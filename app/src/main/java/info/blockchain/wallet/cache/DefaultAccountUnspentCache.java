@@ -29,6 +29,7 @@ public class DefaultAccountUnspentCache {
     }
 
     public void setUnspentApiResponse(String xpub, JSONObject unspentApiResponse) {
+        this.xpub = xpub;
         this.unspentApiResponse = unspentApiResponse;
     }
 
