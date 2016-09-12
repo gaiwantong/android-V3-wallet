@@ -28,7 +28,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import piuk.blockchain.android.BuildConfig;
 import piuk.blockchain.android.di.Injector;
 
 public class MainViewModel implements ViewModel {
@@ -224,23 +223,23 @@ public class MainViewModel implements ViewModel {
 
         PersistentUrls urls = PersistentUrls.getInstance();
 
-        if (BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
-            PrefsUtil prefsUtil = new PrefsUtil(context);
-            int currentEnvironment = prefsUtil.getValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
+//        if (BuildConfig.DOGFOOD || BuildConfig.DEBUG) {
+//            PrefsUtil prefsUtil = new PrefsUtil(context);
+//            int currentEnvironment = prefsUtil.getValue(PrefsUtil.KEY_BACKEND_ENVIRONMENT, 0);
 
-            switch (currentEnvironment) {
-                case 0:
+//            switch (currentEnvironment) {
+//                case 0:
                     urls.setProductionEnvironment();
-                    break;
-                case 1:
-                    urls.setDevelopmentEnvironment();
-                    break;
-                case 2:
-                    urls.setStagingEnvironment();
-                    break;
-            }
-        }else{
+//                    break;
+//                case 1:
+//                    urls.setDevelopmentEnvironment();
+//                    break;
+//                case 2:
+//                    urls.setStagingEnvironment();
+//                    break;
+//            }
+//        }else{
             urls.setProductionEnvironment();
-        }
+//        }
     }
 }
