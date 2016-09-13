@@ -182,7 +182,7 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
 
         accountsAndImportedList = new ArrayList<>();
         onUpdateAccountsList();
-        accountsAdapter = new AccountAdapter(accountsAndImportedList);
+        accountsAdapter = new AccountAdapter(accountsAndImportedList, this);
         binding.accountsList.setAdapter(accountsAdapter);
 
         binding.accountsList.addOnItemTouchListener(
@@ -517,9 +517,10 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
                 String label = accountClone.get(i).getLabel();
                 String balance = getAccountBalance(i);
 
-                if (label == null || label.length() == 0) label = "Account: " + (i + 1);
+                if (label != null && label.length() > ADDRESS_LABEL_MAX_LENGTH) label = label.substring(0, ADDRESS_LABEL_MAX_LENGTH)+"...";
+                if (label == null || label.length() == 0) label = "";
 
-                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_accounthd), accountClone.get(i).isArchived(), false, defaultAccount.getXpub().equals(accountClone.get(i).getXpub())));
+                accountsAndImportedList.add(new AccountItem(label, null, balance, getResources().getDrawable(R.drawable.icon_accounthd), accountClone.get(i).isArchived(), false, defaultAccount.getXpub().equals(accountClone.get(i).getXpub())));
             }
             hdAccountsIdx = accountClone.size() - archivedCount;
         }
@@ -533,17 +534,21 @@ public class AccountActivity extends BaseAuthActivity implements AccountViewMode
             if (!payloadManager.isNotUpgraded()) {
                 //Imported Header Position
                 headerPositions.add(accountsAndImportedList.size());
-                accountsAndImportedList.add(new AccountItem(HEADERS[0], "", getResources().getDrawable(R.drawable.icon_accounthd), false, false, false));
+                accountsAndImportedList.add(new AccountItem(HEADERS[0], null, "", getResources().getDrawable(R.drawable.icon_accounthd), false, false, false));
             }
 
             legacy = iAccount.getLegacyAddresses();
             for (int j = 0; j < legacy.size(); j++) {
 
                 String label = legacy.get(j).getLabel();
+                String address = legacy.get(j).getAddress();
                 String balance = getAddressBalance(j);
-                if (label == null || label.length() == 0) label = legacy.get(j).getAddress();
 
-                accountsAndImportedList.add(new AccountItem(label, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadManager.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly(), false));
+                if (label != null && label.length() > ADDRESS_LABEL_MAX_LENGTH) label = label.substring(0, ADDRESS_LABEL_MAX_LENGTH)+"...";
+                if (label == null || label.length() == 0) label = "";
+                if (address == null || address.length() == 0) address = "";
+
+                accountsAndImportedList.add(new AccountItem(label, address, balance, getResources().getDrawable(R.drawable.icon_imported), legacy.get(j).getTag() == PayloadManager.ARCHIVED_ADDRESS, legacy.get(j).isWatchOnly(), false));
             }
         }
 

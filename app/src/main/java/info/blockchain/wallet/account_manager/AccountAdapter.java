@@ -1,6 +1,8 @@
 package info.blockchain.wallet.account_manager;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +20,11 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
 
     private static final int TYPE_IMPORTED_HEADER = -1;
     private ArrayList<AccountItem> items;
+    private Context context;
 
-    public AccountAdapter(ArrayList<AccountItem> myAccountItems) {
+    public AccountAdapter(ArrayList<AccountItem> myAccountItems, Context context) {
         this.items = myAccountItems;
+        this.context = context;
     }
 
     @Override
@@ -44,33 +48,39 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
             return;
 
         TextView title = (TextView) holder.itemView.findViewById(R.id.my_account_row_label);
+        TextView address = (TextView) holder.itemView.findViewById(R.id.my_account_row_address);
         ImageView icon = (ImageView) holder.itemView.findViewById(R.id.my_account_row_icon);
         TextView amount = (TextView) holder.itemView.findViewById(R.id.my_account_row_amount);
-        TextView archived = (TextView) holder.itemView.findViewById(R.id.my_account_row_archived);
-        TextView watchOnly = (TextView) holder.itemView.findViewById(R.id.my_account_row_watch_only);
-        TextView isDefault = (TextView) holder.itemView.findViewById(R.id.my_account_row_default);
+        TextView tag = (TextView) holder.itemView.findViewById(R.id.my_account_row_tag);
 
-        title.setText(items.get(position).getTitle());
-        amount.setText(items.get(position).getAmount());
+        title.setText(items.get(position).getLabel());
+
+        if(items.get(position).getAddress() != null) {
+            address.setText(items.get(position).getAddress());
+        }else {
+            address.setVisibility(View.GONE);
+        }
 
         if(items.get(position).isArchived()){
-            archived.setVisibility(View.VISIBLE);
-            amount.setVisibility(View.GONE);
+            amount.setText(R.string.archived_label);
+            amount.setTextColor(ContextCompat.getColor(context, R.color.blockchain_transfer_blue));
         }else{
-            archived.setVisibility(View.GONE);
-            amount.setVisibility(View.VISIBLE);
+            amount.setText(items.get(position).getAmount());
+            amount.setTextColor(ContextCompat.getColor(context, R.color.blockchain_receive_green));
         }
 
         if(items.get(position).isWatchOnly()){
-            watchOnly.setVisibility(View.VISIBLE);
-        }else{
-            watchOnly.setVisibility(View.GONE);
+            tag.setText(context.getString(R.string.watch_only));
+            tag.setTextColor(ContextCompat.getColor(context, R.color.blockchain_send_red));
         }
 
         if(items.get(position).isDefault()){
-            isDefault.setVisibility(View.VISIBLE);
-        }else{
-            isDefault.setVisibility(View.GONE);
+            tag.setText(context.getString(R.string.default_label));
+            tag.setTextColor(ContextCompat.getColor(context, R.color.blockchain_grey));
+        }
+
+        if(!items.get(position).isWatchOnly() && !items.get(position).isDefault()){
+            tag.setVisibility(View.INVISIBLE);
         }
 
         Drawable drawable = items.get(position).getIcon();
@@ -86,7 +96,7 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
     @Override
     public int getItemViewType(int position) {
 
-        String title = items.get(position).getTitle();
+        String title = items.get(position).getLabel();
         if (title.equals(AccountActivity.IMPORTED_HEADER))
             return TYPE_IMPORTED_HEADER;
 
