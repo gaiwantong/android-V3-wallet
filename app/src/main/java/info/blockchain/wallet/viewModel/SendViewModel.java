@@ -186,6 +186,7 @@ public class SendViewModel implements ViewModel {
         if (result.size() == 1) {
             //Only a single account/address available in wallet
             dataListener.onHideSendingAddressField();
+            calculateTransactionAmounts(result.get(0), null, null, null);
         }
 
         //Address Book (only included in receiving)
@@ -703,8 +704,7 @@ public class SendViewModel implements ViewModel {
                     unspentResponse = new Unspent().getUnspentOutputs(address);
             }
 
-            if(unspentResponse != null)
-                sendModel.unspentApiResponse.put(address, unspentResponse);
+            sendModel.unspentApiResponse.put(address, unspentResponse);
 
             return unspentResponse;
         }

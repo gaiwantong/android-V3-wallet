@@ -4,15 +4,17 @@ import android.graphics.drawable.Drawable;
 
 public class AccountItem {
 
-    String title;
+    String label;
+    String address;
     Drawable icon;
     String amount;
     boolean isArchived;
     boolean isWatchOnly;
     boolean isDefault;
 
-    public AccountItem(String title, String amount, Drawable icon, boolean isArchived, boolean isWatchOnly, boolean isDefault) {
-        this.title = title;
+    public AccountItem(String title, String address, String amount, Drawable icon, boolean isArchived, boolean isWatchOnly, boolean isDefault) {
+        this.label = title;
+        this.address = address;
         this.amount = amount;
         this.icon = icon;
         this.isArchived = isArchived;
@@ -20,8 +22,12 @@ public class AccountItem {
         this.isDefault = isDefault;
     }
 
-    public String getTitle() {
-        return title;
+    public String getLabel() {
+        return label;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public Drawable getIcon() {

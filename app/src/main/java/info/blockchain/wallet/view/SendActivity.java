@@ -368,6 +368,7 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     @Override
     public void onHideReceivingAddressField() {
         binding.spDestination.setVisibility(View.GONE);
+        binding.destination.setHint(R.string.to_field_helper_no_dropdown);
     }
 
     @Override
@@ -484,7 +485,6 @@ public class SendActivity extends BaseAuthActivity implements SendViewModel.Data
     @Override
     public void onUpdateBtcUnit(String unit) {
         binding.amountRow.currencyBtc.setText(unit);
-        binding.tvFeeUnit.setText(unit);
     }
 
     @Override

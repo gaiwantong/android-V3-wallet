@@ -186,7 +186,7 @@
                                     android:layout_width="50dp"
                                     android:layout_height="match_parent"
                                     android:gravity="center_vertical"
-                                    android:text="BTC"
+                                    android:text="@string/fee"
                                     android:textColor="@color/blockchain_grey"
                             />
 
@@ -204,7 +204,6 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:maxLines="1"
-                                        android:hint="@string/transaction_fee"
                                         android:inputType="number|numberDecimal"
                                         android:textColor="@{viewModel.sendModel.customFeeColor}"/>
 

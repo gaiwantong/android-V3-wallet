@@ -144,9 +144,7 @@ public class MainViewModel implements ViewModel {
 
             try {
                 JSONObject unspentResponse = new Unspent().getUnspentOutputs(xpub);
-                if(unspentResponse != null) {
-                    DefaultAccountUnspentCache.getInstance().setUnspentApiResponse(xpub, unspentResponse);
-                }
+                DefaultAccountUnspentCache.getInstance().setUnspentApiResponse(xpub, unspentResponse);
             } catch (Exception e) {
                 e.printStackTrace();
             }
