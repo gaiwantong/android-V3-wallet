@@ -1,6 +1,8 @@
 package info.blockchain.wallet.util;
 
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,7 +17,7 @@ import piuk.blockchain.android.di.Injector;
  */
 public class ExchangeRateFactory {
 
-    private static String strData = null;
+    private static JSONObject jsonObject = null;
     @Inject protected PrefsUtil mPrefsUtil;
 
     private static HashMap<String, Double> fxRates = null;
@@ -96,13 +98,17 @@ public class ExchangeRateFactory {
         return currencyLabels;
     }
 
-    public void setData(String data) {
-        strData = data;
-    }
-
     /**
      * Parse the data supplied to this instance.
      */
+    public void setData(String data) {
+        try {
+            jsonObject = new JSONObject(data);
+        } catch (JSONException e) {
+            Log.e(getClass().getSimpleName(), "setData: ", e);
+        }
+    }
+
     public void updateFxPricesForEnabledCurrencies() {
         for (String currency : currencies) {
             setFxPriceForCurrency(currency);
@@ -111,17 +117,25 @@ public class ExchangeRateFactory {
 
     private void setFxPriceForCurrency(String currency) {
         try {
-            JSONObject jsonObject = new JSONObject(strData);
-            JSONObject jsonCurr = jsonObject.getJSONObject(currency);
-            if (jsonCurr != null) {
-                double last_price = jsonCurr.getDouble("last");
-                fxRates.put(currency, last_price);
-                String symbol = jsonCurr.getString("symbol");
-                fxSymbols.put(currency, symbol);
+            if (jsonObject.has(currency)) {
+                JSONObject jsonCurr = jsonObject.getJSONObject(currency);
+                if (jsonCurr != null) {
+                    double last_price = jsonCurr.getDouble("last");
+                    fxRates.put(currency, last_price);
+                    String symbol = jsonCurr.getString("symbol");
+                    fxSymbols.put(currency, symbol);
+                }
+            } else {
+                setDefaultExchangeRate(currency);
             }
-        } catch (JSONException je) {
-            fxRates.put(currency, -1.0);
-            fxSymbols.put(currency, null);
+        } catch (JSONException e) {
+            Log.e(getClass().getSimpleName(), "setData: ", e);
+            setDefaultExchangeRate(currency);
         }
+    }
+
+    private void setDefaultExchangeRate(String currency) {
+        fxRates.put(currency, -1.0);
+        fxSymbols.put(currency, null);
     }
 }

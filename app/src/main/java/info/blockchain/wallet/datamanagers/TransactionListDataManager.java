@@ -9,6 +9,7 @@ import info.blockchain.wallet.payload.LegacyAddress;
 import info.blockchain.wallet.payload.PayloadManager;
 import info.blockchain.wallet.payload.Transaction;
 import info.blockchain.wallet.payload.Tx;
+import info.blockchain.wallet.payload.TxMostRecentDateComparator;
 import info.blockchain.wallet.rxjava.RxUtil;
 import info.blockchain.wallet.util.ListUtil;
 import info.blockchain.wallet.util.WebUtil;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class TransactionListDataManager {
             throw new IllegalArgumentException("Object must be instance of Account.class or LegacyAddress.class");
         }
 
-        Collections.sort(mTransactionList, new TxDateComparator());
+        Collections.sort(mTransactionList, new TxMostRecentDateComparator());
     }
 
     /**
@@ -84,7 +84,7 @@ public class TransactionListDataManager {
     @NonNull
     public List<Tx> insertTransactionIntoListAndReturnSorted(Tx transaction) {
         mTransactionList.add(transaction);
-        Collections.sort(mTransactionList, new TxDateComparator());
+        Collections.sort(mTransactionList, new TxMostRecentDateComparator());
         return mTransactionList;
     }
 
@@ -207,27 +207,5 @@ public class TransactionListDataManager {
         return Observable.fromCallable(() -> WebUtil.getInstance().getURL(
                 WebUtil.TRANSACTION + transactionHash + "?format=json"))
                 .observeOn(Schedulers.io());
-    }
-
-    private class TxDateComparator implements Comparator<Tx> {
-
-        TxDateComparator() {
-            // Empty constructor
-        }
-
-        public int compare(Tx t1, Tx t2) {
-
-            final int BEFORE = -1;
-            final int EQUAL = 0;
-            final int AFTER = 1;
-
-            if (t2.getTS() < t1.getTS()) {
-                return BEFORE;
-            } else if (t2.getTS() > t1.getTS()) {
-                return AFTER;
-            } else {
-                return EQUAL;
-            }
-        }
     }
 }
